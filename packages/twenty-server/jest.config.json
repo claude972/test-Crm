@@ -1,0 +1,7 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "testMatch": ["**/*.{test,spec}.{ts,js}"],
+  "transform": { "^.+\\.(t|j)s$": "ts-jest" },
+  "coverageDirectory": "../coverage",
+  "testEnvironment": "node"
+}

@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kovaa_crm
+      POSTGRES_USER: kovaa
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - kovaa_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kovaa -d kovaa_crm"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: packages/twenty-server/Dockerfile
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://kovaa:secret@postgres:5432/kovaa_crm
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: sh -c "npm run migrate && npm run seed && npm run dev"
+
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    command: sh -c "cd apps/crm/ui && npm install && npm run dev"
+
+volumes:
+  kovaa_pg_data:

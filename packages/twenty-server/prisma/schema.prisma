@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL", "postgresql://kovaa:secret@localhost:5432/kovaa_crm")
+}
+
+model Workspace {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  people     Person[]
+  companies  Company[]
+  opportunities Opportunity[]
+  forms      Form[]
+  calendarEvents CalendarEvent[]
+  conversations Conversation[]
+  botSessions  BotSession[]
+}
+
+model Person {
+  id          String   @id @default(cuid())
+  workspaceId String
+  firstName   String
+  lastName    String?
+  email       String?
+  phone       String?
+  company     String?
+  stage       String   @default("new")
+  tags        String[] @default([])
+  notes       String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  workspace Workspace @relation(fields: ["workspaceId"], references: ["id"])
+  opportunities Opportunity[]
+  botSessions   BotSession[]
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  website     String?
+  industry    String?
+  employees   Int?
+  notes       String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  workspace Workspace @relation(fields: ["workspaceId"], references: ["id"])
+}
+
+model Opportunity {
+  id          String   @id @default(cuid())
+  workspaceId String
+  personId    String
+  companyId   String?
+  title       String
+  value       Float    @default(0)
+  stage       String   @default("discovery")
+  closeDate   DateTime?
+  notes       String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  workspace Workspace @relation(fields: ["workspaceId"], references: ["id"])
+  person    Person   @relation(fields: ["personId"], references: ["id"])
+}
+
+model Form {
+  id          String   @id @default(cuid())
+  workspaceId String
+  title       String
+  description String   @default("")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  workspace   Workspace @relation(fields: ["workspaceId"], references: ["id"])
+  questions   Question[]
+  responses   FormResponse[]
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  formId      String
+  label       String
+  type        String
+  required    Boolean  @default(false)
+  options     String[] @default([])
+  order       Int      @default(0)
+  form        Form     @relation(fields: ["formId"], references: ["id"], onDelete: Cascade)
+}
+
+model FormResponse {
+  id          String   @id @default(cuid())
+  formId      String
+  personId    String?
+  answers     Map<String, String> @default({})
+  submittedAt DateTime @default(now())
+  form        Form     @relation(fields: ["formId"], references: ["id"])
+  person      Person?  @relation(fields: ["personId"], references: ["id"])
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  workspaceId String
+  personId    String?
+  opportunityId String?
+  title       String
+  description String   @default("")
+  startTime   DateTime
+  endTime     DateTime
+  location    String?
+  type        String   @default("meeting")
+  status      String   @default("scheduled")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  workspace  Workspace @relation(fields: ["workspaceId"], references: ["id"])
+  person     Person?  @relation(fields: ["personId"], references: ["id"])
+  opportunity Opportunity? @relation(fields: ["opportunityId"], references: ["id"])
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  workspaceId String
+  personId    String?
+  title       String?
+  messages    String   @default("[]")
+  lastActivity DateTime?
+  status      String   @default("open")
+  channel     String   @default("webchat")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workspace Workspace @relation(fields: ["workspaceId"], references: ["id"])
+  person    Person?  @relation(fields: ["personId"], references: ["id"])
+}
+
+model BotSession {
+  id          String   @id @default(cuid())
+  workspaceId String
+  personId    String?
+  conversationId String?
+  messages    String   @default("[]")
+  driver      String   @default("openai")
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workspace    Workspace @relation(fields: ["workspaceId"], references: ["id"])
+  person       Person?  @relation(fields: ["personId"], references: ["id"])
+  conversation Conversation? @relation(fields: ["conversationId"], references: ["id"])
+}

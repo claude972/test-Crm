@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "strict": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "src/*": ["packages/twenty-server/src/*"]
+    }
+  },
+  "include": [
+    "packages/twenty-server/src/modules/bot/**/*.ts"
+  ],
+  "exclude": [
+    "packages/twenty-server/src/modules/messaging",
+    "packages/twenty-server/src/modules/calendar"
+  ]
+}
