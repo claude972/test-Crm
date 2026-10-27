@@ -42,7 +42,7 @@ export class CalDavCreateEventService implements CalendarEventCreationDriver {
       }
 
       const uid = uuid();
-      const calendar = ical({ prodId: '//KovaaLab CRM//Calendar//EN' });
+      const calendar = ical({ prodId: '//KovaaLabCRM//Calendar//EN' });
 
       calendar.createEvent({
         id: uid,

@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { isDefined } from 'kovaa-lab-shared/utils';
+import { isDefined } from 'src/shared/utils';
 import { Repository } from 'typeorm';
 
 import { InjectCacheStorage } from 'src/engine/core-modules/cache-storage/decorators/cache-storage.decorator';
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { type ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
@@ -30,7 +30,7 @@ import { MessagingSaveMessagesAndEnqueueContactCreationService } from 'src/modul
 import { filterEmails } from 'src/modules/messaging/message-import-manager/utils/filter-emails.util';
 import { MessagingMonitoringService } from 'src/modules/messaging/monitoring/services/messaging-monitoring.service';
 import { type WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
-import { MessageChannelSyncStage } from 'kovaa-lab-shared/types';
+import { MessageChannelSyncStage } from 'src/shared/types';
 
 @Injectable()
 export class MessagingMessagesImportService {
@@ -53,7 +53,7 @@ export class MessagingMessagesImportService {
     private readonly userWorkspaceRepository: Repository<UserWorkspaceEntity>,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async processMessageBatchImport(
@@ -66,7 +66,7 @@ export class MessagingMessagesImportService {
 
     const messagesGetBatchSize =
       batchSize ??
-      this.kovaa-labConfigService.get('MESSAGING_MESSAGES_GET_BATCH_SIZE');
+      this.kovaaLabConfigService.get('MESSAGING_MESSAGES_GET_BATCH_SIZE');
 
     const authContext = buildSystemAuthContext(workspaceId);
 

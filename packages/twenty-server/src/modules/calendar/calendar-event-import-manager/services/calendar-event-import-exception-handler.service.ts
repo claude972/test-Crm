@@ -7,8 +7,8 @@ import {
   ConnectedAccountRefreshAccessTokenExceptionCode,
 } from 'src/engine/metadata-modules/connected-account/exceptions/connected-account-refresh-tokens.exception';
 import {
-  type KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
+  type KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
 } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
 import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
 import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
@@ -42,7 +42,7 @@ export class CalendarEventImportErrorHandlerService {
   public async handleDriverException(
     exception:
       | CalendarEventImportDriverException
-      | KovaaLab CRMOrmException
+      | KovaaLabCRMOrmException
       | ConnectedAccountRefreshAccessTokenException,
     syncStep: CalendarEventImportSyncStep,
     calendarChannel: Pick<CalendarChannelEntity, 'id' | 'throttleFailureCount'>,
@@ -56,8 +56,8 @@ export class CalendarEventImportErrorHandlerService {
           workspaceId,
         );
         break;
-      case KovaaLab CRMOrmExceptionCode.QUERY_READ_TIMEOUT:
-      case KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR:
+      case KovaaLabCRMOrmExceptionCode.QUERY_READ_TIMEOUT:
+      case KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR:
       case CalendarEventImportDriverExceptionCode.TEMPORARY_ERROR:
       case ConnectedAccountRefreshAccessTokenExceptionCode.TEMPORARY_NETWORK_ERROR:
         await this.handleTemporaryException(

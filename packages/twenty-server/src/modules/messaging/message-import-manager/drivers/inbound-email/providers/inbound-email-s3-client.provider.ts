@@ -3,17 +3,17 @@ import { Injectable } from '@nestjs/common';
 import { S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
 import { isNonEmptyString } from '@sniptt/guards';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
 import { buildAwsRequestHandlerOptions } from 'src/utils/aws-request-handler.util';
 
 @Injectable()
 export class InboundEmailS3ClientProvider {
   private s3Client: S3Client | null = null;
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   getBucket(): string {
-    const bucket = this.kovaa-labConfigService.get('STORAGE_S3_NAME');
+    const bucket = this.kovaaLabConfigService.get('STORAGE_S3_NAME');
 
     if (!isNonEmptyString(bucket)) {
       throw new Error(
@@ -29,7 +29,7 @@ export class InboundEmailS3ClientProvider {
       return this.s3Client;
     }
 
-    const region = this.kovaa-labConfigService.get('STORAGE_S3_REGION');
+    const region = this.kovaaLabConfigService.get('STORAGE_S3_REGION');
 
     if (!isNonEmptyString(region)) {
       throw new Error('STORAGE_S3_REGION must be set to use email group.');
@@ -40,16 +40,16 @@ export class InboundEmailS3ClientProvider {
       requestHandler: buildAwsRequestHandlerOptions(),
     };
 
-    const endpoint = this.kovaa-labConfigService.get('STORAGE_S3_ENDPOINT');
+    const endpoint = this.kovaaLabConfigService.get('STORAGE_S3_ENDPOINT');
 
     if (isNonEmptyString(endpoint)) {
       config.endpoint = endpoint;
     }
 
-    const accessKeyId = this.kovaa-labConfigService.get(
+    const accessKeyId = this.kovaaLabConfigService.get(
       'STORAGE_S3_ACCESS_KEY_ID',
     );
-    const secretAccessKey = this.kovaa-labConfigService.get(
+    const secretAccessKey = this.kovaaLabConfigService.get(
       'STORAGE_S3_SECRET_ACCESS_KEY',
     );
 

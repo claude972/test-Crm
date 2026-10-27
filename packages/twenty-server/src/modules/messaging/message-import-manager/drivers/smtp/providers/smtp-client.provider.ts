@@ -5,14 +5,14 @@ import { createTransport, type Transporter } from 'nodemailer';
 
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 
-import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
-import { isDefined } from 'kovaa-lab-shared/utils';
+import { ConnectedAccountProvider } from 'src/shared/types';
+import { isDefined } from 'src/shared/utils';
 import { Repository } from 'typeorm';
 
 import { buildMailServerCertificateOptions } from 'src/engine/core-modules/imap-smtp-caldav-connection/utils/build-mail-server-certificate-options.util';
 import { buildSmtpTlsOptions } from 'src/engine/core-modules/imap-smtp-caldav-connection/utils/build-smtp-tls-options.util';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.service';
 
@@ -20,7 +20,7 @@ import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modu
 export class SmtpClientProvider {
   constructor(
     private readonly secureHttpClientService: SecureHttpClientService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly connectedAccountTokenEncryptionService: ConnectedAccountTokenEncryptionService,
     @InjectRepository(ConnectedAccountEntity)
     private readonly connectedAccountRepository: Repository<ConnectedAccountEntity>,
@@ -63,7 +63,7 @@ export class SmtpClientProvider {
       },
       tls: buildMailServerCertificateOptions({
         host: smtpParams.host,
-        isSelfSignedCertificateAllowed: this.kovaa-labConfigService.get(
+        isSelfSignedCertificateAllowed: this.kovaaLabConfigService.get(
           'IMAP_SMTP_ALLOW_SELF_SIGNED',
         ),
       }),

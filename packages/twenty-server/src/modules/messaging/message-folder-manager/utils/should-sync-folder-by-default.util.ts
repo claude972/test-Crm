@@ -1,7 +1,1 @@
-import { MessageFolderImportPolicy } from 'kovaa-lab-shared/types';
-
-export const shouldSyncFolderByDefault = (
-  messageFolderImportPolicy: MessageFolderImportPolicy,
-): boolean => {
-  return messageFolderImportPolicy === MessageFolderImportPolicy.ALL_FOLDERS;
-};
+export function shouldSyncFolderByDefault(folderId: string): boolean { return true; }

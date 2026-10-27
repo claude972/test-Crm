@@ -2,11 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { isNonEmptyString } from '@sniptt/guards';
-import { MessageChannelType } from 'kovaa-lab-shared/types';
-import { isDefined } from 'kovaa-lab-shared/utils';
+import { MessageChannelType } from 'src/shared/types';
+import { isDefined } from 'src/shared/utils';
 import { In, Repository } from 'typeorm';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
@@ -32,7 +32,7 @@ export class InboundEmailImportService {
   private readonly logger = new Logger(InboundEmailImportService.name);
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly inboundEmailMessageSourceResolverService: InboundEmailMessageSourceResolverService,
     private readonly workspaceOrmManager: WorkspaceOrmManager,
     private readonly messagingSaveMessagesAndEnqueueContactCreationService: MessagingSaveMessagesAndEnqueueContactCreationService,
@@ -47,7 +47,7 @@ export class InboundEmailImportService {
   ): Promise<InboundEmailImportOutcome> {
     const { messageReference, envelopeRecipients } = params;
 
-    const inboundEmailDomain = this.kovaa-labConfigService.get(
+    const inboundEmailDomain = this.kovaaLabConfigService.get(
       'INBOUND_EMAIL_DOMAIN',
     );
 

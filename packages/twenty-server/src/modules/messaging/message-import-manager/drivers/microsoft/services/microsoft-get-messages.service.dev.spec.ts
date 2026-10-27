@@ -1,9 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, type TestingModule } from '@nestjs/testing';
 
-import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
+import { ConnectedAccountProvider } from 'src/shared/types';
 
-import { KovaaLab CRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
+import { KovaaLabCRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
 import { MicrosoftOAuth2ClientProvider } from 'src/modules/connected-account/oauth2-client-manager/drivers/microsoft/microsoft-oauth2-client.provider';
 import { MicrosoftFetchByBatchService } from 'src/modules/messaging/message-import-manager/drivers/microsoft/services/microsoft-fetch-by-batch.service';
 import { MicrosoftGetMessagesService } from 'src/modules/messaging/message-import-manager/drivers/microsoft/services/microsoft-get-messages.service';
@@ -23,7 +23,7 @@ xdescribe('Microsoft dev tests : get messages service', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [KovaaLab CRMConfigModule.forRoot()],
+      imports: [KovaaLabCRMConfigModule.forRoot()],
       providers: [
         MicrosoftGetMessagesService,
         {
