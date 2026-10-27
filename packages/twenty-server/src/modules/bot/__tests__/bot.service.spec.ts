@@ -122,7 +122,7 @@ describe('BotService', () => {
     });
 
     it('should return error when Calendrier fails', async () => {
-      calendarRdvService.createRDV.mockRejectedValue(
+      (calendarRdvService.createRDV as any).mockRejectedValue(
         new Error('Calendar Error')
       );
 
