@@ -1,0 +1,1 @@
+export const KOVAALAB_STANDARD_APPLICATION_NAME = 'Standard';

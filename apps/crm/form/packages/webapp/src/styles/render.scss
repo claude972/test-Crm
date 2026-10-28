@@ -1,0 +1,147 @@
+
+@import '@kovaa-lab/form-renderer/style.css';
+
+.kovaa-lab-layout-float_left img,
+.kovaa-lab-layout-float_right img {
+  border-radius: 1rem;
+}
+
+.kovaa-lab-layout-split_left img {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.kovaa-lab-layout-split_right img {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+#kovaa-lab-render-root {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  max-width: 100vw;
+  background: transparent;
+}
+
+#kovaa-lab-render-root {
+  position: relative;
+  font-family: var(--kovaa-lab-font-family);
+  background-color: var(--kovaa-lab-report-background-color);
+}
+
+.grecaptcha-badge {
+  bottom: 4rem !important;
+  z-index: 20;
+}
+
+// Report
+.kovaa-lab-report {
+  @apply text-sm;
+}
+
+.kovaa-lab-report-heading {
+  @apply text-3xl font-bold;
+  color: var(--kovaa-lab-report-heading);
+}
+
+.kovaa-lab-report-subheading {
+  @apply pb-4 text-sm/6 font-medium;
+  color: var(--kovaa-lab-report-heading-a60);
+}
+
+.kovaa-lab-report-question {
+  @apply text-sm/6 font-medium;
+  color: var(--kovaa-lab-report-question);
+}
+
+.kovaa-lab-report-meta {
+  @apply text-xs/6;
+  color: var(--kovaa-lab-report-question-a60);
+}
+
+.kovaa-lab-report-content {
+  @apply mt-2;
+}
+
+.kovaa-lab-report-chart {
+  @apply space-y-2;
+}
+
+.kovaa-lab-report-chart-item {
+  @apply relative rounded-md px-3 py-2 text-sm/6;
+  background: var(--kovaa-lab-report-chart-a025);
+}
+
+.kovaa-lab-report-chart-background {
+  @apply pointer-events-none absolute bottom-0 left-0 top-0 rounded-md;
+  background: var(--kovaa-lab-report-chart-a15);
+}
+
+.kovaa-lab-report-chart-content {
+  @apply relative flex items-center justify-between;
+  color: var(--kovaa-lab-report-question);
+}
+
+.kovaa-lab-report-chart-percent {
+  @apply font-medium;
+}
+
+.kovaa-lab-report-chart-count {
+  @apply text-xs/6;
+  color: var(--kovaa-lab-report-question-a60);
+}
+
+.kovaa-lab-report-border,
+.kovaa-lab-report-divide > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--kovaa-lab-report-question-a05);
+}
+
+.kovaa-lab-report-answer {
+  @apply flex items-center justify-between gap-4 py-2 text-sm/6;
+}
+
+.kovaa-lab-report-value {
+  @apply min-w-0 flex-1 whitespace-pre-line;
+  color: var(--kovaa-lab-report-question);
+}
+
+.kovaa-lab-report-datetime {
+  @apply text-xs;
+  color: var(--kovaa-lab-report-question-a60);
+}
+
+.kovaa-lab-report-input-value {
+  @apply whitespace-nowrap py-2 text-sm/6;
+  color: var(--kovaa-lab-report-question);
+}
+
+.kovaa-lab-report-input-datetime {
+  @apply whitespace-nowrap py-2 text-right text-xs/6;
+  color: var(--kovaa-lab-report-question-a60);
+}
+
+.kovaa-lab-report-pagination {
+  @apply mt-2 border-t py-2;
+  border-color: var(--kovaa-lab-report-question-a05);
+
+  [data-slot='info'] {
+    color: var(--kovaa-lab-report-question);
+  }
+
+  button {
+    border-color: rgba(0, 0, 0, 0.1);
+
+    &,
+    &:hover {
+      background: var(--kovaa-lab-report-question);
+      color: var(--kovaa-lab-report-button-text);
+    }
+
+    &:hover {
+      @apply opacity-80;
+    }
+  }
+}

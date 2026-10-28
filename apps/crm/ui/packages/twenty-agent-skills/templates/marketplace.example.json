@@ -1,0 +1,20 @@
+{
+  "name": "kovaa-lab-local",
+  "interface": {
+    "displayName": "KovaaLab CRM Local"
+  },
+  "plugins": [
+    {
+      "name": "kovaa-lab",
+      "category": "Coding",
+      "source": {
+        "source": "local",
+        "path": "./packages/kovaa-lab-agent-skills/dist"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    }
+  ]
+}

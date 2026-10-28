@@ -1,0 +1,7 @@
+packages:
+  - 'packages/server'
+  - 'packages/webapp'
+  - 'packages/form-renderer'
+  - 'packages/utils'
+  - 'packages/shared-types-enums'
+  - 'packages/answer-utils'

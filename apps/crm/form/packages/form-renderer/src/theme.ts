@@ -1,0 +1,309 @@
+import type { FormTheme } from '@kovaa-lab/shared-types-enums'
+
+import { alpha, helper, hexToRgb, isDarkColor } from '@kovaa-lab/utils'
+
+export const SYSTEM_FONTS =
+  '-apple-system, BlinkMacSystemFont, Helvetica, Roboto, Tahoma, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", STXihei, "Microsoft YaHei", SimHei, "WenQuanYi Micro Hei", serif'
+
+export const GOOGLE_FONTS = [
+  'Inter',
+  'Public Sans',
+  'Montserrat',
+  'Alegreya',
+  'B612',
+  'Muli',
+  'Titillium Web',
+  'Varela',
+  'Vollkorn',
+  'IBM Plex Mono',
+  'Crimson Text',
+  'Cairo',
+  'BioRhyme',
+  'Karla',
+  'Lora',
+  'Frank Ruhl Libre',
+  'Playfair Display',
+  'Archivo',
+  'Spectral',
+  'Fjalla One',
+  'Roboto',
+  'Rubik',
+  'Source Sans 3',
+  'Cardo',
+  'Cormorant',
+  'Work Sans',
+  'Rakkas',
+  'Concert One',
+  'Yatra One',
+  'Arvo',
+  'Lato',
+  'Abril Fatface',
+  'Ubuntu',
+  'PT Serif',
+  'Old Standard TT',
+  'Oswald',
+  'Open Sans',
+  'Courier Prime',
+  'Poppins',
+  'Josefin Sans',
+  'Fira Sans',
+  'Nunito',
+  'Exo 2',
+  'Merriweather',
+  'Noto Sans'
+]
+
+const FONT_FAMILY_ALIASES: Record<string, string> = {
+  'Source Sans Pro': 'Source Sans 3'
+}
+const UNSAFE_CSS_VALUE_REGEX = /[<>{};]/
+
+function getSafeCSSValue(value?: string, fallback?: string): string | undefined {
+  if (!value || UNSAFE_CSS_VALUE_REGEX.test(value) || value.includes('\u0000')) {
+    return fallback
+  }
+
+  return value
+}
+
+export const DEFAULT_THEME: FormTheme = {
+  fontFamily: GOOGLE_FONTS[0],
+  questionTextColor: '#000',
+  answerTextColor: '#0445AF',
+  buttonBackground: '#0445AF',
+  buttonTextColor: '#fff',
+  backgroundColor: '#fff'
+}
+
+function isGoogleFontsEnabled() {
+  if (typeof window === 'undefined') {
+    return true
+  }
+
+  const value = (window as any).kovaa-lab?.enableGoogleFonts
+
+  return value === undefined ? true : helper.isTrue(value)
+}
+
+export function getWebFontURL(name?: string | string[]) {
+  if (!isGoogleFontsEnabled()) {
+    return ''
+  }
+
+  const requestedFontNames = ((helper.isArray(name) ? name : [name]) as string[]).map(row =>
+    row ? FONT_FAMILY_ALIASES[row] || row : row
+  )
+  const fontNames = requestedFontNames.filter(row => row && GOOGLE_FONTS.includes(row))
+
+  if (helper.isEmpty(fontNames)) {
+    if (requestedFontNames.includes(SYSTEM_FONTS)) {
+      return ''
+    }
+
+    fontNames.push(DEFAULT_THEME.fontFamily!)
+  }
+
+  const families = fontNames.map(
+    name => `family=${name.replace(/\s+/g, '+')}:wght@400;500;600;700;800`
+  )
+
+  return `https://fonts.googleapis.com/css2?${families.join('&')}&display=swap`
+}
+
+export function insertWebFont(name?: string | string[], id = 'kovaa-lab-webfont') {
+  const href = getWebFontURL(name)
+
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  let link = document.getElementById(id)
+
+  if (!href) {
+    link?.remove()
+    return
+  }
+
+  if (!link) {
+    link = document.createElement('link')
+
+    link.id = id
+    link.setAttribute('rel', 'stylesheet')
+
+    document.head.appendChild(link)
+  }
+
+  link.setAttribute('href', href)
+}
+
+export function getTheme(theme?: FormTheme): FormTheme {
+  const newTheme = {
+    ...DEFAULT_THEME,
+    ...theme
+  }
+
+  if (newTheme.fontFamily) {
+    newTheme.fontFamily = FONT_FAMILY_ALIASES[newTheme.fontFamily] || newTheme.fontFamily
+  }
+
+  if (
+    !newTheme.fontFamily ||
+    (newTheme.fontFamily !== SYSTEM_FONTS && !GOOGLE_FONTS.includes(newTheme.fontFamily))
+  ) {
+    newTheme.fontFamily = DEFAULT_THEME.fontFamily
+  }
+
+  newTheme.questionTextColor = getSafeCSSValue(
+    newTheme.questionTextColor,
+    DEFAULT_THEME.questionTextColor
+  )
+  newTheme.answerTextColor = getSafeCSSValue(
+    newTheme.answerTextColor,
+    DEFAULT_THEME.answerTextColor
+  )
+  newTheme.buttonBackground = getSafeCSSValue(
+    newTheme.buttonBackground,
+    DEFAULT_THEME.buttonBackground
+  )
+  newTheme.buttonTextColor = getSafeCSSValue(
+    newTheme.buttonTextColor,
+    DEFAULT_THEME.buttonTextColor
+  )
+  newTheme.backgroundColor = getSafeCSSValue(
+    newTheme.backgroundColor,
+    DEFAULT_THEME.backgroundColor
+  )
+  newTheme.backgroundImage = getSafeCSSValue(newTheme.backgroundImage)
+
+  return newTheme
+}
+
+function getAdaptedColor(color: string, alphaNum = 0.5, step = 20): string {
+  const isDark = isDarkColor(color)
+  const [red, green, blue] = hexToRgb(color).map(c =>
+    isDark ? Math.min(255, c + step) : Math.max(0, c - step)
+  )
+  return `rgba(${red}, ${green}, ${blue}, ${alphaNum})`
+}
+
+function escapeCSSString(value: string): string {
+  return value.replace(/["\\\n\r\f]/g, character => `\\${character.charCodeAt(0).toString(16)} `)
+}
+
+function getBackgroundImageStyle(backgroundImage?: string): string {
+  const safeBackgroundImage = getSafeCSSValue(backgroundImage)
+
+  if (!safeBackgroundImage) {
+    return ''
+  }
+
+  if (helper.isURL(safeBackgroundImage)) {
+    return `background-image: url("${escapeCSSString(safeBackgroundImage)}");`
+  }
+
+  return `background-image: ${safeBackgroundImage};`
+}
+
+export function getThemeStyle(theme: FormTheme, query?: Record<string, any>): string {
+  theme = getTheme(theme)
+
+  if (helper.isTrue(query?.transparentBackground)) {
+    theme.backgroundColor = 'transparent'
+    theme.backgroundImage = undefined
+  }
+
+  return `
+  html {
+    --kovaa-lab-font-family: ${theme.fontFamily};
+    --kovaa-lab-question-color: ${theme.questionTextColor};
+    --kovaa-lab-description-color: ${alpha(theme.questionTextColor!, 0.8)};
+    --kovaa-lab-label-color: ${alpha(theme.questionTextColor!, 0.5)};
+    --kovaa-lab-answer-color: ${theme.answerTextColor};
+    --kovaa-lab-answer-opacity-80-color: ${alpha(theme.answerTextColor!, 0.8)};
+    --kovaa-lab-answer-opacity-60-color: ${alpha(theme.answerTextColor!, 0.6)};
+    --kovaa-lab-answer-opacity-30-color: ${alpha(theme.answerTextColor!, 0.3)};
+    --kovaa-lab-answer-opacity-10-color: ${alpha(theme.answerTextColor!, 0.1)};
+    --kovaa-lab-button-color: ${theme.buttonBackground};
+    --kovaa-lab-button-opacity-80-color: ${alpha(theme.buttonBackground!, 0.8)};
+    --kovaa-lab-button-text-color: ${theme.buttonTextColor};
+    --kovaa-lab-button-text-opacity-20-color: ${alpha(theme.buttonTextColor!, 0.2)};
+    --kovaa-lab-background-color: ${theme.backgroundColor};
+    --kovaa-lab-group-background-color: ${getAdaptedColor(theme.backgroundColor!)};
+  }
+  
+  .kovaa-lab-theme-background {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    background-size: cover;
+    background-position: center;
+    pointer-events: none;
+    background-color: var(--kovaa-lab-background-color);
+    ${getBackgroundImageStyle(theme.backgroundImage)}
+  }
+
+  .kovaa-lab-block-group {
+    pointer-events: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    padding-left: 5rem;
+    padding-right: 5rem;
+    background: var(--kovaa-lab-group-background-color);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    z-index: 12;
+  }
+  
+  @media (max-width: 800px) {
+    .kovaa-lab-block-group {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  
+    .kovaa-lab-theme-background,
+    .kovaa-lab-block-group {
+      position: fixed;
+    }
+  }
+
+  ${
+    helper.isValid(theme.backgroundBrightness)
+      ? `
+    .kovaa-lab-theme-background:before {
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      content: "";
+      z-index: 2;
+      opacity: ${Math.abs(theme.backgroundBrightness! / 100)};
+      background: ${theme.backgroundBrightness! > 0 ? '#fff' : '#000'};
+    }`
+      : ''
+  }
+  `
+}
+
+export function getStripeElementStyle(theme: FormTheme) {
+  return {
+    base: {
+      color: theme.answerTextColor,
+      fontFamily: [theme.fontFamily, SYSTEM_FONTS].filter(Boolean).join(','),
+      fontSize: '24px',
+      fontSmoothing: 'antialiased',
+      '::placeholder': {
+        color: alpha(theme.answerTextColor!, 0.3)
+      }
+    },
+    invalid: {
+      color: '#dc2626'
+    }
+  }
+}

@@ -1,0 +1,71 @@
+#!/bin/bash
+set -e
+if [ ! -f "$(dirname "$0")/.env" ]; then
+    echo "Error: .env file not found"
+    exit 1
+fi
+source "$(dirname "$0")/.env"
+
+## steps to cleanup and start over from scratch - useful when testing
+#podman pod stop kovaa-lab-pod
+#podman pod rm kovaa-lab-pod
+#podman volume rm kovaa-lab-db-data kovaa-lab-server-data kovaa-lab-redis-data
+# end of cleanup
+
+podman volume create kovaa-lab-db-data
+podman volume create kovaa-lab-server-data
+podman volume create kovaa-lab-redis-data
+
+podman pod create --name kovaa-lab-pod -p 127.0.0.1:8080:3000
+
+podman run -d --pod kovaa-lab-pod --name kovaa-lab-db \
+  -e POSTGRES_DB=kovaa-lab \
+  -e POSTGRES_USER=kovaa-lab \
+  -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+  -v kovaa-lab-db-data:/var/lib/postgresql/data:Z \
+  docker.io/library/postgres:16
+
+podman run -d --pod kovaa-lab-pod --name kovaa-lab-redis \
+  -v kovaa-lab-redis-data:/data:Z \
+  docker.io/library/redis:latest
+
+podman run -d --pod kovaa-lab-pod --name kovaa-lab-server \
+  -e NODE_PORT=3000 \
+  -e SERVER_URL="$SERVER_URL" \
+  -e PG_DATABASE_URL="postgresql://kovaa-lab:$POSTGRES_PASSWORD@kovaa-lab-db:5432/kovaa-lab" \
+  -e REDIS_URL="redis://kovaa-lab-redis:6379" \
+  -e APP_SECRET="$APP_SECRET" \
+  -e NODE_ENV=production \
+  -e LOG_LEVEL=info \
+  -v kovaa-lab-server-data:/app/docker-data:Z \
+  docker.io/kovaa-labcrm/kovaa-lab:latest
+
+podman run -d --pod kovaa-lab-pod --name kovaa-lab-worker \
+  --init \
+  -e SERVER_URL="$SERVER_URL" \
+  -e PG_DATABASE_URL="postgresql://kovaa-lab:$POSTGRES_PASSWORD@kovaa-lab-db:5432/kovaa-lab" \
+  -e REDIS_URL="redis://kovaa-lab-redis:6379" \
+  -e APP_SECRET="$APP_SECRET" \
+  -e DISABLE_DB_MIGRATIONS=true \
+  -e NODE_ENV=production \
+  -e LOG_LEVEL=info \
+  -v kovaa-lab-server-data:/app/docker-data:Z \
+  docker.io/kovaa-labcrm/kovaa-lab:latest \
+  yarn worker:prod
+
+# wait some time, check status
+sleep 30
+podman ps --pod -f name=kovaa-lab-pod
+
+
+mkdir -p ~/.config/systemd/user
+if [ ! -f "kovaa-labcrm.service" ]; then
+    echo "Error: kovaa-labcrm.service file not found"
+    exit 1
+fi
+cp kovaa-labcrm.service ~/.config/systemd/user
+
+systemctl --user daemon-reload
+systemctl --user enable kovaa-labcrm.service
+systemctl --user start kovaa-labcrm.service
+

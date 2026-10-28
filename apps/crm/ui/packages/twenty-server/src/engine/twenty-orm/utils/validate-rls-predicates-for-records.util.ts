@@ -1,0 +1,67 @@
+/* @license Enterprise */
+
+import { type ObjectRecord } from 'kovaa-lab-shared/types';
+import { isDefined } from 'kovaa-lab-shared/utils';
+import { type ObjectLiteral } from 'typeorm';
+
+import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
+
+import { isSystemAuthContext } from 'src/engine/core-modules/auth/guards/is-system-auth-context.guard';
+import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
+import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
+import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
+import {
+  KovaaLab CRMOrmException,
+  KovaaLab CRMOrmExceptionCode,
+} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+import { isRecordMatchingRLSRowLevelPermissionPredicate } from 'src/engine/kovaa-lab-orm/utils/is-record-matching-rls-row-level-permission-predicate.util';
+import { resolveRowLevelPermissionRecordFilter } from 'src/engine/kovaa-lab-orm/utils/resolve-row-level-permission-record-filter.util';
+
+type ValidateRLSPredicatesForRecordsArgs<T extends ObjectLiteral> = {
+  records: T[];
+  objectMetadata: FlatObjectMetadata;
+  internalContext: WorkspaceInternalContext;
+  authContext: WorkspaceAuthContext;
+  rolePermissionConfig: RolePermissionConfig;
+  shouldBypassPermissionChecks: boolean;
+};
+
+export const validateRLSPredicatesForRecords = <T extends ObjectLiteral>({
+  records,
+  objectMetadata,
+  internalContext,
+  authContext,
+  rolePermissionConfig,
+  shouldBypassPermissionChecks,
+}: ValidateRLSPredicatesForRecordsArgs<T>): void => {
+  if (shouldBypassPermissionChecks || isSystemAuthContext(authContext)) {
+    return;
+  }
+
+  const recordFilter = resolveRowLevelPermissionRecordFilter({
+    internalContext,
+    authContext,
+    rolePermissionConfig,
+    objectMetadata,
+  });
+
+  if (!isDefined(recordFilter)) {
+    return;
+  }
+
+  for (const record of records) {
+    const matchesRLS = isRecordMatchingRLSRowLevelPermissionPredicate({
+      record: record as unknown as ObjectRecord,
+      filter: recordFilter,
+      flatObjectMetadata: objectMetadata,
+      flatFieldMetadataMaps: internalContext.flatFieldMetadataMaps,
+    });
+
+    if (!matchesRLS) {
+      throw new KovaaLab CRMOrmException(
+        'Record does not satisfy row-level security constraints of your current role',
+        KovaaLab CRMOrmExceptionCode.RLS_VALIDATION_FAILED,
+      );
+    }
+  }
+};

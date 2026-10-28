@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: kovaa-lab-db
+    image: postgres:16
+    environment:
+      POSTGRES_DB: kovaa-lab
+      POSTGRES_USER: kovaa-lab
+      POSTGRES_PASSWORD: ${PG_DATABASE_PASSWORD}
+    volumes:
+      - kovaa-lab-db-data:/var/lib/postgresql/data:Z
+
+  redis:
+    container_name: kovaa-lab-redis
+    image: redis:latest
+    command: ["--maxmemory-policy", "noeviction"]
+    volumes:
+      - kovaa-lab-redis-data:/data:Z
+
+  server:
+    container_name: kovaa-lab-server
+    image: kovaa-labcrm/kovaa-lab:latest
+    environment:
+      NODE_PORT: "3000"
+      SERVER_URL: ${SERVER_URL}
+      PG_DATABASE_URL: "postgresql://kovaa-lab:${PG_DATABASE_PASSWORD}@kovaa-lab-db:5432/kovaa-lab"
+      REDIS_URL: "redis://kovaa-lab-redis:6379"
+      APP_SECRET: ${APP_SECRET}
+      NODE_ENV: production
+      LOG_LEVEL: info
+    volumes:
+      - kovaa-lab-server-data:/app/docker-data:Z
+    ports:
+      - 127.0.0.1:8080:3000
+
+  worker:
+    container_name: kovaa-lab-worker
+    image: kovaa-labcrm/kovaa-lab:latest
+    command: yarn worker:prod
+    environment:
+      SERVER_URL: ${SERVER_URL}
+      PG_DATABASE_URL: "postgresql://kovaa-lab:${PG_DATABASE_PASSWORD}@kovaa-lab-db:5432/kovaa-lab"
+      REDIS_URL: "redis://kovaa-lab-redis:6379"
+      APP_SECRET: ${APP_SECRET}
+      DISABLE_DB_MIGRATIONS: "true"
+      NODE_ENV: production
+      LOG_LEVEL: info
+    volumes:
+      - kovaa-lab-server-data:/app/docker-data:Z
+    init: true
+
+volumes:
+  kovaa-lab-db-data:
+  kovaa-lab-server-data:
+  kovaa-lab-redis-data:

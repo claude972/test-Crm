@@ -1,0 +1,152 @@
+import { msg } from '@lingui/core/macro';
+import {
+  IconApps,
+  IconBook,
+  IconBrandLinkedin,
+  IconBrandX,
+  IconBulb,
+  IconCode,
+  IconTag,
+  IconUsers,
+} from '@tabler/icons-react';
+
+import { DiscordMark, GitHubMark } from '@/icons';
+import { LATEST_RELEASE } from '@/platform/releases';
+import { SITE_URLS } from '@/platform/site-urls';
+
+import { type MenuNavItem } from '../types/menu-nav-item';
+import { type MenuSocialLink } from '../types/menu-social-link';
+
+const PREVIEW_DRAWING_SCALE = 1.15;
+
+export const MENU: {
+  appUrl: string;
+  navItems: readonly MenuNavItem[];
+  socialLinks: readonly MenuSocialLink[];
+} = {
+  appUrl: SITE_URLS.appWelcome,
+  navItems: [
+    { href: '/product', label: msg`Product` },
+    {
+      label: msg`Resources`,
+      children: [
+        {
+          label: msg`Why`,
+          description: msg`The story behind KovaaLab CRM`,
+          href: '/why-kovaa-lab',
+          icon: IconBulb,
+          preview: {
+            image: '/images/menu/why.webp',
+            imageAlt: msg`Why KovaaLab CRM illustration`,
+            imagePosition: 'center',
+            imageScale: PREVIEW_DRAWING_SCALE,
+            title: msg`Why teams choose KovaaLab CRM`,
+            description: msg`The principles and product philosophy behind the open source CRM.`,
+          },
+        },
+        {
+          label: msg`User Guide`,
+          description: msg`Learn how to use KovaaLab CRM`,
+          href: SITE_URLS.docsUserGuide,
+          external: true,
+          icon: IconBook,
+          preview: {
+            image: '/images/menu/user-guide.webp',
+            imageAlt: msg`KovaaLab CRM user guide preview`,
+            imagePosition: 'center',
+            imageScale: PREVIEW_DRAWING_SCALE,
+            title: msg`Master every corner of KovaaLab CRM`,
+            description: msg`Step-by-step guides and playbooks to help your team get the most out of their workspace.`,
+          },
+        },
+        {
+          label: msg`Developers`,
+          description: msg`Create apps on KovaaLab CRM`,
+          href: SITE_URLS.docsDevelopers,
+          external: true,
+          icon: IconCode,
+          preview: {
+            image: '/images/menu/developers.webp',
+            imageAlt: msg`Blue code window illustration`,
+            imagePosition: 'center',
+            imageScale: PREVIEW_DRAWING_SCALE,
+            title: msg`Build on an open platform`,
+            description: msg`APIs, SDKs and webhooks to extend KovaaLab CRM and ship apps on top of your CRM data.`,
+          },
+        },
+        {
+          label: msg`Apps`,
+          description: msg`Extend your CRM`,
+          href: '/apps',
+          icon: IconApps,
+          preview: {
+            image: '/images/menu/apps.webp',
+            imageAlt: msg`KovaaLab CRM apps marketplace`,
+            imagePosition: 'center',
+            imageScale: PREVIEW_DRAWING_SCALE,
+            title: msg`Vetted apps for your workspace`,
+            description: msg`Install call recording, enrichment, Slack, Linear and more — every app built and maintained by KovaaLab CRM.`,
+          },
+        },
+        {
+          label: msg`Partners`,
+          description: msg`Find a KovaaLab CRM partner`,
+          href: '/partners',
+          icon: IconUsers,
+          preview: {
+            image: '/images/menu/partners.webp',
+            imageAlt: msg`KovaaLab CRM partner ecosystem`,
+            imagePosition: 'center',
+            imageScale: PREVIEW_DRAWING_SCALE,
+            title: msg`Team up with a KovaaLab CRM expert`,
+            description: msg`Meet the certified agencies and consultants implementing KovaaLab CRM for teams worldwide.`,
+          },
+        },
+        {
+          label: msg`Releases`,
+          description: msg`Discover what's new`,
+          href: '/releases',
+          icon: IconTag,
+          preview: {
+            image: '/images/menu/releases.webp',
+            imageAlt: msg`Blue megaphone illustration`,
+            imagePosition: 'center',
+            imageScale: PREVIEW_DRAWING_SCALE,
+            title: msg`See what shipped in ${LATEST_RELEASE.release}`,
+            description: msg`Track every release with changelogs, highlights and demos of the newest features.`,
+          },
+        },
+      ],
+    },
+    { href: '/customers', label: msg`Customers` },
+    { href: '/pricing', label: msg`Pricing` },
+  ],
+  socialLinks: [
+    {
+      ariaLabel: msg`GitHub (opens in new tab)`,
+      href: SITE_URLS.github,
+      icon: GitHubMark,
+      showInDesktop: true,
+      statKey: 'githubStars',
+    },
+    {
+      ariaLabel: msg`Discord (opens in new tab)`,
+      href: SITE_URLS.discord,
+      icon: DiscordMark,
+      showInDesktop: true,
+      statKey: 'discordMembers',
+    },
+    {
+      ariaLabel: msg`LinkedIn (opens in new tab)`,
+      href: SITE_URLS.linkedin,
+      icon: IconBrandLinkedin,
+      showInDesktop: false,
+    },
+    {
+      ariaLabel: msg`X (opens in new tab)`,
+      href: SITE_URLS.x,
+      icon: IconBrandX,
+      showInDesktop: false,
+    },
+  ],
+};

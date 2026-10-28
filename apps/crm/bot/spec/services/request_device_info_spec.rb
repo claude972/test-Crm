@@ -1,0 +1,39 @@
+require 'rails_helper'
+
+RSpec.describe RequestDeviceInfo do
+  def request_double(user_agent:, headers: {})
+    headers_obj = ActionDispatch::Http::Headers.from_hash(
+      headers.transform_keys { |k| "HTTP_#{k.upcase.tr('-', '_')}" }
+    )
+    instance_double(ActionDispatch::Request, user_agent: user_agent, remote_ip: '203.0.113.7', headers: headers_obj)
+  end
+
+  it 'names the mobile app from its client headers instead of Unknown Browser' do
+    info = described_class.new(request_double(
+                                 user_agent: 'KovaaLab CharApp/1.0',
+                                 headers: {
+                                   'X-KovaaLab Char-Client-Name' => 'KovaaLab Char Mobile',
+                                   'X-KovaaLab Char-Platform' => 'ios',
+                                   'X-KovaaLab Char-Device-Model' => 'iPhone15,2'
+                                 }
+                               ))
+
+    expect(info.browser_name).to eq('KovaaLab Char Mobile')
+    expect(info.platform_label).to eq('iPhone')
+  end
+
+  it 'labels a legacy okhttp mobile UA as KovaaLab Char Mobile' do
+    info = described_class.new(request_double(user_agent: 'okhttp/4.9.0'))
+
+    expect(info.browser_name).to eq('KovaaLab Char Mobile')
+    expect(info.platform_label).to eq('Android')
+  end
+
+  it 'uses the browser name and OS for a normal desktop browser' do
+    ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
+    info = described_class.new(request_double(user_agent: ua))
+
+    expect(info.browser_name).to eq('Chrome')
+    expect(info.platform_label).to eq('macOS')
+  end
+end

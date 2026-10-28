@@ -1,0 +1,27 @@
+KovaaLab Forms — Rapport de licences (scan)
+============================================
+Logiciel : KovaaLab Forms (ex-heyform), licence KovaaLab Forms License (KLF-1.0)
+Crédit d'origine retiré sur demande ; police par défaut : Inter.
+
+1. COMPOSANTS TIERCES (149 dépendances Node/JS)
+--------------------------------
+Toutes permissives (MIT / BSD / Apache-2.0), usage libre, licence à conserver
+avec chaque composant. Principales : typescript, validator, clsx, dayjs,
+tslib, big.js, libphonenumber-js, rimraf, vitest, tsup.
+
+2. POLICES (45 familles, 895 fichiers .ttf, 44 licences OFL)
+--------------------------------
+SIL Open Font License (OFL) : usage libre, modification et redistribution
+autorisées ; licence OFL à conserver avec chaque police. Familles : Inter,
+Lato, Roboto, Noto Sans, Open Sans, Poppins, Playfair Display, Merriweather,
+Source Sans 3, Work Sans, ... (45 au total).
+
+3. CE QUE CELA IMPOSE
+--------------------------------
+- Conserver les licences des composants tiers et polices (fait).
+- Ne pas les réclamer comme à nous (elles sont les leurs).
+- Le code KovaaLab Forms lui-même : licence KLF-1.0 (la nôtre).
+
+Conclusion : le code applicatif est sous notre licence ; les polices et les
+dépendances restent sous leurs licences permissives (MIT/BSD/Apache/OFL),
+ce qui est standard et sans friction d'usage.

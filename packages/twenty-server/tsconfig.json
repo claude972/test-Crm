@@ -13,9 +13,24 @@
     "experimentalDecorators": true,
     "outDir": "./dist",
     "baseUrl": ".",
-    "paths": {"src/*": ["src/*"]},
-    "types": ["node"]
+    "paths": {
+      "kovaa-lab-shared/*": [
+        "src/kovaa-lab-shared/*"
+      ],
+      "src/*": [
+        "src/*"
+      ]
+    },
+    "types": [
+      "node",
+      "jest"
+    ]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

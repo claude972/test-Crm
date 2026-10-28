@@ -1,0 +1,74 @@
+{
+  "name": "kovaa-lab-companion",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "packages/kovaa-lab-companion/src",
+  "implicitDependencies": ["kovaa-lab-ui"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": ["kovaa-lab-ui:build"],
+      "options": {
+        "cwd": "packages/kovaa-lab-companion",
+        "command": "yarn build"
+      },
+      "inputs": ["default", "^default"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": ["kovaa-lab-ui:build"],
+      "options": {
+        "cwd": "packages/kovaa-lab-companion",
+        "command": "yarn typecheck"
+      },
+      "inputs": ["default", "^default"]
+    },
+    "lint:unlocalized-strings": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "packages/kovaa-lab-companion",
+        "command": "yarn lint:unlocalized-strings"
+      },
+      "inputs": [
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/.oxlintrc.i18n.json",
+        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/check-unlocalized-strings.mjs",
+        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/filter-unlocalized-strings.mjs",
+        "{projectRoot}/package.json",
+        "{workspaceRoot}/yarn.lock"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": ["kovaa-lab-ui:build"],
+      "options": {
+        "cwd": "packages/kovaa-lab-companion",
+        "command": "yarn test"
+      },
+      "inputs": ["default", "^default"]
+    },
+    "package": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["kovaa-lab-ui:build"],
+      "options": {
+        "cwd": "packages/kovaa-lab-companion",
+        "command": "yarn package"
+      }
+    },
+    "package:archive": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["kovaa-lab-ui:build"],
+      "options": {
+        "cwd": "packages/kovaa-lab-companion",
+        "command": "yarn package:archive"
+      }
+    }
+  }
+}

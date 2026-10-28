@@ -1,0 +1,33 @@
+import { Repository } from 'typeorm';
+import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
+import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { MessageChannelSyncStatusService } from 'src/modules/messaging/common/services/message-channel-sync-status.service';
+import { MessagingMessageCleanerService } from 'src/modules/messaging/message-cleaner/services/messaging-message-cleaner.service';
+import { SyncMessageFoldersService } from 'src/modules/messaging/message-folder-manager/services/sync-message-folders.service';
+import { MessagingCursorService } from 'src/modules/messaging/message-import-manager/services/messaging-cursor.service';
+import { MessagingGetMessageListService } from 'src/modules/messaging/message-import-manager/services/messaging-get-message-list.service';
+import { MessageImportExceptionHandlerService } from 'src/modules/messaging/message-import-manager/services/messaging-import-exception-handler.service';
+import { MessagingMessagesImportService } from 'src/modules/messaging/message-import-manager/services/messaging-messages-import.service';
+import { MessagingProcessFolderActionsService } from 'src/modules/messaging/message-import-manager/services/messaging-process-folder-actions.service';
+import { MessagingProcessGroupEmailActionsService } from 'src/modules/messaging/message-import-manager/services/messaging-process-group-email-actions.service';
+import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
+export declare class MessagingMessageListFetchService {
+    private readonly cacheStorage;
+    private readonly messageChannelSyncStatusService;
+    private readonly workspaceOrmManager;
+    private readonly messageChannelRepository;
+    private readonly messagingGetMessageListService;
+    private readonly messageImportErrorHandlerService;
+    private readonly messagingMessageCleanerService;
+    private readonly messagingCursorService;
+    private readonly messagingMessagesImportService;
+    private readonly syncMessageFoldersService;
+    private readonly messagingProcessGroupEmailActionsService;
+    private readonly messagingProcessFolderActionsService;
+    private readonly logger;
+    constructor(cacheStorage: CacheStorageService, messageChannelSyncStatusService: MessageChannelSyncStatusService, workspaceOrmManager: WorkspaceOrmManager, messageChannelRepository: Repository<MessageChannelEntity>, messagingGetMessageListService: MessagingGetMessageListService, messageImportErrorHandlerService: MessageImportExceptionHandlerService, messagingMessageCleanerService: MessagingMessageCleanerService, messagingCursorService: MessagingCursorService, messagingMessagesImportService: MessagingMessagesImportService, syncMessageFoldersService: SyncMessageFoldersService, messagingProcessGroupEmailActionsService: MessagingProcessGroupEmailActionsService, messagingProcessFolderActionsService: MessagingProcessFolderActionsService);
+    processMessageListFetch(messageChannel: MessageChannelEntity, workspaceId: string): Promise<void>;
+    private processPendingGroupEmailActions;
+    private processPendingFolderActions;
+    private computeFullSyncMessageChannelMessageAssociationsToDelete;
+}

@@ -1,0 +1,6 @@
+[Unit]
+Description=KovaaLab Char Web Server
+Wants=kovaa-lab-web.1.service
+
+[Install]
+WantedBy=multi-user.target
