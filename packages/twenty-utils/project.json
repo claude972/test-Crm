@@ -1,0 +1,9 @@
+{
+  "name": "kovaa-lab-utils",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/kovaa-lab-utils",
+  "projectType": "application",
+  "targets": {
+    "test": {}
+  }
+}

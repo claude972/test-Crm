@@ -1,0 +1,39 @@
+{
+  "name": "kovaa-lab-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/kovaa-lab-cli/src",
+  "projectType": "application",
+  "tags": ["scope:cli"],
+  "implicitDependencies": ["kovaa-lab-sdk"],
+  "targets": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "packages/kovaa-lab-cli",
+        "command": "node dist/cli.cjs"
+      }
+    },
+    "typecheck": {},
+    "lint": {},
+    "test:package": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "cache": false,
+      "options": {
+        "command": "node --test packages/kovaa-lab-cli/scripts/test-npm-resolution.mjs packages/kovaa-lab-cli/scripts/test-check-publish.mjs packages/kovaa-lab-cli/scripts/test-template-lock.mjs packages/kovaa-lab-cli/scripts/test-package.mjs"
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "config": "{projectRoot}/vitest.config.ts"
+      }
+    }
+  }
+}

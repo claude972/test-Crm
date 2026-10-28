@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kovaa-labcrm-server-pvc
+  namespace: kovaa-labcrm
+spec:
+  storageClassName: default
+  volumeName: kovaa-labcrm-server-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

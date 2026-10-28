@@ -1,0 +1,150 @@
+{
+  "folders": [
+    {
+      "name": "ROOT",
+      "path": "../"
+    },
+    {
+      "name": "packages/kovaa-lab-docker",
+      "path": "../packages/kovaa-lab-docker"
+    },
+    {
+      "name": "packages/kovaa-lab-front",
+      "path": "../packages/kovaa-lab-front"
+    },
+    {
+      "name": "packages/kovaa-lab-ui",
+      "path": "../packages/kovaa-lab-ui"
+    },
+    {
+      "name": "packages/kovaa-lab-emails",
+      "path": "../packages/kovaa-lab-emails"
+    },
+    {
+      "name": "packages/kovaa-lab-shared",
+      "path": "../packages/kovaa-lab-shared"
+    },
+    {
+      "name": "packages/kovaa-lab-server",
+      "path": "../packages/kovaa-lab-server"
+    },
+    {
+      "name": "packages/kovaa-lab-utils",
+      "path": "../packages/kovaa-lab-utils"
+    },
+    {
+      "name": "packages/kovaa-lab-zapier",
+      "path": "../packages/kovaa-lab-zapier"
+    },
+    {
+      "name": "packages/kovaa-lab-oxlint-rules",
+      "path": "../packages/kovaa-lab-oxlint-rules"
+    },
+    {
+      "name": "packages/kovaa-lab-e2e-testing",
+      "path": "../packages/kovaa-lab-e2e-testing"
+    },
+    {
+      "name": "packages/kovaa-lab-docs",
+      "path": "../packages/kovaa-lab-docs"
+    },
+    {
+      "name": "packages/create-kovaa-lab-app",
+      "path": "../packages/create-kovaa-lab-app"
+    },
+    {
+      "name": "packages/kovaa-lab-apps",
+      "path": "../packages/kovaa-lab-apps"
+    },
+    {
+      "name": "packages/kovaa-lab-claude-skills",
+      "path": "../packages/kovaa-lab-claude-skills"
+    },
+    {
+      "name": "packages/kovaa-lab-cli",
+      "path": "../packages/kovaa-lab-cli"
+    },
+    {
+      "name": "packages/kovaa-lab-client-sdk",
+      "path": "../packages/kovaa-lab-client-sdk"
+    },
+    {
+      "name": "packages/kovaa-lab-front-component-renderer",
+      "path": "../packages/kovaa-lab-front-component-renderer"
+    },
+    {
+      "name": "packages/kovaa-lab-sdk",
+      "path": "../packages/kovaa-lab-sdk"
+    },
+    {
+      "name": "packages/kovaa-lab-website",
+      "path": "../packages/kovaa-lab-website"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": false,
+    "files.eol": "auto",
+    "[typescript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "explicit",
+        "source.addMissingImports": "always"
+      }
+    },
+    "[javascript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "explicit",
+        "source.addMissingImports": "always"
+      }
+    },
+    "[typescriptreact]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "explicit",
+        "source.addMissingImports": "always"
+      }
+    },
+    "[json]": {
+      "editor.formatOnSave": true
+    },
+    "javascript.format.enable": false,
+    "typescript.format.enable": false,
+    "cSpell.enableFiletypes": [
+      "!javascript",
+      "!json",
+      "!typescript",
+      "!typescriptreact",
+      "md",
+      "mdx"
+    ],
+    "cSpell.words": [
+      "kovaa-lab"
+    ],
+    "typescript.preferences.importModuleSpecifier": "non-relative",
+    "[javascript][typescript][typescriptreact]": {
+      "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "explicit",
+        "source.addMissingImports": "always"
+      }
+    },
+    "search.exclude": {
+      "**/.yarn": true,
+    },
+    "files.exclude": {
+      "packages/": true
+    },
+    "oxc.lint.enable": true,
+    "jest.runMode": "on-demand",
+    "jest.disabledWorkspaceFolders": [
+      "ROOT",
+      "packages/kovaa-lab-zapier",
+      "packages/kovaa-lab-docker",
+      "packages/kovaa-lab-utils",
+      "packages/kovaa-lab-postgres"
+    ]
+  }
+}

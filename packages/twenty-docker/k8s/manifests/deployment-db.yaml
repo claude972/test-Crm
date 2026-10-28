@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kovaa-labcrm-db
+  name: kovaa-labcrm-db
+  namespace: kovaa-labcrm
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kovaa-labcrm-db
+  template:
+    metadata:
+      labels:
+        app: kovaa-labcrm-db
+    spec:
+      volumes:
+        - name: kovaa-labcrm-db-data
+          persistentVolumeClaim:
+            claimName: kovaa-labcrm-db-pvc
+      containers:
+        - name: kovaa-labcrm
+          image: kovaa-labcrm/kovaa-lab-postgres-spilo:latest
+          imagePullPolicy: Always
+          env:
+            - name: PGUSER_SUPERUSER
+              value: "postgres"
+            - name: PGPASSWORD_SUPERUSER
+              value: "postgres"
+            - name: SPILO_PROVIDER
+              value: "local"
+            - name: ALLOW_NOSSL
+              value: "true"
+          ports:
+            - containerPort: 5432
+              name: tcp
+              protocol: TCP
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /home/postgres/pgdata
+              name: kovaa-labcrm-db-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always

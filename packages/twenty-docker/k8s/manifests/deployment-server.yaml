@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kovaa-labcrm-server
+  name: kovaa-labcrm-server
+  namespace: kovaa-labcrm
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kovaa-labcrm-server
+  template:
+    metadata:
+      labels:
+        app: kovaa-labcrm-server
+    spec:
+      volumes:
+        - name: kovaa-labcrm-server-data
+          persistentVolumeClaim:
+            claimName: kovaa-labcrm-server-pvc
+        - name: kovaa-labcrm-docker-data
+          persistentVolumeClaim:
+            claimName: kovaa-labcrm-docker-data-pvc
+      containers:
+        - name: kovaa-labcrm
+          image: kovaa-labcrm/kovaa-lab:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_PORT
+              value: 3000
+            - name: SERVER_URL
+              value: "https://crm.example.com:443"
+            - name: "PG_DATABASE_URL"
+              value: "postgres://postgres:postgres@kovaa-labcrm-db.kovaa-labcrm.svc.cluster.local/default"
+            - name: "REDIS_URL"
+              value: "redis://kovaa-labcrm-redis.kovaa-labcrm.svc.cluster.local:6379"
+            - name: SIGN_IN_PREFILLED
+              value: "false"
+            - name: STORAGE_TYPE
+              value: "local"
+            - name: "ACCESS_TOKEN_EXPIRES_IN"
+              value: "7d"
+            - name: "LOGIN_TOKEN_EXPIRES_IN"
+              value: "1h"
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tokens
+                  key: accessToken
+          ports:
+            - containerPort: 3000
+              name: http-tcp
+              protocol: TCP
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /app/docker-data
+              name: kovaa-labcrm-docker-data
+            - mountPath: /app/packages/kovaa-lab-server/.local-storage
+              name: kovaa-labcrm-server-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always

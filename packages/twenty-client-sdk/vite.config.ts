@@ -1,0 +1,44 @@
+import path from 'path';
+import { defineConfig } from 'vite';
+
+import { entryFileNames, isExternal } from './vite.shared';
+
+const entries = [
+  'src/core/index.ts',
+  'src/rest/index.ts',
+  'src/generate/index.ts',
+];
+
+export default defineConfig(() => {
+  return {
+    root: __dirname,
+    cacheDir: '../../node_modules/.vite/packages/kovaa-lab-client-sdk',
+    resolve: {
+      tsconfigPaths: true,
+      alias: {
+        '@/': path.resolve(__dirname, 'src') + '/',
+      },
+    },
+    build: {
+      emptyOutDir: false,
+      outDir: 'dist',
+      lib: { entry: entries, name: 'kovaa-lab-client-sdk' },
+      rollupOptions: {
+        external: isExternal,
+        output: [
+          {
+            format: 'es',
+            entryFileNames: (chunk) => entryFileNames(chunk, 'mjs'),
+          },
+          {
+            format: 'cjs',
+            esModule: true,
+            exports: 'named',
+            entryFileNames: (chunk) => entryFileNames(chunk, 'cjs'),
+          },
+        ],
+      },
+    },
+    logLevel: 'warn',
+  };
+});

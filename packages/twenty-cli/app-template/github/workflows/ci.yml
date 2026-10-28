@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+permissions:
+  contents: read
+
+env:
+  KOVAALAB_VERSION: latest
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Spawn KovaaLab CRM test instance
+        id: kovaa-lab
+        uses: kovaa-lab/kovaa-lab/.github/actions/spawn-kovaa-lab-app-dev-test@main
+        with:
+          kovaa-lab-version: ${{ env.KOVAALAB_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+
+      - name: Install KovaaLab CRM CLI
+        run: npm install -g kovaa-lab@CLI-VERSION-TO-BE-GENERATED
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Unit tests
+        run: yarn test:unit
+
+      - name: Run integration tests
+        run: yarn test
+        env:
+          KOVAALAB_API_URL: ${{ steps.kovaa-lab.outputs.server-url }}
+          KOVAALAB_API_KEY: ${{ steps.kovaa-lab.outputs.api-key }}

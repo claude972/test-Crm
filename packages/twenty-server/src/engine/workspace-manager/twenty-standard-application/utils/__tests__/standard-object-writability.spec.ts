@@ -1,0 +1,70 @@
+import { MetadataWritability } from 'kovaa-lab-shared/types';
+import { isDefined } from 'kovaa-lab-shared/utils';
+
+import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+
+const WORKSPACE_ID = '20202020-1111-4111-8111-111111111111';
+const KOVAALAB_STANDARD_APPLICATION_ID = '20202020-2222-4222-8222-222222222222';
+const NOW = '2024-01-01T00:00:00.000Z';
+
+// Only the platform writes these (sync bookkeeping, campaign sending state, trigger registrations).
+// timelineActivity stays OPEN because merging records reparents its rows under the caller
+const SYSTEM_WRITABILITY_STANDARD_OBJECT_NAMES = [
+  'agentChatThreadParticipant',
+  'agentMessage',
+  'agentMessagePart',
+  'agentMessageReaction',
+  'agentTurn',
+
+  'calendarChannelEventAssociation',
+  'campaignDelivery',
+  'messageChannelMessageAssociation',
+  'messageChannelMessageAssociationMessageFolder',
+  'messageSuppression',
+  'recordShare',
+  'shortLink',
+  'workflowAutomatedTrigger',
+];
+
+describe('Standard object writability', () => {
+  const { allFlatEntityMaps } =
+    computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      now: NOW,
+      workspaceId: WORKSPACE_ID,
+      kovaa-labStandardApplicationId: KOVAALAB_STANDARD_APPLICATION_ID,
+    });
+
+  const standardFlatObjectMetadatas = Object.values(
+    allFlatEntityMaps.flatObjectMetadataMaps.byUniversalIdentifier,
+  ).filter(isDefined);
+
+  it('marks platform-owned objects SYSTEM', () => {
+    const systemObjectNames = standardFlatObjectMetadatas
+      .filter(
+        (flatObjectMetadata) =>
+          flatObjectMetadata.writability === MetadataWritability.SYSTEM,
+      )
+      .map((flatObjectMetadata) => flatObjectMetadata.nameSingular)
+      .sort();
+
+    expect(systemObjectNames).toEqual(SYSTEM_WRITABILITY_STANDARD_OBJECT_NAMES);
+  });
+
+  it('leaves every other standard object OPEN', () => {
+    const otherWritabilities = new Set(
+      standardFlatObjectMetadatas
+        .filter(
+          (flatObjectMetadata) =>
+            !SYSTEM_WRITABILITY_STANDARD_OBJECT_NAMES.includes(
+              flatObjectMetadata.nameSingular,
+            ),
+        )
+        .map((flatObjectMetadata) => flatObjectMetadata.writability),
+    );
+
+    expect(standardFlatObjectMetadatas.length).toBeGreaterThan(
+      SYSTEM_WRITABILITY_STANDARD_OBJECT_NAMES.length,
+    );
+    expect([...otherWritabilities]).toEqual([MetadataWritability.OPEN]);
+  });
+});

@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/modules/bot/**/*", "src/modules/calendar/**/*", "src/modules/messaging/**/*", "src/modules/forms/**/*"],
+  "exclude": ["**/__tests__/**/*"]
+}

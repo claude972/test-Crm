@@ -1,0 +1,4 @@
+interface:
+  display_name: "Use KovaaLab CRM MCP"
+  short_description: "Query KovaaLab CRM MCP and format readable records."
+  default_prompt: "Use $use-kovaa-lab-mcp to connect Codex to KovaaLab CRM MCP or retrieve readable workspace data."
