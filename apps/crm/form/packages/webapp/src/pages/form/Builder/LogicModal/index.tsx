@@ -1,0 +1,148 @@
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { toChoiceBranchPayloads } from '../utils'
+import { htmlUtils } from '@kovaa-lab/answer-utils'
+
+import { Button, Form, Modal } from '@/components'
+import { useAppStore, useModal } from '@/store'
+
+import { QuestionIcon } from '../LeftSidebar/QuestionList'
+import { useStoreContext } from '../store'
+import { PayloadForm } from './PayloadForm'
+
+const LogicComponent = () => {
+  const { t } = useTranslation()
+
+  const [rcForm] = Form.useForm()
+  const { closeModal } = useAppStore()
+  const { state, dispatch } = useStoreContext()
+  const { fields, currentField, logics } = state
+
+  const currentLogic = useMemo(() => {
+    return logics?.find(l => l.fieldId === currentField?.id)
+  }, [currentField, logics])
+
+  function handleClose() {
+    closeModal('LogicModal')
+  }
+
+  function handleRemoveAll() {
+    dispatch({
+      type: 'deleteLogic',
+      payload: {
+        fieldId: state.currentField!.id
+      }
+    })
+  }
+
+  function handleSave() {
+    rcForm.submit()
+  }
+
+  function handleFinish({ payloads, nextFieldId, branching, destinations }: AnyMap) {
+    const field = state.currentField!
+
+    handleClose()
+
+    // Every answer of a branching question has a destination, so it has no default and can't be skipped.
+    if (branching) {
+      payloads = [
+        ...toChoiceBranchPayloads(field, destinations || {}, currentLogic?.payloads),
+        ...(payloads || [])
+      ]
+      nextFieldId = undefined
+
+      if (!field.validations?.required) {
+        dispatch({
+          type: 'updateField',
+          payload: {
+            id: field.id,
+            updates: { validations: { ...field.validations, required: true } }
+          }
+        })
+      }
+    }
+
+    dispatch({
+      type: 'setNextField',
+      payload: {
+        fieldId: field.id,
+        nextFieldId: nextFieldId || undefined
+      }
+    })
+    if (payloads !== undefined) {
+      dispatch({
+        type: 'setLogic',
+        payload: {
+          fieldId: field.id,
+          payloads,
+          ...(branching && { branchByAnswer: true })
+        }
+      })
+    }
+  }
+
+  return (
+    <div className="flex h-[70vh] flex-col">
+      <div className="border-accent-light border-b p-4">
+        <h2 className="text-lg font-medium text-slate-900">
+          {t('form.builder.logic.rule.headline')}
+        </h2>
+
+        {currentField && (
+          <div className="mt-2 flex flex-1 items-center justify-between gap-x-2">
+            <QuestionIcon
+              kind={currentField.kind}
+              index={currentField.index}
+              parentIndex={currentField.parent?.index}
+            />
+            <div className="flex-1 truncate">{htmlUtils.plain(currentField.title as string)}</div>
+          </div>
+        )}
+      </div>
+
+      <div className="scrollbar h-[calc(70vh-10.35rem)] flex-1 space-y-4 p-4">
+        <PayloadForm
+          form={rcForm}
+          fields={fields}
+          currentField={currentField!}
+          logic={currentLogic}
+          variables={state.variables}
+          onFinish={handleFinish}
+        />
+      </div>
+
+      <div className="flex items-center justify-between border-t border-gray-200 p-4">
+        <Button.Link size="md" className="text-error" onClick={handleRemoveAll}>
+          {t('form.builder.logic.rule.removeAll')}
+        </Button.Link>
+
+        <div className="flex items-center">
+          <Button.Ghost size="md" onClick={handleClose}>
+            {t('components.cancel')}
+          </Button.Ghost>
+          <Button className="ml-4" size="md" onClick={handleSave}>
+            {t('components.saveChanges')}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function LogicModal() {
+  const { isOpen, onOpenChange } = useModal('LogicModal')
+
+  return (
+    <Modal
+      open={isOpen}
+      contentProps={{
+        className: 'max-w-4xl p-0 overflow-hidden'
+      }}
+      onOpenChange={onOpenChange}
+    >
+      <LogicComponent />
+    </Modal>
+  )
+}

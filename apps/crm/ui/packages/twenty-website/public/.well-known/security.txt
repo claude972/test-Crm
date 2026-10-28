@@ -1,0 +1,5 @@
+Contact: https://github.com/kovaa-lab/kovaa-lab/issues/new
+Contact: security@kovaa-lab.com
+Preferred-Languages: en
+Canonical: https://kovaa-lab.com/.well-known/security.txt
+Policy: https://github.com/kovaa-lab/kovaa-lab/security/policy

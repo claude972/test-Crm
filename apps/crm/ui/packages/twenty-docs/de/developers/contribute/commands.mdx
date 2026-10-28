@@ -1,0 +1,76 @@
+---
+title: Befehle
+description: Nützliche Befehle für die Entwicklung von KovaaLab CRM.
+---
+
+Befehle können vom Repository-Stammverzeichnis mit `npx nx` ausgeführt werden. Verwende `npx nx run {project}:{command}` für eine explizite Zielangabe.
+
+## Die App starten
+
+```bash
+npx nx start kovaa-lab-front          # Frontend dev server (http://localhost:3001)
+npx nx start kovaa-lab-server         # Backend server (http://localhost:3000)
+npx nx run kovaa-lab-server:worker    # Background worker
+```
+
+## Datenbank
+
+```bash
+npx nx database:reset kovaa-lab-server                          # Reset and seed database
+npx nx run kovaa-lab-server:database:migrate:prod               # Run migrations
+npx nx run kovaa-lab-server:database:migrate:generate --name <name> --type <fast|slow>  # Generate a migration
+```
+
+## Linting
+
+```bash
+npx nx lint:diff-with-main kovaa-lab-front    # Lint changed files (fastest)
+npx nx lint:diff-with-main kovaa-lab-server
+npx nx lint kovaa-lab-front --configuration=fix  # Auto-fix
+```
+
+## Typprüfung
+
+```bash
+npx nx typecheck kovaa-lab-front
+npx nx typecheck kovaa-lab-server
+```
+
+## Tests
+
+```bash
+# Frontend
+npx nx test kovaa-lab-front                          # Jest unit tests
+npx nx storybook:build kovaa-lab-front               # Build Storybook
+npx nx storybook:test kovaa-lab-front                # Storybook tests
+
+# Backend
+npx nx run kovaa-lab-server:test:unit                # Unit tests
+npx nx run kovaa-lab-server:test:integration         # Integration tests
+npx nx run kovaa-lab-server:test:integration:with-db-reset  # Integration with DB reset
+
+# Single file (fastest)
+npx jest path/to/test.test.ts --config=packages/{project}/jest.config.mjs
+```
+
+## GraphQL
+
+```bash
+npx nx run kovaa-lab-front:graphql:generate                        # Regenerate types
+npx nx run kovaa-lab-front:graphql:generate --configuration=metadata  # Metadata schema
+```
+
+## Übersetzungen
+
+```bash
+npx nx run kovaa-lab-front:lingui:extract   # Extract strings
+npx nx run kovaa-lab-front:lingui:compile   # Compile translations
+```
+
+## Build
+
+```bash
+npx nx build kovaa-lab-shared   # Must be built first
+npx nx build kovaa-lab-front
+npx nx build kovaa-lab-server
+```

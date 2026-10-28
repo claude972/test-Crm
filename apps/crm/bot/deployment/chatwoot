@@ -1,0 +1,6 @@
+# give kovaa-lab user permission to start/stop/restart kovaa-lab systemd service
+
+%kovaa-lab ALL=NOPASSWD: /bin/systemctl start kovaa-lab.target
+%kovaa-lab ALL=NOPASSWD: /bin/systemctl stop kovaa-lab.target
+%kovaa-lab ALL=NOPASSWD: /bin/systemctl restart kovaa-lab.target
+%kovaa-lab ALL=NOPASSWD: /usr/local/bin/cwctl

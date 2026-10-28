@@ -1,0 +1,22 @@
+#
+# Crowdin CLI configuration for App translations (kovaa-lab-front, kovaa-lab-server, kovaa-lab-emails)
+# Project ID: 1
+# See https://crowdin.github.io/crowdin-cli/configuration for more information
+#
+
+preserve_hierarchy: true
+base_path: ..
+
+files:
+  #
+  # Source files filter - PO files for Lingui
+  #
+  - source: packages/kovaa-lab-front/src/locales/en.po
+    #
+    # Translation files path
+    #
+    translation: '%original_path%/%locale%.po'
+  - source: packages/kovaa-lab-server/src/engine/core-modules/i18n/locales/en.po
+    translation: '%original_path%/%locale%.po'
+  - source: packages/kovaa-lab-emails/src/locales/en.po
+    translation: '%original_path%/%locale%.po'

@@ -1,0 +1,177 @@
+import {
+  Injectable,
+  Logger,
+  OnApplicationShutdown,
+  OnModuleInit,
+} from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+
+import { Pool, type PoolConfig, types } from 'pg';
+import { DataSource } from 'typeorm';
+import { isDefined } from 'kovaa-lab-shared/utils';
+
+import {
+  DatabasePoolMetricsService,
+  DatabasePoolName,
+} from 'src/database/typeorm/database-pool-metrics.service';
+import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { WorkspaceRecordStockService } from 'src/engine/core-modules/usage-limit/services/workspace-record-stock.service';
+import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
+import { getWorkspaceContext } from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
+import { WorkspaceDataSource } from 'src/engine/kovaa-lab-orm/datasource/workspace-data-source';
+import {
+  KovaaLab CRMOrmException,
+  KovaaLab CRMOrmExceptionCode,
+} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+import { WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
+
+// Workspace DATE fields are date-only: keep Postgres's raw 'YYYY-MM-DD' instead of a JS Date, like the v1 datasource
+const DATE_ONLY_POOL_TYPES: PoolConfig['types'] = {
+  getTypeParser: ((oid: number, format?: unknown) =>
+    oid === types.builtins.DATE
+      ? (value: string) => value
+      : types.getTypeParser(
+          oid,
+          format as never,
+        )) as typeof types.getTypeParser,
+};
+
+@Injectable()
+export class WorkspaceDataSourceService
+  implements OnModuleInit, OnApplicationShutdown
+{
+  private readonly logger = new Logger(WorkspaceDataSourceService.name);
+  private primaryPool: Pool | null = null;
+  private replicaPool: Pool | null = null;
+
+  constructor(
+    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly workspaceEventEmitter: WorkspaceEventEmitter,
+    @InjectDataSource()
+    private readonly coreDataSource: DataSource,
+    private readonly databasePoolMetricsService: DatabasePoolMetricsService,
+    private readonly workspaceRecordStockService: WorkspaceRecordStockService,
+  ) {}
+
+  onModuleInit(): void {
+    this.primaryPool = this.createPool({
+      connectionString: this.kovaa-labConfigService.get('PG_DATABASE_URL'),
+      queryTimeoutMs: this.kovaa-labConfigService.get(
+        'PG_DATABASE_PRIMARY_TIMEOUT_MS',
+      ),
+    });
+
+    this.databasePoolMetricsService.registerPool({
+      poolName: DatabasePoolName.WorkspacePrimary,
+      pool: this.primaryPool,
+    });
+
+    const replicaUrl = this.kovaa-labConfigService.get('PG_DATABASE_REPLICA_URL');
+
+    if (isDefined(replicaUrl)) {
+      this.replicaPool = this.createPool({
+        connectionString: replicaUrl,
+        queryTimeoutMs: this.kovaa-labConfigService.get(
+          'PG_DATABASE_REPLICA_TIMEOUT_MS',
+        ),
+      });
+
+      this.databasePoolMetricsService.registerPool({
+        poolName: DatabasePoolName.WorkspaceReplica,
+        pool: this.replicaPool,
+      });
+    }
+  }
+
+  getDataSource({ useReplica }: { useReplica: boolean }): WorkspaceDataSource {
+    const pool = useReplica
+      ? (this.replicaPool ?? this.primaryPool)
+      : this.primaryPool;
+
+    if (!isDefined(pool)) {
+      throw new KovaaLab CRMOrmException(
+        'WorkspaceDataSourceService has not been initialized. Make sure the module has been initialized.',
+        KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+      );
+    }
+
+    const workspaceContext = getWorkspaceContext();
+
+    return new WorkspaceDataSource({
+      pool,
+      internalContext: this.buildInternalContext(workspaceContext),
+      authContext: workspaceContext.authContext,
+      objectPermissionsByRoleId: workspaceContext.permissionsPerRoleId,
+    });
+  }
+
+  private buildInternalContext(
+    workspaceContext: ReturnType<typeof getWorkspaceContext>,
+  ): WorkspaceInternalContext {
+    return {
+      workspaceId: workspaceContext.authContext.workspace.id,
+      flatObjectMetadataMaps: workspaceContext.flatObjectMetadataMaps,
+      flatFieldMetadataMaps: workspaceContext.flatFieldMetadataMaps,
+      flatIndexMaps: workspaceContext.flatIndexMaps,
+      flatRowLevelPermissionPredicateMaps:
+        workspaceContext.flatRowLevelPermissionPredicateMaps,
+      flatRowLevelPermissionPredicateGroupMaps:
+        workspaceContext.flatRowLevelPermissionPredicateGroupMaps,
+      flatValidationRuleMaps: workspaceContext.flatValidationRuleMaps,
+      objectIdByNameSingular: workspaceContext.objectIdByNameSingular,
+      featureFlagsMap: workspaceContext.featureFlagsMap,
+      billingEntitlements: workspaceContext.billingEntitlements,
+      userWorkspaceRoleMap: workspaceContext.userWorkspaceRoleMap,
+      roleIdsWithAllRecordsAccess: workspaceContext.roleIdsWithAllRecordsAccess,
+      apiKeyRoleMap: workspaceContext.apiKeyRoleMap,
+      flatRoleTargetByAgentIdMaps: workspaceContext.flatRoleTargetByAgentIdMaps,
+      eventEmitterService: this.workspaceEventEmitter,
+      recordStock: this.workspaceRecordStockService,
+      coreDataSource: this.coreDataSource,
+    };
+  }
+
+  private createPool({
+    connectionString,
+    queryTimeoutMs,
+  }: {
+    connectionString: string;
+    queryTimeoutMs: number;
+  }): Pool {
+    const pool = new Pool({
+      connectionString,
+      types: DATE_ONLY_POOL_TYPES,
+      max: this.kovaa-labConfigService.get('PG_POOL_MAX_CONNECTIONS'),
+      idleTimeoutMillis: this.kovaa-labConfigService.get(
+        'PG_POOL_IDLE_TIMEOUT_MS',
+      ),
+      allowExitOnIdle: this.kovaa-labConfigService.get(
+        'PG_POOL_ALLOW_EXIT_ON_IDLE',
+      ),
+      query_timeout: queryTimeoutMs,
+      ssl: this.kovaa-labConfigService.get('PG_SSL_ALLOW_SELF_SIGNED')
+        ? { rejectUnauthorized: false }
+        : undefined,
+    });
+
+    pool.on('error', (error) => {
+      this.logger.error(`Idle client error: ${error.message}`, error.stack);
+    });
+
+    return pool;
+  }
+
+  async onApplicationShutdown(): Promise<void> {
+    this.databasePoolMetricsService.unregisterPool(
+      DatabasePoolName.WorkspacePrimary,
+    );
+    this.databasePoolMetricsService.unregisterPool(
+      DatabasePoolName.WorkspaceReplica,
+    );
+
+    await this.primaryPool?.end();
+    await this.replicaPool?.end();
+    this.primaryPool = null;
+    this.replicaPool = null;
+  }
+}

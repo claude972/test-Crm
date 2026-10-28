@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+mkdir -p ~/.config/systemd/user
+[ -f kovaa-labcrm.service ] || { echo "Error: kovaa-labcrm.service not found"; exit 1; }
+cp kovaa-labcrm.service ~/.config/systemd/user
+
+
+systemctl --user daemon-reload
+systemctl --user enable kovaa-labcrm.service
+systemctl --user start kovaa-labcrm.service

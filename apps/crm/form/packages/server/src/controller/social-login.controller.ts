@@ -1,0 +1,145 @@
+import { Controller, Get, Param, Post, Query, Req, Res } from '@nestjs/common'
+
+import { helper } from '@kovaa-lab/utils'
+import { AuthService, RedisService, SocialLoginKind, SocialLoginService } from '@service'
+import { Logger, OIDC_LOGIN_KIND } from '@utils'
+
+const { isValid } = helper
+const OAUTH_STATE_TTL = '10m'
+
+@Controller()
+export class SocialLoginController {
+  private readonly logger: Logger
+
+  constructor(
+    private readonly socialLoginService: SocialLoginService,
+    private readonly authService: AuthService,
+    private readonly redisService: RedisService
+  ) {
+    this.logger = new Logger(SocialLoginController.name)
+  }
+
+  /**
+   * Sign With Apple will post the code to back server,
+   * this value cannot be obtained in front end.
+   * We have to use back end server to deal with the problem here,
+   * and front end need to attach the browserId to the authorized url.
+   *
+   * Example:
+   * http://my.kovaa-lab.com/connect/google?state=DMbcJqLJ
+   */
+  @Get('/connect/:kind')
+  async authUrl(
+    @Param('kind') kind: string,
+    @Query() query: Record<string, string>,
+    @Req() req: any,
+    @Res() res: any
+  ) {
+    if (helper.isEmpty(query.state)) {
+      return res.render('index', {
+        payload: {
+          error: `unable_connect_${kind}`.toUpperCase()
+        }
+      })
+    }
+
+    const oauthState = await this.authService.createOAuthState(req, res, query.state)
+    const authorization = await this.socialLoginService.authUrl(kind as SocialLoginKind, oauthState)
+
+    if (authorization?.transaction) {
+      await this.authService.storeOAuthTransaction(oauthState, authorization.transaction)
+    }
+
+    // Store redirect_uri to redis
+    if (isValid(query.redirect_uri)) {
+      const key = `redirect_uri:${oauthState}`
+
+      await this.redisService.set({
+        key,
+        value: query.redirect_uri,
+        duration: OAUTH_STATE_TTL
+      })
+    }
+
+    if (helper.isEmpty(authorization?.url)) {
+      return res.render('index', {
+        data: {
+          error: `unable_connect_${kind}`.toUpperCase()
+        }
+      })
+    }
+
+    res.redirect(302, authorization!.url)
+  }
+
+  @Get('/connect/:kind/callback')
+  async authGetCallback(
+    @Param('kind') kind: SocialLoginKind,
+    @Query() query: Record<string, string>,
+    @Req() req: any,
+    @Res() res: any
+  ) {
+    await this.handleCallback(kind, query, req, res)
+  }
+
+  @Post('/connect/:kind/callback')
+  async authPostCallback(@Param('kind') kind: SocialLoginKind, @Req() req: any, @Res() res: any) {
+    //!!! Sign With Apple will only post `code` and `state` to back-end server
+    await this.handleCallback(kind, req.body, req, res)
+  }
+
+  private async handleCallback(
+    kind: SocialLoginKind,
+    query: Record<string, string>,
+    req: any,
+    res: any
+  ) {
+    try {
+      await this.authService.verifyOAuthState(req, res, query.state)
+
+      const transaction =
+        kind === OIDC_LOGIN_KIND
+          ? await this.authService.consumeOAuthTransaction(query.state)
+          : undefined
+
+      const userId = await this.socialLoginService.authCallback(
+        kind,
+        query.code || query.credential,
+        {
+          callbackParams: query,
+          state: query.state,
+          transaction
+        }
+      )
+
+      await this.authService.login({
+        res,
+        userId,
+        deviceId: this.authService.getDeviceId(req)
+      })
+
+      const baseUri = '/'
+
+      const key = `redirect_uri:${query.state}`
+      let redirectUri = await this.redisService.get(key)
+
+      if (isValid(redirectUri)) {
+        redirectUri = `${baseUri}?redirect_uri=${encodeURIComponent(redirectUri)}`
+      } else {
+        redirectUri = baseUri
+      }
+
+      res.render('social-login', {
+        redirectUri
+      })
+    } catch (err) {
+      this.logger.error(err)
+
+      res.render('index', {
+        data: {
+          error: `unable_connect_${kind}`.toUpperCase()
+        }
+      })
+    }
+  }
+}

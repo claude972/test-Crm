@@ -1,0 +1,1 @@
+export const DEFAULT_API_KEY_NAME = 'KOVAALAB_API_KEY';

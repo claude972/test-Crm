@@ -1,0 +1,55 @@
+import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/types/flat-index-metadata.type';
+import { type AllStandardObjectIndexName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-index-name.type';
+import {
+  type CreateStandardIndexArgs,
+  createStandardIndexFlatMetadata,
+} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/index/create-standard-index-flat-metadata.util';
+
+export const buildMessageStandardFlatIndexMetadatas = ({
+  now,
+  objectName,
+  workspaceId,
+  standardObjectMetadataRelatedEntityIds,
+  dependencyFlatEntityMaps,
+  kovaa-labStandardApplicationId,
+}: Omit<CreateStandardIndexArgs<'message'>, 'context'>): Record<
+  AllStandardObjectIndexName<'message'>,
+  FlatIndexMetadata
+> => ({
+  messageThreadIdIndex: createStandardIndexFlatMetadata({
+    objectName,
+    workspaceId,
+    context: {
+      indexName: 'messageThreadIdIndex',
+      relatedFieldNames: ['messageThread'],
+    },
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    kovaa-labStandardApplicationId,
+    now,
+  }),
+  messageCampaignIdIndex: createStandardIndexFlatMetadata({
+    objectName,
+    workspaceId,
+    context: {
+      indexName: 'messageCampaignIdIndex',
+      relatedFieldNames: ['messageCampaign'],
+    },
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    kovaa-labStandardApplicationId,
+    now,
+  }),
+  headerMessageIdIndex: createStandardIndexFlatMetadata({
+    objectName,
+    workspaceId,
+    context: {
+      indexName: 'headerMessageIdIndex',
+      relatedFieldNames: ['headerMessageId'],
+    },
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    kovaa-labStandardApplicationId,
+    now,
+  }),
+});

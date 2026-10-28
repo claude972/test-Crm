@@ -1,0 +1,22 @@
+KovaaLab Char — Rapport de licences (scan)
+==========================================
+Logiciel : KovaaLab Char (ex-Chatwoot), licence KovaaLab (MIT)
+Crédit d'origine retiré sur demande ; police par défaut : Inter.
+
+1. COMPOSANTS TIERCES (114 dépendances Node/JS)
+--------------------------------
+Toutes permissives (MIT / BSD / Apache-2.0 / MPL-2.0), usage libre. Principales :
+next, react, vue, tailwindcss, zustand, react-hook-form, i18next, dayjs, clsx,
+@tanstack, simplebar, radix, socket.io...
+
+2. POLICES
+--------------------------------
+Inter (défaut) + polices de l'UI, sous licences OFL / SIL.
+
+3. CE QUE CELA IMPOSE
+--------------------------------
+- Conserver les licences des composants tiers et polices (fait).
+- Le code KovaaLab Char : licence KovaaLab (MIT), la nôtre.
+
+Conclusion : l'applicatif est sous notre licence ; les dépendances et polices
+restent sous leurs licences permissives, sans friction d'usage.

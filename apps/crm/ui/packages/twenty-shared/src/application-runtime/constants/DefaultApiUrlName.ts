@@ -1,0 +1,1 @@
+export const DEFAULT_API_URL_NAME = 'KOVAALAB_API_URL';

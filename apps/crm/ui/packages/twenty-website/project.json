@@ -1,0 +1,77 @@
+{
+  "name": "kovaa-lab-website",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/kovaa-lab-website/src",
+  "projectType": "application",
+  "tags": ["scope:website"],
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "npx next dev --port 3002"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "npx next build"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["^build"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "npx tsc -p tsconfig.json --noEmit"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["^build"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "npx jest --config=jest.config.mjs"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "inputs": [
+        "default",
+        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/.oxlintrc.i18n.json",
+        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/check-unlocalized-strings.mjs",
+        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/filter-unlocalized-strings.mjs"
+      ],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "node scripts/check-conventions.mjs && npx oxlint -c .oxlintrc.json . && yarn lint:i18n:shared-ui && npx oxfmt --check ."
+      },
+      "configurations": {
+        "fix": {
+          "command": "npx oxfmt ."
+        }
+      },
+      "dependsOn": [
+        {
+          "projects": ["kovaa-lab-ui"],
+          "target": "build"
+        }
+      ]
+    },
+    "lingui:extract": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "lingui extract --overwrite --clean"
+      }
+    },
+    "lingui:compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "lingui compile --typescript"
+      }
+    }
+  }
+}

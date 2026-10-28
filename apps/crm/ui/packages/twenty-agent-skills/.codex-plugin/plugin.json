@@ -1,0 +1,45 @@
+{
+  "name": "kovaa-lab",
+  "version": "0.1.0",
+  "description": "Create, operate, develop, publish, and query KovaaLab CRM apps through Codex.",
+  "author": {
+    "name": "KovaaLab CRM PBC",
+    "url": "https://kovaa-lab.com/"
+  },
+  "homepage": "https://docs.kovaa-lab.com/",
+  "repository": "https://github.com/kovaa-lab/kovaa-lab",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "kovaa-lab",
+    "mcp",
+    "oauth",
+    "crm",
+    "apps",
+    "scaffolding",
+    "cli",
+    "kovaa-lab-sdk",
+    "publishing"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "KovaaLab CRM",
+    "shortDescription": "Create, develop, publish, and query apps",
+    "longDescription": "Scaffold, develop, deploy, and publish KovaaLab CRM apps end-to-end. Five focused skills cover app creation, entity development (objects, fields, logic, layouts, front components), remote/sync/deploy operations, marketplace publishing assets, and workspace data retrieval via MCP. The bundled KovaaLab CRM docs MCP server keeps guidance current, and the setup helper wires per-user workspace MCP with OAuth in one command.",
+    "developerName": "KovaaLab CRM PBC",
+    "category": "Coding",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "websiteURL": "https://kovaa-lab.com/",
+    "privacyPolicyURL": "https://kovaa-lab.com/privacy-policy",
+    "termsOfServiceURL": "https://kovaa-lab.com/terms",
+    "defaultPrompt": [
+      "Create and run a new KovaaLab CRM app",
+      "Push a KovaaLab CRM app to production",
+      "Develop a KovaaLab CRM app feature"
+    ],
+    "brandColor": "#000000",
+    "composerIcon": "./assets/kovaa-lab-logo.svg",
+    "logo": "./assets/kovaa-lab-logo.png",
+    "screenshots": []
+  }
+}

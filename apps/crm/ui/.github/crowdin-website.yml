@@ -1,0 +1,14 @@
+#
+# Crowdin CLI configuration for Website translations (kovaa-lab-website)
+# Project ID: 4
+# See https://crowdin.github.io/crowdin-cli/configuration for more information
+#
+
+project_id: 4
+preserve_hierarchy: true
+base_url: 'https://kovaa-lab.api.crowdin.com'
+base_path: ..
+
+files:
+  - source: packages/kovaa-lab-website/src/locales/en.po
+    translation: '%original_path%/%two_letters_code%.po'
