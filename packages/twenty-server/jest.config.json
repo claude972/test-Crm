@@ -1,7 +1,14 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "testMatch": ["**/*.{test,spec}.{ts,js}"],
-  "transform": { "^.+\\.(t|j)s$": "ts-jest" },
+  "transform": {
+    "^.+\\.(t|j)s$": ["ts-jest", {"tsconfig": "tsconfig.jest.json"}]
+  },
   "coverageDirectory": "../coverage",
-  "testEnvironment": "node"
+  "testEnvironment": "node",
+  "moduleNameMapper": {
+        "^kovaa-lab-shared/(.*)$": "<rootDir>/src/kovaa-lab-shared/$1",
+    "^kovaa-lab-shared/(.*)$": "<rootDir>/src/$1"
+  },
+  "roots": ["<rootDir>/src", "<rootDir>/e2e"]
 }

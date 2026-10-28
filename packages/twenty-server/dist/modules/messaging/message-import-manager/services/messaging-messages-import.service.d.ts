@@ -1,0 +1,34 @@
+import { Repository } from 'typeorm';
+import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { type ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
+import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
+import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { BlocklistRepository } from 'src/modules/blocklist/repositories/blocklist.repository';
+import { EmailAliasManagerService } from 'src/modules/connected-account/email-alias-manager/services/email-alias-manager.service';
+import { MessageChannelSyncStatusService } from 'src/modules/messaging/common/services/message-channel-sync-status.service';
+import { MessagingGetMessagesService } from 'src/modules/messaging/message-import-manager/services/messaging-get-messages.service';
+import { MessageImportExceptionHandlerService } from 'src/modules/messaging/message-import-manager/services/messaging-import-exception-handler.service';
+import { MessagingSaveMessagesAndEnqueueContactCreationService } from 'src/modules/messaging/message-import-manager/services/messaging-save-messages-and-enqueue-contact-creation.service';
+import { MessagingMonitoringService } from 'src/modules/messaging/monitoring/services/messaging-monitoring.service';
+export declare class MessagingMessagesImportService {
+    private readonly cacheStorage;
+    private readonly messageChannelSyncStatusService;
+    private readonly saveMessagesAndEnqueueContactCreationService;
+    private readonly messagingMonitoringService;
+    private readonly blocklistRepository;
+    private readonly emailAliasManagerService;
+    private readonly workspaceOrmManager;
+    private readonly messageChannelRepository;
+    private readonly messagingGetMessagesService;
+    private readonly messageImportErrorHandlerService;
+    private readonly userWorkspaceRepository;
+    private readonly workspaceRepository;
+    private readonly kovaaLabConfigService;
+    private readonly logger;
+    constructor(cacheStorage: CacheStorageService, messageChannelSyncStatusService: MessageChannelSyncStatusService, saveMessagesAndEnqueueContactCreationService: MessagingSaveMessagesAndEnqueueContactCreationService, messagingMonitoringService: MessagingMonitoringService, blocklistRepository: BlocklistRepository, emailAliasManagerService: EmailAliasManagerService, workspaceOrmManager: WorkspaceOrmManager, messageChannelRepository: Repository<MessageChannelEntity>, messagingGetMessagesService: MessagingGetMessagesService, messageImportErrorHandlerService: MessageImportExceptionHandlerService, userWorkspaceRepository: Repository<UserWorkspaceEntity>, workspaceRepository: Repository<WorkspaceEntity>, kovaaLabConfigService: KovaaLabCRMConfigService);
+    processMessageBatchImport(messageChannel: MessageChannelEntity, connectedAccount: ConnectedAccountEntity, workspaceId: string, batchSize?: number): Promise<void>;
+    private trackMessageImportCompleted;
+}

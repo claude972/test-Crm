@@ -1,0 +1,12 @@
+{
+  "name": "test-runner",
+  "version": "1.0.0",
+  "devDependencies": {
+    "jest": "^30.5.2",
+    "ts-jest": "^30.5.2",
+    "@types/jest": "^30.0.0",
+    "@nestjs/common": "^13.0.0",
+    "@nestjs/testing": "^13.0.0",
+    "typescript": "^5.9.3"
+  }
+}

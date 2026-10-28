@@ -1,0 +1,165 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var ImapGetAllFoldersService_1;
+var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ImapGetAllFoldersService = void 0;
+const common_1 = require("@nestjs/common");
+const utils_1 = require("kovaa-lab-shared/utils");
+const should_create_folder_by_default_util_1 = require("src/modules/messaging/message-folder-manager/utils/should-create-folder-by-default.util");
+const should_sync_folder_by_default_util_1 = require("src/modules/messaging/message-folder-manager/utils/should-sync-folder-by-default.util");
+const imap_client_provider_1 = require("src/modules/messaging/message-import-manager/drivers/imap/providers/imap-client.provider");
+const imap_find_sent_folder_service_1 = require("src/modules/messaging/message-import-manager/drivers/imap/services/imap-find-sent-folder.service");
+const get_imap_folder_path_util_1 = require("src/modules/messaging/message-import-manager/drivers/imap/utils/get-imap-folder-path.util");
+const normalize_imap_unicode_util_1 = require("src/modules/messaging/message-import-manager/drivers/imap/utils/normalize-imap-unicode.util");
+const get_standard_folder_by_regex_1 = require("src/modules/messaging/message-import-manager/drivers/utils/get-standard-folder-by-regex");
+let ImapGetAllFoldersService = ImapGetAllFoldersService_1 = class ImapGetAllFoldersService {
+    imapClientProvider;
+    imapFindSentFolderService;
+    logger = new common_1.Logger(ImapGetAllFoldersService_1.name);
+    constructor(imapClientProvider, imapFindSentFolderService) {
+        this.imapClientProvider = imapClientProvider;
+        this.imapFindSentFolderService = imapFindSentFolderService;
+    }
+    async getAllMessageFolders(connectedAccount, messageChannel, existingFolders) {
+        try {
+            const client = await this.imapClientProvider.getClient(connectedAccount.id);
+            const mailboxList = await client.list();
+            const folders = await this.filterAndMapFolders(client, mailboxList, messageChannel, existingFolders);
+            await this.imapClientProvider.closeClient(client);
+            return folders;
+        }
+        catch (error) {
+            this.logger.error(`Failed to get IMAP folders for account ${connectedAccount.handle}:`, error);
+            throw error;
+        }
+    }
+    async filterAndMapFolders(client, mailboxList, messageChannel, existingFolders) {
+        const normalizedMailboxList = mailboxList.map((mailbox) => ({
+            ...mailbox,
+            path: (0, normalize_imap_unicode_util_1.normalizeImapUnicode)(mailbox.path, client),
+            name: (0, normalize_imap_unicode_util_1.normalizeImapUnicode)(mailbox.name, client),
+            parentPath: mailbox.parentPath
+                ? (0, normalize_imap_unicode_util_1.normalizeImapUnicode)(mailbox.parentPath, client)
+                : mailbox.parentPath,
+        }));
+        const existingExternalIdsByNormalizedId = new Map();
+        for (const folder of existingFolders) {
+            if ((0, utils_1.isDefined)(folder.externalId)) {
+                existingExternalIdsByNormalizedId.set((0, normalize_imap_unicode_util_1.normalizeImapUnicode)(folder.externalId, client), folder.externalId);
+            }
+        }
+        const folders = [];
+        const pathToExternalIdMap = new Map();
+        const sentFolder = await this.imapFindSentFolderService.findSentFolder(client);
+        const sentFolderPath = (0, utils_1.isDefined)(sentFolder)
+            ? (0, normalize_imap_unicode_util_1.normalizeImapUnicode)(sentFolder.path, client)
+            : undefined;
+        const sentMailbox = (0, utils_1.isDefined)(sentFolder)
+            ? normalizedMailboxList.find((mailbox) => mailbox.path === sentFolderPath)
+            : undefined;
+        if ((0, utils_1.isDefined)(sentFolder) &&
+            (0, utils_1.isDefined)(sentFolderPath) &&
+            (0, utils_1.isDefined)(sentMailbox) &&
+            this.isMailboxSelectable(sentMailbox)) {
+            const uidValidity = await this.getUidValidity(client, sentMailbox);
+            const normalizedExternalId = uidValidity
+                ? `${sentFolderPath}:${uidValidity.toString()}`
+                : sentFolderPath;
+            const externalId = existingExternalIdsByNormalizedId.get(normalizedExternalId) ??
+                normalizedExternalId;
+            pathToExternalIdMap.set(sentFolderPath, externalId);
+            folders.push({
+                externalId,
+                name: sentMailbox.name,
+                isSynced: true,
+                isSentFolder: true,
+                parentFolderId: sentMailbox?.parentPath || null,
+            });
+        }
+        for (const mailbox of normalizedMailboxList) {
+            if (!this.isValidMailbox(client, mailbox, folders)) {
+                if (!pathToExternalIdMap.has(mailbox.path)) {
+                    pathToExternalIdMap.set(mailbox.path, mailbox.path);
+                }
+                continue;
+            }
+            const uidValidity = await this.getUidValidity(client, mailbox);
+            const normalizedExternalId = uidValidity
+                ? `${mailbox.path}:${uidValidity}`
+                : mailbox.path;
+            const externalId = existingExternalIdsByNormalizedId.get(normalizedExternalId) ??
+                normalizedExternalId;
+            pathToExternalIdMap.set(mailbox.path, externalId);
+            const standardFolder = (0, get_standard_folder_by_regex_1.getStandardFolderByRegex)(mailbox.name);
+            if (!(0, should_create_folder_by_default_util_1.shouldCreateFolderByDefault)(standardFolder)) {
+                continue;
+            }
+            const isSynced = (0, should_sync_folder_by_default_util_1.shouldSyncFolderByDefault)(messageChannel.messageFolderImportPolicy);
+            folders.push({
+                externalId,
+                name: mailbox.name,
+                isSynced,
+                isSentFolder: false,
+                parentFolderId: mailbox.parentPath || null,
+            });
+        }
+        for (const folder of folders) {
+            if (folder.parentFolderId) {
+                const parentExternalId = pathToExternalIdMap.get(folder.parentFolderId);
+                folder.parentFolderId = parentExternalId || null;
+            }
+        }
+        return folders;
+    }
+    isMailboxSelectable(mailbox) {
+        // Per RFC 3501, IMAP attribute names are case-insensitive. Different
+        // servers vary the spelling (Dovecot: \Noselect, Stalwart: \NoSelect),
+        // so we compare lowercased to avoid attempting SELECT on a virtual
+        // namespace placeholder, which the server would reject as NONEXISTENT.
+        if (!mailbox.flags) {
+            return true;
+        }
+        for (const flag of mailbox.flags) {
+            if (flag.toLowerCase() === '\\noselect') {
+                return false;
+            }
+        }
+        return true;
+    }
+    isValidMailbox(client, mailbox, existingFolders) {
+        if (!this.isMailboxSelectable(mailbox)) {
+            return false;
+        }
+        const isDuplicate = existingFolders.some((folder) => (0, get_imap_folder_path_util_1.getImapFolderPath)(folder.externalId, client) === mailbox.path);
+        return !isDuplicate;
+    }
+    async getUidValidity(client, mailbox) {
+        if (mailbox.status?.uidValidity) {
+            return mailbox.status.uidValidity;
+        }
+        try {
+            const status = await client.status(mailbox.path, {
+                uidValidity: true,
+            });
+            return status.uidValidity ?? null;
+        }
+        catch (error) {
+            this.logger.warn(`Failed to get uidValidity for folder ${mailbox.path}:`, error);
+            return null;
+        }
+    }
+};
+exports.ImapGetAllFoldersService = ImapGetAllFoldersService;
+exports.ImapGetAllFoldersService = ImapGetAllFoldersService = ImapGetAllFoldersService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [imap_client_provider_1.ImapClientProvider, typeof (_a = typeof imap_find_sent_folder_service_1.ImapFindSentFolderService !== "undefined" && imap_find_sent_folder_service_1.ImapFindSentFolderService) === "function" ? _a : Object])
+], ImapGetAllFoldersService);

@@ -1,0 +1,20 @@
+import { type gmail_v1 } from 'googleapis';
+export declare const parseGmailMessage: (message: gmail_v1.Schema$Message) => {
+    id: any;
+    headerMessageId: any;
+    threadId: any;
+    historyId: any;
+    internalDate: any;
+    subject: any;
+    from: any;
+    replyTo: EmailAddress[];
+    deliveredTo: any;
+    to: EmailAddress[];
+    cc: EmailAddress[];
+    bcc: EmailAddress[];
+    body: string;
+    isHtml: any;
+    attachments: any;
+    labelIds: any;
+    messageHeaders: any;
+};
