@@ -46,3 +46,5 @@
 - Read `docs/stabilization/p0-status.md` for the distinction between the published baseline and unpublished local changes. Never overwrite, stash, clean, reset, or publish another contributor's unfinished changes.
 - Frontend work belongs to Claude; backend and infrastructure belong to Codex. Use separate worktrees and branches. Agree shared contracts before changes.
 - No task is cross-verified until the other agent has reviewed the exact revision, recorded findings and relevant checks, and verified the combined result when available.
+
+- Current shared coordination: fetch `missions/p0-stabilization` and read its root `MISSIONS.md` and `CORRECTIONS.md` before starting. Preserve existing assignments and findings. Publish the shared verification report in CORRECTIONS.md before marking an assignment ready_for_review. Do not duplicate already claimed work.
