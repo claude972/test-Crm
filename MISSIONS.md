@@ -53,7 +53,7 @@ Claude examine les commits Codex désignés et consigne ses constats ; Codex rel
 
 Mission ID: p0-frontend-baseline
 Coordination branch: missions/p0-stabilization
-Base revision: c0318cf0b
+Base revision: c0318cf0b33134c4c292affe395009a6bd3b4662
 Corrections: CORRECTIONS.md (repository root)
 
 ## Objective
