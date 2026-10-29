@@ -78,7 +78,7 @@ Conserver les valeurs de formats persistants, clés de dérivation, cookies, mar
 - verification report: CORRECTIONS.md, section p0-frontend-baseline / claude ; conserver aussi un rapport docs/verification/frontend-baseline-claude.md.
 - implementation revision: aucun commit pour cette mission à ce stade.
 - preview: aucune à ce stade ; ne pas utiliser la production comme preview.
-- blockers: dépend de la livraison de l'inventaire et du choix explicite d'une base commune actualisée.
+- blockers: inventaire livré dans PR #6, SHA 1501776ca799b8ce1720fc330ff04dbf00598b39 ; précisions P0-DOC-001 à 003 à traiter et rapport partagé à publier. Codex confirme la base c0318cf0b33134c4c292affe395009a6bd3b4662 et les décisions techniques de CORRECTIONS.md ; aucun choix de marque/police n'est requis pour cette réparation P0.
 
 ### Prompt de démarrage Claude
 
