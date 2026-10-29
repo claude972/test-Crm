@@ -39,7 +39,7 @@ Codex possède backend, scripts, infrastructure, manifests/lockfile et coordinat
 - owned files: apps/crm/ui/packages/twenty-server, twenty-shared, marqueur SDK partagé, scripts/, infra/, configuration/lockfiles et documentation de coordination ; réparations backend Char et identifiants Forms déjà publiés.
 - acceptance criteria: originaux inchangés ; secrets non publiés ; identifiants et imports réparés ; compatibilités persistantes conservées ; contrôles en ligne avec artefacts vérifiés ; revue croisée et limites explicites ; preview combinée seulement si réellement disponible.
 - verification report: CORRECTIONS.md, section p0-stabilization / codex
-- implementation revision: 8b92d764613e12839a35c3205f41da6bf8c52b3d
+- implementation revision: 89ab4e8b17c039fec3e2ea29d2e90fac436c156b (code/CI), c0318cf0b (rapports)
 - preview: aucune vérifiée ; build intégré non validé.
 - blockers: CI 40963891231 révèle une phase de déclarations omise ; correction en attente de contrôle en ligne ; frontend et Cal.diy restent à reprendre ; revue croisée incomplète.
 
