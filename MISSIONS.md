@@ -46,3 +46,58 @@ Codex possède backend, scripts, infrastructure, manifests/lockfile et coordinat
 ## Cross-verification
 
 Claude examine les commits Codex désignés et consigne ses constats ; Codex relit le rapport/frontend de Claude sur son SHA exact. CORRECTIONS.md vide à sa création ne signifie pas absence de défaut. Les missions restent in_progress tant que les corrections, vérifications et limites applicables ne sont pas résolues.
+
+---
+
+## Mission: Réparer la base frontend P0 et vérifier la construction combinée
+
+Mission ID: p0-frontend-baseline
+Coordination branch: missions/p0-stabilization
+Base revision: c0318cf0b
+Corrections: CORRECTIONS.md (repository root)
+
+## Objective
+
+Après l'inventaire de la mission #5, reprendre les réparations frontend locales nécessaires à une base constructible. Corriger les identifiants invalides, imports et chemins ; conserver le design et le comportement métier. Cette mission reste P0, sans refonte ni fonctionnalité P1.
+
+## Shared contracts and dependencies
+
+Dépendance obligatoire : rapport de p0-stabilization / claude publié et SHA d'inventaire prêt à relire. Ne pas démarrer cette mission à la place de la livraison de l'inventaire. Vérifier le dernier état de CORRECTIONS.md et fetch les branches avant de revendiquer le travail.
+
+Le checkout test-Crm contient les originaux, uniquement en lecture pour cette reprise. Ne pas toucher à ses .env, .runtime, données ou modifications. Utiliser un worktree distinct pour chaque branche d'implémentation. Les SHA complets de départ effectifs sont à consigner avant édition ; le commit de base publié ci-dessus est immuable et peut être résolu par git.
+
+Conserver les valeurs de formats persistants, clés de dérivation, cookies, marqueur __kovaa-labHttpResponse, identifiants de données et noms de paquets réels. Un renommage esthétique ne justifie pas de changer un protocole. Aucun changement de contrat API, de schéma, d'authentification, de catalogue généré ou de lockfile partagé sans coordination explicite avec Codex. Pas de SSO ou de faux état connecté. Ne pas intégrer silencieusement les pages Outils clients si leurs dépendances ne sont pas présentes ; proposer le plus petit découpage constructible et consigner la décision.
+
+## Claude assignment — p0-frontend-baseline
+- agent: claude
+- status: pending
+- branch: fix/claude-frontend-baseline
+- deliverables: réparations frontend de syntaxe et chemins en commits ciblés, contrôles pertinents et rapport partagé.
+- owned files: apps/crm/ui/packages/twenty-front et twenty-front-component-renderer ; frontend Char sous apps/crm/bot/app/javascript et templates HTML/ERB nécessaires à ses globals ; apps/crm/bot/package.json uniquement pour les imports registry réparés. Ne pas toucher aux sources backend, types shared, migrations, lockfile CRM, bibliothèque UI importée ou scripts de Codex sans coordination.
+- acceptance criteria: lire AGENTS.md/DESIGN.md et les consignes proches ; inspecter les sources et l'interface disponible ; reprendre uniquement les changements compris et vérifier les dépendances correspondantes ; aucune nouvelle direction visuelle ; sources TS/JS/Vue réparées, absence d'identifiants illégaux démontrée par contrôles adaptés ; build/typecheck ou limites précisément consignés ; originaux conservés ; aucun secret ; commits poussés ; preview Vercel isolée vérifiée si le bundle et la configuration permettent de la produire, sinon blocage explicite ; revue Codex du SHA exact requise.
+- verification report: CORRECTIONS.md, section p0-frontend-baseline / claude ; conserver aussi un rapport docs/verification/frontend-baseline-claude.md.
+- implementation revision: aucun commit pour cette mission à ce stade.
+- preview: aucune à ce stade ; ne pas utiliser la production comme preview.
+- blockers: dépend de la livraison de l'inventaire et du choix explicite d'une base commune actualisée.
+
+### Prompt de démarrage Claude
+
+```text
+Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inventaire #5. Lis les fichiers MISSIONS.md et CORRECTIONS.md sur origin/missions/p0-stabilization, confirme ton affectation et vérifie qu'aucun autre agent ne l'a prise. Crée ta branche fix/claude-frontend-baseline dans un worktree distinct, sur le commit commun résolu et consigné avec Codex. Lis les règles et les sources existantes. Compare les réparations locales en lecture seule ; ne copie pas aveuglément tous les changements et ne publie pas les catalogues régénérés. Corrige uniquement les identifiants JS/TS/Vue invalides et les chemins nécessaires au frontend constructible, sans refaire le design ni ajouter P1. Conserve les protocoles et les valeurs persistantes. Coordonne les fichiers partagés avant toute édition. Vérifie syntaxe, imports, types/build selon les dépendances réellement disponibles. Publie les commits, une PR brouillon vers chore/p0-stabilization, le rapport dans CORRECTIONS.md et la preview isolée si vérifiable ; sinon précise exactement la limite. Mets ton statut à ready_for_review seulement après publication du rapport et donne le SHA à Codex. Ne déclare pas la revue croisée terminée toi-même.
+```
+
+## Codex assignment — p0-frontend-baseline
+- agent: codex
+- status: pending
+- branch: fix/codex-backend-build
+- deliverables: vérifier les dépendances backend et la construction sur la base commune, relire les réparations Claude et corriger les défauts backend/infrastructure prouvés.
+- owned files: scripts/, CI, packages backend/shared/client-sdk/emails nécessaires à la construction ; types partagés uniquement après coordination ; aucun fichier frontend détenu par Claude pendant son implémentation.
+- acceptance criteria: SHA de base et SHA Claude examinés enregistrés ; contrôles significatifs reproduits ; compatibilités persistantes conservées ; correction ciblée des défauts démontrés ; rapport de revue partagé et résultat combiné honnête ; aucune revendication de validation globale sans exécution.
+- verification report: CORRECTIONS.md, section p0-frontend-baseline / codex
+- implementation revision: aucun commit pour cette mission à ce stade.
+- preview: dépend de la disponibilité du résultat combiné ; aucune vérifiée.
+- blockers: dépend du checkpoint constructible de p0-stabilization et du SHA Claude prêt à relire.
+
+## Évaluation et utilisation
+
+Le prompt sépare propriété, dépendances et acceptation ; il vise une reprise de sources, sans nouvelle fonctionnalité. Utiliser les réglages habituels de Claude, sans paramètre API imposé. Vérifier cinq cas : identifiant illégal effectivement réparé ; import pointant vers un fichier réel ; valeur de protocole inchangée ; modifications originales toujours conservées ; build ou preview manquant explicitement signalé. Toute correction prouvée est ajoutée à CORRECTIONS.md avec son propriétaire et son SHA, sans effacer les constats précédents.
