@@ -88,7 +88,7 @@ Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inven
 
 ## Codex assignment — p0-frontend-baseline
 - agent: codex
-- status: in_progress
+- status: ready_for_review
 - branch: fix/codex-backend-build
 - deliverables: vérifier les dépendances backend et la construction sur la base commune, relire les réparations Claude et corriger les défauts backend/infrastructure prouvés.
 - owned files: scripts/, CI, packages backend/shared/client-sdk/emails nécessaires à la construction ; types partagés uniquement après coordination ; aucun fichier frontend détenu par Claude pendant son implémentation.
@@ -96,7 +96,7 @@ Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inven
 - verification report: CORRECTIONS.md, section p0-frontend-baseline / codex
 - implementation revision: 79305ae2e63e72456e3c5b78ae5ced483d951557 ; PR #7, base c0318cf0b33134c4c292affe395009a6bd3b4662.
 - preview: dépend de la disponibilité du résultat combiné ; aucune vérifiée.
-- blockers: contrôle final backend en cours dans CI 40972089496 après correction P0-TYPES-001 ; 19 tests SDK et constructions des dépendances déjà vérifiés dans CI 40971268236. La vérification combinée attend le SHA frontend Claude prêt à relire.
+- blockers: CI 40972089496 verte sur 79305ae2e ; rapport partagé publié. Revue Claude et vérification combinée avec les réparations frontend encore attendues ; aucune preview intégrée ni validation des exemples frontend.
 
 ## Évaluation et utilisation
 
