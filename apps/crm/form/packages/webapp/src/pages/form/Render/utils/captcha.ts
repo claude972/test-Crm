@@ -48,7 +48,7 @@ function resetWidgetClient(kind: 'standard' | 'enterprise') {
 export function recaptchaToken(instance: Any): Promise<string> {
   return new Promise((resolve, reject) => {
     instance.ready(() => {
-      const key = window.kovaa-lab.googleRecaptchaKey
+      const key = window.kovaaLab.googleRecaptchaKey
 
       if (!key) {
         reject(new Error('Google reCAPTCHA key is not configured'))

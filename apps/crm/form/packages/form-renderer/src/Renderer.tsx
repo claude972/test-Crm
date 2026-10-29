@@ -120,7 +120,7 @@ export const FormRenderer: FC<FormRendererProps> = ({
   const [isAndroid, setAndroid] = useState(false)
 
   useEffect(() => {
-    setAndroid(window.kovaa-lab.device.android)
+    setAndroid(window.kovaaLab.device.android)
   }, [])
 
   const allowPayment = useMemo(

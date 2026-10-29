@@ -70,8 +70,8 @@ async function loadRuntimeConfig() {
     if (response.ok) {
       const config = await response.json()
 
-      window.kovaa-lab = {
-        ...(window.kovaa-lab || {}),
+      window.kovaaLab = {
+        ...(window.kovaaLab || {}),
         ...config
       }
     }

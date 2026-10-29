@@ -236,7 +236,7 @@ test('gives "Other" its own required destination when branching', async () => {
 
 test('keeps autosave active in the production Logic Flow tab and persists its connection', async () => {
   Object.assign(window, {
-    kovaa-lab: { device: { mobile: false }, enableGoogleFonts: false },
+    kovaaLab: { device: { mobile: false }, enableGoogleFonts: false },
     matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} })
   })
   vi.stubGlobal(

@@ -14,7 +14,7 @@ export class FormController {
   @Get('/form/:formId')
   async index(@Res() res: Response) {
     return res.render('index', {
-      kovaa-lab: {
+      kovaaLab: {
         homepageURL: APP_HOMEPAGE_URL,
         websiteURL: APP_HOMEPAGE_URL,
         cookieDomain: COOKIE_DOMAIN,

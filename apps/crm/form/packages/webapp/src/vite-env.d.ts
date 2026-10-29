@@ -18,7 +18,7 @@ declare global {
     plausible: any
     DEVICE_INFO: any
     TrackdeskObject: any
-    kovaa-lab: {
+    kovaaLab: {
       form: any
       query: any
       locale: any

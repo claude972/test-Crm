@@ -1,0 +1,22 @@
+name: P0 source integrity
+on:
+  push:
+    branches: [chore/p0-stabilization]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  forms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install isolated verification tools
+        run: npm install --prefix "$RUNNER_TEMP/hermes-p0" --ignore-scripts --no-audit --no-fund typescript@5.4.5 handlebars@4.7.8
+      - name: Check Forms syntax, runtime bootstrap and credential compatibility
+        env:
+          HERMES_CHECK_MODULES: ${{ runner.temp }}/hermes-p0
+        run: node scripts/check-forms-p0.cjs

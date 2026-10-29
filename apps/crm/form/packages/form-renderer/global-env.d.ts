@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    kovaa-lab: {
+    kovaaLab: {
       device: {
         ios: boolean
         android: boolean

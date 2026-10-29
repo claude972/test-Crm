@@ -126,7 +126,7 @@ export default function BuilderNavBar() {
     <div className="flex h-14 items-center justify-between px-2">
       <nav aria-label="breadcrumb" className="flex">
         <ol className="text-secondary flex flex-wrap items-center gap-1.5 break-words text-sm">
-          {window.kovaa-lab.device.mobile ? (
+          {window.kovaaLab.device.mobile ? (
             <li className="text-primary">
               <Link
                 role="link"

@@ -111,7 +111,7 @@ const DateRangeItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) 
 const FileUploadItem: FC<SubmissionCellProps> = ({ answer, field, isTableCell }) => {
   const value = getFileUploadValue(
     answer.value,
-    [...(window.kovaa-lab.uploadOrigins || []), window.location.origin],
+    [...(window.kovaaLab.uploadOrigins || []), window.location.origin],
     window.location.origin
   )
 

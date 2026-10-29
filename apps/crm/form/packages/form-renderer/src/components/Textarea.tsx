@@ -70,7 +70,7 @@ export const Textarea: FC<TextareaProps> = ({ value: rawValue, onChange, ...rest
     if (e.key === 'Enter') {
       preventDefault(event)
 
-      if (e.shiftKey || window.kovaa-lab.device.mobile) {
+      if (e.shiftKey || window.kovaaLab.device.mobile) {
         stopPropagation(event)
         document.execCommand('insertText', false, '\n')
       }
@@ -89,7 +89,7 @@ export const Textarea: FC<TextareaProps> = ({ value: rawValue, onChange, ...rest
   }, [value])
 
   useEffect(() => {
-    if (window.kovaa-lab.device.mobile) {
+    if (window.kovaaLab.device.mobile) {
       setTipShow(false)
     }
   }, [])
