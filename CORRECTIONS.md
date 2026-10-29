@@ -81,13 +81,13 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 ## Mission p0-frontend-baseline — agent: codex
 
 - Branche : fix/codex-backend-build
-- Révision : 47d74f7259058ed1936f4f9ea516cdbfc1cb30b8
+- Révision vérifiée : 79305ae2e63e72456e3c5b78ae5ced483d951557 ; rapport local dans docs/verification/backend-build-codex.md sur la branche d'implémentation.
 - PR : https://github.com/claude972/test-Crm/pull/7
 - Changements : 20 réparations locales d'identifiants/chemins dans client-sdk/emails, vérifiées comme lexicales ; aucune modification de protocole, d'authentification ou du contenu des e-mails. Nouvelle CI de construction de la chaîne backend sans lancement de service.
 - Contrôles terminés : 200 sources TS/TSX passent le parsing ; diff d'espacement et Gitleaks passent. Sources originales en lecture seule.
-- Contrôles en cours : https://github.com/claude972/test-Crm/actions/runs/40970658050 construit shared/SDK/e-mails avec déclarations, exécute les tests d'authentification/upload existants, puis vérifie les types et la compilation du serveur.
+- Contrôles terminés : https://github.com/claude972/test-Crm/actions/runs/40972089496 réussie sur 79305ae2e. Installation immuable, shared/SDK/e-mails et leurs déclarations, 19 tests SDK, types de production serveur, compilation Nest/SWC et artefacts serveur/client-sdk embarqué vérifiés. Aucun serveur ou mail envoyé.
 - Preview : aucune vérifiée ; aucun envoi de mail, service ou base démarré.
-- Statut : in_progress, pas de succès de la chaîne complète déclaré.
+- Statut du lot Codex : rapport publié, prêt pour revue croisée ; la chaîne backend décrite est verte, pas la validation applicative globale.
 
 ### P0-SDK-001
 - reviewer: codex
@@ -107,6 +107,6 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 - reviewed revision: ec7322d2d90848ab04319e02cc11a557100141a3
 - evidence: CI 40971268236, neuf erreurs dans scripts/build-seed-front-components.ts et les exemples de src/engine/metadata-modules/front-component/constants/seed-project. Le tsconfig de base excluait déjà seed-project, mais tsconfig.build remplaçait exclude et incluait implicitement les scripts hors sourceRoot. Ces outils/exemples dépendent du SDK frontend et de types générés propres à un workspace, pas du runtime serveur générique.
 - expected correction: aligner le projet TypeScript de production sur src/**/*.ts et src/**/*.tsx, conserver les augmentations Express nécessaires, exclure tests et ressources seed comme prévu par le projet de base, sans désactiver noImplicitAny/strictNullChecks/alwaysStrict ni ajouter de any. Vérifier les outils frontend séparément lorsque leur chaîne SDK est prête.
-- status: fixed_pending_review
+- status: verified
 - fix commit: 79305ae2e63e72456e3c5b78ae5ced483d951557
-- recheck evidence: CI 40972089496 en cours. La compilation inclut aussi le conditionnement des fichiers client-sdk correspondant au target Nest existant. Aucun succès du contrôle final de production encore déclaré.
+- recheck evidence: CI 40972089496 terminée avec succès sur 79305ae2e : types de production contrôlés avec les options strictes héritées inchangées, compilation Nest réussie et fichiers serveur/worker/client-sdk embarqué non vides. Les outils et exemples frontend ne sont pas validés par ce contrôle de production et restent dans le périmètre frontend approprié.
