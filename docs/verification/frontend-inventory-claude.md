@@ -237,6 +237,8 @@ Déclenchement : `RecordIndexEmptyState.tsx:80-92`, branche `objectMetadataItem.
 
 **Effet utilisateur** : impasse. L'utilisateur clique un bouton d'aide et n'atteint pas de page utile. **Le rendu exact — page « non trouvée » ou zone de contenu vide sous le cadre des réglages — dépend de la résolution de `react-router` sur une route parente sans enfant correspondant, et n'a pas été vérifié faute de runtime.** C'est une hypothèse, pas un constat.
 
+> **Décision du 29 octobre 2026 : masquer le bouton plutôt que le rediriger.** Vérification faite, il n'existe **aucune** page de réglages pour les sources de données distantes dans ce frontend : `git ls-files` filtré sur `remote`, `foreign` et `datasource` ne renvoie aucune page, et `isRemote` n'est qu'un drapeau de métadonnées. Rediriger vers « Apps » remplacerait une impasse par une fausse piste. Détail et mise en œuvre : élément **B1** du backlog.
+
 **Priorité : P2.** Chemin étroit, mais défaut réel et bon marché à corriger.
 
 **Critère d'acceptation** : le bouton mène à une page existante, ou disparaît tant que la page Intégrations n'existe pas.
@@ -303,11 +305,25 @@ Aucun fichier de police Geist ou Satoshi n'existe dans `apps/crm/ui`. Les `.woff
 
 Écart voisin, même nature : `DESIGN.md` annonce `#0A0A0A` en sombre et `#FAFAFA` en clair, tandis que le thème pose `--t-background-primary: color(display-p3 0.09 0.09 0.09)` (≈ `#171717`) et `color(display-p3 1 1 1)` (blanc pur) — `theme-dark.css:98` et `theme-light.css:98`.
 
-**Priorité : P2, avec arbitrage utilisateur requis — pas une correction à appliquer seul.** `DESIGN.md` se termine par « Follow a more specific design system in a subproject when it applies; do not silently redesign an existing product. » Le CRM importé **a** son propre système de design mûr, piloté par jetons. Deux règles du même document pointent en sens opposés. Trancher appartient à l'utilisateur, et la mission demande explicitement de conserver le design existant.
+### Décision : `Inter` est conservé dans le CRM importé, comme exception documentée
 
-**Si l'alignement sur `DESIGN.md` est retenu**, le changement est concentré : un jeton (`--t-font-family`) dans quatre fichiers de thème, plus `index.css:5`, plus l'ajout d'une police auto-hébergée avec pile de repli. Il faudra d'abord choisir entre Geist et Satoshi, vérifier la licence, et fournir une référence visuelle comme l'exige `DESIGN.md`.
+> **Décidé le 29 octobre 2026, l'utilisateur ayant demandé d'appliquer la recommandation. Aucun changement de police. Cet élément est clos, pas reporté.**
 
-**Vérification prévue** : après décision, contrôler le rendu des titres et du corps de texte sur une preview, en clair et en sombre, et vérifier la pile de repli quand la police échoue à charger.
+Deux règles de `DESIGN.md` semblaient pointer en sens opposés. La formulation exacte les réconcilie :
+
+- **ligne 9** : « Do **not introduce** Inter, Poppins, Roboto, or system-ui as the design font. » Le verbe est *introduire*. `Inter` n'a pas été introduit par ce projet : il arrive avec le produit importé, via `@fontsource/inter`. La règle interdit de choisir `Inter` pour une interface qu'on écrit ; elle ne commande pas de l'arracher d'un produit existant.
+- **ligne 32** : « Follow a more specific design system in a subproject when it applies; do not silently redesign an existing product. » Le CRM importé **a** un système de design mûr, piloté par jetons. Cette règle s'applique donc, et elle tranche.
+- **ligne 28** : « Before starting any new visual direction, ask for a visual reference. » Aucune référence visuelle n'a été fournie. Ouvrir une nouvelle direction typographique serait une violation directe de cette règle.
+
+S'y ajoutent deux arguments de prudence. La mission elle-même impose de conserver le design existant. Et **aucune vérification visuelle n'est possible sur ce SHA** (§ 3) : changer la police du produit sans pouvoir en observer le rendu une seule fois serait un changement à l'aveugle sur 11 371 fichiers.
+
+**Portée de la règle, désormais sans ambiguïté** : le ban sur `Inter` s'applique pleinement à **toute interface nouvellement écrite** pour ce projet, « Outils clients » compris. Ces écrans devront de toute façon consommer les jetons existants du CRM, donc la question ne s'y pose pas en pratique.
+
+**Ce qui rouvrirait cet élément** : une référence visuelle fournie par l'utilisateur, accompagnée d'une décision assumée de redessiner le produit importé. Dans ce cas, le changement resterait concentré — le jeton `--t-font-family` dans `theme-light.css:184` et `theme-dark.css:180`, les constantes `ThemeLight.ts:199` et `ThemeDark.ts:200`, `index.css:5` — plus l'ajout d'une police auto-hébergée, le choix entre Geist et Satoshi, et la vérification de sa licence.
+
+**Conséquence à consigner ailleurs** : cette exception devrait figurer dans `DESIGN.md` lui-même, pour qu'un futur agent ne la redécouvre pas comme une violation. `DESIGN.md` est hors de mon périmètre de propriété pour cette mission ; la modification revient à son propriétaire.
+
+Le même raisonnement s'applique à l'écart de couleurs de fond relevé juste au-dessus : le thème du sous-projet prévaut, aucun changement.
 
 ---
 
@@ -468,7 +484,9 @@ La marque retenue doit disposer d'un domaine réel : `kovaa-lab.com` est configu
 
 Les deux sont libres. `kovaa-lab.com` est celui que le code attend déjà, dans toutes les références du § 4.6. **L'enregistrer résoudrait le constat 4.6 sans toucher une ligne de code frontend** — c'est l'option la moins intrusive, et elle est cohérente avec la marque décidée.
 
-Ce n'est pas une décision que je prends : un enregistrement de domaine est un achat. Elle reste ouverte, mais elle est désormais documentée et chiffrable. Tant qu'elle n'est pas prise, les CGU et la politique de confidentialité de l'écran de connexion n'aboutissent pas.
+**Décision du 29 octobre 2026 : `kovaa-lab.com` est le domaine retenu.** C'est l'option la moins intrusive — zéro ligne de frontend modifiée — et la seule cohérente avec la marque décidée.
+
+**L'exécution n'est pas faite et ne m'appartient pas : enregistrer un domaine est un achat.** Je ne procède à aucun paiement ni souscription. Tant que l'enregistrement n'a pas eu lieu, le constat 4.6 reste ouvert et les CGU comme la politique de confidentialité de l'écran de connexion n'aboutissent pas. La décision ne referme pas le constat ; seul l'enregistrement le fera. Répartition des actions restantes : élément **B2** du backlog.
 
 Précision de lecture du `whois` : la sortie contient une ligne `status: ACTIVE`, qui appartient à l'en-tête du registre du TLD et **non** au domaine interrogé. La réponse opérante est `No match`.
 
@@ -514,12 +532,25 @@ Le backlog priorisé — correctifs P0 du frontend, puis préparation P1 « Outi
 
 @Codex — revue demandée sur **le commit d'inventaire `b95ce0341d970201a5c5334397736e8317716fcf`**, branche `chore/claude-frontend-inventory`, basée sur `bb11083776b05f4998d6ddc1a5f15e2deb16539e`.
 
-Points sur lesquels ton avis est nécessaire :
+### Décisions déjà prises — ne sont plus à arbitrer
+
+Toutes datées du 29 octobre 2026, l'utilisateur ayant demandé d'appliquer les recommandations.
+
+| Sujet | Décision | Reste à faire |
+| --- | --- | --- |
+| Marque (§ 6) | nom visible = **« KovaaLab CRM »** | `Makefile:7` et `infra/modules.compose.yml:24` — **tes fichiers** |
+| Domaine (§ 4.6) | **`kovaa-lab.com`** retenu, libre au `whois` | enregistrement par l'utilisateur ; aperçu social `index.html:19, :26` — **tes fichiers** |
+| Police (§ 4.7) | **`Inter` conservé**, exception documentée, élément **clos** | consigner l'exception dans `DESIGN.md` |
+| Bouton de l'état vide distant (§ 4.5) | **masquer**, ne pas rediriger vers « Apps » | une prop à ne plus passer, dans `twenty-front` |
+
+L'infrastructure garde `hermes` et **aucun identifiant technique ne change** : la décision de marque porte sur le texte montré à l'utilisateur, pas sur le code.
+
+### Points sur lesquels ton avis reste nécessaire
 
 1. **§ 4.1 à 4.3 — les 295 défauts de `twenty-front`.** Confirmes-tu la mesure sur ton checkout ? Et surtout : ces défauts sont-ils **déjà réparés dans tes modifications locales non publiées** ? Je n'ai pas accès à ces changements et ne peux pas le savoir. Si la réparation existe chez toi, mes P0 sont un constat sur la branche publiée, pas sur l'état réel de ton travail — et il faut le consigner.
 2. **§ 4.3 — arbitrage d'identifiants.** Les imports d'icônes de `twenty-front` doivent-ils revenir à `IconTwentyStar` / `IconTwentyStarFilled`, ou `twenty-ui` doit-il être renommé de façon coordonnée ? Décision partagée, je ne la prends pas seul.
 3. **§ 4.4 — extension de `scripts/check-crm-p0.cjs` à `twenty-front`.** Le fichier t'appartient. Ma proposition inclut le filtrage des spécificateurs d'assets Vite, sans quoi le job échouerait sur 45 faux positifs.
-4. **§ 4.6 — domaine `kovaa-lab.com` inexistant.** Correctif non purement frontend. Quelle cible retenir pour les CGU, la politique de confidentialité et la documentation ?
+4. **§ 4.6 — domaine.** La cible est **décidée** : `kovaa-lab.com`, libre au `whois` et déjà attendu partout par le code. Il n'y a plus de choix à faire, seulement un enregistrement à effectuer côté utilisateur. Ce qui t'appartient : donner une cible réelle à l'aperçu social (`index.html:19`, `:26`), qui pointe vers un dépôt GitHub en 404.
 5. **§ 8.6 — attribution dans les messages de commit.** Convention à fixer à l'échelle du dépôt, ou à laisser au périmètre `apps/crm/ui` ?
 6. **Contrat « Outils clients ».** Aucune API, aucun état de santé et aucun état « connecté » n'a été créé. La proposition de contrat du backlog part de celle de `docs/stabilization/p0-status.md` et attend ton accord avant toute implémentation.
 

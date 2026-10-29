@@ -109,13 +109,21 @@ Vérification : après correction, `git grep -in "Herm[eè]s CRM"` ne renvoie qu
 
 `RecordListEmptyState.tsx:60` navigue vers un chemin non routé, dont l'entrée de navigation est commentée par un `TODO` (`useSettingsNavigationItems.tsx:164-170`).
 
-Options : masquer le bouton tant que la page n'existe pas ; ou le rediriger vers `SettingsPath.Applications`, qui est routé et listé. La seconde est préférable si l'intention était bien d'orienter l'utilisateur d'une table distante vers la configuration de ses applications — intention à confirmer, je ne la devine pas.
+> **Décidé le 29 octobre 2026 : masquer le bouton. Ne pas le rediriger vers « Apps ».**
 
-**Lien direct avec P1** : si « Outils clients » prend place sous `Integrations`, cet élément se résout de lui-même. À séquencer après la décision P1 plutôt qu'avant.
+**Je révise ici ma propre suggestion initiale**, qui proposait de rediriger vers `SettingsPath.Applications`. Vérification faite, cette cible serait sémantiquement fausse.
 
-Critère d'acceptation : le bouton mène à une page rendue, ou disparaît.
+Le bouton n'apparaît que sur l'état vide d'une **table distante** (`RecordIndexEmptyState.tsx:80-92`, branche `objectMetadataItem.isRemote`), avec le sous-titre « If this is unexpected, please verify your settings. » Il visait donc la configuration des **sources de données distantes**, ce qu'était la page Intégrations de l'amont.
 
-Vérification : avec un objet distant et une liste vide, cliquer « Go to Settings » et constater l'arrivée sur une page rendue.
+Or **cette page n'existe pas dans ce frontend** : `git ls-files` filtré sur `remote`, `foreign`, `datasource` ne renvoie aucune page de réglages, et `isRemote` n'est qu'un drapeau de métadonnées consommé par la logique de lecture seule, d'agrégation et de ciblage de relations. `SettingsPath.Applications` concerne les applications installées, pas les sources distantes : y envoyer l'utilisateur remplacerait une impasse par une fausse piste, ce qui est pire — l'utilisateur chercherait une configuration absente sur une page sans rapport.
+
+Décision retenue : **ne plus rendre le bouton**, en conservant le titre et le sous-titre explicatifs. L'utilisateur garde l'information utile — la table est distante et sa configuration est à vérifier — sans destination trompeuse. Concrètement : ne pas passer `onGoToSettings` depuis `RecordListEmptyState.tsx:60`. Aucun autre changement n'est nécessaire, et c'est vérifié — la prop est déjà optionnelle (`RecordIndexEmptyState.tsx:22`) et le bouton est rendu sous condition : `RecordIndexEmptyStateDisplay.tsx:41` → `{isDefined(onButtonClick) && (<Button …>)}`. Une prop omise suffit donc à retirer le bouton, sans toucher au composant d'affichage.
+
+**Lien avec P1** : si « Outils clients » prend place sous `Integrations` et que cette page accueille aussi la configuration des sources distantes, le bouton pourra être rétabli vers une cible réelle. À rouvrir à ce moment-là, pas avant.
+
+Critère d'acceptation : l'état vide d'une table distante n'affiche aucun bouton menant à un chemin non routé.
+
+Vérification : avec un objet distant et une liste vide, constater que le texte explicatif s'affiche et qu'aucun bouton ne propose de navigation.
 
 ### B2 — P2 · Résoudre les liens vers `kovaa-lab.com` (§ 4.6)
 
@@ -125,27 +133,46 @@ Vérification : avec un objet distant et une liste vide, cliquer « Go to Settin
 
 **La décision de marque est prise (B0) et elle débloque l'option la plus simple.** Contrôle `whois` du 29 octobre 2026 : `kovaa-lab.com` et `kovaalab.com` sont **tous deux non enregistrés, donc disponibles**. Or `kovaa-lab.com` est exactement ce que le code attend déjà, dans chacune des références ci-dessus.
 
-Trois options, par ordre de coût croissant côté code :
+> **Décidé le 29 octobre 2026, l'utilisateur ayant demandé d'appliquer la recommandation : option 1 — `kovaa-lab.com` est le domaine retenu.**
+>
+> **L'exécution n'est pas faite et ne peut pas l'être par moi : enregistrer un domaine est un achat.** Je ne procède à aucun paiement ni à aucune souscription de service. La décision est arrêtée, l'acte d'achat reste à l'utilisateur.
 
-1. **Enregistrer `kovaa-lab.com`** puis y publier au minimum `/terms`, `/privacy-policy` et un sous-domaine `docs`. **Zéro ligne de code modifiée.** Recommandé : c'est le seul chemin qui résout aussi l'aperçu social et les 9 fichiers consommateurs de liens de documentation, sans toucher au frontend.
-2. **Repointer les constantes** vers un domaine déjà détenu — `getTwentyWebsiteUrl.ts:7` et `twenty-shared/src/constants/DocumentationBaseUrl.ts:1`, soit deux constantes pour l'essentiel du périmètre. Suppose de disposer d'un domaine et d'y héberger les pages légales.
-3. **Masquer les entrées** dont la cible n'existe pas. À éviter pour les CGU et la politique de confidentialité : un produit ne peut pas se contenter de masquer ses mentions légales.
+Trois options avaient été évaluées, par ordre de coût croissant côté code :
 
-L'aperçu social (`index.html:19`, `:26`) pointe en plus vers le dépôt GitHub `kovaa-lab/kovaa-lab`, en 404. Il demande une cible propre quelle que soit l'option retenue.
+1. **Enregistrer `kovaa-lab.com`** puis y publier au minimum `/terms`, `/privacy-policy` et un sous-domaine `docs`. **Zéro ligne de code modifiée. ← retenu.** C'est le seul chemin qui résout aussi l'aperçu social et les 9 fichiers consommateurs de liens de documentation sans toucher au frontend, et il est cohérent avec la marque décidée en B0. Le domaine était libre au `whois` du 29 octobre 2026.
+2. Repointer les constantes vers un domaine déjà détenu — `getTwentyWebsiteUrl.ts:7` et `twenty-shared/src/constants/DocumentationBaseUrl.ts:1`. Écarté : suppose un domaine dont la détention n'est pas établie, et modifie du code frontend pour un gain nul par rapport à l'option 1.
+3. Masquer les entrées dont la cible n'existe pas. Écarté : un produit ne peut pas se contenter de masquer ses mentions légales.
 
-Un enregistrement de domaine est un achat : décision utilisateur, je ne la prends pas.
+**Ce qu'il reste à faire, et par qui :**
+
+| Action | Propriétaire | Code à modifier |
+| --- | --- | --- |
+| Enregistrer `kovaa-lab.com` | **utilisateur** (achat) | aucun |
+| Publier `/terms` et `/privacy-policy` | utilisateur ou Codex | aucun |
+| Faire résoudre `docs.kovaa-lab.com` | utilisateur ou Codex | aucun |
+| Donner une cible réelle à l'aperçu social | Codex | `index.html:19`, `:26` |
+
+Seul le dernier point touche du code. L'aperçu social pointe vers le dépôt GitHub `kovaa-lab/kovaa-lab`, en 404 : il demande une cible propre, soit un chemin sur le domaine une fois enregistré, soit une image servie depuis le dépôt réel.
+
+**Tant que le domaine n'est pas enregistré, le constat 4.6 reste ouvert** et les mentions légales de l'écran de connexion n'aboutissent pas. La décision ne le referme pas ; seul l'enregistrement le fera.
 
 Critère d'acceptation : tout lien externe affiché résout, ou l'entrée qui le porte est masquée — à l'exception des mentions légales, qui doivent résoudre.
 
-### B3 — P2 · Arbitrer la police de caractères (§ 4.7)
+### B3 — ~~P2 · Arbitrer la police de caractères~~ → **clos sans action** (§ 4.7)
 
-`Inter` est la police active — déclarée en 5 endroits et réellement livrée par `@fontsource/inter` — et `DESIGN.md` la bannit explicitement, tout en demandant par ailleurs de ne pas redessiner silencieusement un produit existant doté de son propre système de design.
+> **Décidé le 29 octobre 2026 : `Inter` est conservé dans le CRM importé, comme exception documentée. Aucun changement de police. Élément clos, pas reporté.**
 
-**Décision utilisateur requise avant toute action.** `DESIGN.md` impose de fournir une référence visuelle avant d'ouvrir une nouvelle direction. Je n'en propose aucune.
+La contradiction apparente de `DESIGN.md` se résout sur la formulation exacte : la ligne 9 interdit d'**introduire** `Inter` — or `Inter` arrive avec le produit importé, via `@fontsource/inter` — tandis que la ligne 32 impose de suivre le système de design d'un sous-projet quand il en a un, et de ne pas redessiner silencieusement un produit existant. La ligne 28 exige par ailleurs une référence visuelle avant toute nouvelle direction ; aucune n'a été fournie.
 
-Si l'alignement est retenu, le changement est concentré : le jeton `--t-font-family` dans `theme-light.css:184` et `theme-dark.css:180`, les constantes `ThemeLight.ts:199` et `ThemeDark.ts:200`, et `index.css:5` ; plus l'ajout d'une police auto-hébergée (aucun fichier Geist ou Satoshi n'existe dans `apps/crm/ui`) avec une pile de repli lisible.
+Deux arguments de prudence s'y ajoutent : la mission impose de conserver le design existant, et **aucune vérification visuelle n'est possible sur ce SHA** — changer la police sans pouvoir observer le rendu une seule fois serait un changement à l'aveugle.
 
-Vérification : rendu des titres et du corps de texte sur une preview, en clair et en sombre, et comportement de la pile de repli quand la police échoue à charger.
+**Portée de la règle, désormais explicite** : le ban sur `Inter`, `Poppins`, `Roboto` et `system-ui` s'applique pleinement à **toute interface nouvellement écrite** pour ce projet, « Outils clients » compris. Ces écrans consommeront de toute façon les jetons existants du CRM.
+
+Même décision pour l'écart de couleurs de fond (`#0A0A0A` / `#FAFAFA` annoncés par `DESIGN.md` contre les valeurs du thème) : le système du sous-projet prévaut, aucun changement.
+
+**Ce qui rouvrirait l'élément** : une référence visuelle fournie par l'utilisateur et une décision assumée de redessiner le produit importé. Le changement resterait alors concentré — jeton `--t-font-family` dans `theme-light.css:184` et `theme-dark.css:180`, constantes `ThemeLight.ts:199` et `ThemeDark.ts:200`, `index.css:5` — plus une police auto-hébergée avec pile de repli, le choix entre Geist et Satoshi, et la vérification de licence. Aucun fichier Geist ou Satoshi n'existe aujourd'hui dans `apps/crm/ui`.
+
+**Action restante, propriétaire de `DESIGN.md`** : y consigner cette exception, pour qu'un futur agent ne la redécouvre pas comme une violation. `DESIGN.md` est hors de mon périmètre de propriété pour cette mission.
 
 ### B4 — P2 · Compléter la prise en charge du mouvement réduit (§ 4.8)
 
@@ -251,6 +278,18 @@ Ce que le frontend attend du serveur :
 
 1. **Lot A** (A1 à A4), un seul lot cohérent. Sans lui, rien d'autre n'est vérifiable. A4 en même temps que A1-A3, pour que le correctif soit protégé dès son arrivée.
 2. **Preview isolée**, dépendance de `docs/stabilization/p0-status.md`, étape 6. Elle débloque toute vérification visuelle, donc tout le lot B.
-3. **Décisions utilisateur.** La marque est **tranchée** : « KovaaLab CRM » (B0). Restent le domaine (B2) et la police (B3). Indépendantes du code, elles peuvent être prises en parallèle du lot A.
-4. **Lot B**, après la preview — sauf **B0**, qui ne dépend ni du lot A ni d'une preview : ce sont deux lignes de texte dans `Makefile` et `infra/modules.compose.yml`, et le nom d'expéditeur des e-mails de Char est aujourd'hui incohérent avec le produit. À faire dès que Codex passe sur ces fichiers. B1 à séquencer après la décision C1.
+3. **Décisions — toutes prises le 29 octobre 2026.** Marque : « KovaaLab CRM » (B0). Domaine : `kovaa-lab.com` (B2). Police : `Inter` conservé, élément clos (B3). Bouton de l'état vide distant : masqué (B1). Aucune ne reste en attente d'arbitrage.
+4. **Lot B**, après la preview — sauf **B0**, qui ne dépend ni du lot A ni d'une preview : ce sont deux lignes de texte dans `Makefile` et `infra/modules.compose.yml`, et le nom d'expéditeur des e-mails de Char est aujourd'hui incohérent avec le produit. À faire dès que Codex passe sur ces fichiers. **B3 est clos sans action.**
 5. **Lot C**, après publication d'une base applicative validée et accord sur le contrat.
+
+### Ce qui reste suspendu à un acte hors code
+
+| Élément | Bloqué par | Qui |
+| --- | --- | --- |
+| B2 — mentions légales qui aboutissent | l'enregistrement de `kovaa-lab.com` (achat) | **utilisateur** |
+| B3 — exception `Inter` consignée dans `DESIGN.md` | une écriture dans un fichier hors de mon périmètre | propriétaire de `DESIGN.md` |
+| B0 — nom d'expéditeur des e-mails de Char | une écriture dans `infra/`, hors de mon périmètre | Codex |
+| Lot A — réparation de `twenty-front` | une écriture dans `twenty-front`, interdite par cette mission | mission d'implémentation autorisée |
+| Revue croisée | l'examen de `b95ce034` par Codex | Codex |
+
+Les décisions sont prises et documentées ; aucune de ces cinq exécutions ne m'appartient dans le cadre de cette mission.
