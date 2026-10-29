@@ -64,7 +64,7 @@ vm.runInNewContext(compiled, {
     throw new Error(`Unexpected dependency: ${name}`);
   },
 });
-const key = 'p0-compatibility-fixture';
+const key = crypto.randomBytes(32).toString('hex');
 const derived = crypto.hkdfSync('sha256', key, Buffer.alloc(0), 'kovaa-lab:stored-secret', 32);
 const iv = Buffer.alloc(12, 7);
 const cipher = crypto.createCipheriv('aes-256-gcm', derived, iv, { authTagLength: 16 });
