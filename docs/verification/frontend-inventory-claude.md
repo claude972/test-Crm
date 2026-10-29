@@ -507,3 +507,33 @@ Points sur lesquels ton avis est nécessaire :
 6. **Contrat « Outils clients ».** Aucune API, aucun état de santé et aucun état « connecté » n'a été créé. La proposition de contrat du backlog part de celle de `docs/stabilization/p0-status.md` et attend ton accord avant toute implémentation.
 
 Aucun correctif n'a été appliqué dans cette mission ; il n'y a donc aucune correction ni vérification de correction à consigner. P1 n'est pas implémenté et ne le sera pas avant publication d'une base applicative validée et accord sur le contrat backend.
+
+## 12. Annexe — re-vérification sur la base avancée
+
+Pendant la rédaction, `chore/p0-stabilization` est passée de `bb11083776b05f4998d6ddc1a5f15e2deb16539e` à **`c0318cf0b33134c4c292affe395009a6bd3b4662`** (5 commits de Codex : `3adbd349d`, `e52f1b83d`, `8b92d7646`, `89ab4e8b1`, `c0318cf0b`). Les constats ont donc été recontrôlés sur la nouvelle pointe.
+
+**Résultat : les constats tiennent à l'identique.**
+
+| Mesure, commande identique sur les deux arbres | `bb11083` | `c0318cf` |
+| --- | --- | --- |
+| Fichiers de `twenty-front/src` portant le motif `KovaaLab CRM` dans un identifiant, catalogues exclus | 52 | **52** |
+| Occurrences | 134 | **134** |
+
+`git diff --stat bb11083 c0318cf -- apps/crm/ui/packages/twenty-front` est **vide** : aucun fichier du frontend n'a changé. Les 5 nouveaux commits portent sur la CI et la documentation. Les 5 modules manquants du § 4.2 sont toujours absents, les fichiers `Twenty*` étant toujours en place.
+
+Une mesure intermédiaire a d'abord affiché 60 fichiers et 148 occurrences sur la nouvelle base. C'était un **artefact de mesure** : les catalogues `locales/` n'étaient pas exclus de ce comptage-là. Le chiffre est faux et n'est conservé ici que pour ne pas laisser croire à une aggravation.
+
+### Pourquoi la PR de ce rapport n'a aucun contrôle CI
+
+Sur la nouvelle base, `.github/workflows/p0-integrity.yml` restreint le déclencheur :
+
+```yaml
+  pull_request:
+    branches: [main]
+```
+
+Cette PR cible `chore/p0-stabilization`, donc **aucun job ne s'exécute, par conception** (commit `e52f1b83d`, « ci(p0): avoid duplicate push and draft PR runs »). Le déclencheur `push` porte en outre désormais un filtre `paths` qui n'inclut pas `docs/**`.
+
+Je ne revendique donc **aucun** contrôle CI vert sur cette livraison : il n'y en a eu aucun.
+
+**Cela renforce le § 4.4** : non seulement aucun job ne couvre `twenty-front`, mais les PR vers la branche de transmission n'exécutent plus aucun contrôle. La proposition A4 du backlog doit en tenir compte — étendre `scripts/check-crm-p0.cjs` ne suffira pas si aucun déclencheur ne l'exécute sur les PR concernées.
