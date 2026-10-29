@@ -60,3 +60,21 @@ jobs:
         run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
       - name: Build the shared package without Nx cache
         run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-shared exec vite build
+  local-orchestration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check script syntax
+        run: for file in scripts/*.mjs; do node --check "$file" || exit 1; done
+      - name: Check private configuration preservation and migration boundaries
+        run: node scripts/check-runtime-p0.cjs
+      - name: Generate isolated CI configuration
+        run: node scripts/local-project.mjs setup
+      - name: Validate Compose without starting services
+        run: |
+          docker compose --env-file apps/crm/ui/.runtime/infra.env -f infra/crm.compose.yml config --quiet
+          docker compose --env-file .runtime/customer-tools.env -f infra/modules.compose.yml --profile char --profile forms --profile calendar config --quiet
