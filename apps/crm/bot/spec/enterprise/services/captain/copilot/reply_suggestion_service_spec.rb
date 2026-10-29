@@ -44,7 +44,7 @@ RSpec.describe Captain::Copilot::ReplySuggestionService do
 
   before do
     incoming_message
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     allow(Captain::Assistant::AgentRunnerService).to receive(:new).with(
       hash_including(
         assistant: assistant,
@@ -273,7 +273,7 @@ RSpec.describe Captain::Copilot::ReplySuggestionService do
     let(:tracer) { instance_double(OpenTelemetry::Trace::Tracer) }
 
     before do
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(OpentelemetryConfig).to receive(:tracer).and_return(tracer)
       allow(tracer).to receive(:in_span).and_yield(span)
     end

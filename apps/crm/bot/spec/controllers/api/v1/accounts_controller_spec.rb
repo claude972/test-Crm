@@ -31,11 +31,11 @@ RSpec.describe 'Accounts API', type: :request do
         end
       end
 
-      it 'calls KovaaLab CharCaptcha' do
+      it 'calls ChatwootCaptcha' do
         with_modified_env ENABLE_ACCOUNT_SIGNUP: 'true' do
           captcha = double
           allow(account_builder).to receive(:perform).and_return([user, account])
-          allow(KovaaLab CharCaptcha).to receive(:new).and_return(captcha)
+          allow(ChatwootCaptcha).to receive(:new).and_return(captcha)
           allow(captcha).to receive(:valid?).and_return(true)
 
           params = { account_name: 'test', email: email, user: nil, locale: nil, user_full_name: user_full_name, password: 'Password1!',
@@ -45,7 +45,7 @@ RSpec.describe 'Accounts API', type: :request do
                params: params,
                as: :json
 
-          expect(KovaaLab CharCaptcha).to have_received(:new).with('123')
+          expect(ChatwootCaptcha).to have_received(:new).with('123')
           expect(response.headers.keys).not_to include('access-token', 'token-type', 'client', 'expiry', 'uid')
           expect(response.parsed_body['email']).to eq(email)
         end
@@ -364,7 +364,7 @@ RSpec.describe 'Accounts API', type: :request do
             headers: admin.create_new_auth_token,
             as: :json
 
-        expect(response.parsed_body['latest_kovaa-lab_version']).to eq('4.16.1')
+        expect(response.parsed_body['latest_chatwoot_version']).to eq('4.16.1')
       end
 
       it 'exposes the Shopify account feature when the installation switch is enabled' do
@@ -465,7 +465,7 @@ RSpec.describe 'Accounts API', type: :request do
 
     context 'with mfa enforcement setting' do
       before do
-        skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+        skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       end
 
       it 'allows administrators to enable enforce_mfa via session auth' do
@@ -479,7 +479,7 @@ RSpec.describe 'Accounts API', type: :request do
       end
 
       it 'ignores enforce_mfa when mfa feature unavailable' do
-        allow(KovaaLab Char).to receive(:mfa_enabled?).and_return(false)
+        allow(Chatwoot).to receive(:mfa_enabled?).and_return(false)
 
         patch "/api/v1/accounts/#{account.id}",
               params: { enforce_mfa: true },

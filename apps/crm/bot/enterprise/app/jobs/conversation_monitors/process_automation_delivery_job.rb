@@ -14,7 +14,7 @@ class ConversationMonitors::ProcessAutomationDeliveryJob < ApplicationJob
     AutomationRules::ActionService.new(rule, delivery.account, conversation).perform
     delivery.update!(status: 'executed')
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: delivery&.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: delivery&.account).capture_exception
   end
 
   private

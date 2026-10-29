@@ -7,7 +7,7 @@ class Internal::Accounts::CloudPlanActivationConversionService
   pattr_initialize [:account!, :previous_plan_name!, :current_plan_name!, :activated_at!, :conversion_value!, :currency_code!]
 
   def perform
-    return unless KovaaLab CharApp.kovaa-lab_cloud?
+    return unless ChatwootApp.chatwoot_cloud?
 
     return unless previous_plan_name == default_plan_name && current_plan_name != default_plan_name
     return if marketing_attribution.blank? || marketing_attribution[PLAN_ACTIVATION_TRACKED_AT].present?

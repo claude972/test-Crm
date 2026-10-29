@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/BlockLength
-namespace :kovaa-lab do
+namespace :chatwoot do
   namespace :dev do
     desc 'Toggle between KovaaLab Char variants with interactive menu'
     task toggle_variant: :environment do

@@ -27,7 +27,7 @@ RSpec.describe 'Super Admin accounts API', type: :request do
 
   describe 'GET /super_admin/accounts/{account_id}' do
     context 'when it is an authenticated user' do
-      it 'shows effective Captain model routing', if: KovaaLab CharApp.enterprise? do
+      it 'shows effective Captain model routing', if: ChatwootApp.enterprise? do
         account.update!(captain_models: { 'editor' => 'gpt-5.1', 'conversation_completion' => 'gpt-5.2' })
         sign_in(super_admin, scope: :super_admin)
 
@@ -46,8 +46,8 @@ RSpec.describe 'Super Admin accounts API', type: :request do
         expect(response.body).to include('Editor', 'OpenAI', 'openai', 'gpt-5.1', 'Help center query translation', 'Default')
       end
 
-      it 'shows the installation model for internal routing on self-hosted Enterprise', if: KovaaLab CharApp.enterprise? do
-        allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(true)
+      it 'shows the installation model for internal routing on self-hosted Enterprise', if: ChatwootApp.enterprise? do
+        allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-5.1')
         sign_in(super_admin, scope: :super_admin)
 
@@ -68,8 +68,8 @@ RSpec.describe 'Super Admin accounts API', type: :request do
 
   describe 'GET /super_admin/accounts/{account_id}/edit' do
     context 'when it is an authenticated user' do
-      it 'renders separate Captain model selectors for customer and internal AI features', if: KovaaLab CharApp.enterprise? do
-        allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(true)
+      it 'renders separate Captain model selectors for customer and internal AI features', if: ChatwootApp.enterprise? do
+        allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-5.1')
         account.update!(captain_models: { 'editor' => 'gpt-5.1' })
         sign_in(super_admin, scope: :super_admin)
@@ -96,7 +96,7 @@ RSpec.describe 'Super Admin accounts API', type: :request do
         expect(completion_select.css('option').pluck('value')).to eq([''] + Llm::Models.models_for('conversation_completion'))
       end
 
-      it 'leaves Calls on mobile out of the feature list', if: KovaaLab CharApp.enterprise? do
+      it 'leaves Calls on mobile out of the feature list', if: ChatwootApp.enterprise? do
         sign_in(super_admin, scope: :super_admin)
 
         get "/super_admin/accounts/#{account.id}/edit"
@@ -105,7 +105,7 @@ RSpec.describe 'Super Admin accounts API', type: :request do
         expect(response.body).not_to include('enabled_features[feature_mobile_voice_push]')
       end
 
-      it 'shows the Captain V2 assistant default in the model selector', if: KovaaLab CharApp.enterprise? do
+      it 'shows the Captain V2 assistant default in the model selector', if: ChatwootApp.enterprise? do
         account.enable_features!('captain_integration')
         sign_in(super_admin, scope: :super_admin)
 

@@ -146,7 +146,7 @@ if resource.whatsapp?
   json.message_templates message_templates.is_a?(Array) ? message_templates : []
   json.provider_config resource.channel.try(:provider_config) if Current.account_user&.administrator?
   if Current.account_user&.administrator? &&
-     KovaaLab CharApp.kovaa-lab_cloud? &&
+     ChatwootApp.chatwoot_cloud? &&
      (resource.channel.try(:provider_config) || {}).to_h['source'] == 'embedded_signup'
     json.business_management_token_configured resource.channel.try(:business_management_token).present?
   end
@@ -163,7 +163,7 @@ if resource.twilio? && resource.channel.respond_to?(:voice_enabled?)
   json.inbound_calls_enabled resource.channel.inbound_calls_enabled?
   json.recording_enabled resource.channel.try(:recording_enabled?)
   json.transcription_enabled resource.channel.try(:transcription_enabled?)
-  if KovaaLab CharApp.enterprise?
+  if ChatwootApp.enterprise?
     out_of_hours = Voice::CallAnnouncement.new(resource, :out_of_hours)
     json.business_hours_calls_enabled out_of_hours.enabled?
     json.out_of_hours_call_message out_of_hours.message

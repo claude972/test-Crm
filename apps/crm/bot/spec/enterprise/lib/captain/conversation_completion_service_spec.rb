@@ -62,7 +62,7 @@ RSpec.describe Captain::ConversationCompletionService do
       end
 
       it 'uses the internal GPT-6 Luna route on KovaaLab Char Cloud' do
-        allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(false)
+        allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(false)
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-5.1')
         account.enable_features!('captain_integration')
         allow(mock_context).to receive(:chat).with(model: 'gpt-6-luna').and_return(mock_chat)
@@ -71,7 +71,7 @@ RSpec.describe Captain::ConversationCompletionService do
       end
 
       it 'uses the installation model on self-hosted Enterprise' do
-        allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(true)
+        allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-5.1')
         allow(mock_context).to receive(:chat).with(model: 'gpt-5.1').and_return(mock_chat)
 
@@ -79,7 +79,7 @@ RSpec.describe Captain::ConversationCompletionService do
       end
 
       it 'uses the account override ahead of the installation model on self-hosted Enterprise' do
-        allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(true)
+        allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-5.1')
         account.update!(captain_models: { 'conversation_completion' => 'gpt-5.2' })
         allow(mock_context).to receive(:chat).with(model: 'gpt-5.2').and_return(mock_chat)
@@ -88,7 +88,7 @@ RSpec.describe Captain::ConversationCompletionService do
       end
 
       it 'falls back to the internal GPT-6 Luna route when the self-hosted installation model is blank' do
-        allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(true)
+        allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: '')
         allow(mock_context).to receive(:chat).with(model: 'gpt-6-luna').and_return(mock_chat)
 
@@ -341,11 +341,11 @@ RSpec.describe Captain::ConversationCompletionService do
       end
 
       before do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         allow(account).to receive(:usage_limits).and_return(
           {
-            agents: KovaaLab CharApp.max_limit,
-            inboxes: KovaaLab CharApp.max_limit,
+            agents: ChatwootApp.max_limit,
+            inboxes: ChatwootApp.max_limit,
             captain: { responses: { current_available: 0 } }
           }
         )

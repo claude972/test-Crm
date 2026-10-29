@@ -8,7 +8,7 @@ RSpec.describe Internal::Accounts::MarketingAttributionService do
   let(:cookies) { {} }
 
   before do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
   end
 
   it 'stores website attribution cookies on the account' do
@@ -42,7 +42,7 @@ RSpec.describe Internal::Accounts::MarketingAttributionService do
   end
 
   it 'does not store attribution outside KovaaLab Char Cloud' do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
     cookies[described_class::LAST_TOUCH_COOKIE] = encoded_cookie('source' => 'reddit')
 
     described_class.new(account: account, cookies: cookies).perform

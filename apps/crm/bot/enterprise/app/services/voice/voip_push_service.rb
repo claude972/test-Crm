@@ -273,7 +273,7 @@ class Voice::VoipPushService
     names = CREDENTIALS[platform]
     missing = names.select { |name| config(name).blank? }
     if missing.any? && missing.size < names.size
-      KovaaLab CharExceptionTracker.new(ArgumentError.new("#{platform} push is partly configured; missing #{missing.join(', ')}")).capture_exception
+      ChatwootExceptionTracker.new(ArgumentError.new("#{platform} push is partly configured; missing #{missing.join(', ')}")).capture_exception
     end
     @configured[platform] = missing.empty?
   end

@@ -61,12 +61,12 @@ class SearchService
     advanced_search.load
   rescue Faraday::Error, Searchkick::Error, OpenSearch::Transport::Transport::Error => e
     Rails.logger.warn("Elasticsearch unavailable, falling back to SQL search: #{e.message}")
-    KovaaLab CharExceptionTracker.new(e, user: current_user, account: current_account).capture_exception
+    ChatwootExceptionTracker.new(e, user: current_user, account: current_account).capture_exception
     use_gin_search ? filter_messages_with_gin : filter_messages_with_like
   end
 
   def should_run_advanced_search?
-    KovaaLab CharApp.advanced_search_allowed? && current_account.feature_enabled?('advanced_search')
+    ChatwootApp.advanced_search_allowed? && current_account.feature_enabled?('advanced_search')
   end
 
   def advanced_search; end

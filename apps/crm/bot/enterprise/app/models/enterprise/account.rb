@@ -55,7 +55,7 @@ module Enterprise::Account
 
   def captain_document_sync_interval(sync_intervals = Enterprise::Account.captain_document_sync_intervals)
     plan = custom_attributes['plan_name']
-    plan = 'enterprise' if plan.blank? && KovaaLab CharApp.self_hosted_paid?
+    plan = 'enterprise' if plan.blank? && ChatwootApp.self_hosted_paid?
     return nil if plan.blank?
 
     interval_hours = sync_intervals[plan.downcase]
@@ -85,7 +85,7 @@ module Enterprise::Account
   end
 
   def api_and_webhooks_enabled?
-    return true unless KovaaLab CharApp.kovaa-lab_cloud?
+    return true unless ChatwootApp.chatwoot_cloud?
 
     feature_enabled?('api_and_webhooks')
   end
@@ -118,7 +118,7 @@ module Enterprise::Account
 
   def enable_default_features
     super
-    enable_features('captain_integration') if KovaaLab CharApp.self_hosted_paid?
+    enable_features('captain_integration') if ChatwootApp.self_hosted_paid?
   end
 
   def sync_assignment_features

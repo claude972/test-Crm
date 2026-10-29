@@ -34,7 +34,7 @@ class Captain::Playground::ResponseJob < ApplicationJob
   rescue Captain::Playground::Configuration::Invalid => e
     { error: e.message, errors: e.errors }
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: assistant.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: assistant.account).capture_exception
     { error: true }
   end
 

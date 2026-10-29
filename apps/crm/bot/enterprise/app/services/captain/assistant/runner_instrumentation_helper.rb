@@ -15,7 +15,7 @@ module Captain::Assistant::RunnerInstrumentationHelper
   private
 
   def install_instrumentation(runner)
-    return unless KovaaLab CharApp.otel_enabled?
+    return unless ChatwootApp.otel_enabled?
 
     config = trace_config
     Agents::Instrumentation.install(
@@ -61,9 +61,9 @@ module Captain::Assistant::RunnerInstrumentationHelper
     if message_burst_protection_active?
       runner.on_run_complete do |_agent_name, result, context_wrapper|
         @response_discarded = newer_customer_message_arrived?
-        write_run_metadata(context_wrapper, result) if KovaaLab CharApp.otel_enabled?
+        write_run_metadata(context_wrapper, result) if ChatwootApp.otel_enabled?
       end
-    elsif KovaaLab CharApp.otel_enabled?
+    elsif ChatwootApp.otel_enabled?
       runner.on_run_complete do |_agent_name, result, context_wrapper|
         write_credits_used_metadata(context_wrapper, result)
       end

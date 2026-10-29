@@ -89,8 +89,8 @@ RSpec.describe DataImports::Intercom::MessageBatchBuilder do
       source_provider: 'intercom',
       source_object_type: 'message',
       source_object_id: target_entry.source_id,
-      kovaa-lab_record_type: 'Message',
-      kovaa-lab_record_id: message.id,
+      chatwoot_record_type: 'Message',
+      chatwoot_record_id: message.id,
       metadata: {}
     )
 
@@ -114,8 +114,8 @@ RSpec.describe DataImports::Intercom::MessageBatchBuilder do
       source_provider: 'intercom',
       source_object_type: 'message',
       source_object_id: 'conversation:conversation_1:part:part_1',
-      kovaa-lab_record_type: 'Message',
-      kovaa-lab_record_id: message.id,
+      chatwoot_record_type: 'Message',
+      chatwoot_record_id: message.id,
       metadata: {}
     )
 
@@ -139,8 +139,8 @@ RSpec.describe DataImports::Intercom::MessageBatchBuilder do
       source_provider: 'intercom',
       source_object_type: 'message',
       source_object_id: 'conversation:conversation_1:part:part_1',
-      kovaa-lab_record_type: 'Message',
-      kovaa-lab_record_id: message.id,
+      chatwoot_record_type: 'Message',
+      chatwoot_record_id: message.id,
       metadata: {}
     )
 
@@ -157,8 +157,8 @@ RSpec.describe DataImports::Intercom::MessageBatchBuilder do
       source_provider: 'intercom',
       source_object_type: 'message',
       source_object_id: 'conversation:conversation_1:part:part_1',
-      kovaa-lab_record_type: 'Message',
-      kovaa-lab_record_id: 0,
+      chatwoot_record_type: 'Message',
+      chatwoot_record_id: 0,
       metadata: {}
     )
 
@@ -193,8 +193,8 @@ RSpec.describe DataImports::Intercom::MessageBatchBuilder do
       source_provider: 'intercom',
       source_object_type: 'message',
       source_object_id: 'conversation:conversation_1:part:part_1',
-      kovaa-lab_record_type: 'Conversation',
-      kovaa-lab_record_id: conversation.id,
+      chatwoot_record_type: 'Conversation',
+      chatwoot_record_id: conversation.id,
       metadata: { skipped: true }
     )
 

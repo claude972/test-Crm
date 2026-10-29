@@ -75,7 +75,7 @@ describe WebhookListener do
 
     context 'when api_and_webhooks feature is disabled on self-hosted' do
       it 'still triggers account webhooks' do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
         account.disable_features!('api_and_webhooks')
         webhook = create(:webhook, inbox: inbox, account: account)
 

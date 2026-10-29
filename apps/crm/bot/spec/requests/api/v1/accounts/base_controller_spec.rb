@@ -63,7 +63,7 @@ RSpec.describe 'Api::V1::Accounts::BaseController', type: :request do
 
   context 'when account enforces MFA' do
     before do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       account.update!(enforce_mfa: true)
     end
 

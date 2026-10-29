@@ -127,7 +127,7 @@ RSpec.describe 'Public Articles API', type: :request do
     it 'Fetch article with the id' do
       get "/hc/#{portal.slug}/articles/#{article.slug}"
       expect(response).to have_http_status(:success)
-      expect(response.body).to include(KovaaLab CharMarkdownRenderer.new(article.content).render_article)
+      expect(response.body).to include(ChatwootMarkdownRenderer.new(article.content).render_article)
       expect(article.reload.views).to eq 0 # View count should not increment on show
     end
 

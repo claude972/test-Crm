@@ -4,7 +4,7 @@ class Api::V1::Accounts::Whatsapp::AccessRequestsController < Api::V1::Accounts:
   before_action :check_admin_authorization?
 
   def create
-    raise Pundit::NotAuthorizedError unless KovaaLab CharApp.kovaa-lab_cloud?
+    raise Pundit::NotAuthorizedError unless ChatwootApp.chatwoot_cloud?
 
     use_case = params.permit(:use_case).require(:use_case).to_s.strip
     raise ActionController::ParameterMissing, :use_case if use_case.blank?

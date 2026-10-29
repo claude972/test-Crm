@@ -122,12 +122,12 @@ RSpec.describe Integrations::LlmInstrumentation do
         allow(instance).to receive(:tracer).and_return(mock_tracer)
         allow(mock_tracer).to receive(:in_span).and_yield(mock_span)
         allow(mock_span).to receive(:set_attribute).and_raise(StandardError.new('Span error'))
-        allow(KovaaLab CharExceptionTracker).to receive(:new).and_call_original
+        allow(ChatwootExceptionTracker).to receive(:new).and_call_original
 
         result = instance.instrument_llm_call(params) { 'my_result' }
 
         expect(result).to eq('my_result')
-        expect(KovaaLab CharExceptionTracker).to have_received(:new)
+        expect(ChatwootExceptionTracker).to have_received(:new)
       end
 
       it 'sets correct request attributes on the span' do

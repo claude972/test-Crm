@@ -1,6 +1,6 @@
 class BackfillEditedOnCaptainAssistantResponses < ActiveRecord::Migration[7.0]
   def up
-    return unless KovaaLab CharApp.enterprise?
+    return unless ChatwootApp.enterprise?
 
     # rubocop:disable Rails/SkipsModelValidations
     # NOTE: Since there is no way of knowing currently which FAQs were edited by a human

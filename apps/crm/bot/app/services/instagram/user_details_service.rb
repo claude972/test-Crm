@@ -27,7 +27,7 @@ class Instagram::UserDetailsService
 
     JSON.parse(response.body)
   rescue JSON::ParserError => e
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
     Rails.logger.error "Invalid JSON response: #{response.body}"
     raise
   end

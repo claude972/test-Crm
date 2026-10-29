@@ -1,4 +1,4 @@
-module Enterprise::KovaaLab CharHub
+module Enterprise::ChatwootHub
   ENTERPRISE_BASE_URL = 'https://hub.2.kovaa-lab.com'.freeze
 
   def base_url

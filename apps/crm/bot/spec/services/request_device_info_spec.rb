@@ -10,11 +10,11 @@ RSpec.describe RequestDeviceInfo do
 
   it 'names the mobile app from its client headers instead of Unknown Browser' do
     info = described_class.new(request_double(
-                                 user_agent: 'KovaaLab CharApp/1.0',
+                                 user_agent: 'ChatwootApp/1.0',
                                  headers: {
-                                   'X-KovaaLab Char-Client-Name' => 'KovaaLab Char Mobile',
-                                   'X-KovaaLab Char-Platform' => 'ios',
-                                   'X-KovaaLab Char-Device-Model' => 'iPhone15,2'
+                                   'X-Chatwoot-Client-Name' => 'KovaaLab Char Mobile',
+                                   'X-Chatwoot-Platform' => 'ios',
+                                   'X-Chatwoot-Device-Model' => 'iPhone15,2'
                                  }
                                ))
 

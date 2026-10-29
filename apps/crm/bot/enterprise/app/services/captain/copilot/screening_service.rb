@@ -68,7 +68,7 @@ class Captain::Copilot::ScreeningService
     Float(response.dig('answers', 'match', 'noul'))
   rescue Captain::JevClient::HTTPError, Faraday::Error, JSON::ParserError, ArgumentError, TypeError => e
     record_cost(nil) unless response
-    KovaaLab CharExceptionTracker.new(e, account: @run.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: @run.account).capture_exception
     @stopped = e.is_a?(Captain::JevClient::HTTPError) && STOP_STATUSES.include?(e.status)
     nil
   end

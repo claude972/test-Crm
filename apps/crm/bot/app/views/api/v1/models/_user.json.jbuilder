@@ -1,6 +1,6 @@
 # loaded once here; per-row lookups below would otherwise cost a query per membership
 account_users = resource.account_users.includes(:account)
-account_users = account_users.includes(:custom_role) if KovaaLab CharApp.enterprise?
+account_users = account_users.includes(:custom_role) if ChatwootApp.enterprise?
 # full-precision timestamps, nils last, matching ORDER BY active_at DESC NULLS LAST
 active_account_user = account_users.max_by { |account_user| [account_user.active_at ? 1 : 0, account_user.active_at || Time.at(0).utc] }
 
@@ -38,7 +38,7 @@ json.accounts do
     json.onboarding_step account.onboarding_step
     json.shopify_integration Shopify::FeatureGate.enabled?(account: account)
     json.shopify_connected shopify_account_ids.include?(account.id)
-    json.partial! 'enterprise/api/v1/models/account_billing', account: account if KovaaLab CharApp.enterprise?
+    json.partial! 'enterprise/api/v1/models/account_billing', account: account if ChatwootApp.enterprise?
     json.active_at account_user.active_at
     json.role account_user.role
     json.permissions account_user.permissions
@@ -48,6 +48,6 @@ json.accounts do
     json.availability_status account_user.availability_status
     json.auto_offline account_user.auto_offline
     json.api_and_webhooks account_user.account.feature_enabled?('api_and_webhooks')
-    json.partial! 'api/v1/models/account_user', account_user: account_user if KovaaLab CharApp.enterprise?
+    json.partial! 'api/v1/models/account_user', account_user: account_user if ChatwootApp.enterprise?
   end
 end

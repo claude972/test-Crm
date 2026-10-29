@@ -6,7 +6,7 @@ RSpec.describe Captain::JevClient do
   let(:client) { described_class.new(account_id: account.id, feature: 'captain_classifier') }
 
   before do
-    allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(false)
+    allow(ChatwootApp).to receive(:otel_enabled?).and_return(false)
     allow(GlobalConfigService).to receive(:load).with('CAPTAIN_OPENROUTER_API_KEY', nil).and_return('test-key')
     allow(GlobalConfigService).to receive(:load).with('CAPTAIN_OPENROUTER_DECISION_MODEL_ENDPOINT', nil).and_return(nil)
   end
@@ -39,7 +39,7 @@ RSpec.describe Captain::JevClient do
     span = instance_double(OpenTelemetry::Trace::Span)
     tracer = instance_double(OpenTelemetry::Trace::Tracer)
     allow(span).to receive(:set_attribute) { |name, value| attributes[name] = value }
-    allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+    allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
     allow(OpentelemetryConfig).to receive(:tracer).and_return(tracer)
     allow(tracer).to receive(:in_span).and_yield(span)
 
@@ -63,7 +63,7 @@ RSpec.describe Captain::JevClient do
     span = instance_double(OpenTelemetry::Trace::Span, 'status=': nil)
     allow(span).to receive(:set_attribute) { |name, value| attributes[name] = value }
     tracer = instance_double(OpenTelemetry::Trace::Tracer)
-    allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+    allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
     allow(OpentelemetryConfig).to receive(:tracer).and_return(tracer)
     allow(tracer).to receive(:in_span).and_yield(span)
 
@@ -75,13 +75,13 @@ RSpec.describe Captain::JevClient do
   context 'when tracing fails' do
     let(:response) { { model: 'jev-1.13.0', answers: { test: { type: 'noul', noul: 0.9 } } } }
     let(:tracer) { instance_double(OpenTelemetry::Trace::Tracer) }
-    let(:exception_tracker) { instance_double(KovaaLab CharExceptionTracker, capture_exception: nil) }
+    let(:exception_tracker) { instance_double(ChatwootExceptionTracker, capture_exception: nil) }
 
     before do
       stub_request(:post, 'https://openrouter.ai/api/v1/systemone').to_return(status: 200, body: response.to_json)
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(OpentelemetryConfig).to receive(:tracer).and_return(tracer)
-      allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(exception_tracker)
+      allow(ChatwootExceptionTracker).to receive(:new).and_return(exception_tracker)
     end
 
     it 'keeps the provider response when recording it fails' do

@@ -91,7 +91,7 @@ class RailsUpgrade::Preflight
 
   def check_encryption_keys(checks)
     encrypted_rows_exist = checks.any? { |entry| entry[:available].positive? }
-    configured = KovaaLab Char.encryption_configured?
+    configured = Chatwoot.encryption_configured?
 
     check('encryption.keys', configured: configured, encrypted_rows_exist: encrypted_rows_exist) do
       !encrypted_rows_exist || configured

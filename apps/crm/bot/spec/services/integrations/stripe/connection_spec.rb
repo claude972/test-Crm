@@ -56,7 +56,7 @@ RSpec.describe Integrations::Stripe::Connection do
   end
 
   it 'encrypts both tokens at rest' do
-    skip 'Encryption keys are required for this check' unless KovaaLab Char.encryption_configured?
+    skip 'Encryption keys are required for this check' unless Chatwoot.encryption_configured?
     token = OAuth2::AccessToken.new(Integrations::Stripe::Oauth.client, 'a' * 128, refresh_token: 'r' * 128)
     connection.store_token!(token)
     expect(JSON.parse(hook.reload.access_token)).to include('access_token' => 'a' * 128, 'refresh_token' => 'r' * 128)

@@ -36,12 +36,12 @@ RSpec.describe Internal::Accounts::MarketingConversionTrackingService do
     create(:installation_config, name: described_class::CONFIG_KEY, value: config.to_json)
     account.update!(internal_attributes: { 'marketing_attribution' => marketing_attribution })
 
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(credentials)
   end
 
   it 'does nothing outside KovaaLab Char Cloud' do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
 
     expect(HTTParty).not_to receive(:post)
 

@@ -76,7 +76,7 @@ class Captain::Assistant::ResponseRewriter
   end
 
   def install_instrumentation(runner)
-    return unless KovaaLab CharApp.otel_enabled?
+    return unless ChatwootApp.otel_enabled?
 
     Agents::Instrumentation.install(
       runner,

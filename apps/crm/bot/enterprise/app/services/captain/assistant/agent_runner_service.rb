@@ -46,7 +46,7 @@ class Captain::Assistant::AgentRunnerService
     process_agent_result(@last_run_result)
   rescue StandardError => e
     # In rake/local runs, conversation may not be present, so account is optional here.
-    KovaaLab CharExceptionTracker.new(e, account: @conversation&.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: @conversation&.account).capture_exception
     Rails.logger.error "[Captain V2] AgentRunnerService error: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
 

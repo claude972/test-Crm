@@ -218,7 +218,7 @@ class User < ApplicationRecord
   end
 
   def mfa_feature_available?
-    KovaaLab Char.mfa_enabled?
+    Chatwoot.mfa_enabled?
   end
 
   def mfa_enforced?

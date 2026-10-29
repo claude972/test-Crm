@@ -28,7 +28,7 @@ RSpec.describe ConversationMonitors::AttachmentTracking do
       expect(monitor.evaluations.sole.error_code).to eq('no_text')
       service = Messages::AudioTranscriptionService.new(attachment)
       allow(service.message).to receive(:send_update_event)
-      allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+      allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
 
       expect { service.send(:update_transcription, 'I need a refund') }
         .to have_enqueued_job(ConversationMonitors::ProcessJob).with(conversation.id)

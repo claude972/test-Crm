@@ -27,7 +27,7 @@ class Captain::AutomationConditionService
 
     captain_conditions.to_h { |condition, index| [index, met?(condition, answers[index.to_s])] }
   rescue Captain::JevClient::HTTPError, Faraday::Error, JSON::ParserError, Error => e
-    KovaaLab CharExceptionTracker.new(e, account: conversation.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: conversation.account).capture_exception
     unmet
   end
 

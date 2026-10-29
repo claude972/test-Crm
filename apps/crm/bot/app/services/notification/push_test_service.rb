@@ -54,7 +54,7 @@ class Notification::PushTestService
   def test_fcm(subscription)
     if firebase_credentials_present?
       test_fcm_direct(subscription)
-    elsif kovaa-lab_hub_enabled?
+    elsif chatwoot_hub_enabled?
       test_fcm_via_hub(subscription)
     else
       result(subscription, 'fcm', :skipped, 'No Firebase credentials and push relay disabled')
@@ -75,7 +75,7 @@ class Notification::PushTestService
   end
 
   def test_fcm_via_hub(subscription)
-    response = KovaaLab CharHub.send_push_with_response(fcm_options(subscription))
+    response = ChatwootHub.send_push_with_response(fcm_options(subscription))
     result(subscription, 'fcm_via_hub', :success, "HTTP #{response.code} — #{response.body}")
   rescue RestClient::ExceptionWithResponse => e
     result(subscription, 'fcm_via_hub', :failure, "HTTP #{e.response&.code} — #{e.response&.body}")
@@ -87,7 +87,7 @@ class Notification::PushTestService
     GlobalConfigService.load('FIREBASE_PROJECT_ID', nil) && GlobalConfigService.load('FIREBASE_CREDENTIALS', nil)
   end
 
-  def kovaa-lab_hub_enabled?
+  def chatwoot_hub_enabled?
     ActiveModel::Type::Boolean.new.cast(ENV.fetch('ENABLE_PUSH_RELAY_SERVER', true))
   end
 

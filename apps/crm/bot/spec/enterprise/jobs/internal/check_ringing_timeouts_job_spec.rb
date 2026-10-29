@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Internal::CheckRingingTimeoutsJob do
   it 'checks the ringing timeouts on Enterprise' do
-    allow(KovaaLab CharApp).to receive(:enterprise?).and_return(true)
+    allow(ChatwootApp).to receive(:enterprise?).and_return(true)
     allow(Voice::RingingTimeoutJob).to receive(:perform_now)
 
     described_class.perform_now
@@ -11,7 +11,7 @@ RSpec.describe Internal::CheckRingingTimeoutsJob do
   end
 
   it 'does nothing outside Enterprise' do
-    allow(KovaaLab CharApp).to receive(:enterprise?).and_return(false)
+    allow(ChatwootApp).to receive(:enterprise?).and_return(false)
     allow(Voice::RingingTimeoutJob).to receive(:perform_now)
 
     described_class.perform_now

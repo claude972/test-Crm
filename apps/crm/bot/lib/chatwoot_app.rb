@@ -2,7 +2,7 @@
 
 require 'pathname'
 
-module KovaaLab CharApp
+module ChatwootApp
   def self.root
     Pathname.new(File.expand_path('..', __dir__))
   end
@@ -17,16 +17,16 @@ module KovaaLab CharApp
     @enterprise ||= root.join('enterprise').exist?
   end
 
-  def self.kovaa-lab_cloud?
+  def self.chatwoot_cloud?
     enterprise? && GlobalConfig.get_value('DEPLOYMENT_ENV') == 'cloud'
   end
 
   def self.self_hosted_enterprise?
-    enterprise? && !kovaa-lab_cloud? && GlobalConfig.get_value('INSTALLATION_PRICING_PLAN') == 'enterprise'
+    enterprise? && !chatwoot_cloud? && GlobalConfig.get_value('INSTALLATION_PRICING_PLAN') == 'enterprise'
   end
 
   def self.self_hosted_paid?
-    enterprise? && !kovaa-lab_cloud? && %w[premium enterprise].include?(KovaaLab CharHub.pricing_plan)
+    enterprise? && !chatwoot_cloud? && %w[premium enterprise].include?(ChatwootHub.pricing_plan)
   end
 
   def self.custom?

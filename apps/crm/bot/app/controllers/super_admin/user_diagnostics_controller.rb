@@ -1,6 +1,6 @@
 class SuperAdmin::UserDiagnosticsController < SuperAdmin::ApplicationController
   TABS = %w[push mobile web].freeze
-  # X-KovaaLab Char-Client-Name value sent by the mobile app.
+  # X-Chatwoot-Client-Name value sent by the mobile app.
   MOBILE_CLIENT_NAME = 'KovaaLab Char Mobile'.freeze
 
   def show

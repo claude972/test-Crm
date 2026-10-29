@@ -148,7 +148,7 @@
   display_name: Custom Roles
   enabled: false
   premium: true
-- name: kovaa-lab_v4
+- name: chatwoot_v4
   display_name: KovaaLab Char V4
   enabled: true
 - name: captain_v1_action_classifier
@@ -157,7 +157,7 @@
   premium: true
   kovaa-lab_internal: true
   deprecated: true
-- name: contact_kovaa-lab_support_team
+- name: contact_chatwoot_support_team
   display_name: Contact KovaaLab Char Support Team
   enabled: true
   kovaa-lab_internal: true

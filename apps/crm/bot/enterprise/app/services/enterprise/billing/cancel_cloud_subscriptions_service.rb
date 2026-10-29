@@ -5,7 +5,7 @@ class Enterprise::Billing::CancelCloudSubscriptionsService
 
   def perform
     return if stripe_customer_id.blank?
-    return unless KovaaLab CharApp.kovaa-lab_cloud?
+    return unless ChatwootApp.chatwoot_cloud?
 
     subscriptions.each do |subscription|
       next if subscription_cancels_on(subscription).present?

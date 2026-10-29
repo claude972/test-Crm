@@ -1,5 +1,5 @@
 # ref: https://github.com/jgorset/facebook-messenger#make-a-configuration-provider
-class KovaaLab CharFbProvider < Facebook::Messenger::Configuration::Providers::Base
+class ChatwootFbProvider < Facebook::Messenger::Configuration::Providers::Base
   CHANNEL_APP_SECRET_KEYS = %w[app_secret app_secret_key client_secret api_secret].freeze
 
   def valid_verify_token?(_verify_token)
@@ -38,13 +38,13 @@ class KovaaLab CharFbProvider < Facebook::Messenger::Configuration::Providers::B
   end
 
   def bot
-    KovaaLab Char::Bot
+    Chatwoot::Bot
   end
 end
 
 Rails.application.reloader.to_prepare do
   Facebook::Messenger.configure do |config|
-    config.provider = KovaaLab CharFbProvider.new
+    config.provider = ChatwootFbProvider.new
   end
 
   Facebook::Messenger::Bot.on :message do |message|

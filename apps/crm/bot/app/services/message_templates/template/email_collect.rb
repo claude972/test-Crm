@@ -13,7 +13,7 @@ class MessageTemplates::Template::EmailCollect
       end
     end
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: conversation.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: conversation.account).capture_exception
     true
   end
 

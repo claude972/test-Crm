@@ -9,7 +9,7 @@ describe '/survey/responses', type: :request do
       get survey_response_url(id: SecureRandom.uuid)
 
       expect(response).to have_http_status(:ok)
-      expect(response.headers['Set-Cookie'].to_s).not_to include('_kovaa-lab_session')
+      expect(response.headers['Set-Cookie'].to_s).not_to include('_chatwoot_session')
     ensure
       ActionController::Base.allow_forgery_protection = previous
     end

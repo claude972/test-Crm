@@ -196,12 +196,12 @@ describe Webhooks::Trigger do
     end
 
     context 'with delivery_id' do
-      it 'adds X-KovaaLab Char-Delivery header' do
+      it 'adds X-Chatwoot-Delivery header' do
         expect(SafeFetch).to receive(:fetch) do |received_url, **options, &block|
           expect(received_url).to eq(url)
-          expect(options[:headers]['X-KovaaLab Char-Delivery']).to eq('test-uuid')
-          expect(options[:headers]).not_to have_key('X-KovaaLab Char-Signature')
-          expect(options[:headers]).not_to have_key('X-KovaaLab Char-Timestamp')
+          expect(options[:headers]['X-Chatwoot-Delivery']).to eq('test-uuid')
+          expect(options[:headers]).not_to have_key('X-Chatwoot-Signature')
+          expect(options[:headers]).not_to have_key('X-Chatwoot-Timestamp')
           block.call(fetch_result)
         end
 
@@ -212,20 +212,20 @@ describe Webhooks::Trigger do
     context 'with secret' do
       let(:secret) { 'test-secret' }
 
-      it 'adds X-KovaaLab Char-Timestamp header' do
+      it 'adds X-Chatwoot-Timestamp header' do
         expect(SafeFetch).to receive(:fetch) do |_received_url, **options, &block|
-          expect(options[:headers]['X-KovaaLab Char-Timestamp']).to match(/\A\d+\z/)
+          expect(options[:headers]['X-Chatwoot-Timestamp']).to match(/\A\d+\z/)
           block.call(fetch_result)
         end
 
         trigger.execute(url, payload, webhook_type, secret: secret)
       end
 
-      it 'adds X-KovaaLab Char-Signature header with correct HMAC' do
+      it 'adds X-Chatwoot-Signature header with correct HMAC' do
         expect(SafeFetch).to receive(:fetch) do |_received_url, **options, &block|
-          ts = options[:headers]['X-KovaaLab Char-Timestamp']
+          ts = options[:headers]['X-Chatwoot-Timestamp']
           expected_sig = "sha256=#{OpenSSL::HMAC.hexdigest('SHA256', secret, "#{ts}.#{body}")}"
-          expect(options[:headers]['X-KovaaLab Char-Signature']).to eq(expected_sig)
+          expect(options[:headers]['X-Chatwoot-Signature']).to eq(expected_sig)
           block.call(fetch_result)
         end
 
@@ -235,7 +235,7 @@ describe Webhooks::Trigger do
       it 'signs timestamp.body not just body' do
         expect(SafeFetch).to receive(:fetch) do |_received_url, **options, &block|
           wrong_sig = "sha256=#{OpenSSL::HMAC.hexdigest('SHA256', secret, body)}"
-          expect(options[:headers]['X-KovaaLab Char-Signature']).not_to eq(wrong_sig)
+          expect(options[:headers]['X-Chatwoot-Signature']).not_to eq(wrong_sig)
           block.call(fetch_result)
         end
 
@@ -246,9 +246,9 @@ describe Webhooks::Trigger do
     context 'with both secret and delivery_id' do
       it 'includes all three security headers' do
         expect(SafeFetch).to receive(:fetch) do |_received_url, **options, &block|
-          expect(options[:headers]['X-KovaaLab Char-Delivery']).to eq('abc-123')
-          expect(options[:headers]['X-KovaaLab Char-Timestamp']).to be_present
-          expect(options[:headers]['X-KovaaLab Char-Signature']).to start_with('sha256=')
+          expect(options[:headers]['X-Chatwoot-Delivery']).to eq('abc-123')
+          expect(options[:headers]['X-Chatwoot-Timestamp']).to be_present
+          expect(options[:headers]['X-Chatwoot-Signature']).to start_with('sha256=')
           block.call(fetch_result)
         end
 

@@ -33,10 +33,10 @@ RSpec.describe Macros::ExecutionService, type: :service do
       end
 
       context 'when an action raises an error' do
-        let(:exception_tracker) { instance_spy(KovaaLab CharExceptionTracker) }
+        let(:exception_tracker) { instance_spy(ChatwootExceptionTracker) }
 
         before do
-          allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(exception_tracker)
+          allow(ChatwootExceptionTracker).to receive(:new).and_return(exception_tracker)
         end
 
         it 'captures the exception' do

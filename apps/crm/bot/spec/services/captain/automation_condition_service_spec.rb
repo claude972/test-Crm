@@ -101,9 +101,9 @@ RSpec.describe Captain::AutomationConditionService do
 
   context 'when Captain leaves a condition unanswered' do
     let(:conditions) { [captain_condition.merge('query_operator' => 'OR'), captain_condition.merge('filter_operator' => 'does_not_detect')] }
-    let(:tracker) { instance_double(KovaaLab CharExceptionTracker, capture_exception: nil) }
+    let(:tracker) { instance_double(ChatwootExceptionTracker, capture_exception: nil) }
 
-    before { allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(tracker) }
+    before { allow(ChatwootExceptionTracker).to receive(:new).and_return(tracker) }
 
     it 'leaves every Captain condition unmet and reports it when an answer is missing' do
       stub_jev('0' => { 'noul' => 0.9 })
@@ -126,18 +126,18 @@ RSpec.describe Captain::AutomationConditionService do
 
   context 'when the Captain request fails' do
     let(:conditions) { [captain_condition.merge('query_operator' => 'OR'), captain_condition.merge('filter_operator' => 'does_not_detect')] }
-    let(:tracker) { instance_double(KovaaLab CharExceptionTracker, capture_exception: nil) }
+    let(:tracker) { instance_double(ChatwootExceptionTracker, capture_exception: nil) }
 
     before do
       stub_request(:post, endpoint).to_return(status: 500, body: 'upstream error')
-      allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(tracker)
+      allow(ChatwootExceptionTracker).to receive(:new).and_return(tracker)
     end
 
     it 'leaves every Captain condition unmet and reports the failure' do
       result = described_class.new(conditions: conditions, conversation: conversation, message: message).perform
 
       expect(result).to eq(0 => false, 1 => false)
-      expect(KovaaLab CharExceptionTracker).to have_received(:new).with(instance_of(Captain::JevClient::HTTPError), account: account)
+      expect(ChatwootExceptionTracker).to have_received(:new).with(instance_of(Captain::JevClient::HTTPError), account: account)
       expect(tracker).to have_received(:capture_exception)
     end
 
@@ -156,7 +156,7 @@ RSpec.describe Captain::AutomationConditionService do
       result = described_class.new(conditions: conditions, conversation: conversation, message: message).perform
 
       expect(result).to eq(0 => false, 1 => false)
-      expect(KovaaLab CharExceptionTracker).to have_received(:new).with(instance_of(described_class::Error), account: account)
+      expect(ChatwootExceptionTracker).to have_received(:new).with(instance_of(described_class::Error), account: account)
       expect(tracker).to have_received(:capture_exception)
     end
   end

@@ -25,7 +25,7 @@ class Voice::CallTranscriptionService
     # Reindex before broadcasting: if reindexing fails and the job retries,
     # the transcript is already present so only publish reruns. Sending the
     # update event first would resend it to clients on every such retry.
-    message.reindex if KovaaLab CharApp.advanced_search_allowed?
+    message.reindex if ChatwootApp.advanced_search_allowed?
 
     # Rebroadcast the message so connected clients pick up the embedded Call
     # payload (now with transcript) without a refetch.

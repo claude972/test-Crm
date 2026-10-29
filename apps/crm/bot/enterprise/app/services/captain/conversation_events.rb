@@ -57,7 +57,7 @@ class Captain::ConversationEvents
     def dispatch(event_name, at:, **data)
       Rails.configuration.dispatcher.dispatch(event_name, at, data)
     rescue StandardError => e
-      KovaaLab CharExceptionTracker.new(e, account: data[:conversation]&.account).capture_exception
+      ChatwootExceptionTracker.new(e, account: data[:conversation]&.account).capture_exception
     end
   end
 end

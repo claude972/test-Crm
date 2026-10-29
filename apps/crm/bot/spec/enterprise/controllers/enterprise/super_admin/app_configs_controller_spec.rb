@@ -4,7 +4,7 @@ RSpec.describe 'Enterprise Super Admin Application Config API', type: :request d
   let(:super_admin) { create(:super_admin) }
 
   before do
-    allow(KovaaLab CharHub).to receive(:pricing_plan).and_return('enterprise')
+    allow(ChatwootHub).to receive(:pricing_plan).and_return('enterprise')
     sign_in(super_admin, scope: :super_admin)
   end
 
@@ -18,7 +18,7 @@ RSpec.describe 'Enterprise Super Admin Application Config API', type: :request d
 
   %w[enterprise community].each do |plan|
     it "exposes and saves the shared OpenRouter settings on the #{plan} config path" do
-      allow(KovaaLab CharHub).to receive(:pricing_plan).and_return(plan)
+      allow(ChatwootHub).to receive(:pricing_plan).and_return(plan)
       get '/super_admin/app_config?config=captain'
 
       expect(response).to have_http_status(:success)

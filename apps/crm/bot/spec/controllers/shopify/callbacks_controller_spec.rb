@@ -95,7 +95,7 @@ RSpec.describe Shopify::CallbacksController, type: :request do
 
       [true, false].each do |same_account|
         it "allows public authorization with unfinished custom setup in #{same_account ? 'the same' : 'another'} account" do
-          skip('encryption keys missing; see run_mfa_spec workflow') unless KovaaLab Char.encryption_configured?
+          skip('encryption keys missing; see run_mfa_spec workflow') unless Chatwoot.encryption_configured?
 
           custom_account = same_account ? account : create(:account)
           Shopify::CustomApp.create!(
@@ -112,7 +112,7 @@ RSpec.describe Shopify::CallbacksController, type: :request do
       end
 
       it 'preserves a connected custom app when the public callback is used' do
-        skip('encryption keys missing; see run_mfa_spec workflow') unless KovaaLab Char.encryption_configured?
+        skip('encryption keys missing; see run_mfa_spec workflow') unless Chatwoot.encryption_configured?
 
         custom_app = Shopify::CustomApp.create!(
           account: account, shop_domain: shop, client_id: 'custom-client', client_secret: 'custom-secret', enabled: true,

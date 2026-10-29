@@ -1,6 +1,6 @@
 module DeviceVerification
   def self.enabled?
-    KovaaLab CharApp.kovaa-lab_cloud? &&
+    ChatwootApp.chatwoot_cloud? &&
       ActiveModel::Type::Boolean.new.cast(GlobalConfig.get_value('DEVICE_VERIFICATION_ENABLED')).present?
   end
 

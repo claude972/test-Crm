@@ -79,9 +79,9 @@ RSpec.describe Captain::ConversationOutcomeTracker do
 
     it 'captures boundary failures without raising' do
       error = ActiveRecord::StatementInvalid.new('database unavailable')
-      exception_tracker = instance_double(KovaaLab CharExceptionTracker)
+      exception_tracker = instance_double(ChatwootExceptionTracker)
       allow(ConversationOutcome).to receive(:create!).and_raise(error)
-      expect(KovaaLab CharExceptionTracker).to receive(:new).with(error, account: account).and_return(exception_tracker)
+      expect(ChatwootExceptionTracker).to receive(:new).with(error, account: account).and_return(exception_tracker)
       expect(exception_tracker).to receive(:capture_exception)
 
       expect do

@@ -63,7 +63,7 @@ RSpec.describe 'Profile API', type: :request do
       end
 
       it 'returns the access token for self-hosted accounts even when the stored feature flag is disabled' do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
         account.disable_features!('api_and_webhooks')
 
         get '/api/v1/profile',
@@ -78,7 +78,7 @@ RSpec.describe 'Profile API', type: :request do
       let(:agent) { create(:user, account: account, role: :agent) }
 
       before do
-        skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+        skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
         account.update!(enforce_mfa: true)
       end
 

@@ -9,7 +9,7 @@ RSpec.describe 'Accounts API', type: :request do
       let(:admin) { create(:user, account: account, role: :administrator) }
 
       before do
-        skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+        skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
         account.update!(enforce_mfa: true)
       end
 
@@ -66,11 +66,11 @@ RSpec.describe 'Accounts API', type: :request do
         end
       end
 
-      it 'calls KovaaLab CharCaptcha' do
+      it 'calls ChatwootCaptcha' do
         with_modified_env ENABLE_ACCOUNT_SIGNUP: 'true' do
           captcha = double
           allow(account_builder).to receive(:perform).and_return([user, account])
-          allow(KovaaLab CharCaptcha).to receive(:new).and_return(captcha)
+          allow(ChatwootCaptcha).to receive(:new).and_return(captcha)
           allow(captcha).to receive(:valid?).and_return(true)
 
           params = { email: email, user: nil, password: 'Password1!', locale: nil, h_captcha_client_response: '123' }
@@ -79,7 +79,7 @@ RSpec.describe 'Accounts API', type: :request do
                params: params,
                as: :json
 
-          expect(KovaaLab CharCaptcha).to have_received(:new).with('123')
+          expect(ChatwootCaptcha).to have_received(:new).with('123')
           expect(response.headers.keys).to include('access-token', 'token-type', 'client', 'expiry', 'uid')
           expect(response.body).to include('en')
         end

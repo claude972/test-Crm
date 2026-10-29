@@ -24,7 +24,7 @@ RSpec.describe 'Device verification on sign-in', type: :request do
 
   shared_context 'with device verification enabled' do
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       GlobalConfig.clear_cache
       create(:installation_config, name: 'DEVICE_VERIFICATION_ENABLED', value: true)
       allow(Enterprise::DeviceVerificationMailer).to receive(:verification_code) do |_user, encrypted_code, _meta|
@@ -247,7 +247,7 @@ RSpec.describe 'Device verification on sign-in', type: :request do
     include_context 'with device verification enabled'
 
     it 'sends MFA users through the real MFA flow, not device verification' do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       user.enable_two_factor!
       user.update!(otp_required_for_login: true)
 
@@ -261,7 +261,7 @@ RSpec.describe 'Device verification on sign-in', type: :request do
     end
 
     it 'rejects a device token posted into the MFA flow' do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       sign_in!
       token = issued_token
       user.enable_two_factor!
@@ -335,7 +335,7 @@ RSpec.describe 'Device verification on sign-in', type: :request do
     end
 
     it 'blocks api_access_token requests from users pending enforced enrolment' do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       account.update!(enforce_mfa: true)
 
       delete '/api/v1/profile/trusted_devices',
@@ -350,7 +350,7 @@ RSpec.describe 'Device verification on sign-in', type: :request do
 
   describe 'when the feature is off' do
     it 'signs in directly with the kill switch off on cloud' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       GlobalConfig.clear_cache
 
       sign_in!
@@ -360,7 +360,7 @@ RSpec.describe 'Device verification on sign-in', type: :request do
     end
 
     it 'signs in directly when not on cloud even with the config on' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
       GlobalConfig.clear_cache
       create(:installation_config, name: 'DEVICE_VERIFICATION_ENABLED', value: true)
 
@@ -375,7 +375,7 @@ RSpec.describe 'Device verification on sign-in', type: :request do
     include_context 'with device verification enabled'
 
     before do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       account.update!(enforce_mfa: true)
     end
 

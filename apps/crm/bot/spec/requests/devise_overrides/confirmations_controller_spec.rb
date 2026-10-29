@@ -27,7 +27,7 @@ RSpec.describe 'Confirmations API', type: :request do
 
     context 'when account enforces MFA' do
       before do
-        skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+        skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
         account.update!(enforce_mfa: true)
       end
 
@@ -43,7 +43,7 @@ RSpec.describe 'Confirmations API', type: :request do
 
     context 'when the user is already enrolled in MFA' do
       before do
-        skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+        skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
         user.enable_two_factor!
         user.update!(otp_required_for_login: true)
       end

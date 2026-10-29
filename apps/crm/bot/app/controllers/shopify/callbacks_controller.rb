@@ -8,8 +8,8 @@ class Shopify::CallbacksController < ApplicationController
 
     raise StandardError, 'Shopify authorization was denied' if params[:error].present?
 
-    if kovaa-lab_initiated?
-      handle_kovaa-lab_initiated_flow
+    if chatwoot_initiated?
+      handle_chatwoot_initiated_flow
     elsif params[:code].blank?
       handle_shopify_initiated_without_code
     else
@@ -22,9 +22,9 @@ class Shopify::CallbacksController < ApplicationController
 
   private
 
-  def kovaa-lab_initiated? = verified_account_id.present?
+  def chatwoot_initiated? = verified_account_id.present?
 
-  def handle_kovaa-lab_initiated_flow
+  def handle_chatwoot_initiated_flow
     raise StandardError, 'Invalid state parameter' if account.blank?
 
     ensure_shopify_enabled!(account: account)

@@ -27,7 +27,7 @@ class Captain::Copilot::TurnJob < ApplicationJob
     # Turning workflows off, running out of credits and the model-call limit are expected stops, so they are not reported.
     handle_failure(run, token, e)
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: run&.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: run&.account).capture_exception
     handle_failure(run, token, e)
   end
 

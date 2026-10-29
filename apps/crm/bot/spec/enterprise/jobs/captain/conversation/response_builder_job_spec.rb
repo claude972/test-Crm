@@ -12,7 +12,7 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
     let(:v2_response_parts) { [{ 'text' => 'Hey, welcome to Captain V2', 'citation_indexes' => [] }] }
 
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       allow(inbox).to receive(:captain_active?).and_return(true)
       allow(Captain::Assistant::AgentRunnerService).to receive(:new).and_return(mock_agent_runner_service)
       allow(mock_agent_runner_service).to receive(:generate_response).and_return({
@@ -261,7 +261,7 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
 
           content = conversation.messages.outgoing.last.content
           expect(content).to eq('Hey, welcome to Captain V2 [[1](https://help.example.com/guides/reset_%28new%29)]')
-          expect(KovaaLab CharMarkdownRenderer.new(content).render_message.to_s).to include(
+          expect(ChatwootMarkdownRenderer.new(content).render_message.to_s).to include(
             '<a href="https://help.example.com/guides/reset_%28new%29">1</a>'
           )
         end
@@ -282,7 +282,7 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
             'Continue with the next step. [[2](https://help.example.com/email)]'
           )
 
-          rendered_content = KovaaLab CharMarkdownRenderer.new(content).render_message.to_s
+          rendered_content = ChatwootMarkdownRenderer.new(content).render_message.to_s
           expect(rendered_content).to include("</code></pre>\n<p>[<a href=\"https://help.example.com/password\">1</a>]</p>")
           expect(rendered_content).to include('<p>Continue with the next step.')
         end
@@ -612,7 +612,7 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
 
       it 'still delivers the reply when session capture fails' do
         allow(Captain::AgentSession).to receive(:create!).and_raise(StandardError, 'capture failed')
-        allow(KovaaLab CharExceptionTracker).to receive(:new).and_call_original
+        allow(ChatwootExceptionTracker).to receive(:new).and_call_original
 
         expect do
           described_class.perform_now(conversation, assistant)
@@ -621,7 +621,7 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
         expect(conversation.messages.outgoing.count).to eq(1)
         expect(conversation.messages.outgoing.last.content).to eq('Hey, welcome to Captain V2')
         expect(conversation.reload.status).to eq('pending')
-        expect(KovaaLab CharExceptionTracker).to have_received(:new)
+        expect(ChatwootExceptionTracker).to have_received(:new)
       end
     end
   end

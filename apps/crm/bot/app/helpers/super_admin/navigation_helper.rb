@@ -43,7 +43,7 @@ module SuperAdmin::NavigationHelper
       end
 
       pages = [['general', { 'config_key' => 'general', 'name' => t('super_admin.settings.pages.general'), 'icon' => 'i-lucide-sliders-horizontal' }]]
-      if KovaaLab CharApp.kovaa-lab_cloud?
+      if ChatwootApp.chatwoot_cloud?
         pages << ['internal', { 'config_key' => 'internal', 'name' => t('super_admin.settings.pages.internal'),
                                 'description' => t('super_admin.settings.pages.internal_description'), 'icon' => 'i-lucide-lock-keyhole' }]
       end
@@ -98,7 +98,7 @@ module SuperAdmin::NavigationHelper
 
   def nav_resources
     Administrate::Namespace.new(namespace).resources_with_index_route.reject do |resource|
-      HIDDEN_RESOURCES.include?(resource) || (resource == 'platform_banners' && !KovaaLab CharApp.kovaa-lab_cloud?)
+      HIDDEN_RESOURCES.include?(resource) || (resource == 'platform_banners' && !ChatwootApp.chatwoot_cloud?)
     end
   end
 

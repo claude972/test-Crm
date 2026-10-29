@@ -3,7 +3,7 @@
 # Run with:
 #   bundle exec rake kovaa-lab:ops:cleanup_orphan_conversations
 
-namespace :kovaa-lab do
+namespace :chatwoot do
   namespace :ops do
     desc 'Identify and delete conversations without a valid contact or inbox in a timeframe'
     task cleanup_orphan_conversations: :environment do

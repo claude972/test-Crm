@@ -75,7 +75,7 @@ class DashboardController < ActionController::Base
 
   def app_config
     {
-      APP_VERSION: KovaaLab Char.config[:version],
+      APP_VERSION: Chatwoot.config[:version],
       VAPID_PUBLIC_KEY: VapidService.public_key,
       ENABLE_ACCOUNT_SIGNUP: GlobalConfigService.load('ENABLE_ACCOUNT_SIGNUP', 'false'),
       FB_APP_ID: GlobalConfigService.load('FB_APP_ID', ''),
@@ -84,8 +84,8 @@ class DashboardController < ActionController::Base
       FACEBOOK_API_VERSION: GlobalConfigService.load('FACEBOOK_API_VERSION', 'v18.0'),
       WHATSAPP_APP_ID: GlobalConfigService.load('WHATSAPP_APP_ID', ''),
       WHATSAPP_CONFIGURATION_ID: GlobalConfigService.load('WHATSAPP_CONFIGURATION_ID', ''),
-      IS_ENTERPRISE: KovaaLab CharApp.enterprise?,
-      IS_COMPANY_ENRICHMENT_ENABLED: KovaaLab CharApp.enterprise? && GlobalConfigService.load('CONTEXT_DEV_API_KEY', nil).present?,
+      IS_ENTERPRISE: ChatwootApp.enterprise?,
+      IS_COMPANY_ENRICHMENT_ENABLED: ChatwootApp.enterprise? && GlobalConfigService.load('CONTEXT_DEV_API_KEY', nil).present?,
       AZURE_APP_ID: GlobalConfigService.load('AZURE_APP_ID', ''),
       GIT_SHA: GIT_HASH,
       ALLOWED_LOGIN_METHODS: allowed_login_methods,
@@ -95,13 +95,13 @@ class DashboardController < ActionController::Base
   end
 
   def active_platform_banners
-    return [] unless KovaaLab CharApp.kovaa-lab_cloud?
+    return [] unless ChatwootApp.chatwoot_cloud?
 
     PlatformBanner.active.not_feature_announcement.order(created_at: :desc).as_json(only: %i[id banner_message banner_type updated_at])
   end
 
   def active_feature_announcements
-    return [] unless KovaaLab CharApp.kovaa-lab_cloud?
+    return [] unless ChatwootApp.chatwoot_cloud?
 
     PlatformBanner.active.feature_announcement.order(created_at: :desc).as_json(only: %i[id title banner_message video_url updated_at])
   end
@@ -109,7 +109,7 @@ class DashboardController < ActionController::Base
   def allowed_login_methods
     methods = ['email']
     methods << 'google_oauth' if GlobalConfigService.load('ENABLE_GOOGLE_OAUTH_LOGIN', 'true').to_s != 'false'
-    methods << 'saml' if KovaaLab CharHub.pricing_plan != 'community' && GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s != 'false'
+    methods << 'saml' if ChatwootHub.pricing_plan != 'community' && GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s != 'false'
     methods
   end
 

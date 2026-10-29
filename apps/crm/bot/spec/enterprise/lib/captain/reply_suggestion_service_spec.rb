@@ -5,9 +5,9 @@ RSpec.describe Captain::ReplySuggestionService do
     subject(:use_search_tool?) { described_class.allocate.send(:use_search_tool?) }
 
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
-      allow(KovaaLab CharApp).to receive(:enterprise?).and_return(true)
-      allow(KovaaLab CharHub).to receive(:pricing_plan).and_return('premium')
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
+      allow(ChatwootApp).to receive(:enterprise?).and_return(true)
+      allow(ChatwootHub).to receive(:pricing_plan).and_return('premium')
     end
 
     it { is_expected.to be(true) }

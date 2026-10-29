@@ -158,6 +158,6 @@ class ReportingEventListener < BaseListener
     # event is preserved and rollup data can be rebuilt or re-applied later.
     ReportingEvents::RollupService.perform(reporting_event)
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: reporting_event.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: reporting_event.account).capture_exception
   end
 end

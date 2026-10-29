@@ -18,19 +18,19 @@ RSpec.describe Integrations::Stripe::Oauth do
   end
 
   it 'requires both installation settings and encryption' do
-    allow(KovaaLab Char).to receive(:encryption_configured?).and_return(true)
+    allow(Chatwoot).to receive(:encryption_configured?).and_return(true)
     expect(described_class.configured?).to be true
     allow(GlobalConfig).to receive(:get_value).with('STRIPE_APP_SECRET_KEY').and_return(nil)
     expect(described_class.configured?).to be false
   end
 
   it 'is unavailable without encryption' do
-    allow(KovaaLab Char).to receive(:encryption_configured?).and_return(false)
+    allow(Chatwoot).to receive(:encryption_configured?).and_return(false)
     expect(described_class.configured?).to be false
   end
 
   it 'does not advertise malformed settings as configured' do
-    allow(KovaaLab Char).to receive(:encryption_configured?).and_return(true)
+    allow(Chatwoot).to receive(:encryption_configured?).and_return(true)
     allow(GlobalConfig).to receive(:get_value).with('STRIPE_APP_AUTHORIZE_URL').and_return('not a URL')
     expect(described_class.configured?).to be false
   end

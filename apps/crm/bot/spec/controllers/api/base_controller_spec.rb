@@ -56,7 +56,7 @@ RSpec.describe 'API Base', type: :request do
       let!(:conversation) { create(:conversation, account: account) }
 
       before do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
         account.disable_features!('api_and_webhooks')
       end
 

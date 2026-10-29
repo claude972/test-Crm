@@ -19,7 +19,7 @@ class Api::V1::Accounts::CallbacksController < Api::V1::Accounts::BaseController
   rescue CustomExceptions::Inbox::LimitExceeded => e
     render_error_response(e)
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
     Rails.logger.error "Error in register_facebook_page: #{e.message}"
   end
 
@@ -69,7 +69,7 @@ class Api::V1::Accounts::CallbacksController < Api::V1::Accounts::BaseController
       sync_page_details(access_token, fb_page)
       fb_page&.reauthorized!
     rescue StandardError => e
-      KovaaLab CharExceptionTracker.new(e).capture_exception
+      ChatwootExceptionTracker.new(e).capture_exception
       Rails.logger.error "Error in update_fb_page: #{e.message}"
     end
   end

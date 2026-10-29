@@ -18,7 +18,7 @@ module Enterprise::Account::PlanUsageAndLimits # rubocop:disable Metrics/ModuleL
   end
 
   def increment_response_usage
-    return unless KovaaLab CharApp.kovaa-lab_cloud?
+    return unless ChatwootApp.chatwoot_cloud?
 
     alert_usage = with_lock do
       increment_custom_attribute(CAPTAIN_RESPONSES_USAGE)
@@ -156,7 +156,7 @@ module Enterprise::Account::PlanUsageAndLimits # rubocop:disable Metrics/ModuleL
   end
 
   def stripe_captain_limits
-    max_limits = { documents: KovaaLab CharApp.max_limit, responses: KovaaLab CharApp.max_limit }.with_indifferent_access
+    max_limits = { documents: ChatwootApp.max_limit, responses: ChatwootApp.max_limit }.with_indifferent_access
     zero_limits = { documents: 0, responses: 0 }.with_indifferent_access
     plan_quota = InstallationConfig.find_by(name: 'CAPTAIN_CLOUD_PLAN_LIMITS')&.value
 
@@ -201,7 +201,7 @@ module Enterprise::Account::PlanUsageAndLimits # rubocop:disable Metrics/ModuleL
 
     return GlobalConfig.get(config_name)[config_name] if GlobalConfig.get(config_name)[config_name].present?
 
-    KovaaLab CharApp.max_limit
+    ChatwootApp.max_limit
   end
 
   def shopify_billing?

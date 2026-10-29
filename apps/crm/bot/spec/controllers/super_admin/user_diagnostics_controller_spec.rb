@@ -24,7 +24,7 @@ RSpec.describe 'Super Admin User diagnostics', type: :request do
       end
 
       it 'is available on a self hosted installation' do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
 
         get '/super_admin/user_diagnostics'
 

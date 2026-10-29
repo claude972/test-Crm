@@ -34,7 +34,7 @@ RSpec.describe 'Api::V1::Accounts::Captain::MessageReports', type: :request do
     end
 
     context 'when the installation is not on KovaaLab Char cloud' do
-      before { allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false) }
+      before { allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false) }
 
       it 'returns not found' do
         post "/api/v1/accounts/#{account.id}/captain/message_reports",
@@ -52,7 +52,7 @@ RSpec.describe 'Api::V1::Accounts::Captain::MessageReports', type: :request do
     end
 
     context 'when on KovaaLab Char cloud' do
-      before { allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true) }
+      before { allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true) }
 
       it 'creates a message report for the reporting agent' do
         expect do

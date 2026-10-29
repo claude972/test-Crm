@@ -71,7 +71,7 @@ RSpec.describe 'Session', type: :request do
 
       [true, false].each do |shopify_enabled|
         it "exposes Shopify eligibility #{shopify_enabled} without Enterprise billing state in Community Edition" do
-          allow(KovaaLab CharApp).to receive(:enterprise?).and_return(false)
+          allow(ChatwootApp).to receive(:enterprise?).and_return(false)
           InstallationConfig.find_or_initialize_by(name: 'ENABLE_SHOPIFY_INTEGRATION').update!(value: shopify_enabled)
           account.enable_features!('shopify_integration')
           GlobalConfig.clear_cache

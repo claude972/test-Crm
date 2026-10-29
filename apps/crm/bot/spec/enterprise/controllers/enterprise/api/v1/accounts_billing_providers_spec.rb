@@ -48,7 +48,7 @@ RSpec.describe 'Enterprise Billing Provider APIs', type: :request do
   let!(:shopify_agent) { create(:user, account: shopify_account, role: :agent) }
 
   before do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     allow(Shopify::FeatureGate).to receive(:enabled?).with(account: shopify_account).and_return(true)
   end
 

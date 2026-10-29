@@ -13,7 +13,7 @@ class Auth::ResendConfirmationsController < ActionController::API
   }.freeze
 
   def create
-    return head(:ok) unless KovaaLab CharCaptcha.new(params[:h_captcha_client_response]).valid?
+    return head(:ok) unless ChatwootCaptcha.new(params[:h_captcha_client_response]).valid?
 
     email = params[:email]
     return head(:ok) unless email.is_a?(String)

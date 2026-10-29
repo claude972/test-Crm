@@ -348,8 +348,8 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       let(:mock_result) { instance_double(Agents::RunResult, output: nil, context: nil, error: error) }
 
       before do
-        allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(
-          instance_double(KovaaLab CharExceptionTracker, capture_exception: true)
+        allow(ChatwootExceptionTracker).to receive(:new).and_return(
+          instance_double(ChatwootExceptionTracker, capture_exception: true)
         )
       end
 
@@ -377,8 +377,8 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       end
 
       before do
-        allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(
-          instance_double(KovaaLab CharExceptionTracker, capture_exception: true)
+        allow(ChatwootExceptionTracker).to receive(:new).and_return(
+          instance_double(ChatwootExceptionTracker, capture_exception: true)
         )
       end
 
@@ -694,8 +694,8 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
 
       it 'rejects a rewrite that changes the response part citation order' do
         channel_limit_rewrite[:rewrite_run_result].output['response_parts'].reverse!
-        allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(
-          instance_double(KovaaLab CharExceptionTracker, capture_exception: true)
+        allow(ChatwootExceptionTracker).to receive(:new).and_return(
+          instance_double(ChatwootExceptionTracker, capture_exception: true)
         )
 
         result = service.generate_response(message_history: message_history)
@@ -710,13 +710,13 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
 
       before do
         allow(mock_runner).to receive(:run).and_raise(error)
-        allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(
-          instance_double(KovaaLab CharExceptionTracker, capture_exception: true)
+        allow(ChatwootExceptionTracker).to receive(:new).and_return(
+          instance_double(ChatwootExceptionTracker, capture_exception: true)
         )
       end
 
       it 'captures exception and returns error response' do
-        expect(KovaaLab CharExceptionTracker).to receive(:new).with(error, account: conversation.account)
+        expect(ChatwootExceptionTracker).to receive(:new).with(error, account: conversation.account)
 
         result = service.generate_response(message_history: message_history)
 
@@ -747,7 +747,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
         subject(:service) { described_class.new(assistant: assistant, conversation: nil) }
 
         it 'handles missing conversation gracefully' do
-          expect(KovaaLab CharExceptionTracker).to receive(:new).with(error, account: nil)
+          expect(ChatwootExceptionTracker).to receive(:new).with(error, account: nil)
 
           result = service.generate_response(message_history: message_history)
 
@@ -1130,7 +1130,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       root_span = instance_double(span_class)
       context_wrapper = Struct.new(:context).new({ __otel_tracing: { root_span: root_span } })
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(runner).to receive(:on_tool_complete) do |&block|
         tool_complete_callback = block
         runner
@@ -1153,7 +1153,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       runner = instance_double(Agents::AgentRunner)
       tool_complete_callback = nil
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(false)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(false)
       allow(runner).to receive(:on_tool_complete) do |&block|
         tool_complete_callback = block
         runner
@@ -1181,7 +1181,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       runner = instance_double(Agents::AgentRunner)
       run_complete_callback = nil
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(false)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(false)
       allow(runner).to receive(:on_tool_complete).and_return(runner)
       allow(runner).to receive(:on_run_complete) do |&block|
         run_complete_callback = block
@@ -1199,7 +1199,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       service = described_class.new(assistant: assistant, conversation: conversation)
       runner = instance_double(Agents::AgentRunner)
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(false)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(false)
       allow(runner).to receive(:on_tool_complete).and_return(runner)
       expect(runner).not_to receive(:on_run_complete)
 
@@ -1214,7 +1214,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       )
       runner = instance_double(Agents::AgentRunner)
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(runner).to receive(:on_tool_complete).and_return(runner)
       expect(runner).not_to receive(:on_run_complete)
 
@@ -1231,7 +1231,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       root_span = instance_double(span_class)
       context_wrapper = Struct.new(:context).new({ __otel_tracing: { root_span: root_span } })
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(runner).to receive(:on_tool_complete).and_return(runner)
       allow(runner).to receive(:on_run_complete) do |&block|
         run_complete_callback = block
@@ -1258,7 +1258,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
         output: { 'response_parts' => [{ 'text' => '{"query":"refund policy"}', 'citation_indexes' => [] }], 'reasoning' => 'Use faq_lookup' }
       )
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(runner).to receive(:on_tool_complete).and_return(runner)
       allow(runner).to receive(:on_run_complete) do |&block|
         run_complete_callback = block
@@ -1286,7 +1286,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       root_span = instance_double(span_class)
       context_wrapper = Struct.new(:context).new({ __otel_tracing: { root_span: root_span } })
 
-      allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+      allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(runner).to receive(:on_tool_complete).and_return(runner)
       allow(runner).to receive(:on_run_complete) do |&block|
         run_complete_callback = block

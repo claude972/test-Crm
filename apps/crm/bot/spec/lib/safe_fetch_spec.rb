@@ -397,8 +397,8 @@ RSpec.describe SafeFetch do
           'Authorization' => 'Bearer test-token',
           'Cookie' => 'session=test',
           'Content-Type' => 'application/json',
-          'X-KovaaLab Char-Delivery' => 'test-uuid',
-          'X-KovaaLab Char-Signature' => 'sha256=test-signature'
+          'X-Chatwoot-Delivery' => 'test-uuid',
+          'X-Chatwoot-Signature' => 'sha256=test-signature'
         }
 
         stub_request(:post, url).to_return(

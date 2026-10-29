@@ -34,7 +34,7 @@ class Captain::Llm::PdfProcessingService < Llm::LegacyBaseOpenAiService
   end
 
   def instrument_file_upload(&)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     tracer.in_span('llm.file.upload') do |span|
       span.set_attribute('gen_ai.provider', 'openai')
