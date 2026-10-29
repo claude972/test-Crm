@@ -2,6 +2,15 @@ name: P0 source integrity
 on:
   push:
     branches: [chore/p0-stabilization]
+    paths:
+      - '.github/workflows/p0-integrity.yml'
+      - 'apps/**'
+      - 'scripts/**'
+      - 'infra/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Makefile'
+      - 'docker-compose.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
