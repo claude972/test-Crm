@@ -67,7 +67,7 @@ function(options?: ClientOptions): Client {
       }
     
 // MetadataApiClient (auto-injected by kovaa-lab-client-sdk)
-import type { KovaaLab CRMClientRunAs } from '../shared/kovaa-lab-client-run-as.type';
+import type { KovaaLabCRMClientRunAs } from '../shared/kovaa-lab-client-run-as.type';
 
 // Ambient stubs for the genql-generated code this template is injected into.
 
@@ -77,7 +77,7 @@ const APP_APPLICATION_ACCESS_TOKEN_ENV_KEY =
 const API_KEY_ENV_KEY = 'KOVAALAB_API_KEY';
 
 export type MetadataApiClientOptions = ClientOptions & {
-  runAs?: KovaaLab CRMClientRunAs;
+  runAs?: KovaaLabCRMClientRunAs;
 };
 
 type ProcessEnvironment = Record<string, string | undefined>;

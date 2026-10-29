@@ -12,7 +12,7 @@ const entries = [
 export default defineConfig(() => {
   return {
     root: __dirname,
-    cacheDir: '../../node_modules/.vite/packages/kovaa-lab-client-sdk',
+    cacheDir: '../../node_modules/.vite/packages/twenty-client-sdk',
     resolve: {
       tsconfigPaths: true,
       alias: {

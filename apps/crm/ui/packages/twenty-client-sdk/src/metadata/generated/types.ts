@@ -2718,7 +2718,7 @@ export default {
             "aiModels": [
                 147
             ],
-            "allowRequestsToKovaaLab CRMIcons": [
+            "allowRequestsToKovaaLabCRMIcons": [
                 4
             ],
             "analyticsEnabled": [

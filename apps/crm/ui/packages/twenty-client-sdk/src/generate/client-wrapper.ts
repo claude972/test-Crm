@@ -27,7 +27,7 @@ export const buildClientWrapperSource = (
 
   source = source.replace("'__KOVAALAB_DEFAULT_URL__'", options.defaultUrl);
 
-  source = source.replace(/KovaaLab CRMGeneratedClient/g, options.apiClientName);
+  source = source.replace(/KovaaLabCRMGeneratedClient/g, options.apiClientName);
 
   if (!options.includeUploadFile) {
     source = source.replace(
