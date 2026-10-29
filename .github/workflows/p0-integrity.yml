@@ -3,6 +3,8 @@ on:
   push:
     branches: [chore/p0-stabilization]
   pull_request:
+    branches: [main]
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
