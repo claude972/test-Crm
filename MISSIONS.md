@@ -33,7 +33,7 @@ Codex possède backend, scripts, infrastructure, manifests/lockfile et coordinat
 
 ## Codex assignment
 - agent: codex
-- status: in_progress
+- status: ready_for_review
 - branch: chore/p0-stabilization
 - deliverables: sauvegarde privée vérifiée, réparations backend/systeme ciblées, CI significative, état réel et corrections des échecs.
 - owned files: apps/crm/ui/packages/twenty-server, twenty-shared, marqueur SDK partagé, scripts/, infra/, configuration/lockfiles et documentation de coordination ; réparations backend Char et identifiants Forms déjà publiés.
@@ -41,7 +41,7 @@ Codex possède backend, scripts, infrastructure, manifests/lockfile et coordinat
 - verification report: CORRECTIONS.md, section p0-stabilization / codex
 - implementation revision: 89ab4e8b17c039fec3e2ea29d2e90fac436c156b (code/CI), c0318cf0b (rapports)
 - preview: aucune vérifiée ; build intégré non validé.
-- blockers: CI 40963891231 révèle une phase de déclarations omise ; correction en attente de contrôle en ligne ; frontend et Cal.diy restent à reprendre ; revue croisée incomplète.
+- blockers: contrôle partagé vert dans CI 40969724576 ; frontend, Cal.diy, build intégré, preview et revue croisée restent ouverts.
 
 ## Cross-verification
 
