@@ -19,11 +19,15 @@
 - assigned agent: codex
 - reviewed branch: chore/p0-stabilization
 - reviewed revision: bb11083776b05f4998d6ddc1a5f15e2deb16539e
-- evidence: CI 40963891231, job crm-workspace. Le lanceur Vite termine sans artefacts ; les assertions test -s font échouer le contrôle. La précédente commande retournant zéro ne suffisait pas à prouver la construction.
+- evidence: CI 40963891231, job crm-workspace. Les assertions d'artefacts font échouer le contrôle. La CI ne lançait que Vite, alors que le target existant prévoit aussi tsgo puis tsc-alias pour les déclarations. Un code de sortie zéro du bundle seul ne prouvait donc pas la construction complète. Le journal initial ne permettait pas de conclure que toutes les sorties runtime étaient absentes.
 - expected correction: exécuter une construction effectivement attendue et vérifier les sorties CJS, ESM et déclarations ; conserver un échec explicite si la construction n'a pas lieu.
 - status: in_progress
-- fix commit: pas encore livré
-- recheck evidence: en attente de la correction et d'une exécution CI avec artefacts.
+- fix commit: 3adbd349dae9b91719c82426f55b447f17deed1f (API Vite attendue), 8b92d764613e12839a35c3205f41da6bf8c52b3d (phase déclarations configurée ajoutée)
+- recheck evidence: en attente de la dernière exécution CI complète avec artefacts runtime et déclarations ; ne pas marquer verified avant son résultat.
+
+### Conservation et coordination — actualisation de reprise
+
+Nouvelle comparaison après interruption : 55 696 fichiers d'origine contrôlés, zéro fichier différent et zéro manquant. La session Claude déjà active sur la mission #5 est conservée ; la relance de l'ancien contexte a été arrêtée pour éviter un doublon. Le rapport Claude reste attendu, sans déclaration de revue terminée.
 
 ## Mission p0-stabilization — agent: claude
 

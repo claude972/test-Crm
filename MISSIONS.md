@@ -29,7 +29,7 @@ Codex possède backend, scripts, infrastructure, manifests/lockfile et coordinat
 - verification report: CORRECTIONS.md, section p0-stabilization / claude
 - implementation revision: aucun rapport publié à la reprise ; le worktree contient bb11083776b05f4998d6ddc1a5f15e2deb16539e après actualisation par Claude.
 - preview: aucune vérifiée ; inventaire statique autorisé en l'absence d'environnement prêt.
-- blockers: session précédente interrompue avant livraison ; reprise du contexte existant requise.
+- blockers: rapport encore attendu ; une session Claude déjà active sur la mission #5 poursuit le travail. Ne pas créer de doublon.
 
 ## Codex assignment
 - agent: codex
@@ -39,9 +39,9 @@ Codex possède backend, scripts, infrastructure, manifests/lockfile et coordinat
 - owned files: apps/crm/ui/packages/twenty-server, twenty-shared, marqueur SDK partagé, scripts/, infra/, configuration/lockfiles et documentation de coordination ; réparations backend Char et identifiants Forms déjà publiés.
 - acceptance criteria: originaux inchangés ; secrets non publiés ; identifiants et imports réparés ; compatibilités persistantes conservées ; contrôles en ligne avec artefacts vérifiés ; revue croisée et limites explicites ; preview combinée seulement si réellement disponible.
 - verification report: CORRECTIONS.md, section p0-stabilization / codex
-- implementation revision: bb11083776b05f4998d6ddc1a5f15e2deb16539e
+- implementation revision: 8b92d764613e12839a35c3205f41da6bf8c52b3d
 - preview: aucune vérifiée ; build intégré non validé.
-- blockers: CI 40963891231 échoue sur l'absence d'artefacts shared ; frontend et Cal.diy restent à reprendre ; revue croisée incomplète.
+- blockers: CI 40963891231 révèle une phase de déclarations omise ; correction en attente de contrôle en ligne ; frontend et Cal.diy restent à reprendre ; revue croisée incomplète.
 
 ## Cross-verification
 
