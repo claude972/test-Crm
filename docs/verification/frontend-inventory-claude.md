@@ -433,7 +433,11 @@ Issues de `apps/crm/ui/AGENTS.md` et confirmées par lecture des sources :
 
 Le français est à 98,7 %. Les 68 entrées vides n'ont pas été rattachées à des écrans précis.
 
-## 6. Politique de marque proposée
+## 6. Politique de marque — décidée
+
+> **Décision de l'utilisateur, 29 octobre 2026 : le nom visible par l'utilisateur est « KovaaLab CRM ».**
+>
+> La règle 1 ci-dessous n'est donc plus une question ouverte. Les règles 2 à 4 restent inchangées, et les conséquences concrètes — quels fichiers, quel propriétaire — sont dans `docs/handoff/frontend-backlog.md`, élément **B0**.
 
 Constat de départ : **« Hermès » n'apparaît nulle part dans les sources de l'interface.** Les 4 correspondances de `herm[eè]s` dans `twenty-server` sont des faux positifs (`otHERMEsSageThreads` dans `get-messages.service.ts`, `mail2hermes.com` dans une liste de fournisseurs d'e-mail). « Hermès » vit à l'extérieur de l'application :
 
@@ -446,14 +450,27 @@ Constat de départ : **« Hermès » n'apparaît nulle part dans les sources de 
 
 Deux noms atteignent donc l'utilisateur : l'interface du CRM dit « KovaaLab CRM », les e-mails du module Char disent « Hermès CRM ».
 
-**Politique proposée, en quatre règles.**
+**Politique, en quatre règles.**
 
-1. **Un seul nom visible par l'utilisateur**, à choisir par l'utilisateur. Il doit être identique dans le titre de l'application, les CGU, les e-mails sortants des trois modules et les métadonnées sociales. Je ne tranche pas : c'est une décision de marque, pas une décision technique.
+1. **Un seul nom visible par l'utilisateur : « KovaaLab CRM ».** Décidé par l'utilisateur le 29 octobre 2026. Il doit être identique dans le titre de l'application, les CGU, les e-mails sortants des trois modules et les métadonnées sociales. L'interface du CRM est **déjà** conforme (`index.html:22, 30, 31`) ; les deux écarts à résorber sont `Makefile:7` et `infra/modules.compose.yml:24`, tous deux hors de mon périmètre de propriété.
 2. **L'infrastructure garde `hermes`.** Noms de projets Compose, bases, volumes, contextes Docker, préfixes CI : aucun renommage. Rien n'y est visible par l'utilisateur et tout renommage casse des volumes de données existants.
 3. **Aucun remplacement global d'identifiants techniques, jamais.** Les constats 4.1 à 4.3 et 4.10 sont précisément les dégâts d'un tel remplacement. Quand un identifiant doit changer, le jeton sûr existe déjà dans le dépôt : `KovaaLabCRM`, utilisé par `twenty-shared` et `twenty-server`. Les répertoires `twenty-*` et les basenames `Twenty*` restent tels quels tant qu'une mission dédiée ne les traite pas : leur nom n'est pas visible par l'utilisateur et les renommer déplacerait des milliers de fichiers pour un gain nul.
 4. **Les noms de marque dans les chaînes traduisibles passent par Lingui**, pas par un éditeur de texte. C'est la leçon du § 4.10 : un suffixe grammatical collé au nom du produit ne survit pas à un `sed`.
 
-Point bloquant adjacent : la marque retenue doit disposer d'un domaine réel. `kovaa-lab.com` n'existe pas (§ 4.6). Tant que ce point n'est pas réglé, les CGU et la politique de confidentialité de l'écran de connexion n'aboutissent pas.
+### Domaine — vérifié après la décision
+
+La marque retenue doit disposer d'un domaine réel : `kovaa-lab.com` est configuré partout dans l'application et n'existe pas (§ 4.6). Contrôle `whois` effectué le 29 octobre 2026, après la décision :
+
+| Domaine | Résultat `whois` | Lecture |
+| --- | --- | --- |
+| `kovaa-lab.com` | `No match for domain "KOVAA-LAB.COM"` | non enregistré, donc **disponible** |
+| `kovaalab.com` | `No match for domain "KOVAALAB.COM"` | non enregistré, donc **disponible** |
+
+Les deux sont libres. `kovaa-lab.com` est celui que le code attend déjà, dans toutes les références du § 4.6. **L'enregistrer résoudrait le constat 4.6 sans toucher une ligne de code frontend** — c'est l'option la moins intrusive, et elle est cohérente avec la marque décidée.
+
+Ce n'est pas une décision que je prends : un enregistrement de domaine est un achat. Elle reste ouverte, mais elle est désormais documentée et chiffrable. Tant qu'elle n'est pas prise, les CGU et la politique de confidentialité de l'écran de connexion n'aboutissent pas.
+
+Précision de lecture du `whois` : la sortie contient une ligne `status: ACTIVE`, qui appartient à l'en-tête du registre du TLD et **non** au domaine interrogé. La réponse opérante est `No match`.
 
 ## 7. Contrôles non effectués
 

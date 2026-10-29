@@ -82,6 +82,29 @@ Vérification : introduire volontairement une erreur de syntaxe dans une branche
 
 Indépendants du lot A, mais **non testables avant lui** : aucune vérification visuelle n'est possible tant que l'application ne démarre pas.
 
+### B0 — P2 · Aligner le nom visible sur « KovaaLab CRM » — **décision prise**
+
+> **Décidé par l'utilisateur le 29 octobre 2026 : le nom visible par l'utilisateur est « KovaaLab CRM ».**
+
+L'interface du CRM est **déjà conforme** : `apps/crm/ui/packages/twenty-front/index.html:22, 30, 31` (`og:title`, `twitter:title`, `<title>`). Rien à changer côté frontend.
+
+Deux écarts seulement, tous deux **hors de mon périmètre de propriété** :
+
+| Fichier:ligne | État actuel | Cible | Propriétaire |
+| --- | --- | --- | --- |
+| `Makefile:7` | `Hermès CRM : setup, install, …` | `KovaaLab CRM : setup, install, …` | Codex |
+| `infra/modules.compose.yml:24` | `MAILER_SENDER_EMAIL: Hermès CRM <notifications@hermes.example.test>` | `KovaaLab CRM <…>` | Codex |
+
+Le second est le plus important : c'est le **nom d'expéditeur des e-mails sortants de Char**, donc le seul des deux réellement vu par un utilisateur final. Aujourd'hui, le CRM se présente comme « KovaaLab CRM » et ses e-mails arrivent signés « Hermès CRM ».
+
+**Ce qui ne change pas**, conformément à la règle 2 de la politique de marque : toute l'infrastructure garde `hermes` — `docker-compose.yml:2`, `infra/crm.compose.yml:7-13` (bases `hermes_crm`, `hermes_crm_dev`), bases `hermes_char`, contexte Docker `colima-hermes-crm`, préfixe CI `hermes-p0`. Rien n'y est visible par l'utilisateur, et renommer une base casse des volumes existants.
+
+**Ce qui ne change pas non plus** : aucun identifiant technique. Les répertoires `twenty-*` et les basenames `Twenty*` restent tels quels. La décision de marque porte sur le texte montré à l'utilisateur, pas sur le code — c'est exactement la confusion qui a produit les constats 4.1 à 4.3.
+
+Critère d'acceptation : aucun texte visible par l'utilisateur, e-mails des trois modules inclus, n'emploie « Hermès CRM ».
+
+Vérification : après correction, `git grep -in "Herm[eè]s CRM"` ne renvoie que des fichiers d'infrastructure ou de documentation historique, aucun texte d'interface ni en-tête d'e-mail.
+
 ### B1 — P2 · Supprimer l'impasse vers `SettingsPath.Integrations` (§ 4.5)
 
 `RecordListEmptyState.tsx:60` navigue vers un chemin non routé, dont l'entrée de navigation est commentée par un `TODO` (`useSettingsNavigationItems.tsx:164-170`).
@@ -98,9 +121,21 @@ Vérification : avec un objet distant et une liste vide, cliquer « Go to Settin
 
 `kovaa-lab.com` renvoie `NXDOMAIN`. Le plus sensible : **les CGU et la politique de confidentialité de l'écran de connexion** (`getTwentyWebsiteUrl.ts:7`, consommé par `FooterNote.tsx:72, 80, 102, 110`). Puis `docs.kovaa-lab.com` (`twenty-shared/src/constants/DocumentationBaseUrl.ts:1`, 9 fichiers de production), `SettingsCommunity.tsx:116` et `:135`, et l'aperçu social (`index.html:19`, `:26`, dépôt GitHub en 404).
 
-**Ce n'est pas un correctif frontend seul** : il faut soit enregistrer un domaine, soit choisir des cibles réelles, soit masquer les entrées concernées. Dépend de la décision de marque (§ 6 du rapport).
+**Ce n'est pas un correctif frontend seul** : il faut soit enregistrer un domaine, soit choisir des cibles réelles, soit masquer les entrées concernées.
 
-Critère d'acceptation : tout lien externe affiché résout, ou l'entrée qui le porte est masquée.
+**La décision de marque est prise (B0) et elle débloque l'option la plus simple.** Contrôle `whois` du 29 octobre 2026 : `kovaa-lab.com` et `kovaalab.com` sont **tous deux non enregistrés, donc disponibles**. Or `kovaa-lab.com` est exactement ce que le code attend déjà, dans chacune des références ci-dessus.
+
+Trois options, par ordre de coût croissant côté code :
+
+1. **Enregistrer `kovaa-lab.com`** puis y publier au minimum `/terms`, `/privacy-policy` et un sous-domaine `docs`. **Zéro ligne de code modifiée.** Recommandé : c'est le seul chemin qui résout aussi l'aperçu social et les 9 fichiers consommateurs de liens de documentation, sans toucher au frontend.
+2. **Repointer les constantes** vers un domaine déjà détenu — `getTwentyWebsiteUrl.ts:7` et `twenty-shared/src/constants/DocumentationBaseUrl.ts:1`, soit deux constantes pour l'essentiel du périmètre. Suppose de disposer d'un domaine et d'y héberger les pages légales.
+3. **Masquer les entrées** dont la cible n'existe pas. À éviter pour les CGU et la politique de confidentialité : un produit ne peut pas se contenter de masquer ses mentions légales.
+
+L'aperçu social (`index.html:19`, `:26`) pointe en plus vers le dépôt GitHub `kovaa-lab/kovaa-lab`, en 404. Il demande une cible propre quelle que soit l'option retenue.
+
+Un enregistrement de domaine est un achat : décision utilisateur, je ne la prends pas.
+
+Critère d'acceptation : tout lien externe affiché résout, ou l'entrée qui le porte est masquée — à l'exception des mentions légales, qui doivent résoudre.
 
 ### B3 — P2 · Arbitrer la police de caractères (§ 4.7)
 
@@ -216,6 +251,6 @@ Ce que le frontend attend du serveur :
 
 1. **Lot A** (A1 à A4), un seul lot cohérent. Sans lui, rien d'autre n'est vérifiable. A4 en même temps que A1-A3, pour que le correctif soit protégé dès son arrivée.
 2. **Preview isolée**, dépendance de `docs/stabilization/p0-status.md`, étape 6. Elle débloque toute vérification visuelle, donc tout le lot B.
-3. **Décisions utilisateur** : marque (§ 6 du rapport), domaine (B2), police (B3). Indépendantes du code, peuvent être prises en parallèle du lot A.
-4. **Lot B**, après la preview. B1 à séquencer après la décision C1.
+3. **Décisions utilisateur.** La marque est **tranchée** : « KovaaLab CRM » (B0). Restent le domaine (B2) et la police (B3). Indépendantes du code, elles peuvent être prises en parallèle du lot A.
+4. **Lot B**, après la preview — sauf **B0**, qui ne dépend ni du lot A ni d'une preview : ce sont deux lignes de texte dans `Makefile` et `infra/modules.compose.yml`, et le nom d'expéditeur des e-mails de Char est aujourd'hui incohérent avec le produit. À faire dès que Codex passe sur ces fichiers. B1 à séquencer après la décision C1.
 5. **Lot C**, après publication d'une base applicative validée et accord sur le contrat.
