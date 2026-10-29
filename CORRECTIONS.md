@@ -96,6 +96,17 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 - reviewed revision: 47d74f7259058ed1936f4f9ea516cdbfc1cb30b8
 - evidence: CI 40970658050 construit shared et le SDK avec leurs déclarations, puis deux suites échouent avant leurs tests : generated-client-test-helpers.ts:12 lit kovaa-lab-client-template.ts, absent. Le fichier réel est twenty-client-template.ts. Le script de génération metadata réutilise aussi le mauvais chemin.
 - expected correction: pointer les lecteurs vers le fichier réel, sans renommer les répertoires ou les protocoles ni modifier les règles d'authentification.
-- status: fixed_pending_review
+- status: verified
 - fix commit: deed2c74f4bb6ad40d2522d5309c579cd406539a
-- recheck evidence: nouvelle exécution en attente ; la première exécution ne valide pas les suites auth/upload (un seul test de stub a été exécuté et réussi). Les étapes e-mails/serveur étaient alors ignorées. ec7322d2d permet maintenant de recueillir les résultats de construction indépendants si les dépendances ont bien été produites.
+- recheck evidence: CI 40971268236 sur ec7322d2d : trois suites et 19 tests SDK réussis (14 auth, 4 upload, 1 stub). Shared/SDK/e-mails et leurs déclarations construits ; serveur compilé avec sorties non vides. La CI globale restait en échec sur neuf diagnostics de périmètre de typecheck, traités séparément dans P0-TYPES-001.
+
+### P0-TYPES-001
+- reviewer: codex
+- assigned agent: codex
+- reviewed branch: fix/codex-backend-build
+- reviewed revision: ec7322d2d90848ab04319e02cc11a557100141a3
+- evidence: CI 40971268236, neuf erreurs dans scripts/build-seed-front-components.ts et les exemples de src/engine/metadata-modules/front-component/constants/seed-project. Le tsconfig de base excluait déjà seed-project, mais tsconfig.build remplaçait exclude et incluait implicitement les scripts hors sourceRoot. Ces outils/exemples dépendent du SDK frontend et de types générés propres à un workspace, pas du runtime serveur générique.
+- expected correction: aligner le projet TypeScript de production sur src/**/*.ts et src/**/*.tsx, conserver les augmentations Express nécessaires, exclure tests et ressources seed comme prévu par le projet de base, sans désactiver noImplicitAny/strictNullChecks/alwaysStrict ni ajouter de any. Vérifier les outils frontend séparément lorsque leur chaîne SDK est prête.
+- status: fixed_pending_review
+- fix commit: 79305ae2e63e72456e3c5b78ae5ced483d951557
+- recheck evidence: CI 40972089496 en cours. La compilation inclut aussi le conditionnement des fichiers client-sdk correspondant au target Nest existant. Aucun succès du contrôle final de production encore déclaré.
