@@ -32,3 +32,59 @@ Nouvelle comparaison après interruption : 55 696 fichiers d'origine contrôlés
 ## Mission p0-stabilization — agent: claude
 
 Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport ne constitue pas une revue sans constat.
+
+## Mission p0-stabilization — revue Codex de l'inventaire Claude
+
+- reviewer: codex
+- reviewed branch: chore/claude-frontend-inventory
+- reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39 (PR #6 ; inventaire initial b95ce0341d970201a5c5334397736e8317716fcf, ajouts documentaires ensuite).
+- Périmètre relu : les deux documents de la PR, sources citées, comparaison de la base bb1108377 avec c0318cf0b, parsing et imports internes du frontend publié et des fichiers correspondants du checkout original en lecture seule.
+- Reproduction : sur 11 336 sources hors catalogues du périmètre choisi, le frontend publié présente bien 223 diagnostics de parsing sur 51 fichiers et 27 imports de code non résolus vers les cinq modules cités ; 45 imports d'assets sont exclus du décompte de code. Le même périmètre dans les originaux locaux donne zéro diagnostic et zéro import de code non résolu. Ces réparations existent donc déjà localement ; elles doivent être reprises par lots compris, pas recréées ni copiées avec les catalogues et fonctionnalités mélangées. Les nombres de fichiers varient selon le filtre, pas les 223/27 diagnostics reproduits.
+- Décision de contrat : préserver IconTwentyStar et IconTwentyStarFilled exportés par la bibliothèque UI ; corriger leurs consommateurs, pas renommer la bibliothèque. Conserver les basenames Twenty* existants.
+- CI : la couverture frontend proposée est justifiée. La future mission doit ajouter un contrôle dédié aux sources et aux assets réels, avec déclenchement sur la branche d'implémentation ; ne pas rendre rouge le checkpoint backend sans y reprendre la correction frontend correspondante.
+- Design/marque/domaines : aucun arbitrage visuel ou juridique inventé. Garder le design existant pendant P0 ; les choix de marque, police et destinations légales restent hors de cette réparation de syntaxe.
+- Limites : aucun rendu, test clavier/responsive, E2E ou typecheck frontend ; parsing/imports ne prouvent pas le comportement. La revue des deux documents demande les précisions ci-dessous, pas un rejet des constats P0 reproduits.
+
+### P0-DOC-001
+- reviewer: codex
+- assigned agent: claude
+- reviewed branch: chore/claude-frontend-inventory
+- reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
+- evidence: docs/verification/frontend-inventory-claude.md:256 déduit « le domaine n'est pas enregistré » de NXDOMAIN. Ce résultat porte sur le DNS ; aucun contrôle de registre n'est fourni. Voir RFC 2308, section 2.1 : https://www.rfc-editor.org/rfc/rfc2308.html#section-2.1.
+- expected correction: conserver le constat de résolution DNS et de lien injoignable à la date du test ; retirer la conclusion d'enregistrement ou la prouver séparément via le registre. Ne pas enregistrer ni remplacer un domaine dans cette mission documentaire.
+- status: open
+- fix commit: en attente
+- recheck evidence: en attente de la correction documentaire.
+
+### P0-DOC-002
+- reviewer: codex
+- assigned agent: claude
+- reviewed branch: chore/claude-frontend-inventory
+- reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
+- evidence: docs/handoff/frontend-backlog.md:31 parle du champ serveur allowRequestsToTwentyIcons. Sur la base inspectée et la base courante, client-config.entity.ts:423 expose allowRequestsToKovaaLabCRMIcons via @Field sans alias, et client-config.service.ts:297 renvoie cette même clé.
+- expected correction: décrire le contrat réel allowRequestsToKovaaLabCRMIcons ; le frontend et sa génération doivent s'y aligner, sans changement de schéma backend ajouté pour ce motif. Conserver les noms de fichiers Twenty* ; cela ne définit pas le nom du champ GraphQL.
+- status: open
+- fix commit: en attente
+- recheck evidence: sources backend examinées ; correction du backlog attendue.
+
+### P0-DOC-003
+- reviewer: codex
+- assigned agent: claude
+- reviewed branch: chore/claude-frontend-inventory
+- reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
+- evidence: docs/verification/frontend-inventory-claude.md:487 évoque un renommage du marqueur SDK. git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts montre déjà la valeur __kovaa-labHttpResponse. La reprise conserve exactement cette chaîne ; elle corrige la syntaxe de propriété en la citant. Le renommage camelCase local a été volontairement écarté.
+- expected correction: indiquer la conservation de la valeur de protocole relative à la base historique ; distinguer cette preuve de toute compatibilité avec des SDK externes, non vérifiée ici. Aucune migration de marqueur à entreprendre.
+- status: open
+- fix commit: en attente
+- recheck evidence: comparaison de la constante historique/courante et test de compatibilité shared/SDK vert dans CI 40969724576 ; correction du rapport attendue.
+
+## Mission p0-frontend-baseline — agent: codex
+
+- Branche : fix/codex-backend-build
+- Révision : 47d74f7259058ed1936f4f9ea516cdbfc1cb30b8
+- PR : https://github.com/claude972/test-Crm/pull/7
+- Changements : 20 réparations locales d'identifiants/chemins dans client-sdk/emails, vérifiées comme lexicales ; aucune modification de protocole, d'authentification ou du contenu des e-mails. Nouvelle CI de construction de la chaîne backend sans lancement de service.
+- Contrôles terminés : 200 sources TS/TSX passent le parsing ; diff d'espacement et Gitleaks passent. Sources originales en lecture seule.
+- Contrôles en cours : https://github.com/claude972/test-Crm/actions/runs/40970658050 construit shared/SDK/e-mails avec déclarations, exécute les tests d'authentification/upload existants, puis vérifie les types et la compilation du serveur.
+- Preview : aucune vérifiée ; aucun envoi de mail, service ou base démarré.
+- Statut : in_progress, pas de succès de la chaîne complète déclaré.
