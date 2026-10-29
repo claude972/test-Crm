@@ -61,8 +61,15 @@ jobs:
           node-version: '24'
       - name: Install CRM dependencies from the committed immutable lockfile
         run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
-      - name: Build the shared package without Nx cache
-        run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-shared exec vite build
+      - name: Build the shared package and verify emitted artifacts
+        working-directory: apps/crm/ui/packages/twenty-shared
+        env:
+          FORCE_COLOR: '0'
+        run: |
+          node ../../node_modules/vite/bin/vite.js build
+          test -s dist/index.cjs
+          test -s dist/application.mjs
+          test -s dist/application/index.d.ts
   local-orchestration:
     runs-on: ubuntu-latest
     timeout-minutes: 10
