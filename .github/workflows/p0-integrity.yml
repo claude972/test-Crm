@@ -3,6 +3,9 @@ on:
   push:
     branches: [chore/p0-stabilization]
   pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
