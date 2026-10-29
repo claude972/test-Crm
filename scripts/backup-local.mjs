@@ -1,3 +1,4 @@
+import { assertLocalRuntimeOwner } from "./assert-local-runtime-owner.mjs";
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream, createWriteStream, existsSync } from "node:fs";
@@ -72,6 +73,7 @@ async function archive(name, container, args) {
 }
 
 try {
+  assertLocalRuntimeOwner(root);
   await mkdir(pending, { recursive: true, mode: 0o700 });
   for (const [name, container, user, database] of [
     ["crm", "hermes-crm-local-db-1", "hermes_crm", "hermes_crm_dev"],
@@ -136,6 +138,7 @@ try {
   console.log(`Sauvegarde locale terminée : ${destination}`);
 } catch (error) {
   console.error(error.message);
-  console.error(`Sauvegarde incomplète conservée dans ${pending}`);
+  if (existsSync(pending))
+    console.error(`Sauvegarde incomplète conservée dans ${pending}`);
   process.exitCode = 1;
 }

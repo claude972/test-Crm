@@ -1,3 +1,4 @@
+import { assertLocalRuntimeOwner } from "./assert-local-runtime-owner.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import {
@@ -278,6 +279,8 @@ async function status(names) {
 }
 
 try {
+  if (["init", "start", "start-crm", "stop"].includes(action))
+    assertLocalRuntimeOwner(root);
   if (action === "setup") {
     setup();
   } else if (action === "init") {

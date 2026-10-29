@@ -1,3 +1,4 @@
+import { assertLocalRuntimeOwner } from "./assert-local-runtime-owner.mjs";
 import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -45,6 +46,14 @@ if (!actions.includes(action) || !profiles.includes(profile)) {
 if (!existsSync(environmentFile)) {
   console.error("Exécuter d’abord : node scripts/customer-tools.mjs setup");
   process.exit(1);
+}
+if (["build", "start", "stop"].includes(action)) {
+  try {
+    assertLocalRuntimeOwner(root);
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
 }
 if (["build", "start"].includes(action)) {
   const application = { char: "bot", forms: "form", calendar: "calendar" }[profile];

@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const temporary = mkdtempSync(path.join(os.tmpdir(), 'hermes-p0-runtime-'));
 const scriptDirectory = path.join(temporary, 'scripts');
 mkdirSync(scriptDirectory);
-for (const file of ['local-project.mjs', 'customer-tools.mjs']) copyFileSync(path.join(__dirname, file), path.join(scriptDirectory, file));
+for (const file of ['local-project.mjs', 'customer-tools.mjs', 'assert-local-runtime-owner.mjs', 'backup-local.mjs']) copyFileSync(path.join(__dirname, file), path.join(scriptDirectory, file));
 const run = (script, action) => spawnSync(process.execPath, [path.join(scriptDirectory, script), ...action], {
   cwd: temporary, encoding: 'utf8', env: { ...process.env, DOCKER_BIN: path.join(temporary, 'must-not-run-docker') },
 });
@@ -35,7 +35,22 @@ try {
   assert.notEqual(missing.status, 0);
   assert.match(missing.stderr, /Sources du module calendar absentes/);
   assert.notEqual(run('local-project.mjs', ['unknown']).status, 0);
-  console.log('Runtime P0: setup preserves private configuration and 0600 permissions; remote/wrong database init rejected; missing module and unknown command rejected. No service or database started.');
+  writeFileSync(path.join(temporary, '.git'), 'gitdir: /not-used/worktrees/p0');
+  for (const action of ['init', 'start', 'start-crm', 'stop']) {
+    const protectedCommand = run('local-project.mjs', [action]);
+    assert.notEqual(protectedCommand.status, 0);
+    assert.match(protectedCommand.stderr, /ce worktree ne possède pas un runtime isolé/);
+  }
+  for (const action of ['start', 'stop', 'build']) {
+    const protectedCommand = run('customer-tools.mjs', [action, 'forms']);
+    assert.notEqual(protectedCommand.status, 0);
+    assert.match(protectedCommand.stderr, /ce worktree ne possède pas un runtime isolé/);
+  }
+  const backup = run('backup-local.mjs', []);
+  assert.notEqual(backup.status, 0);
+  assert.match(backup.stderr, /ce worktree ne possède pas un runtime isolé/);
+
+  console.log('Runtime P0: setup preserves private configuration and 0600 permissions; remote/wrong database init rejected; missing module, unknown command and shared-runtime worktree operations rejected. No service or database started.');
 } finally {
   rmSync(temporary, { recursive: true, force: true });
 }
