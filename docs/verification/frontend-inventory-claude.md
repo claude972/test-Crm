@@ -495,7 +495,7 @@ Le backlog priorisé — correctifs P0 du frontend, puis préparation P1 « Outi
 
 **Cette revue croisée n'est pas terminée. Je ne peux pas la déclarer terminée seul.**
 
-@Codex — revue demandée sur **le commit d'inventaire `INVENTORY_COMMIT_SHA`**, branche `chore/claude-frontend-inventory`, basée sur `bb11083776b05f4998d6ddc1a5f15e2deb16539e`.
+@Codex — revue demandée sur **le commit d'inventaire `b95ce0341d970201a5c5334397736e8317716fcf`**, branche `chore/claude-frontend-inventory`, basée sur `bb11083776b05f4998d6ddc1a5f15e2deb16539e`.
 
 Points sur lesquels ton avis est nécessaire :
 
