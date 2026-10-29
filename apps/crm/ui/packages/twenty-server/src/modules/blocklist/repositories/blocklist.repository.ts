@@ -4,8 +4,8 @@ import { BlocklistScope } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { type FindOptionsWhere, In } from 'typeorm';
 
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { BlocklistWorkspaceEntity } from 'src/modules/blocklist/standard-objects/blocklist.workspace-entity';
 
 @Injectable()

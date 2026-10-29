@@ -7,8 +7,8 @@ import { settings } from 'src/engine/constants/settings';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/orm-flat-field-metadata.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { formatData } from 'src/engine/kovaa-lab-orm/utils/format-data.util';
-import { getCompositeFieldMetadataMap } from 'src/engine/kovaa-lab-orm/utils/format-result.util';
+import { formatData } from 'src/engine/twenty-orm/utils/format-data.util';
+import { getCompositeFieldMetadataMap } from 'src/engine/twenty-orm/utils/format-result.util';
 
 export const buildDuplicateConditions = (
   flatObjectMetadata: FlatObjectMetadata,

@@ -15,7 +15,7 @@ import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/
 import { type RawAuthContext } from 'src/engine/core-modules/auth/types/raw-auth-context.type';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   RouteTriggerException,
   RouteTriggerExceptionCode,
@@ -33,8 +33,8 @@ import {
   LogicFunctionExecutionExceptionCode,
 } from 'src/engine/core-modules/logic-function/logic-function-executor/logic-function-executor.service';
 import { CustomException } from 'src/utils/custom-exception';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 type RouteTriggerWorkspace = Pick<
   WorkspaceEntity,
@@ -56,7 +56,7 @@ export class RouteTriggerService {
     private readonly accessTokenService: AccessTokenService,
     private readonly logicFunctionTriggerService: LogicFunctionTriggerService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectWorkspaceScopedRepository(LogicFunctionEntity)
     private readonly logicFunctionRepository: WorkspaceScopedRepository<LogicFunctionEntity>,
   ) {}
@@ -184,7 +184,7 @@ export class RouteTriggerService {
       return;
     }
 
-    const cutoffIso = this.kovaa-labConfigService.get(
+    const cutoffIso = this.kovaaLabConfigService.get(
       'LOGIC_FUNCTION_LEGACY_ROUTE_CUTOFF',
     );
 

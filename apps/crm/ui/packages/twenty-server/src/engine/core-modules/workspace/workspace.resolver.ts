@@ -37,7 +37,7 @@ import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/service
 import { FileUrlService } from 'src/engine/core-modules/file/file-url/file-url.service';
 import { PreventNestToAutoLogGraphqlErrorsFilter } from 'src/engine/core-modules/graphql/filters/prevent-nest-to-auto-log-graphql-errors.filter';
 import { ResolverValidationPipe } from 'src/engine/core-modules/graphql/pipes/resolver-validation.pipe';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { ActivateWorkspaceInput } from 'src/engine/core-modules/workspace/dtos/activate-workspace-input';
 import {
@@ -95,7 +95,7 @@ export class WorkspaceResolver {
     private readonly workspaceService: WorkspaceService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly userWorkspaceService: UserWorkspaceService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly fileUrlService: FileUrlService,
     private readonly billingSubscriptionService: BillingSubscriptionService,
     private readonly featureFlagService: FeatureFlagService,
@@ -260,7 +260,7 @@ export class WorkspaceResolver {
   async billingSubscriptions(
     @Parent() workspace: WorkspaceEntity,
   ): Promise<BillingSubscriptionEntity[] | undefined> {
-    if (!this.kovaa-labConfigService.isBillingEnabled()) {
+    if (!this.kovaaLabConfigService.isBillingEnabled()) {
       return [];
     }
 
@@ -303,7 +303,7 @@ export class WorkspaceResolver {
   ): Promise<ApplicationDTO | null> {
     try {
       const { workspaceCustomFlatApplication } =
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           {
             workspace,
           },
@@ -334,7 +334,7 @@ export class WorkspaceResolver {
   async currentBillingSubscription(
     @Parent() workspace: WorkspaceEntity,
   ): Promise<BillingSubscriptionEntity | undefined> {
-    if (!this.kovaa-labConfigService.isBillingEnabled()) {
+    if (!this.kovaaLabConfigService.isBillingEnabled()) {
       return;
     }
 
@@ -347,7 +347,7 @@ export class WorkspaceResolver {
   async billingCustomer(
     @Parent() workspace: WorkspaceEntity,
   ): Promise<BillingCustomerEntity | null> {
-    if (!this.kovaa-labConfigService.isBillingEnabled()) {
+    if (!this.kovaaLabConfigService.isBillingEnabled()) {
       return null;
     }
 
@@ -400,7 +400,7 @@ export class WorkspaceResolver {
   isGoogleAuthEnabled(@Parent() workspace: WorkspaceEntity) {
     return (
       workspace.isGoogleAuthEnabled &&
-      this.kovaa-labConfigService.get('AUTH_GOOGLE_ENABLED')
+      this.kovaaLabConfigService.get('AUTH_GOOGLE_ENABLED')
     );
   }
 
@@ -413,7 +413,7 @@ export class WorkspaceResolver {
   isMicrosoftAuthEnabled(@Parent() workspace: WorkspaceEntity) {
     return (
       workspace.isMicrosoftAuthEnabled &&
-      this.kovaa-labConfigService.get('AUTH_MICROSOFT_ENABLED')
+      this.kovaaLabConfigService.get('AUTH_MICROSOFT_ENABLED')
     );
   }
 
@@ -421,7 +421,7 @@ export class WorkspaceResolver {
   isPasswordAuthEnabled(@Parent() workspace: WorkspaceEntity) {
     return (
       workspace.isPasswordAuthEnabled &&
-      this.kovaa-labConfigService.get('AUTH_PASSWORD_ENABLED')
+      this.kovaaLabConfigService.get('AUTH_PASSWORD_ENABLED')
     );
   }
 
@@ -443,10 +443,10 @@ export class WorkspaceResolver {
   ): Promise<PublicWorkspaceDataDTO | undefined> {
     try {
       const systemEnabledProviders: AuthProvidersDTO = {
-        google: this.kovaa-labConfigService.get('AUTH_GOOGLE_ENABLED'),
+        google: this.kovaaLabConfigService.get('AUTH_GOOGLE_ENABLED'),
         magicLink: false,
-        password: this.kovaa-labConfigService.get('AUTH_PASSWORD_ENABLED'),
-        microsoft: this.kovaa-labConfigService.get('AUTH_MICROSOFT_ENABLED'),
+        password: this.kovaaLabConfigService.get('AUTH_PASSWORD_ENABLED'),
+        microsoft: this.kovaaLabConfigService.get('AUTH_MICROSOFT_ENABLED'),
         sso: [],
       };
 

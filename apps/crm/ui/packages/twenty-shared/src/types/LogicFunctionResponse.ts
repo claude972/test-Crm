@@ -1,7 +1,7 @@
 export const LOGIC_FUNCTION_HTTP_RESPONSE_MARKER = '__kovaa-labHttpResponse';
 
 export type LogicFunctionHttpResponse = {
-  __kovaa-labHttpResponse: true;
+  '__kovaa-labHttpResponse': true;
   body: unknown;
   status?: number;
   headers?: Record<string, string>;

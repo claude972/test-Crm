@@ -5,8 +5,8 @@ import { WorkspaceBillingEntitlementsCacheModule } from 'src/engine/core-modules
 import { EnterpriseModule } from 'src/engine/core-modules/enterprise/enterprise.module';
 import { UsageLimitModule } from 'src/engine/core-modules/usage-limit/usage-limit.module';
 import { WorkspaceFeatureFlagsMapCacheModule } from 'src/engine/metadata-modules/workspace-feature-flags-map-cache/workspace-feature-flags-map-cache.module';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { WorkspaceDataSourceService } from 'src/engine/kovaa-lab-orm/datasource/workspace-data-source.service';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { WorkspaceDataSourceService } from 'src/engine/twenty-orm/datasource/workspace-data-source.service';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 
 @Global()
@@ -22,4 +22,4 @@ import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache
   providers: [WorkspaceOrmManager, WorkspaceDataSourceService],
   exports: [WorkspaceOrmManager],
 })
-export class KovaaLab CRMOrmModule {}
+export class KovaaLabCRMOrmModule {}

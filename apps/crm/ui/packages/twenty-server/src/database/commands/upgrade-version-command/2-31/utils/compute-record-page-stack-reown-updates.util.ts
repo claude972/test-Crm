@@ -49,7 +49,7 @@ type ComputeRecordPageStackReownUpdatesArgs = {
   >;
   derivedPageLayoutUniversalIdentifier: string;
   engineOwnedApplicationUniversalIdentifiers: Set<string>;
-  kovaa-labStandardApplicationUniversalIdentifier: string;
+  kovaaLabStandardApplicationUniversalIdentifier: string;
 } & RecordPageStackMaps;
 
 // Re-own one system record-page stack (layout, tabs, widgets, the FIELDS
@@ -66,7 +66,7 @@ export const computeRecordPageStackReownUpdates = ({
   flatPageLayout,
   derivedPageLayoutUniversalIdentifier,
   engineOwnedApplicationUniversalIdentifiers,
-  kovaa-labStandardApplicationUniversalIdentifier,
+  kovaaLabStandardApplicationUniversalIdentifier,
   flatViewMaps,
   flatViewFieldMaps,
   flatViewFieldGroupMaps,
@@ -92,7 +92,7 @@ export const computeRecordPageStackReownUpdates = ({
     stackTree,
     flatObjectMetadata,
     engineOwnedApplicationUniversalIdentifiers,
-    kovaa-labStandardApplicationUniversalIdentifier,
+    kovaaLabStandardApplicationUniversalIdentifier,
   });
 
   if (systemFieldsViewSelection.status !== 'selected') {
@@ -222,7 +222,7 @@ export const computeRecordPageStackReownUpdates = ({
         reownUpdates,
         flatObjectMetadata,
         fieldsView,
-        kovaa-labStandardApplicationUniversalIdentifier,
+        kovaaLabStandardApplicationUniversalIdentifier,
         flatViewMaps,
         flatViewFieldMaps,
         flatViewFieldGroupMaps,
@@ -240,14 +240,14 @@ const selectSystemFieldsView = ({
   stackTree,
   flatObjectMetadata,
   engineOwnedApplicationUniversalIdentifiers,
-  kovaa-labStandardApplicationUniversalIdentifier,
+  kovaaLabStandardApplicationUniversalIdentifier,
 }: {
   workspaceId: string;
   logger: ReownLogger;
   stackTree: ReturnType<typeof collectRecordPageStackTree>;
   flatObjectMetadata: ComputeRecordPageStackReownUpdatesArgs['flatObjectMetadata'];
   engineOwnedApplicationUniversalIdentifiers: Set<string>;
-  kovaa-labStandardApplicationUniversalIdentifier: string;
+  kovaaLabStandardApplicationUniversalIdentifier: string;
 }): SystemFieldsViewSelection => {
   const derivedViewUniversalIdentifier = getSystemViewUniversalIdentifier({
     objectMetadataApplicationUniversalIdentifier:
@@ -310,7 +310,7 @@ const selectSystemFieldsView = ({
     candidates.find(
       ({ widgetApplicationUniversalIdentifier }) =>
         widgetApplicationUniversalIdentifier ===
-        kovaa-labStandardApplicationUniversalIdentifier,
+        kovaaLabStandardApplicationUniversalIdentifier,
     ) ??
     candidates.find(({ fieldsView }) => fieldsView.flatView.isSystemSideEffect);
 
@@ -348,7 +348,7 @@ const computeRecordPageViewReownUpdates = ({
   reownUpdates,
   flatObjectMetadata,
   fieldsView,
-  kovaa-labStandardApplicationUniversalIdentifier,
+  kovaaLabStandardApplicationUniversalIdentifier,
   flatViewMaps,
   flatViewFieldMaps,
   flatViewFieldGroupMaps,
@@ -359,7 +359,7 @@ const computeRecordPageViewReownUpdates = ({
   reownUpdates: RecordPageReownUpdates;
   flatObjectMetadata: ComputeRecordPageStackReownUpdatesArgs['flatObjectMetadata'];
   fieldsView: RecordPageStackFieldsViewNode;
-  kovaa-labStandardApplicationUniversalIdentifier: string;
+  kovaaLabStandardApplicationUniversalIdentifier: string;
 } & Pick<
   RecordPageStackMaps,
   | 'flatViewMaps'
@@ -462,7 +462,7 @@ const computeRecordPageViewReownUpdates = ({
       // User-created groups (CRUD API) keep isSystemSideEffect false and
       // their own identifier; only standard-authored groups are re-owned.
       flatViewFieldGroup.applicationUniversalIdentifier !==
-      kovaa-labStandardApplicationUniversalIdentifier
+      kovaaLabStandardApplicationUniversalIdentifier
     ) {
       continue;
     }

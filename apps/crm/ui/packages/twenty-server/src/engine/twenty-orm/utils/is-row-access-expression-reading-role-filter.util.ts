@@ -2,7 +2,7 @@
 
 import { assertUnreachable } from 'kovaa-lab-shared/utils';
 
-import { type RowAccessExpression } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
+import { type RowAccessExpression } from 'src/engine/twenty-orm/types/row-access-policy.type';
 
 // Parent policies are left out: writes check parents on their own through
 // validateInheritedParentsAreWritableOrThrow

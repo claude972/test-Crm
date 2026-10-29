@@ -1,5 +1,5 @@
-import { type RoleIdsBySource } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { resolveApplicationRoleId } from 'src/engine/kovaa-lab-orm/utils/resolve-application-role-id.util';
+import { type RoleIdsBySource } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { resolveApplicationRoleId } from 'src/engine/twenty-orm/utils/resolve-application-role-id.util';
 
 // An application acting for a user is bounded by both the user's role and its own
 export const buildUserRoleIdsBySource = ({

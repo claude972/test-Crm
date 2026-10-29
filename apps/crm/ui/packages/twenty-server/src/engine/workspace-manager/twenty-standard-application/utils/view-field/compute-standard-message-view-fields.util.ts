@@ -2,7 +2,7 @@ import { type FlatViewField } from 'src/engine/metadata-modules/flat-view-field/
 import {
   createStandardViewFieldFlatMetadata,
   type CreateStandardViewFieldArgs,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field/create-standard-view-field-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/create-standard-view-field-flat-metadata.util';
 
 export const computeStandardMessageViewFields = (
   args: Omit<CreateStandardViewFieldArgs<'message'>, 'context'>,

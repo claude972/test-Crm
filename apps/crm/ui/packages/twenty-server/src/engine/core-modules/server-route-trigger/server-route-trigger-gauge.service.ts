@@ -12,7 +12,7 @@ export class ServerRouteTriggerGaugeService implements OnModuleInit {
 
   onModuleInit() {
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_app_server_route_unreachable_workspaces',
+      metricName: 'kovaaLab_app_server_route_unreachable_workspaces',
       options: {
         description:
           'Number of workspaces where an application exposes a server route that cannot be reached because its owner workspace does not serve it',

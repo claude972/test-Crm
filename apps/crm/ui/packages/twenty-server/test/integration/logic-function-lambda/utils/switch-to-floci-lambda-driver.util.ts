@@ -1,8 +1,8 @@
 import { Lambda } from '@aws-sdk/client-lambda';
 
 import { type FlociLambdaDriver } from 'test/integration/logic-function-lambda/types/floci-lambda-driver.type';
-import { deleteConfigVariable } from 'test/integration/kovaa-lab-config/utils/delete-config-variable.util';
-import { updateConfigVariable } from 'test/integration/kovaa-lab-config/utils/update-config-variable.util';
+import { deleteConfigVariable } from 'test/integration/twenty-config/utils/delete-config-variable.util';
+import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 import { startFlociContainer } from 'test/integration/utils/start-floci-container.util';
 
 import { getLambdaResourceNamespace } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/lambda/utils/get-lambda-resource-namespace.util';

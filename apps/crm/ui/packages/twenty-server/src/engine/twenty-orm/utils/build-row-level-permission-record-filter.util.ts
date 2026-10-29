@@ -26,10 +26,10 @@ import {
 import { type FlatRowLevelPermissionPredicateGroupMaps } from 'src/engine/metadata-modules/row-level-permission-predicate/types/flat-row-level-permission-predicate-group-maps.type';
 import { type FlatRowLevelPermissionPredicateMaps } from 'src/engine/metadata-modules/row-level-permission-predicate/types/flat-row-level-permission-predicate-maps.type';
 import { type FlatRowLevelPermissionPredicate } from 'src/engine/metadata-modules/row-level-permission-predicate/types/flat-row-level-permission-predicate.type';
-import { UNSATISFIABLE_RECORD_FILTER } from 'src/engine/kovaa-lab-orm/constants/unsatisfiable-record-filter.constant';
-import { resolveUnsatisfiableRecordFilterGroupIds } from 'src/engine/kovaa-lab-orm/utils/resolve-unsatisfiable-record-filter-group-ids.util';
-import { resolveWorkspaceMemberPredicateValue } from 'src/engine/kovaa-lab-orm/utils/resolve-workspace-member-predicate-value.util';
-import { validatePredicateValueCompatibility } from 'src/engine/kovaa-lab-orm/utils/validate-predicate-value-compatibility.util';
+import { UNSATISFIABLE_RECORD_FILTER } from 'src/engine/twenty-orm/constants/unsatisfiable-record-filter.constant';
+import { resolveUnsatisfiableRecordFilterGroupIds } from 'src/engine/twenty-orm/utils/resolve-unsatisfiable-record-filter-group-ids.util';
+import { resolveWorkspaceMemberPredicateValue } from 'src/engine/twenty-orm/utils/resolve-workspace-member-predicate-value.util';
+import { validatePredicateValueCompatibility } from 'src/engine/twenty-orm/utils/validate-predicate-value-compatibility.util';
 import { computeRecordGqlOperationFilterFromFlatMaps } from 'src/engine/utils/compute-record-gql-operation-filter-from-flat-maps.util';
 
 type BuildRecordFilterForRoleArgs = {

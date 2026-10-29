@@ -14,8 +14,8 @@ import { UsageLimitException } from 'src/engine/core-modules/usage-limit/excepti
 import { usageLimitToRestApiExceptionHandler } from 'src/engine/core-modules/usage-limit/utils/usage-limit-to-rest-api-exception-handler.util';
 import { RecordValidationRuleHttpException } from 'src/engine/metadata-modules/validation-rule/exceptions/record-validation-rule-http.exception';
 import { RecordValidationRuleException } from 'src/engine/metadata-modules/validation-rule/exceptions/record-validation-rule.exception';
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { isKovaaLab CRMOrmUserInputError } from 'src/engine/kovaa-lab-orm/utils/is-kovaa-lab-orm-user-input-error.util';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { isKovaaLabCRMOrmUserInputError } from 'src/engine/twenty-orm/utils/is-twenty-orm-user-input-error.util';
 
 interface QueryFailedErrorWithCode extends QueryFailedError {
   code: string;
@@ -41,8 +41,8 @@ export const workspaceQueryRunnerRestApiExceptionHandler = (
       throw new RecordValidationRuleHttpException(error);
     case error instanceof ThrottlerException:
       return throttlerToRestApiExceptionHandler(error);
-    case error instanceof KovaaLab CRMOrmException &&
-      isKovaaLab CRMOrmUserInputError(error):
+    case error instanceof KovaaLabCRMOrmException &&
+      isKovaaLabCRMOrmUserInputError(error):
       throw new BadRequestException(error.message);
     default:
       throw error;

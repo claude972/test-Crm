@@ -27,7 +27,7 @@ import {
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserVarsService } from 'src/engine/core-modules/user/user-vars/services/user-vars.service';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -44,7 +44,7 @@ export class BillingReminderService {
   private readonly logger = new Logger(BillingReminderService.name);
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     // Billing reminders run as a cross-workspace cron, so no workspaceId is in scope.
     // eslint-disable-next-line kovaa-lab/prefer-workspace-scoped-repository
     @InjectRepository(BillingSubscriptionEntity)
@@ -59,7 +59,7 @@ export class BillingReminderService {
   ) {}
 
   async processReminders(): Promise<void> {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       return;
     }
 
@@ -70,10 +70,10 @@ export class BillingReminderService {
   }
 
   private async processTrialReminders(now: Date): Promise<void> {
-    const withoutCardDaysBefore = this.kovaa-labConfigService.get(
+    const withoutCardDaysBefore = this.kovaaLabConfigService.get(
       'BILLING_TRIAL_WITHOUT_CREDIT_CARD_REMINDER_DAYS_BEFORE',
     );
-    const withCardDaysBefore = this.kovaa-labConfigService.get(
+    const withCardDaysBefore = this.kovaaLabConfigService.get(
       'BILLING_TRIAL_WITH_CREDIT_CARD_REMINDER_DAYS_BEFORE',
     );
     const windowEnd = addDays(
@@ -142,7 +142,7 @@ export class BillingReminderService {
   }
 
   private async processRenewalReminders(now: Date): Promise<void> {
-    const renewalDaysBefore = this.kovaa-labConfigService.get(
+    const renewalDaysBefore = this.kovaaLabConfigService.get(
       'BILLING_SUBSCRIPTION_RENEWAL_REMINDER_DAYS_BEFORE',
     );
     const windowEnd = addDays(now, renewalDaysBefore + 1);
@@ -190,7 +190,7 @@ export class BillingReminderService {
 
     // Unsynced payment-method flag: card trials are longer, so trial length tells them apart. createdAt covers a
     // missing trialStart, else a card trial could be told "no card will be charged" right before it is charged
-    const withoutCardTrialDurationDays = this.kovaa-labConfigService.get(
+    const withoutCardTrialDurationDays = this.kovaaLabConfigService.get(
       'BILLING_FREE_TRIAL_WITHOUT_CREDIT_CARD_DURATION_IN_DAYS',
     );
     const trialStartedAt = subscription.trialStart ?? subscription.createdAt;
@@ -300,9 +300,9 @@ export class BillingReminderService {
 
     await this.emailService.send({
       to: workspaceMember.userEmail,
-      from: `${this.kovaa-labConfigService.get(
+      from: `${this.kovaaLabConfigService.get(
         'EMAIL_FROM_NAME',
-      )} <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      )} <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       subject: i18n._(subject),
       html,
       text,
@@ -330,7 +330,7 @@ export class BillingReminderService {
             userName,
             workspaceDisplayName,
             trialEndsAt: reminder.trialEndsAt,
-            dataRetentionDays: this.kovaa-labConfigService.get(
+            dataRetentionDays: this.kovaaLabConfigService.get(
               'WORKSPACE_INACTIVE_DAYS_BEFORE_SOFT_DELETION',
             ),
             link: billingSettingsUrl,

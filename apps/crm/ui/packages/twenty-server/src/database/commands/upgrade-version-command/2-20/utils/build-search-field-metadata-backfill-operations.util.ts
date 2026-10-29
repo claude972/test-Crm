@@ -18,7 +18,7 @@ type BuildSearchFieldMetadataBackfillOperationsArgs = {
   flatFieldMetadataMaps: FlatEntityMaps<FlatFieldMetadata>;
   flatSearchFieldMetadataMaps: FlatEntityMaps<FlatSearchFieldMetadata>;
   applicationUniversalIdentifierById: Map<string, string>;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   workspaceCustomApplicationId: string;
 };
 
@@ -33,7 +33,7 @@ export const buildSearchFieldMetadataBackfillOperations = ({
   flatFieldMetadataMaps,
   flatSearchFieldMetadataMaps,
   applicationUniversalIdentifierById,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   workspaceCustomApplicationId,
 }: BuildSearchFieldMetadataBackfillOperationsArgs): Record<
   string,
@@ -56,7 +56,7 @@ export const buildSearchFieldMetadataBackfillOperations = ({
     flatObjectMetadataMaps.byUniversalIdentifier,
   ).filter(isDefined)) {
     if (
-      flatObjectMetadata.applicationId === kovaa-labStandardApplicationId ||
+      flatObjectMetadata.applicationId === kovaaLabStandardApplicationId ||
       flatObjectMetadata.applicationId === workspaceCustomApplicationId
     ) {
       continue;

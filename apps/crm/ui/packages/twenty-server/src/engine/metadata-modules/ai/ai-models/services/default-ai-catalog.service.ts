@@ -2,7 +2,7 @@ import { Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
 import { FileStorageDriverFactory } from 'src/engine/core-modules/file-storage/file-storage-driver.factory';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import defaultAiProviders from 'src/engine/metadata-modules/ai/ai-models/ai-providers.json';
 import { type AiProvidersConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-providers-config.type';
 import { inheritCatalogReadings } from 'src/engine/metadata-modules/ai/ai-models/utils/merge-custom-providers-into-catalog.util';
@@ -22,13 +22,13 @@ export class DefaultAiCatalogService implements OnModuleInit {
   private catalog: AiProvidersConfig = this.builtInCatalog;
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly fileStorageDriverFactory: FileStorageDriverFactory,
     private readonly exceptionHandlerService: ExceptionHandlerService,
   ) {}
 
   async onModuleInit(): Promise<void> {
-    const catalogPath = this.kovaa-labConfigService.get('AI_CATALOG_STORAGE_PATH');
+    const catalogPath = this.kovaaLabConfigService.get('AI_CATALOG_STORAGE_PATH');
 
     if (!catalogPath) {
       this.logger.log(

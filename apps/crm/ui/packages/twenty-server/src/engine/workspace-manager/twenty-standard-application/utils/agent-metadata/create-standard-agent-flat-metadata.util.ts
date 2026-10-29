@@ -1,13 +1,13 @@
 import { v4 } from 'uuid';
 
 import { type AgentResponseFormat } from 'src/engine/metadata-modules/ai/ai-agent/types/agent-response-format.type';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { type ModelConfiguration } from 'src/engine/metadata-modules/ai/ai-agent/types/model-configuration.type';
 import { type ModelId } from 'src/engine/metadata-modules/ai/ai-models/types/model-id.type';
 import { type FlatAgent } from 'src/engine/metadata-modules/flat-agent/types/flat-agent.type';
-import { STANDARD_AGENT } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-agent.constant';
-import { type AllStandardAgentName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-agent-name.type';
-import { type StandardBuilderArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/metadata-standard-buillder-args.type';
+import { STANDARD_AGENT } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-agent.constant';
+import { type AllStandardAgentName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-agent-name.type';
+import { type StandardBuilderArgs } from 'src/engine/workspace-manager/twenty-standard-application/types/metadata-standard-buillder-args.type';
 
 export type CreateStandardAgentContext = {
   agentName: AllStandardAgentName;
@@ -42,7 +42,7 @@ export const createStandardAgentFlatMetadata = ({
     modelConfiguration,
   },
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: CreateStandardAgentArgs): FlatAgent => {
   const universalIdentifier = STANDARD_AGENT[agentName].universalIdentifier;
@@ -62,7 +62,7 @@ export const createStandardAgentFlatMetadata = ({
     modelConfiguration,
     triggers: [],
     workspaceId,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     createdAt: now,

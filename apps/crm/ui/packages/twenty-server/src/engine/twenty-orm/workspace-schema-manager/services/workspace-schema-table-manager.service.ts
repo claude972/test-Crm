@@ -1,7 +1,7 @@
 import { type QueryRunner } from 'typeorm';
 
-import { type WorkspaceSchemaColumnDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/types/workspace-schema-column-definition.type';
-import { buildSqlColumnDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/utils/build-sql-column-definition.util';
+import { type WorkspaceSchemaColumnDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/types/workspace-schema-column-definition.type';
+import { buildSqlColumnDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/utils/build-sql-column-definition.util';
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
 
 export class WorkspaceSchemaTableManagerService {

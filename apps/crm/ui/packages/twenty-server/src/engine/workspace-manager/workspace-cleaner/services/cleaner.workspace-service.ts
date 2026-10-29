@@ -25,13 +25,13 @@ import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
 import { UserVarsService } from 'src/engine/core-modules/user/user-vars/services/user-vars.service';
 import { WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { USER_WORKSPACE_DELETION_WARNING_SENT_KEY } from 'src/engine/workspace-manager/workspace-cleaner/constants/user-workspace-deletion-warning-sent-key.constant';
 import {
   DestroySoftDeletedWorkspaceJob,
@@ -64,7 +64,7 @@ export class CleanerWorkspaceService {
   private readonly maxNumberOfWorkspacesDeletedPerExecution: number;
   constructor(
     private readonly workspaceService: WorkspaceService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly userVarsService: UserVarsService,
     private readonly userService: UserService,
     private readonly emailService: EmailService,
@@ -79,17 +79,17 @@ export class CleanerWorkspaceService {
     @InjectMessageQueue(MessageQueue.workspaceDestroyQueue)
     private readonly workspaceDestroyQueueService: MessageQueueService,
   ) {
-    this.inactiveDaysBeforeSoftDelete = this.kovaa-labConfigService.get(
+    this.inactiveDaysBeforeSoftDelete = this.kovaaLabConfigService.get(
       'WORKSPACE_INACTIVE_DAYS_BEFORE_SOFT_DELETION',
     );
-    this.inactiveDaysBeforeDelete = this.kovaa-labConfigService.get(
+    this.inactiveDaysBeforeDelete = this.kovaaLabConfigService.get(
       'WORKSPACE_INACTIVE_DAYS_BEFORE_DELETION',
     );
-    this.inactiveDaysBeforeWarn = this.kovaa-labConfigService.get(
+    this.inactiveDaysBeforeWarn = this.kovaaLabConfigService.get(
       'WORKSPACE_INACTIVE_DAYS_BEFORE_NOTIFICATION',
     );
     this.maxNumberOfWorkspacesDeletedPerExecution =
-      this.kovaa-labConfigService.get(
+      this.kovaaLabConfigService.get(
         'MAX_NUMBER_OF_WORKSPACES_DELETED_PER_EXECUTION',
       );
   }
@@ -142,9 +142,9 @@ export class CleanerWorkspaceService {
 
     await this.emailService.send({
       to: workspaceMember.userEmail,
-      from: `${this.kovaa-labConfigService.get(
+      from: `${this.kovaaLabConfigService.get(
         'EMAIL_FROM_NAME',
-      )} <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      )} <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       subject,
       html,
       text,
@@ -217,9 +217,9 @@ export class CleanerWorkspaceService {
 
     await this.emailService.send({
       to: workspaceMember.userEmail,
-      from: `${this.kovaa-labConfigService.get(
+      from: `${this.kovaaLabConfigService.get(
         'EMAIL_FROM_NAME',
-      )} <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      )} <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       subject,
       html,
       text,
@@ -470,7 +470,7 @@ export class CleanerWorkspaceService {
         continue;
       }
 
-      if (this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+      if (this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
         const activeBillingSubscription =
           await this.billingSubscriptionRepository.findOne(workspace.id, {
             where: {

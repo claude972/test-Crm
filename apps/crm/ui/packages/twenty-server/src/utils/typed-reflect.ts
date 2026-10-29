@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { type FeatureFlagKey } from 'kovaa-lab-shared/types';
 
-import { type ConfigVariablesMetadataMap } from 'src/engine/core-modules/kovaa-lab-config/decorators/config-variables-metadata.decorator';
+import { type ConfigVariablesMetadataMap } from 'src/engine/core-modules/twenty-config/decorators/config-variables-metadata.decorator';
 
 export interface ReflectMetadataTypeMap {
   ['config-variables']: ConfigVariablesMetadataMap;

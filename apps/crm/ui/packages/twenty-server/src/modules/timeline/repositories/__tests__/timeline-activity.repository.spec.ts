@@ -1,7 +1,7 @@
 import { type TimelineActivityTypeSnapshot } from 'kovaa-lab-shared/timeline';
 import { In } from 'typeorm';
 
-import { type WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { TimelineActivityRepository } from 'src/modules/timeline/repositories/timeline-activity.repository';
 
 const WORKSPACE_ID = '20202020-0000-4000-8000-000000000001';

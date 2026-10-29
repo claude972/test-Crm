@@ -12,7 +12,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { isValidCreditAmountMicro } from 'src/engine/core-modules/usage/utils/is-valid-credit-amount-micro.util';
 import { BillingCreditAllowanceService } from 'src/engine/core-modules/billing/services/billing-credit-allowance.service';
 import { EventLogEmitterService } from 'src/engine/core-modules/event-logs/emit/event-log-emitter.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { USAGE_RECORDED } from 'src/engine/core-modules/usage/constants/usage-recorded.constant';
 import { type RecordUsageInput } from 'src/engine/core-modules/usage/types/record-usage-input.type';
 import { type UsageEvent } from 'src/engine/core-modules/usage/types/usage-event.type';
@@ -32,14 +32,14 @@ export class UsageRecorderService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly workspaceEventEmitter: WorkspaceEventEmitter,
     private readonly eventLogEmitterService: EventLogEmitterService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly billingCreditAllowanceService: BillingCreditAllowanceService,
   ) {}
 
   onModuleInit() {
     this.flushTimer = setInterval(
       () => void this.flush(),
-      this.kovaa-labConfigService.get('USAGE_ROLLUP_FLUSH_INTERVAL_MS'),
+      this.kovaaLabConfigService.get('USAGE_ROLLUP_FLUSH_INTERVAL_MS'),
     );
 
     this.flushTimer.unref();

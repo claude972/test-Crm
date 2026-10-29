@@ -4,7 +4,7 @@ import { google } from 'googleapis';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   ConnectedAccountRefreshAccessTokenException,
   ConnectedAccountRefreshAccessTokenExceptionCode,
@@ -14,14 +14,14 @@ import { type ConnectedAccountPlaintextTokens } from 'src/modules/connected-acco
 
 @Injectable()
 export class GoogleApiRefreshAccessTokenService {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   async refreshTokens(
     refreshToken: PlaintextString,
   ): Promise<ConnectedAccountPlaintextTokens> {
     const oAuth2Client = new google.auth.OAuth2({
-      clientId: this.kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
-      clientSecret: this.kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
+      clientId: this.kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
+      clientSecret: this.kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
       transporterOptions: { fetchImplementation: fetch },
     });
 

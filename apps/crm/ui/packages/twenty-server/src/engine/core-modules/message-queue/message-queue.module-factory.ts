@@ -7,10 +7,10 @@ import {
 } from 'src/engine/core-modules/message-queue/interfaces';
 import { type MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { type RedisClientService } from 'src/engine/core-modules/redis-client/redis-client.service';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export const messageQueueModuleFactory = async (
-  kovaa-labConfigService: KovaaLab CRMConfigService,
+  kovaaLabConfigService: KovaaLabCRMConfigService,
   redisClientService: RedisClientService,
   metricsService: MetricsService,
   eventEmitter: EventEmitter2,
@@ -26,7 +26,7 @@ export const messageQueueModuleFactory = async (
           prefix: redisClientService.getQueuePrefix(),
         },
         metricsService,
-        kovaa-labConfigService,
+        kovaaLabConfigService,
         eventEmitter,
       } satisfies BullMQDriverFactoryOptions;
     }

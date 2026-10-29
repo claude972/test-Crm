@@ -1,12 +1,12 @@
 import { msg } from '@lingui/core/macro';
 
 import { type FlatSkill } from 'src/engine/metadata-modules/flat-skill/types/flat-skill.type';
-import { type AllStandardSkillName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-skill-name.type';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { type AllStandardSkillName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-skill-name.type';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import {
   type CreateStandardSkillArgs,
   createStandardSkillFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/skill-metadata/create-standard-skill-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/skill-metadata/create-standard-skill-flat-metadata.util';
 
 export const STANDARD_FLAT_SKILL_METADATA_BUILDERS_BY_SKILL_NAME = {
   'workflow-building': (args: Omit<CreateStandardSkillArgs, 'context'>) =>

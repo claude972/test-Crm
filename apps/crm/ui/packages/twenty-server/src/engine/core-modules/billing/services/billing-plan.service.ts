@@ -20,7 +20,7 @@ import { assertPlanIsSellableOrThrow } from 'src/engine/core-modules/billing/uti
 import { findDefaultPlanKey } from 'src/engine/core-modules/billing/utils/find-default-plan-key.util';
 import { getBillingPlanConfig } from 'src/engine/core-modules/billing/utils/get-billing-plan-config.util';
 import { getSellablePlanKeys } from 'src/engine/core-modules/billing/utils/get-sellable-plan-keys.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class BillingPlanService {
@@ -28,11 +28,11 @@ export class BillingPlanService {
   constructor(
     @InjectRepository(BillingProductEntity)
     private readonly billingProductRepository: Repository<BillingProductEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async listPlans(): Promise<BillingGetPlanResult[]> {
-    const plansConfig = this.kovaa-labConfigService.get('BILLING_PLANS');
+    const plansConfig = this.kovaaLabConfigService.get('BILLING_PLANS');
     const sellablePlanKeys = getSellablePlanKeys(plansConfig);
     const defaultPlanKey = findDefaultPlanKey(plansConfig);
     const planKeys = Object.values(BillingPlanKey);
@@ -92,7 +92,7 @@ export class BillingPlanService {
     assertPlanIsSellableOrThrow({
       planKey,
       sellablePlanKeys: getSellablePlanKeys(
-        this.kovaa-labConfigService.get('BILLING_PLANS'),
+        this.kovaaLabConfigService.get('BILLING_PLANS'),
       ),
     });
 

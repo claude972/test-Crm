@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 
 import { deriveInstanceHmacKey } from 'src/engine/core-modules/secret-encryption/utils/derive-instance-hmac-key.util';
 import { resolveSessionCookieSecretsOrThrow } from 'src/engine/core-modules/secret-encryption/utils/resolve-session-cookie-secrets.util';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 type EnvMap = Partial<{
   ENCRYPTION_KEY: string;
@@ -10,7 +10,7 @@ type EnvMap = Partial<{
   APP_SECRET: string;
 }>;
 
-const buildConfig = (env: EnvMap): Pick<KovaaLab CRMConfigService, 'get'> => ({
+const buildConfig = (env: EnvMap): Pick<KovaaLabCRMConfigService, 'get'> => ({
   get: jest.fn((key: keyof EnvMap) => env[key]) as never,
 });
 
@@ -24,14 +24,14 @@ describe('resolveSessionCookieSecretsOrThrow', () => {
   it('throws when neither ENCRYPTION_KEY nor APP_SECRET is configured', () => {
     expect(() =>
       resolveSessionCookieSecretsOrThrow({
-        kovaa-labConfigService: buildConfig({}),
+        kovaaLabConfigService: buildConfig({}),
       }),
     ).toThrow(/ENCRYPTION_KEY/);
   });
 
   it('signs with ENCRYPTION_KEY first when set, with legacy APP_SECRET hash kept for verification', () => {
     const secrets = resolveSessionCookieSecretsOrThrow({
-      kovaa-labConfigService: buildConfig({
+      kovaaLabConfigService: buildConfig({
         ENCRYPTION_KEY: 'new-key',
         APP_SECRET: 'app',
       }),
@@ -44,7 +44,7 @@ describe('resolveSessionCookieSecretsOrThrow', () => {
 
   it('places FALLBACK_ENCRYPTION_KEY between the primary and the legacy slot', () => {
     const secrets = resolveSessionCookieSecretsOrThrow({
-      kovaa-labConfigService: buildConfig({
+      kovaaLabConfigService: buildConfig({
         ENCRYPTION_KEY: 'new-key',
         FALLBACK_ENCRYPTION_KEY: 'previous-key',
         APP_SECRET: 'app',
@@ -60,7 +60,7 @@ describe('resolveSessionCookieSecretsOrThrow', () => {
 
   it('omits the FALLBACK slot when FALLBACK_ENCRYPTION_KEY is empty', () => {
     const secrets = resolveSessionCookieSecretsOrThrow({
-      kovaa-labConfigService: buildConfig({
+      kovaaLabConfigService: buildConfig({
         ENCRYPTION_KEY: 'new-key',
         FALLBACK_ENCRYPTION_KEY: '',
         APP_SECRET: 'app',
@@ -72,7 +72,7 @@ describe('resolveSessionCookieSecretsOrThrow', () => {
 
   it('omits the legacy slot when APP_SECRET is unset', () => {
     const secrets = resolveSessionCookieSecretsOrThrow({
-      kovaa-labConfigService: buildConfig({ ENCRYPTION_KEY: 'new-key' }),
+      kovaaLabConfigService: buildConfig({ ENCRYPTION_KEY: 'new-key' }),
     });
 
     expect(secrets).toEqual([hmacFor('new-key')]);
@@ -80,7 +80,7 @@ describe('resolveSessionCookieSecretsOrThrow', () => {
 
   it('falls back to HKDF(APP_SECRET) as primary when ENCRYPTION_KEY is unset, while keeping the legacy SHA slot', () => {
     const secrets = resolveSessionCookieSecretsOrThrow({
-      kovaa-labConfigService: buildConfig({ APP_SECRET: 'app' }),
+      kovaaLabConfigService: buildConfig({ APP_SECRET: 'app' }),
     });
 
     expect(secrets).toEqual([hmacFor('app'), legacyAppSecretHash('app')]);

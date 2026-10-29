@@ -1,5 +1,5 @@
-import { CONFIG_VARIABLES_GROUP_METADATA } from 'src/engine/core-modules/kovaa-lab-config/constants/config-variables-group-metadata';
-import { ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
+import { CONFIG_VARIABLES_GROUP_METADATA } from 'src/engine/core-modules/twenty-config/constants/config-variables-group-metadata';
+import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
 
 describe('CONFIG_VARIABLES_GROUP_METADATA', () => {
   it('should include all ConfigVariablesGroup enum values', () => {

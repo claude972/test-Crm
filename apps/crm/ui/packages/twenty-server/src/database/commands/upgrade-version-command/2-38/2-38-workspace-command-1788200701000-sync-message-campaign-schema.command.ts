@@ -12,7 +12,7 @@ import { WorkspaceIteratorService } from 'src/database/commands/command-runners/
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { buildNavigationCommandMenuItemOperationsOrThrow } from 'src/database/commands/upgrade-version-command/2-10/utils/build-navigation-command-menu-item-operations-or-throw.util';
 import { collectMessageCampaignStandardUniversalIdentifiers } from 'src/database/commands/upgrade-version-command/2-38/utils/collect-message-campaign-standard-universal-identifiers.util';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { getExistingOrStandardFlatEntityOrThrow, getStandardFlatEntitiesToCreateOrThrow } from 'src/database/commands/upgrade-version-command/2-10/utils/get-standard-flat-entities-to-create-or-throw.util';
 import { isDefined } from 'kovaa-lab-shared/utils';
@@ -100,18 +100,18 @@ export class SyncMessageCampaignSchemaCommand extends ProvisionedWorkspaceComman
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const now = new Date().toISOString();
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now,
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const universalIdentifiers =
@@ -134,7 +134,7 @@ export class SyncMessageCampaignSchemaCommand extends ProvisionedWorkspaceComman
       buildNavigationCommandMenuItemOperationsOrThrow({
         existingFlatCommandMenuItemMaps: flatCommandMenuItemMaps,
         objectMetadatasForNavigation,
-        applicationId: kovaa-labStandardFlatApplication.id,
+        applicationId: kovaaLabStandardFlatApplication.id,
         workspaceId,
         now,
         renamedCollisionObjectMetadatas: [],
@@ -294,7 +294,7 @@ export class SyncMessageCampaignSchemaCommand extends ProvisionedWorkspaceComman
         {
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           allFlatEntityOperationByMetadataName,
         },
@@ -355,8 +355,8 @@ export class SyncMessageCampaignSchemaCommand extends ProvisionedWorkspaceComman
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -365,7 +365,7 @@ export class SyncMessageCampaignSchemaCommand extends ProvisionedWorkspaceComman
         {
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           allFlatEntityOperationByMetadataName: {
             objectMetadata: {
@@ -422,16 +422,16 @@ export class SyncMessageCampaignSchemaCommand extends ProvisionedWorkspaceComman
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
     const standardFieldMaps = standardAllFlatEntityMaps.flatFieldMetadataMaps;
 
@@ -481,7 +481,7 @@ export class SyncMessageCampaignSchemaCommand extends ProvisionedWorkspaceComman
           isSystemBuild: true,
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           allFlatEntityOperationByMetadataName: {
             fieldMetadata: {
               flatEntityToCreate,

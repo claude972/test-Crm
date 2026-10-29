@@ -14,13 +14,13 @@ import {
   type AgentHistoryWorkspaceStorageService,
   type AgentHistoryStorageContext,
 } from 'src/engine/metadata-modules/ai/ai-history/services/agent-history-workspace-storage.service';
-import { type WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
+import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
 import {
   type WorkspaceFindOptions,
   normalizeFindOptionsRelations,
-} from 'src/engine/kovaa-lab-orm/query-builder/utils/apply-find-options.util';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+} from 'src/engine/twenty-orm/query-builder/utils/apply-find-options.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 export class AgentHistoryRepository<TRecord extends { id: string }> {
   constructor(

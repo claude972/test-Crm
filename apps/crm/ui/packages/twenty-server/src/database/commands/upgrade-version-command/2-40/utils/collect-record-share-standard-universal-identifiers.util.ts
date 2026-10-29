@@ -2,7 +2,7 @@ import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type RecordShareStandardUniversalIdentifiers } from 'src/database/commands/upgrade-version-command/2-40/types/record-share-standard-universal-identifiers.type';
-import { type KovaaLab CRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/kovaa-lab-standard-all-flat-entity-maps.type';
+import { type KovaaLabCRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/types/twenty-standard-all-flat-entity-maps.type';
 
 const RECORD_SHARE_OBJECT_UNIVERSAL_IDENTIFIER =
   STANDARD_OBJECTS.recordShare.universalIdentifier;
@@ -10,7 +10,7 @@ const RECORD_SHARE_OBJECT_UNIVERSAL_IDENTIFIER =
 export const collectRecordShareStandardUniversalIdentifiers = ({
   standardAllFlatEntityMaps,
 }: {
-  standardAllFlatEntityMaps: KovaaLab CRMStandardAllFlatEntityMaps;
+  standardAllFlatEntityMaps: KovaaLabCRMStandardAllFlatEntityMaps;
 }): RecordShareStandardUniversalIdentifiers => {
   const fieldMetadata = Object.values(
     standardAllFlatEntityMaps.flatFieldMetadataMaps.byUniversalIdentifier,

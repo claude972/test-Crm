@@ -1,4 +1,4 @@
-import { type PerformKovaaLab CRMConfigQueryParams } from 'test/integration/kovaa-lab-config/types/perform-kovaa-lab-config-query.type';
+import { type PerformKovaaLabCRMConfigQueryParams } from 'test/integration/twenty-config/types/perform-twenty-config-query.type';
 
 import { makeAdminPanelApiRequest } from './make-admin-panel-api-request.util';
 import {
@@ -9,7 +9,7 @@ import {
 export const updateConfigVariable = async ({
   input,
   expectToFail = false,
-}: PerformKovaaLab CRMConfigQueryParams<UpdateConfigVariableFactoryInput>) => {
+}: PerformKovaaLabCRMConfigQueryParams<UpdateConfigVariableFactoryInput>) => {
   const graphqlOperation = updateConfigVariableQueryFactory({
     key: input.key,
     value: input.value,

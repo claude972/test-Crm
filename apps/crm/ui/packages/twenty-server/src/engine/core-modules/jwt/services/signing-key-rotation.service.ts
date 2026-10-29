@@ -5,7 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { JwtKeyManagerService } from 'src/engine/core-modules/jwt/services/jwt-key-manager.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -21,11 +21,11 @@ export class SigningKeyRotationService {
 
   constructor(
     private readonly jwtKeyManagerService: JwtKeyManagerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async rotateIfDue(): Promise<SigningKeyRotationResult> {
-    const rotationDays = this.kovaa-labConfigService.get(
+    const rotationDays = this.kovaaLabConfigService.get(
       'SIGNING_KEY_ROTATION_DAYS',
     );
 

@@ -18,14 +18,14 @@ import { type RefreshTokenJwtPayload } from 'src/engine/core-modules/auth/types/
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 import { isRevokedRefreshTokenStillRenewable } from 'src/engine/core-modules/auth/utils/is-revoked-refresh-token-still-renewable.util';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 
 @Injectable()
 export class RefreshTokenService {
   constructor(
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectRepository(AppTokenEntity)
     private readonly appTokenRepository: Repository<AppTokenEntity>,
     @InjectRepository(UserEntity)
@@ -33,7 +33,7 @@ export class RefreshTokenService {
   ) {}
 
   async verifyRefreshToken(refreshToken: string) {
-    const reuseGracePeriod = this.kovaa-labConfigService.get(
+    const reuseGracePeriod = this.kovaaLabConfigService.get(
       'REFRESH_TOKEN_REUSE_GRACE_PERIOD',
     );
 
@@ -118,7 +118,7 @@ export class RefreshTokenService {
   ): Promise<AuthToken> {
     const expiresIn = isImpersonationToken
       ? '1d'
-      : this.kovaa-labConfigService.get('REFRESH_TOKEN_EXPIRES_IN');
+      : this.kovaaLabConfigService.get('REFRESH_TOKEN_EXPIRES_IN');
 
     if (!expiresIn) {
       throw new AuthException(

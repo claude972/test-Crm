@@ -10,7 +10,7 @@ import {
 import { type JwtPayload } from 'src/engine/core-modules/auth/types/jwt-payload.type';
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 import { ImpersonationAuthorizationService } from 'src/engine/core-modules/impersonation/services/impersonation-authorization.service';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 
@@ -21,7 +21,7 @@ describe('JwtAuthStrategy', () => {
   let userWorkspaceRepository: any;
   let jwtWrapperService: any;
   let permissionsService: any;
-  let kovaa-labConfigService: any;
+  let kovaaLabConfigService: any;
   let workspaceCacheService: any;
   let coreEntityCacheService: any;
   let workspaceRepository: { findOne: jest.Mock };
@@ -61,7 +61,7 @@ describe('JwtAuthStrategy', () => {
       userHasWorkspaceSettingPermission: jest.fn(),
     };
 
-    kovaa-labConfigService = {
+    kovaaLabConfigService = {
       get: jest.fn((key: string) =>
         key === 'NODE_ENV' ? NodeEnvironment.DEVELOPMENT : undefined,
       ),
@@ -137,7 +137,7 @@ describe('JwtAuthStrategy', () => {
       coreEntityCacheService,
       new ImpersonationAuthorizationService(
         permissionsService,
-        kovaa-labConfigService,
+        kovaaLabConfigService,
       ),
       workspaceRepository as unknown as Repository<WorkspaceEntity>,
     );

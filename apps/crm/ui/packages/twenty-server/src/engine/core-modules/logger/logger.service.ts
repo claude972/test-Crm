@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { LOGGER_DRIVER } from 'src/engine/core-modules/logger/logger.constants';
-import { type KovaaLab CRMLogLevel } from 'src/engine/core-modules/logger/interfaces';
+import { type KovaaLabCRMLogLevel } from 'src/engine/core-modules/logger/interfaces';
 
 type LoggerDriverType = ConsoleLogger & {
   options?: {
@@ -24,7 +24,7 @@ export class LoggerService implements LoggerServiceInterface {
   private isPerfLoggingEnabled() {
     return (
       (
-        this.driver.options?.logLevels as KovaaLab CRMLogLevel[] | undefined
+        this.driver.options?.logLevels as KovaaLabCRMLogLevel[] | undefined
       )?.includes('performance') ?? false
     );
   }

@@ -7,7 +7,7 @@ import { IsNull, LessThan, Repository } from 'typeorm';
 
 import { BillingSubscriptionEntity } from 'src/engine/core-modules/billing/entities/billing-subscription.entity';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 // Workspaces created less than 1 minute ago are excluded from the check
@@ -19,7 +19,7 @@ export class BillingGaugeService implements OnModuleInit {
 
   constructor(
     private readonly metricsService: MetricsService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     // Observability gauges count subscriptions across every workspace.
@@ -30,7 +30,7 @@ export class BillingGaugeService implements OnModuleInit {
 
   onModuleInit() {
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_billing_subscribed_workspaces_total',
+      metricName: 'kovaaLab_billing_subscribed_workspaces_total',
       options: {
         description: 'Total number of workspaces having an active subscription',
       },
@@ -41,7 +41,7 @@ export class BillingGaugeService implements OnModuleInit {
     });
 
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_billing_last_workspace_has_subscription',
+      metricName: 'kovaaLab_billing_last_workspace_has_subscription',
       options: {
         description:
           'Whether the last workspace (older than 1 min) has a subscription (1 = yes, 0 = no)',
@@ -54,7 +54,7 @@ export class BillingGaugeService implements OnModuleInit {
   }
 
   private async getSubscribedWorkspacesCount(): Promise<number> {
-    const isBillingEnabled = this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    const isBillingEnabled = this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
 
     if (!isBillingEnabled) {
       return 0;
@@ -72,7 +72,7 @@ export class BillingGaugeService implements OnModuleInit {
   }
 
   private async lastWorkspaceHasSubscription(): Promise<number> {
-    const isBillingEnabled = this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    const isBillingEnabled = this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
 
     if (!isBillingEnabled) {
       return 1;

@@ -1,8 +1,8 @@
 import { isUserAuthContext } from 'src/engine/core-modules/auth/guards/is-user-auth-context.guard';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { getWorkspaceContext } from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
-import { buildAgentRoleIdsBySource } from 'src/engine/kovaa-lab-orm/utils/build-agent-role-ids-by-source.util';
-import { buildUserRoleIdsBySource } from 'src/engine/kovaa-lab-orm/utils/build-user-role-ids-by-source.util';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { getWorkspaceContext } from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
+import { buildAgentRoleIdsBySource } from 'src/engine/twenty-orm/utils/build-agent-role-ids-by-source.util';
+import { buildUserRoleIdsBySource } from 'src/engine/twenty-orm/utils/build-user-role-ids-by-source.util';
 
 export const buildEmailingRolePermissionConfig = (
   userRoleId: string,

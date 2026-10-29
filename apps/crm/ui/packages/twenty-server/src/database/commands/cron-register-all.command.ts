@@ -17,7 +17,7 @@ import { CronTriggerCronCommand } from 'src/engine/core-modules/logic-function/l
 import { PendingWakeUpSweepCronCommand } from 'src/engine/core-modules/pending-wake-up/crons/commands/pending-wake-up-sweep.cron.command';
 import { AgentCronTriggerCronCommand } from 'src/engine/metadata-modules/ai/ai-agent-trigger/crons/agent-cron-trigger.cron.command';
 import { CheckPublicDomainsValidRecordsCronCommand } from 'src/engine/core-modules/public-domain/crons/commands/check-public-domains-valid-records.cron.command';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserSessionCleanupCronCommand } from 'src/engine/core-modules/user-session/crons/commands/user-session-cleanup.cron.command';
 import { CheckCustomDomainValidRecordsCronCommand } from 'src/engine/core-modules/workspace/crons/commands/check-custom-domain-valid-records.cron.command';
 import { WebhookSubscriptionRenewalCronCommand } from 'src/modules/connected-account/webhook-subscription-manager/crons/commands/webhook-subscription-renewal.cron.command';
@@ -88,7 +88,7 @@ export class CronRegisterAllCommand extends CommandRunner {
     private readonly billingReminderCronCommand: BillingReminderCronCommand,
     private readonly applicationRecurringChargeCronCommand: ApplicationRecurringChargeCronCommand,
     private readonly userSessionCleanupCronCommand: UserSessionCleanupCronCommand,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {
     super();
   }
@@ -97,14 +97,14 @@ export class CronRegisterAllCommand extends CommandRunner {
     this.logger.log('Registering all background sync cron jobs...');
 
     const isSigningKeyAutoRotationEnabled = isDefined(
-      this.kovaa-labConfigService.get('SIGNING_KEY_ROTATION_DAYS'),
+      this.kovaaLabConfigService.get('SIGNING_KEY_ROTATION_DAYS'),
     );
 
-    const isMarketplaceCatalogSyncEnabled = this.kovaa-labConfigService.get(
+    const isMarketplaceCatalogSyncEnabled = this.kovaaLabConfigService.get(
       'MARKETPLACE_CATALOG_SYNC_CRON_ENABLED',
     );
 
-    const isBillingEnabled = this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    const isBillingEnabled = this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
 
     const allCommands = [
       {

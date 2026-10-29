@@ -5,7 +5,7 @@ import { type FileUrlService } from 'src/engine/core-modules/file/file-url/file-
 import { FilesFieldService } from 'src/engine/core-modules/file/files-field/services/files-field.service';
 import { FILE_STATUS } from 'src/engine/core-modules/file/types/file-status.type';
 import { type FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/field-metadata.entity';
-import { type WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { type WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 describe('FilesFieldService.copyFileIntoFilesField', () => {
   const workspaceId = '20202020-0000-4000-8000-000000000001';

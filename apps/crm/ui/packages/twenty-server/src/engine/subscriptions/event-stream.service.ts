@@ -35,7 +35,7 @@ export class EventStreamService implements OnModuleInit {
 
   onModuleInit() {
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_event_streams_live_total',
+      metricName: 'kovaaLab_event_streams_live_total',
       options: { description: 'Current number of live event streams' },
       callback: async () => {
         return this.getTotalActiveStreamCount();

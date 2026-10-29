@@ -20,7 +20,7 @@ import { resolveDpa } from 'src/engine/core-modules/dpa/utils/resolve-dpa.util';
 import { renderDpaToPdfBuffer } from 'src/engine/core-modules/dpa/pdf/render-dpa-to-pdf.util';
 import { FileStorageService } from 'src/engine/core-modules/file-storage/services/file-storage.service';
 import { FileUrlService } from 'src/engine/core-modules/file/file-url/file-url.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 const BLOCK_KIND_TO_DTO: Record<
@@ -58,12 +58,12 @@ export class DpaService {
     private readonly fileStorageService: FileStorageService,
     private readonly fileUrlService: FileUrlService,
     private readonly applicationService: ApplicationService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   // Keys off IS_MULTIWORKSPACE_ENABLED, not billing — using billing here misclassified cloud as self-hosted.
   private isSelfHosted(): boolean {
-    return this.kovaa-labConfigService.get('IS_MULTIWORKSPACE_ENABLED') !== true;
+    return this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED') !== true;
   }
 
   getPreviewForWorkspace(
@@ -135,7 +135,7 @@ export class DpaService {
 
     const [pdfBuffer, { workspaceCustomFlatApplication }] = await Promise.all([
       renderDpaToPdfBuffer(resolved),
-      this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId: workspace.id },
       ),
     ]);

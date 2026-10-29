@@ -72,8 +72,8 @@ export class CorrectStandardFieldAcronymCasingCommand extends ProvisionedWorkspa
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -87,7 +87,7 @@ export class CorrectStandardFieldAcronymCasingCommand extends ProvisionedWorkspa
     // clause safe: neither is something a user can give a field of their own.
     const standardApplicationScope = {
       workspaceId,
-      applicationId: kovaa-labStandardFlatApplication.id,
+      applicationId: kovaaLabStandardFlatApplication.id,
     };
     const primaryKeyScope = {
       workspaceId,

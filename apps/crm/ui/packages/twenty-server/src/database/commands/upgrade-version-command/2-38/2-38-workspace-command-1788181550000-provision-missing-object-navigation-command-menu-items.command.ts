@@ -41,8 +41,8 @@ export class ProvisionMissingObjectNavigationCommandMenuItemsCommand extends Pro
         'flatObjectMetadataMaps',
       ]);
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -51,7 +51,7 @@ export class ProvisionMissingObjectNavigationCommandMenuItemsCommand extends Pro
         flatCommandMenuItemMaps,
         flatObjectMetadataMaps,
         excludedApplicationUniversalIdentifiers: new Set([
-          kovaa-labStandardFlatApplication.universalIdentifier,
+          kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceCustomFlatApplication.universalIdentifier,
         ]),
       });

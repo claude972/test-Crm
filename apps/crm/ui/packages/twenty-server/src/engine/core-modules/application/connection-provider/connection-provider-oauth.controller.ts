@@ -25,7 +25,7 @@ import { parseRelativeUrl } from 'src/engine/core-modules/domain/domain-server-c
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
@@ -42,7 +42,7 @@ export class ConnectionProviderOAuthController {
     private readonly transientTokenService: TransientTokenService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly guardRedirectService: GuardRedirectService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly i18nService: I18nService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
@@ -285,7 +285,7 @@ export class ConnectionProviderOAuthController {
           id: workspace?.id,
           subdomain:
             workspace?.subdomain ??
-            this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN'),
+            this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN'),
           customDomain: workspace?.customDomain ?? null,
           isCustomDomainEnabled: workspace?.isCustomDomainEnabled ?? false,
         },

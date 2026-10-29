@@ -3,24 +3,24 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import { isString } from 'class-validator';
 import { type LoggerOptions } from 'typeorm/logger/LoggerOptions';
 
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { CONFIG_VARIABLES_MASKING_CONFIG } from 'src/engine/core-modules/kovaa-lab-config/constants/config-variables-masking-config';
-import { type ConfigVariablesMetadataOptions } from 'src/engine/core-modules/kovaa-lab-config/decorators/config-variables-metadata.decorator';
-import { DatabaseConfigDriver } from 'src/engine/core-modules/kovaa-lab-config/drivers/database-config.driver';
-import { EnvironmentConfigDriver } from 'src/engine/core-modules/kovaa-lab-config/drivers/environment-config.driver';
-import { ConfigSource } from 'src/engine/core-modules/kovaa-lab-config/enums/config-source.enum';
-import { ConfigVariablesMaskingStrategies } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-masking-strategies.enum';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { CONFIG_VARIABLES_MASKING_CONFIG } from 'src/engine/core-modules/twenty-config/constants/config-variables-masking-config';
+import { type ConfigVariablesMetadataOptions } from 'src/engine/core-modules/twenty-config/decorators/config-variables-metadata.decorator';
+import { DatabaseConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/database-config.driver';
+import { EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
+import { ConfigSource } from 'src/engine/core-modules/twenty-config/enums/config-source.enum';
+import { ConfigVariablesMaskingStrategies } from 'src/engine/core-modules/twenty-config/enums/config-variables-masking-strategies.enum';
 import {
   ConfigVariableException,
   ConfigVariableExceptionCode,
-} from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.exception';
-import { configVariableMaskSensitiveData } from 'src/engine/core-modules/kovaa-lab-config/utils/config-variable-mask-sensitive-data.util';
-import { isEnvOnlyConfigVar } from 'src/engine/core-modules/kovaa-lab-config/utils/is-env-only-config-var.util';
+} from 'src/engine/core-modules/twenty-config/twenty-config.exception';
+import { configVariableMaskSensitiveData } from 'src/engine/core-modules/twenty-config/utils/config-variable-mask-sensitive-data.util';
+import { isEnvOnlyConfigVar } from 'src/engine/core-modules/twenty-config/utils/is-env-only-config-var.util';
 import { TypedReflect } from 'src/utils/typed-reflect';
 
 @Injectable()
-export class KovaaLab CRMConfigService {
-  private readonly logger = new Logger(KovaaLab CRMConfigService.name);
+export class KovaaLabCRMConfigService {
+  private readonly logger = new Logger(KovaaLabCRMConfigService.name);
   private readonly isDatabaseDriverActive: boolean;
 
   constructor(

@@ -12,7 +12,7 @@ import { BillingPriceEntity } from 'src/engine/core-modules/billing/entities/bil
 import { BillingSubscriptionItemEntity } from 'src/engine/core-modules/billing/entities/billing-subscription-item.entity';
 import { BillingSubscriptionEntity } from 'src/engine/core-modules/billing/entities/billing-subscription.entity';
 import { BillingProductKey } from 'src/engine/core-modules/billing/enums/billing-product-key.enum';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class BillingSubscriptionItemService {
   constructor(
     @InjectRepository(BillingSubscriptionItemEntity)
     private readonly billingSubscriptionItemRepository: Repository<BillingSubscriptionItemEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async getResourceCreditSubscriptionItemDetails(
@@ -57,7 +57,7 @@ export class BillingSubscriptionItemService {
         ? differenceInDays(subscription.trialEnd, subscription.trialStart)
         : 0;
 
-    const trialWithCreditCardDuration = this.kovaa-labConfigService.get(
+    const trialWithCreditCardDuration = this.kovaaLabConfigService.get(
       'BILLING_FREE_TRIAL_WITH_CREDIT_CARD_DURATION_IN_DAYS',
     );
 
@@ -65,7 +65,7 @@ export class BillingSubscriptionItemService {
       stripeSubscriptionItemId: item.stripeSubscriptionItemId,
       productKey: BillingProductKey.RESOURCE_CREDIT,
       creditAmount: Number(price.metadata?.credit_amount ?? 0),
-      freeTrialQuantity: this.kovaa-labConfigService.get(
+      freeTrialQuantity: this.kovaaLabConfigService.get(
         trialDuration === trialWithCreditCardDuration
           ? 'BILLING_FREE_WORKFLOW_CREDITS_FOR_TRIAL_PERIOD_WITH_CREDIT_CARD'
           : 'BILLING_FREE_WORKFLOW_CREDITS_FOR_TRIAL_PERIOD_WITHOUT_CREDIT_CARD',

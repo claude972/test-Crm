@@ -10,13 +10,13 @@ import {
 import { isEncryptedString } from 'src/engine/core-modules/secret-encryption/branded-strings/is-encrypted-string.util';
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { ConfigValueConverterService } from 'src/engine/core-modules/kovaa-lab-config/conversion/config-value-converter.service';
-import { ConfigVariableType } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variable-type.enum';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { ConfigValueConverterService } from 'src/engine/core-modules/twenty-config/conversion/config-value-converter.service';
+import { ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
 import {
   ConfigVariableException,
   ConfigVariableExceptionCode,
-} from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.exception';
+} from 'src/engine/core-modules/twenty-config/twenty-config.exception';
 import { TypedReflect } from 'src/utils/typed-reflect';
 
 import { type ConfigStorageInterface } from './interfaces/config-storage.interface';

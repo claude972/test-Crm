@@ -20,7 +20,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { type UpdateWorkspaceInput } from 'src/engine/core-modules/workspace/dtos/update-workspace-input';
 import { WorkspaceDiscoverability } from 'src/engine/core-modules/workspace/types/workspace-discoverability.type';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 type WorkspaceAccessSettings = {
   defaultRoleId: string | null;

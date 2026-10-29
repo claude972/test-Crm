@@ -10,13 +10,13 @@ import {
   IsString,
 } from 'class-validator';
 
-import { ConfigVariableType } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variable-type.enum';
+import { ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
 import {
   ConfigVariableException,
   ConfigVariableExceptionCode,
-} from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.exception';
-import { type ConfigVariableOptions } from 'src/engine/core-modules/kovaa-lab-config/types/config-variable-options.type';
-import { configTransformers } from 'src/engine/core-modules/kovaa-lab-config/utils/config-transformers.util';
+} from 'src/engine/core-modules/twenty-config/twenty-config.exception';
+import { type ConfigVariableOptions } from 'src/engine/core-modules/twenty-config/types/config-variable-options.type';
+import { configTransformers } from 'src/engine/core-modules/twenty-config/utils/config-transformers.util';
 import { tryParseJsonArray } from 'src/utils/try-parse-json-array';
 
 export interface TypeTransformer<T> {

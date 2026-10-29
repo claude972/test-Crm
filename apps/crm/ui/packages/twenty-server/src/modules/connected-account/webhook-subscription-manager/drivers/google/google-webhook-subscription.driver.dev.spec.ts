@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { WebhookSubscriptionChannelType } from 'kovaa-lab-shared/types';
 
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type GoogleOAuth2ClientProvider } from 'src/modules/connected-account/oauth2-client-manager/drivers/google/google-oauth2-client.provider';
 import {
   WebhookSubscriptionDriverException,
@@ -29,14 +29,14 @@ const buildDriver = ({
     getClient: async () => oAuth2Client,
   } as unknown as GoogleOAuth2ClientProvider;
 
-  const kovaa-labConfigService = {
+  const kovaaLabConfigService = {
     get: (key: string) =>
       key === 'MESSAGING_GMAIL_PUBSUB_TOPIC' ? pubSubTopic : serverUrl,
-  } as unknown as KovaaLab CRMConfigService;
+  } as unknown as KovaaLabCRMConfigService;
 
   return new GoogleWebhookSubscriptionDriver(
     oAuth2ClientProvider,
-    kovaa-labConfigService,
+    kovaaLabConfigService,
   );
 };
 

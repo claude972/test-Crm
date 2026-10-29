@@ -5,7 +5,7 @@ import { type Request } from 'express';
 import { OAuthDiscoveryController } from 'src/engine/core-modules/application/application-oauth/controllers/oauth-discovery.controller';
 import { ApplicationRegistrationService } from 'src/engine/core-modules/application/application-registration/application-registration.service';
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 describe('OAuthDiscoveryController', () => {
   let controller: OAuthDiscoveryController;
@@ -26,7 +26,7 @@ describe('OAuthDiscoveryController', () => {
       controllers: [OAuthDiscoveryController],
       providers: [
         {
-          provide: KovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
           useValue: {
             get: jest.fn().mockReturnValue('https://api.example.com'),
           },
@@ -84,7 +84,7 @@ describe('OAuthDiscoveryController', () => {
         controllers: [OAuthDiscoveryController],
         providers: [
           {
-            provide: KovaaLab CRMConfigService,
+            provide: KovaaLabCRMConfigService,
             useValue: {
               get: jest.fn().mockReturnValue('https://crm.acme.com'),
             },

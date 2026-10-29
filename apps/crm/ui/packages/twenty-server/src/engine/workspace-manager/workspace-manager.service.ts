@@ -11,11 +11,11 @@ import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.ent
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
 import { RoleService } from 'src/engine/metadata-modules/role/role.service';
 import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { WorkspaceSchemaService } from 'src/engine/workspace-datasource/workspace-schema.service';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
-import { KovaaLab CRMStandardApplicationService } from 'src/engine/workspace-manager/kovaa-lab-standard-application/services/kovaa-lab-standard-application.service';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
+import { KovaaLabCRMStandardApplicationService } from 'src/engine/workspace-manager/twenty-standard-application/services/twenty-standard-application.service';
 
 @Injectable()
 export class WorkspaceManagerService {
@@ -27,7 +27,7 @@ export class WorkspaceManagerService {
     private readonly userWorkspaceRepository: Repository<UserWorkspaceEntity>,
     private readonly roleService: RoleService,
     private readonly userRoleService: UserRoleService,
-    private readonly kovaa-labStandardApplicationService: KovaaLab CRMStandardApplicationService,
+    private readonly kovaaLabStandardApplicationService: KovaaLabCRMStandardApplicationService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     @InjectWorkspaceScopedRepository(RoleEntity)
@@ -59,11 +59,11 @@ export class WorkspaceManagerService {
       databaseSchema: schemaName,
     });
 
-    await this.applicationService.createKovaaLab CRMStandardApplication({
+    await this.applicationService.createKovaaLabCRMStandardApplication({
       workspaceId,
     });
 
-    await this.kovaa-labStandardApplicationService.synchronizeKovaaLab CRMStandardApplicationOrThrow(
+    await this.kovaaLabStandardApplicationService.synchronizeKovaaLabCRMStandardApplicationOrThrow(
       {
         workspaceId,
       },
@@ -76,7 +76,7 @@ export class WorkspaceManagerService {
     );
 
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },

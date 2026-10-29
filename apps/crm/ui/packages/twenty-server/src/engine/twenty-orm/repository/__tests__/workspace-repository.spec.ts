@@ -5,9 +5,9 @@ import { getFlatFieldMetadataMock } from 'src/engine/metadata-modules/flat-field
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { getFlatObjectMetadataMock } from 'src/engine/metadata-modules/flat-object-metadata/__mocks__/get-flat-object-metadata.mock';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type CompiledStatement } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
-import { WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+import { type CompiledStatement } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
+import { WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 type WorkspaceRepositoryOptions = ConstructorParameters<
   typeof WorkspaceRepository

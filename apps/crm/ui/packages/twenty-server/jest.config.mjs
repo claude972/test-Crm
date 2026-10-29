@@ -54,7 +54,7 @@ const jestConfig = {
     '^file-type$': require.resolve('file-type'),
   },
   moduleFileExtensions: ['js', 'mjs', 'json', 'ts'],
-  modulePathIgnorePatterns: ['<rootDir>/dist'],
+  modulePathIgnorePatterns: ['<rootDir>/dist', '<rootDir>/.local-storage'],
   fakeTimers: {
     enableGlobally: true,
   },

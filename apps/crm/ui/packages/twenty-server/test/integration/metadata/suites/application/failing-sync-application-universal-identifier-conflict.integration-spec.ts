@@ -5,7 +5,7 @@ import { setupApplicationForSync } from 'test/integration/metadata/suites/applic
 import { syncApplication } from 'test/integration/metadata/suites/application/utils/sync-application.util';
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 const TEST_APP_ID = 'a1b2c3d4-0001-4000-a000-000000000001';
 const TEST_ROLE_ID = 'a1b2c3d4-0002-4000-a000-000000000002';

@@ -1,8 +1,8 @@
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import {
   SCHEMA_NAME,
   buildQueryBuilder,
-} from 'src/engine/kovaa-lab-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
+} from 'src/engine/twenty-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
 
 describe('WorkspaceSelectQueryBuilder joins', () => {
   it('should join a to-one relation on its foreign key', () => {
@@ -46,7 +46,7 @@ describe('WorkspaceSelectQueryBuilder joins', () => {
     const { queryBuilder } = buildQueryBuilder();
 
     expect(() => queryBuilder.leftJoin('unknown.company', 'company')).toThrow(
-      KovaaLab CRMOrmException,
+      KovaaLabCRMOrmException,
     );
   });
 
@@ -54,7 +54,7 @@ describe('WorkspaceSelectQueryBuilder joins', () => {
     const { queryBuilder } = buildQueryBuilder();
 
     expect(() => queryBuilder.leftJoin('person.company', 'person')).toThrow(
-      KovaaLab CRMOrmException,
+      KovaaLabCRMOrmException,
     );
   });
 
@@ -67,7 +67,7 @@ describe('WorkspaceSelectQueryBuilder joins', () => {
     expect(queryBuilder.getJoinAliases()).toEqual([
       { name: 'people', isToMany: true },
     ]);
-    expect(() => queryBuilder.getQuery()).toThrow(KovaaLab CRMOrmException);
+    expect(() => queryBuilder.getQuery()).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should render a deduped to-many join on the inverse foreign key when the caller opts in', () => {
@@ -123,8 +123,8 @@ describe('WorkspaceSelectQueryBuilder joins', () => {
     queryBuilder.setFindOptions({ select: { id: true } });
     queryBuilder.leftJoin('person.people', 'people');
 
-    await expect(queryBuilder.getMany()).rejects.toThrow(KovaaLab CRMOrmException);
-    await expect(queryBuilder.getOne()).rejects.toThrow(KovaaLab CRMOrmException);
+    await expect(queryBuilder.getMany()).rejects.toThrow(KovaaLabCRMOrmException);
+    await expect(queryBuilder.getOne()).rejects.toThrow(KovaaLabCRMOrmException);
   });
 
   it('should reject a to-many join with an explicit condition for an entity-hydrating read', async () => {
@@ -137,7 +137,7 @@ describe('WorkspaceSelectQueryBuilder joins', () => {
       '"people"."personId" = "person"."id"',
     );
 
-    await expect(queryBuilder.getMany()).rejects.toThrow(KovaaLab CRMOrmException);
+    await expect(queryBuilder.getMany()).rejects.toThrow(KovaaLabCRMOrmException);
 
     queryBuilder.select([]);
     queryBuilder.addSelect('person.id', 'id');

@@ -10,15 +10,15 @@ import session from 'express-session';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 import { ApiPath } from 'kovaa-lab-shared/types';
 
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
 
 import { setPgDateTypeParser } from 'src/database/pg/set-pg-date-type-parser';
 import { ApplicationRepeatedEventRecorderService } from 'src/engine/core-modules/event-logs/emit/application-repeated-event-recorder.service';
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
 import { LoggerService } from 'src/engine/core-modules/logger/logger.service';
 import { getSessionStorageOptions } from 'src/engine/core-modules/session-storage/session-storage.module-factory';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { configTransformers } from 'src/engine/core-modules/kovaa-lab-config/utils/config-transformers.util';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { configTransformers } from 'src/engine/core-modules/twenty-config/utils/config-transformers.util';
 import { UsageRecorderService } from 'src/engine/core-modules/usage/services/usage-recorder.service';
 import { applyCredentialedCors } from 'src/engine/core-modules/user-session/utils/apply-credentialed-cors.util';
 import { shouldCaptureException } from 'src/engine/utils/global-exception-handler.util';
@@ -47,7 +47,7 @@ const bootstrap = async () => {
       : {}),
   });
   const logger = app.get(LoggerService);
-  const kovaa-labConfigService = app.get(KovaaLab CRMConfigService);
+  const kovaaLabConfigService = app.get(KovaaLabCRMConfigService);
   const exceptionHandlerService = app.get(ExceptionHandlerService);
 
   process.on('unhandledRejection', (reason) => {
@@ -61,16 +61,16 @@ const bootstrap = async () => {
     }
   });
 
-  const trustProxyRaw = kovaa-labConfigService.get('TRUST_PROXY');
+  const trustProxyRaw = kovaaLabConfigService.get('TRUST_PROXY');
   const trustProxy = /^\d+$/.test(trustProxyRaw)
     ? Number(trustProxyRaw)
     : (configTransformers.boolean(trustProxyRaw) ?? trustProxyRaw);
 
   app.set('trust proxy', trustProxy);
 
-  applyCredentialedCors(app, kovaa-labConfigService);
+  applyCredentialedCors(app, kovaaLabConfigService);
 
-  app.use(session(getSessionStorageOptions(kovaa-labConfigService)));
+  app.use(session(getSessionStorageOptions(kovaaLabConfigService)));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
@@ -101,7 +101,7 @@ const bootstrap = async () => {
     }),
   );
 
-  const keepAliveTimeout = kovaa-labConfigService.get(
+  const keepAliveTimeout = kovaaLabConfigService.get(
     'SERVER_KEEP_ALIVE_TIMEOUT_MS',
   );
   const httpServer = app.getHttpServer();
@@ -123,7 +123,10 @@ const bootstrap = async () => {
     });
   }
 
-  await app.listen(kovaa-labConfigService.get('NODE_PORT'));
+  await app.listen(
+    kovaaLabConfigService.get('NODE_PORT'),
+    kovaaLabConfigService.get('NODE_HOST'),
+  );
 };
 
 void bootstrap();

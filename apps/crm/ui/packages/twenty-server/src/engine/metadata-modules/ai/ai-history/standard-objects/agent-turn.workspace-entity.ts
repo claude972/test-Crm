@@ -5,7 +5,7 @@ import { type AgentChatThreadWorkspaceEntity } from 'src/engine/metadata-modules
 import { type AgentMessageWorkspaceEntity } from 'src/engine/metadata-modules/ai/ai-history/standard-objects/agent-message.workspace-entity';
 import { type AgentTurnStatus } from 'src/engine/metadata-modules/ai/ai-history/enums/agent-turn-status.enum';
 import { type StreamErrorPayload } from 'src/engine/metadata-modules/ai/ai-history/utils/map-error-to-stream-error.util';
-import { BaseWorkspaceEntity } from 'src/engine/kovaa-lab-orm/base.workspace-entity';
+import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 
 export class AgentTurnWorkspaceEntity extends BaseWorkspaceEntity {
   thread: EntityRelation<AgentChatThreadWorkspaceEntity>;

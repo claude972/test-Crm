@@ -53,10 +53,10 @@ describe('AddTimelineActivityTypeSnapshotCommand', () => {
     const command = new AddTimelineActivityTypeSnapshotCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: {
+            kovaaLabStandardFlatApplication: {
               id: APPLICATION_ID,
               universalIdentifier: APPLICATION_UNIVERSAL_IDENTIFIER,
             },
@@ -110,10 +110,10 @@ describe('AddTimelineActivityTypeSnapshotCommand', () => {
     const command = new AddTimelineActivityTypeSnapshotCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: {
+            kovaaLabStandardFlatApplication: {
               id: APPLICATION_ID,
               universalIdentifier: APPLICATION_UNIVERSAL_IDENTIFIER,
             },

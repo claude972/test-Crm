@@ -1,4 +1,4 @@
-import { isMetadataWritePermitted } from 'src/engine/kovaa-lab-orm/utils/is-metadata-write-permitted.util';
+import { isMetadataWritePermitted } from 'src/engine/twenty-orm/utils/is-metadata-write-permitted.util';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { buildNamedRecordGrantExpression } from 'src/engine/core-modules/record-share/utils/build-named-record-grant-expression.util';
@@ -9,9 +9,9 @@ import {
   type RowAccessPolicy,
   type RowAccessPolicyContext,
   type RowAccessPolicyTarget,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { isObjectOperationPermitted } from 'src/engine/kovaa-lab-orm/utils/is-object-operation-permitted.util';
-import { renderRowLevelPermissionFilterToSql } from 'src/engine/kovaa-lab-orm/utils/render-row-level-permission-filter-to-sql.util';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { isObjectOperationPermitted } from 'src/engine/twenty-orm/utils/is-object-operation-permitted.util';
+import { renderRowLevelPermissionFilterToSql } from 'src/engine/twenty-orm/utils/render-row-level-permission-filter-to-sql.util';
 
 export const buildRowAccessPolicy = ({
   subject,

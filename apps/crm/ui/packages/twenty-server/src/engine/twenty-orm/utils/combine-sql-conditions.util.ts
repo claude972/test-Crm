@@ -1,4 +1,4 @@
-import { type SqlCondition } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
+import { type SqlCondition } from 'src/engine/twenty-orm/types/row-access-policy.type';
 
 export const combineSqlConditions = (
   conditions: SqlCondition[],

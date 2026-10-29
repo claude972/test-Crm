@@ -26,7 +26,7 @@ type FindObjectsMissingAgentChatThreadTargetRelationArgs = Pick<
   targetFlatObjectMetadata: FlatObjectMetadata;
   existingTargetColumnNames: Set<string>;
   existingTableNames: Set<string>;
-  kovaa-labStandardApplicationUniversalIdentifier: string;
+  kovaaLabStandardApplicationUniversalIdentifier: string;
 };
 
 // Objects created before agentChatThreadTarget existed never got the relation
@@ -39,7 +39,7 @@ export const findObjectsMissingAgentChatThreadTargetRelation = ({
   targetFlatObjectMetadata,
   existingTargetColumnNames,
   existingTableNames,
-  kovaa-labStandardApplicationUniversalIdentifier,
+  kovaaLabStandardApplicationUniversalIdentifier,
 }: FindObjectsMissingAgentChatThreadTargetRelationArgs): ObjectsMissingAgentChatThreadTargetRelation => {
   const targetFlatFieldMetadatas = getFlatFieldsFromFlatObjectMetadata(
     targetFlatObjectMetadata,
@@ -72,7 +72,7 @@ export const findObjectsMissingAgentChatThreadTargetRelation = ({
   ).filter(isDefined)) {
     if (
       sourceFlatObjectMetadata.applicationUniversalIdentifier ===
-      kovaa-labStandardApplicationUniversalIdentifier
+      kovaaLabStandardApplicationUniversalIdentifier
     ) {
       continue;
     }

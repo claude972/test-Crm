@@ -2,21 +2,21 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { UserInputError } from 'src/engine/core-modules/graphql/utils/graphql-errors.util';
 import {
-  type KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { isKovaaLab CRMOrmUserInputError } from 'src/engine/kovaa-lab-orm/utils/is-kovaa-lab-orm-user-input-error.util';
+  type KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { isKovaaLabCRMOrmUserInputError } from 'src/engine/twenty-orm/utils/is-twenty-orm-user-input-error.util';
 
-interface DuplicateKeyErrorWithMetadata extends KovaaLab CRMOrmException {
+interface DuplicateKeyErrorWithMetadata extends KovaaLabCRMOrmException {
   conflictingRecordId?: string;
   conflictingObjectNameSingular?: string;
 }
 
-export const kovaa-labOrmGraphqlApiExceptionHandler = (
-  error: KovaaLab CRMOrmException,
+export const kovaaLabOrmGraphqlApiExceptionHandler = (
+  error: KovaaLabCRMOrmException,
 ) => {
   switch (true) {
-    case error.code === KovaaLab CRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED: {
+    case error.code === KovaaLabCRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED: {
       const duplicateKeyError: DuplicateKeyErrorWithMetadata = error;
 
       const extensions: Record<string, unknown> = {
@@ -34,7 +34,7 @@ export const kovaa-labOrmGraphqlApiExceptionHandler = (
       throw new UserInputError(error.message, extensions);
     }
 
-    case isKovaaLab CRMOrmUserInputError(error):
+    case isKovaaLabCRMOrmUserInputError(error):
       throw new UserInputError(error.message, {
         userFriendlyMessage: error.userFriendlyMessage,
       });

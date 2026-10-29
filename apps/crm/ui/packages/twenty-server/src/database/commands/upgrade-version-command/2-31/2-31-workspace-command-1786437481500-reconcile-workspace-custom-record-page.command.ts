@@ -71,15 +71,15 @@ export class ReconcileWorkspaceCustomRecordPageCommand extends ProvisionedWorksp
       'flatPageLayoutWidgetMaps',
     ]);
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const reownUpdates = this.computeReownUpdates({
       workspaceId,
-      kovaa-labStandardApplicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier:
+        kovaaLabStandardFlatApplication.universalIdentifier,
       workspaceCustomApplicationUniversalIdentifier:
         workspaceCustomFlatApplication.universalIdentifier,
       flatViewMaps,
@@ -128,7 +128,7 @@ export class ReconcileWorkspaceCustomRecordPageCommand extends ProvisionedWorksp
 
   private computeReownUpdates({
     workspaceId,
-    kovaa-labStandardApplicationUniversalIdentifier,
+    kovaaLabStandardApplicationUniversalIdentifier,
     workspaceCustomApplicationUniversalIdentifier,
     flatViewMaps,
     flatViewFieldMaps,
@@ -140,7 +140,7 @@ export class ReconcileWorkspaceCustomRecordPageCommand extends ProvisionedWorksp
     flatPageLayoutWidgetMaps,
   }: {
     workspaceId: string;
-    kovaa-labStandardApplicationUniversalIdentifier: string;
+    kovaaLabStandardApplicationUniversalIdentifier: string;
     workspaceCustomApplicationUniversalIdentifier: string;
   } & Pick<
     AllFlatEntityMaps,
@@ -155,7 +155,7 @@ export class ReconcileWorkspaceCustomRecordPageCommand extends ProvisionedWorksp
   >): RecordPageReownUpdates {
     const reownUpdates = createEmptyRecordPageReownUpdates();
     const engineOwnedApplicationUniversalIdentifiers = new Set([
-      kovaa-labStandardApplicationUniversalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier,
       workspaceCustomApplicationUniversalIdentifier,
     ]);
 
@@ -240,7 +240,7 @@ export class ReconcileWorkspaceCustomRecordPageCommand extends ProvisionedWorksp
             objectUniversalIdentifier: flatObjectMetadata.universalIdentifier,
           }),
         engineOwnedApplicationUniversalIdentifiers,
-        kovaa-labStandardApplicationUniversalIdentifier,
+        kovaaLabStandardApplicationUniversalIdentifier,
         flatViewMaps,
         flatViewFieldMaps,
         flatViewFieldGroupMaps,

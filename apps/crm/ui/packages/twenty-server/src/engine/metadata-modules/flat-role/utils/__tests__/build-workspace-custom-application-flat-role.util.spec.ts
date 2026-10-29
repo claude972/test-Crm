@@ -1,7 +1,7 @@
 import { WORKSPACE_CUSTOM_APPLICATION_ROLE_UNIVERSAL_IDENTIFIER } from 'src/engine/core-modules/application/constants/workspace-custom-application-role.constant';
 import { buildWorkspaceCustomApplicationFlatRole } from 'src/engine/metadata-modules/flat-role/utils/build-workspace-custom-application-flat-role.util';
-import { STANDARD_FLAT_ROLE_METADATA_BUILDERS_BY_ROLE_NAME } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/role-metadata/create-standard-flat-role-metadata.util';
-import { type CreateStandardRoleArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/role-metadata/create-standard-role-flat-metadata.util';
+import { STANDARD_FLAT_ROLE_METADATA_BUILDERS_BY_ROLE_NAME } from 'src/engine/workspace-manager/twenty-standard-application/utils/role-metadata/create-standard-flat-role-metadata.util';
+import { type CreateStandardRoleArgs } from 'src/engine/workspace-manager/twenty-standard-application/utils/role-metadata/create-standard-role-flat-metadata.util';
 
 const WORKSPACE_ID = '20202020-0000-4000-8000-000000000000';
 const CUSTOM_APPLICATION = {
@@ -17,7 +17,7 @@ describe('buildWorkspaceCustomApplicationFlatRole', () => {
 
   const adminRole = STANDARD_FLAT_ROLE_METADATA_BUILDERS_BY_ROLE_NAME.admin({
     workspaceId: WORKSPACE_ID,
-    kovaa-labStandardApplicationId: '20202020-0000-4000-8000-0000000000a1',
+    kovaaLabStandardApplicationId: '20202020-0000-4000-8000-0000000000a1',
     now: '2026-01-01T00:00:00.000Z',
   } as Omit<CreateStandardRoleArgs, 'context'>);
 

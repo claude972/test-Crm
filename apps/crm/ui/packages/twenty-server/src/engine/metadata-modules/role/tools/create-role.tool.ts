@@ -45,7 +45,7 @@ export class CreateRoleTool extends BaseTool<typeof createRoleInputSchema> {
     context: { workspaceId },
   }: ToolExecuteArgs<typeof createRoleInputSchema>): Promise<ToolOutput> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 

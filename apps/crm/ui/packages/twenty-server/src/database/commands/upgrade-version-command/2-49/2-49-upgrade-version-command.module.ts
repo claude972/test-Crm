@@ -7,7 +7,7 @@ import { StripDerivedRecordFilterPropertiesCommand } from 'src/database/commands
 import { DeleteMorphRelationTargetReferencesCommand } from 'src/database/commands/upgrade-version-command/2-49/2-49-workspace-command-1792154485777-delete-morph-relation-target-references.command';
 import { AllowAssistantMessageReactionsCommand } from 'src/database/commands/upgrade-version-command/2-49/2-49-workspace-command-1792172982349-allow-assistant-message-reactions.command';
 import { ApplicationModule } from 'src/engine/core-modules/application/application.module';
-import { WorkspaceSchemaManagerModule } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/workspace-schema-manager.module';
+import { WorkspaceSchemaManagerModule } from 'src/engine/twenty-orm/workspace-schema-manager/workspace-schema-manager.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { WorkspaceMigrationModule } from 'src/engine/workspace-manager/workspace-migration/workspace-migration.module';
 

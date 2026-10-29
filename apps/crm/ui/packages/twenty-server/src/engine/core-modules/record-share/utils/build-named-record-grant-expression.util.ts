@@ -8,7 +8,7 @@ import {
   type RowAccessExpression,
   type RowAccessPolicyContext,
   type RowAccessPolicyTarget,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
 
 export const buildNamedRecordGrantExpression = (
   { subject }: Pick<RowAccessPolicyContext, 'subject'>,

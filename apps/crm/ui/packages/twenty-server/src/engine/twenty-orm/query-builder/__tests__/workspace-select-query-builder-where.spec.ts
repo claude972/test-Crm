@@ -2,8 +2,8 @@ import { runInNewContext } from 'node:vm';
 
 import { And, Equal, In, LessThan, Not } from 'typeorm';
 
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { buildQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { buildQueryBuilder } from 'src/engine/twenty-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
 
 describe('WorkspaceSelectQueryBuilder where', () => {
   it('should nest a bracketed condition built by the shared parsers', () => {
@@ -98,7 +98,7 @@ describe('WorkspaceSelectQueryBuilder where', () => {
 
     expect(() =>
       queryBuilder.andWhere('"person"."id" = :ormLimit', { ormLimit: 1 }),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should render an object-literal where with In as a bound IN clause', () => {
@@ -131,7 +131,7 @@ describe('WorkspaceSelectQueryBuilder where', () => {
     const { queryBuilder } = buildQueryBuilder();
 
     expect(() => queryBuilder.where({ missing: In(['x']) })).toThrow(
-      KovaaLab CRMOrmException,
+      KovaaLabCRMOrmException,
     );
   });
 
@@ -249,6 +249,6 @@ describe('WorkspaceSelectQueryBuilder where', () => {
       queryBuilder.where(
         new Map([['companyId', 'company-1']]) as unknown as string,
       ),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 });

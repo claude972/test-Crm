@@ -237,5 +237,8 @@
         "dist/workspace/index.d.ts"
       ]
     }
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0"
   }
 }

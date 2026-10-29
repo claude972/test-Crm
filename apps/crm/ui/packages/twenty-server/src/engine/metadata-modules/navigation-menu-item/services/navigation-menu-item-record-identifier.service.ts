@@ -6,15 +6,15 @@ import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/wo
 import { FileUrlService } from 'src/engine/core-modules/file/file-url/file-url.service';
 import { getRecordDisplayName } from 'src/engine/core-modules/record-crud/utils/get-record-display-name.util';
 import { getRecordImageIdentifier } from 'src/engine/core-modules/record-crud/utils/get-record-image-identifier.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
 import { RecordIdentifierDTO } from 'src/engine/metadata-modules/navigation-menu-item/dtos/record-identifier.dto';
 import { getMinimalSelectForRecordIdentifier } from 'src/engine/metadata-modules/navigation-menu-item/utils/get-minimal-select-for-record-identifier.util';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { getWorkspaceContext } from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
-import { formatResult } from 'src/engine/kovaa-lab-orm/utils/format-result.util';
-import { resolveRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/resolve-role-permission-config.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { getWorkspaceContext } from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
+import { formatResult } from 'src/engine/twenty-orm/utils/format-result.util';
+import { resolveRolePermissionConfig } from 'src/engine/twenty-orm/utils/resolve-role-permission-config.util';
 import { FileFolder } from 'kovaa-lab-shared/types';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class NavigationMenuItemRecordIdentifierService {
     private readonly workspaceManyOrAllFlatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
     private readonly workspaceOrmManager: WorkspaceOrmManager,
     private readonly fileUrlService: FileUrlService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async resolveRecordIdentifier({
@@ -126,7 +126,7 @@ export class NavigationMenuItemRecordIdentifierService {
       record,
       flatObjectMetadata: objectMetadata,
       flatFieldMetadataMaps,
-      allowRequestsToKovaaLab CRMIcons: this.kovaa-labConfigService.get(
+      allowRequestsToKovaaLabCRMIcons: this.kovaaLabConfigService.get(
         'ALLOW_REQUESTS_TO_KOVAALAB_ICONS',
       ),
       signUrl: (fileId: string, fileFolder: FileFolder) =>

@@ -65,7 +65,7 @@ import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decora
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
 import { SdkClientGenerationService } from 'src/engine/core-modules/sdk-client/sdk-client-generation.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
 import { UpgradeSequenceReaderService } from 'src/engine/core-modules/upgrade/services/upgrade-sequence-reader.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -172,7 +172,7 @@ export class WorkspaceService {
     private readonly billingSubscriptionService: BillingSubscriptionService,
     private readonly billingService: BillingService,
     private readonly userWorkspaceService: UserWorkspaceService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly permissionsService: PermissionsService,
     private readonly dnsManagerService: DnsManagerService,
@@ -408,9 +408,9 @@ export class WorkspaceService {
     }
 
     const authProvidersBySystem = {
-      google: this.kovaa-labConfigService.get('AUTH_GOOGLE_ENABLED'),
-      password: this.kovaa-labConfigService.get('AUTH_PASSWORD_ENABLED'),
-      microsoft: this.kovaa-labConfigService.get('AUTH_MICROSOFT_ENABLED'),
+      google: this.kovaaLabConfigService.get('AUTH_GOOGLE_ENABLED'),
+      password: this.kovaaLabConfigService.get('AUTH_PASSWORD_ENABLED'),
+      microsoft: this.kovaaLabConfigService.get('AUTH_MICROSOFT_ENABLED'),
     };
 
     if (payload.isGoogleAuthEnabled && !authProvidersBySystem.google) {
@@ -627,7 +627,7 @@ export class WorkspaceService {
       );
 
     const executedByVersion =
-      this.kovaa-labConfigService.get('APP_VERSION') ?? 'unknown';
+      this.kovaaLabConfigService.get('APP_VERSION') ?? 'unknown';
 
     const hasWorkspaceAnySubscription =
       await this.billingService.hasWorkspaceAnySubscription(workspaceId);

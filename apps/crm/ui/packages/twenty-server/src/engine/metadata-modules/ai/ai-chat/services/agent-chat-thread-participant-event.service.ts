@@ -5,7 +5,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { DatabaseEventAction } from 'src/engine/api/graphql/graphql-query-runner/enums/database-event-action';
 import { type AgentChatThreadParticipantRow } from 'src/engine/metadata-modules/ai/ai-chat/types/agent-chat-thread-participant-row.type';
 import { findAgentChatFlatObjectMetadata } from 'src/engine/metadata-modules/ai/ai-chat/utils/find-agent-chat-flat-object-metadata.util';
-import { formatKovaaLab CRMOrmEventToDatabaseBatchEvent } from 'src/engine/kovaa-lab-orm/utils/format-kovaa-lab-orm-event-to-database-batch-event.util';
+import { formatKovaaLabCRMOrmEventToDatabaseBatchEvent } from 'src/engine/twenty-orm/utils/format-twenty-orm-event-to-database-batch-event.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
 
@@ -60,7 +60,7 @@ export class AgentChatThreadParticipantEventService {
       return;
     }
 
-    const event = formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+    const event = formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
       action: isDefined(before)
         ? DatabaseEventAction.UPDATED
         : DatabaseEventAction.CREATED,

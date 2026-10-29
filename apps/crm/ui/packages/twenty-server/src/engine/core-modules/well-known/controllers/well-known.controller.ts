@@ -5,7 +5,7 @@ import { ApiPath } from 'kovaa-lab-shared/types';
 
 import { buildApiCatalog } from 'src/engine/core-modules/well-known/utils/build-api-catalog.util';
 import { buildMcpServerCard } from 'src/engine/core-modules/well-known/utils/build-mcp-server-card.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 import { getRequestBaseUrl } from 'src/utils/get-request-base-url.util';
@@ -16,7 +16,7 @@ const FALLBACK_SERVER_VERSION = '0.0.0';
 
 @Controller(ApiPath.WellKnown)
 export class WellKnownController {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   @Get('mcp/server-card.json')
   @UseGuards(PublicEndpointGuard, NoPermissionGuard)
@@ -24,7 +24,7 @@ export class WellKnownController {
   getMcpServerCard(@Req() request: Request) {
     const version =
       extractVersionMajorMinorPatch(
-        this.kovaa-labConfigService.get('APP_VERSION'),
+        this.kovaaLabConfigService.get('APP_VERSION'),
       ) ?? FALLBACK_SERVER_VERSION;
 
     return buildMcpServerCard({

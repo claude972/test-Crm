@@ -1,4 +1,4 @@
-import { buildQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
+import { buildQueryBuilder } from 'src/engine/twenty-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
 
 describe('WorkspaceSelectQueryBuilder order, group and distinct', () => {
   it('should render order by with direction and nulls handling', () => {

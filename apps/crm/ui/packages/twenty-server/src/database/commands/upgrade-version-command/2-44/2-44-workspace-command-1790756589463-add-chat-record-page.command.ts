@@ -15,7 +15,7 @@ import { type FlatPageLayoutTab } from 'src/engine/metadata-modules/flat-page-la
 import { type FlatPageLayoutWidget } from 'src/engine/metadata-modules/flat-page-layout-widget/types/flat-page-layout-widget.type';
 import { type FlatPageLayout } from 'src/engine/metadata-modules/flat-page-layout/types/flat-page-layout.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
@@ -97,8 +97,8 @@ export class AddChatRecordPageCommand extends ProvisionedWorkspaceCommandRunner 
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -106,10 +106,10 @@ export class AddChatRecordPageCommand extends ProvisionedWorkspaceCommandRunner 
     // upgrade steps run before its enum value exists. This 2.44 step runs after
     // the instance command that adds it.
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
         isWorkspaceCreation: true,
       });
 
@@ -152,7 +152,7 @@ export class AddChatRecordPageCommand extends ProvisionedWorkspaceCommandRunner 
       workspaceId,
       dryRun: options.dryRun ?? false,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardFlatApplication.universalIdentifier,
       allFlatEntityOperationByMetadataName: {
         pageLayout: {
           flatEntityToCreate: pageLayoutsToCreate,
@@ -242,8 +242,8 @@ export class AddChatRecordPageCommand extends ProvisionedWorkspaceCommandRunner 
       ],
     ].filter(isDefined);
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -251,7 +251,7 @@ export class AddChatRecordPageCommand extends ProvisionedWorkspaceCommandRunner 
       workspaceId,
       dryRun: options.dryRun ?? false,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardFlatApplication.universalIdentifier,
       allFlatEntityOperationByMetadataName: {
         pageLayoutWidget: {
           flatEntityToCreate: [],

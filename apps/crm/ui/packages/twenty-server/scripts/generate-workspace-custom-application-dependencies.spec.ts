@@ -11,7 +11,7 @@ import { join } from 'path';
 
 import { isString } from '@sniptt/guards';
 
-import { KOVAALAB_PREVIOUS_VERSIONS } from '../src/engine/core-modules/upgrade/constants/kovaa-lab-previous-versions.constant';
+import { KOVAALAB_PREVIOUS_VERSIONS } from '../src/engine/core-modules/upgrade/constants/twenty-previous-versions.constant';
 import { generateWorkspaceCustomApplicationDependencies } from './generate-workspace-custom-application-dependencies';
 
 jest.mock('child_process', () => ({ execFileSync: jest.fn() }));

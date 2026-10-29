@@ -2,19 +2,19 @@ import { Injectable } from '@nestjs/common';
 
 import { type AiModelTier } from 'kovaa-lab-shared/ai';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { AI_MODELS_DEFAULT_CONFIG_KEY_BY_TIER } from 'src/engine/metadata-modules/ai/ai-models/constants/ai-models-default-config-key-by-tier.const';
 
 @Injectable()
 export class AiModelPreferencesService {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   getDisabledModelIds(): string[] {
-    return this.kovaa-labConfigService.get('AI_MODELS_DEFAULT_DISABLED');
+    return this.kovaaLabConfigService.get('AI_MODELS_DEFAULT_DISABLED');
   }
 
   getDefaultModelIdsForTier(tier: AiModelTier): string[] {
-    return this.kovaa-labConfigService.get(
+    return this.kovaaLabConfigService.get(
       AI_MODELS_DEFAULT_CONFIG_KEY_BY_TIER[tier],
     );
   }
@@ -34,7 +34,7 @@ export class AiModelPreferencesService {
       ? current.filter((id) => !idSet.has(id))
       : [...current, ...modelIds.filter((id) => !current.includes(id))];
 
-    await this.kovaa-labConfigService.set(
+    await this.kovaaLabConfigService.set(
       'AI_MODELS_DEFAULT_DISABLED',
       disabledModels,
     );
@@ -44,7 +44,7 @@ export class AiModelPreferencesService {
   async setDefaultModel(tier: AiModelTier, modelId: string): Promise<void> {
     const current = this.getDefaultModelIdsForTier(tier);
 
-    await this.kovaa-labConfigService.set(
+    await this.kovaaLabConfigService.set(
       AI_MODELS_DEFAULT_CONFIG_KEY_BY_TIER[tier],
       [modelId, ...current.filter((id) => id !== modelId)],
     );

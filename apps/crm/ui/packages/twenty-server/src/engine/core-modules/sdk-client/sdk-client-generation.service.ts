@@ -59,13 +59,13 @@ export class SdkClientGenerationService {
   async enqueueSdkClientGenerationForWorkspace(
     workspaceId: string,
   ): Promise<void> {
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     await Promise.all(
-      [kovaa-labStandardFlatApplication, workspaceCustomFlatApplication].map(
+      [kovaaLabStandardFlatApplication, workspaceCustomFlatApplication].map(
         (application) =>
           this.enqueueSdkClientGenerationForApplication({
             workspaceId,

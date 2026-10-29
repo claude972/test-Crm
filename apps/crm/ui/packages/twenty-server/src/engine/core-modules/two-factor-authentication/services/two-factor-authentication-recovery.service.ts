@@ -33,7 +33,7 @@ import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { userHasAdminPrivileges } from 'src/engine/core-modules/impersonation/utils/user-has-admin-privileges.util';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   TWO_FACTOR_AUTHENTICATION_RECOVERY_CODE_ISSUANCE_RATE_LIMIT_MAX,
   TWO_FACTOR_AUTHENTICATION_RECOVERY_CODE_ISSUANCE_RATE_LIMIT_WINDOW_MS,
@@ -57,8 +57,8 @@ import { type UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { type UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 type RecoveryCodeActor = Pick<
   AuthContextUser,
@@ -88,7 +88,7 @@ export class TwoFactorAuthenticationRecoveryService {
     private readonly throttlerService: ThrottlerService,
     private readonly emailService: EmailService,
     private readonly i18nService: I18nService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async generateRecoveryCode({
@@ -164,7 +164,7 @@ export class TwoFactorAuthenticationRecoveryService {
     const expiresAt = new Date(
       Date.now() +
         ms(
-          this.kovaa-labConfigService.get(
+          this.kovaaLabConfigService.get(
             'TWO_FACTOR_AUTHENTICATION_RECOVERY_CODE_EXPIRES_IN',
           ),
         ),
@@ -600,7 +600,7 @@ export class TwoFactorAuthenticationRecoveryService {
       const i18n = this.i18nService.getI18nInstance(locale);
 
       await this.emailService.send({
-        from: `${this.kovaa-labConfigService.get('EMAIL_FROM_NAME')} <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+        from: `${this.kovaaLabConfigService.get('EMAIL_FROM_NAME')} <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
         to,
         subject: i18n._(subject),
         text,

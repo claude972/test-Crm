@@ -36,10 +36,10 @@ describe('SetMessageTextDisplayedMaxRowsCommand', () => {
     command = new SetMessageTextDisplayedMaxRowsCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: STANDARD_APPLICATION,
+            kovaaLabStandardFlatApplication: STANDARD_APPLICATION,
           }),
       } as unknown as ApplicationService,
       {

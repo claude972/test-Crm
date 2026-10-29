@@ -24,8 +24,8 @@ import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-comma
 import { NAVIGATION_INTERPOLATED_ICON, NAVIGATION_INTERPOLATED_LABEL, NAVIGATION_INTERPOLATED_SHORT_LABEL } from 'src/engine/metadata-modules/flat-command-menu-item/utils/build-object-navigation-universal-flat-command-menu-item.util';
 import { seedCompareObjectMetadataForNavigationPosition } from 'src/engine/metadata-modules/flat-command-menu-item/utils/seed-compare-object-metadata-for-navigation-position.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const GO_TO_ENGINE_KEYS = [
@@ -124,8 +124,8 @@ export class RefactorNavigationCommandsCommand extends ProvisionedWorkspaceComma
       `${isDryRun ? '[DRY RUN] ' : ''}Refactoring navigation commands for workspace ${workspaceId}`,
     );
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -140,7 +140,7 @@ export class RefactorNavigationCommandsCommand extends ProvisionedWorkspaceComma
     ).filter(isDefined);
 
     const standardAppCommandMenuItems = allCommandMenuItems.filter(
-      (item) => item.applicationId === kovaa-labStandardFlatApplication.id,
+      (item) => item.applicationId === kovaaLabStandardFlatApplication.id,
     );
 
     const goToItemsToDelete = standardAppCommandMenuItems.filter((item) =>
@@ -193,9 +193,9 @@ export class RefactorNavigationCommandsCommand extends ProvisionedWorkspaceComma
         buildLegacyNavigationFlatCommandMenuItem({
           objectMetadata,
           commandMenuItemId: v4(),
-          applicationId: kovaa-labStandardFlatApplication.id,
+          applicationId: kovaaLabStandardFlatApplication.id,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           position: nextPosition++,
           now,
@@ -217,7 +217,7 @@ export class RefactorNavigationCommandsCommand extends ProvisionedWorkspaceComma
       flatCommandMenuItemsToCreate.push({
         id: v4(),
         universalIdentifier: commandMenuItem.universalIdentifier,
-        applicationId: kovaa-labStandardFlatApplication.id,
+        applicationId: kovaaLabStandardFlatApplication.id,
         applicationUniversalIdentifier:
           KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
         workspaceId,
@@ -302,7 +302,7 @@ export class RefactorNavigationCommandsCommand extends ProvisionedWorkspaceComma
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 

@@ -20,7 +20,7 @@ import { resolveRegistrationIdByApplicationId } from 'src/engine/metadata-module
 import { resolveTranslatableProperties } from 'src/engine/metadata-modules/application-translation-catalog/utils/resolve-translatable-properties.util';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { type EffectiveEntityI18nContext } from 'src/engine/metadata-modules/overrides/types/effective-entity-i18n-context.type';
-import { getKovaaLab CRMStandardApplicationIdOrThrow } from 'src/engine/metadata-modules/utils/get-kovaa-lab-standard-application-id-or-throw.util';
+import { getKovaaLabCRMStandardApplicationIdOrThrow } from 'src/engine/metadata-modules/utils/get-twenty-standard-application-id-or-throw.util';
 import { getWorkspaceCustomApplicationUniversalIdentifierOrThrow } from 'src/engine/metadata-modules/overrides/utils/get-workspace-custom-application-universal-identifier-or-throw.util';
 
 export type ApplicationCatalogs = {
@@ -55,7 +55,7 @@ export class ApplicationTranslationCatalogService {
 
     return {
       standardApplicationId:
-        getKovaaLab CRMStandardApplicationIdOrThrow(flatApplicationMaps),
+        getKovaaLabCRMStandardApplicationIdOrThrow(flatApplicationMaps),
       workspaceCustomApplicationUniversalIdentifier:
         getWorkspaceCustomApplicationUniversalIdentifierOrThrow({
           workspaceCustomApplicationId: resolvedWorkspaceCustomApplicationId,
@@ -86,7 +86,7 @@ export class ApplicationTranslationCatalogService {
     });
 
     const standardApplicationId =
-      getKovaaLab CRMStandardApplicationIdOrThrow(flatApplicationMaps);
+      getKovaaLabCRMStandardApplicationIdOrThrow(flatApplicationMaps);
 
     const registrationIdByApplicationId = resolveRegistrationIdByApplicationId({
       applicationIds,

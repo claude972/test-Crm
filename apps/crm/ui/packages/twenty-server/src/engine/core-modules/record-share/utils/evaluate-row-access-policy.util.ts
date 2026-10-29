@@ -10,8 +10,8 @@ import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-fiel
 import {
   type RowAccessExpression,
   type RowAccessPolicy,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { isRecordMatchingRLSRowLevelPermissionPredicate } from 'src/engine/kovaa-lab-orm/utils/is-record-matching-rls-row-level-permission-predicate.util';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { isRecordMatchingRLSRowLevelPermissionPredicate } from 'src/engine/twenty-orm/utils/is-record-matching-rls-row-level-permission-predicate.util';
 
 export type RowAccessRecord = { id: string } & Record<string, unknown>;
 

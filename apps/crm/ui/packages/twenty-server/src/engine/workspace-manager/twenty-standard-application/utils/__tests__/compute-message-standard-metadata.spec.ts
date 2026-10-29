@@ -6,8 +6,8 @@ import { PageLayoutTabLayoutMode, WidgetType } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
-import { VERTICAL_LIST_LAYOUT_POSITIONS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout-tabs.template';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { VERTICAL_LIST_LAYOUT_POSITIONS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout-tabs.template';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const WORKSPACE_ID = '20202020-1111-4111-8111-111111111111';
 const KOVAALAB_STANDARD_APPLICATION_ID = '20202020-2222-4222-8222-222222222222';
@@ -18,10 +18,10 @@ const MESSAGE_RECORD_PAGE =
 
 describe('Message standard record page build', () => {
   const { allFlatEntityMaps } =
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: NOW,
       workspaceId: WORKSPACE_ID,
-      kovaa-labStandardApplicationId: KOVAALAB_STANDARD_APPLICATION_ID,
+      kovaaLabStandardApplicationId: KOVAALAB_STANDARD_APPLICATION_ID,
     });
 
   it('gives the message object a record page layout', () => {

@@ -1,6 +1,6 @@
 import { type ObjectsPermissionsByRoleId } from 'kovaa-lab-shared/types';
 
-import { getObjectsPermissionsFromRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/get-objects-permissions-from-role-permission-config.util';
+import { getObjectsPermissionsFromRolePermissionConfig } from 'src/engine/twenty-orm/utils/get-objects-permissions-from-role-permission-config.util';
 
 const OBJECT_ID = 'object-1';
 

@@ -5,8 +5,8 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { userCanServerImpersonateTarget } from 'src/engine/core-modules/impersonation/utils/user-can-server-impersonate-target.util';
 import { userCanWorkspaceImpersonateTarget } from 'src/engine/core-modules/impersonation/utils/user-can-workspace-impersonate-target.util';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { twoFactorAuthenticationMethodsValidator } from 'src/engine/core-modules/two-factor-authentication/two-factor-authentication.validation';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { PermissionsService } from 'src/engine/metadata-modules/permissions/permissions.service';
@@ -32,7 +32,7 @@ export type ImpersonationAuthorizationResult =
 export class ImpersonationAuthorizationService {
   constructor(
     private readonly permissionsService: PermissionsService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   getImpersonationLevel(
@@ -112,7 +112,7 @@ export class ImpersonationAuthorizationService {
 
   private isTwoFactorRequiredForServerLevelImpersonation(): boolean {
     return (
-      this.kovaa-labConfigService.get('NODE_ENV') !== NodeEnvironment.DEVELOPMENT
+      this.kovaaLabConfigService.get('NODE_ENV') !== NodeEnvironment.DEVELOPMENT
     );
   }
 

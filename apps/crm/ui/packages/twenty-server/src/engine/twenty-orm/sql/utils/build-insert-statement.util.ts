@@ -1,9 +1,9 @@
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 export type InsertRowValue =
   | { kind: 'parameter'; parameterName: string }
@@ -31,9 +31,9 @@ const buildReturningClause = (returningColumns: string[]): string => {
 
 export const buildInsertStatement = (state: InsertStatementState): string => {
   if (state.columnNames.length === 0 || state.rows.length === 0) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `An INSERT on "${state.tableShape.nameSingular}" needs at least one column and one row`,
-      KovaaLab CRMOrmExceptionCode.INVALID_QUERY,
+      KovaaLabCRMOrmExceptionCode.INVALID_QUERY,
     );
   }
 

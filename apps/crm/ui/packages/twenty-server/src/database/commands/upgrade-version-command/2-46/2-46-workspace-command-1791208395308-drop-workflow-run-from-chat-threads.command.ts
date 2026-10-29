@@ -109,12 +109,12 @@ export class DropWorkflowRunFromChatThreadsCommand extends ProvisionedWorkspaceC
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const applicationUniversalIdentifier =
-      kovaa-labStandardFlatApplication.universalIdentifier;
+      kovaaLabStandardFlatApplication.universalIdentifier;
 
     // Readability names the parent field, so it lets go of it before the field goes
     if (!isPrivate) {

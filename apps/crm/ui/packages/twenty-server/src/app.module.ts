@@ -28,7 +28,7 @@ import { MiddlewareModule } from 'src/engine/middlewares/middleware.module';
 import { JwtModule } from 'src/engine/core-modules/jwt/jwt.module';
 import { UserSessionModule } from 'src/engine/core-modules/user-session/user-session.module';
 import { RestCoreMiddleware } from 'src/engine/middlewares/rest-core.middleware';
-import { KovaaLab CRMOrmModule } from 'src/engine/kovaa-lab-orm/kovaa-lab-orm.module';
+import { KovaaLabCRMOrmModule } from 'src/engine/twenty-orm/twenty-orm.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { WorkspaceNotSuspendedGuard } from 'src/engine/guards/workspace-not-suspended.guard';
 import { UnhandledExceptionFilter } from 'src/filters/unhandled-exception.filter';
@@ -37,7 +37,7 @@ import { ModulesModule } from 'src/modules/modules.module';
 import { ClickHouseModule } from './database/clickhouse/clickhouse.module';
 import { CoreEngineModule } from './engine/core-modules/core-engine.module';
 
-// TODO: Remove this middleware when all the rest endpoints are migrated to KovaaLab CRMORM
+// TODO: Remove this middleware when all the rest endpoints are migrated to KovaaLabCRMORM
 const MIGRATED_REST_METHODS = [
   RequestMethod.DELETE,
   RequestMethod.POST,
@@ -54,7 +54,7 @@ const MIGRATED_REST_METHODS = [
       imports: [GraphQLConfigModule, MetricsModule, DataloaderModule],
       useClass: GraphQLConfigService,
     }),
-    KovaaLab CRMOrmModule,
+    KovaaLabCRMOrmModule,
     ClickHouseModule,
     CoreEngineModule,
     ModulesModule,

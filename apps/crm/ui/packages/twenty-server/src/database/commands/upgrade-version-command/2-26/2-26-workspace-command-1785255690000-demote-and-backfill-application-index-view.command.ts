@@ -74,12 +74,12 @@ export class DemoteAndBackfillApplicationIndexViewCommand extends ProvisionedWor
       'flatFieldMetadataMaps',
     ]);
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const engineOwnedApplicationUniversalIdentifiers = new Set([
-      kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardFlatApplication.universalIdentifier,
       workspaceCustomFlatApplication.universalIdentifier,
     ]);
 

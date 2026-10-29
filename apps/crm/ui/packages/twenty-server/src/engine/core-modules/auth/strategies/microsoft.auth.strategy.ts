@@ -14,7 +14,7 @@ import {
 import { type MicrosoftPassportProfile } from 'src/engine/core-modules/auth/types/microsoft-passport-profile.type';
 import { type SocialSsoSignInUpActionType } from 'src/engine/core-modules/auth/types/sign-in-up.type';
 import { type SocialSsoState } from 'src/engine/core-modules/auth/types/social-sso-state.type';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type MicrosoftRequest = Omit<
   Request,
@@ -36,11 +36,11 @@ export type MicrosoftRequest = Omit<
 
 @Injectable()
 export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
-  constructor(kovaa-labConfigService: KovaaLab CRMConfigService) {
+  constructor(kovaaLabConfigService: KovaaLabCRMConfigService) {
     super({
-      clientID: kovaa-labConfigService.get('AUTH_MICROSOFT_CLIENT_ID'),
-      clientSecret: kovaa-labConfigService.get('AUTH_MICROSOFT_CLIENT_SECRET'),
-      callbackURL: kovaa-labConfigService.get('AUTH_MICROSOFT_CALLBACK_URL'),
+      clientID: kovaaLabConfigService.get('AUTH_MICROSOFT_CLIENT_ID'),
+      clientSecret: kovaaLabConfigService.get('AUTH_MICROSOFT_CLIENT_SECRET'),
+      callbackURL: kovaaLabConfigService.get('AUTH_MICROSOFT_CALLBACK_URL'),
       tenant: 'common',
       scope: ['User.Read'],
       passReqToCallback: true,

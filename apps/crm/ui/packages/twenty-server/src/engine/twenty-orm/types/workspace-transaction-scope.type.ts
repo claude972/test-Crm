@@ -2,8 +2,8 @@ import { type ObjectLiteral } from 'typeorm';
 
 import { type ObjectRecord } from 'kovaa-lab-shared/types';
 
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
 
 export type WorkspaceTransactionScope = {
   workspaceId: string;

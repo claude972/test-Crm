@@ -3,7 +3,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 
 import { type DataSource, Repository } from 'typeorm';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import {
   WorkspaceDataSourceException,
@@ -18,11 +18,11 @@ export class WorkspaceSchemaService {
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     @InjectDataSource()
     private readonly coreDataSource: DataSource,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   private assertDDLNotLocked(): void {
-    if (this.kovaa-labConfigService.get('WORKSPACE_SCHEMA_DDL_LOCKED')) {
+    if (this.kovaaLabConfigService.get('WORKSPACE_SCHEMA_DDL_LOCKED')) {
       throw new WorkspaceDataSourceException({
         message:
           'Workspace schema DDL changes are locked. This is typically set during hot upgrades.',

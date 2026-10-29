@@ -1,10 +1,10 @@
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
-import { loginAsKovaaLab CRMCli } from 'test/integration/metadata/suites/application/utils/login-as-kovaa-lab-cli.util';
+import { loginAsKovaaLabCRMCli } from 'test/integration/metadata/suites/application/utils/login-as-twenty-cli.util';
 import { findOneApplication } from 'test/integration/metadata/suites/application/utils/find-one-application.util';
 import { uninstallApplication } from 'test/integration/metadata/suites/application/utils/uninstall-application.util';
 import { generateApplicationTokenPair } from 'test/integration/utils/generate-application-token-pair.util';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-cli-application-registration.constant';
+import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-cli-application-registration.constant';
 import { USER_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-users.util';
 import { USER_WORKSPACE_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-user-workspaces.util';
 import { type ApiKeyRoleService } from 'src/engine/core-modules/api-key/services/api-key-role.service';
@@ -287,7 +287,7 @@ describe('record export lifecycle (integration)', () => {
     });
     expect(result.errors).toBeUndefined();
     roleId = result.data.createOneRole.id;
-    cliToken = await loginAsKovaaLab CRMCli();
+    cliToken = await loginAsKovaaLabCRMCli();
     const applicationResult = await findOneApplication({
       input: {
         universalIdentifier:

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { StorageDriverType } from 'src/engine/core-modules/file-storage/interfaces/file-storage.interface';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { InboundEmailParserService } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/services/inbound-email-parser.service';
 import { InboundEmailStorageService } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/services/inbound-email-storage.service';
 import { type InboundEmailMessageSourceInterface } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/sources/inbound-email-message-source.interface';
@@ -11,14 +11,14 @@ import { type MessageWithParticipants } from 'src/modules/messaging/message-impo
 @Injectable()
 export class SesS3InboundEmailMessageSourceService implements InboundEmailMessageSourceInterface {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly inboundEmailStorageService: InboundEmailStorageService,
     private readonly inboundEmailParserService: InboundEmailParserService,
   ) {}
 
   isConfigured(): boolean {
     return (
-      this.kovaa-labConfigService.get('STORAGE_TYPE') === StorageDriverType.S_3
+      this.kovaaLabConfigService.get('STORAGE_TYPE') === StorageDriverType.S_3
     );
   }
 

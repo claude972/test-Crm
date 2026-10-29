@@ -14,7 +14,7 @@ import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const TIMELINE_ACTIVITY = STANDARD_OBJECTS.timelineActivity;
@@ -67,16 +67,16 @@ export class AddTimelineActivityTypeSnapshotCommand extends ProvisionedWorkspace
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     await this.createSnapshotField({
       workspaceId,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
-      kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
     });
 
     await this.backfillMissingTimelineActivityTypeIds({
@@ -89,11 +89,11 @@ export class AddTimelineActivityTypeSnapshotCommand extends ProvisionedWorkspace
   private async createSnapshotField({
     workspaceId,
     applicationUniversalIdentifier,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   }: {
     workspaceId: string;
     applicationUniversalIdentifier: string;
-    kovaa-labStandardApplicationId: string;
+    kovaaLabStandardApplicationId: string;
   }): Promise<void> {
     const { flatFieldMetadataMaps } =
       await this.workspaceCacheService.getOrRecompute(workspaceId, [
@@ -115,10 +115,10 @@ export class AddTimelineActivityTypeSnapshotCommand extends ProvisionedWorkspace
     }
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId,
+        kovaaLabStandardApplicationId,
       });
 
     const standardSnapshotField =

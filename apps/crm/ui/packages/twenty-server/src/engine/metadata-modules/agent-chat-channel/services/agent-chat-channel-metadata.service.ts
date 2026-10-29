@@ -92,7 +92,7 @@ export class AgentChatChannelMetadataService {
     roleIds: string[];
   }): Promise<FlatAgentChatChannelWithRoleIds> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const channelMaps = await this.getChannelMaps(workspaceId);
@@ -160,7 +160,7 @@ export class AgentChatChannelMetadataService {
     roleIds?: string[];
   }): Promise<FlatAgentChatChannelWithRoleIds> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const channelMaps = await this.getChannelMaps(workspaceId);
@@ -249,7 +249,7 @@ export class AgentChatChannelMetadataService {
     channelId: string;
   }): Promise<FlatAgentChatChannelWithRoleIds> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const { flatAgentChatChannelMaps, flatAgentChatChannelRoleMaps } =

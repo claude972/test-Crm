@@ -23,7 +23,7 @@ import { applyReplacementTags } from 'src/engine/core-modules/emailing-domain/ut
 import { type EmailingDomainSendEmailRequest } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-send-email-input.type';
 import { type EmailingDomainSendEmailResult } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-send-email-result.type';
 import { UnsubscribeContentService } from 'src/engine/core-modules/emailing-domain/services/unsubscribe-content.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 const SIMULATED_PROVIDER = { sendLatencyMs: 50, throttleFailureRatio: 0 };
@@ -33,7 +33,7 @@ export class LogEmailingDomainDriver implements EmailingDomainDriverInterface {
   private readonly logger = new Logger(LogEmailingDomainDriver.name);
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly unsubscribeContentService: UnsubscribeContentService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
@@ -229,8 +229,8 @@ export class LogEmailingDomainDriver implements EmailingDomainDriverInterface {
     }
 
     return buildLogDriverUnsubscribeBaseUrl({
-      serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
-      isMultiWorkspaceEnabled: this.kovaa-labConfigService.get(
+      serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
+      isMultiWorkspaceEnabled: this.kovaaLabConfigService.get(
         'IS_MULTIWORKSPACE_ENABLED',
       ),
       subdomain: workspace.subdomain,

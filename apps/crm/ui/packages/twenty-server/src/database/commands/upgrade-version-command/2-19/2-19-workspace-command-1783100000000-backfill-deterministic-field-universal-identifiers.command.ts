@@ -113,8 +113,8 @@ export class BackfillDeterministicFieldUniversalIdentifiersCommand extends Provi
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -167,7 +167,7 @@ export class BackfillDeterministicFieldUniversalIdentifiersCommand extends Provi
         flatObjectMetadata,
         flatObjectMetadataMaps,
         flatFieldMetadataMaps,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
         workspaceCustomApplicationId: workspaceCustomFlatApplication.id,
       });
 
@@ -243,14 +243,14 @@ export class BackfillDeterministicFieldUniversalIdentifiersCommand extends Provi
     flatObjectMetadata,
     flatObjectMetadataMaps,
     flatFieldMetadataMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     workspaceCustomApplicationId,
   }: {
     flatFieldMetadata: FlatFieldMetadata;
     flatObjectMetadata: FlatObjectMetadata;
     flatObjectMetadataMaps: FlatEntityMaps<FlatObjectMetadata>;
     flatFieldMetadataMaps: FlatEntityMaps<FlatFieldMetadata>;
-    kovaa-labStandardApplicationId: string;
+    kovaaLabStandardApplicationId: string;
     workspaceCustomApplicationId: string;
   }): boolean {
     // System field universal identifiers are server-owned: they are taken
@@ -263,7 +263,7 @@ export class BackfillDeterministicFieldUniversalIdentifiersCommand extends Provi
 
     // Standard application: every non-system standard field (including name)
     // is author-provided in STANDARD_OBJECTS and keeps its hardcoded value.
-    if (flatFieldMetadata.applicationId === kovaa-labStandardApplicationId) {
+    if (flatFieldMetadata.applicationId === kovaaLabStandardApplicationId) {
       return false;
     }
 

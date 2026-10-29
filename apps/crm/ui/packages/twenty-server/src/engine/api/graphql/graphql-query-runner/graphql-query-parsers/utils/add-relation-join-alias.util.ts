@@ -1,4 +1,4 @@
-import { type WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
+import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 
 type AddRelationJoinAliasToQueryBuilderArgs = {
   queryBuilder: WorkspaceSelectQueryBuilder;

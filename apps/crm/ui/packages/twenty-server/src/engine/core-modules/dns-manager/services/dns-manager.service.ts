@@ -16,7 +16,7 @@ import {
 } from 'src/engine/core-modules/dns-manager/exceptions/dns-manager.exception';
 import { dnsManagerValidator } from 'src/engine/core-modules/dns-manager/validator/dns-manager.validate';
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 type DnsManagerOptions = {
   isPublicDomain?: boolean;
@@ -27,12 +27,12 @@ export class DnsManagerService {
   cloudflareClient?: Cloudflare;
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly domainServerConfigService: DomainServerConfigService,
   ) {
-    if (this.kovaa-labConfigService.get('CLOUDFLARE_API_KEY')) {
+    if (this.kovaaLabConfigService.get('CLOUDFLARE_API_KEY')) {
       this.cloudflareClient = new Cloudflare({
-        apiToken: this.kovaa-labConfigService.get('CLOUDFLARE_API_KEY'),
+        apiToken: this.kovaaLabConfigService.get('CLOUDFLARE_API_KEY'),
       });
     }
   }
@@ -109,7 +109,7 @@ export class DnsManagerService {
           key: dcvRecords?.cname ?? `_acme-challenge.${hostname}`,
           value:
             dcvRecords?.cname_target ??
-            `${hostname}.${this.kovaa-labConfigService.get('CLOUDFLARE_DCV_DELEGATION_ID')}.dcv.cloudflare.com`,
+            `${hostname}.${this.kovaaLabConfigService.get('CLOUDFLARE_DCV_DELEGATION_ID')}.dcv.cloudflare.com`,
         },
       ],
     };
@@ -199,8 +199,8 @@ export class DnsManagerService {
 
   private getZoneId(options?: DnsManagerOptions): string {
     return options?.isPublicDomain
-      ? this.kovaa-labConfigService.get('CLOUDFLARE_PUBLIC_DOMAIN_ZONE_ID')
-      : this.kovaa-labConfigService.get('CLOUDFLARE_ZONE_ID');
+      ? this.kovaaLabConfigService.get('CLOUDFLARE_PUBLIC_DOMAIN_ZONE_ID')
+      : this.kovaaLabConfigService.get('CLOUDFLARE_ZONE_ID');
   }
 
   private async getHostnameDetails(

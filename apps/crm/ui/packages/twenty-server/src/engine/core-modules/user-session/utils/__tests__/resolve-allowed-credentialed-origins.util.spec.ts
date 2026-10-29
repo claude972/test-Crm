@@ -1,6 +1,6 @@
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { resolveAllowedCredentialedOrigins } from 'src/engine/core-modules/user-session/utils/resolve-allowed-credentialed-origins.util';
 
 type AllowedOriginsConfigVariables = Pick<
@@ -15,9 +15,9 @@ const PRODUCTION_CONFIG_VARIABLES: AllowedOriginsConfigVariables = {
   NODE_ENV: NodeEnvironment.PRODUCTION,
 };
 
-const buildKovaaLab CRMConfigService = (
+const buildKovaaLabCRMConfigService = (
   allowedOriginsConfigVariables: AllowedOriginsConfigVariables,
-): Pick<KovaaLab CRMConfigService, 'get'> => {
+): Pick<KovaaLabCRMConfigService, 'get'> => {
   const configVariables = Object.assign(
     new ConfigVariables(),
     allowedOriginsConfigVariables,
@@ -31,7 +31,7 @@ const buildKovaaLab CRMConfigService = (
 describe('resolveAllowedCredentialedOrigins', () => {
   it('should allow the server, frontend and explicit origins', () => {
     const allowedOrigins = resolveAllowedCredentialedOrigins(
-      buildKovaaLab CRMConfigService({
+      buildKovaaLabCRMConfigService({
         ...PRODUCTION_CONFIG_VARIABLES,
         SERVER_URL: 'https://api.kovaa-lab.com/graphql',
         FRONTEND_URL: 'https://App.kovaa-lab.com',
@@ -55,10 +55,10 @@ describe('resolveAllowedCredentialedOrigins', () => {
     };
 
     const productionAllowedOrigins = resolveAllowedCredentialedOrigins(
-      buildKovaaLab CRMConfigService(loopbackConfigVariables),
+      buildKovaaLabCRMConfigService(loopbackConfigVariables),
     );
     const developmentAllowedOrigins = resolveAllowedCredentialedOrigins(
-      buildKovaaLab CRMConfigService({
+      buildKovaaLabCRMConfigService({
         ...loopbackConfigVariables,
         NODE_ENV: NodeEnvironment.DEVELOPMENT,
       }),
@@ -72,21 +72,21 @@ describe('resolveAllowedCredentialedOrigins', () => {
   });
 
   it('should reuse the resolved origins while the config is unchanged', () => {
-    const kovaa-labConfigService = buildKovaaLab CRMConfigService(
+    const kovaaLabConfigService = buildKovaaLabCRMConfigService(
       PRODUCTION_CONFIG_VARIABLES,
     );
 
-    expect(resolveAllowedCredentialedOrigins(kovaa-labConfigService)).toBe(
-      resolveAllowedCredentialedOrigins(kovaa-labConfigService),
+    expect(resolveAllowedCredentialedOrigins(kovaaLabConfigService)).toBe(
+      resolveAllowedCredentialedOrigins(kovaaLabConfigService),
     );
   });
 
   it('should resolve the origins again when the config changes', () => {
     const allowedOriginsBeforeChange = resolveAllowedCredentialedOrigins(
-      buildKovaaLab CRMConfigService(PRODUCTION_CONFIG_VARIABLES),
+      buildKovaaLabCRMConfigService(PRODUCTION_CONFIG_VARIABLES),
     );
     const allowedOriginsAfterChange = resolveAllowedCredentialedOrigins(
-      buildKovaaLab CRMConfigService({
+      buildKovaaLabCRMConfigService({
         ...PRODUCTION_CONFIG_VARIABLES,
         AUTH_COOKIE_ALLOWED_ORIGINS: 'https://other.example',
       }),

@@ -7,13 +7,13 @@ import {
   ThrottlerExceptionCode,
 } from 'src/engine/core-modules/throttler/throttler.exception';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class ApplicationJobEnqueueThrottlerService {
   constructor(
     private readonly throttlerService: ThrottlerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly metricsService: MetricsService,
   ) {}
 
@@ -26,13 +26,13 @@ export class ApplicationJobEnqueueThrottlerService {
     applicationRegistrationId: string;
     jobCount?: number;
   }): Promise<void> {
-    const timeWindow = this.kovaa-labConfigService.get(
+    const timeWindow = this.kovaaLabConfigService.get(
       'APPLICATION_JOB_ENQUEUE_RATE_LIMITING_TTL_IN_MS',
     );
-    const applicationLimit = this.kovaa-labConfigService.get(
+    const applicationLimit = this.kovaaLabConfigService.get(
       'APPLICATION_JOB_ENQUEUE_RATE_LIMITING_LIMIT',
     );
-    const registrationLimit = this.kovaa-labConfigService.get(
+    const registrationLimit = this.kovaaLabConfigService.get(
       'APPLICATION_REGISTRATION_JOB_ENQUEUE_RATE_LIMITING_LIMIT',
     );
 

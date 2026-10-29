@@ -20,7 +20,7 @@ import { FileSettings } from 'src/engine/core-modules/file/types/file-settings.t
 import { FileUploadTokenJwtPayload } from 'src/engine/core-modules/auth/types/file-upload-token-jwt-payload.type';
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const DIRECT_UPLOAD_CONTENT_TYPE = 'application/octet-stream';
 
@@ -39,7 +39,7 @@ export class FileUploadTargetService {
   constructor(
     private readonly fileStorageService: FileStorageService,
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async buildUploadTarget({
@@ -80,7 +80,7 @@ export class FileUploadTargetService {
       );
     }
 
-    const expiresInSeconds = this.kovaa-labConfigService.get(
+    const expiresInSeconds = this.kovaaLabConfigService.get(
       'STORAGE_S3_PRESIGNED_URL_EXPIRES_IN',
     );
     const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
@@ -116,7 +116,7 @@ export class FileUploadTargetService {
       expiresIn: expiresInSeconds,
     });
 
-    const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
+    const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
 
     return {
       fileId,

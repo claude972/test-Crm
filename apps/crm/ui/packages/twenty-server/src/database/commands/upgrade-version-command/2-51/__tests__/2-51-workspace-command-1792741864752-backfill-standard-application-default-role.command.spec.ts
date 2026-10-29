@@ -2,7 +2,7 @@ import { type WorkspaceIteratorService } from 'src/database/commands/command-run
 import { BackfillStandardApplicationDefaultRoleCommand } from 'src/database/commands/upgrade-version-command/2-51/2-51-workspace-command-1792741864752-backfill-standard-application-default-role.command';
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 const WORKSPACE_ID = '20202020-0000-4000-8000-000000000001';
 const STANDARD_APPLICATION_ID = '20202020-0000-4000-8000-0000000000a1';
@@ -33,9 +33,9 @@ describe('BackfillStandardApplicationDefaultRoleCommand', () => {
     } as unknown as WorkspaceCacheService;
 
     const applicationService = {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest.fn(
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest.fn(
         async () => ({
-          kovaa-labStandardFlatApplication: {
+          kovaaLabStandardFlatApplication: {
             id: STANDARD_APPLICATION_ID,
             defaultRoleId: standardApplicationDefaultRoleId,
           },

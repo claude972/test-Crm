@@ -15,7 +15,7 @@ import { OUTBOUND_HTTP_DEFAULT_MAX_PAYLOAD_SIZE_BYTES } from 'src/engine/core-mo
 import { OUTBOUND_HTTP_DEFAULT_TIMEOUT_MS } from 'src/engine/core-modules/secure-http-client/constants/outbound-http-default-timeout-ms.constant';
 import { normalizeAllowedInternalHost } from 'src/engine/core-modules/secure-http-client/utils/normalize-allowed-internal-host.util';
 import { resolveAndValidateHostname } from 'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 import { type OutboundRequestContext } from './outbound-request-context.type';
 
@@ -32,7 +32,7 @@ export class SecureHttpClientService {
   private readonly logger = new Logger(SecureHttpClientService.name);
   private hasWarnedAboutDeprecatedSafeModeFlag = false;
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   // SSRF protection is enforced at connection level by validating resolved IPs, which also covers redirects.
   // With a context, outbound requests are logged with workspace/user info for GuardDuty correlation.
@@ -160,7 +160,7 @@ export class SecureHttpClientService {
   private getAllowedInternalHosts(): string[] {
     // Deprecated but still honoured so self-hosted setups that disabled it keep working.
     if (
-      this.kovaa-labConfigService.get('OUTBOUND_HTTP_SAFE_MODE_ENABLED') === false
+      this.kovaaLabConfigService.get('OUTBOUND_HTTP_SAFE_MODE_ENABLED') === false
     ) {
       if (!this.hasWarnedAboutDeprecatedSafeModeFlag) {
         this.hasWarnedAboutDeprecatedSafeModeFlag = true;
@@ -172,7 +172,7 @@ export class SecureHttpClientService {
       return [ALLOW_ALL_INTERNAL_HOSTS];
     }
 
-    return this.kovaa-labConfigService
+    return this.kovaaLabConfigService
       .get('OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS')
       .map(normalizeAllowedInternalHost)
       .filter(isNonEmptyString);

@@ -11,7 +11,7 @@ import {
   type InputFile,
   type StreamCallbacks,
 } from 'src/engine/core-modules/code-interpreter/drivers/interfaces/code-interpreter-driver.interface';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class CodeInterpreterService implements CodeInterpreterDriver {
@@ -21,12 +21,12 @@ export class CodeInterpreterService implements CodeInterpreterDriver {
 
   constructor(
     private readonly codeInterpreterDriverFactory: CodeInterpreterDriverFactory,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   isEnabled(): boolean {
     return (
-      this.kovaa-labConfigService.get('CODE_INTERPRETER_TYPE') !==
+      this.kovaaLabConfigService.get('CODE_INTERPRETER_TYPE') !==
       CodeInterpreterDriverType.DISABLED
     );
   }
@@ -41,7 +41,7 @@ export class CodeInterpreterService implements CodeInterpreterDriver {
   }
 
   async sweepExpiredSandboxes(): Promise<number> {
-    const maxAgeMs = this.kovaa-labConfigService.get(
+    const maxAgeMs = this.kovaaLabConfigService.get(
       'CODE_INTERPRETER_SESSION_MAX_AGE_MS',
     );
 

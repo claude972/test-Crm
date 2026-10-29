@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { type WorkspaceIteratorContext } from 'src/database/commands/command-runners/workspace-iterator.service';
 import { type ParsedUpgradeCommandOptions } from 'src/database/commands/upgrade-version-command/upgrade.command';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/services/upgrade-command-registry.service';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
 import { UpgradeStatusService } from 'src/engine/core-modules/upgrade/services/upgrade-status.service';
@@ -24,7 +24,7 @@ export class WorkspaceCommandRunnerService {
   private readonly logger = new Logger(WorkspaceCommandRunnerService.name);
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly upgradeMigrationService: UpgradeMigrationService,
     private readonly upgradeStatusService: UpgradeStatusService,
   ) {}
@@ -52,7 +52,7 @@ export class WorkspaceCommandRunnerService {
     );
 
     const executedByVersion =
-      this.kovaa-labConfigService.get('APP_VERSION') ?? 'unknown';
+      this.kovaaLabConfigService.get('APP_VERSION') ?? 'unknown';
 
     try {
       for (const workspaceCommandEntry of workspaceCommands) {

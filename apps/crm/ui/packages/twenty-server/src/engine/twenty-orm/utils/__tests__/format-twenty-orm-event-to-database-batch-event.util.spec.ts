@@ -10,13 +10,13 @@ import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/typ
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { formatKovaaLab CRMOrmEventToDatabaseBatchEvent } from 'src/engine/kovaa-lab-orm/utils/format-kovaa-lab-orm-event-to-database-batch-event.util';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { formatKovaaLabCRMOrmEventToDatabaseBatchEvent } from 'src/engine/twenty-orm/utils/format-twenty-orm-event-to-database-batch-event.util';
 import { type InheritedReadabilityChildRecordsCarrier } from 'src/engine/core-modules/record-share/types/inherited-readability-child-records.type';
 
-describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
+describe('formatKovaaLabCRMOrmEventToDatabaseBatchEvent', () => {
   const workspaceId = 'workspace-id';
   const objectMetadataId = 'object-id';
 
@@ -90,7 +90,7 @@ describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
   } as any;
 
   describe('UPDATED action', () => {
-    it('should throw KovaaLab CRMOrmException when no matching before entity is found in array of beforeEntities', () => {
+    it('should throw KovaaLabCRMOrmException when no matching before entity is found in array of beforeEntities', () => {
       const afterEntities = [
         {
           id: 'record-1',
@@ -114,7 +114,7 @@ describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
       ];
 
       try {
-        formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+        formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
           action: DatabaseEventAction.UPDATED,
           objectMetadataItem: flatObjectMetadata,
           flatFieldMetadataMaps,
@@ -124,11 +124,11 @@ describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
           recordsBefore: beforeEntities,
         });
       } catch (error) {
-        expect(error).toBeInstanceOf(KovaaLab CRMOrmException);
-        expect((error as KovaaLab CRMOrmException).code).toBe(
-          KovaaLab CRMOrmExceptionCode.ORM_EVENT_DATA_CORRUPTED,
+        expect(error).toBeInstanceOf(KovaaLabCRMOrmException);
+        expect((error as KovaaLabCRMOrmException).code).toBe(
+          KovaaLabCRMOrmExceptionCode.ORM_EVENT_DATA_CORRUPTED,
         );
-        expect((error as KovaaLab CRMOrmException).message).toBe(
+        expect((error as KovaaLabCRMOrmException).message).toBe(
           'Record mismatch detected while computing event data for UPDATED action',
         );
       }
@@ -157,7 +157,7 @@ describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
         },
       ];
 
-      const result = formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+      const result = formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
         action: DatabaseEventAction.UPDATED,
         objectMetadataItem: flatObjectMetadata,
         flatFieldMetadataMaps,
@@ -219,7 +219,7 @@ describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
           fieldIds: ['name-id', 'company-id'],
         } as FlatObjectMetadata;
 
-        const result = formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+        const result = formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
           action: DatabaseEventAction.UPDATED,
           objectMetadataItem: flatObjectMetadataWithRelation,
           flatFieldMetadataMaps: flatFieldMetadataMapsWithRelation,
@@ -279,7 +279,7 @@ describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
     ]);
 
     it('should carry the child records captured for a record on its deleted event only', () => {
-      const result = formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+      const result = formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
         action: DatabaseEventAction.DELETED,
         objectMetadataItem: flatObjectMetadataWithDeletedAt,
         flatFieldMetadataMaps: flatFieldMetadataMapsWithDeletedAt,
@@ -310,7 +310,7 @@ describe('formatKovaaLab CRMOrmEventToDatabaseBatchEvent', () => {
     });
 
     it('should carry the child records captured for a record on its destroyed event only', () => {
-      const result = formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+      const result = formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
         action: DatabaseEventAction.DESTROYED,
         objectMetadataItem: flatObjectMetadata,
         flatFieldMetadataMaps,

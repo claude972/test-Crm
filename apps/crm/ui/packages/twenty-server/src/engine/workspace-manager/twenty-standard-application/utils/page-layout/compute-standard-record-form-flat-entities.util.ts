@@ -21,8 +21,8 @@ import { type FlatPageLayout } from 'src/engine/metadata-modules/flat-page-layou
 import { RECORD_FORM_TAB_PROPS } from 'src/engine/metadata-modules/metadata-side-effect/constants/record-form-tab-props.constant';
 import { computeRecordFormFlatFieldMetadatas } from 'src/engine/metadata-modules/metadata-side-effect/handlers/utils/compute-record-form-flat-field-metadatas.util';
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 
 const STANDARD_RECORD_FORM_TAB_TITLE = i18nLabel(
   msg({
@@ -41,7 +41,7 @@ const STANDARD_RECORD_FORM_NAME = i18nLabel(
 type ComputeStandardRecordFormFlatEntitiesArgs = {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   flatObjectMetadataMaps: FlatEntityMaps<FlatObjectMetadata>;
   flatFieldMetadataMaps: FlatEntityMaps<FlatFieldMetadata>;
 };
@@ -49,7 +49,7 @@ type ComputeStandardRecordFormFlatEntitiesArgs = {
 export const computeStandardRecordFormFlatEntities = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   flatObjectMetadataMaps,
   flatFieldMetadataMaps,
 }: ComputeStandardRecordFormFlatEntitiesArgs): {
@@ -133,7 +133,7 @@ export const computeStandardRecordFormFlatEntities = ({
             fieldMetadataUniversalIdentifier:
               flatFieldMetadata.universalIdentifier,
           }),
-        applicationId: kovaa-labStandardApplicationId,
+        applicationId: kovaaLabStandardApplicationId,
         applicationUniversalIdentifier,
         workspaceId,
         pageLayoutTabId,
@@ -171,7 +171,7 @@ export const computeStandardRecordFormFlatEntities = ({
     flatPageLayoutTabs.push({
       id: pageLayoutTabId,
       universalIdentifier: pageLayoutTabUniversalIdentifier,
-      applicationId: kovaa-labStandardApplicationId,
+      applicationId: kovaaLabStandardApplicationId,
       applicationUniversalIdentifier,
       workspaceId,
       title: STANDARD_RECORD_FORM_TAB_TITLE,
@@ -197,7 +197,7 @@ export const computeStandardRecordFormFlatEntities = ({
     flatPageLayouts.push({
       id: pageLayoutId,
       universalIdentifier: pageLayoutUniversalIdentifier,
-      applicationId: kovaa-labStandardApplicationId,
+      applicationId: kovaaLabStandardApplicationId,
       applicationUniversalIdentifier,
       workspaceId,
       name: STANDARD_RECORD_FORM_NAME,

@@ -18,7 +18,7 @@ import { findRelationFlatFieldMetadataTargetFlatFieldMetadataOrThrow } from 'src
 import { isFlatFieldMetadataOfType } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-flat-field-metadata-of-type.util';
 import { sanitizeRawUpdateFieldInput } from 'src/engine/metadata-modules/flat-field-metadata/utils/sanitize-raw-update-field-input';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { dispatchIsActiveUpdateToAuthoredOverride } from 'src/engine/metadata-modules/overrides/utils/dispatch-is-active-update-to-authored-override.util';
 import { mergeUpdateInExistingRecord } from 'src/utils/merge-update-in-existing-record.util';
 
@@ -54,7 +54,7 @@ export const computeFlatFieldToUpdateAndRelatedFlatFieldToUpdate = ({
       workspaceCustomApplicationUniversalIdentifier,
     });
 
-  const isStandardField = belongsToKovaaLab CRMStandardApp(fromFlatFieldMetadata);
+  const isStandardField = belongsToKovaaLabCRMStandardApp(fromFlatFieldMetadata);
   const updatedIsActive = rawUpdateFieldInput.isActive;
   const dispatchIsActiveToRelatedFlatFieldMetadata = (
     relatedFlatFieldMetadata: FlatFieldMetadata,

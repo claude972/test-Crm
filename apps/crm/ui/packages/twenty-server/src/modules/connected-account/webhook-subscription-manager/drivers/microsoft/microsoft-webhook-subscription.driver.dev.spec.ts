@@ -1,7 +1,7 @@
 import { Client } from '@microsoft/microsoft-graph-client';
 import { WebhookSubscriptionChannelType } from 'kovaa-lab-shared/types';
 
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type MicrosoftOAuth2ClientProvider } from 'src/modules/connected-account/oauth2-client-manager/drivers/microsoft/microsoft-oauth2-client.provider';
 import {
   WebhookSubscriptionDriverException,
@@ -22,13 +22,13 @@ const buildDriver = ({
       Client.init({ authProvider: (done) => done(null, token) }),
   } as unknown as MicrosoftOAuth2ClientProvider;
 
-  const kovaa-labConfigService = {
+  const kovaaLabConfigService = {
     get: () => serverUrl,
-  } as unknown as KovaaLab CRMConfigService;
+  } as unknown as KovaaLabCRMConfigService;
 
   return new MicrosoftWebhookSubscriptionDriver(
     oAuth2ClientProvider,
-    kovaa-labConfigService,
+    kovaaLabConfigService,
   );
 };
 

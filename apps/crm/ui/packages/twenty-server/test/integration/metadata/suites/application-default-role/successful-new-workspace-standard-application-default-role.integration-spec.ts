@@ -9,8 +9,8 @@ import { getAppProviderByClassName } from 'test/integration/utils/get-app-provid
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 describe('A new workspace gives the standard application Admin as default role', () => {
   let workspaceId: string | undefined;

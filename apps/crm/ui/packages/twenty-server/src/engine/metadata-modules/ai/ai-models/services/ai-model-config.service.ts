@@ -13,7 +13,7 @@ import {
   AiModelRegistryService,
   RegisteredAiModel,
 } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-registry.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { SdkProviderFactoryService } from 'src/engine/metadata-modules/ai/ai-models/services/sdk-provider-factory.service';
 import { type NativeModelToolOptions } from 'src/engine/metadata-modules/ai/ai-models/types/native-model-tool-options.type';
 import { buildReasoningProviderOptions } from 'src/engine/metadata-modules/ai/ai-models/utils/build-reasoning-provider-options.util';
@@ -24,7 +24,7 @@ export class AiModelConfigService {
   constructor(
     private readonly aiModelRegistryService: AiModelRegistryService,
     private readonly sdkProviderFactory: SdkProviderFactoryService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   getReasoningProviderOptions(
@@ -33,7 +33,7 @@ export class AiModelConfigService {
   ): ProviderOptions {
     return buildReasoningProviderOptions(model, {
       shouldIncludeReasoningSummary: options?.shouldIncludeReasoningSummary,
-      isOpenAiReasoningSummaryEnabled: this.kovaa-labConfigService.get(
+      isOpenAiReasoningSummaryEnabled: this.kovaaLabConfigService.get(
         'IS_OPENAI_REASONING_SUMMARY_ENABLED',
       ),
     });

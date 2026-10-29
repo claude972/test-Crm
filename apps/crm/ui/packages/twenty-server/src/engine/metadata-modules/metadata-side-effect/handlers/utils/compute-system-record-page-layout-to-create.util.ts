@@ -9,7 +9,7 @@ import { PageLayoutType } from 'kovaa-lab-shared/types';
 import {
   TAB_PROPS,
   WIDGET_PROPS,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout-tabs.template';
+} from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout-tabs.template';
 import { type UniversalFlatObjectMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-object-metadata.type';
 import { type UniversalFlatPageLayoutTab } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-page-layout-tab.type';
 import { type UniversalFlatPageLayoutWidget } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-page-layout-widget.type';

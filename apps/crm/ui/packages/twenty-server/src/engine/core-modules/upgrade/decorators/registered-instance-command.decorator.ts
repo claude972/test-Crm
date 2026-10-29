@@ -2,12 +2,12 @@ import 'reflect-metadata';
 
 import { Injectable } from '@nestjs/common';
 
-import { type KovaaLab CRMAllVersion } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-all-versions.constant';
+import { type KovaaLabCRMAllVersion } from 'src/engine/core-modules/upgrade/constants/twenty-all-versions.constant';
 
 export type InstanceCommandType = 'fast' | 'slow';
 
 export type RegisteredInstanceCommandMetadata = {
-  version: KovaaLab CRMAllVersion;
+  version: KovaaLabCRMAllVersion;
   timestamp: number;
   type: InstanceCommandType;
 };
@@ -19,7 +19,7 @@ const REGISTERED_INSTANCE_COMMAND_KEY = 'REGISTERED_INSTANCE_COMMAND';
 // command files.
 export const RegisteredInstanceCommand =
   (
-    version: KovaaLab CRMAllVersion,
+    version: KovaaLabCRMAllVersion,
     timestamp: number,
     options?: { type: 'slow' },
   ): ClassDecorator =>

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { google } from 'googleapis';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type GoogleApisServiceAvailability = {
   isMessagingAvailable: boolean;
@@ -15,14 +15,14 @@ export class GoogleApisServiceAvailabilityService {
     GoogleApisServiceAvailabilityService.name,
   );
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   async checkServicesAvailability(
     accessToken: string,
   ): Promise<GoogleApisServiceAvailability> {
     const oAuth2Client = new google.auth.OAuth2({
-      clientId: this.kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
-      clientSecret: this.kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
+      clientId: this.kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
+      clientSecret: this.kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
       transporterOptions: { fetchImplementation: fetch },
     });
 
@@ -44,7 +44,7 @@ export class GoogleApisServiceAvailabilityService {
   private async checkMessagingAvailability(
     oAuth2Client: InstanceType<typeof google.auth.OAuth2>,
   ): Promise<boolean> {
-    if (!this.kovaa-labConfigService.get('MESSAGING_PROVIDER_GMAIL_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('MESSAGING_PROVIDER_GMAIL_ENABLED')) {
       return false;
     }
 
@@ -75,7 +75,7 @@ export class GoogleApisServiceAvailabilityService {
   private async checkCalendarAvailability(
     oAuth2Client: InstanceType<typeof google.auth.OAuth2>,
   ): Promise<boolean> {
-    if (!this.kovaa-labConfigService.get('CALENDAR_PROVIDER_GOOGLE_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('CALENDAR_PROVIDER_GOOGLE_ENABLED')) {
       return false;
     }
 

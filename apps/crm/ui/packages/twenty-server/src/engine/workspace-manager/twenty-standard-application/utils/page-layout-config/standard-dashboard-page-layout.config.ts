@@ -4,7 +4,7 @@ import { PageLayoutTabLayoutMode, PageLayoutType } from 'kovaa-lab-shared/types'
 import {
   type StandardPageLayoutConfig,
   type StandardPageLayoutTabConfig,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config/standard-page-layout-config.type';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config/standard-page-layout-config.type';
 
 const DASHBOARD_PAGE_TABS = {
   tab1: {

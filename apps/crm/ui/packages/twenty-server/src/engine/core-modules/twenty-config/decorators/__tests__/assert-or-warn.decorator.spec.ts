@@ -2,7 +2,7 @@ import { plainToClass } from 'class-transformer';
 import { IsString, validateSync } from 'class-validator';
 import 'reflect-metadata';
 
-import { AssertOrWarn } from 'src/engine/core-modules/kovaa-lab-config/decorators/assert-or-warn.decorator';
+import { AssertOrWarn } from 'src/engine/core-modules/twenty-config/decorators/assert-or-warn.decorator';
 
 describe('AssertOrWarn Decorator', () => {
   it('should pass validation if the condition is met', () => {

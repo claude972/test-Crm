@@ -1,10 +1,10 @@
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 
 import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfaces/relation-type.interface';
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { type CompiledStatement } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { type CompiledStatement } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const SCHEMA_NAME = 'workspace_1wgvd1injqtife6y4rvfbu3h5';
 
@@ -272,7 +272,7 @@ describe('WorkspaceMutationQueryBuilder', () => {
       )
         .returning(['id'])
         .getQuery(),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should reject setting a column that does not exist', () => {
@@ -286,7 +286,7 @@ describe('WorkspaceMutationQueryBuilder', () => {
         .set({ missingColumn: 'x' })
         .returning(['id'])
         .getQuery(),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should bump only updatedAt for an update carrying no columns', () => {
@@ -333,7 +333,7 @@ describe('WorkspaceMutationQueryBuilder', () => {
       )
         .returning(['id'])
         .getQuery(),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should refuse to morph a query that carries a relation join', () => {
@@ -346,6 +346,6 @@ describe('WorkspaceMutationQueryBuilder', () => {
         selectQueryBuilder,
         'soft-delete',
       ),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 });

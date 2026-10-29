@@ -24,11 +24,11 @@ import { BillingCreditGrantService } from 'src/engine/core-modules/billing/servi
 import { BillingCreditService } from 'src/engine/core-modules/billing/services/billing-credit.service';
 import { BillingSubscriptionService } from 'src/engine/core-modules/billing/services/billing-subscription.service';
 import { BillingUsageService } from 'src/engine/core-modules/billing/services/billing-usage.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { toDisplayCredits } from 'src/engine/core-modules/usage/utils/to-display-credits.util';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 const KNOWN_PLAN_KEYS: ReadonlySet<string> = new Set(
   Object.values(BillingPlanKey),
 );
@@ -48,7 +48,7 @@ export class AdminPanelBillingService {
     private readonly billingUsageService: BillingUsageService,
     private readonly billingCreditService: BillingCreditService,
     private readonly billingCreditGrantService: BillingCreditGrantService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async grantWorkspaceCredits({
@@ -80,7 +80,7 @@ export class AdminPanelBillingService {
       amount * INTERNAL_CREDITS_PER_DISPLAY_CREDIT,
     );
 
-    const maxAmountMicro = this.kovaa-labConfigService.get(
+    const maxAmountMicro = this.kovaaLabConfigService.get(
       'BILLING_MAX_ADMIN_CREDIT_GRANT_MICRO',
     );
 
@@ -165,7 +165,7 @@ export class AdminPanelBillingService {
   async getWorkspaceBilling(
     workspaceId: string,
   ): Promise<AdminPanelWorkspaceBillingDTO | null> {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       return null;
     }
 

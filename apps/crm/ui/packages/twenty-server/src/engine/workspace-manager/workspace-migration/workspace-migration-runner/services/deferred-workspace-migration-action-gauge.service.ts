@@ -8,7 +8,7 @@ import { DeferredWorkspaceMigrationActionEntity } from 'src/engine/metadata-modu
 import { type DeferredWorkspaceMigrationActionStatus } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/types/deferred-workspace-migration-action-status.type';
 
 const DEFERRED_WORKSPACE_MIGRATION_ACTIONS_METRIC_NAME =
-  'kovaa-lab_deferred_workspace_migration_actions';
+  'kovaaLab_deferred_workspace_migration_actions';
 
 const DEFERRED_WORKSPACE_MIGRATION_ACTION_STATUSES: DeferredWorkspaceMigrationActionStatus[] =
   ['PENDING', 'IN_PROGRESS', 'FAILED'];

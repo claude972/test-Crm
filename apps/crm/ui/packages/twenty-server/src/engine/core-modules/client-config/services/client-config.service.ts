@@ -5,8 +5,8 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { readIsCompanyEnrichmentEnabled } from 'src/engine/core-modules/company-enrichment/utils/read-is-company-enrichment-enabled.util';
 import { readBookCallStepMinEmployeeCount } from 'src/engine/core-modules/onboarding/utils/read-book-call-step-min-employee-count.util';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
-import { SupportDriver } from 'src/engine/core-modules/kovaa-lab-config/interfaces/support.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
+import { SupportDriver } from 'src/engine/core-modules/twenty-config/interfaces/support.interface';
 
 import { MaintenanceModeService } from 'src/engine/core-modules/admin-panel/maintenance-mode.service';
 import {
@@ -17,7 +17,7 @@ import {
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
 import { EmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-driver.type';
 import { PUBLIC_FEATURE_FLAGS } from 'src/engine/core-modules/feature-flag/constants/public-feature-flag.const';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { toDisplayCredits } from 'src/engine/core-modules/usage/utils/to-display-credits.util';
 import { AI_MODEL_TIERS, parseAiModelVariantId } from 'kovaa-lab-shared/ai';
 import { ENTERPRISE_INSTANCE_TYPE } from 'kovaa-lab-shared/constants';
@@ -31,7 +31,7 @@ import { type AiModelConfig } from 'src/engine/metadata-modules/ai/ai-models/typ
 @Injectable()
 export class ClientConfigService {
   constructor(
-    private kovaa-labConfigService: KovaaLab CRMConfigService,
+    private kovaaLabConfigService: KovaaLabCRMConfigService,
     private domainServerConfigService: DomainServerConfigService,
     private aiModelRegistryService: AiModelRegistryService,
     private maintenanceModeService: MaintenanceModeService,
@@ -57,29 +57,29 @@ export class ClientConfigService {
 
   private isCloudflareIntegrationEnabled(): boolean {
     return (
-      !!this.kovaa-labConfigService.get('CLOUDFLARE_API_KEY') &&
-      !!this.kovaa-labConfigService.get('CLOUDFLARE_ZONE_ID')
+      !!this.kovaaLabConfigService.get('CLOUDFLARE_API_KEY') &&
+      !!this.kovaaLabConfigService.get('CLOUDFLARE_ZONE_ID')
     );
   }
 
   async getClientConfig(): Promise<ClientConfig> {
-    const captchaProvider = this.kovaa-labConfigService.get('CAPTCHA_DRIVER');
-    const supportDriver = this.kovaa-labConfigService.get('SUPPORT_DRIVER');
-    const calendarBookingPageId = this.kovaa-labConfigService.get(
+    const captchaProvider = this.kovaaLabConfigService.get('CAPTCHA_DRIVER');
+    const supportDriver = this.kovaaLabConfigService.get('SUPPORT_DRIVER');
+    const calendarBookingPageId = this.kovaaLabConfigService.get(
       'CALENDAR_BOOKING_PAGE_ID',
     );
     const isBookCallOnboardingStepEnabled = isDefined(
-      readBookCallStepMinEmployeeCount(this.kovaa-labConfigService),
+      readBookCallStepMinEmployeeCount(this.kovaaLabConfigService),
     );
     const isCompanyEnrichmentEnabled = readIsCompanyEnrichmentEnabled(
-      this.kovaa-labConfigService,
+      this.kovaaLabConfigService,
     );
 
     const isEmailingDomainInDemoMode =
-      this.kovaa-labConfigService.get('EMAILING_DOMAIN_DRIVER') ===
+      this.kovaaLabConfigService.get('EMAILING_DOMAIN_DRIVER') ===
       EmailingDomainDriver.LOG;
 
-    const isBillingEnabled = this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    const isBillingEnabled = this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
 
     const availableModels =
       this.aiModelRegistryService.getAdminFilteredModels();
@@ -163,22 +163,22 @@ export class ClientConfigService {
     });
 
     const clientConfig: ClientConfig = {
-      appVersion: this.kovaa-labConfigService.get('APP_VERSION'),
+      appVersion: this.kovaaLabConfigService.get('APP_VERSION'),
       billing: {
         isBillingEnabled,
-        billingUrl: this.kovaa-labConfigService.get('BILLING_PLAN_REQUIRED_LINK'),
-        stripePublishableKey: this.kovaa-labConfigService.get(
+        billingUrl: this.kovaaLabConfigService.get('BILLING_PLAN_REQUIRED_LINK'),
+        stripePublishableKey: this.kovaaLabConfigService.get(
           'BILLING_STRIPE_PUBLISHABLE_KEY',
         ),
         trialPeriods: [
           {
-            duration: this.kovaa-labConfigService.get(
+            duration: this.kovaaLabConfigService.get(
               'BILLING_FREE_TRIAL_WITH_CREDIT_CARD_DURATION_IN_DAYS',
             ),
             isCreditCardRequired: true,
           },
           {
-            duration: this.kovaa-labConfigService.get(
+            duration: this.kovaaLabConfigService.get(
               'BILLING_FREE_TRIAL_WITHOUT_CREDIT_CARD_DURATION_IN_DAYS',
             ),
             isCreditCardRequired: false,
@@ -189,112 +189,112 @@ export class ClientConfigService {
       aiEvaluationModels,
       aiModelTiers,
       authProviders: {
-        google: this.kovaa-labConfigService.get('AUTH_GOOGLE_ENABLED'),
+        google: this.kovaaLabConfigService.get('AUTH_GOOGLE_ENABLED'),
         magicLink: false,
-        password: this.kovaa-labConfigService.get('AUTH_PASSWORD_ENABLED'),
-        microsoft: this.kovaa-labConfigService.get('AUTH_MICROSOFT_ENABLED'),
+        password: this.kovaaLabConfigService.get('AUTH_PASSWORD_ENABLED'),
+        microsoft: this.kovaaLabConfigService.get('AUTH_MICROSOFT_ENABLED'),
         sso: [],
       },
-      signInPrefilled: this.kovaa-labConfigService.get('SIGN_IN_PREFILLED'),
-      isMultiWorkspaceEnabled: this.kovaa-labConfigService.get(
+      signInPrefilled: this.kovaaLabConfigService.get('SIGN_IN_PREFILLED'),
+      isMultiWorkspaceEnabled: this.kovaaLabConfigService.get(
         'IS_MULTIWORKSPACE_ENABLED',
       ),
-      isEmailVerificationRequired: this.kovaa-labConfigService.get(
+      isEmailVerificationRequired: this.kovaaLabConfigService.get(
         'IS_EMAIL_VERIFICATION_REQUIRED',
       ),
-      defaultSubdomain: this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN'),
+      defaultSubdomain: this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN'),
       frontDomain: this.domainServerConfigService.getFrontUrl().hostname,
-      serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
+      serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
       publicFunctionDomain:
         this.domainServerConfigService.getPublicBaseHostnameOrUndefined() ??
         null,
       support: {
         supportDriver: supportDriver ? supportDriver : SupportDriver.NONE,
-        supportFrontChatId: this.kovaa-labConfigService.get(
+        supportFrontChatId: this.kovaaLabConfigService.get(
           'SUPPORT_FRONT_CHAT_ID',
         ),
       },
       sentry: {
-        environment: this.kovaa-labConfigService.get('SENTRY_ENVIRONMENT'),
-        release: this.kovaa-labConfigService.get('APP_VERSION'),
-        dsn: this.kovaa-labConfigService.get('SENTRY_FRONT_DSN'),
-        tracesSampleRate: this.kovaa-labConfigService.get(
+        environment: this.kovaaLabConfigService.get('SENTRY_ENVIRONMENT'),
+        release: this.kovaaLabConfigService.get('APP_VERSION'),
+        dsn: this.kovaaLabConfigService.get('SENTRY_FRONT_DSN'),
+        tracesSampleRate: this.kovaaLabConfigService.get(
           'SENTRY_FRONT_TRACES_SAMPLE_RATE',
         ),
       },
       captcha: {
         provider: captchaProvider ? captchaProvider : undefined,
-        siteKey: this.kovaa-labConfigService.get('CAPTCHA_SITE_KEY'),
+        siteKey: this.kovaaLabConfigService.get('CAPTCHA_SITE_KEY'),
       },
       api: {
-        mutationMaximumAffectedRecords: this.kovaa-labConfigService.get(
+        mutationMaximumAffectedRecords: this.kovaaLabConfigService.get(
           'MUTATION_MAXIMUM_AFFECTED_RECORDS',
         ),
       },
       onboarding: isBillingEnabled
         ? {
             importContactsCreditsReward: toDisplayCredits(
-              this.kovaa-labConfigService.get(
+              this.kovaaLabConfigService.get(
                 'ONBOARDING_IMPORT_CONTACTS_CREDITS_REWARD',
               ),
             ),
             inviteTeamCreditsRewardPerUser: toDisplayCredits(
-              this.kovaa-labConfigService.get(
+              this.kovaaLabConfigService.get(
                 'ONBOARDING_INVITE_TEAM_CREDITS_REWARD_PER_USER',
               ),
             ),
             createProfileCreditsReward: toDisplayCredits(
-              this.kovaa-labConfigService.get(
+              this.kovaaLabConfigService.get(
                 'BILLING_FREE_WORKFLOW_CREDITS_FOR_TRIAL_PERIOD_WITHOUT_CREDIT_CARD',
               ),
             ),
             upgradeCreditsReward: toDisplayCredits(
               Math.max(
                 0,
-                this.kovaa-labConfigService.get(
+                this.kovaaLabConfigService.get(
                   'BILLING_FREE_WORKFLOW_CREDITS_FOR_TRIAL_PERIOD_WITH_CREDIT_CARD',
                 ) -
-                  this.kovaa-labConfigService.get(
+                  this.kovaaLabConfigService.get(
                     'BILLING_FREE_WORKFLOW_CREDITS_FOR_TRIAL_PERIOD_WITHOUT_CREDIT_CARD',
                   ),
               ),
             ),
-            inviteTeamMaxInvites: this.kovaa-labConfigService.get(
+            inviteTeamMaxInvites: this.kovaaLabConfigService.get(
               'ONBOARDING_INVITE_TEAM_MAX_INVITES',
             ),
           }
         : null,
-      isAttachmentPreviewEnabled: this.kovaa-labConfigService.get(
+      isAttachmentPreviewEnabled: this.kovaaLabConfigService.get(
         'IS_ATTACHMENT_PREVIEW_ENABLED',
       ),
-      analyticsEnabled: this.kovaa-labConfigService.get('ANALYTICS_ENABLED'),
+      analyticsEnabled: this.kovaaLabConfigService.get('ANALYTICS_ENABLED'),
       canManageFeatureFlags:
-        this.kovaa-labConfigService.get('NODE_ENV') ===
+        this.kovaaLabConfigService.get('NODE_ENV') ===
           NodeEnvironment.DEVELOPMENT ||
         isBillingEnabled ||
-        this.kovaa-labConfigService.get('IS_FEATURE_FLAG_MANAGEMENT_ENABLED'),
+        this.kovaaLabConfigService.get('IS_FEATURE_FLAG_MANAGEMENT_ENABLED'),
       publicFeatureFlags: PUBLIC_FEATURE_FLAGS,
       isCookieSessionEnabled: true,
-      isMicrosoftMessagingEnabled: this.kovaa-labConfigService.get(
+      isMicrosoftMessagingEnabled: this.kovaaLabConfigService.get(
         'MESSAGING_PROVIDER_MICROSOFT_ENABLED',
       ),
-      isMicrosoftCalendarEnabled: this.kovaa-labConfigService.get(
+      isMicrosoftCalendarEnabled: this.kovaaLabConfigService.get(
         'CALENDAR_PROVIDER_MICROSOFT_ENABLED',
       ),
-      isGoogleMessagingEnabled: this.kovaa-labConfigService.get(
+      isGoogleMessagingEnabled: this.kovaaLabConfigService.get(
         'MESSAGING_PROVIDER_GMAIL_ENABLED',
       ),
-      isGoogleCalendarEnabled: this.kovaa-labConfigService.get(
+      isGoogleCalendarEnabled: this.kovaaLabConfigService.get(
         'CALENDAR_PROVIDER_GOOGLE_ENABLED',
       ),
-      isConfigVariablesInDbEnabled: this.kovaa-labConfigService.get(
+      isConfigVariablesInDbEnabled: this.kovaaLabConfigService.get(
         'IS_CONFIG_VARIABLES_IN_DB_ENABLED',
       ),
-      isImapSmtpCaldavEnabled: this.kovaa-labConfigService.get(
+      isImapSmtpCaldavEnabled: this.kovaaLabConfigService.get(
         'IS_IMAP_SMTP_CALDAV_ENABLED',
       ),
       isEmailingDomainInDemoMode,
-      allowRequestsToKovaaLab CRMIcons: this.kovaa-labConfigService.get(
+      allowRequestsToKovaaLabCRMIcons: this.kovaaLabConfigService.get(
         'ALLOW_REQUESTS_TO_KOVAALAB_ICONS',
       ),
       calendarBookingPageId: isNonEmptyString(calendarBookingPageId)
@@ -303,15 +303,15 @@ export class ClientConfigService {
       isBookCallOnboardingStepEnabled,
       isCompanyEnrichmentEnabled,
       isCloudflareIntegrationEnabled: this.isCloudflareIntegrationEnabled(),
-      isClickHouseConfigured: !!this.kovaa-labConfigService.get('CLICKHOUSE_URL'),
-      isWorkspaceSchemaDDLLocked: this.kovaa-labConfigService.get(
+      isClickHouseConfigured: !!this.kovaaLabConfigService.get('CLICKHOUSE_URL'),
+      isWorkspaceSchemaDDLLocked: this.kovaaLabConfigService.get(
         'WORKSPACE_SCHEMA_DDL_LOCKED',
       ),
-      isOnboardingAiChatEnabled: this.kovaa-labConfigService.get(
+      isOnboardingAiChatEnabled: this.kovaaLabConfigService.get(
         'IS_ONBOARDING_AI_CHAT_ENABLED',
       ),
       enterpriseInstanceType:
-        this.kovaa-labConfigService.get('ENTERPRISE_INSTANCE_TYPE') ??
+        this.kovaaLabConfigService.get('ENTERPRISE_INSTANCE_TYPE') ??
         ENTERPRISE_INSTANCE_TYPE.PRODUCTION,
     };
 

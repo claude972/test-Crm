@@ -26,13 +26,13 @@ import {
 import { buildGroupByRecordConditions } from 'src/engine/api/graphql/graphql-query-runner/group-by/utils/build-group-by-record-conditions.util';
 import { buildRecordJsonObjectSql } from 'src/engine/api/graphql/graphql-query-runner/group-by/utils/build-record-json-object-sql.util';
 import { getGroupLimit } from 'src/engine/api/graphql/graphql-query-runner/group-by/utils/get-group-limit.util';
-import { buildColumnResultAlias } from 'src/engine/kovaa-lab-orm/sql/utils/build-column-result-alias.util';
+import { buildColumnResultAlias } from 'src/engine/twenty-orm/sql/utils/build-column-result-alias.util';
 import { buildColumnsToSelect } from 'src/engine/api/graphql/graphql-query-runner/utils/build-columns-to-select';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/orm-flat-field-metadata.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
+import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
 
 @Injectable()
 export class GroupByWithRecordsService {

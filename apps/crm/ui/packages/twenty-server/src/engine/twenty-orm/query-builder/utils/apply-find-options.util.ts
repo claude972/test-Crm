@@ -1,14 +1,14 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
+import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 import {
   type FindOptionsSelectLike,
   type ObjectWhereLike,
   type OrderByConditionLike,
   type OrderByValueLike,
-} from 'src/engine/kovaa-lab-orm/query-builder/types/query-builder.type';
-import { type ToManyDedupOrder } from 'src/engine/kovaa-lab-orm/sql/utils/build-select-statement.util';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/query-builder/types/query-builder.type';
+import { type ToManyDedupOrder } from 'src/engine/twenty-orm/sql/utils/build-select-statement.util';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 export type WorkspaceFindOptionsRelations = {
   [relationFieldName: string]: boolean | WorkspaceFindOptionsRelations;

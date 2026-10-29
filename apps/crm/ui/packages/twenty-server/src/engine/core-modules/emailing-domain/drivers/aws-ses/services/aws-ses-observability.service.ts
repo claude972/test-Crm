@@ -8,17 +8,17 @@ import {
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { AwsSesClientProvider } from 'src/engine/core-modules/emailing-domain/drivers/aws-ses/providers/aws-ses-client.provider';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class AwsSesObservabilityService {
   constructor(
     private readonly awsSesClientProvider: AwsSesClientProvider,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async addEventDestination(configurationSetName: string): Promise<void> {
-    const tatamiSnsTopicArn = this.kovaa-labConfigService.get(
+    const tatamiSnsTopicArn = this.kovaaLabConfigService.get(
       'TATAMI_SNS_TOPIC_ARN',
     );
 

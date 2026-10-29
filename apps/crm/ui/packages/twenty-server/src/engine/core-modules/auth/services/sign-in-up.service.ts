@@ -53,7 +53,7 @@ import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service'
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
 import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { TelemetryEventType } from 'src/engine/core-modules/telemetry/telemetry-event.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
@@ -83,7 +83,7 @@ export class SignInUpService {
     private readonly userWorkspaceService: UserWorkspaceService,
     private readonly onboardingService: OnboardingService,
     private readonly workspaceEventEmitter: WorkspaceEventEmitter,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly subdomainManagerService: SubdomainManagerService,
     private readonly userService: UserService,
     private readonly metricsService: MetricsService,
@@ -397,8 +397,8 @@ export class SignInUpService {
           userFirstName: newUserWithPicture.firstName,
           userLastName: newUserWithPicture.lastName,
           locale: newUserWithPicture.locale,
-          serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
-          serverId: this.kovaa-labConfigService.get('SERVER_ID'),
+          serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
+          serverId: this.kovaaLabConfigService.get('SERVER_ID'),
         },
       ],
       undefined,
@@ -423,7 +423,7 @@ export class SignInUpService {
     const workspaceCount = await this.workspaceRepository.count();
 
     return (
-      this.kovaa-labConfigService.get('IS_MULTIWORKSPACE_ENABLED') ||
+      this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED') ||
       workspaceCount === 0
     );
   }
@@ -443,10 +443,10 @@ export class SignInUpService {
     email: string,
   ): Promise<void> {
     const decision = getSignUpWithoutWorkspaceDecision({
-      isMultiWorkspaceEnabled: this.kovaa-labConfigService.get(
+      isMultiWorkspaceEnabled: this.kovaaLabConfigService.get(
         'IS_MULTIWORKSPACE_ENABLED',
       ),
-      isWorkspaceCreationLimitedToServerAdmins: this.kovaa-labConfigService.get(
+      isWorkspaceCreationLimitedToServerAdmins: this.kovaaLabConfigService.get(
         'IS_WORKSPACE_CREATION_LIMITED_TO_SERVER_ADMINS',
       ),
       workspaceCount: await this.workspaceRepository.count(),
@@ -507,7 +507,7 @@ export class SignInUpService {
     await this.assertWorkspaceCountWithinLimit(workspaceCount);
 
     if (
-      !this.kovaa-labConfigService.get(
+      !this.kovaaLabConfigService.get(
         'IS_WORKSPACE_CREATION_LIMITED_TO_SERVER_ADMINS',
       )
     ) {

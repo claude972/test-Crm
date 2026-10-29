@@ -4,7 +4,7 @@ import {
   buildConflictKey,
   matchEntitiesForUpsert,
   partitionEntitiesForSave,
-} from 'src/engine/kovaa-lab-orm/repository/utils/resolve-save-and-upsert.util';
+} from 'src/engine/twenty-orm/repository/utils/resolve-save-and-upsert.util';
 
 describe('resolve-save-and-upsert util', () => {
   describe('partitionEntitiesForSave', () => {

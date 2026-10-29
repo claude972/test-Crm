@@ -10,25 +10,25 @@ import {
 } from 'src/engine/core-modules/auth/auth.exception';
 import { GoogleStrategy } from 'src/engine/core-modules/auth/strategies/google.auth.strategy';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class GoogleProviderEnabledGuard implements CanActivate {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly guardRedirectService: GuardRedirectService,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
     try {
-      if (!this.kovaa-labConfigService.get('AUTH_GOOGLE_ENABLED')) {
+      if (!this.kovaaLabConfigService.get('AUTH_GOOGLE_ENABLED')) {
         throw new AuthException(
           'Google auth is not enabled',
           AuthExceptionCode.GOOGLE_API_AUTH_DISABLED,
         );
       }
 
-      new GoogleStrategy(this.kovaa-labConfigService);
+      new GoogleStrategy(this.kovaaLabConfigService);
 
       return true;
     } catch (err) {

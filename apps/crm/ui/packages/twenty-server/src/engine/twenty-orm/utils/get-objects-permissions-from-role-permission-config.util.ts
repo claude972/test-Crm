@@ -4,9 +4,9 @@ import {
 } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { computePermissionIntersection } from 'src/engine/kovaa-lab-orm/utils/compute-permission-intersection.util';
-import { getRoleIdsToIntersect } from 'src/engine/kovaa-lab-orm/utils/get-role-ids-to-intersect.util';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { computePermissionIntersection } from 'src/engine/twenty-orm/utils/compute-permission-intersection.util';
+import { getRoleIdsToIntersect } from 'src/engine/twenty-orm/utils/get-role-ids-to-intersect.util';
 
 export const getObjectsPermissionsFromRolePermissionConfig = ({
   rolesPermissions,

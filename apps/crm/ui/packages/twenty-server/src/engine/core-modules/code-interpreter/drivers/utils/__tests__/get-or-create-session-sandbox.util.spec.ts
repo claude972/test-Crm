@@ -253,7 +253,7 @@ describe('Participant isolation', () => {
     async (previousActor) => {
       const previous = listedSandbox('old-sandbox');
       if (previousActor) {
-        previous.metadata.kovaa-labSessionActor = previousActor;
+        previous.metadata.kovaaLabSessionActor = previousActor;
       }
       const sandbox = buildFakeSandbox();
       const { api, mock } = buildSandboxApi({
@@ -275,7 +275,7 @@ describe('Participant isolation', () => {
         expect.objectContaining({
           metadata: {
             [SESSION_SANDBOX_METADATA_KEY]: sessionId,
-            kovaa-labSessionActor: 'editor:direct',
+            kovaaLabSessionActor: 'editor:direct',
           },
         }),
       );
@@ -283,7 +283,7 @@ describe('Participant isolation', () => {
   );
   it('retains the sandbox for the same authenticated participant', async () => {
     const previous = listedSandbox('same-sandbox');
-    previous.metadata.kovaa-labSessionActor = 'editor:direct';
+    previous.metadata.kovaaLabSessionActor = 'editor:direct';
     const sandbox = buildFakeSandbox();
     const { api, mock } = buildSandboxApi({
       list: jest.fn(() => paginatorOf([previous])),

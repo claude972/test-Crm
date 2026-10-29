@@ -2,7 +2,7 @@ import { FieldMetadataType } from 'kovaa-lab-shared/types';
 
 import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfaces/relation-type.interface';
 import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/orm-flat-field-metadata.type';
-import { resolveWorkspaceMemberPredicateValue } from 'src/engine/kovaa-lab-orm/utils/resolve-workspace-member-predicate-value.util';
+import { resolveWorkspaceMemberPredicateValue } from 'src/engine/twenty-orm/utils/resolve-workspace-member-predicate-value.util';
 import { type WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 
 const REGION_ID = '20202020-0000-4000-8000-000000000001';

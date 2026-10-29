@@ -1,6 +1,6 @@
 import { buildDevelopersSettingsCommandMenuItemUpdates } from 'src/database/commands/upgrade-version-command/2-48/utils/build-developers-settings-command-menu-item-updates.util';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
 
 const NOW = '2026-10-14T00:00:00.000Z';
 

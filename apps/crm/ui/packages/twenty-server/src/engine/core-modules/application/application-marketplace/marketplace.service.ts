@@ -6,7 +6,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { z } from 'zod';
 
 import { buildRegistryCdnUrl } from 'src/engine/core-modules/application/application-marketplace/utils/build-registry-cdn-url.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const MAX_REGISTRY_ASSET_SIZE_BYTES = 10 * 1024 * 1024;
 const REGISTRY_SEARCH_PAGE_SIZE = 250;
@@ -50,13 +50,13 @@ type RegistrySearchResult = z.infer<typeof registrySearchResultSchema>;
 export class MarketplaceService {
   private readonly logger = new Logger(MarketplaceService.name);
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   async fetchManifestFromRegistryCdn(
     packageName: string,
     version: string,
   ): Promise<Manifest | null> {
-    const cdnBaseUrl = this.kovaa-labConfigService.get('APP_REGISTRY_CDN_URL');
+    const cdnBaseUrl = this.kovaaLabConfigService.get('APP_REGISTRY_CDN_URL');
     const url = buildRegistryCdnUrl({
       cdnBaseUrl,
       packageName,
@@ -89,7 +89,7 @@ export class MarketplaceService {
     version: string,
     filePath: string,
   ): Promise<Buffer | null> {
-    const cdnBaseUrl = this.kovaa-labConfigService.get('APP_REGISTRY_CDN_URL');
+    const cdnBaseUrl = this.kovaaLabConfigService.get('APP_REGISTRY_CDN_URL');
     const url = buildRegistryCdnUrl({
       cdnBaseUrl,
       packageName,
@@ -116,7 +116,7 @@ export class MarketplaceService {
   }
 
   async fetchAppsFromRegistry(): Promise<RegistryPackageInfo[]> {
-    const registryUrl = this.kovaa-labConfigService.get('APP_REGISTRY_URL');
+    const registryUrl = this.kovaaLabConfigService.get('APP_REGISTRY_URL');
     const packageInfoByName = new Map<string, RegistryPackageInfo>();
 
     for (

@@ -40,10 +40,10 @@ import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadat
 import { SettingsMenuItemEntity } from 'src/engine/metadata-modules/settings-menu-item/entities/settings-menu-item.entity';
 import { serializeApplicationForBroadcast } from 'src/engine/core-modules/application/utils/serialize-application-for-broadcast.util';
 import { WorkspaceEventBroadcaster } from 'src/engine/subscriptions/workspace-event-broadcaster/workspace-event-broadcaster.service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { type QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
@@ -97,7 +97,7 @@ export class ApplicationService {
     return application.defaultRoleId;
   }
 
-  async findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow({
+  async findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow({
     workspace: workspaceInput,
     workspaceId,
   }:
@@ -131,25 +131,25 @@ export class ApplicationService {
         'flatApplicationMaps',
       ]);
 
-    const kovaa-labStandardApplicationId =
+    const kovaaLabStandardApplicationId =
       flatApplicationMaps.idByUniversalIdentifier[
         KOVAALAB_STANDARD_APPLICATION.universalIdentifier
       ];
 
-    if (!isDefined(kovaa-labStandardApplicationId)) {
+    if (!isDefined(kovaaLabStandardApplicationId)) {
       throw new ApplicationException(
         `Could not find workspace Standard applicationId in cache ${workspaceId}`,
         ApplicationExceptionCode.APPLICATION_NOT_FOUND,
       );
     }
 
-    const kovaa-labStandardFlatApplication =
-      flatApplicationMaps.byId[kovaa-labStandardApplicationId];
+    const kovaaLabStandardFlatApplication =
+      flatApplicationMaps.byId[kovaaLabStandardApplicationId];
     const workspaceCustomFlatApplication =
       flatApplicationMaps.byId[workspace.workspaceCustomApplicationId];
 
     if (
-      !isDefined(kovaa-labStandardFlatApplication) ||
+      !isDefined(kovaaLabStandardFlatApplication) ||
       !isDefined(workspaceCustomFlatApplication)
     ) {
       throw new ApplicationException(
@@ -159,7 +159,7 @@ export class ApplicationService {
     }
 
     return {
-      kovaa-labStandardFlatApplication,
+      kovaaLabStandardFlatApplication,
       workspaceCustomFlatApplication,
     };
   }
@@ -470,7 +470,7 @@ export class ApplicationService {
     }));
   }
 
-  async findKovaaLab CRMStandardApplicationOrThrow(workspaceId: string): Promise<{
+  async findKovaaLabCRMStandardApplicationOrThrow(workspaceId: string): Promise<{
     application: ApplicationEntity;
     workspace: WorkspaceEntity;
   }> {
@@ -485,14 +485,14 @@ export class ApplicationService {
       );
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow({
+    const { kovaaLabStandardFlatApplication } =
+      await this.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow({
         workspace,
       });
 
     const application = await this.applicationRepository.findOne(workspace.id, {
       where: {
-        id: kovaa-labStandardFlatApplication.id,
+        id: kovaaLabStandardFlatApplication.id,
       },
     });
 
@@ -506,7 +506,7 @@ export class ApplicationService {
     return { application, workspace };
   }
 
-  async createKovaaLab CRMStandardApplication(
+  async createKovaaLabCRMStandardApplication(
     {
       workspaceId,
       skipCacheInvalidation = false,
@@ -528,7 +528,7 @@ export class ApplicationService {
 
     const defaultPackageFields = await getDefaultApplicationPackageFields();
 
-    const kovaa-labStandardApplication = await this.create(
+    const kovaaLabStandardApplication = await this.create(
       {
         ...KOVAALAB_STANDARD_APPLICATION,
         logicFunctionLayerId: null,
@@ -544,7 +544,7 @@ export class ApplicationService {
     );
 
     await this.uploadDefaultPackageFilesAndSetFileIds(
-      kovaa-labStandardApplication,
+      kovaaLabStandardApplication,
       queryRunner,
     );
 
@@ -554,7 +554,7 @@ export class ApplicationService {
       ]);
     }
 
-    return kovaa-labStandardApplication;
+    return kovaaLabStandardApplication;
   }
 
   async createWorkspaceCustomApplication(

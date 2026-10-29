@@ -18,7 +18,7 @@ import { COMPANY_FLAT_OBJECT_MOCK } from 'src/engine/metadata-modules/flat-objec
 import {
   type RecordShareExpressionTarget,
   type RowAccessExpression,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
 
 const MEMBER_ID = 'member-1';
 

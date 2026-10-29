@@ -12,13 +12,13 @@ import { type ResendErrorBody } from 'src/engine/core-modules/emailing-domain/dr
 import { type ResendReceivedEmail } from 'src/engine/core-modules/emailing-domain/drivers/resend/types/resend-received-email.type';
 import { type ResendSendEmailPayload } from 'src/engine/core-modules/emailing-domain/drivers/resend/types/resend-send-email-payload.type';
 import { type ResendSentEmail } from 'src/engine/core-modules/emailing-domain/drivers/resend/types/resend-sent-email.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const RESEND_API_BASE_URL = 'https://api.resend.com';
 
 @Injectable()
 export class ResendApiClientService {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   async sendEmail(payload: ResendSendEmailPayload): Promise<{ id: string }> {
     return this.requestJson<{ id: string }>('POST', '/emails', payload);
@@ -79,7 +79,7 @@ export class ResendApiClientService {
   }
 
   private getApiKeyOrThrow(): string {
-    const apiKey = this.kovaa-labConfigService.get('RESEND_API_KEY');
+    const apiKey = this.kovaaLabConfigService.get('RESEND_API_KEY');
 
     if (!isNonEmptyString(apiKey)) {
       throw new EmailingDomainDriverException(

@@ -20,7 +20,7 @@ import {
 import { EmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-driver.type';
 import { EmailingDomainService } from 'src/engine/core-modules/emailing-domain/services/emailing-domain.service';
 import { StorageDriverType } from 'src/engine/core-modules/file-storage/interfaces/file-storage.interface';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { ConnectedAccountMetadataService } from 'src/engine/metadata-modules/connected-account/connected-account-metadata.service';
 import { MESSAGE_CHANNEL_DELETED_EVENT } from 'src/engine/metadata-modules/message-channel/constants/message-channel-deleted.constant';
 import { CreateEmailGroupChannelOutput } from 'src/engine/metadata-modules/message-channel/dtos/create-email-group-channel.output';
@@ -43,7 +43,7 @@ export class MessageChannelMetadataService {
     @InjectRepository(MessageChannelEntity)
     private readonly repository: Repository<MessageChannelEntity>,
     private readonly connectedAccountMetadataService: ConnectedAccountMetadataService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly emailingDomainService: EmailingDomainService,
     private readonly workspaceEventEmitter: WorkspaceEventEmitter,
     private readonly messageChannelSyncStatusService: MessageChannelSyncStatusService,
@@ -279,10 +279,10 @@ export class MessageChannelMetadataService {
     userWorkspaceId: string;
     workspaceId: string;
   }): Promise<CreateEmailGroupChannelOutput> {
-    const inboundEmailDomain = this.kovaa-labConfigService.get(
+    const inboundEmailDomain = this.kovaaLabConfigService.get(
       'INBOUND_EMAIL_DOMAIN',
     );
-    const emailingDomainDriver = this.kovaa-labConfigService.get(
+    const emailingDomainDriver = this.kovaaLabConfigService.get(
       'EMAILING_DOMAIN_DRIVER',
     );
     const isEmailingDomainInDemoMode =
@@ -290,8 +290,8 @@ export class MessageChannelMetadataService {
 
     const isInboundMessageStoreConfigured =
       emailingDomainDriver === EmailingDomainDriver.RESEND
-        ? isNonEmptyString(this.kovaa-labConfigService.get('RESEND_API_KEY'))
-        : this.kovaa-labConfigService.get('STORAGE_TYPE') ===
+        ? isNonEmptyString(this.kovaaLabConfigService.get('RESEND_API_KEY'))
+        : this.kovaaLabConfigService.get('STORAGE_TYPE') ===
           StorageDriverType.S_3;
 
     if (

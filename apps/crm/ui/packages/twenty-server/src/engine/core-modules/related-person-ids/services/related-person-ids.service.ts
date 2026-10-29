@@ -8,8 +8,8 @@ import {
   findRelationPathsToPerson,
   type RelationPathToPerson,
 } from 'src/engine/core-modules/related-person-ids/utils/find-relation-paths-to-person.util';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 
 const PERSON_OBJECT_NAME_SINGULAR = 'person';

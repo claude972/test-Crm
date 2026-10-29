@@ -2,7 +2,7 @@ import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-m
 import {
   type CreateStandardIndexArgs,
   createStandardIndexFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/index/create-standard-index-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/index/create-standard-index-flat-metadata.util';
 
 export const buildAgentChatThreadParticipantStandardFlatIndexMetadatas = (
   args: Omit<CreateStandardIndexArgs<'agentChatThreadParticipant'>, 'context'>,

@@ -3,16 +3,16 @@ import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 import { type WorkspaceIteratorService } from 'src/database/commands/command-runners/workspace-iterator.service';
 import { CreateMessageListMemberViewCommand } from 'src/database/commands/upgrade-version-command/2-39/2-39-workspace-command-1788616075386-create-message-list-member-view.command';
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 jest.mock(
-  'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant',
+  'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant',
 );
 
-const computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMaps,
+const computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMaps,
 );
 
 const WORKSPACE_ID = '20202020-0000-0000-0000-000000000001';
@@ -47,14 +47,14 @@ describe('CreateMessageListMemberViewCommand', () => {
     jest.clearAllMocks();
 
     findApplicationMock = jest.fn().mockResolvedValue({
-      kovaa-labStandardFlatApplication: STANDARD_APPLICATION,
+      kovaaLabStandardFlatApplication: STANDARD_APPLICATION,
     });
     getOrRecomputeMock = jest.fn();
     validateBuildAndRunWorkspaceMigrationMock = jest
       .fn()
       .mockResolvedValue({ status: 'success' });
 
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
       allFlatEntityMaps: {
         flatViewMaps: buildByUniversalIdentifierMap([
           LIST_MEMBER_VIEW_UNIVERSAL_IDENTIFIER,
@@ -64,13 +64,13 @@ describe('CreateMessageListMemberViewCommand', () => {
         ),
       },
     } as unknown as ReturnType<
-      typeof computeKovaaLab CRMStandardApplicationAllFlatEntityMaps
+      typeof computeKovaaLabCRMStandardApplicationAllFlatEntityMaps
     >);
 
     command = new CreateMessageListMemberViewCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow:
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow:
           findApplicationMock,
       } as unknown as ApplicationService,
       {

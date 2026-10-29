@@ -16,7 +16,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 
 import { OnboardingStatus } from 'src/engine/core-modules/onboarding/enums/onboarding-status.enum';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 describe('Successful user and workspace creation', () => {
   let createdUserAccessToken: string | undefined;
@@ -133,20 +133,20 @@ describe('Successful user and workspace creation', () => {
     });
 
     expect(findManyApplicationsData.length).toBe(2);
-    const kovaa-labStandardApp = findManyApplicationsData.find(
+    const kovaaLabStandardApp = findManyApplicationsData.find(
       (application) =>
         application.universalIdentifier ===
         KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     );
 
-    jestExpectToBeDefined(kovaa-labStandardApp);
+    jestExpectToBeDefined(kovaaLabStandardApp);
     const {
       sourcePath: _sourcePath,
       sourceType: _sourceType,
-      ...expectedStandardKovaaLab CRMApplication
+      ...expectedStandardKovaaLabCRMApplication
     } = KOVAALAB_STANDARD_APPLICATION;
 
-    expect(kovaa-labStandardApp).toMatchObject(expectedStandardKovaaLab CRMApplication);
+    expect(kovaaLabStandardApp).toMatchObject(expectedStandardKovaaLabCRMApplication);
 
     const workpsaceCustomApplication = findManyApplicationsData.find(
       (application) =>

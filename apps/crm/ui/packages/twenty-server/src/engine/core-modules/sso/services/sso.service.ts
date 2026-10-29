@@ -29,7 +29,7 @@ import {
   type SsoConfiguration,
 } from 'src/engine/core-modules/sso/types/sso-configurations.type';
 import { resolveIdTokenSigningAlgorithm } from 'src/engine/core-modules/sso/utils/resolve-id-token-signing-algorithm.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class SsoService {
@@ -44,7 +44,7 @@ export class SsoService {
   constructor(
     @InjectRepository(WorkspaceSsoIdentityProviderEntity)
     private readonly workspaceSsoIdentityProviderRepository: Repository<WorkspaceSsoIdentityProviderEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly billingService: BillingService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly secureHttpClientService: SecureHttpClientService,
@@ -188,7 +188,7 @@ export class SsoService {
   buildCallbackUrl(
     identityProvider: Pick<WorkspaceSsoIdentityProviderEntity, 'type' | 'id'>,
   ) {
-    const callbackURL = new URL(this.kovaa-labConfigService.get('SERVER_URL'));
+    const callbackURL = new URL(this.kovaaLabConfigService.get('SERVER_URL'));
 
     callbackURL.pathname = `/auth/${identityProvider.type.toLowerCase()}/callback`;
 
@@ -204,7 +204,7 @@ export class SsoService {
     searchParams?: Record<string, string | boolean>,
   ) {
     const authorizationUrl = new URL(
-      this.kovaa-labConfigService.get('SERVER_URL'),
+      this.kovaaLabConfigService.get('SERVER_URL'),
     );
 
     authorizationUrl.pathname = `/auth/${identityProvider.type.toLowerCase()}/login/${identityProvider.id}`;

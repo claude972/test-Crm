@@ -4,7 +4,7 @@ import { gql } from 'graphql-tag';
 import { type DataSource } from 'typeorm';
 
 import { insertApplicationRegistrationVariable } from 'test/integration/metadata/suites/application-registration-variable/utils/insert-application-registration-variable.util';
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 
 import {
   SEED_APPLE_WORKSPACE_ID,

@@ -12,8 +12,8 @@ import { FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/
 import { getMetadataFlatEntityMapsKey } from 'src/engine/metadata-modules/flat-entity/utils/get-metadata-flat-entity-maps-key.util';
 import { getMetadataRelatedMetadataNames } from 'src/engine/metadata-modules/flat-entity/utils/get-metadata-related-metadata-names.util';
 import { getMetadataSerializedRelationNames } from 'src/engine/metadata-modules/flat-entity/utils/get-metadata-serialized-relation-names.util';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { WorkspaceMigrationRunnerService } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/services/workspace-migration-runner.service';
 
 const NOTE_TARGET = STANDARD_OBJECTS.noteTarget;
@@ -76,8 +76,8 @@ export class RelabelNoteAndTaskTargetFieldsCommand extends ProvisionedWorkspaceC
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -97,7 +97,7 @@ export class RelabelNoteAndTaskTargetFieldsCommand extends ProvisionedWorkspaceC
     const fieldMetadatasToRelabel = fieldMetadatas.filter((fieldMetadata) => {
       const previousLabel = getPreviousLabel({
         fieldMetadata,
-        standardApplicationId: kovaa-labStandardFlatApplication.id,
+        standardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
       return isDefined(previousLabel) && fieldMetadata.label === previousLabel;

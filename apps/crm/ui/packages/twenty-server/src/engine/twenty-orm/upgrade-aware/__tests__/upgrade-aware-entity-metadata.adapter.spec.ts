@@ -12,7 +12,7 @@ import { WasRemovedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/
 import { WasRenamedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/was-renamed-in-upgrade.decorator';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
 import { UpgradeSequenceReaderService } from 'src/engine/core-modules/upgrade/services/upgrade-sequence-reader.service';
-import { UpgradeAwareEntityMetadataAdapter } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
+import { UpgradeAwareEntityMetadataAdapter } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
 
 const RENAME_STEP = '2.6.0_Rename_1700000000000';
 const INTRODUCE_STEP = '2.7.0_AddColumn_1800000000000';

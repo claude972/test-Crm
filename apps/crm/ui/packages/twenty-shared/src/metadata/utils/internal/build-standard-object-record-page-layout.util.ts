@@ -1,4 +1,4 @@
-import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/KovaaLab CRMStandardApplicationUniversalIdentifier';
+import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/TwentyStandardApplicationUniversalIdentifier';
 import { getSystemPageLayoutTabUniversalIdentifier } from '@/application/deterministic-identifier/get-system-page-layout-tab-universal-identifier.util';
 import { getSystemRecordPageLayoutUniversalIdentifier } from '@/application/deterministic-identifier/get-system-record-page-layout-universal-identifier.util';
 import { getSystemPageLayoutWidgetUniversalIdentifier } from '@/application/deterministic-identifier/get-system-page-layout-widget-universal-identifier.util';

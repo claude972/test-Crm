@@ -1,10 +1,10 @@
 import { v4 } from 'uuid';
 
 import { type FlatRole } from 'src/engine/metadata-modules/flat-role/types/flat-role.type';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { type AllStandardRoleName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-role-name.type';
-import { type StandardBuilderArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/metadata-standard-buillder-args.type';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { type AllStandardRoleName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-role-name.type';
+import { type StandardBuilderArgs } from 'src/engine/workspace-manager/twenty-standard-application/types/metadata-standard-buillder-args.type';
 
 export type CreateStandardRoleContext = {
   roleName: AllStandardRoleName;
@@ -47,7 +47,7 @@ export const createStandardRoleFlatMetadata = ({
     canBeAssignedToApiKeys,
   },
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: CreateStandardRoleArgs): FlatRole => {
   const universalIdentifier = STANDARD_ROLE[roleName].universalIdentifier;
@@ -70,7 +70,7 @@ export const createStandardRoleFlatMetadata = ({
     canBeAssignedToAgents,
     canBeAssignedToApiKeys,
     workspaceId,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     createdAt: now,

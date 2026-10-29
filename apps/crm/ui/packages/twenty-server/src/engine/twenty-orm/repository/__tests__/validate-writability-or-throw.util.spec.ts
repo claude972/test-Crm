@@ -3,8 +3,8 @@ import { MetadataWritability } from 'kovaa-lab-shared/types';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { type OperationType } from 'src/engine/kovaa-lab-orm/repository/permissions.utils';
-import { validateWritabilityOrThrow } from 'src/engine/kovaa-lab-orm/repository/validate-writability-or-throw.util';
+import { type OperationType } from 'src/engine/twenty-orm/repository/permissions.utils';
+import { validateWritabilityOrThrow } from 'src/engine/twenty-orm/repository/validate-writability-or-throw.util';
 
 const OWNING_APPLICATION_ID = 'app-1';
 

@@ -13,12 +13,12 @@ import { Response } from 'express';
 import { ApiPath } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
 
 import { AuthRestApiExceptionFilter } from 'src/engine/core-modules/auth/filters/auth-rest-api-exception.filter';
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 
@@ -27,7 +27,7 @@ import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 export class OAuthPropagatorController {
   constructor(
     private readonly domainServerConfigService: DomainServerConfigService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
   ) {}
 
@@ -72,7 +72,7 @@ export class OAuthPropagatorController {
 
   private async isValidDomain(url: URL): Promise<boolean> {
     if (
-      this.kovaa-labConfigService.get('NODE_ENV') === NodeEnvironment.DEVELOPMENT
+      this.kovaaLabConfigService.get('NODE_ENV') === NodeEnvironment.DEVELOPMENT
     ) {
       return true;
     }

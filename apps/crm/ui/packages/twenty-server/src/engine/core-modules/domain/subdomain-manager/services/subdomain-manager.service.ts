@@ -13,7 +13,7 @@ import { type WorkspaceCreationDefaultsDTO } from 'src/engine/core-modules/domai
 import { generateRandomSubdomain } from 'src/engine/core-modules/domain/subdomain-manager/utils/generate-random-subdomain.util';
 import { getSubdomainFromEmail } from 'src/engine/core-modules/domain/subdomain-manager/utils/get-subdomain-from-email.util';
 import { isSubdomainValid } from 'src/engine/core-modules/domain/subdomain-manager/utils/is-subdomain-valid.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import {
   WorkspaceException,
@@ -30,7 +30,7 @@ export class SubdomainManagerService {
   constructor(
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async generateSubdomain({
@@ -110,7 +110,7 @@ export class SubdomainManagerService {
   private async filterFreeToUseSubdomains(
     candidates: string[],
   ): Promise<string[]> {
-    const defaultSubdomain = this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN');
+    const defaultSubdomain = this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN');
 
     const validCandidates = candidates.filter(
       (candidate) =>
@@ -182,7 +182,7 @@ export class SubdomainManagerService {
 
     if (
       !isAvailable ||
-      this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN') === subdomain
+      this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN') === subdomain
     ) {
       throw new WorkspaceException(
         'Subdomain already taken',
@@ -194,7 +194,7 @@ export class SubdomainManagerService {
   private async isSubdomainFreeToUse(subdomain: string): Promise<boolean> {
     return (
       isSubdomainValid(subdomain) &&
-      this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN') !== subdomain &&
+      this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN') !== subdomain &&
       (await this.isSubdomainAvailable(subdomain))
     );
   }

@@ -1,7 +1,7 @@
 import { msg } from '@lingui/core/macro';
 
 import { type ActionToolLabel } from 'src/engine/core-modules/tool-provider/types/action-tool-label.type';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 
 export const ACTION_TOOL_IDS = [
   'http_request',

@@ -23,7 +23,7 @@ import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queu
 import { EventLoopStallMonitorService } from 'src/engine/core-modules/message-queue/services/event-loop-stall-monitor.service';
 import { getQueueToken } from 'src/engine/core-modules/message-queue/utils/get-queue-token.util';
 import { shouldCreateWorkerForQueue } from 'src/engine/core-modules/message-queue/utils/should-create-worker-for-queue.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { shouldCaptureException } from 'src/engine/utils/global-exception-handler.util';
 
 interface ProcessorGroup {
@@ -44,7 +44,7 @@ export class MessageQueueExplorer implements OnModuleInit {
     private readonly metadataAccessor: MessageQueueMetadataAccessor,
     private readonly metadataScanner: MetadataScanner,
     private readonly exceptionHandlerService: ExceptionHandlerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly eventLoopStallMonitorService: EventLoopStallMonitorService,
   ) {}
 
@@ -66,10 +66,10 @@ export class MessageQueueExplorer implements OnModuleInit {
     const groupedProcessors = this.groupProcessorsByQueueName(processors);
 
     // The ARRAY transformer parses an empty env value as [''], which would turn "all queues" into "no queues".
-    const enabledQueues = this.kovaa-labConfigService
+    const enabledQueues = this.kovaaLabConfigService
       .get('WORKER_ENABLED_QUEUES')
       .filter((queueName) => queueName.length > 0);
-    const excludedQueues = this.kovaa-labConfigService
+    const excludedQueues = this.kovaaLabConfigService
       .get('WORKER_EXCLUDED_QUEUES')
       .filter((queueName) => queueName.length > 0);
 

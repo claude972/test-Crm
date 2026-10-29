@@ -9,12 +9,12 @@ import {
   TAB_PROPS,
   VERTICAL_LIST_LAYOUT_POSITIONS,
   WIDGET_PROPS,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout-tabs.template';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout-tabs.template';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import {
   type StandardPageLayoutConfig,
   type StandardPageLayoutTabConfig,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config/standard-page-layout-config.type';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config/standard-page-layout-config.type';
 
 const ATTACHMENT_PAGE_TABS = {
   home: {

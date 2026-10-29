@@ -1,7 +1,7 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type FlatRoleTargetByAgentIdMaps } from 'src/engine/metadata-modules/flat-agent/types/flat-role-target-by-agent-id-maps.type';
-import { type RoleIdsBySource } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
+import { type RoleIdsBySource } from 'src/engine/twenty-orm/types/role-permission-config.type';
 
 // An agent without a role, or a deleted one, resolves to null, which denies
 export const buildAgentRoleIdsBySource = ({

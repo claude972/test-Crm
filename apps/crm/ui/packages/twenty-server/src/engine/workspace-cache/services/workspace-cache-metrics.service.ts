@@ -54,7 +54,7 @@ export class WorkspaceCacheMetricsService {
     const meter = this.metricsService.getMeter();
 
     this.recomputeDurationHistogram = meter.createHistogram(
-      'kovaa-lab_workspace_cache_recompute_duration_seconds',
+      'kovaaLab_workspace_cache_recompute_duration_seconds',
       {
         description:
           'Wall-clock time to compute one workspace metadata cache entry from its provider',
@@ -63,7 +63,7 @@ export class WorkspaceCacheMetricsService {
       },
     );
     this.redisWriteDurationHistogram = meter.createHistogram(
-      'kovaa-lab_workspace_cache_redis_write_duration_seconds',
+      'kovaaLab_workspace_cache_redis_write_duration_seconds',
       {
         description:
           'Wall-clock time to serialize and write recomputed cache entries to Redis',
@@ -72,7 +72,7 @@ export class WorkspaceCacheMetricsService {
       },
     );
     this.packingDurationHistogram = meter.createHistogram(
-      'kovaa-lab_workspace_cache_packing_run_duration_seconds',
+      'kovaaLab_workspace_cache_packing_run_duration_seconds',
       {
         description: 'Event loop time consumed by one packing run',
         unit: 's',
@@ -80,7 +80,7 @@ export class WorkspaceCacheMetricsService {
       },
     );
     this.unpackingDurationHistogram = meter.createHistogram(
-      'kovaa-lab_workspace_cache_unpacking_duration_seconds',
+      'kovaaLab_workspace_cache_unpacking_duration_seconds',
       {
         description:
           'Wall-clock time to unpack one packed cache version back into objects on read',
@@ -245,7 +245,7 @@ export class WorkspaceCacheMetricsService {
 
   private registerGauges(): void {
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_entries',
+      metricName: 'kovaaLab_workspace_cache_local_entries',
       options: {
         description: 'Entries in the per-pod local workspace metadata cache',
       },
@@ -253,7 +253,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_workspaces',
+      metricName: 'kovaaLab_workspace_cache_local_workspaces',
       options: {
         description:
           'Distinct workspaces held in the per-pod local workspace metadata cache',
@@ -262,7 +262,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_versions_total',
+      metricName: 'kovaaLab_workspace_cache_local_versions_total',
       options: {
         description:
           'Total versions across local workspace metadata cache entries',
@@ -271,7 +271,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_bytes_estimate',
+      metricName: 'kovaaLab_workspace_cache_local_bytes_estimate',
       options: {
         description:
           'Estimated retained bytes (deep-size, includes local-only providers) in the local workspace metadata cache',
@@ -281,7 +281,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_entries_by_version_count',
+      metricName: 'kovaaLab_workspace_cache_local_entries_by_version_count',
       options: {
         description:
           'Local workspace metadata cache entries bucketed by version count',
@@ -293,7 +293,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_bytes_by_provider',
+      metricName: 'kovaaLab_workspace_cache_local_bytes_by_provider',
       options: {
         description:
           'Estimated retained bytes in the local workspace metadata cache per provider',
@@ -307,7 +307,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_entries_by_provider',
+      metricName: 'kovaaLab_workspace_cache_local_entries_by_provider',
       options: {
         description:
           'Entries in the local workspace metadata cache per provider',
@@ -322,7 +322,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_versions_by_state',
+      metricName: 'kovaaLab_workspace_cache_local_versions_by_state',
       options: {
         description:
           'Local workspace metadata cache versions by tier (live or packed) and provider',
@@ -348,7 +348,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_live_versions',
+      metricName: 'kovaaLab_workspace_cache_local_live_versions',
       options: {
         description:
           'Total live (object graph) versions in the local workspace metadata cache',
@@ -357,7 +357,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_packed_versions',
+      metricName: 'kovaaLab_workspace_cache_local_packed_versions',
       options: {
         description:
           'Total packed (serialized buffer) versions in the local workspace metadata cache',
@@ -366,7 +366,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_local_packed_bytes',
+      metricName: 'kovaaLab_workspace_cache_local_packed_bytes',
       options: {
         description:
           'Exact retained bytes held as packed buffers in the local workspace metadata cache',
@@ -376,7 +376,7 @@ export class WorkspaceCacheMetricsService {
       perPod: true,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspace_cache_packing_backlog',
+      metricName: 'kovaaLab_workspace_cache_packing_backlog',
       options: {
         description:
           'Versions currently eligible for packing, whether or not the last run reached them',

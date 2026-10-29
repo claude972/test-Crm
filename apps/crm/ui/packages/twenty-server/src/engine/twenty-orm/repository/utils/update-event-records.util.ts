@@ -2,7 +2,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { type ObjectRecord } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 export const getUpdateEventColumnsToReturn = (
   columnsToReturn: string[],

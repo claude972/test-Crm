@@ -4,7 +4,7 @@ import { type WorkspaceIteratorService } from 'src/database/commands/command-run
 import { ReconcileStandardSkillsCommand } from 'src/database/commands/upgrade-version-command/2-40/2-40-workspace-command-1789129759229-reconcile-standard-skills.command';
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const WORKSPACE_ID = '20202020-0000-0000-0000-000000000001';
@@ -52,10 +52,10 @@ const setup = ({
   const command = new ReconcileStandardSkillsCommand(
     {} as WorkspaceIteratorService,
     {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
         .fn()
         .mockResolvedValue({
-          kovaa-labStandardFlatApplication: {
+          kovaaLabStandardFlatApplication: {
             id: STANDARD_APPLICATION_ID,
             universalIdentifier: 'kovaa-lab-standard-universal-identifier',
           },
@@ -100,10 +100,10 @@ const runAndGetSkillOperation = async (
 
 const buildStandardFlatSkills = () =>
   Object.values(
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: new Date().toISOString(),
       workspaceId: WORKSPACE_ID,
-      kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+      kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
     }).allFlatEntityMaps.flatSkillMaps.byUniversalIdentifier,
   ).filter(isDefined);
 

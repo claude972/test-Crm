@@ -50,7 +50,7 @@ describe('getRecordImageIdentifier', () => {
       record: { domainName: { primaryLinkUrl: 'kovaa-lab.com' } },
       flatObjectMetadata: company,
       flatFieldMetadataMaps: buildFieldMaps([domainNameField]),
-      allowRequestsToKovaaLab CRMIcons: true,
+      allowRequestsToKovaaLabCRMIcons: true,
     });
 
     expect(result).toBe('https://kovaa-lab-icons.com/kovaa-lab.com');
@@ -75,7 +75,7 @@ describe('getRecordImageIdentifier', () => {
       record: { domainName: { primaryLinkUrl: 'kovaa-lab.com' } },
       flatObjectMetadata: company,
       flatFieldMetadataMaps: buildFieldMaps([domainNameField]),
-      allowRequestsToKovaaLab CRMIcons: false,
+      allowRequestsToKovaaLabCRMIcons: false,
     });
 
     expect(result).toBe(null);
@@ -100,7 +100,7 @@ describe('getRecordImageIdentifier', () => {
       record: { avatarFile: [{ fileId: 'file-1' }] },
       flatObjectMetadata: person,
       flatFieldMetadataMaps: buildFieldMaps([avatarFileField]),
-      allowRequestsToKovaaLab CRMIcons: true,
+      allowRequestsToKovaaLabCRMIcons: true,
       signUrl,
     });
 
@@ -126,7 +126,7 @@ describe('getRecordImageIdentifier', () => {
       record: { avatarFile: [{ fileId: 'file-1' }] },
       flatObjectMetadata: person,
       flatFieldMetadataMaps: buildFieldMaps([avatarFileField]),
-      allowRequestsToKovaaLab CRMIcons: true,
+      allowRequestsToKovaaLabCRMIcons: true,
     });
 
     expect(result).toBe(null);
@@ -166,7 +166,7 @@ describe('getRecordImageIdentifier', () => {
       },
       flatObjectMetadata: customObject,
       flatFieldMetadataMaps: buildFieldMaps([baseTextField, domainNameField]),
-      allowRequestsToKovaaLab CRMIcons: true,
+      allowRequestsToKovaaLabCRMIcons: true,
     });
 
     expect(result).toBe('https://kovaa-lab-icons.com/acme.com');
@@ -196,7 +196,7 @@ describe('getRecordImageIdentifier', () => {
       record: { domainName: { primaryLinkUrl: 'acme.com' } },
       flatObjectMetadata: customObject,
       flatFieldMetadataMaps: buildFieldMaps([domainNameField]),
-      allowRequestsToKovaaLab CRMIcons: true,
+      allowRequestsToKovaaLabCRMIcons: true,
     });
 
     expect(result).toBe(null);
@@ -214,7 +214,7 @@ describe('getRecordImageIdentifier', () => {
       record: {},
       flatObjectMetadata: customObject,
       flatFieldMetadataMaps: buildFieldMaps([]),
-      allowRequestsToKovaaLab CRMIcons: true,
+      allowRequestsToKovaaLabCRMIcons: true,
     });
 
     expect(result).toBe(null);
@@ -234,7 +234,7 @@ describe('getRecordImageIdentifier', () => {
       },
       flatObjectMetadata: workspaceMember,
       flatFieldMetadataMaps: buildFieldMaps([]),
-      allowRequestsToKovaaLab CRMIcons: true,
+      allowRequestsToKovaaLabCRMIcons: true,
       signUrl,
     });
 

@@ -134,8 +134,8 @@ export class RepairAttachmentTimelineActivityTypesCommand extends ProvisionedWor
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const now = new Date().toISOString();
@@ -143,7 +143,7 @@ export class RepairAttachmentTimelineActivityTypesCommand extends ProvisionedWor
       missingDefinitions.map((definition) => ({
         id: v4(),
         workspaceId,
-        applicationId: kovaa-labStandardFlatApplication.id,
+        applicationId: kovaaLabStandardFlatApplication.id,
         applicationUniversalIdentifier:
           STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
         universalIdentifier: definition.universalIdentifier,

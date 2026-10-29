@@ -14,7 +14,7 @@ import {
 } from 'typeorm';
 import { type QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
+import { type WorkspaceInternalContext } from 'src/engine/twenty-orm/interfaces/workspace-internal-context.interface';
 
 import { STANDARD_ERROR_MESSAGE } from 'src/engine/api/common/common-query-runners/errors/standard-error-message.constant';
 import { getFlatFieldsFromFlatObjectMetadata } from 'src/engine/api/graphql/workspace-schema-builder/utils/get-flat-fields-for-flat-object-metadata.util';
@@ -23,10 +23,10 @@ import { FILE_STATUS } from 'src/engine/core-modules/file/types/file-status.type
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
 import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/orm-flat-field-metadata.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { getObjectMetadataFromEntityTarget } from 'src/engine/kovaa-lab-orm/utils/get-object-metadata-from-entity-target.util';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { getObjectMetadataFromEntityTarget } from 'src/engine/twenty-orm/utils/get-object-metadata-from-entity-target.util';
 
 type FileItem = {
   fileId: string;
@@ -151,9 +151,9 @@ export class FilesFieldSync {
     }
 
     if (existingRecords.length !== 1) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Cannot update multiple records with files field at once`,
-        KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+        KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
         {
           userFriendlyMessage: msg`You can only update one record with files field at once.`,
         },
@@ -283,9 +283,9 @@ export class FilesFieldSync {
     ).maxNumberOfValues;
 
     if (newFilesValue.length > filesFieldMaxNumberOfValues) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Max number of files is ${filesFieldMaxNumberOfValues}`,
-        KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+        KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
         {
           userFriendlyMessage: msg`Max number of files is ${filesFieldMaxNumberOfValues}`,
         },
@@ -305,9 +305,9 @@ export class FilesFieldSync {
       isDefined(expectedUniversalIdentifier) &&
       !fileEntity.path.includes(expectedUniversalIdentifier)
     ) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `File ${fileId} was not uploaded for this field`,
-        KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+        KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
         {
           userFriendlyMessage: msg`File ${fileId} was not uploaded for this field. Please re-upload the file.`,
         },
@@ -507,9 +507,9 @@ export class FilesFieldSync {
           const fileEntity = existingFileMap.get(file.fileId);
 
           if (!fileEntity) {
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               `File not found: ${file.fileId}`,
-              KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+              KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
             );
           }
 
@@ -522,9 +522,9 @@ export class FilesFieldSync {
           if (!fileEntity.settings?.isTemporaryFile) {
             const fileId = file.fileId;
 
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               `File ${fileId} is already associated with a permanent files field`,
-              KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+              KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
               {
                 userFriendlyMessage: msg`File ${fileId} is already associated with a permanent files field. Please re-upload the file.`,
               },
@@ -537,9 +537,9 @@ export class FilesFieldSync {
           if (fileEntity.status !== FILE_STATUS.UPLOADED) {
             const fileId = file.fileId;
 
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               `File ${fileId} upload has not been completed`,
-              KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+              KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
               {
                 userFriendlyMessage: msg`File ${fileId} upload has not been completed. Please retry the upload.`,
               },
@@ -553,9 +553,9 @@ export class FilesFieldSync {
           const fileEntity = existingFileMap.get(file.fileId);
 
           if (!fileEntity) {
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               `File not found: ${file.fileId}`,
-              KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+              KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
             );
           }
 
@@ -566,9 +566,9 @@ export class FilesFieldSync {
           );
 
           if (fileEntity.settings?.isTemporaryFile) {
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               `File ${file.fileId} to update should not be a temporary file`,
-              KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+              KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
               {
                 userFriendlyMessage: STANDARD_ERROR_MESSAGE,
               },

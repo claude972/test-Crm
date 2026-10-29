@@ -14,7 +14,7 @@ import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-m
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { buildFlatSearchFieldMetadataForField } from 'src/engine/metadata-modules/flat-search-field-metadata/utils/build-flat-search-field-metadata-for-field.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { type UniversalUpdateFieldAction } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/field/types/workspace-migration-field-action.type';
 import { WORKSPACE_MIGRATION_ACTION_TYPE } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/constants/workspace-migration-action-type.constant';
@@ -198,7 +198,7 @@ export class BackfillTimelineActivitySearchFieldMetadataCommand extends Provisio
                 : [
                     this.getStandardSearchVectorFlatFieldMetadata({
                       workspaceId,
-                      kovaa-labStandardApplicationId:
+                      kovaaLabStandardApplicationId:
                         timelineActivityFlatObjectMetadata.applicationId,
                     }),
                   ],
@@ -275,16 +275,16 @@ export class BackfillTimelineActivitySearchFieldMetadataCommand extends Provisio
 
   private getStandardSearchVectorFlatFieldMetadata({
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   }: {
     workspaceId: string;
-    kovaa-labStandardApplicationId: string;
+    kovaaLabStandardApplicationId: string;
   }): FlatFieldMetadata {
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId,
+        kovaaLabStandardApplicationId,
       });
 
     const standardSearchVectorFlatFieldMetadata =

@@ -244,7 +244,7 @@ const buildArgs = ({
       taskTarget: new Set(columnNamesByHolder.taskTarget ?? []),
     },
     existingTableNames,
-    kovaa-labStandardApplicationUniversalIdentifier: STANDARD_APP_UID,
+    kovaaLabStandardApplicationUniversalIdentifier: STANDARD_APP_UID,
   };
 };
 

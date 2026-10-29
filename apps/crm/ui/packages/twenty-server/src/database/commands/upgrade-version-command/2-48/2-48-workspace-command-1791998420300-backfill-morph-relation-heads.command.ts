@@ -8,7 +8,7 @@ import { buildMissingMorphRelationHeads } from 'src/database/commands/upgrade-ve
 import { ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { type UniversalFlatFieldMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-field-metadata.type';
@@ -40,16 +40,16 @@ export class BackfillMorphRelationHeadsCommand extends ProvisionedWorkspaceComma
         'flatObjectMetadataMaps',
       ]);
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const { heads, skipped } = buildMissingMorphRelationHeads({
@@ -79,8 +79,8 @@ export class BackfillMorphRelationHeadsCommand extends ProvisionedWorkspaceComma
 
     await this.runPerApplication({
       workspaceId,
-      kovaa-labStandardApplicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier:
+        kovaaLabStandardFlatApplication.universalIdentifier,
       heads,
       operation: 'create',
     });
@@ -108,15 +108,15 @@ export class BackfillMorphRelationHeadsCommand extends ProvisionedWorkspaceComma
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     await this.runPerApplication({
       workspaceId,
-      kovaa-labStandardApplicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier:
+        kovaaLabStandardFlatApplication.universalIdentifier,
       heads,
       operation: 'delete',
     });
@@ -124,12 +124,12 @@ export class BackfillMorphRelationHeadsCommand extends ProvisionedWorkspaceComma
 
   private async runPerApplication({
     workspaceId,
-    kovaa-labStandardApplicationUniversalIdentifier,
+    kovaaLabStandardApplicationUniversalIdentifier,
     heads,
     operation,
   }: {
     workspaceId: string;
-    kovaa-labStandardApplicationUniversalIdentifier: string;
+    kovaaLabStandardApplicationUniversalIdentifier: string;
     heads: UniversalFlatFieldMetadata[];
     operation: 'create' | 'delete';
   }): Promise<void> {
@@ -161,7 +161,7 @@ export class BackfillMorphRelationHeadsCommand extends ProvisionedWorkspaceComma
 
       const result =
         applicationUniversalIdentifier ===
-        kovaa-labStandardApplicationUniversalIdentifier
+        kovaaLabStandardApplicationUniversalIdentifier
           ? await this.workspaceMigrationValidateBuildAndRunService.validateBuildAndRunLegacyWorkspaceMigration(
               args,
             )

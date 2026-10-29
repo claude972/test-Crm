@@ -51,10 +51,10 @@ const buildCommand = ({
   const command = new ContractTimelineActivityCompatibilityCommand(
     {} as WorkspaceIteratorService,
     {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
         .fn()
         .mockResolvedValue({
-          kovaa-labStandardFlatApplication: {
+          kovaaLabStandardFlatApplication: {
             universalIdentifier: APPLICATION_UNIVERSAL_IDENTIFIER,
           },
         }),

@@ -12,21 +12,21 @@ import { type ObjectLiteral } from 'typeorm';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { findFlatEntityByIdInFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps-or-throw.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { type WorkspaceTransactionScope } from 'src/engine/kovaa-lab-orm/types/workspace-transaction-scope.type';
-import { ClientQueryExecutor } from 'src/engine/kovaa-lab-orm/executor/client-query-executor';
-import { PoolQueryExecutor } from 'src/engine/kovaa-lab-orm/executor/pool-query-executor';
-import { type QueryExecutor } from 'src/engine/kovaa-lab-orm/executor/types/query-executor.type';
+import { type WorkspaceInternalContext } from 'src/engine/twenty-orm/interfaces/workspace-internal-context.interface';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
+import { ClientQueryExecutor } from 'src/engine/twenty-orm/executor/client-query-executor';
+import { PoolQueryExecutor } from 'src/engine/twenty-orm/executor/pool-query-executor';
+import { type QueryExecutor } from 'src/engine/twenty-orm/executor/types/query-executor.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { runInRollbackSafeTransaction } from 'src/engine/kovaa-lab-orm/datasource/utils/run-in-rollback-safe-transaction.util';
-import { WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
-import { buildWorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/utils/build-workspace-table-shape.util';
-import { resolveObjectRecordsPermissions } from 'src/engine/kovaa-lab-orm/utils/resolve-object-records-permissions.util';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { runInRollbackSafeTransaction } from 'src/engine/twenty-orm/datasource/utils/run-in-rollback-safe-transaction.util';
+import { WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
+import { buildWorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/utils/build-workspace-table-shape.util';
+import { resolveObjectRecordsPermissions } from 'src/engine/twenty-orm/utils/resolve-object-records-permissions.util';
 
 const tableShapeCacheByFlatObjectMetadataMaps = new WeakMap<
   object,
@@ -167,9 +167,9 @@ export class WorkspaceDataSource {
       internalContext.objectIdByNameSingular[nameSingular];
 
     if (!isDefined(objectMetadataId)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Object "${nameSingular}" does not exist in this workspace`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_OBJECT,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_OBJECT,
       );
     }
 

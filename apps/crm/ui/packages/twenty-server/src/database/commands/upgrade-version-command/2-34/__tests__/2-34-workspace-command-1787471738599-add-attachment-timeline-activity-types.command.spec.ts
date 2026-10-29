@@ -40,12 +40,12 @@ const buildCommand = ({
     .fn()
     .mockResolvedValue(migrationResult);
   const findStandardApplication = jest.fn().mockResolvedValue({
-    kovaa-labStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
+    kovaaLabStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
   });
   const command = new AddAttachmentTimelineActivityTypesCommand(
     {} as WorkspaceIteratorService,
     {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow:
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow:
         findStandardApplication,
     } as unknown as ApplicationService,
     {

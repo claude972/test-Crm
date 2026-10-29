@@ -1,4 +1,4 @@
-import { getRoleIdsFromRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/get-role-ids-from-role-permission-config.util';
+import { getRoleIdsFromRolePermissionConfig } from 'src/engine/twenty-orm/utils/get-role-ids-from-role-permission-config.util';
 
 describe('getRoleIdsFromRolePermissionConfig', () => {
   it('returns the roles to intersect', () => {

@@ -15,18 +15,18 @@ import { BackfillRecordPageCommand } from 'src/database/commands/upgrade-version
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 jest.mock(
-  'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant',
+  'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant',
   () => ({
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMaps: jest.fn(),
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMaps: jest.fn(),
   }),
 );
 
 const computeStandardMapsMock =
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMaps as jest.Mock;
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMaps as jest.Mock;
 
 const WORKSPACE_ID = '20202020-0000-4000-8000-000000000001';
 const STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER =
@@ -153,10 +153,10 @@ describe('BackfillRecordPageCommand', () => {
         getOrRecompute: getOrRecomputeMock,
       } as unknown as WorkspaceCacheService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: {
+            kovaaLabStandardFlatApplication: {
               id: '20202020-0000-4000-8000-00000000ad1d',
               universalIdentifier: STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
             },

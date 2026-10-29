@@ -28,7 +28,7 @@ export class ServerRouteAuthorizationHeaderService {
     }
 
     for (const tokenCandidate of tokenCandidates) {
-      if (await this.isKovaaLab CRMCredential(tokenCandidate)) {
+      if (await this.isKovaaLabCRMCredential(tokenCandidate)) {
         return false;
       }
     }
@@ -36,7 +36,7 @@ export class ServerRouteAuthorizationHeaderService {
     return true;
   }
 
-  private async isKovaaLab CRMCredential(token: string): Promise<boolean> {
+  private async isKovaaLabCRMCredential(token: string): Promise<boolean> {
     if (isUserSessionToken(token)) {
       return true;
     }

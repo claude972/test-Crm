@@ -13,7 +13,7 @@ import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspac
 import { DOCUMENT_CONTENT_SECURITY_POLICY_DIRECTIVES } from 'src/engine/core-modules/frontend/constants/document-content-security-policy-directives.constant';
 import { isFrontendDocumentRequest } from 'src/engine/core-modules/frontend/utils/is-frontend-document-request.util';
 import { renderFrontendHtml } from 'src/engine/core-modules/frontend/utils/render-frontend-html.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceNotFoundDefaultError } from 'src/engine/core-modules/workspace/workspace.exception';
 import { getRequestBaseUrl } from 'src/utils/get-request-base-url.util';
 import { streamToBuffer } from 'src/utils/stream-to-buffer';
@@ -30,9 +30,9 @@ export class FrontendService {
     private readonly clientConfigService: ClientConfigService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     @Inject('FRONTEND_PATH') readonly frontPath: string,
-    kovaa-labConfigService: KovaaLab CRMConfigService,
+    kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {
-    this.indexUrl = kovaa-labConfigService.get('FRONTEND_INDEX_URL');
+    this.indexUrl = kovaaLabConfigService.get('FRONTEND_INDEX_URL');
 
     if (isDefined(this.indexUrl)) {
       return;

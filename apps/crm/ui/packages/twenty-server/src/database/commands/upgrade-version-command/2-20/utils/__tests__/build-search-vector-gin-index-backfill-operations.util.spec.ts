@@ -151,7 +151,7 @@ describe('buildSearchVectorGinIndexBackfillOperations', () => {
           searchVectorFlatFieldMetadata,
         ]),
         flatIndexMaps: buildFlatIndexMaps([]),
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -188,7 +188,7 @@ describe('buildSearchVectorGinIndexBackfillOperations', () => {
           searchVectorFlatFieldMetadata,
         ]),
         flatIndexMaps: buildFlatIndexMaps([]),
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -215,7 +215,7 @@ describe('buildSearchVectorGinIndexBackfillOperations', () => {
           searchVectorFlatFieldMetadata,
         ]),
         flatIndexMaps: buildFlatIndexMaps([]),
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -258,7 +258,7 @@ describe('buildSearchVectorGinIndexBackfillOperations', () => {
           searchVectorFlatFieldMetadata,
         ]),
         flatIndexMaps: buildFlatIndexMaps([ginIndex]),
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 

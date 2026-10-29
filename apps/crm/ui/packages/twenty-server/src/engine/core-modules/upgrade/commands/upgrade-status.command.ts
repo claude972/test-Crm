@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import chalk from 'chalk';
 import { Command, CommandRunner, Option } from 'nest-commander';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UpgradeHealthEnum } from 'kovaa-lab-shared/types';
 import { formatUpgradeCommandName } from 'kovaa-lab-shared/utils';
 import {
@@ -73,7 +73,7 @@ export class UpgradeStatusCommand extends CommandRunner {
 
   constructor(
     private readonly upgradeStatusService: UpgradeStatusService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {
     super();
   }
@@ -126,7 +126,7 @@ export class UpgradeStatusCommand extends CommandRunner {
   }
 
   private formatHeader(): string[] {
-    const appVersion = this.kovaa-labConfigService.get('APP_VERSION') ?? 'unknown';
+    const appVersion = this.kovaaLabConfigService.get('APP_VERSION') ?? 'unknown';
 
     return ['', chalk.bold(`APP_VERSION: ${appVersion}`), ''];
   }

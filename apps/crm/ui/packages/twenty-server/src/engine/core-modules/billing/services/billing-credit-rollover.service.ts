@@ -18,7 +18,7 @@ import { BillingUsageService } from 'src/engine/core-modules/billing/services/bi
 import { buildBillingCreditStateLockKey } from 'src/engine/core-modules/billing/utils/build-billing-credit-state-lock-key.util';
 import { computeCarryForwardGrants } from 'src/engine/core-modules/billing/utils/compute-carry-forward-grants.util';
 import { CacheLockService } from 'src/engine/core-modules/cache-lock/cache-lock.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 type ProcessRolloverParams = {
   workspaceId: string;
@@ -40,7 +40,7 @@ export class BillingCreditRolloverService {
     private readonly billingCreditGrantService: BillingCreditGrantService,
     private readonly billingCreditService: BillingCreditService,
     private readonly cacheLockService: CacheLockService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
@@ -79,7 +79,7 @@ export class BillingCreditRolloverService {
   ): Promise<void> {
     const { workspaceId, nextAllowanceMicro } = params;
 
-    const rolloverCapMultiplier = this.kovaa-labConfigService.get(
+    const rolloverCapMultiplier = this.kovaaLabConfigService.get(
       'BILLING_ROLLOVER_TOTAL_CAP_MULTIPLIER',
     );
 

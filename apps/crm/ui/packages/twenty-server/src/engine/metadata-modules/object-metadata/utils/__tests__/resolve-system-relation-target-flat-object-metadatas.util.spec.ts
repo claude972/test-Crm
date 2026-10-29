@@ -1,14 +1,14 @@
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 
 import { resolveSystemRelationTargetFlatObjectMetadatas } from 'src/engine/metadata-modules/object-metadata/utils/resolve-system-relation-target-flat-object-metadatas.util';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const {
   allFlatEntityMaps: { flatObjectMetadataMaps },
-} = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+} = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
   now: '2026-09-24T00:00:00.000Z',
   workspaceId: '20202020-1111-4111-8111-111111111111',
-  kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+  kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
 });
 
 const withoutObject = (nameSingular: keyof typeof STANDARD_OBJECTS) => ({

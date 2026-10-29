@@ -13,9 +13,9 @@ import { UnsubscribeHostnameStatus } from 'src/engine/core-modules/emailing-doma
 import { type VerificationRecord } from 'src/engine/core-modules/emailing-domain/drivers/types/verifications-record.type';
 import { EmailingDomainEntity } from 'src/engine/core-modules/emailing-domain/emailing-domain.entity';
 import { DnsManagerService } from 'src/engine/core-modules/dns-manager/services/dns-manager.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 @Injectable()
 export class UnsubscribeHostnameService {
@@ -25,7 +25,7 @@ export class UnsubscribeHostnameService {
     @InjectWorkspaceScopedRepository(EmailingDomainEntity)
     private readonly emailingDomainRepository: WorkspaceScopedRepository<EmailingDomainEntity>,
     private readonly dnsManagerService: DnsManagerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async provision(emailingDomain: EmailingDomainEntity): Promise<void> {
@@ -194,7 +194,7 @@ export class UnsubscribeHostnameService {
     workspaceId: string,
     emailingDomainId: string,
   ): Promise<void> {
-    const serverUrl = new URL(this.kovaa-labConfigService.get('SERVER_URL'));
+    const serverUrl = new URL(this.kovaaLabConfigService.get('SERVER_URL'));
 
     if (serverUrl.protocol !== 'https:') {
       return;

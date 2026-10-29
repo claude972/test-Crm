@@ -1,6 +1,6 @@
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 
-import { computeStandardMessageCampaignViewFields } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field/compute-standard-message-campaign-view-fields.util';
+import { computeStandardMessageCampaignViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-message-campaign-view-fields.util';
 
 const MESSAGE_CAMPAIGN = STANDARD_OBJECTS.messageCampaign;
 
@@ -39,7 +39,7 @@ const buildArgs = () => {
 
   return {
     workspaceId: 'workspace-id',
-    kovaa-labStandardApplicationId: 'application-id',
+    kovaaLabStandardApplicationId: 'application-id',
     now: new Date('2026-01-01T00:00:00.000Z'),
     standardObjectMetadataRelatedEntityIds: {
       messageCampaign: { views, fields },

@@ -52,8 +52,8 @@ export class EnableStandardActivityTargetFieldsCommand extends ProvisionedWorksp
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -66,7 +66,7 @@ export class EnableStandardActivityTargetFieldsCommand extends ProvisionedWorksp
          AND "isUIEditable" = false`,
       [
         workspaceId,
-        kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardFlatApplication.id,
         ACTIVITY_TARGET_FIELD_UNIVERSAL_IDENTIFIERS,
       ],
     );

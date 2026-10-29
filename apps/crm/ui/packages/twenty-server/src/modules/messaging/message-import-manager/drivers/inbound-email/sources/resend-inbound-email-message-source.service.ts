@@ -8,7 +8,7 @@ import {
   EmailingDomainDriverExceptionCode,
 } from 'src/engine/core-modules/emailing-domain/drivers/exceptions/emailing-domain-driver.exception';
 import { ResendApiClientService } from 'src/engine/core-modules/emailing-domain/drivers/resend/services/resend-api-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { InboundEmailParserService } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/services/inbound-email-parser.service';
 import { type InboundEmailMessageSourceInterface } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/sources/inbound-email-message-source.interface';
 import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message.type';
@@ -17,13 +17,13 @@ import { type MessageWithParticipants } from 'src/modules/messaging/message-impo
 @Injectable()
 export class ResendInboundEmailMessageSourceService implements InboundEmailMessageSourceInterface {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly resendApiClientService: ResendApiClientService,
     private readonly inboundEmailParserService: InboundEmailParserService,
   ) {}
 
   isConfigured(): boolean {
-    return isNonEmptyString(this.kovaa-labConfigService.get('RESEND_API_KEY'));
+    return isNonEmptyString(this.kovaaLabConfigService.get('RESEND_API_KEY'));
   }
 
   async fetchMessage(reference: string): Promise<MessageWithParticipants> {

@@ -3,12 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { type VerifyCallback } from 'passport-google-oauth20';
 
 import { MicrosoftAPIsOauthCommonStrategy } from 'src/engine/core-modules/auth/strategies/microsoft-apis-oauth-common.auth.strategy';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class MicrosoftAPIsOauthRequestCodeStrategy extends MicrosoftAPIsOauthCommonStrategy {
-  constructor(kovaa-labConfigService: KovaaLab CRMConfigService) {
-    super(kovaa-labConfigService);
+  constructor(kovaaLabConfigService: KovaaLabCRMConfigService) {
+    super(kovaaLabConfigService);
   }
 
   // oxlint-disable-next-line typescript/no-explicit-any

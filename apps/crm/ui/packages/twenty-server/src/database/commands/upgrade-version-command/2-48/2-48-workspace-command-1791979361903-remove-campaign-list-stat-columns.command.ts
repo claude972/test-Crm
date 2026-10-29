@@ -89,8 +89,8 @@ export class RemoveCampaignListStatColumnsCommand extends ProvisionedWorkspaceCo
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -100,7 +100,7 @@ export class RemoveCampaignListStatColumnsCommand extends ProvisionedWorkspaceCo
           isSystemBuild: true,
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           allFlatEntityOperationByMetadataName: {
             viewField: {
               flatEntityToCreate: [],

@@ -6,7 +6,7 @@ export type ResponseInit = {
 };
 
 export class Response implements LogicFunctionHttpResponse {
-  readonly __kovaa-labHttpResponse = true as const;
+  readonly ['__kovaa-labHttpResponse'] = true as const;
   readonly body: unknown;
   readonly status?: number;
   readonly headers?: Record<string, string>;

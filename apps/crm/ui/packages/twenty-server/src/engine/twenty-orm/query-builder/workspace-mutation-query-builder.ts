@@ -1,23 +1,23 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { type QueryExecutor } from 'src/engine/kovaa-lab-orm/executor/types/query-executor.type';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { type QueryExecutor } from 'src/engine/twenty-orm/executor/types/query-executor.type';
 import {
   buildColumnNameByResultAlias,
   createRowToEntityMapper,
   type WhereClause,
-} from 'src/engine/kovaa-lab-orm/sql/utils/build-select-statement.util';
-import { compileNamedParameters } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
-import { serializeJsonbWriteValue } from 'src/engine/kovaa-lab-orm/sql/utils/serialize-jsonb-write-value.util';
+} from 'src/engine/twenty-orm/sql/utils/build-select-statement.util';
+import { compileNamedParameters } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
+import { serializeJsonbWriteValue } from 'src/engine/twenty-orm/sql/utils/serialize-jsonb-write-value.util';
 import {
   buildMutationStatement,
   type MutationKind,
   type SetClause,
-} from 'src/engine/kovaa-lab-orm/sql/utils/build-mutation-statement.util';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/sql/utils/build-mutation-statement.util';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 let mutationSetParameterSequence = 0;
 
@@ -166,9 +166,9 @@ export class WorkspaceMutationQueryBuilder {
       this.assertColumnExists(columnName);
 
       if (typeof value === 'function') {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Function-valued updates are not supported on "${columnName}"`,
-          KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+          KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
         );
       }
 
@@ -215,18 +215,18 @@ export class WorkspaceMutationQueryBuilder {
 
   private assertDeletedAtColumnExists(): void {
     if (!this.tableShape.hasDeletedAtColumn) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `"${this.tableShape.nameSingular}" has no "${DELETED_AT_COLUMN_NAME}" column, so it cannot be soft-deleted or restored`,
-        KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+        KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
       );
     }
   }
 
   private assertColumnExists(columnName: string): void {
     if (!isDefined(this.tableShape.columnShapeByColumnName[columnName])) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Column "${columnName}" does not exist on "${this.tableShape.nameSingular}"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
       );
     }
   }

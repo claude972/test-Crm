@@ -5,8 +5,8 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { PERMISSION_FLAG_PERMISSION_TYPES } from 'src/engine/metadata-modules/permission-flag/constants/permission-flag-permission-type.constant';
 import { PermissionFlagExceptionCode } from 'src/engine/metadata-modules/permission-flag/permission-flag.exception';
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
-import { isCallerKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/is-caller-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
+import { isCallerKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/is-caller-twenty-standard-app.util';
 import { type FailedFlatEntityValidation } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/types/failed-flat-entity-validation.type';
 import { getEmptyFlatEntityValidationError } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/utils/get-flat-entity-validation-error.util';
 import { type FlatEntityUpdateValidationArgs } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/universal-flat-entity-update-validation-args.type';
@@ -45,8 +45,8 @@ export const validateFlatPermissionFlagUpdate = ({
   }
 
   if (
-    !isCallerKovaaLab CRMStandardApp(buildOptions) &&
-    belongsToKovaaLab CRMStandardApp({
+    !isCallerKovaaLabCRMStandardApp(buildOptions) &&
+    belongsToKovaaLabCRMStandardApp({
       universalIdentifier: existing.universalIdentifier,
       applicationUniversalIdentifier: existing.applicationUniversalIdentifier,
     })

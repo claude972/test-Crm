@@ -4,7 +4,7 @@ import {
   type ValidatorConstraintInterface,
 } from 'class-validator';
 
-import { parseConfigDuration } from 'src/engine/core-modules/kovaa-lab-config/utils/parse-config-duration.util';
+import { parseConfigDuration } from 'src/engine/core-modules/twenty-config/utils/parse-config-duration.util';
 
 @ValidatorConstraint()
 export class PositiveDurationConstraint implements ValidatorConstraintInterface {

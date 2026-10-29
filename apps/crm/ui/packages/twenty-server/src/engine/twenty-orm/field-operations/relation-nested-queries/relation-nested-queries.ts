@@ -5,33 +5,33 @@ import { type EntityTarget, type ObjectLiteral } from 'typeorm';
 import { type QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { v4 } from 'uuid';
 
-import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
+import { type WorkspaceInternalContext } from 'src/engine/twenty-orm/interfaces/workspace-internal-context.interface';
 
 import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfaces/relation-type.interface';
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
 import { buildFieldMapsFromFlatObjectMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/build-field-maps-from-flat-object-metadata.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
 import { isFieldMetadataEntityOfType } from 'src/engine/utils/is-field-metadata-of-type.util';
 
-import { type QueryDeepPartialEntityWithNestedRelationFields } from 'src/engine/kovaa-lab-orm/entity-manager/types/query-deep-partial-entity-with-nested-relation-fields.type';
-import { type RelationConnectQueryConfig } from 'src/engine/kovaa-lab-orm/entity-manager/types/relation-connect-query-config.type';
+import { type QueryDeepPartialEntityWithNestedRelationFields } from 'src/engine/twenty-orm/entity-manager/types/query-deep-partial-entity-with-nested-relation-fields.type';
+import { type RelationConnectQueryConfig } from 'src/engine/twenty-orm/entity-manager/types/relation-connect-query-config.type';
 import {
   type RelationConnectQueryFieldsByEntityIndex,
   type RelationCreateQueryFieldsByEntityIndex,
   type RelationDisconnectQueryFieldsByEntityIndex,
-} from 'src/engine/kovaa-lab-orm/entity-manager/types/relation-nested-query-fields-by-entity-index.type';
+} from 'src/engine/twenty-orm/entity-manager/types/relation-nested-query-fields-by-entity-index.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { formatConnectRecordNotFoundErrorMessage } from 'src/engine/kovaa-lab-orm/field-operations/relation-nested-queries/utils/formatConnectRecordNotFoundErrorMessage.util';
-import { computeRelationConnectQueryConfigs } from 'src/engine/kovaa-lab-orm/utils/compute-relation-connect-query-configs.util';
-import { createSqlWhereTupleInClause } from 'src/engine/kovaa-lab-orm/utils/create-sql-where-tuple-in-clause.utils';
-import { extractNestedRelationFieldsByEntityIndex } from 'src/engine/kovaa-lab-orm/utils/extract-nested-relation-fields-by-entity-index.util';
-import { getAssociatedRelationFieldName } from 'src/engine/kovaa-lab-orm/utils/get-associated-relation-field-name.util';
-import { getObjectMetadataFromEntityTarget } from 'src/engine/kovaa-lab-orm/utils/get-object-metadata-from-entity-target.util';
-import { getNestedRelationFieldNames } from 'src/engine/kovaa-lab-orm/utils/get-nested-relation-field-names.util';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { formatConnectRecordNotFoundErrorMessage } from 'src/engine/twenty-orm/field-operations/relation-nested-queries/utils/formatConnectRecordNotFoundErrorMessage.util';
+import { computeRelationConnectQueryConfigs } from 'src/engine/twenty-orm/utils/compute-relation-connect-query-configs.util';
+import { createSqlWhereTupleInClause } from 'src/engine/twenty-orm/utils/create-sql-where-tuple-in-clause.utils';
+import { extractNestedRelationFieldsByEntityIndex } from 'src/engine/twenty-orm/utils/extract-nested-relation-fields-by-entity-index.util';
+import { getAssociatedRelationFieldName } from 'src/engine/twenty-orm/utils/get-associated-relation-field-name.util';
+import { getObjectMetadataFromEntityTarget } from 'src/engine/twenty-orm/utils/get-object-metadata-from-entity-target.util';
+import { getNestedRelationFieldNames } from 'src/engine/twenty-orm/utils/get-nested-relation-field-names.util';
 
 export class RelationNestedQueries {
   private readonly internalContext: WorkspaceInternalContext;
@@ -177,9 +177,9 @@ export class RelationNestedQueries {
       return entities;
     }
     if (!isDefined(createRecords)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'Nested relation create is not supported in this operation',
-        KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
       );
     }
 
@@ -225,9 +225,9 @@ export class RelationNestedQueries {
           fieldMetadata.settings?.relationType !== RelationType.MANY_TO_ONE ||
           !isDefined(fieldMetadata.relationTargetObjectMetadataId)
         ) {
-          throw new KovaaLab CRMOrmException(
+          throw new KovaaLabCRMOrmException(
             `Create is not allowed for ${fieldName} on ${objectMetadata.nameSingular}`,
-            KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+            KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
           );
         }
 
@@ -236,9 +236,9 @@ export class RelationNestedQueries {
         const entityRecord = entity as Record<string, unknown>;
 
         if (isDefined(entityRecord[joinColumnName])) {
-          throw new KovaaLab CRMOrmException(
+          throw new KovaaLabCRMOrmException(
             `Cannot provide both ${fieldName}.create and ${joinColumnName}`,
-            KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+            KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
           );
         }
 
@@ -248,9 +248,9 @@ export class RelationNestedQueries {
         });
 
         if (!isDefined(targetObjectMetadata)) {
-          throw new KovaaLab CRMOrmException(
+          throw new KovaaLabCRMOrmException(
             `Target object metadata not found for ${fieldName}`,
-            KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA,
+            KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA,
           );
         }
 
@@ -281,9 +281,9 @@ export class RelationNestedQueries {
       });
 
       if (createdRecords.length !== entries.length) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Expected ${entries.length} created ${targetObjectMetadata.namePlural} records, received ${createdRecords.length}`,
-          KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+          KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
         );
       }
 
@@ -295,9 +295,9 @@ export class RelationNestedQueries {
         const createdRecordId = recordsWithIds[index].id;
 
         if (!createdRecordIds.has(createdRecordId)) {
-          throw new KovaaLab CRMOrmException(
+          throw new KovaaLabCRMOrmException(
             `Created ${targetObjectMetadata.nameSingular} record ${createdRecordId} was not returned`,
-            KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+            KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
           );
         }
 
@@ -376,9 +376,9 @@ export class RelationNestedQueries {
       this.internalContext.objectIdByNameSingular[targetObjectName];
 
     if (!isDefined(targetObjectMetadataId)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Target object metadata not found for ${targetObjectName}`,
-        KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA,
+        KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA,
       );
     }
 
@@ -427,9 +427,9 @@ export class RelationNestedQueries {
                 connectQueryConfig.recordToConnectConditionByEntityIndex[index],
               );
 
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               errorMessage,
-              KovaaLab CRMOrmExceptionCode.CONNECT_RECORD_NOT_FOUND,
+              KovaaLabCRMOrmExceptionCode.CONNECT_RECORD_NOT_FOUND,
               {
                 userFriendlyMessage,
               },

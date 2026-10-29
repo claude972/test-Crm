@@ -7,7 +7,7 @@ import { ApplicationEntity } from 'src/engine/core-modules/application/applicati
 import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
 import { SecureHttpClientModule } from 'src/engine/core-modules/secure-http-client/secure-http-client.module';
 import { UpgradeStatusModule } from 'src/engine/core-modules/upgrade/upgrade-status.module';
-import { provideWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
+import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 
 @Module({
   imports: [

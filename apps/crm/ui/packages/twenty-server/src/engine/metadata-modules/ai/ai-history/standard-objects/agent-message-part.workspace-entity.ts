@@ -1,7 +1,7 @@
 import { type FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
 import { type EntityRelation } from 'src/engine/workspace-manager/workspace-migration/types/entity-relation.interface';
 import { type AgentMessageWorkspaceEntity } from 'src/engine/metadata-modules/ai/ai-history/standard-objects/agent-message.workspace-entity';
-import { BaseWorkspaceEntity } from 'src/engine/kovaa-lab-orm/base.workspace-entity';
+import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 import { type JSONValue } from 'ai';
 
 export class AgentMessagePartWorkspaceEntity extends BaseWorkspaceEntity {

@@ -21,7 +21,7 @@ import {
   getExistingOrStandardFlatEntityOrThrow,
   getStandardFlatEntitiesToCreateOrThrow,
 } from 'src/database/commands/upgrade-version-command/2-10/utils/get-standard-flat-entities-to-create-or-throw.util';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMapsPre231 } from 'src/database/commands/upgrade-version-command/2-10/utils/compute-kovaa-lab-standard-application-all-flat-entity-maps-pre-2-31.util';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMapsPre231 } from 'src/database/commands/upgrade-version-command/2-10/utils/compute-twenty-standard-application-all-flat-entity-maps-pre-2-31.util';
 import { toPre231RecordPageUniversalIdentifier } from 'src/database/commands/upgrade-version-command/2-10/utils/remap-record-page-universal-identifiers-to-pre-2-31.util';
 import { ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
@@ -115,18 +115,18 @@ const CALL_RECORDING_PAGE_LAYOUT_WIDGET_UNIVERSAL_IDENTIFIERS = [
 const buildLegacyCalendarEventRecordingPreferenceFieldMetadata = ({
   calendarEventObjectMetadata,
   now,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   workspaceId,
 }: {
   calendarEventObjectMetadata: FlatObjectMetadata;
   now: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   workspaceId: string;
 }): FlatFieldMetadata<FieldMetadataType.SELECT> => ({
   id: uuidv4(),
   universalIdentifier:
     LEGACY_CALENDAR_EVENT_RECORDING_PREFERENCE_FIELD_UNIVERSAL_IDENTIFIER,
-  applicationId: kovaa-labStandardApplicationId,
+  applicationId: kovaaLabStandardApplicationId,
   workspaceId,
   objectMetadataId: calendarEventObjectMetadata.id,
   type: FieldMetadataType.SELECT,
@@ -262,18 +262,18 @@ export class SyncCallRecordingStandardObjectsCommand extends ProvisionedWorkspac
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const now = new Date().toISOString();
 
     const standardAllFlatEntityMaps =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMapsPre231({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMapsPre231({
         now,
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const objectMetadataRenameUpdates = buildCallRecordingObjectRenameUpdates({
@@ -305,7 +305,7 @@ export class SyncCallRecordingStandardObjectsCommand extends ProvisionedWorkspac
         objectMetadatasForNavigation: [
           callRecordingObjectMetadataForNavigation,
         ],
-        applicationId: kovaa-labStandardFlatApplication.id,
+        applicationId: kovaaLabStandardFlatApplication.id,
         workspaceId,
         now,
         renamedCollisionObjectMetadatas,
@@ -322,7 +322,7 @@ export class SyncCallRecordingStandardObjectsCommand extends ProvisionedWorkspac
             buildLegacyCalendarEventRecordingPreferenceFieldMetadata({
               calendarEventObjectMetadata,
               now,
-              kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+              kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
               workspaceId,
             }),
           ];
@@ -533,7 +533,7 @@ export class SyncCallRecordingStandardObjectsCommand extends ProvisionedWorkspac
         {
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           allFlatEntityOperationByMetadataName,
         },

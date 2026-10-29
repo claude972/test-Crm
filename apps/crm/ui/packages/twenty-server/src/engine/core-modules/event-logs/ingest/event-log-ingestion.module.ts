@@ -17,12 +17,12 @@ import {
 import { ForwardEventLogFromEntityEventsToDbQueue } from 'src/engine/core-modules/event-logs/ingest/forward-event-log-from-entity-events-to-db-queue';
 import { WorkspaceEventSinkService } from 'src/engine/core-modules/event-logs/ingest/workspace-event-sink.service';
 import { EventLogLiveModule } from 'src/engine/core-modules/event-logs/live/event-log-live.module';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const eventSinksProvider = {
   provide: EVENT_SINKS,
   useFactory: (
-    kovaa-labConfigService: KovaaLab CRMConfigService,
+    kovaaLabConfigService: KovaaLabCRMConfigService,
     clickHouseEventSink: ClickHouseEventSink,
     consoleEventSink: ConsoleEventSink,
   ): EventSink[] => {
@@ -31,7 +31,7 @@ const eventSinksProvider = {
       console: consoleEventSink,
     };
 
-    const configuredSinkNames = kovaa-labConfigService.get('EVENT_SINKS');
+    const configuredSinkNames = kovaaLabConfigService.get('EVENT_SINKS');
 
     const unknownSinkNames = configuredSinkNames.filter(
       (name) => !KNOWN_SINK_NAMES.includes(name.toLowerCase() as never),
@@ -44,12 +44,12 @@ const eventSinksProvider = {
     }
 
     return getAvailableSinkNames(configuredSinkNames, {
-      hasClickhouseUrl: Boolean(kovaa-labConfigService.get('CLICKHOUSE_URL')),
+      hasClickhouseUrl: Boolean(kovaaLabConfigService.get('CLICKHOUSE_URL')),
     })
       .map((name) => sinkByName[name.toLowerCase()])
       .filter(isDefined);
   },
-  inject: [KovaaLab CRMConfigService, ClickHouseEventSink, ConsoleEventSink],
+  inject: [KovaaLabCRMConfigService, ClickHouseEventSink, ConsoleEventSink],
 };
 
 @Module({

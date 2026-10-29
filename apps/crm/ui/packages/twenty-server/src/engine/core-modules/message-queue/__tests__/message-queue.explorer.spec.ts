@@ -12,7 +12,7 @@ import { MessageQueueExplorer } from 'src/engine/core-modules/message-queue/mess
 import { EventLoopStallMonitorService } from 'src/engine/core-modules/message-queue/services/event-loop-stall-monitor.service';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
 import { getQueueToken } from 'src/engine/core-modules/message-queue/utils/get-queue-token.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Processor(MessageQueue.workspaceQueue)
 class ProgressProcessor {
@@ -41,7 +41,7 @@ describe('MessageQueueExplorer progress context', () => {
           provide: getQueueToken(MessageQueue.workspaceQueue),
           useValue: queue,
         },
-        { provide: KovaaLab CRMConfigService, useValue: { get: () => [] } },
+        { provide: KovaaLabCRMConfigService, useValue: { get: () => [] } },
         {
           provide: ExceptionHandlerService,
           useValue: { captureExceptions: jest.fn() },

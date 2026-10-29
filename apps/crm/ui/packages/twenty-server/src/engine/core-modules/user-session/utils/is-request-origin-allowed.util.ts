@@ -1,7 +1,7 @@
 import { type Request } from 'express';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { resolveAllowedCredentialedOrigins } from 'src/engine/core-modules/user-session/utils/resolve-allowed-credentialed-origins.util';
 import { getRequestBaseUrl } from 'src/utils/get-request-base-url.util';
 
@@ -16,11 +16,11 @@ const toComparableOrigin = (value: string): string | undefined => {
 export const isRequestOriginAllowed = ({
   origin,
   request,
-  kovaa-labConfigService,
+  kovaaLabConfigService,
 }: {
   origin: string;
   request: Request;
-  kovaa-labConfigService: KovaaLab CRMConfigService;
+  kovaaLabConfigService: KovaaLabCRMConfigService;
 }): boolean => {
   const normalizedOrigin = origin.toLowerCase();
 
@@ -37,7 +37,7 @@ export const isRequestOriginAllowed = ({
     return true;
   }
 
-  return resolveAllowedCredentialedOrigins(kovaa-labConfigService).has(
+  return resolveAllowedCredentialedOrigins(kovaaLabConfigService).has(
     normalizedOrigin,
   );
 };

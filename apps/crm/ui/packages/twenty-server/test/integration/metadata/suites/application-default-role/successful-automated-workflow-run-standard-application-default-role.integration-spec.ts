@@ -12,8 +12,8 @@ import { expectEventually } from 'test/integration/utils/expect-eventually.util'
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { WorkflowActionType } from 'kovaa-lab-shared/workflow';
 
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 type WorkflowRun = {
   status: string;

@@ -1,4 +1,4 @@
-import { type normalizeFindOptionsRelations } from 'src/engine/kovaa-lab-orm/query-builder/utils/apply-find-options.util';
+import { type normalizeFindOptionsRelations } from 'src/engine/twenty-orm/query-builder/utils/apply-find-options.util';
 
 export const removeAgentHistoryFileRelations = (
   value: ReturnType<typeof normalizeFindOptionsRelations>,

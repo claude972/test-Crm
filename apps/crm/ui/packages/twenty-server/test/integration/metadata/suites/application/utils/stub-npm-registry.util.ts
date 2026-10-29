@@ -3,7 +3,7 @@ import { type StubbedRegistryPackage } from 'test/integration/metadata/suites/ap
 import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 
 import { type SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type NpmRegistryStub = {
   requestedUrls: string[];
@@ -20,8 +20,8 @@ export const stubNpmRegistry = (
     getAppProviderByClassName<SecureHttpClientService>(
       'SecureHttpClientService',
     );
-  const registryBaseUrl = getAppProviderByClassName<KovaaLab CRMConfigService>(
-    'KovaaLab CRMConfigService',
+  const registryBaseUrl = getAppProviderByClassName<KovaaLabCRMConfigService>(
+    'KovaaLabCRMConfigService',
   )
     .get('APP_REGISTRY_URL')
     .replace(/\/$/, '');

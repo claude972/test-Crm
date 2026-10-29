@@ -51,7 +51,7 @@ export class LogicFunctionFromSourceHelperService {
         workspaceId,
         flatMapsKeys: ['flatLogicFunctionMaps', 'flatApplicationMaps'],
       }),
-      this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       ),
     ]);

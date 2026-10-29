@@ -1,6 +1,6 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type RoleIdsBySource } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
+import { type RoleIdsBySource } from 'src/engine/twenty-orm/types/role-permission-config.type';
 
 // Temporary: an application without a role adds no restriction when it acts with a
 // member or an agent, which the workspace custom and KovaaLab CRM standard applications rely on

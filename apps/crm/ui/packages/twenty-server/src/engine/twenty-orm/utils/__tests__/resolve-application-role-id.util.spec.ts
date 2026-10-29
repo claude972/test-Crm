@@ -1,4 +1,4 @@
-import { resolveApplicationRoleId } from 'src/engine/kovaa-lab-orm/utils/resolve-application-role-id.util';
+import { resolveApplicationRoleId } from 'src/engine/twenty-orm/utils/resolve-application-role-id.util';
 
 describe('resolveApplicationRoleId', () => {
   it.each([true, false])(

@@ -1,7 +1,7 @@
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type WorkspaceColumnShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+import { type WorkspaceColumnShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const isJsonbFieldMetadataType = (
   fieldMetadataType: FieldMetadataType,

@@ -15,7 +15,7 @@ import {
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 
 import { WORKSPACE_CUSTOM_APPLICATION_NAME } from 'src/engine/core-modules/application/constants/workspace-custom-application.constant';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 const ROLE_LABEL = 'Derived Permission Identifiers Role';
 

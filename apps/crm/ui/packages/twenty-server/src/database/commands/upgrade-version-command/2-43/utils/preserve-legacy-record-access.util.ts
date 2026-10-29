@@ -7,7 +7,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { resolveInheritedReadabilityParents } from 'src/engine/core-modules/record-share/utils/resolve-inherited-readability-parents.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type RowAccessPolicyEnvironment } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
+import { type RowAccessPolicyEnvironment } from 'src/engine/twenty-orm/types/row-access-policy.type';
 import { computeObjectTargetTable } from 'src/engine/utils/compute-object-target-table.util';
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';

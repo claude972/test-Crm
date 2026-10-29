@@ -36,10 +36,10 @@ import { isEntitlementActive } from 'src/engine/core-modules/billing/utils/is-en
 import { isSendInvoiceSubscription } from 'src/engine/core-modules/billing/utils/is-send-invoice-subscription.util';
 import { resolveBillingPeriodBoundaryUpdate } from 'src/engine/core-modules/billing/utils/resolve-billing-period-boundary-update.util';
 import { EnterprisePlanService } from 'src/engine/core-modules/enterprise/services/enterprise-plan.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 @Injectable()
 // oxlint-disable-next-line kovaa-lab/inject-workspace-repository
@@ -59,7 +59,7 @@ export class BillingSubscriptionService {
     @InjectRepository(BillingSubscriptionEntity)
     private readonly billingSubscriptionRepositoryUnscoped: Repository<BillingSubscriptionEntity>,
     private readonly stripeCustomerService: StripeCustomerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectRepository(BillingSubscriptionItemEntity)
     private readonly billingSubscriptionItemRepository: Repository<BillingSubscriptionItemEntity>,
     private readonly stripeSubscriptionScheduleService: StripeSubscriptionScheduleService,
@@ -226,7 +226,7 @@ export class BillingSubscriptionService {
   async getWorkspaceEntitlements(
     workspaceId: string,
   ): Promise<BillingEntitlementDTO[]> {
-    const isBillingEnabled = this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    const isBillingEnabled = this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
     const hasValidEnterprisePlan = this.enterprisePlanService.isValid();
 
     const { billingEntitlements } = isBillingEnabled
@@ -263,7 +263,7 @@ export class BillingSubscriptionService {
     key: BillingEntitlementKey,
   ): Promise<boolean> {
     const hasValidEnterprisePlan = this.enterprisePlanService.isValid();
-    const isBillingEnabled = this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    const isBillingEnabled = this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
 
     const stripeEntitlementValue =
       hasValidEnterprisePlan && isBillingEnabled
@@ -489,12 +489,12 @@ export class BillingSubscriptionService {
           )
         : 0;
 
-    const trialWithCreditCardDuration = this.kovaa-labConfigService.get(
+    const trialWithCreditCardDuration = this.kovaaLabConfigService.get(
       'BILLING_FREE_TRIAL_WITH_CREDIT_CARD_DURATION_IN_DAYS',
     );
 
     return Number(
-      this.kovaa-labConfigService.get(
+      this.kovaaLabConfigService.get(
         trialDuration === trialWithCreditCardDuration
           ? 'BILLING_FREE_WORKFLOW_CREDITS_FOR_TRIAL_PERIOD_WITH_CREDIT_CARD'
           : 'BILLING_FREE_WORKFLOW_CREDITS_FOR_TRIAL_PERIOD_WITHOUT_CREDIT_CARD',

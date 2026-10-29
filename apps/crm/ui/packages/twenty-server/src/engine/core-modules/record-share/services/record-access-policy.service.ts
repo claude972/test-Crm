@@ -20,11 +20,11 @@ import {
   type EventRecordSnapshot,
   resolveEventRecordSnapshots,
 } from 'src/engine/core-modules/record-share/utils/resolve-event-record-snapshots.util';
-import { type InheritedReadabilityParentExpression } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { buildRowAccessPolicy } from 'src/engine/kovaa-lab-orm/utils/build-row-access-policy.util';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
-import { isChildRecordBoundAtDeletion } from 'src/engine/kovaa-lab-orm/utils/is-child-record-bound-at-deletion.util';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { type InheritedReadabilityParentExpression } from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { buildRowAccessPolicy } from 'src/engine/twenty-orm/utils/build-row-access-policy.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { isChildRecordBoundAtDeletion } from 'src/engine/twenty-orm/utils/is-child-record-bound-at-deletion.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { type WorkspaceEventBatch } from 'src/engine/workspace-event-emitter/types/workspace-event-batch.type';
 

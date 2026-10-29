@@ -2,7 +2,7 @@ import { type ObjectsPermissions } from 'kovaa-lab-shared/types';
 import { assertUnreachable } from 'kovaa-lab-shared/utils';
 
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type OperationType } from 'src/engine/kovaa-lab-orm/repository/permissions.utils';
+import { type OperationType } from 'src/engine/twenty-orm/repository/permissions.utils';
 
 export const isObjectOperationPermitted = ({
   objectMetadata,

@@ -12,7 +12,7 @@ import { In, Repository } from 'typeorm';
 
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { WebhookSyncTriggerService } from 'src/modules/connected-account/webhook-subscription-manager/services/webhook-sync-trigger.service';
@@ -37,7 +37,7 @@ export class GoogleMessagingNotificationHandler implements WebhookNotificationHa
   private readonly oauth2Client = new OAuth2Client();
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly metricsService: MetricsService,
     @InjectRepository(ConnectedAccountEntity)
     private readonly connectedAccountRepository: Repository<ConnectedAccountEntity>,
@@ -103,7 +103,7 @@ export class GoogleMessagingNotificationHandler implements WebhookNotificationHa
   }
 
   private async verify(authorizationHeader: string | undefined): Promise<void> {
-    const expectedEmail = this.kovaa-labConfigService.get(
+    const expectedEmail = this.kovaaLabConfigService.get(
       'MESSAGING_GMAIL_PUBSUB_VERIFICATION_EMAIL',
     );
 
@@ -123,7 +123,7 @@ export class GoogleMessagingNotificationHandler implements WebhookNotificationHa
       );
     }
 
-    const expectedAudience = `${this.kovaa-labConfigService.get('SERVER_URL')}/webhooks/google/messaging`;
+    const expectedAudience = `${this.kovaaLabConfigService.get('SERVER_URL')}/webhooks/google/messaging`;
 
     try {
       const ticket = await this.oauth2Client.verifyIdToken({

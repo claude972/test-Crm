@@ -21,7 +21,7 @@ import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout
 import {
   type CreateStandardPageLayoutWidgetArgs,
   createStandardPageLayoutWidgetFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-widget/create-standard-page-layout-widget-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-widget/create-standard-page-layout-widget-flat-metadata.util';
 
 type DashboardWidgetBuilderArgs = Omit<
   CreateStandardPageLayoutWidgetArgs,

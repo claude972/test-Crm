@@ -18,7 +18,7 @@ import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object
 import { buildSystemRelationFlatFieldMetadatasForObject } from 'src/engine/metadata-modules/object-metadata/utils/build-system-relation-flat-field-metadatas-for-object.util';
 import { computeObjectTargetTable } from 'src/engine/utils/compute-object-target-table.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { getWorkspaceSchemaContextForMigration } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/get-workspace-schema-context-for-migration.util';
 
@@ -51,15 +51,15 @@ export class ProvisionAgentChatThreadTargetCommand extends ProvisionedWorkspaceC
   }: RunOnWorkspaceArgs): Promise<void> {
     const dryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const hasAgentChatThreadTarget = await this.provisionStandardSchema({
       workspaceId,
       dryRun,
-      kovaa-labStandardFlatApplication,
+      kovaaLabStandardFlatApplication,
     });
 
     if (!hasAgentChatThreadTarget) {
@@ -70,8 +70,8 @@ export class ProvisionAgentChatThreadTargetCommand extends ProvisionedWorkspaceC
       workspaceId,
       dataSource,
       dryRun,
-      kovaa-labStandardApplicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier:
+        kovaaLabStandardFlatApplication.universalIdentifier,
     });
   }
 
@@ -80,11 +80,11 @@ export class ProvisionAgentChatThreadTargetCommand extends ProvisionedWorkspaceC
   private async provisionStandardSchema({
     workspaceId,
     dryRun,
-    kovaa-labStandardFlatApplication,
+    kovaaLabStandardFlatApplication,
   }: {
     workspaceId: string;
     dryRun: boolean;
-    kovaa-labStandardFlatApplication: FlatApplication;
+    kovaaLabStandardFlatApplication: FlatApplication;
   }): Promise<boolean> {
     // The migration builder mutates its optimistic maps, even on dry runs.
     // Keep those changes out of the live metadata cache until DDL succeeds.
@@ -118,10 +118,10 @@ export class ProvisionAgentChatThreadTargetCommand extends ProvisionedWorkspaceC
     const {
       allFlatEntityMaps: standard,
       idByUniversalIdentifierByMetadataName,
-    } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: new Date().toISOString(),
       workspaceId,
-      kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+      kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
     });
 
     const { objects, fields, indexes } =
@@ -140,7 +140,7 @@ export class ProvisionAgentChatThreadTargetCommand extends ProvisionedWorkspaceC
             isSystemBuild: true,
             inferDeletionFromMissingEntities: {},
             applicationUniversalIdentifier:
-              kovaa-labStandardFlatApplication.universalIdentifier,
+              kovaaLabStandardFlatApplication.universalIdentifier,
           },
           additionalCacheDataMaps: {
             featureFlagsMap: existing.featureFlagsMap,
@@ -208,12 +208,12 @@ export class ProvisionAgentChatThreadTargetCommand extends ProvisionedWorkspaceC
     workspaceId,
     dataSource,
     dryRun,
-    kovaa-labStandardApplicationUniversalIdentifier,
+    kovaaLabStandardApplicationUniversalIdentifier,
   }: {
     workspaceId: string;
     dataSource: DataSource | undefined;
     dryRun: boolean;
-    kovaa-labStandardApplicationUniversalIdentifier: string;
+    kovaaLabStandardApplicationUniversalIdentifier: string;
   }): Promise<void> {
     const { flatObjectMetadataMaps, flatFieldMetadataMaps, flatIndexMaps } =
       await this.workspaceCacheService.getOrRecompute(workspaceId, [
@@ -266,7 +266,7 @@ export class ProvisionAgentChatThreadTargetCommand extends ProvisionedWorkspaceC
         existingTargetColumnNames:
           columnNamesByTableName.get(tableName) ?? new Set(),
         existingTableNames: new Set(columnNamesByTableName.keys()),
-        kovaa-labStandardApplicationUniversalIdentifier,
+        kovaaLabStandardApplicationUniversalIdentifier,
       });
 
     if (unprovisionableRelations.length > 0) {

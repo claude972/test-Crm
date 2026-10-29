@@ -49,7 +49,7 @@ import {
   ThrottlerExceptionCode,
 } from 'src/engine/core-modules/throttler/throttler.exception';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UsageLimitQuotaService } from 'src/engine/core-modules/usage-limit/services/usage-limit-quota.service';
 import { UsageQuotaAdmissionService } from 'src/engine/core-modules/usage-limit/services/usage-quota-admission.service';
 import { UsageOperationType } from 'src/engine/core-modules/usage/enums/usage-operation-type.enum';
@@ -103,7 +103,7 @@ export class LogicFunctionExecutorService {
     private readonly logicFunctionDriverFactory: LogicFunctionDriverFactory,
     private readonly logicFunctionPrebuiltWarmUpService: LogicFunctionPrebuiltWarmUpService,
     private readonly throttlerService: ThrottlerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly applicationTokenService: ApplicationTokenService,
     private readonly secretEncryptionService: SecretEncryptionService,
@@ -281,8 +281,8 @@ export class LogicFunctionExecutorService {
       await this.throttlerService.tokenBucketThrottleOrThrow(
         `${workspaceId}-logic-function-execution`,
         1,
-        this.kovaa-labConfigService.get('LOGIC_FUNCTION_EXEC_THROTTLE_LIMIT'),
-        this.kovaa-labConfigService.get('LOGIC_FUNCTION_EXEC_THROTTLE_TTL'),
+        this.kovaaLabConfigService.get('LOGIC_FUNCTION_EXEC_THROTTLE_LIMIT'),
+        this.kovaaLabConfigService.get('LOGIC_FUNCTION_EXEC_THROTTLE_TTL'),
       );
     } catch (error) {
       if (
@@ -426,7 +426,7 @@ export class LogicFunctionExecutorService {
         : null,
     ]);
 
-    const baseUrl = cleanServerUrl(this.kovaa-labConfigService.get('SERVER_URL'));
+    const baseUrl = cleanServerUrl(this.kovaaLabConfigService.get('SERVER_URL'));
     const functionsBaseUrl = await this.buildFunctionsBaseUrl({
       workspaceId,
       flatApplication,

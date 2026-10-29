@@ -14,14 +14,14 @@ import { type PeopleDataLabsPersonData } from 'src/engine/core-modules/company-e
 import { isTransientPeopleDataLabsStatus } from 'src/engine/core-modules/company-enrichment/utils/is-transient-people-data-labs-status.util';
 import { parsePeopleDataLabsResponseItem } from 'src/engine/core-modules/company-enrichment/utils/parse-people-data-labs-response-item.util';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class PeopleDataLabsClientService {
   private readonly httpClient: AxiosInstance;
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     secureHttpClientService: SecureHttpClientService,
   ) {
     this.httpClient = secureHttpClientService.getHttpClient({
@@ -133,7 +133,7 @@ export class PeopleDataLabsClientService {
   }
 
   private getApiKey(): string | undefined {
-    return this.kovaa-labConfigService.get('PEOPLE_DATA_LABS_API_KEY')?.trim();
+    return this.kovaaLabConfigService.get('PEOPLE_DATA_LABS_API_KEY')?.trim();
   }
 
   private classifyError({

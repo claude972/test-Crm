@@ -1,13 +1,13 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
-import { type DatabaseConfigDriverInterface } from 'src/engine/core-modules/kovaa-lab-config/drivers/interfaces/database-config-driver.interface';
+import { type DatabaseConfigDriverInterface } from 'src/engine/core-modules/twenty-config/drivers/interfaces/database-config-driver.interface';
 
-import { ConfigCacheService } from 'src/engine/core-modules/kovaa-lab-config/cache/config-cache.service';
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { CONFIG_VARIABLES_REFRESH_CRON_INTERVAL } from 'src/engine/core-modules/kovaa-lab-config/constants/config-variables-refresh-cron-interval.constants';
-import { ConfigStorageService } from 'src/engine/core-modules/kovaa-lab-config/storage/config-storage.service';
-import { isEnvOnlyConfigVar } from 'src/engine/core-modules/kovaa-lab-config/utils/is-env-only-config-var.util';
+import { ConfigCacheService } from 'src/engine/core-modules/twenty-config/cache/config-cache.service';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { CONFIG_VARIABLES_REFRESH_CRON_INTERVAL } from 'src/engine/core-modules/twenty-config/constants/config-variables-refresh-cron-interval.constants';
+import { ConfigStorageService } from 'src/engine/core-modules/twenty-config/storage/config-storage.service';
+import { isEnvOnlyConfigVar } from 'src/engine/core-modules/twenty-config/utils/is-env-only-config-var.util';
 
 @Injectable()
 export class DatabaseConfigDriver

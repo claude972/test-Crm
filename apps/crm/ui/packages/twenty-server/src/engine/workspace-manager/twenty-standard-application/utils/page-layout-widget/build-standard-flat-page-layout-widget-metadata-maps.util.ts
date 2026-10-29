@@ -9,16 +9,16 @@ import { FieldDisplayMode } from 'src/engine/metadata-modules/page-layout-widget
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
 import { WidgetType } from 'kovaa-lab-shared/types';
 import { type AllPageLayoutWidgetConfiguration } from 'src/engine/metadata-modules/page-layout-widget/types/all-page-layout-widget-configuration.type';
-import { STANDARD_RECORD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout.constant';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
-import { type StandardRecordPageLayoutConfig } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config/standard-page-layout-config.type';
-import { computeMyFirstDashboardWidgets } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-widget/compute-my-first-dashboard-widgets.util';
+import { STANDARD_RECORD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout.constant';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
+import { type StandardRecordPageLayoutConfig } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config/standard-page-layout-config.type';
+import { computeMyFirstDashboardWidgets } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-widget/compute-my-first-dashboard-widgets.util';
 import {
   type CreateStandardPageLayoutWidgetArgs,
   type CreateStandardPageLayoutWidgetContext,
   createStandardPageLayoutWidgetFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-widget/create-standard-page-layout-widget-flat-metadata.util';
-import { findObjectNameByUniversalIdentifier } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout/create-standard-page-layout-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-widget/create-standard-page-layout-widget-flat-metadata.util';
+import { findObjectNameByUniversalIdentifier } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout/create-standard-page-layout-flat-metadata.util';
 
 export type BuildStandardFlatPageLayoutWidgetMetadataMapsArgs = Omit<
   CreateStandardPageLayoutWidgetArgs,
@@ -336,7 +336,7 @@ const buildFieldWidgetConfiguration = ({
 const computeRecordPageWidgets = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   standardObjectMetadataRelatedEntityIds,
   standardPageLayoutMetadataRelatedEntityIds,
   excludedWidgetTypes,
@@ -398,7 +398,7 @@ const computeRecordPageWidgets = ({
           createStandardPageLayoutWidgetFlatMetadata({
             now,
             workspaceId,
-            kovaa-labStandardApplicationId,
+            kovaaLabStandardApplicationId,
             standardObjectMetadataRelatedEntityIds,
             standardPageLayoutMetadataRelatedEntityIds,
             objectMetadataUniversalIdentifier,

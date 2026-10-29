@@ -8,11 +8,11 @@ import {
   TAB_PROPS,
   VERTICAL_LIST_LAYOUT_POSITIONS,
   WIDGET_PROPS,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout-tabs.template';
+} from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout-tabs.template';
 import {
   type StandardPageLayoutConfig,
   type StandardPageLayoutTabConfig,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config/standard-page-layout-config.type';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config/standard-page-layout-config.type';
 
 const OPPORTUNITY_PAGE_TABS = {
   home: {

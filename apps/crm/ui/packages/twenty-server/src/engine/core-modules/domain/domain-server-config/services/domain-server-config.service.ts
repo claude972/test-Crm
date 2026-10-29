@@ -3,16 +3,16 @@ import { Injectable } from '@nestjs/common';
 import { buildUrlWithPathnameAndSearchParams } from 'src/engine/core-modules/domain/domain-server-config/utils/build-url-with-pathname-and-search-params.util';
 import { getSubdomainAndCustomDomainFromHostname } from 'src/engine/core-modules/domain/domain-server-config/utils/get-subdomain-and-custom-domain-from-hostname.util';
 import { getHostnameFromUrlOrUndefined } from 'src/engine/core-modules/domain/domain-server-config/utils/public-function-domain.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class DomainServerConfigService {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   getFrontUrl() {
     return new URL(
-      this.kovaa-labConfigService.get('FRONTEND_URL') ??
-        this.kovaa-labConfigService.get('SERVER_URL'),
+      this.kovaaLabConfigService.get('FRONTEND_URL') ??
+        this.kovaaLabConfigService.get('SERVER_URL'),
     );
   }
 
@@ -20,22 +20,22 @@ export class DomainServerConfigService {
     const baseUrl = this.getFrontUrl();
 
     if (
-      this.kovaa-labConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
-      this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN')
+      this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
+      this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN')
     ) {
-      baseUrl.hostname = `${this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN')}.${baseUrl.hostname}`;
+      baseUrl.hostname = `${this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN')}.${baseUrl.hostname}`;
     }
 
     return baseUrl;
   }
 
   getPublicDomainUrl(): URL {
-    return new URL(this.kovaa-labConfigService.get('PUBLIC_DOMAIN_URL'));
+    return new URL(this.kovaaLabConfigService.get('PUBLIC_DOMAIN_URL'));
   }
 
   getPublicBaseHostnameOrUndefined(): string | undefined {
     return getHostnameFromUrlOrUndefined(
-      this.kovaa-labConfigService.get('PUBLIC_DOMAIN_URL'),
+      this.kovaaLabConfigService.get('PUBLIC_DOMAIN_URL'),
     );
   }
 
@@ -61,6 +61,6 @@ export class DomainServerConfigService {
       hostname: new URL(url).hostname,
       frontDomain: this.getFrontUrl().hostname,
       publicBaseDomain: this.getPublicBaseHostnameOrUndefined(),
-      defaultSubdomain: this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN'),
+      defaultSubdomain: this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN'),
     });
 }

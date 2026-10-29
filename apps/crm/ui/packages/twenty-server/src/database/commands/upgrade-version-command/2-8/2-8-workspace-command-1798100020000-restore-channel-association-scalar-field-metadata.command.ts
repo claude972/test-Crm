@@ -27,7 +27,7 @@ import { getWorkspaceSchemaContextForMigration } from 'src/engine/workspace-mana
 // cascade-deleted the relation field metadata that owned the join columns on the
 // surviving association objects. The physical columns + their data survived, but the
 // replacement standard scalar field metadata was never created for existing workspaces,
-// so KovaaLab CRMORM builds the association entity without the join field and every calendar /
+// so KovaaLabCRMORM builds the association entity without the join field and every calendar /
 // message import crashes with `Property "<channel>Id" was not found`.
 // This re-registers the scalar field metadata over the existing physical columns.
 type ScalarFieldToRestore = {
@@ -206,15 +206,15 @@ export class RestoreChannelAssociationScalarFieldMetadataCommand extends Provisi
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const fieldMetadataRowsWithApplication = fieldMetadataRowsToInsert.map(
       (row) => ({
         ...row,
-        applicationId: kovaa-labStandardFlatApplication.id,
+        applicationId: kovaaLabStandardFlatApplication.id,
       }),
     );
 

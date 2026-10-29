@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { type ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { DefaultAiCatalogService } from 'src/engine/metadata-modules/ai/ai-models/services/default-ai-catalog.service';
 
 import { type AiProviderConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-provider-config.type';
@@ -12,7 +12,7 @@ import { mergeCustomProvidersIntoCatalog } from 'src/engine/metadata-modules/ai/
 @Injectable()
 export class ProviderConfigService {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly defaultAiCatalogService: DefaultAiCatalogService,
   ) {}
 
@@ -36,7 +36,7 @@ export class ProviderConfigService {
 
     return mergeCustomProvidersIntoCatalog({
       catalog,
-      custom: this.kovaa-labConfigService.get('AI_PROVIDERS'),
+      custom: this.kovaaLabConfigService.get('AI_PROVIDERS'),
     });
   }
 
@@ -73,7 +73,7 @@ export class ProviderConfigService {
 
     // falls back to process.env for vars outside ConfigVariables (e.g. CI-replaced catalogs)
     try {
-      const resolved = this.kovaa-labConfigService.get(
+      const resolved = this.kovaaLabConfigService.get(
         varName as keyof ConfigVariables,
       ) as string | undefined;
 

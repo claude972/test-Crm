@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { KOVAALAB_CROSS_UPGRADE_SUPPORTED_VERSIONS } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-cross-upgrade-supported-version.constant';
+import { KOVAALAB_CROSS_UPGRADE_SUPPORTED_VERSIONS } from 'src/engine/core-modules/upgrade/constants/twenty-cross-upgrade-supported-version.constant';
 import {
   type RegisteredFastInstanceCommand,
   type RegisteredSlowInstanceCommand,

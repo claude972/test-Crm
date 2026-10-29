@@ -2,26 +2,26 @@ import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-enti
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
 import { type FlatViewFieldGroup } from 'src/engine/metadata-modules/flat-view-field-group/types/flat-view-field-group.type';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
-import { computeStandardBlocklistViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-blocklist-view-field-groups.util';
-import { computeStandardCalendarChannelEventAssociationViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-calendar-channel-event-association-view-field-groups.util';
-import { computeStandardCalendarEventViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-calendar-event-view-field-groups.util';
-import { computeStandardCalendarEventParticipantViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-calendar-event-participant-view-field-groups.util';
-import { computeStandardCallRecordingViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-call-recording-view-field-groups.util';
-import { computeStandardCompanyViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-company-view-field-groups.util';
-import { computeStandardMessageCampaignViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-message-campaign-view-field-groups.util';
-import { computeStandardMessageViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-message-view-field-groups.util';
-import { computeStandardMessageChannelMessageAssociationViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-message-channel-message-association-view-field-groups.util';
-import { computeStandardMessageChannelMessageAssociationMessageFolderViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-message-channel-message-association-message-folder-view-field-groups.util';
-import { computeStandardMessageParticipantViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-message-participant-view-field-groups.util';
-import { computeStandardNoteViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-note-view-field-groups.util';
-import { computeStandardOpportunityViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-opportunity-view-field-groups.util';
-import { computeStandardPersonViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-person-view-field-groups.util';
-import { computeStandardTaskViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-task-view-field-groups.util';
-import { computeStandardWorkflowAutomatedTriggerViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-workflow-automated-trigger-view-field-groups.util';
-import { computeStandardWorkflowRunViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-workflow-run-view-field-groups.util';
-import { computeStandardWorkflowVersionViewFieldGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/compute-standard-workflow-version-view-field-groups.util';
-import { type CreateStandardViewFieldGroupArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/create-standard-view-field-group-flat-metadata.util';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
+import { computeStandardBlocklistViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-blocklist-view-field-groups.util';
+import { computeStandardCalendarChannelEventAssociationViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-calendar-channel-event-association-view-field-groups.util';
+import { computeStandardCalendarEventViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-calendar-event-view-field-groups.util';
+import { computeStandardCalendarEventParticipantViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-calendar-event-participant-view-field-groups.util';
+import { computeStandardCallRecordingViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-call-recording-view-field-groups.util';
+import { computeStandardCompanyViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-company-view-field-groups.util';
+import { computeStandardMessageCampaignViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-campaign-view-field-groups.util';
+import { computeStandardMessageViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-view-field-groups.util';
+import { computeStandardMessageChannelMessageAssociationViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-channel-message-association-view-field-groups.util';
+import { computeStandardMessageChannelMessageAssociationMessageFolderViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-channel-message-association-message-folder-view-field-groups.util';
+import { computeStandardMessageParticipantViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-participant-view-field-groups.util';
+import { computeStandardNoteViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-note-view-field-groups.util';
+import { computeStandardOpportunityViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-opportunity-view-field-groups.util';
+import { computeStandardPersonViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-person-view-field-groups.util';
+import { computeStandardTaskViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-task-view-field-groups.util';
+import { computeStandardWorkflowAutomatedTriggerViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-workflow-automated-trigger-view-field-groups.util';
+import { computeStandardWorkflowRunViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-workflow-run-view-field-groups.util';
+import { computeStandardWorkflowVersionViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-workflow-version-view-field-groups.util';
+import { type CreateStandardViewFieldGroupArgs } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/create-standard-view-field-group-flat-metadata.util';
 
 type StandardViewFieldGroupBuilder<P extends AllStandardObjectName> = (
   args: Omit<CreateStandardViewFieldGroupArgs<P>, 'context'>,

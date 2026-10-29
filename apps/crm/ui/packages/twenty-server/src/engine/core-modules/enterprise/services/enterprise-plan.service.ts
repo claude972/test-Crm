@@ -30,12 +30,12 @@ import {
   type EnterpriseValidityPayload,
 } from 'src/engine/core-modules/enterprise/types/organization-key-payload.type';
 import { isValidityTokenReloadDue } from 'src/engine/core-modules/enterprise/utils/is-validity-token-reload-due.util';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
 import {
   ConfigVariableException,
   ConfigVariableExceptionCode,
-} from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.exception';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+} from 'src/engine/core-modules/twenty-config/twenty-config.exception';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -57,7 +57,7 @@ export class EnterprisePlanService implements OnModuleInit {
     'ENTERPRISE_VALIDITY_TOKEN_RATE_LIMITED';
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectRepository(AppTokenEntity)
     private readonly appTokenRepository: Repository<AppTokenEntity>,
     @InjectRepository(UserWorkspaceEntity)
@@ -74,7 +74,7 @@ export class EnterprisePlanService implements OnModuleInit {
   }
 
   private refreshKeyPayload(): void {
-    const enterpriseKey = this.kovaa-labConfigService.get('ENTERPRISE_KEY');
+    const enterpriseKey = this.kovaaLabConfigService.get('ENTERPRISE_KEY');
 
     if (!enterpriseKey) {
       this.cachedKeyPayload = null;
@@ -111,7 +111,7 @@ export class EnterprisePlanService implements OnModuleInit {
 
       const tokenValue =
         dbToken?.value ??
-        this.kovaa-labConfigService.get('ENTERPRISE_VALIDITY_TOKEN');
+        this.kovaaLabConfigService.get('ENTERPRISE_VALIDITY_TOKEN');
 
       if (!tokenValue) {
         this.cachedValidityPayload = null;
@@ -248,7 +248,7 @@ export class EnterprisePlanService implements OnModuleInit {
 
   async setEnterpriseKey(enterpriseKey: string): Promise<void> {
     try {
-      await this.kovaa-labConfigService.set('ENTERPRISE_KEY', enterpriseKey);
+      await this.kovaaLabConfigService.set('ENTERPRISE_KEY', enterpriseKey);
     } catch (error) {
       if (
         error instanceof ConfigVariableException &&
@@ -293,7 +293,7 @@ export class EnterprisePlanService implements OnModuleInit {
   async refreshValidityToken(): Promise<boolean> {
     this.lastRefreshRejectionCode = null;
 
-    const enterpriseKey = this.kovaa-labConfigService.get('ENTERPRISE_KEY');
+    const enterpriseKey = this.kovaaLabConfigService.get('ENTERPRISE_KEY');
 
     if (!enterpriseKey) {
       this.logger.warn('No ENTERPRISE_KEY configured, skipping refresh');
@@ -311,7 +311,7 @@ export class EnterprisePlanService implements OnModuleInit {
       return false;
     }
 
-    const apiUrl = this.kovaa-labConfigService.get('ENTERPRISE_API_URL');
+    const apiUrl = this.kovaaLabConfigService.get('ENTERPRISE_API_URL');
     const validateUrl = `${apiUrl}/validate`;
 
     try {
@@ -394,7 +394,7 @@ export class EnterprisePlanService implements OnModuleInit {
   }
 
   async reportSeats(seatCount: number): Promise<boolean> {
-    const enterpriseKey = this.kovaa-labConfigService.get('ENTERPRISE_KEY');
+    const enterpriseKey = this.kovaaLabConfigService.get('ENTERPRISE_KEY');
 
     if (!enterpriseKey) {
       return false;
@@ -404,7 +404,7 @@ export class EnterprisePlanService implements OnModuleInit {
       return false;
     }
 
-    const apiUrl = this.kovaa-labConfigService.get('ENTERPRISE_API_URL');
+    const apiUrl = this.kovaaLabConfigService.get('ENTERPRISE_API_URL');
     const seatsUrl = `${apiUrl}/seats`;
 
     try {
@@ -437,7 +437,7 @@ export class EnterprisePlanService implements OnModuleInit {
   }
 
   async releaseServerBinding(): Promise<boolean> {
-    const enterpriseKey = this.kovaa-labConfigService.get('ENTERPRISE_KEY');
+    const enterpriseKey = this.kovaaLabConfigService.get('ENTERPRISE_KEY');
 
     if (!enterpriseKey) {
       return false;
@@ -449,7 +449,7 @@ export class EnterprisePlanService implements OnModuleInit {
       return false;
     }
 
-    const apiUrl = this.kovaa-labConfigService.get('ENTERPRISE_API_URL');
+    const apiUrl = this.kovaaLabConfigService.get('ENTERPRISE_API_URL');
     const releaseUrl = `${apiUrl}/release`;
 
     try {
@@ -507,14 +507,14 @@ export class EnterprisePlanService implements OnModuleInit {
   } | null> {
     this.refreshKeyPayload();
 
-    const enterpriseKey = this.kovaa-labConfigService.get('ENTERPRISE_KEY');
+    const enterpriseKey = this.kovaaLabConfigService.get('ENTERPRISE_KEY');
 
     if (!enterpriseKey || !isDefined(this.cachedKeyPayload)) {
       return null;
     }
 
     const licenseInfo = await this.getLicenseInfo();
-    const apiUrl = this.kovaa-labConfigService.get('ENTERPRISE_API_URL');
+    const apiUrl = this.kovaaLabConfigService.get('ENTERPRISE_API_URL');
     const statusUrl = `${apiUrl}/status`;
 
     try {
@@ -554,14 +554,14 @@ export class EnterprisePlanService implements OnModuleInit {
   }
 
   async getPortalUrl(returnUrl?: string): Promise<string | null> {
-    const apiUrl = this.kovaa-labConfigService.get('ENTERPRISE_API_URL');
+    const apiUrl = this.kovaaLabConfigService.get('ENTERPRISE_API_URL');
 
     if (!apiUrl) {
       return null;
     }
 
     this.refreshKeyPayload();
-    const enterpriseKey = this.kovaa-labConfigService.get('ENTERPRISE_KEY');
+    const enterpriseKey = this.kovaaLabConfigService.get('ENTERPRISE_KEY');
 
     if (enterpriseKey && isDefined(this.cachedKeyPayload)) {
       return this.requestPortalUrlWithKey(apiUrl, enterpriseKey, returnUrl);
@@ -608,7 +608,7 @@ export class EnterprisePlanService implements OnModuleInit {
     billingInterval: 'monthly' | 'yearly' = 'monthly',
     seatCount: number,
   ): Promise<string | null> {
-    const apiUrl = this.kovaa-labConfigService.get('ENTERPRISE_API_URL');
+    const apiUrl = this.kovaaLabConfigService.get('ENTERPRISE_API_URL');
 
     if (!apiUrl) {
       return null;
@@ -656,7 +656,7 @@ export class EnterprisePlanService implements OnModuleInit {
   }
 
   async getOrCreateServerId(): Promise<string | null> {
-    const existingServerId = this.kovaa-labConfigService.get('SERVER_ID');
+    const existingServerId = this.kovaaLabConfigService.get('SERVER_ID');
 
     if (isNonEmptyString(existingServerId)) {
       return existingServerId;
@@ -665,7 +665,7 @@ export class EnterprisePlanService implements OnModuleInit {
     const newServerId = v4();
 
     try {
-      await this.kovaa-labConfigService.set('SERVER_ID', newServerId);
+      await this.kovaaLabConfigService.set('SERVER_ID', newServerId);
 
       return newServerId;
     } catch (error) {
@@ -681,13 +681,13 @@ export class EnterprisePlanService implements OnModuleInit {
     return {
       serverId: await this.getOrCreateServerId(),
       instanceType:
-        this.kovaa-labConfigService.get('ENTERPRISE_INSTANCE_TYPE') ??
+        this.kovaaLabConfigService.get('ENTERPRISE_INSTANCE_TYPE') ??
         ENTERPRISE_INSTANCE_TYPE.PRODUCTION,
-      serverUrl: this.kovaa-labConfigService.get('SERVER_URL') ?? null,
-      appVersion: this.kovaa-labConfigService.get('APP_VERSION') ?? null,
-      nodeEnv: this.kovaa-labConfigService.get('NODE_ENV') ?? null,
+      serverUrl: this.kovaaLabConfigService.get('SERVER_URL') ?? null,
+      appVersion: this.kovaaLabConfigService.get('APP_VERSION') ?? null,
+      nodeEnv: this.kovaaLabConfigService.get('NODE_ENV') ?? null,
       telemetryEnabled:
-        this.kovaa-labConfigService.get('TELEMETRY_ENABLED') ?? null,
+        this.kovaaLabConfigService.get('TELEMETRY_ENABLED') ?? null,
       workspaceCount: await this.safeCount(() =>
         this.workspaceRepository.count(),
       ),
@@ -728,7 +728,7 @@ export class EnterprisePlanService implements OnModuleInit {
 
   // Development and tests try both keys so production keys also work locally.
   private getPublicKeysToTry(): string[] {
-    const nodeEnv = this.kovaa-labConfigService.get('NODE_ENV');
+    const nodeEnv = this.kovaaLabConfigService.get('NODE_ENV');
 
     if (
       nodeEnv === NodeEnvironment.DEVELOPMENT ||

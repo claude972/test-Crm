@@ -1,4 +1,4 @@
-import { type PerformKovaaLab CRMConfigQueryParams } from 'test/integration/kovaa-lab-config/types/perform-kovaa-lab-config-query.type';
+import { type PerformKovaaLabCRMConfigQueryParams } from 'test/integration/twenty-config/types/perform-twenty-config-query.type';
 
 import {
   type DeleteConfigVariableFactoryInput,
@@ -9,7 +9,7 @@ import { makeAdminPanelApiRequest } from './make-admin-panel-api-request.util';
 export const deleteConfigVariable = async ({
   input,
   expectToFail = false,
-}: PerformKovaaLab CRMConfigQueryParams<DeleteConfigVariableFactoryInput>) => {
+}: PerformKovaaLabCRMConfigQueryParams<DeleteConfigVariableFactoryInput>) => {
   const graphqlOperation = deleteConfigVariableQueryFactory({
     key: input.key,
   });

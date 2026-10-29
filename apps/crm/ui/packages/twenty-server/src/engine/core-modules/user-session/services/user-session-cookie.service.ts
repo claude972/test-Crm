@@ -9,7 +9,7 @@ import { USER_SESSION_IMPERSONATOR_COOKIE_NAME } from 'src/engine/core-modules/u
 import { USER_SESSION_IMPERSONATOR_SECURE_COOKIE_NAME } from 'src/engine/core-modules/user-session/constants/user-session-impersonator-secure-cookie-name.constant';
 import { USER_SESSION_SECURE_COOKIE_NAME } from 'src/engine/core-modules/user-session/constants/user-session-secure-cookie-name.constant';
 import { extractUserSessionTokenFromRequestCookie } from 'src/engine/core-modules/user-session/utils/extract-user-session-token-from-request.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const isHttpsUrl = (url: string | undefined): boolean => {
   if (!isNonEmptyString(url)) {
@@ -25,11 +25,11 @@ const isHttpsUrl = (url: string | undefined): boolean => {
 
 @Injectable()
 export class UserSessionCookieService {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   private isSecureDeployment(): boolean {
-    const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
-    const sameSite = this.kovaa-labConfigService.get('AUTH_COOKIE_SAME_SITE');
+    const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
+    const sameSite = this.kovaaLabConfigService.get('AUTH_COOKIE_SAME_SITE');
 
     // SameSite=None is rejected by browsers without Secure, so it forces it.
     return isHttpsUrl(serverUrl) || sameSite === 'none';
@@ -57,7 +57,7 @@ export class UserSessionCookieService {
     return {
       httpOnly: true,
       secure: this.isSecureDeployment(),
-      sameSite: this.kovaa-labConfigService.get('AUTH_COOKIE_SAME_SITE'),
+      sameSite: this.kovaaLabConfigService.get('AUTH_COOKIE_SAME_SITE'),
       path: '/',
     };
   }

@@ -9,7 +9,7 @@ import {
 import { RecordSharingMode } from 'src/engine/core-modules/record-share/enums/record-sharing-mode.enum';
 import { isRecordShareExceptionObject } from 'src/engine/core-modules/record-share/utils/is-record-share-exception-object.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type OperationType } from 'src/engine/kovaa-lab-orm/repository/permissions.utils';
+import { type OperationType } from 'src/engine/twenty-orm/repository/permissions.utils';
 
 // A record shared by name reaches people whose role cannot otherwise access
 // its object, but only to view or edit it: deleting it, creating siblings or

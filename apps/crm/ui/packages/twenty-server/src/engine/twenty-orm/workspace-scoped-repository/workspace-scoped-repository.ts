@@ -15,7 +15,7 @@ import {
 import { type QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { type UpsertOptions } from 'typeorm/repository/UpsertOptions';
 
-import { type WorkspaceScopedEntity } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-entity.type';
+import { type WorkspaceScopedEntity } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-entity.type';
 
 // For workspace-data entities, use WorkspaceRepository instead.
 export class WorkspaceScopedRepository<T extends WorkspaceScopedEntity> {

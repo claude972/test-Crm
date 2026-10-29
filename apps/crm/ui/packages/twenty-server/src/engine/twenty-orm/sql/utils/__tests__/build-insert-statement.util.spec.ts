@@ -1,8 +1,8 @@
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { buildInsertStatement } from 'src/engine/kovaa-lab-orm/sql/utils/build-insert-statement.util';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { buildInsertStatement } from 'src/engine/twenty-orm/sql/utils/build-insert-statement.util';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const SCHEMA_NAME = 'workspace_1wgvd1injqtife6y4rvfbu3h5';
 
@@ -109,6 +109,6 @@ describe('buildInsertStatement', () => {
         rows: [],
         returningColumns: ['id'],
       }),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 });

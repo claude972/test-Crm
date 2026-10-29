@@ -2,13 +2,13 @@ import {
   LoggerDriverType,
   type LoggerModuleOptions,
 } from 'src/engine/core-modules/logger/interfaces';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export const loggerModuleFactory = async (
-  kovaa-labConfigService: KovaaLab CRMConfigService,
+  kovaaLabConfigService: KovaaLabCRMConfigService,
 ): Promise<LoggerModuleOptions> => {
-  const driverType = kovaa-labConfigService.get('LOGGER_DRIVER');
-  const logLevels = kovaa-labConfigService.get('LOG_LEVELS');
+  const driverType = kovaaLabConfigService.get('LOGGER_DRIVER');
+  const logLevels = kovaaLabConfigService.get('LOG_LEVELS');
 
   switch (driverType) {
     case LoggerDriverType.CONSOLE: {

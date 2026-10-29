@@ -1,8 +1,8 @@
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
-import { compileNamedParameters } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
+import { compileNamedParameters } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const HOSTILE_VALUES = [
   "'; DROP TABLE company; --",

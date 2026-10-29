@@ -1,5 +1,5 @@
 import { formatErrorWithCause } from 'src/engine/metadata-modules/ai/ai-chat/utils/format-error-with-cause.util';
-import { computeKovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/error-handling/compute-kovaa-lab-orm-exception.util';
+import { computeKovaaLabCRMOrmException } from 'src/engine/twenty-orm/error-handling/compute-twenty-orm-exception.util';
 
 describe('formatErrorWithCause', () => {
   it('shows the Postgres error the ORM hides behind a generic message', () => {
@@ -8,7 +8,7 @@ describe('formatErrorWithCause', () => {
       { code: '22P05' },
     );
 
-    expect(formatErrorWithCause(computeKovaaLab CRMOrmException(postgresError))).toBe(
+    expect(formatErrorWithCause(computeKovaaLabCRMOrmException(postgresError))).toBe(
       'Error: Data validation error. <- Error: unsupported Unicode escape sequence',
     );
   });

@@ -25,7 +25,7 @@ import {
 import { type ReversibleOnboardingStep } from 'src/engine/core-modules/onboarding/types/reversible-onboarding-step.type';
 import { getOnboardingEnrichmentCreditRewardMicro } from 'src/engine/core-modules/onboarding/utils/get-onboarding-enrichment-credit-reward-micro.util';
 import { readBookCallStepMinEmployeeCount } from 'src/engine/core-modules/onboarding/utils/read-book-call-step-min-employee-count.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserVarsService } from 'src/engine/core-modules/user/user-vars/services/user-vars.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -59,7 +59,7 @@ export class OnboardingService {
     private readonly cacheLockService: CacheLockService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly userVarsService: UserVarsService<OnboardingKeyValueTypeMap>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     @InjectRepository(UserWorkspaceEntity)
@@ -164,7 +164,7 @@ export class OnboardingService {
     if (
       isBookCallPending &&
       isPlanRequired &&
-      isDefined(readBookCallStepMinEmployeeCount(this.kovaa-labConfigService))
+      isDefined(readBookCallStepMinEmployeeCount(this.kovaaLabConfigService))
     ) {
       return OnboardingStatus.BOOK_CALL;
     }
@@ -583,7 +583,7 @@ export class OnboardingService {
 
       await this.billingCreditService.grantCredits({
         workspaceId,
-        amountMicro: this.kovaa-labConfigService.get(
+        amountMicro: this.kovaaLabConfigService.get(
           'ONBOARDING_IMPORT_CONTACTS_CREDITS_REWARD',
         ),
         type: BillingCreditGrantType.ONBOARDING_REWARD,
@@ -621,14 +621,14 @@ export class OnboardingService {
 
           if (
             rewardedTeammatesCount >=
-            this.kovaa-labConfigService.get('ONBOARDING_INVITE_TEAM_MAX_INVITES')
+            this.kovaaLabConfigService.get('ONBOARDING_INVITE_TEAM_MAX_INVITES')
           ) {
             return;
           }
 
           await this.billingCreditService.grantCredits({
             workspaceId,
-            amountMicro: this.kovaa-labConfigService.get(
+            amountMicro: this.kovaaLabConfigService.get(
               'ONBOARDING_INVITE_TEAM_CREDITS_REWARD_PER_USER',
             ),
             type: BillingCreditGrantType.ONBOARDING_REWARD,
@@ -699,7 +699,7 @@ export class OnboardingService {
       const { amountMicro, malformedTierKeys } =
         getOnboardingEnrichmentCreditRewardMicro({
           employeeCount,
-          tiers: this.kovaa-labConfigService.get(
+          tiers: this.kovaaLabConfigService.get(
             'ONBOARDING_ENRICHMENT_CREDIT_REWARD_TIERS',
           ),
         });
@@ -745,7 +745,7 @@ export class OnboardingService {
     workspaceId: string;
   }): Promise<boolean> {
     if (
-      !isDefined(readBookCallStepMinEmployeeCount(this.kovaa-labConfigService))
+      !isDefined(readBookCallStepMinEmployeeCount(this.kovaaLabConfigService))
     ) {
       return false;
     }
@@ -871,7 +871,7 @@ export class OnboardingService {
     employeeCount: number | null;
   }): Promise<boolean> {
     const minEmployeeCount = readBookCallStepMinEmployeeCount(
-      this.kovaa-labConfigService,
+      this.kovaaLabConfigService,
     );
 
     if (

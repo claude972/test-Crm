@@ -22,10 +22,10 @@ import { OAuthErrorResponse } from 'src/engine/core-modules/application/applicat
 import { OAuthTokenResponse } from 'src/engine/core-modules/application/application-oauth/types/oauth-token-response.type';
 import { isConfidentialApplicationOAuthClient } from 'src/engine/core-modules/application/application-oauth/utils/is-confidential-application-oauth-client.util';
 import { ApplicationTokenService } from 'src/engine/core-modules/auth/token/services/application-token.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 @Injectable()
 export class OAuthService {
@@ -47,7 +47,7 @@ export class OAuthService {
     private readonly applicationRegistrationService: ApplicationRegistrationService,
     private readonly applicationService: ApplicationService,
     private readonly applicationInstallService: ApplicationInstallService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async exchangeAuthorizationCode(params: {
@@ -573,7 +573,7 @@ export class OAuthService {
         token_type: 'Bearer',
         scope: clientValidation.oAuthScopes.join(' '),
         aud: decoded.workspaceId,
-        iss: this.kovaa-labConfigService.get('SERVER_URL'),
+        iss: this.kovaaLabConfigService.get('SERVER_URL'),
         exp: decoded.exp,
         iat: decoded.iat,
       };
@@ -605,7 +605,7 @@ export class OAuthService {
           token_type: 'Bearer',
           scope: clientValidation.oAuthScopes.join(' '),
           aud: payload.workspaceId,
-          iss: this.kovaa-labConfigService.get('SERVER_URL'),
+          iss: this.kovaaLabConfigService.get('SERVER_URL'),
         };
       } catch {
         return { active: false };
@@ -812,7 +812,7 @@ export class OAuthService {
 
   // OAuth RFC 6749 requires expires_in as seconds
   private getAccessTokenExpiresInSeconds(): number {
-    const duration = this.kovaa-labConfigService.get(
+    const duration = this.kovaaLabConfigService.get(
       'APPLICATION_ACCESS_TOKEN_EXPIRES_IN',
     );
 

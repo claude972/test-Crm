@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 
 import { DataSource, QueryRunner } from 'typeorm';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { RegisteredInstanceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-instance-command.decorator';
 import { SlowInstanceCommand } from 'src/engine/core-modules/upgrade/interfaces/slow-instance-command.interface';
 
@@ -16,10 +16,10 @@ export class BackfillCreatedWorkspaceActivationStatusSlowInstanceCommand
     BackfillCreatedWorkspaceActivationStatusSlowInstanceCommand.name,
   );
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   async runDataMigration(dataSource: DataSource): Promise<void> {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       return;
     }
 

@@ -16,8 +16,8 @@ import { RoleDTO } from 'src/engine/metadata-modules/role/dtos/role.dto';
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
 import { RoleService } from 'src/engine/metadata-modules/role/role.service';
 import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import {
   SEED_APPLE_WORKSPACE_ID,
   SEED_YCOMBINATOR_WORKSPACE_ID,
@@ -27,7 +27,7 @@ import {
   USER_WORKSPACE_DATA_SEED_IDS,
 } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-user-workspaces.util';
 import { API_KEY_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/data/constants/api-key-data-seeds.constant';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 @Injectable()
 export class DevSeederPermissionsService {
@@ -49,13 +49,13 @@ export class DevSeederPermissionsService {
   ) {}
 
   public async initPermissions({
-    kovaa-labStandardFlatApplication,
+    kovaaLabStandardFlatApplication,
     workspaceCustomFlatApplication,
     workspaceId,
     light = false,
   }: {
     workspaceId: string;
-    kovaa-labStandardFlatApplication: FlatApplication;
+    kovaaLabStandardFlatApplication: FlatApplication;
     workspaceCustomFlatApplication: FlatApplication;
     light?: boolean;
   }) {
@@ -76,7 +76,7 @@ export class DevSeederPermissionsService {
         roleId: adminRole.id,
         targetId: API_KEY_DATA_SEED_IDS.ID_1,
         targetMetadataForeignKey: 'apiKeyId',
-        applicationId: kovaa-labStandardFlatApplication.id,
+        applicationId: kovaaLabStandardFlatApplication.id,
       },
       workspaceId,
     });

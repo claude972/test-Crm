@@ -2,15 +2,15 @@ import { type OnModuleDestroy } from '@nestjs/common';
 
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type ConfigGroupHashService } from 'src/engine/core-modules/kovaa-lab-config/services/config-group-hash.service';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type ConfigGroupHashService } from 'src/engine/core-modules/twenty-config/services/config-group-hash.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export abstract class DriverFactoryBase<TDriver> implements OnModuleDestroy {
   private currentDriver: TDriver | null = null;
   private currentConfigKey: string | null = null;
 
   constructor(
-    protected readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    protected readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     protected readonly configGroupHashService: ConfigGroupHashService,
   ) {}
 

@@ -5,7 +5,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { CacheStorageException } from 'src/engine/core-modules/cache-storage/exceptions/cache-storage.exception';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   UsageLimitException,
   UsageLimitExceptionCode,
@@ -29,7 +29,7 @@ export class UsageLimitSpeedService {
   constructor(
     private readonly throttlerService: ThrottlerService,
     private readonly workspaceCacheService: WorkspaceCacheService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly usageLimitEntitlementService: UsageLimitEntitlementService,
   ) {}
 
@@ -235,10 +235,10 @@ export class UsageLimitSpeedService {
           spenderType: speedLimitDefaultDefinition.spenderType,
           counterScope: speedLimitDefaultDefinition.counterScope,
           isOverridable: speedLimitDefaultDefinition.isOverridable,
-          maxTokens: this.kovaa-labConfigService.get(
+          maxTokens: this.kovaaLabConfigService.get(
             speedLimitDefaultDefinition.limitValueConfigVariable,
           ),
-          windowMs: this.kovaa-labConfigService.get(
+          windowMs: this.kovaaLabConfigService.get(
             speedLimitDefaultDefinition.windowMsConfigVariable,
           ),
         })),

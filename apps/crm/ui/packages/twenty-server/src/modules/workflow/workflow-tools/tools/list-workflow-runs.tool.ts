@@ -2,7 +2,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { type FindOptionsWhere } from 'typeorm';
 import { z } from 'zod';
 
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import {
   WorkflowRunStatus,
   type WorkflowRunWorkspaceEntity,

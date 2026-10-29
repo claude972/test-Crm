@@ -10,9 +10,9 @@ import { AgentChatThreadService } from 'src/engine/metadata-modules/ai/ai-chat/s
 import { DatabaseEventAction } from 'src/engine/api/graphql/graphql-query-runner/enums/database-event-action';
 import { AgentChatTurnPreflightService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-turn-preflight.service';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 const WORKSPACE_ID = 'workspace';
 const THREAD_ID = 'thread';
@@ -261,9 +261,9 @@ describe('Shared conversation API boundaries', () => {
     const { resolver, sharing, threadRepository, streaming } = buildResolver();
     threadRepository.existsBy.mockResolvedValue(false);
     sharing.createThread.mockRejectedValue(
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         'Duplicate',
-        KovaaLab CRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED,
+        KovaaLabCRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED,
       ),
     );
     await expect(

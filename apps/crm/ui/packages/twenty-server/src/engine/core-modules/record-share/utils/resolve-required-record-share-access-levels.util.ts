@@ -2,7 +2,7 @@
 
 import { RecordShareAccessLevel } from 'kovaa-lab-shared/types';
 
-import { type OperationType } from 'src/engine/kovaa-lab-orm/repository/permissions.utils';
+import { type OperationType } from 'src/engine/twenty-orm/repository/permissions.utils';
 
 const REQUIRED_RECORD_SHARE_ACCESS_LEVELS_BY_OPERATION_TYPE: Record<
   OperationType,

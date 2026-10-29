@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import {
   type DashboardToolContextWithPermissions,
   type DashboardToolDependencies,

@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 
 import { type Pool, type PoolClient } from 'pg';
 
-import { computeKovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/error-handling/compute-kovaa-lab-orm-exception.util';
+import { computeKovaaLabCRMOrmException } from 'src/engine/twenty-orm/error-handling/compute-twenty-orm-exception.util';
 
 const logger = new Logger('runInRollbackSafeTransaction');
 
@@ -14,7 +14,7 @@ export const runInRollbackSafeTransaction = async <T>({
   work: (client: PoolClient) => Promise<T>;
 }): Promise<T> => {
   const client = await pool.connect().catch((error: unknown) => {
-    throw computeKovaaLab CRMOrmException(error);
+    throw computeKovaaLabCRMOrmException(error);
   });
   let shouldDestroyConnection = false;
 
@@ -41,7 +41,7 @@ export const runInRollbackSafeTransaction = async <T>({
       );
     }
 
-    throw computeKovaaLab CRMOrmException(error);
+    throw computeKovaaLabCRMOrmException(error);
   } finally {
     client.release(shouldDestroyConnection);
   }

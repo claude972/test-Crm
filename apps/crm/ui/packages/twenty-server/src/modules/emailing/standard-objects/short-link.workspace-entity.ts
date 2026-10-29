@@ -1,4 +1,4 @@
-import { BaseWorkspaceEntity } from 'src/engine/kovaa-lab-orm/base.workspace-entity';
+import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 
 export class ShortLinkWorkspaceEntity extends BaseWorkspaceEntity {
   authoredTemplateUrl: string;

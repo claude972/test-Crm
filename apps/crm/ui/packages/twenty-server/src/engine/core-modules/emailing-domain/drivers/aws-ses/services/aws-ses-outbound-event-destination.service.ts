@@ -9,7 +9,7 @@ import {
 import { isNonEmptyString } from '@sniptt/guards';
 
 import { AwsSesClientProvider } from 'src/engine/core-modules/emailing-domain/drivers/aws-ses/providers/aws-ses-client.provider';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const EVENT_DESTINATION_NAME = 'kovaa-lab-outbound-sns';
 
@@ -21,13 +21,13 @@ export class AwsSesOutboundEventDestinationService {
 
   constructor(
     private readonly awsSesClientProvider: AwsSesClientProvider,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async upsertEventDestinationOrThrow(
     configurationSetName: string,
   ): Promise<void> {
-    const topicArn = this.kovaa-labConfigService.get('SES_OUTBOUND_SNS_TOPIC_ARN');
+    const topicArn = this.kovaaLabConfigService.get('SES_OUTBOUND_SNS_TOPIC_ARN');
 
     if (!isNonEmptyString(topicArn)) {
       this.logger.warn(

@@ -20,7 +20,7 @@ export class WorkspaceGaugeService implements OnModuleInit {
   onModuleInit() {
     for (const status of Object.values(WorkspaceActivationStatus)) {
       this.metricsService.createObservableGauge({
-        metricName: `kovaa-lab_workspaces_by_status_${status.toLowerCase()}`,
+        metricName: `kovaaLab_workspaces_by_status_${status.toLowerCase()}`,
         options: {
           description: `Number of workspaces with activation status ${status}`,
         },
@@ -32,7 +32,7 @@ export class WorkspaceGaugeService implements OnModuleInit {
     }
 
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_workspaces_deleted_total',
+      metricName: 'kovaaLab_workspaces_deleted_total',
       options: {
         description: 'Total number of soft-deleted workspaces',
       },

@@ -12,7 +12,7 @@ import { WORKSPACE_MIGRATION_ACTION_COUNT_BUCKET_BOUNDARIES } from 'src/engine/c
 import { WORKSPACE_MIGRATION_DURATION_MS_BUCKET_BOUNDARIES } from 'src/engine/core-modules/metrics/constants/workspace-migration-duration-ms-bucket-boundaries.constant';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { AllFlatEntityOperationRecordByMetadataName } from 'src/engine/metadata-modules/flat-entity/types/all-flat-entity-operation-record-by-metadata-name.type';
 import { AllFlatEntityOperationByMetadataName } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-to-create-delete-update.type';
 import { getFlatEntityMapsExceptionContext } from 'src/engine/metadata-modules/flat-entity/utils/get-flat-entity-maps-exception-context.util';
@@ -81,9 +81,9 @@ export class WorkspaceMigrationValidateBuildAndRunService {
     private readonly metadataSideEffectEngineService: MetadataSideEffectEngineService,
     private readonly metricsService: MetricsService,
     private readonly logger: LoggerService,
-    kovaa-labConfigService: KovaaLab CRMConfigService,
+    kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {
-    const logLevels = kovaa-labConfigService.get('LOG_LEVELS');
+    const logLevels = kovaaLabConfigService.get('LOG_LEVELS');
 
     this.isDebugEnabled = logLevels.includes('debug');
   }
@@ -253,7 +253,7 @@ export class WorkspaceMigrationValidateBuildAndRunService {
    * side-effect engine landed in v2.19. These commands declare their operation
    * matrix literally and must not flow through expandWithSideEffects, which
    * would inject engine-owned companions and collide on reserved identifiers.
-   * See packages/kovaa-lab-server/docs/UPGRADE_COMMANDS.md.
+   * See packages/twenty-server/docs/UPGRADE_COMMANDS.md.
    */
   public async validateBuildAndRunLegacyWorkspaceMigration({
     allFlatEntityOperationByMetadataName,

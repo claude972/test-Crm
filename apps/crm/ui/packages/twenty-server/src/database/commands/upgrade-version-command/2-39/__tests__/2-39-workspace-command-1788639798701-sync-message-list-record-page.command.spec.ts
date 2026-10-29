@@ -15,16 +15,16 @@ import {
   CONDITIONAL_AVAILABILITY_EXPRESSION_DEVICE_MOBILE,
   CONDITIONAL_DISPLAY_DEVICE_DESKTOP,
   CONDITIONAL_DISPLAY_DEVICE_MOBILE,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout-tabs.template';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+} from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout-tabs.template';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 jest.mock(
-  'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant',
+  'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant',
 );
 
-const computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMaps,
+const computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMaps,
 );
 
 const WORKSPACE_ID = '20202020-0000-0000-0000-000000000001';
@@ -232,7 +232,7 @@ describe('SyncMessageListRecordPageCommand', () => {
       .fn()
       .mockResolvedValue({ status: 'success' });
 
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
       allFlatEntityMaps: {
         flatFieldMetadataMaps: buildMaps([
           { universalIdentifier: DESCRIPTION_FIELD_UNIVERSAL_IDENTIFIER },
@@ -259,16 +259,16 @@ describe('SyncMessageListRecordPageCommand', () => {
         ]),
       },
     } as unknown as ReturnType<
-      typeof computeKovaaLab CRMStandardApplicationAllFlatEntityMaps
+      typeof computeKovaaLabCRMStandardApplicationAllFlatEntityMaps
     >);
 
     command = new SyncMessageListRecordPageCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: STANDARD_APPLICATION,
+            kovaaLabStandardFlatApplication: STANDARD_APPLICATION,
           }),
       } as unknown as ApplicationService,
       {

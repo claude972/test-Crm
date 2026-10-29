@@ -9,7 +9,7 @@ import type Stripe from 'stripe';
 import { type BillingPlanKey } from 'src/engine/core-modules/billing/enums/billing-plan-key.enum';
 import { StripeCustomerService } from 'src/engine/core-modules/billing/stripe/services/stripe-customer.service';
 import { StripeSDKService } from 'src/engine/core-modules/billing/stripe/stripe-sdk/services/stripe-sdk.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type AuthContextUser } from 'src/engine/core-modules/auth/types/auth-context.type';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
@@ -19,15 +19,15 @@ export class StripeCheckoutService {
   private readonly stripe: Stripe;
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly stripeSDKService: StripeSDKService,
     private readonly stripeCustomerService: StripeCustomerService,
   ) {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       return;
     }
     this.stripe = this.stripeSDKService.getStripe(
-      this.kovaa-labConfigService.get('BILLING_STRIPE_API_KEY'),
+      this.kovaaLabConfigService.get('BILLING_STRIPE_API_KEY'),
     );
   }
 
@@ -221,7 +221,7 @@ export class StripeCheckoutService {
   ) {
     return withTrialPeriod
       ? {
-          trial_period_days: this.kovaa-labConfigService.get(
+          trial_period_days: this.kovaaLabConfigService.get(
             requirePaymentMethod
               ? 'BILLING_FREE_TRIAL_WITH_CREDIT_CARD_DURATION_IN_DAYS'
               : 'BILLING_FREE_TRIAL_WITHOUT_CREDIT_CARD_DURATION_IN_DAYS',

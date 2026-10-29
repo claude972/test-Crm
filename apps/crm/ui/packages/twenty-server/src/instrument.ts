@@ -14,7 +14,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
 
 import { ExceptionHandlerDriver } from 'src/engine/core-modules/exception-handler/interfaces';
 import { POD_NAME } from 'src/engine/core-modules/metrics/constants/pod-name.constant';
@@ -111,23 +111,23 @@ if (process.env.EXCEPTION_HANDLER_DRIVER === ExceptionHandlerDriver.SENTRY) {
     sendDefaultPii: true,
     debug: process.env.NODE_ENV === NodeEnvironment.DEVELOPMENT,
     beforeSendSpan: (span) => {
-      const kovaa-labContext = Sentry.getIsolationScope().getScopeData().contexts
-        ?.kovaa-lab as
+      const kovaaLabContext = Sentry.getIsolationScope().getScopeData().contexts
+        ?.['kovaa-lab'] as
         | {
             workspace_id?: string;
             user_workspace_id?: string;
           }
         | undefined;
 
-      if (!kovaa-labContext?.workspace_id) {
+      if (!kovaaLabContext?.workspace_id) {
         return span;
       }
 
       span.data = {
         ...span.data,
-        'kovaa-lab.workspace.id': kovaa-labContext.workspace_id,
-        ...(kovaa-labContext.user_workspace_id && {
-          'kovaa-lab.user_workspace.id': kovaa-labContext.user_workspace_id,
+        'kovaa-lab.workspace.id': kovaaLabContext.workspace_id,
+        ...(kovaaLabContext.user_workspace_id && {
+          'kovaa-lab.user_workspace.id': kovaaLabContext.user_workspace_id,
         }),
       };
 

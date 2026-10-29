@@ -6,17 +6,17 @@ import { redisInsStore } from 'cache-manager-redis-yet';
 import { createClient } from 'redis';
 
 import { CacheStorageType } from 'src/engine/core-modules/cache-storage/types/cache-storage-type.enum';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const cacheStorageLogger = new Logger('CacheStorage');
 
 const REDIS_PING_INTERVAL_MS = 60_000;
 
 export const cacheStorageModuleFactory = (
-  kovaa-labConfigService: KovaaLab CRMConfigService,
+  kovaaLabConfigService: KovaaLabCRMConfigService,
 ): CacheModuleOptions => {
   const cacheStorageType = CacheStorageType.Redis;
-  const cacheStorageTtl = kovaa-labConfigService.get('CACHE_STORAGE_TTL');
+  const cacheStorageTtl = kovaaLabConfigService.get('CACHE_STORAGE_TTL');
   const cacheModuleOptions: CacheModuleOptions = {
     isGlobal: true,
     ttl: cacheStorageTtl * 1000,
@@ -24,7 +24,7 @@ export const cacheStorageModuleFactory = (
 
   switch (cacheStorageType) {
     case CacheStorageType.Redis: {
-      const redisUrl = kovaa-labConfigService.get('REDIS_URL');
+      const redisUrl = kovaaLabConfigService.get('REDIS_URL');
 
       if (!redisUrl) {
         throw new Error(

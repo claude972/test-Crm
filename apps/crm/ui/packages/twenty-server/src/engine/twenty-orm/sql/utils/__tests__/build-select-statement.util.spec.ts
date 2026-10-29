@@ -4,8 +4,8 @@ import {
   buildCountStatement,
   buildSelectStatement,
   type SelectStatementState,
-} from 'src/engine/kovaa-lab-orm/sql/utils/build-select-statement.util';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/sql/utils/build-select-statement.util';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const SCHEMA_NAME = 'workspace_1wgvd1injqtife6y4rvfbu3h5';
 

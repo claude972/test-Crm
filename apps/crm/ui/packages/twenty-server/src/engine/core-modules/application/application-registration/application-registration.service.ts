@@ -85,7 +85,7 @@ import { type CreditUsedItemDTO } from 'src/engine/core-modules/usage/dtos/credi
 import { UsageAnalyticsService } from 'src/engine/core-modules/usage/services/usage-analytics.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceEventBroadcaster } from 'src/engine/subscriptions/workspace-event-broadcaster/workspace-event-broadcaster.service';
-import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-cli-application-registration.constant';
+import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-cli-application-registration.constant';
 
 const BCRYPT_SALT_ROUNDS = 10;
 

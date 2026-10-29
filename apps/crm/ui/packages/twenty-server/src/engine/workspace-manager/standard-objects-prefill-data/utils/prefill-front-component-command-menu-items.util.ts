@@ -42,7 +42,7 @@ export const prefillFrontComponentCommandMenuItems = async ({
   }
 
   const { workspaceCustomFlatApplication } =
-    await applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    await applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
       { workspaceId },
     );
 

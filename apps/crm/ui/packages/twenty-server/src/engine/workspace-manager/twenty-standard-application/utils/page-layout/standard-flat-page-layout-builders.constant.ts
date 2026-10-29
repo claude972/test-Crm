@@ -1,10 +1,10 @@
 import { type FlatPageLayout } from 'src/engine/metadata-modules/flat-page-layout/types/flat-page-layout.type';
-import { type StandardPageLayoutConfig } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config';
-import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout.constant';
+import { type StandardPageLayoutConfig } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config';
+import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout.constant';
 import {
   type CreateStandardPageLayoutArgs,
   createStandardPageLayoutFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout/create-standard-page-layout-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout/create-standard-page-layout-flat-metadata.util';
 
 type BuilderArgs = Omit<CreateStandardPageLayoutArgs, 'context'>;
 

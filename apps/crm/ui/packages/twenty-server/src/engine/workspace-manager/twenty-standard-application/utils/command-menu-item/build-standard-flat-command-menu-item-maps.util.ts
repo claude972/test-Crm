@@ -9,8 +9,8 @@ import { seedCompareObjectMetadataForNavigationPosition } from 'src/engine/metad
 import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-flat-entity-maps.constant';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { createStandardCommandMenuItemFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/command-menu-item/create-standard-command-menu-item-flat-metadata.util';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { createStandardCommandMenuItemFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/command-menu-item/create-standard-command-menu-item-flat-metadata.util';
 import { addFlatEntityToFlatEntityMapsThroughMutationOrThrow } from 'src/engine/workspace-manager/workspace-migration/utils/add-flat-entity-to-flat-entity-maps-through-mutation-or-throw.util';
 
 const STANDARD_COMMAND_MENU_ITEM_NAMES = Object.keys(
@@ -20,12 +20,12 @@ const STANDARD_COMMAND_MENU_ITEM_NAMES = Object.keys(
 export const buildStandardFlatCommandMenuItemMaps = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   dependencyFlatEntityMaps: { flatObjectMetadataMaps },
 }: {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   dependencyFlatEntityMaps: {
     flatObjectMetadataMaps: FlatEntityMaps<FlatObjectMetadata>;
   };
@@ -38,7 +38,7 @@ export const buildStandardFlatCommandMenuItemMaps = ({
       commandMenuItemName,
       commandMenuItemId: v4(),
       workspaceId,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       dependencyFlatEntityMaps: {
         flatObjectMetadataMaps,
       },
@@ -77,7 +77,7 @@ export const buildStandardFlatCommandMenuItemMaps = ({
     const navigationItem = buildObjectNavigationFlatCommandMenuItem({
       objectMetadata: flatObject,
       commandMenuItemId: v4(),
-      applicationId: kovaa-labStandardApplicationId,
+      applicationId: kovaaLabStandardApplicationId,
       applicationUniversalIdentifier:
         KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
       workspaceId,

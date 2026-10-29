@@ -4,8 +4,8 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { decodeJwtCompleteOrThrow } from 'test/integration/graphql/utils/decode-jwt-complete-or-throw.util';
 import { findManyApplications } from 'test/integration/graphql/utils/find-many-applications.util';
 import { generateApiKeyToken } from 'test/integration/graphql/utils/generate-api-key-token.util';
-import { deleteConfigVariable } from 'test/integration/kovaa-lab-config/utils/delete-config-variable.util';
-import { updateConfigVariable } from 'test/integration/kovaa-lab-config/utils/update-config-variable.util';
+import { deleteConfigVariable } from 'test/integration/twenty-config/utils/delete-config-variable.util';
+import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 import { expectEventually } from 'test/integration/utils/expect-eventually.util';
 
 import { RotateSigningKeysCronJob } from 'src/engine/core-modules/jwt/crons/jobs/rotate-signing-keys.cron.job';

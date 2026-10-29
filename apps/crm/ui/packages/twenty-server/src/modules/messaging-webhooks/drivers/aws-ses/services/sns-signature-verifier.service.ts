@@ -5,7 +5,7 @@ import SnsPayloadValidator from 'sns-payload-validator';
 
 import { MessagingWebhookExceptionCode } from 'src/modules/messaging-webhooks/messaging-webhook-exception-code.enum';
 import { MessagingWebhookException } from 'src/modules/messaging-webhooks/messaging-webhook.exception';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 type SnsPayload = SnsPayloadValidator.SnsPayload;
 
@@ -14,7 +14,7 @@ export class SnsSignatureVerifierService {
   private readonly logger = new Logger(SnsSignatureVerifierService.name);
   private readonly validator = new SnsPayloadValidator();
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   async assertAllowedAndSigned(payload: SnsPayload): Promise<void> {
     this.assertTopicAllowlistedOrThrow(payload.TopicArn);
@@ -35,7 +35,7 @@ export class SnsSignatureVerifierService {
   }
 
   private assertTopicAllowlistedOrThrow(topicArn: string): void {
-    const allowlist = this.kovaa-labConfigService.get(
+    const allowlist = this.kovaaLabConfigService.get(
       'SES_SNS_TOPIC_ARN_ALLOWLIST',
     );
 

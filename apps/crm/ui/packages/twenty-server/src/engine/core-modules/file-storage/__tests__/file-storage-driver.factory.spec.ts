@@ -3,15 +3,15 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import { StorageDriverType } from 'src/engine/core-modules/file-storage/interfaces/file-storage.interface';
 
 import { FileStorageDriverFactory } from 'src/engine/core-modules/file-storage/file-storage-driver.factory';
-import { ConfigGroupHashService } from 'src/engine/core-modules/kovaa-lab-config/services/config-group-hash.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { ConfigGroupHashService } from 'src/engine/core-modules/twenty-config/services/config-group-hash.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 describe('FileStorageDriverFactory', () => {
   let factory: FileStorageDriverFactory;
-  let kovaa-labConfigService: KovaaLab CRMConfigService;
+  let kovaaLabConfigService: KovaaLabCRMConfigService;
   let configGroupHashService: ConfigGroupHashService;
 
-  const mockKovaaLab CRMConfigService = {
+  const mockKovaaLabCRMConfigService = {
     get: jest.fn(),
   };
   const mockConfigGroupHashService = {
@@ -23,8 +23,8 @@ describe('FileStorageDriverFactory', () => {
       providers: [
         FileStorageDriverFactory,
         {
-          provide: KovaaLab CRMConfigService,
-          useValue: mockKovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
+          useValue: mockKovaaLabCRMConfigService,
         },
         {
           provide: ConfigGroupHashService,
@@ -34,7 +34,7 @@ describe('FileStorageDriverFactory', () => {
     }).compile();
 
     factory = module.get<FileStorageDriverFactory>(FileStorageDriverFactory);
-    kovaa-labConfigService = module.get<KovaaLab CRMConfigService>(KovaaLab CRMConfigService);
+    kovaaLabConfigService = module.get<KovaaLabCRMConfigService>(KovaaLabCRMConfigService);
     configGroupHashService = module.get<ConfigGroupHashService>(
       ConfigGroupHashService,
     );
@@ -47,7 +47,7 @@ describe('FileStorageDriverFactory', () => {
       const storagePath = '/tmp/storage';
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return storagePath;
@@ -58,15 +58,15 @@ describe('FileStorageDriverFactory', () => {
       const result = factory['buildConfigKey']();
 
       expect(result).toBe(`local|${storagePath}`);
-      expect(kovaa-labConfigService.get).toHaveBeenCalledWith('STORAGE_TYPE');
-      expect(kovaa-labConfigService.get).toHaveBeenCalledWith(
+      expect(kovaaLabConfigService.get).toHaveBeenCalledWith('STORAGE_TYPE');
+      expect(kovaaLabConfigService.get).toHaveBeenCalledWith(
         'STORAGE_LOCAL_PATH',
       );
     });
 
     it('should build config key for S3 storage', () => {
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockReturnValue(StorageDriverType.S_3);
       jest
         .spyOn(configGroupHashService, 'computeHash')
@@ -75,12 +75,12 @@ describe('FileStorageDriverFactory', () => {
       const result = factory['buildConfigKey']();
 
       expect(result).toBe('s3|s3-hash-123');
-      expect(kovaa-labConfigService.get).toHaveBeenCalledWith('STORAGE_TYPE');
+      expect(kovaaLabConfigService.get).toHaveBeenCalledWith('STORAGE_TYPE');
     });
 
     it('should throw error for unsupported storage type', () => {
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockReturnValue('unsupported-type');
 
       expect(() => factory['buildConfigKey']()).toThrow(
@@ -94,7 +94,7 @@ describe('FileStorageDriverFactory', () => {
       const storagePath = '/tmp/storage';
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return storagePath;
@@ -110,7 +110,7 @@ describe('FileStorageDriverFactory', () => {
 
     it('should create ValidatedStorageDriver wrapping S3Driver for S3 storage with access keys', () => {
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           switch (key) {
             case 'STORAGE_TYPE':
@@ -138,7 +138,7 @@ describe('FileStorageDriverFactory', () => {
 
     it('should create ValidatedStorageDriver wrapping S3Driver for S3 storage without access keys (using provider chain)', () => {
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           switch (key) {
             case 'STORAGE_TYPE':
@@ -165,7 +165,7 @@ describe('FileStorageDriverFactory', () => {
     });
 
     it('should throw error for invalid storage driver type', () => {
-      jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue('invalid-type');
+      jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue('invalid-type');
 
       expect(() => factory['createDriver']()).toThrow(
         'Invalid storage driver type: invalid-type',
@@ -178,7 +178,7 @@ describe('FileStorageDriverFactory', () => {
       const storagePath = '/tmp/storage';
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return storagePath;
@@ -196,7 +196,7 @@ describe('FileStorageDriverFactory', () => {
       const storagePath = '/tmp/storage';
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return storagePath;
@@ -212,7 +212,7 @@ describe('FileStorageDriverFactory', () => {
 
     it('should create new driver when config key changes', () => {
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return '/tmp/storage1';
@@ -223,7 +223,7 @@ describe('FileStorageDriverFactory', () => {
       const driver1 = factory.getCurrentDriver();
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return '/tmp/storage2';
@@ -240,7 +240,7 @@ describe('FileStorageDriverFactory', () => {
 
     it('should create new driver when switching from local to S3', () => {
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return '/tmp/storage';
@@ -251,7 +251,7 @@ describe('FileStorageDriverFactory', () => {
       const driver1 = factory.getCurrentDriver();
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           switch (key) {
             case 'STORAGE_TYPE':
@@ -279,7 +279,7 @@ describe('FileStorageDriverFactory', () => {
 
     it('should throw error for unsupported storage type', () => {
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockReturnValue('invalid-storage-type');
 
       expect(() => factory.getCurrentDriver()).toThrow(
@@ -291,7 +291,7 @@ describe('FileStorageDriverFactory', () => {
       const storagePath = '/tmp/storage';
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'STORAGE_TYPE') return StorageDriverType.LOCAL;
           if (key === 'STORAGE_LOCAL_PATH') return storagePath;

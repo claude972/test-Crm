@@ -4,9 +4,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { type EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { type Repository } from 'typeorm';
 
-import { getWorkspaceScopedRepositoryToken } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
-import { type WorkspaceScopedEntity } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-entity.type';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { getWorkspaceScopedRepositoryToken } from 'src/engine/twenty-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
+import { type WorkspaceScopedEntity } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-entity.type';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 // Requires TypeOrmModule.forFeature([entity]) in the same module.
 export const provideWorkspaceScopedRepository = (

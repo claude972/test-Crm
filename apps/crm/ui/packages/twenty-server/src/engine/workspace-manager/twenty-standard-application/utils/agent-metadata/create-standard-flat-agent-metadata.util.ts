@@ -1,10 +1,10 @@
 import { AUTO_SELECT_WORKSPACE_DEFAULT_MODEL_ID } from 'kovaa-lab-shared/ai';
 import { type FlatAgent } from 'src/engine/metadata-modules/flat-agent/types/flat-agent.type';
-import { type AllStandardAgentName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-agent-name.type';
+import { type AllStandardAgentName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-agent-name.type';
 import {
   type CreateStandardAgentArgs,
   createStandardAgentFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/agent-metadata/create-standard-agent-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/agent-metadata/create-standard-agent-flat-metadata.util';
 
 export const STANDARD_FLAT_AGENT_METADATA_BUILDERS_BY_AGENT_NAME = {
   helper: (args: Omit<CreateStandardAgentArgs, 'context'>) =>

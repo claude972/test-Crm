@@ -7,7 +7,7 @@ import { makeMetadataApiRequest } from 'test/integration/metadata/suites/utils/m
 import { type Manifest } from 'kovaa-lab-shared/application';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 
 const TEST_APP_ID = uuidv4();

@@ -2,7 +2,7 @@ import { Injectable, Logger, type NestMiddleware } from '@nestjs/common';
 
 import { type NextFunction, type Request, type Response } from 'express';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { buildApiAccessLogLine } from 'src/engine/middlewares/utils/build-api-access-log-line.util';
 import { computeRequestTraceContext } from 'src/engine/utils/compute-request-trace-context.util';
 
@@ -10,10 +10,10 @@ import { computeRequestTraceContext } from 'src/engine/utils/compute-request-tra
 export class ApiAccessLogMiddleware implements NestMiddleware {
   private readonly logger = new Logger(ApiAccessLogMiddleware.name);
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   use(request: Request, response: Response, next: NextFunction) {
-    if (!this.kovaa-labConfigService.get('API_ACCESS_LOG_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('API_ACCESS_LOG_ENABLED')) {
       next();
 
       return;

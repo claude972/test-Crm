@@ -27,23 +27,23 @@ const ACQUISITION_DURATION_BUCKETS_SECONDS = [
 
 const POOL_GAUGES = [
   {
-    metricName: 'kovaa-lab_database_pool_total_connections',
+    metricName: 'kovaaLab_database_pool_total_connections',
     description: 'Current total number of PostgreSQL pool connections',
     getValue: (pool: Pool) => pool.totalCount,
   },
   {
-    metricName: 'kovaa-lab_database_pool_idle_connections',
+    metricName: 'kovaaLab_database_pool_idle_connections',
     description: 'Current number of idle PostgreSQL pool connections',
     getValue: (pool: Pool) => pool.idleCount,
   },
   {
-    metricName: 'kovaa-lab_database_pool_waiting_requests',
+    metricName: 'kovaaLab_database_pool_waiting_requests',
     description:
       'Current number of requests waiting for a PostgreSQL pool connection',
     getValue: (pool: Pool) => pool.waitingCount,
   },
   {
-    metricName: 'kovaa-lab_database_pool_max_connections',
+    metricName: 'kovaaLab_database_pool_max_connections',
     description: 'Maximum number of PostgreSQL pool connections',
     getValue: (pool: Pool) => pool.options.max,
   },
@@ -61,7 +61,7 @@ export class DatabasePoolMetricsService {
     const meter = this.metricsService.getMeter();
 
     this.acquisitionDurationHistogram = meter.createHistogram(
-      'kovaa-lab_database_pool_acquisition_duration_seconds',
+      'kovaaLab_database_pool_acquisition_duration_seconds',
       {
         description:
           'Time spent acquiring a connection from the PostgreSQL pool',
@@ -72,7 +72,7 @@ export class DatabasePoolMetricsService {
       },
     );
     this.acquisitionFailureCounter = meter.createCounter(
-      'kovaa-lab_database_pool_acquisition_failures',
+      'kovaaLab_database_pool_acquisition_failures',
       {
         description: 'Number of failed PostgreSQL pool connection acquisitions',
       },

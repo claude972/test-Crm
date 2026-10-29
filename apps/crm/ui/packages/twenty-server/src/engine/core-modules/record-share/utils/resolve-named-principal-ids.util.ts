@@ -2,7 +2,7 @@
 
 import { EVERYONE_PRINCIPAL_ID } from 'kovaa-lab-shared/constants';
 
-import { type RowAccessPolicySubject } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
+import { type RowAccessPolicySubject } from 'src/engine/twenty-orm/types/row-access-policy.type';
 
 // Only a grant naming the member or one of their roles reaches beyond the
 // role: general access goes as far as the people who can access the object

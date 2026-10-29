@@ -2,10 +2,10 @@ import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-enti
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
 import { type FlatViewGroup } from 'src/engine/metadata-modules/flat-view-group/types/flat-view-group.type';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
-import { computeStandardOpportunityViewGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-group/compute-standard-opportunity-view-groups.util';
-import { type CreateStandardViewGroupArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-group/create-standard-view-group-flat-metadata.util';
-import { computeStandardTaskViewGroups } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-group/compute-standard-task-view-groups.util';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
+import { computeStandardOpportunityViewGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-group/compute-standard-opportunity-view-groups.util';
+import { type CreateStandardViewGroupArgs } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-group/create-standard-view-group-flat-metadata.util';
+import { computeStandardTaskViewGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-group/compute-standard-task-view-groups.util';
 
 type StandardViewGroupBuilder<P extends AllStandardObjectName> = (
   args: Omit<CreateStandardViewGroupArgs<P>, 'context'>,

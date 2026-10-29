@@ -4,9 +4,9 @@ import { logger } from '@sentry/node';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 type CacheResult<T, U> = {
   version: T;
@@ -33,7 +33,7 @@ export class GetDataFromCacheWithRecomputeService<T, U> {
     getCacheVersion: (workspaceId: string) => Promise<T | undefined>;
     recomputeCache: (params: { workspaceId: string }) => Promise<void>;
     cachedEntityName: string;
-    exceptionCode: KovaaLab CRMOrmExceptionCode;
+    exceptionCode: KovaaLabCRMOrmExceptionCode;
   }): Promise<CacheResult<T, U>> => {
     let cachedVersion: T | undefined;
     let cachedData: U | undefined;
@@ -72,7 +72,7 @@ export class GetDataFromCacheWithRecomputeService<T, U> {
             cachedData,
           },
         );
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `${cachedEntityName} not found after recompute for workspace ${workspaceId} (missingData: ${!isDefined(cachedData)}, missingVersion: ${!isDefined(cachedVersion)})`,
           exceptionCode,
         );

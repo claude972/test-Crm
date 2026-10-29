@@ -56,7 +56,7 @@ const uploadTarballApp = async ({
     'package.json': JSON.stringify({
       name: `test-workspace-version-gate-${universalIdentifier}`,
       version: '1.0.0',
-      engines: { kovaa-lab: requiredServerVersion },
+      engines: { 'kovaa-lab': requiredServerVersion },
     }),
   });
 

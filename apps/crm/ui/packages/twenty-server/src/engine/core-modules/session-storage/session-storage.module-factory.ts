@@ -7,21 +7,21 @@ import type session from 'express-session';
 
 import { CacheStorageType } from 'src/engine/core-modules/cache-storage/types/cache-storage-type.enum';
 import { resolveSessionCookieSecretsOrThrow } from 'src/engine/core-modules/secret-encryption/utils/resolve-session-cookie-secrets.util';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const sessionStorageLogger = new Logger('SessionStorage');
 
 const REDIS_PING_INTERVAL_MS = 60_000;
 
 export const getSessionStorageOptions = (
-  kovaa-labConfigService: KovaaLab CRMConfigService,
+  kovaaLabConfigService: KovaaLabCRMConfigService,
 ): session.SessionOptions => {
   const cacheStorageType = CacheStorageType.Redis;
 
-  const SERVER_URL = kovaa-labConfigService.get('SERVER_URL');
+  const SERVER_URL = kovaaLabConfigService.get('SERVER_URL');
 
   const sessionSecrets = resolveSessionCookieSecretsOrThrow({
-    kovaa-labConfigService,
+    kovaaLabConfigService,
   });
 
   const sessionStorage: session.SessionOptions = {
@@ -39,7 +39,7 @@ export const getSessionStorageOptions = (
 
   switch (cacheStorageType) {
     case CacheStorageType.Redis: {
-      const connectionString = kovaa-labConfigService.get('REDIS_URL');
+      const connectionString = kovaaLabConfigService.get('REDIS_URL');
 
       if (!connectionString) {
         throw new Error(

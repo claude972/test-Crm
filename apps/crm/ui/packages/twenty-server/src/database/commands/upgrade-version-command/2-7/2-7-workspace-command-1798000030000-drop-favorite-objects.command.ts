@@ -61,8 +61,8 @@ export class DropFavoriteObjectsCommand extends ProvisionedWorkspaceCommandRunne
       `${isDryRun ? '[DRY RUN] ' : ''}Starting legacy favorite objects removal for workspace ${workspaceId}`,
     );
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -96,7 +96,7 @@ export class DropFavoriteObjectsCommand extends ProvisionedWorkspaceCommandRunne
         deleteObjectInput: { id: flatObjectMetadata.id },
         workspaceId,
         isSystemBuild: true,
-        ownerFlatApplication: kovaa-labStandardFlatApplication,
+        ownerFlatApplication: kovaaLabStandardFlatApplication,
       });
 
       this.logger.log(`Deleted ${label} object for workspace ${workspaceId}`);

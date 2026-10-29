@@ -5,7 +5,7 @@ import { getLegacyAgentHistoryFlatFieldMetadatas } from 'src/database/commands/a
 import { ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 @Injectable()
@@ -27,17 +27,17 @@ export class AgentHistorySchemaService {
         'billingEntitlements',
       ]),
     );
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const {
       allFlatEntityMaps: standard,
       idByUniversalIdentifierByMetadataName,
-    } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: new Date().toISOString(),
       workspaceId,
-      kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+      kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
     });
     const { objects, fields, indexes } = getAgentHistorySchemaAdditions({
       existing,
@@ -67,7 +67,7 @@ export class AgentHistorySchemaService {
           isSystemBuild: true,
           inferDeletionFromMissingEntities: {},
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
         additionalCacheDataMaps: {
           featureFlagsMap: existing.featureFlagsMap,

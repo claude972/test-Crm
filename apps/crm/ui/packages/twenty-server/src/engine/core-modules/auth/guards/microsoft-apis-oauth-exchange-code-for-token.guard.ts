@@ -8,7 +8,7 @@ import {
 import { MicrosoftAPIsOauthExchangeCodeForTokenStrategy } from 'src/engine/core-modules/auth/strategies/microsoft-apis-oauth-exchange-code-for-token.auth.strategy';
 import { setRequestExtraParams } from 'src/engine/core-modules/auth/utils/google-apis-set-request-extra-params.util';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class MicrosoftAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
@@ -16,7 +16,7 @@ export class MicrosoftAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
 ) {
   constructor(
     private readonly guardRedirectService: GuardRedirectService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {
     super();
   }
@@ -27,8 +27,8 @@ export class MicrosoftAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
       const state = JSON.parse(request.query.state);
 
       if (
-        !this.kovaa-labConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED') &&
-        !this.kovaa-labConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED')
+        !this.kovaaLabConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED') &&
+        !this.kovaaLabConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED')
       ) {
         throw new AuthException(
           'Microsoft apis auth is not enabled',
@@ -37,7 +37,7 @@ export class MicrosoftAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
       }
 
       new MicrosoftAPIsOauthExchangeCodeForTokenStrategy(
-        this.kovaa-labConfigService,
+        this.kovaaLabConfigService,
       );
 
       setRequestExtraParams(request, {

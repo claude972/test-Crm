@@ -3,7 +3,7 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import { type Request } from 'express';
 
 import { WellKnownController } from 'src/engine/core-modules/well-known/controllers/well-known.controller';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 describe('WellKnownController', () => {
   let controller: WellKnownController;
@@ -23,7 +23,7 @@ describe('WellKnownController', () => {
       controllers: [WellKnownController],
       providers: [
         {
-          provide: KovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
           useValue: { get: configGet },
         },
       ],

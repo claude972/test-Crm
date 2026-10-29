@@ -28,7 +28,7 @@ import { type PasswordResetTokenGenerationResult } from 'src/engine/core-modules
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
 import { type UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -38,7 +38,7 @@ export class ResetPasswordService {
   private readonly logger = new Logger(ResetPasswordService.name);
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
@@ -103,7 +103,7 @@ export class ResetPasswordService {
       return { status: 'NO_PASSWORD_AUTH_ENABLED_WORKSPACE_FOUND' };
     }
 
-    const expiresIn = this.kovaa-labConfigService.get(
+    const expiresIn = this.kovaaLabConfigService.get(
       'PASSWORD_RESET_TOKEN_EXPIRES_IN',
     );
 
@@ -239,9 +239,9 @@ export class ResetPasswordService {
     const subject = i18n._(subjectTemplate);
 
     await this.emailService.send({
-      from: `${this.kovaa-labConfigService.get(
+      from: `${this.kovaaLabConfigService.get(
         'EMAIL_FROM_NAME',
-      )} <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      )} <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       to: user.email,
       subject,
       text,

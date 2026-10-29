@@ -5,16 +5,16 @@ import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/typ
 import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
 import { type FlatPermissionFlag } from 'src/engine/metadata-modules/flat-permission-flag/types/flat-permission-flag.type';
 import { STANDARD_PERMISSION_FLAG_DEFINITIONS } from 'src/engine/metadata-modules/permission-flag/constants/standard-permission-flag-definitions.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 export const buildStandardFlatPermissionFlagMetadataMaps = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
 }): FlatEntityMaps<FlatPermissionFlag> => {
   let flatPermissionFlagMaps = createEmptyFlatEntityMaps();
 
@@ -24,7 +24,7 @@ export const buildStandardFlatPermissionFlagMetadataMaps = ({
         id: v4(),
         ...permissionFlagDefinition,
         workspaceId,
-        applicationId: kovaa-labStandardApplicationId,
+        applicationId: kovaaLabStandardApplicationId,
         universalIdentifier: permissionFlagDefinition.universalIdentifier,
         applicationUniversalIdentifier:
           KOVAALAB_STANDARD_APPLICATION.universalIdentifier,

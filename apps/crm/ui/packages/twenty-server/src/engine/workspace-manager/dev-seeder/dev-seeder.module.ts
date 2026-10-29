@@ -25,7 +25,7 @@ import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
 import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
 import { UserRoleModule } from 'src/engine/metadata-modules/user-role/user-role.module';
 import { UpgradeModule } from 'src/engine/core-modules/upgrade/upgrade.module';
-import { provideWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
+import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { WorkspaceDataSourceModule } from 'src/engine/workspace-datasource/workspace-datasource.module';
@@ -39,7 +39,7 @@ import { TimelineActivityModule } from 'src/modules/timeline/timeline-activity.m
 import { DevSeederMetadataService } from 'src/engine/workspace-manager/dev-seeder/metadata/services/dev-seeder-metadata.service';
 import { DevSeederWorkspaceService } from 'src/engine/workspace-manager/dev-seeder/services/dev-seeder.workspace-service';
 import { StandardObjectsPrefillModule } from 'src/engine/workspace-manager/standard-objects-prefill-data/standard-objects-prefill.module';
-import { KovaaLab CRMStandardApplicationModule } from 'src/engine/workspace-manager/kovaa-lab-standard-application/kovaa-lab-standard-application.module';
+import { KovaaLabCRMStandardApplicationModule } from 'src/engine/workspace-manager/twenty-standard-application/twenty-standard-application.module';
 import { WorkspaceMigrationModule } from 'src/engine/workspace-manager/workspace-migration/workspace-migration.module';
 import { WorkflowAgentConversationModule } from 'src/modules/workflow/workflow-executor/workflow-actions/ai-agent/workflow-agent-conversation.module';
 import { WorkflowRunModule } from 'src/modules/workflow/workflow-runner/workflow-run/workflow-run.module';
@@ -73,7 +73,7 @@ import { WorkflowRunModule } from 'src/modules/workflow/workflow-runner/workflow
     StandardObjectsPrefillModule,
     WorkspaceCacheModule,
     WorkspaceMigrationModule,
-    KovaaLab CRMStandardApplicationModule,
+    KovaaLabCRMStandardApplicationModule,
     SdkClientModule,
     SecretEncryptionModule,
     UpgradeModule,

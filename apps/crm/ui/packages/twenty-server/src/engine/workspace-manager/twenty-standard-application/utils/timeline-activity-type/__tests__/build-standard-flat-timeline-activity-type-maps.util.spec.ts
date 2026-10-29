@@ -4,7 +4,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type FlatTimelineActivityType } from 'src/engine/metadata-modules/flat-timeline-activity-type/types/flat-timeline-activity-type.type';
-import { buildStandardFlatTimelineActivityTypeMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/timeline-activity-type/build-standard-flat-timeline-activity-type-maps.util';
+import { buildStandardFlatTimelineActivityTypeMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/timeline-activity-type/build-standard-flat-timeline-activity-type-maps.util';
 
 const getTimelineActivityTypeOrThrow = (
   flatTimelineActivityTypeMaps: FlatEntityMaps<FlatTimelineActivityType>,
@@ -27,7 +27,7 @@ const buildMaps = (
   buildStandardFlatTimelineActivityTypeMaps({
     now: '2026-08-22T00:00:00.000Z',
     workspaceId: '20202020-0000-4000-8000-000000000001',
-    kovaa-labStandardApplicationId: '20202020-0000-4000-8000-000000000002',
+    kovaaLabStandardApplicationId: '20202020-0000-4000-8000-000000000002',
     hiddenTimelineActivityTypeColumnPropertyNames,
   });
 

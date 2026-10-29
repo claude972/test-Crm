@@ -1,5 +1,5 @@
 import { Test, type TestingModule } from '@nestjs/testing';
-import { getWorkspaceScopedRepositoryToken } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
+import { getWorkspaceScopedRepositoryToken } from 'src/engine/twenty-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
 import {
   AuthException,
   AuthExceptionCode,

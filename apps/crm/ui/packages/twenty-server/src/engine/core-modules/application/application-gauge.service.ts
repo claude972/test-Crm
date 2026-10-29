@@ -16,7 +16,7 @@ export class ApplicationGaugeService implements OnModuleInit {
 
   onModuleInit() {
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_app_installed_workspaces_total',
+      metricName: 'kovaaLab_app_installed_workspaces_total',
       options: {
         description:
           'Number of workspaces each application is installed in (top 100 external apps by install count)',

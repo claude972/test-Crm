@@ -1,6 +1,6 @@
 import { type LogLevel } from '@nestjs/common';
 
-export type KovaaLab CRMLogLevel = LogLevel | 'performance';
+export type KovaaLabCRMLogLevel = LogLevel | 'performance';
 
 export enum LoggerDriverType {
   CONSOLE = 'CONSOLE',
@@ -8,7 +8,7 @@ export enum LoggerDriverType {
 
 export interface ConsoleDriverFactoryOptions {
   type: LoggerDriverType.CONSOLE;
-  logLevels?: KovaaLab CRMLogLevel[];
+  logLevels?: KovaaLabCRMLogLevel[];
 }
 
 export type LoggerModuleOptions = ConsoleDriverFactoryOptions;

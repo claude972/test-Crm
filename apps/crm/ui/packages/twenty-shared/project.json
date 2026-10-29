@@ -1,7 +1,7 @@
 {
   "name": "kovaa-lab-shared",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/kovaa-lab-shared/src",
+  "sourceRoot": "packages/twenty-shared/src",
   "projectType": "library",
   "tags": ["scope:shared"],
   "targets": {
@@ -78,7 +78,9 @@
         "{projectRoot}/src/*/index.ts",
         "{projectRoot}/package.json"
       ],
-      "options": { "command": "tsx {projectRoot}/scripts/generateBarrels.ts" }
+      "options": {
+        "command": "FORCE_COLOR=0 tsx {projectRoot}/scripts/generateBarrels.ts"
+      }
     },
     "typecheck": {},
     "test": {},

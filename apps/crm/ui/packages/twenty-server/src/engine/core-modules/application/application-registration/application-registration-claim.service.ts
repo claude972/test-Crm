@@ -19,7 +19,7 @@ import { isValidNpmVersionSpec } from 'src/engine/core-modules/application/appli
 import { type ApplicationRegistrationGithubClaimStateJwtPayload } from 'src/engine/core-modules/auth/types/application-registration-github-claim-state-jwt-payload.type';
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 const GITHUB_CLAIM_STATE_EXPIRES_IN = '15m';
@@ -72,7 +72,7 @@ export class ApplicationRegistrationClaimService {
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     private readonly applicationRegistrationService: ApplicationRegistrationService,
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async buildGithubAuthorizationUrl(params: {
@@ -87,7 +87,7 @@ export class ApplicationRegistrationClaimService {
 
     this.assertClaimable(registration);
 
-    const clientId = this.kovaa-labConfigService.get('APP_CLAIM_GITHUB_CLIENT_ID');
+    const clientId = this.kovaaLabConfigService.get('APP_CLAIM_GITHUB_CLIENT_ID');
 
     if (!isNonEmptyString(clientId)) {
       throw new ApplicationRegistrationException(
@@ -224,7 +224,7 @@ export class ApplicationRegistrationClaimService {
   }
 
   private buildCallbackUrl(): string {
-    const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
+    const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
 
     return `${serverUrl}/application-registration-claim/github/callback`;
   }
@@ -233,7 +233,7 @@ export class ApplicationRegistrationClaimService {
     packageName: string;
     version: string | null;
   }): Promise<string> {
-    const registryUrl = this.kovaa-labConfigService.get('APP_REGISTRY_URL');
+    const registryUrl = this.kovaaLabConfigService.get('APP_REGISTRY_URL');
     const version =
       params.version ??
       (await this.fetchLatestVersion(registryUrl, params.packageName));
@@ -360,8 +360,8 @@ export class ApplicationRegistrationClaimService {
   }
 
   private async exchangeGithubCode(code: string): Promise<string> {
-    const clientId = this.kovaa-labConfigService.get('APP_CLAIM_GITHUB_CLIENT_ID');
-    const clientSecret = this.kovaa-labConfigService.get(
+    const clientId = this.kovaaLabConfigService.get('APP_CLAIM_GITHUB_CLIENT_ID');
+    const clientSecret = this.kovaaLabConfigService.get(
       'APP_CLAIM_GITHUB_CLIENT_SECRET',
     );
 

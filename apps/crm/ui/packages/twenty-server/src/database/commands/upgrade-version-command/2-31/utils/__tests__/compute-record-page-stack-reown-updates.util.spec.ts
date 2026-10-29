@@ -85,7 +85,7 @@ describe('computeRecordPageStackReownUpdates', () => {
           objectUniversalIdentifier: objectMetadata.universalIdentifier,
         }),
       engineOwnedApplicationUniversalIdentifiers,
-      kovaa-labStandardApplicationUniversalIdentifier:
+      kovaaLabStandardApplicationUniversalIdentifier:
         STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
       flatViewMaps: buildByUniversalIdentifierMap([
         stack.view,
@@ -240,7 +240,7 @@ describe('computeRecordPageStackReownUpdates', () => {
       engineOwnedApplicationUniversalIdentifiers: new Set([
         STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
       ]),
-      kovaa-labStandardApplicationUniversalIdentifier:
+      kovaaLabStandardApplicationUniversalIdentifier:
         STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
       flatViewMaps: buildByUniversalIdentifierMap([
         collidingStack.view,
@@ -453,7 +453,7 @@ describe('computeRecordPageStackReownUpdates', () => {
       engineOwnedApplicationUniversalIdentifiers: new Set([
         STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
       ]),
-      kovaa-labStandardApplicationUniversalIdentifier:
+      kovaaLabStandardApplicationUniversalIdentifier:
         STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
       flatViewMaps: buildByUniversalIdentifierMap([stack.view] as never),
       flatViewFieldMaps: buildByUniversalIdentifierMap([

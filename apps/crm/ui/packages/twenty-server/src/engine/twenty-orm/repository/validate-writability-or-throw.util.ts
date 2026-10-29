@@ -1,4 +1,4 @@
-import { isMetadataWritePermitted } from 'src/engine/kovaa-lab-orm/utils/is-metadata-write-permitted.util';
+import { isMetadataWritePermitted } from 'src/engine/twenty-orm/utils/is-metadata-write-permitted.util';
 import { MetadataWritability } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
@@ -12,8 +12,8 @@ import {
   PermissionsExceptionCode,
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
-import { type OperationType } from 'src/engine/kovaa-lab-orm/repository/permissions.utils';
-import { isOwningApplicationAuthContext } from 'src/engine/kovaa-lab-orm/utils/is-owning-application-auth-context.util';
+import { type OperationType } from 'src/engine/twenty-orm/repository/permissions.utils';
+import { isOwningApplicationAuthContext } from 'src/engine/twenty-orm/utils/is-owning-application-auth-context.util';
 
 const isWritePermittedByWritability = ({
   writability,

@@ -1,8 +1,8 @@
-import { getWorkspaceContext } from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { getWorkspaceContext } from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 
 jest.mock(
-  'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage',
+  'src/engine/twenty-orm/storage/orm-workspace-context.storage',
   () => ({ getWorkspaceContext: jest.fn() }),
 );
 

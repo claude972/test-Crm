@@ -69,15 +69,15 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
       'flatPageLayoutWidgetMaps',
     ]);
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const reownUpdates = this.computeCuratedStackReownUpdates({
       workspaceId,
-      kovaa-labStandardApplicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier:
+        kovaaLabStandardFlatApplication.universalIdentifier,
       workspaceCustomApplicationUniversalIdentifier:
         workspaceCustomFlatApplication.universalIdentifier,
       flatViewMaps,
@@ -93,8 +93,8 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
     this.appendDeOwnUpdates({
       workspaceId,
       reownUpdates,
-      kovaa-labStandardApplicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier:
+        kovaaLabStandardFlatApplication.universalIdentifier,
       workspaceCustomApplicationUniversalIdentifier:
         workspaceCustomFlatApplication.universalIdentifier,
       workspaceCustomApplicationId: workspaceCustomFlatApplication.id,
@@ -146,7 +146,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
   // its whole stack onto the derived scheme.
   private computeCuratedStackReownUpdates({
     workspaceId,
-    kovaa-labStandardApplicationUniversalIdentifier,
+    kovaaLabStandardApplicationUniversalIdentifier,
     workspaceCustomApplicationUniversalIdentifier,
     flatViewMaps,
     flatViewFieldMaps,
@@ -158,7 +158,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
     flatPageLayoutWidgetMaps,
   }: {
     workspaceId: string;
-    kovaa-labStandardApplicationUniversalIdentifier: string;
+    kovaaLabStandardApplicationUniversalIdentifier: string;
     workspaceCustomApplicationUniversalIdentifier: string;
   } & Pick<
     AllFlatEntityMaps,
@@ -173,7 +173,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
   >): RecordPageReownUpdates {
     const reownUpdates = createEmptyRecordPageReownUpdates();
     const engineOwnedApplicationUniversalIdentifiers = new Set([
-      kovaa-labStandardApplicationUniversalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier,
       workspaceCustomApplicationUniversalIdentifier,
     ]);
 
@@ -183,7 +183,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
       if (
         !isDefined(flatObjectMetadata) ||
         flatObjectMetadata.applicationUniversalIdentifier !==
-          kovaa-labStandardApplicationUniversalIdentifier
+          kovaaLabStandardApplicationUniversalIdentifier
       ) {
         continue;
       }
@@ -195,7 +195,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
       const derivedPageLayoutUniversalIdentifier =
         getSystemRecordPageLayoutUniversalIdentifier({
           objectMetadataApplicationUniversalIdentifier:
-            kovaa-labStandardApplicationUniversalIdentifier,
+            kovaaLabStandardApplicationUniversalIdentifier,
           objectUniversalIdentifier: flatObjectMetadata.universalIdentifier,
         });
 
@@ -216,7 +216,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
 
       if (
         flatPageLayout.applicationUniversalIdentifier !==
-          kovaa-labStandardApplicationUniversalIdentifier ||
+          kovaaLabStandardApplicationUniversalIdentifier ||
         flatPageLayout.type !== PageLayoutType.RECORD_PAGE ||
         flatPageLayout.objectMetadataUniversalIdentifier !==
           flatObjectMetadata.universalIdentifier
@@ -234,7 +234,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
         flatPageLayout,
         derivedPageLayoutUniversalIdentifier,
         engineOwnedApplicationUniversalIdentifiers,
-        kovaa-labStandardApplicationUniversalIdentifier,
+        kovaaLabStandardApplicationUniversalIdentifier,
         flatViewMaps,
         flatViewFieldMaps,
         flatViewFieldGroupMaps,
@@ -257,7 +257,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
   private appendDeOwnUpdates({
     workspaceId,
     reownUpdates,
-    kovaa-labStandardApplicationUniversalIdentifier,
+    kovaaLabStandardApplicationUniversalIdentifier,
     workspaceCustomApplicationUniversalIdentifier,
     workspaceCustomApplicationId,
     flatViewMaps,
@@ -270,7 +270,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
   }: {
     workspaceId: string;
     reownUpdates: RecordPageReownUpdates;
-    kovaa-labStandardApplicationUniversalIdentifier: string;
+    kovaaLabStandardApplicationUniversalIdentifier: string;
     workspaceCustomApplicationUniversalIdentifier: string;
     workspaceCustomApplicationId: string;
   } & Pick<
@@ -291,7 +291,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
         flatPageLayout.type !== PageLayoutType.RECORD_PAGE ||
         isDefined(flatPageLayout.deletedAt) ||
         flatPageLayout.applicationUniversalIdentifier !==
-          kovaa-labStandardApplicationUniversalIdentifier ||
+          kovaaLabStandardApplicationUniversalIdentifier ||
         !isDefined(flatPageLayout.objectMetadataUniversalIdentifier)
       ) {
         continue;
@@ -311,7 +311,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
 
       if (
         flatObjectMetadata.applicationUniversalIdentifier ===
-        kovaa-labStandardApplicationUniversalIdentifier
+        kovaaLabStandardApplicationUniversalIdentifier
       ) {
         const expectedLayoutUniversalIdentifiers = [
           PRE_2_31_STANDARD_RECORD_PAGE_LAYOUT_UNIVERSAL_IDENTIFIER_BY_OBJECT_UNIVERSAL_IDENTIFIER[
@@ -319,7 +319,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
           ],
           getSystemRecordPageLayoutUniversalIdentifier({
             objectMetadataApplicationUniversalIdentifier:
-              kovaa-labStandardApplicationUniversalIdentifier,
+              kovaaLabStandardApplicationUniversalIdentifier,
             objectUniversalIdentifier: flatObjectMetadata.universalIdentifier,
           }),
         ].filter(isDefined);
@@ -370,7 +370,7 @@ export class ReconcileStandardRecordPageCommand extends ProvisionedWorkspaceComm
         for (const flatEntity of flatEntities) {
           if (
             flatEntity.applicationUniversalIdentifier !==
-            kovaa-labStandardApplicationUniversalIdentifier
+            kovaaLabStandardApplicationUniversalIdentifier
           ) {
             continue;
           }

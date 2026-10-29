@@ -20,15 +20,15 @@ import { ResendDriver } from 'src/engine/core-modules/emailing-domain/drivers/re
 import { EmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-driver.type';
 import { EmailGroupAccessService } from 'src/engine/core-modules/emailing-domain/services/email-group-access.service';
 import { UnsubscribeContentService } from 'src/engine/core-modules/emailing-domain/services/unsubscribe-content.service';
-import { DriverFactoryBase } from 'src/engine/core-modules/kovaa-lab-config/dynamic-factory.base';
-import { ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
-import { ConfigGroupHashService } from 'src/engine/core-modules/kovaa-lab-config/services/config-group-hash.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { DriverFactoryBase } from 'src/engine/core-modules/twenty-config/dynamic-factory.base';
+import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
+import { ConfigGroupHashService } from 'src/engine/core-modules/twenty-config/services/config-group-hash.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomainDriverInterface> {
   constructor(
-    kovaa-labConfigService: KovaaLab CRMConfigService,
+    kovaaLabConfigService: KovaaLabCRMConfigService,
     configGroupHashService: ConfigGroupHashService,
     private readonly awsSesClientProvider: AwsSesClientProvider,
     private readonly awsSesAccountService: AwsSesAccountService,
@@ -40,7 +40,7 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
     private readonly unsubscribeContentService: UnsubscribeContentService,
     private readonly emailGroupAccessService: EmailGroupAccessService,
   ) {
-    super(kovaa-labConfigService, configGroupHashService);
+    super(kovaaLabConfigService, configGroupHashService);
   }
 
   override getCurrentDriver(): EmailingDomainDriverInterface {
@@ -50,7 +50,7 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
   }
 
   protected buildConfigKey(): string {
-    const driver = this.kovaa-labConfigService.get('EMAILING_DOMAIN_DRIVER');
+    const driver = this.kovaaLabConfigService.get('EMAILING_DOMAIN_DRIVER');
 
     switch (driver) {
       case EmailingDomainDriver.AWS_SES: {
@@ -75,19 +75,19 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
   }
 
   protected createDriver(): EmailingDomainDriverInterface {
-    const driver = this.kovaa-labConfigService.get('EMAILING_DOMAIN_DRIVER');
+    const driver = this.kovaaLabConfigService.get('EMAILING_DOMAIN_DRIVER');
 
     switch (driver) {
       case EmailingDomainDriver.AWS_SES: {
-        const region = this.kovaa-labConfigService.get('AWS_SES_REGION');
-        const accountId = this.kovaa-labConfigService.get('AWS_SES_ACCOUNT_ID');
-        const accessKeyId = this.kovaa-labConfigService.get(
+        const region = this.kovaaLabConfigService.get('AWS_SES_REGION');
+        const accountId = this.kovaaLabConfigService.get('AWS_SES_ACCOUNT_ID');
+        const accessKeyId = this.kovaaLabConfigService.get(
           'AWS_SES_ACCESS_KEY_ID',
         );
-        const secretAccessKey = this.kovaa-labConfigService.get(
+        const secretAccessKey = this.kovaaLabConfigService.get(
           'AWS_SES_SECRET_ACCESS_KEY',
         );
-        const sessionToken = this.kovaa-labConfigService.get(
+        const sessionToken = this.kovaaLabConfigService.get(
           'AWS_SES_SESSION_TOKEN',
         );
 
@@ -112,7 +112,7 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
       }
 
       case EmailingDomainDriver.RESEND: {
-        const domainRegion = this.kovaa-labConfigService.get(
+        const domainRegion = this.kovaaLabConfigService.get(
           'RESEND_DOMAIN_REGION',
         );
 

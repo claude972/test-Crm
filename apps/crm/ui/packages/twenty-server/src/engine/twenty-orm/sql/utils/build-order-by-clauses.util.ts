@@ -1,5 +1,5 @@
-import { type OrderByClause } from 'src/engine/kovaa-lab-orm/sql/utils/build-select-statement.util';
-import { type OrderByConditionLike } from 'src/engine/kovaa-lab-orm/query-builder/types/query-builder.type';
+import { type OrderByClause } from 'src/engine/twenty-orm/sql/utils/build-select-statement.util';
+import { type OrderByConditionLike } from 'src/engine/twenty-orm/query-builder/types/query-builder.type';
 
 export const buildOrderByClauses = ({
   orderByOrExpression,

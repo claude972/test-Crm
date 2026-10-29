@@ -7,11 +7,11 @@ import { PageLayoutType } from 'kovaa-lab-shared/types';
 import {
   TAB_PROPS,
   WIDGET_PROPS,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout-tabs.template';
+} from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout-tabs.template';
 import {
   type StandardPageLayoutConfig,
   type StandardPageLayoutTabConfig,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config/standard-page-layout-config.type';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config/standard-page-layout-config.type';
 
 const MESSAGE_CHANNEL_MESSAGE_ASSOCIATION_PAGE_TABS = {
   home: {

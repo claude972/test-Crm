@@ -3,8 +3,8 @@ import { type QueryRunner } from 'typeorm';
 import {
   WorkspaceSchemaManagerException,
   WorkspaceSchemaManagerExceptionCode,
-} from 'src/engine/kovaa-lab-orm/workspace-schema-manager/exceptions/workspace-schema-manager.exception';
-import { type WorkspaceSchemaIndexDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/types/workspace-schema-index-definition.type';
+} from 'src/engine/twenty-orm/workspace-schema-manager/exceptions/workspace-schema-manager.exception';
+import { type WorkspaceSchemaIndexDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/types/workspace-schema-index-definition.type';
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
 import { validateAndReturnIndexWhereClause } from 'src/engine/workspace-manager/workspace-migration/utils/validate-index-where-clause.util';
 

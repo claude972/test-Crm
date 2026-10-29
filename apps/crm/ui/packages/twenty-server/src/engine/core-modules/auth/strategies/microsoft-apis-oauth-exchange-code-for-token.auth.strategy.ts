@@ -8,12 +8,12 @@ import { type APIsOAuthRequest } from 'src/engine/core-modules/auth/types/apis-o
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { type APIsOAuthState } from 'src/engine/core-modules/auth/types/apis-oauth-state.type';
 import { type MicrosoftPassportProfile } from 'src/engine/core-modules/auth/types/microsoft-passport-profile.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class MicrosoftAPIsOauthExchangeCodeForTokenStrategy extends MicrosoftAPIsOauthCommonStrategy {
-  constructor(kovaa-labConfigService: KovaaLab CRMConfigService) {
-    super(kovaa-labConfigService);
+  constructor(kovaaLabConfigService: KovaaLabCRMConfigService) {
+    super(kovaaLabConfigService);
   }
 
   async validate(

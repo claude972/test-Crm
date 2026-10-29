@@ -68,8 +68,8 @@ export class ConfigureStandardTimelineRenderersCommand extends ProvisionedWorksp
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -91,7 +91,7 @@ export class ConfigureStandardTimelineRenderersCommand extends ProvisionedWorksp
        WHERE timeline_activity_type."workspaceId" = $1
          AND timeline_activity_type."applicationId" = $2
          AND timeline_activity_type."universalIdentifier" = renderer."universalIdentifier"`,
-      [workspaceId, kovaa-labStandardFlatApplication.id, ...parameters],
+      [workspaceId, kovaaLabStandardFlatApplication.id, ...parameters],
     );
 
     await this.workspaceCacheService.invalidateAndRecompute(workspaceId, [

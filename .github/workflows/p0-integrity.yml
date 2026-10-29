@@ -31,3 +31,17 @@ jobs:
           bundler-cache: false
       - name: Compile Char backend sources without loading Rails or touching data
         run: ruby scripts/check-char-p0.rb
+  crm-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install isolated verification tools
+        run: npm install --prefix "$RUNNER_TEMP/hermes-p0" --ignore-scripts --no-audit --no-fund typescript@5.4.5
+      - name: Check CRM backend syntax, internal imports and SDK wire compatibility
+        env:
+          HERMES_CHECK_MODULES: ${{ runner.temp }}/hermes-p0
+        run: node scripts/check-crm-p0.cjs

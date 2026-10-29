@@ -60,7 +60,7 @@ const buildServices = () => ({
     findByWorkspaceId: jest.fn().mockResolvedValue([]),
   },
   applicationService: {
-    findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+    findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
       .fn()
       .mockResolvedValue({
         workspaceCustomFlatApplication: {

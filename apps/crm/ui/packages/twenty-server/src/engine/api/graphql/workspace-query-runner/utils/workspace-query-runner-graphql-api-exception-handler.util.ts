@@ -24,8 +24,8 @@ import { RecordShareException } from 'src/engine/core-modules/record-share/recor
 import { recordShareGraphqlApiExceptionHandler } from 'src/engine/core-modules/record-share/utils/record-share-graphql-api-exception-handler.util';
 import { RecordValidationRuleException } from 'src/engine/metadata-modules/validation-rule/exceptions/record-validation-rule.exception';
 import { recordValidationRuleGraphqlApiExceptionHandler } from 'src/engine/metadata-modules/validation-rule/utils/record-validation-rule-graphql-api-exception-handler.util';
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { kovaa-labOrmGraphqlApiExceptionHandler } from 'src/engine/kovaa-lab-orm/utils/kovaa-lab-orm-graphql-api-exception-handler.util';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { kovaaLabOrmGraphqlApiExceptionHandler } from 'src/engine/twenty-orm/utils/twenty-orm-graphql-api-exception-handler.util';
 import { WorkflowQueryValidationException } from 'src/modules/workflow/common/exceptions/workflow-query-validation.exception';
 import { workflowQueryValidationGraphqlApiExceptionHandler } from 'src/modules/workflow/common/utils/workflow-query-validation-graphql-api-exception-handler.util';
 
@@ -45,8 +45,8 @@ export const workspaceQueryRunnerGraphqlApiExceptionHandler = (
       return workspaceExceptionHandler(error);
     case error instanceof GraphqlQueryRunnerException:
       return graphqlQueryRunnerExceptionHandler(error);
-    case error instanceof KovaaLab CRMOrmException:
-      return kovaa-labOrmGraphqlApiExceptionHandler(error);
+    case error instanceof KovaaLabCRMOrmException:
+      return kovaaLabOrmGraphqlApiExceptionHandler(error);
     case error instanceof RecordValidationRuleException:
       return recordValidationRuleGraphqlApiExceptionHandler(error);
     case error instanceof CommonQueryRunnerException:

@@ -28,7 +28,7 @@ import { FileUrlService } from 'src/engine/core-modules/file/file-url/file-url.s
 import { FileService } from 'src/engine/core-modules/file/services/file.service';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
 import { CodeInterpreterInputZodSchema } from 'src/engine/core-modules/tool/tools/code-interpreter-tool/code-interpreter-tool.schema';
-import { KOVAALAB_MCP_HELPER } from 'src/engine/core-modules/tool/tools/code-interpreter-tool/kovaa-lab-mcp-helper.const';
+import { KOVAALAB_MCP_HELPER } from 'src/engine/core-modules/tool/tools/code-interpreter-tool/twenty-mcp-helper.const';
 import {
   type CodeInterpreterFileInput,
   type CodeInterpreterInput,
@@ -37,7 +37,7 @@ import { type ToolExecutionContext } from 'src/engine/core-modules/tool/types/to
 import { type ToolInput } from 'src/engine/core-modules/tool/types/tool-input.type';
 import { type ToolOutput } from 'src/engine/core-modules/tool/types/tool-output.type';
 import { type Tool } from 'src/engine/core-modules/tool/types/tool.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 type SandboxPrincipal = {
   workspaceId: string;
@@ -62,7 +62,7 @@ export class CodeInterpreterTool implements Tool {
     private readonly fileUrlService: FileUrlService,
     private readonly applicationService: ApplicationService,
     private readonly secureHttpClientService: SecureHttpClientService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly applicationTokenService: ApplicationTokenService,
   ) {}
 
@@ -115,7 +115,7 @@ export class CodeInterpreterTool implements Tool {
         this.buildExecutionState(executionId, 'running', code, '', '', []),
       );
 
-      const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
+      const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
       const sandboxPrincipal = await this.resolveSandboxPrincipal(
         workspaceAuthContextStorage.getStore(),
       );
@@ -348,7 +348,7 @@ export class CodeInterpreterTool implements Tool {
     workspaceId: string,
   ): Promise<string> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -376,7 +376,7 @@ export class CodeInterpreterTool implements Tool {
 
     try {
       const { workspaceCustomFlatApplication } =
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         );
 

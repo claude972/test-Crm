@@ -8,7 +8,7 @@ import { NO_BILLING_SUBSCRIPTION } from 'src/engine/core-modules/billing/constan
 import { SubscriptionStatus } from 'src/engine/core-modules/billing/enums/billing-subscription-status.enum';
 import { UserCreditsFallback } from 'src/engine/core-modules/billing/enums/billing-user-credits-fallback.enum';
 import { type FlatBillingSubscription } from 'src/engine/core-modules/billing/types/flat-billing-subscription.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type CreditAllowance } from 'src/engine/core-modules/usage-limit/types/credit-allowance.type';
 import { type UsagePeriod } from 'src/engine/core-modules/usage-limit/types/usage-period.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
@@ -16,12 +16,12 @@ import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/works
 @Injectable()
 export class BillingCreditAllowanceService {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workspaceCacheService: WorkspaceCacheService,
   ) {}
 
   async isCreditAllowanceEnabled(): Promise<boolean> {
-    return this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    return this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
   }
 
   async getCreditAllowancePeriod(
@@ -87,7 +87,7 @@ export class BillingCreditAllowanceService {
   private async findCurrentBillingSubscription(
     workspaceId: string,
   ): Promise<FlatBillingSubscription | null> {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       return null;
     }
 

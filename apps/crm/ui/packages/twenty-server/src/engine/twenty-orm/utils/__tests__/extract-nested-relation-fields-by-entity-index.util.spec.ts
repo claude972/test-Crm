@@ -1,4 +1,4 @@
-import { extractNestedRelationFieldsByEntityIndex } from 'src/engine/kovaa-lab-orm/utils/extract-nested-relation-fields-by-entity-index.util';
+import { extractNestedRelationFieldsByEntityIndex } from 'src/engine/twenty-orm/utils/extract-nested-relation-fields-by-entity-index.util';
 
 describe('extractNestedRelationFieldsByEntityIndex', () => {
   it('extracts nested create fields by record index', () => {

@@ -11,7 +11,7 @@ import ts from 'typescript';
 const INDEX_FILENAME = 'index';
 const PACKAGE_JSON_FILENAME = 'package.json';
 const NX_PROJECT_CONFIGURATION_FILENAME = 'project.json';
-const PACKAGE_PATH = path.resolve('packages/kovaa-lab-shared');
+const PACKAGE_PATH = path.resolve('packages/twenty-shared');
 const SRC_PATH = path.resolve(`${PACKAGE_PATH}/src`);
 const PACKAGE_JSON_PATH = path.join(PACKAGE_PATH, PACKAGE_JSON_FILENAME);
 const NX_PROJECT_CONFIGURATION_PATH = path.join(

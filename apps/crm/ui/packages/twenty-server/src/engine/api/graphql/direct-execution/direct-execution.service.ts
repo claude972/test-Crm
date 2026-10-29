@@ -74,7 +74,7 @@ import { UserInputError } from 'src/engine/core-modules/graphql/utils/graphql-er
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { buildObjectIdByNameMaps } from 'src/engine/metadata-modules/flat-object-metadata/utils/build-object-id-by-name-maps.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
@@ -106,7 +106,7 @@ export class DirectExecutionService {
     private readonly workspaceFlatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly workspaceGraphqlSchemaSDLService: WorkspaceGraphqlSchemaSDLService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly i18nService: I18nService,
     private readonly metricsService: MetricsService,
     private readonly findManyResolverFactory: FindManyResolverFactory,
@@ -129,7 +129,7 @@ export class DirectExecutionService {
     this.queryCostHistogram = this.metricsService
       .getMeter()
       .createHistogram(
-        'kovaa-lab_graphql_direct_execution_estimated_result_field_count',
+        'kovaaLab_graphql_direct_execution_estimated_result_field_count',
         {
           description:
             'Estimated number of result field values produced by a directly executed GraphQL request',
@@ -527,7 +527,7 @@ export class DirectExecutionService {
   }
 
   private checkRootResolverLimitsOrThrow(topLevelFields: FieldNode[]): void {
-    const maxRootResolvers = this.kovaa-labConfigService.get(
+    const maxRootResolvers = this.kovaaLabConfigService.get(
       'GRAPHQL_MAX_ROOT_RESOLVERS',
     );
 

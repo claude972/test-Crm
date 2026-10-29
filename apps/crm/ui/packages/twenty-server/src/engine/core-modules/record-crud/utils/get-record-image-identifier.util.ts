@@ -13,7 +13,7 @@ type GetRecordImageIdentifierOptions = {
   record: Record<string, unknown>;
   flatObjectMetadata: FlatObjectMetadata;
   flatFieldMetadataMaps: FlatEntityMaps<FlatFieldMetadata>;
-  allowRequestsToKovaaLab CRMIcons: boolean;
+  allowRequestsToKovaaLabCRMIcons: boolean;
   signUrl?: (
     fileId: string,
     fileFolder: FileFolder,
@@ -24,7 +24,7 @@ export const getRecordImageIdentifier = async ({
   record,
   flatObjectMetadata,
   flatFieldMetadataMaps,
-  allowRequestsToKovaaLab CRMIcons,
+  allowRequestsToKovaaLabCRMIcons,
   signUrl,
 }: GetRecordImageIdentifierOptions): Promise<string | null> => {
   if (
@@ -77,7 +77,7 @@ export const getRecordImageIdentifier = async ({
       return signUrl(fileId, FileFolder.FilesField);
     }
     case FieldMetadataType.LINKS: {
-      if (!allowRequestsToKovaaLab CRMIcons) {
+      if (!allowRequestsToKovaaLabCRMIcons) {
         return null;
       }
 

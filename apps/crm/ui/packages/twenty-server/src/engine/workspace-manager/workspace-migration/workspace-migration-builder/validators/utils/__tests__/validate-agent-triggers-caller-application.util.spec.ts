@@ -1,5 +1,5 @@
 import { AiExceptionCode } from 'src/engine/metadata-modules/ai/ai.exception';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { validateAgentTriggersCallerApplication } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/utils/validate-agent-triggers-caller-application.util';
 
 const OWNER_APPLICATION_UNIVERSAL_IDENTIFIER = 'owner-application';

@@ -113,8 +113,8 @@ export class ReconcileSearchVectorGinIndexUniversalIdentifierCommand extends Pro
       'flatApplicationMaps',
     ]);
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -140,7 +140,7 @@ export class ReconcileSearchVectorGinIndexUniversalIdentifierCommand extends Pro
         flatObjectMetadataMaps,
         flatFieldMetadataMaps,
         flatIndexMaps,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
         workspaceCustomApplicationId: workspaceCustomFlatApplication.id,
       });
 

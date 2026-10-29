@@ -1,7 +1,7 @@
 import { EVERYONE_PRINCIPAL_ID } from 'kovaa-lab-shared/constants';
 
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
-import { resolvePrincipalIdsFromAuthContext } from 'src/engine/kovaa-lab-orm/utils/resolve-principal-ids-from-auth-context.util';
+import { resolvePrincipalIdsFromAuthContext } from 'src/engine/twenty-orm/utils/resolve-principal-ids-from-auth-context.util';
 
 const USER_WORKSPACE_ID = 'user-workspace-1';
 const USER_ROLE_ID = 'user-role-1';

@@ -15,10 +15,10 @@ import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspac
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { getWorkspaceScopedRepositoryToken } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
-import { type WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { getWorkspaceScopedRepositoryToken } from 'src/engine/twenty-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
+import { type WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { type WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 
 import { FileUrlService } from 'src/engine/core-modules/file/file-url/file-url.service';
@@ -41,7 +41,7 @@ describe('ApprovedAccessDomainService', () => {
   let approvedAccessDomainRepository: WorkspaceScopedRepository<ApprovedAccessDomainEntity>;
   let approvedAccessDomainRepositoryUnscoped: Repository<ApprovedAccessDomainEntity>;
   let emailService: EmailService;
-  let kovaa-labConfigService: KovaaLab CRMConfigService;
+  let kovaaLabConfigService: KovaaLabCRMConfigService;
   let workspaceDomainsService: WorkspaceDomainsService;
   let jwtWrapperService: jest.Mocked<JwtWrapperService>;
 
@@ -75,7 +75,7 @@ describe('ApprovedAccessDomainService', () => {
           },
         },
         {
-          provide: KovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
           useValue: {
             get: jest.fn(),
           },
@@ -123,7 +123,7 @@ describe('ApprovedAccessDomainService', () => {
       getRepositoryToken(ApprovedAccessDomainEntity),
     );
     emailService = module.get<EmailService>(EmailService);
-    kovaa-labConfigService = module.get<KovaaLab CRMConfigService>(KovaaLab CRMConfigService);
+    kovaaLabConfigService = module.get<KovaaLabCRMConfigService>(KovaaLabCRMConfigService);
     workspaceDomainsService = module.get<WorkspaceDomainsService>(
       WorkspaceDomainsService,
     );
@@ -328,7 +328,7 @@ describe('ApprovedAccessDomainService', () => {
         .mockReturnValue(new URL('https://sub.kovaa-lab.com'));
 
       jest
-        .spyOn(kovaa-labConfigService, 'get')
+        .spyOn(kovaaLabConfigService, 'get')
         .mockImplementation((key: string) => {
           if (key === 'EMAIL_FROM_ADDRESS') return 'no-reply@example.com';
           if (key === 'SERVER_URL') return 'https://api.example.com';

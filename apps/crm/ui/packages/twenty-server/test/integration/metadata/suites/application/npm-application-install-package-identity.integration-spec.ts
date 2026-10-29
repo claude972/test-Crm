@@ -17,7 +17,7 @@ import { getAppProviderByClassName } from 'test/integration/utils/get-app-provid
 
 import { type ApplicationRegistrationVersionService } from 'src/engine/core-modules/application/application-registration-version/application-registration-version.service';
 import { ApplicationRegistrationSourceType } from 'src/engine/core-modules/application/application-registration/enums/application-registration-source-type.enum';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 
 const PACKAGE_NAME = '@kovaa-lab-test/install-identity-app';
@@ -106,8 +106,8 @@ describe('npm application install package identity (integration)', () => {
   beforeAll(async () => {
     jest.useRealTimers();
 
-    registryBaseUrl = getAppProviderByClassName<KovaaLab CRMConfigService>(
-      'KovaaLab CRMConfigService',
+    registryBaseUrl = getAppProviderByClassName<KovaaLabCRMConfigService>(
+      'KovaaLabCRMConfigService',
     )
       .get('APP_REGISTRY_URL')
       .replace(/\/$/, '');

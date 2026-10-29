@@ -1,6 +1,6 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type UpgradeAwareEntityMetadataAdapter } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
+import { type UpgradeAwareEntityMetadataAdapter } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
 
 export class UpgradeAwareRepositoryState {
   private static singleton: UpgradeAwareRepositoryState | undefined;

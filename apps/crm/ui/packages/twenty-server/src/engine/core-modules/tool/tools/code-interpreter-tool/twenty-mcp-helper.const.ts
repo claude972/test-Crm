@@ -9,7 +9,7 @@ try:
 except ImportError:
     _REQUESTS_AVAILABLE = False
 
-class KovaaLab CRMMCP:
+class KovaaLabCRMMCP:
     """Helper for calling KovaaLab CRM tools from sandboxed code.
 
     Two categories of tools exist behind /mcp:
@@ -210,10 +210,10 @@ class KovaaLab CRMMCP:
         return result.get("result")
 
 # --------------------------------------------------------------------------
-# \`kovaa-lab\` is a pre-built instance of the KovaaLab CRMMCP class above. It is
+# \`kovaa-lab\` is a pre-built instance of the KovaaLabCRMMCP class above. It is
 # already bound in this module scope — DO NOT \`import kovaa-lab\`. There is
 # no Python package by that name. Just use it directly, e.g.:
 #     companies = kovaa-lab.call_tool('find_many_companies', {'limit': 10})
 # --------------------------------------------------------------------------
-kovaa-lab = KovaaLab CRMMCP()
+kovaa-lab = KovaaLabCRMMCP()
 `;

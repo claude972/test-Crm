@@ -5,7 +5,7 @@ import { isApplicationAuthContext } from 'src/engine/core-modules/auth/guards/is
 import { isUserAuthContext } from 'src/engine/core-modules/auth/guards/is-user-auth-context.guard';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { type UserWorkspaceRoleMap } from 'src/engine/metadata-modules/role-target/types/user-workspace-role-map.type';
-import { resolveRoleIdsForUser } from 'src/engine/kovaa-lab-orm/utils/resolve-role-ids-for-user.util';
+import { resolveRoleIdsForUser } from 'src/engine/twenty-orm/utils/resolve-role-ids-for-user.util';
 
 export const resolveRoleIdsFromAuthContext = ({
   authContext,

@@ -1,6 +1,6 @@
 import { plainToClass } from 'class-transformer';
 
-import { CastToUpperSnakeCase } from 'src/engine/core-modules/kovaa-lab-config/decorators/cast-to-upper-snake-case.decorator';
+import { CastToUpperSnakeCase } from 'src/engine/core-modules/twenty-config/decorators/cast-to-upper-snake-case.decorator';
 
 class TestClass {
   @CastToUpperSnakeCase()

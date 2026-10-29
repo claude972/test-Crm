@@ -1,4 +1,4 @@
-import { getRoleIdsToIntersect } from 'src/engine/kovaa-lab-orm/utils/get-role-ids-to-intersect.util';
+import { getRoleIdsToIntersect } from 'src/engine/twenty-orm/utils/get-role-ids-to-intersect.util';
 
 describe('getRoleIdsToIntersect', () => {
   it('returns the role of a single source', () => {

@@ -121,7 +121,7 @@ export class TimelineActivityTypeService {
 
   private async getWorkspaceUpdateContext(workspaceId: string) {
     const [applicationContext, metadataMaps] = await Promise.all([
-      this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       ),
       this.workspaceManyOrAllFlatEntityMapsCacheService.getOrRecomputeManyOrAllFlatEntityMaps(

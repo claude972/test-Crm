@@ -1,15 +1,15 @@
 import { types } from 'pg';
 
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 import {
   SCHEMA_NAME,
   buildColumn,
   buildQueryBuilder,
   companyTableShape,
   personTableShape,
-} from 'src/engine/kovaa-lab-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
-import { buildColumnResultAlias } from 'src/engine/kovaa-lab-orm/sql/utils/build-column-result-alias.util';
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+} from 'src/engine/twenty-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
+import { buildColumnResultAlias } from 'src/engine/twenty-orm/sql/utils/build-column-result-alias.util';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 describe('WorkspaceSelectQueryBuilder selection', () => {
   it('should preserve raw dates only for pagination without global parser setup', async () => {
@@ -84,7 +84,7 @@ describe('WorkspaceSelectQueryBuilder selection', () => {
 
     queryBuilder.setFindOptions({ select: { nonExistent: true } });
 
-    expect(() => queryBuilder.getQuery()).toThrow(KovaaLab CRMOrmException);
+    expect(() => queryBuilder.getQuery()).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should select only aggregate expressions after select([])', () => {

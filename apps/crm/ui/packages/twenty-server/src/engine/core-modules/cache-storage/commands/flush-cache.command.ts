@@ -7,7 +7,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const NAMESPACE_VALUES = Object.values(
   CacheStorageNamespace,
@@ -23,7 +23,7 @@ export class FlushCacheCommand extends CommandRunner {
 
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {
     super();
   }
@@ -48,7 +48,7 @@ export class FlushCacheCommand extends CommandRunner {
         const cacheStorage = new CacheStorageService(
           this.cacheManager,
           namespace,
-          this.kovaa-labConfigService.get('REDIS_CACHE_PREFIX'),
+          this.kovaaLabConfigService.get('REDIS_CACHE_PREFIX'),
         );
 
         await cacheStorage.flushByPattern(pattern);

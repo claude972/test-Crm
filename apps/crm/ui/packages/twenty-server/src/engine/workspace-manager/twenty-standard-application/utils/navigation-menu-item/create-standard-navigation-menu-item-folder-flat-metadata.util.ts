@@ -3,7 +3,7 @@ import { NavigationMenuItemType } from 'src/engine/metadata-modules/navigation-m
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { type FlatNavigationMenuItem } from 'src/engine/metadata-modules/flat-navigation-menu-item/types/flat-navigation-menu-item.type';
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 export const createStandardNavigationMenuItemFolderFlatMetadata = ({
   universalIdentifier,
@@ -12,7 +12,7 @@ export const createStandardNavigationMenuItemFolderFlatMetadata = ({
   position,
   navigationMenuItemId,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: {
   universalIdentifier: string;
@@ -21,13 +21,13 @@ export const createStandardNavigationMenuItemFolderFlatMetadata = ({
   position: number;
   navigationMenuItemId: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   now: string;
 }): FlatNavigationMenuItem => ({
   id: navigationMenuItemId,
   type: NavigationMenuItemType.FOLDER,
   universalIdentifier,
-  applicationId: kovaa-labStandardApplicationId,
+  applicationId: kovaaLabStandardApplicationId,
   applicationUniversalIdentifier:
     KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
   workspaceId,
@@ -60,7 +60,7 @@ export const createStandardNavigationMenuItemFolderItemFlatMetadata = ({
   position,
   navigationMenuItemId,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   dependencyFlatEntityMaps: { flatViewMaps },
   now,
 }: {
@@ -71,7 +71,7 @@ export const createStandardNavigationMenuItemFolderItemFlatMetadata = ({
   position: number;
   navigationMenuItemId: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   dependencyFlatEntityMaps: {
     flatViewMaps: FlatEntityMaps<FlatView>;
   };
@@ -92,7 +92,7 @@ export const createStandardNavigationMenuItemFolderItemFlatMetadata = ({
     id: navigationMenuItemId,
     type: NavigationMenuItemType.OBJECT,
     universalIdentifier,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     workspaceId,

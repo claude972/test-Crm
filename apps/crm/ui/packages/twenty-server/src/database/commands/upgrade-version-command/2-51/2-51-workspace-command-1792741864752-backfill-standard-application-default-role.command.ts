@@ -8,7 +8,7 @@ import { ApplicationService } from 'src/engine/core-modules/application/applicat
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 @RegisteredWorkspaceCommand('2.51.0', 1792741864752)
 @Command({
@@ -29,12 +29,12 @@ export class BackfillStandardApplicationDefaultRoleCommand extends ProvisionedWo
     workspaceId,
     options,
   }: RunOnWorkspaceArgs): Promise<void> {
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
-    if (isDefined(kovaa-labStandardFlatApplication.defaultRoleId)) {
+    if (isDefined(kovaaLabStandardFlatApplication.defaultRoleId)) {
       return;
     }
 
@@ -65,7 +65,7 @@ export class BackfillStandardApplicationDefaultRoleCommand extends ProvisionedWo
       return;
     }
 
-    await this.applicationService.update(kovaa-labStandardFlatApplication.id, {
+    await this.applicationService.update(kovaaLabStandardFlatApplication.id, {
       workspaceId,
       defaultRoleId: adminFlatRole.id,
     });

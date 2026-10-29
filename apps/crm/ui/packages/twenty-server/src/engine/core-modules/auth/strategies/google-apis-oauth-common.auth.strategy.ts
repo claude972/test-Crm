@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, type VerifyCallback } from 'passport-google-oauth20';
 
 import { getGoogleApisOauthScopes } from 'src/engine/core-modules/auth/utils/get-google-apis-oauth-scopes';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type GoogleApiScopeConfig = {
   isCalendarEnabled?: boolean;
@@ -14,13 +14,13 @@ export abstract class GoogleAPIsOauthCommonStrategy extends PassportStrategy(
   Strategy,
   'google-apis',
 ) {
-  constructor(kovaa-labConfigService: KovaaLab CRMConfigService) {
+  constructor(kovaaLabConfigService: KovaaLabCRMConfigService) {
     const scopes = getGoogleApisOauthScopes();
 
     super({
-      clientID: kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
-      clientSecret: kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
-      callbackURL: kovaa-labConfigService.get('AUTH_GOOGLE_APIS_CALLBACK_URL'),
+      clientID: kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
+      clientSecret: kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
+      callbackURL: kovaaLabConfigService.get('AUTH_GOOGLE_APIS_CALLBACK_URL'),
       scope: scopes,
       passReqToCallback: true,
     });

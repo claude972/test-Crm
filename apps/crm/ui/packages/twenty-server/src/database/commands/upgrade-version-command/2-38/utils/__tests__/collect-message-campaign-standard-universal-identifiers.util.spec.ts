@@ -3,15 +3,15 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { v4 } from 'uuid';
 
 import { collectMessageCampaignStandardUniversalIdentifiers } from 'src/database/commands/upgrade-version-command/2-38/utils/collect-message-campaign-standard-universal-identifiers.util';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 describe('collectMessageCampaignStandardUniversalIdentifiers', () => {
   const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: new Date().toISOString(),
       workspaceId: v4(),
-      kovaa-labStandardApplicationId: v4(),
+      kovaaLabStandardApplicationId: v4(),
     });
 
   const universalIdentifiers =

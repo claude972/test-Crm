@@ -41,7 +41,7 @@ export class PrefillFrontComponentService {
       );
 
     const { workspaceCustomFlatApplication: ownerFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 

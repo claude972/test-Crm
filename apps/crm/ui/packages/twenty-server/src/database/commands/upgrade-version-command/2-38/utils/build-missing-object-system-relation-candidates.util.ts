@@ -44,7 +44,7 @@ type BuildMissingObjectSystemRelationCandidatesArgs = Pick<
     Set<string>
   >;
   existingTableNames: Set<string>;
-  kovaa-labStandardApplicationUniversalIdentifier: string;
+  kovaaLabStandardApplicationUniversalIdentifier: string;
 };
 
 export const buildMissingObjectSystemRelationCandidates = ({
@@ -53,7 +53,7 @@ export const buildMissingObjectSystemRelationCandidates = ({
   holderFlatObjectMetadataByNameSingular,
   existingColumnNamesByHolderNameSingular,
   existingTableNames,
-  kovaa-labStandardApplicationUniversalIdentifier,
+  kovaaLabStandardApplicationUniversalIdentifier,
 }: BuildMissingObjectSystemRelationCandidatesArgs): MissingObjectSystemRelationCandidates => {
   const holderContexts = DEFAULT_RELATIONS_OBJECTS_STANDARD_IDS.map(
     (holderNameSingular) => {
@@ -99,7 +99,7 @@ export const buildMissingObjectSystemRelationCandidates = ({
   ).filter(isDefined)) {
     if (
       sourceFlatObjectMetadata.applicationUniversalIdentifier ===
-      kovaa-labStandardApplicationUniversalIdentifier
+      kovaaLabStandardApplicationUniversalIdentifier
     ) {
       continue;
     }

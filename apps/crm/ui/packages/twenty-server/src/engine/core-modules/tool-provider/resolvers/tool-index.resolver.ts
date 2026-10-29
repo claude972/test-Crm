@@ -17,8 +17,8 @@ import { RequestLocale } from 'src/engine/decorators/locale/request-locale.decor
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { AuthPrincipalGuard } from 'src/engine/guards/auth-principal.guard';
 import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { buildUserRoleIdsBySource } from 'src/engine/kovaa-lab-orm/utils/build-user-role-ids-by-source.util';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { buildUserRoleIdsBySource } from 'src/engine/twenty-orm/utils/build-user-role-ids-by-source.util';
 
 @ObjectType('ToolIndexEntry')
 export class ToolIndexEntryDTO {

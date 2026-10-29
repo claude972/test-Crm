@@ -12,7 +12,7 @@ import { TransientTokenService } from 'src/engine/core-modules/auth/token/servic
 import { setRequestExtraParams } from 'src/engine/core-modules/auth/utils/google-apis-set-request-extra-params.util';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class GoogleAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
 ) {
   constructor(
     private readonly guardRedirectService: GuardRedirectService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly transientTokenService: TransientTokenService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
@@ -36,8 +36,8 @@ export class GoogleAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
       const state = JSON.parse(request.query.state);
 
       if (
-        !this.kovaa-labConfigService.get('MESSAGING_PROVIDER_GMAIL_ENABLED') &&
-        !this.kovaa-labConfigService.get('CALENDAR_PROVIDER_GOOGLE_ENABLED')
+        !this.kovaaLabConfigService.get('MESSAGING_PROVIDER_GMAIL_ENABLED') &&
+        !this.kovaaLabConfigService.get('CALENDAR_PROVIDER_GOOGLE_ENABLED')
       ) {
         throw new AuthException(
           'Google apis auth is not enabled',
@@ -49,7 +49,7 @@ export class GoogleAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
         state.transientToken,
       );
 
-      new GoogleAPIsOauthExchangeCodeForTokenStrategy(this.kovaa-labConfigService);
+      new GoogleAPIsOauthExchangeCodeForTokenStrategy(this.kovaaLabConfigService);
 
       setRequestExtraParams(request, {
         transientToken: state.transientToken,

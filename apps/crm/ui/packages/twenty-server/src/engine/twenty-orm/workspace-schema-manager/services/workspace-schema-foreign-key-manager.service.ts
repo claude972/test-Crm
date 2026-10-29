@@ -1,6 +1,6 @@
 import { type QueryRunner } from 'typeorm';
 
-import { type WorkspaceSchemaForeignKeyDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/types/workspace-schema-foreign-key-definition.type';
+import { type WorkspaceSchemaForeignKeyDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/types/workspace-schema-foreign-key-definition.type';
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
 
 const ALLOWED_FK_ACTIONS = new Set([

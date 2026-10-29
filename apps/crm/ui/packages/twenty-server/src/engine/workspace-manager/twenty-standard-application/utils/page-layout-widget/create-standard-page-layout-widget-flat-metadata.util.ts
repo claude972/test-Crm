@@ -9,14 +9,14 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { type MetadataUniversalFlatEntity } from 'src/engine/metadata-modules/flat-entity/types/metadata-universal-flat-entity.type';
 import { type FlatPageLayoutWidget } from 'src/engine/metadata-modules/flat-page-layout-widget/types/flat-page-layout-widget.type';
 import { type AllPageLayoutWidgetConfiguration } from 'src/engine/metadata-modules/page-layout-widget/types/all-page-layout-widget-configuration.type';
-import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { type StandardObjectMetadataRelatedEntityIds } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/get-standard-object-metadata-related-entity-ids.util';
-import { type StandardPageLayoutMetadataRelatedEntityIds } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/get-standard-page-layout-metadata-related-entity-ids.util';
+import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { type StandardObjectMetadataRelatedEntityIds } from 'src/engine/workspace-manager/twenty-standard-application/utils/get-standard-object-metadata-related-entity-ids.util';
+import { type StandardPageLayoutMetadataRelatedEntityIds } from 'src/engine/workspace-manager/twenty-standard-application/utils/get-standard-page-layout-metadata-related-entity-ids.util';
 import {
   type StandardPageLayoutTabConfig,
   type StandardPageLayoutWidgetConfig,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config';
 
 export type CreateStandardPageLayoutWidgetContext = {
   layoutName: string;
@@ -35,7 +35,7 @@ export type CreateStandardPageLayoutWidgetContext = {
 export type CreateStandardPageLayoutWidgetArgs = {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   standardObjectMetadataRelatedEntityIds: StandardObjectMetadataRelatedEntityIds;
   standardPageLayoutMetadataRelatedEntityIds: StandardPageLayoutMetadataRelatedEntityIds;
   context: CreateStandardPageLayoutWidgetContext;
@@ -56,7 +56,7 @@ export const createStandardPageLayoutWidgetFlatMetadata = ({
     conditionalAvailabilityExpression,
   },
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   standardPageLayoutMetadataRelatedEntityIds,
   objectMetadataUniversalIdentifier,
   now,
@@ -91,7 +91,7 @@ export const createStandardPageLayoutWidgetFlatMetadata = ({
   return {
     id: widgetIds.id,
     universalIdentifier: widgetDef.universalIdentifier,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     workspaceId,

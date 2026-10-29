@@ -46,7 +46,7 @@ export class GcMetricsService implements OnModuleInit, OnModuleDestroy {
   constructor(private readonly metricsService: MetricsService) {
     this.pauseHistogram = this.metricsService
       .getMeter()
-      .createHistogram('kovaa-lab_nodejs_gc_duration_seconds', {
+      .createHistogram('kovaaLab_nodejs_gc_duration_seconds', {
         description: 'V8 garbage collection pause duration, by collection kind',
         unit: 's',
         advice: { explicitBucketBoundaries: GC_DURATION_BUCKETS_SECONDS },
@@ -78,22 +78,22 @@ export class GcMetricsService implements OnModuleInit, OnModuleDestroy {
       read: (statistics: ReturnType<typeof getHeapStatistics>) => number;
     }[] = [
       {
-        metricName: 'kovaa-lab_nodejs_heap_used_bytes',
+        metricName: 'kovaaLab_nodejs_heap_used_bytes',
         description: 'V8 heap occupied by live objects',
         read: (statistics) => statistics.used_heap_size,
       },
       {
-        metricName: 'kovaa-lab_nodejs_heap_total_bytes',
+        metricName: 'kovaaLab_nodejs_heap_total_bytes',
         description: 'V8 heap committed by the process',
         read: (statistics) => statistics.total_heap_size,
       },
       {
-        metricName: 'kovaa-lab_nodejs_heap_size_limit_bytes',
+        metricName: 'kovaaLab_nodejs_heap_size_limit_bytes',
         description: 'V8 heap ceiling (--max-old-space-size)',
         read: (statistics) => statistics.heap_size_limit,
       },
       {
-        metricName: 'kovaa-lab_nodejs_heap_external_bytes',
+        metricName: 'kovaaLab_nodejs_heap_external_bytes',
         description: 'Memory held outside the V8 heap by native objects',
         read: (statistics) => statistics.external_memory,
       },

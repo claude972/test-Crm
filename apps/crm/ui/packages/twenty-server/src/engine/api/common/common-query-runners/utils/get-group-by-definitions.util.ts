@@ -4,7 +4,7 @@ import { getGroupByExpression } from 'src/engine/api/common/common-query-runners
 import { isGroupByDateField } from 'src/engine/api/common/common-query-runners/utils/is-group-by-date-field.util';
 import { isGroupByRelationField } from 'src/engine/api/common/common-query-runners/utils/is-group-by-relation-field.util';
 import { formatColumnNameAsAlias } from 'src/engine/api/common/common-query-runners/utils/remove-quote.util';
-import { formatColumnNamesFromCompositeFieldAndSubfields } from 'src/engine/kovaa-lab-orm/utils/format-column-names-from-composite-field-and-subfield.util';
+import { formatColumnNamesFromCompositeFieldAndSubfields } from 'src/engine/twenty-orm/utils/format-column-names-from-composite-field-and-subfield.util';
 
 export const getGroupByDefinitions = ({
   groupByFields,

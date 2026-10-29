@@ -9,9 +9,9 @@ import { type EntityMetadata } from 'typeorm/metadata/EntityMetadata';
 import { WasIntroducedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/was-introduced-in-upgrade.decorator';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
 import { UpgradeSequenceReaderService } from 'src/engine/core-modules/upgrade/services/upgrade-sequence-reader.service';
-import { UpgradeAwareEntityMetadataAdapter } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
-import { UpgradeAwareRepositoryState } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-repository-state';
-import { wrapRepositoryWithUpgradeAwareProxy } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-repository.proxy';
+import { UpgradeAwareEntityMetadataAdapter } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
+import { UpgradeAwareRepositoryState } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-repository-state';
+import { wrapRepositoryWithUpgradeAwareProxy } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-repository.proxy';
 
 const INTRODUCE_STEP = '2.7.0_Introduce_1800000000000';
 

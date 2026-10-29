@@ -12,7 +12,7 @@ import {
 import { CustomException } from 'src/utils/custom-exception';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
@@ -26,7 +26,7 @@ export class ApplicationRegistrationClaimController {
     private readonly applicationRegistrationClaimService: ApplicationRegistrationClaimService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly guardRedirectService: GuardRedirectService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   @Get('github/callback')
@@ -94,7 +94,7 @@ export class ApplicationRegistrationClaimController {
         this.guardRedirectService.getRedirectErrorUrlAndCaptureExceptions({
           error,
           workspace: {
-            subdomain: this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN'),
+            subdomain: this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN'),
             customDomain: null,
           },
           pathname: getSettingsPath(SettingsPath.Developers),

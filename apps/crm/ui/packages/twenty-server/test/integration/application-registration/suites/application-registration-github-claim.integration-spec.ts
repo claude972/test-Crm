@@ -8,7 +8,7 @@ import { type DataSource } from 'typeorm';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 
 import { makeMetadataApiRequest } from 'test/integration/metadata/suites/utils/make-metadata-api-request.util';
-import { updateConfigVariable } from 'test/integration/kovaa-lab-config/utils/update-config-variable.util';
+import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 import { setupHttpMock } from 'test/integration/utils/http-mock.util';
 
 const CALLBACK_PATH = '/application-registration-claim/github/callback';

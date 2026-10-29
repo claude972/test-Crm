@@ -17,7 +17,7 @@ import { getMetadataRelatedMetadataNamesForValidation } from 'src/engine/metadat
 import { getSubAllFlatEntityMapsByApplicationIdsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/get-sub-all-flat-entity-maps-by-application-ids-or-throw.util';
 import { MetadataSideEffectEngineService } from 'src/engine/metadata-modules/metadata-side-effect/services/metadata-side-effect-engine.service';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { WORKSPACE_MIGRATION_ADDITIONAL_CACHE_DATA_MAPS_KEY } from 'src/engine/workspace-manager/workspace-migration/constant/workspace-migration-additional-cache-data-maps-key.constant';
 import { IdByUniversalIdentifierByMetadataName } from 'src/engine/workspace-manager/workspace-migration/services/utils/enrich-create-workspace-migration-action-with-ids.util';
 import { getTimelineActivityTypeTargetRelationApplicationIds } from 'src/engine/workspace-manager/workspace-migration/services/utils/get-timeline-activity-type-target-relation-application-ids.util';
@@ -241,12 +241,12 @@ export class WorkspaceMigrationFlatEntityMapsService {
         applicationUniversalIdentifier
       ];
 
-    const kovaa-labStandardApplicationId =
+    const kovaaLabStandardApplicationId =
       flatApplicationMaps.idByUniversalIdentifier[
         KOVAALAB_STANDARD_APPLICATION.universalIdentifier
       ];
 
-    if (!isDefined(kovaa-labStandardApplicationId)) {
+    if (!isDefined(kovaaLabStandardApplicationId)) {
       throw new FlatEntityMapsException(
         'KovaaLab CRM standard application not found in workspace',
         FlatEntityMapsExceptionCode.ENTITY_NOT_FOUND,
@@ -257,12 +257,12 @@ export class WorkspaceMigrationFlatEntityMapsService {
       applicationIds.add(applicationId);
     }
 
-    const isBuildingKovaaLab CRMStandardApplication =
+    const isBuildingKovaaLabCRMStandardApplication =
       applicationUniversalIdentifier ===
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier;
 
-    if (!isBuildingKovaaLab CRMStandardApplication) {
-      applicationIds.add(kovaa-labStandardApplicationId);
+    if (!isBuildingKovaaLabCRMStandardApplication) {
+      applicationIds.add(kovaaLabStandardApplicationId);
     }
 
     for (const targetRelationApplicationId of getTimelineActivityTypeTargetRelationApplicationIds(

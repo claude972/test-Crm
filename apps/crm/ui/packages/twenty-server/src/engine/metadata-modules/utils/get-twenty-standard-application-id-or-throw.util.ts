@@ -7,20 +7,20 @@ import {
 } from 'src/engine/core-modules/application/application.exception';
 import { type FlatApplicationCacheMaps } from 'src/engine/core-modules/application/types/flat-application-cache-maps.type';
 
-export const getKovaaLab CRMStandardApplicationIdOrThrow = (
+export const getKovaaLabCRMStandardApplicationIdOrThrow = (
   flatApplicationMaps: FlatApplicationCacheMaps,
 ): string => {
-  const kovaa-labStandardApplicationId =
+  const kovaaLabStandardApplicationId =
     flatApplicationMaps.idByUniversalIdentifier[
       KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER
     ];
 
-  if (!isDefined(kovaa-labStandardApplicationId)) {
+  if (!isDefined(kovaaLabStandardApplicationId)) {
     throw new ApplicationException(
       'Could not find the kovaa-lab-standard application in the workspace cache',
       ApplicationExceptionCode.APPLICATION_NOT_FOUND,
     );
   }
 
-  return kovaa-labStandardApplicationId;
+  return kovaaLabStandardApplicationId;
 };
