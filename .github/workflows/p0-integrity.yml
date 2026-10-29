@@ -72,6 +72,13 @@ jobs:
           node --input-type=module -e "const { build } = await import('vite'); await build();"
           test -s dist/index.cjs
           test -s dist/application.mjs
+      - name: Generate and verify shared TypeScript declarations
+        working-directory: apps/crm/ui/packages/twenty-shared
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: |
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
           test -s dist/application/index.d.ts
   local-orchestration:
     runs-on: ubuntu-latest
