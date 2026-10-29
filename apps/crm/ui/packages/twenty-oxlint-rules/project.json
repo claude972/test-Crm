@@ -1,7 +1,7 @@
 {
   "name": "kovaa-lab-oxlint-rules",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/kovaa-lab-oxlint-rules",
+  "sourceRoot": "packages/twenty-oxlint-rules",
   "tags": ["scope:shared"],
   "targets": {
     "build": {

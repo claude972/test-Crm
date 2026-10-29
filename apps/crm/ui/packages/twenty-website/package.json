@@ -9,7 +9,7 @@
     "deploy:dev": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env dev",
     "deploy:prod": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env prod",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "lint:i18n:shared-ui": "node ../kovaa-lab-oxlint-rules/scripts/check-unlocalized-strings.mjs . src/ui src/contact-cal src/pricing-state"
+    "lint:i18n:shared-ui": "node ../twenty-oxlint-rules/scripts/check-unlocalized-strings.mjs . src/ui src/contact-cal src/pricing-state"
   },
   "dependencies": {
     "@babel/runtime": "^7.27.6",
@@ -23,6 +23,8 @@
     "@tabler/icons-react": "^3.41.1",
     "@wyw-in-js/babel-preset": "^0.8.1",
     "@wyw-in-js/transform": "^0.8.1",
+    "kovaa-lab-shared": "workspace:*",
+    "kovaa-lab-ui": "workspace:*",
     "lodash.isempty": "^4.4.0",
     "next": "^16.4.1",
     "next-with-linaria": "^1.3.0",
@@ -32,8 +34,6 @@
     "server-only": "^0.0.1",
     "stripe": "^20.3.1",
     "three": "^0.184.0",
-    "kovaa-lab-shared": "workspace:*",
-    "kovaa-lab-ui": "workspace:*",
     "zod": "^4.1.11"
   },
   "devDependencies": {

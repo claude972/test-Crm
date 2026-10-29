@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kovaa-lab/kovaa-lab.git",
-    "directory": "packages/kovaa-lab-cli"
+    "directory": "packages/twenty-cli"
   },
   "bugs": {
     "url": "https://github.com/kovaa-lab/kovaa-lab/issues"
@@ -31,12 +31,12 @@
     "cjs-module-lexer": "^2.2.0",
     "commander": "^14.0.3",
     "execa": "^5.1.1",
+    "kovaa-lab-client-sdk": "workspace:*",
+    "kovaa-lab-shared": "workspace:*",
     "lodash.startcase": "^4.4.0",
     "npm-pick-manifest": "^11.0.1",
     "semver": "7.6.3",
     "string-width": "^8.2.0",
-    "kovaa-lab-client-sdk": "workspace:*",
-    "kovaa-lab-shared": "workspace:*",
     "undici": "^7.30.1",
     "uuid": "^13.0.2",
     "vite": "^8.0.0",

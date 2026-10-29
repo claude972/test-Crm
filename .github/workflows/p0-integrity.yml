@@ -45,3 +45,18 @@ jobs:
         env:
           HERMES_CHECK_MODULES: ${{ runner.temp }}/hermes-p0
         run: node scripts/check-crm-p0.cjs
+  crm-workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install CRM dependencies from the committed immutable lockfile
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build the shared package without Nx cache
+        run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-shared exec vite build

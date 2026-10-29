@@ -3,7 +3,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kovaa-lab/kovaa-lab.git",
-    "directory": "packages/create-kovaa-lab-app"
+    "directory": "packages/create-twenty-app"
   },
   "version": "2.52.0",
   "description": "Retired scaffolder, use kovaa-lab app init",

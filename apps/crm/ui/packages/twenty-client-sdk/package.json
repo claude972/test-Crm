@@ -3,7 +3,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kovaa-lab/kovaa-lab.git",
-    "directory": "packages/kovaa-lab-client-sdk"
+    "directory": "packages/twenty-client-sdk"
   },
   "version": "2.52.0",
   "sideEffects": false,
@@ -62,8 +62,8 @@
   "devDependencies": {
     "@types/lodash": "^4.17.24",
     "@typescript/native-preview": "^7.0.0-dev.20260116.1",
-    "tsc-alias": "^1.8.16",
     "kovaa-lab-shared": "workspace:*",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3",
     "vite": "^8.0.0",
     "vite-plugin-dts": "^4.5.4",

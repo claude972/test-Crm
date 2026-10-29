@@ -6,8 +6,8 @@
     "@oxlint/plugins": "^1.51.0",
     "eslint": "^9.39.4",
     "eslint-plugin-lingui": "^0.16.0",
-    "oxlint": "^1.51.0",
     "kovaa-lab-shared": "workspace:*",
+    "oxlint": "^1.51.0",
     "typescript": "^5.9.3"
   }
 }

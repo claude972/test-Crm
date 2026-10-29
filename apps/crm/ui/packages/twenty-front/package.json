@@ -106,6 +106,9 @@
     "jotai": "^2.17.1",
     "js-cookie": "^3.0.5",
     "json-logic-js": "^2.0.5",
+    "kovaa-lab-front-component-renderer": "workspace:*",
+    "kovaa-lab-shared": "workspace:*",
+    "kovaa-lab-ui": "workspace:*",
     "libphonenumber-js": "^1.10.26",
     "linkify-react": "^4.1.3",
     "linkifyjs": "^4.1.3",
@@ -139,9 +142,6 @@
     "temporal-polyfill": "^0.3.0",
     "transliteration": "^2.3.5",
     "ts-key-enum": "^2.0.12",
-    "kovaa-lab-front-component-renderer": "workspace:*",
-    "kovaa-lab-shared": "workspace:*",
-    "kovaa-lab-ui": "workspace:*",
     "type-fest": "4.10.1",
     "use-debounce": "^10.0.0",
     "uuid": "^11.1.1",
@@ -203,6 +203,7 @@
     "storybook-addon-mock-date": "2.0.0",
     "storybook-addon-pseudo-states": "^10.3.3",
     "ts-jest": "^29.1.1",
+    "vite": "^8.0.0",
     "vite-plugin-svgr": "^4.3.0"
   }
 }

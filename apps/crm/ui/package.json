@@ -65,35 +65,34 @@
   "version": "0.2.1",
   "nx": {},
   "scripts": {
-    "docs:generate": "tsx packages/kovaa-lab-docs/scripts/generate-docs-json.ts",
-    "docs:generate-navigation-template": "tsx packages/kovaa-lab-docs/scripts/generate-navigation-template.ts",
-    "docs:generate-paths": "tsx packages/kovaa-lab-docs/scripts/generate-documentation-paths.ts",
-    "docs:prune-orphans": "tsx packages/kovaa-lab-docs/scripts/prune-orphan-translations.ts",
-    "docs:fix-links": "tsx packages/kovaa-lab-docs/scripts/fix-translated-links.ts",
-    "docs:restore-attributes": "tsx packages/kovaa-lab-docs/scripts/restore-translated-attributes.ts",
-    "start": "npx concurrently --kill-others 'npx nx run-many -t start -p kovaa-lab-server kovaa-lab-front' 'npx wait-on tcp:3000 && npx nx run kovaa-lab-server:worker'"
+    "docs:generate": "tsx packages/twenty-docs/scripts/generate-docs-json.ts",
+    "docs:generate-navigation-template": "tsx packages/twenty-docs/scripts/generate-navigation-template.ts",
+    "docs:generate-paths": "tsx packages/twenty-docs/scripts/generate-documentation-paths.ts",
+    "docs:prune-orphans": "tsx packages/twenty-docs/scripts/prune-orphan-translations.ts",
+    "docs:fix-links": "tsx packages/twenty-docs/scripts/fix-translated-links.ts",
+    "docs:restore-attributes": "tsx packages/twenty-docs/scripts/restore-translated-attributes.ts",
+    "start": "FORCE_COLOR=0 npx concurrently --kill-others 'npx nx run-many -t start -p kovaa-lab-server kovaa-lab-front' 'npx wait-on tcp:3000 && npx nx run kovaa-lab-server:worker'"
   },
   "workspaces": {
     "packages": [
-      "packages/kovaa-lab-front",
-      "packages/kovaa-lab-server",
-      "packages/kovaa-lab-emails",
-      "packages/kovaa-lab-ui",
-      "packages/kovaa-lab-utils",
-      "packages/kovaa-lab-zapier",
-      "packages/kovaa-lab-website",
-      "packages/kovaa-lab-docs",
-      "packages/kovaa-lab-e2e-testing",
-      "packages/kovaa-lab-shared",
-      "packages/kovaa-lab-sdk",
-      "packages/kovaa-lab-front-component-renderer",
-      "packages/kovaa-lab-client-sdk",
-      "packages/kovaa-lab-cli",
-      "packages/create-kovaa-lab-app",
-      "packages/kovaa-lab-agent-skills",
-      "packages/kovaa-lab-oxlint-rules",
-      "packages/kovaa-lab-claude-skills",
-      "packages/kovaa-lab-companion"
+      "packages/twenty-front",
+      "packages/twenty-ui",
+      "packages/twenty-server",
+      "packages/twenty-emails",
+      "packages/twenty-utils",
+      "packages/twenty-zapier",
+      "packages/twenty-website",
+      "packages/twenty-docs",
+      "packages/twenty-shared",
+      "packages/twenty-sdk",
+      "packages/twenty-front-component-renderer",
+      "packages/twenty-client-sdk",
+      "packages/twenty-cli",
+      "packages/create-twenty-app",
+      "packages/twenty-agent-skills",
+      "packages/twenty-oxlint-rules",
+      "packages/twenty-claude-skills",
+      "packages/twenty-companion"
     ]
   },
   "prettier": {
@@ -102,6 +101,6 @@
     "endOfLine": "lf"
   },
   "dependencies": {
-    "typescript": "^7.0.2"
+    "typescript": "^5.9.3"
   }
 }
