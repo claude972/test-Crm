@@ -94,9 +94,9 @@ Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inven
 - owned files: scripts/, CI, packages backend/shared/client-sdk/emails nécessaires à la construction ; types partagés uniquement après coordination ; aucun fichier frontend détenu par Claude pendant son implémentation.
 - acceptance criteria: SHA de base et SHA Claude examinés enregistrés ; contrôles significatifs reproduits ; compatibilités persistantes conservées ; correction ciblée des défauts démontrés ; rapport de revue partagé et résultat combiné honnête ; aucune revendication de validation globale sans exécution.
 - verification report: CORRECTIONS.md, section p0-frontend-baseline / codex
-- implementation revision: base c0318cf0b33134c4c292affe395009a6bd3b4662 ; travail backend dans le worktree isolé p0-backend-build, avant tout commit applicatif.
+- implementation revision: 79305ae2e63e72456e3c5b78ae5ced483d951557 ; PR #7, base c0318cf0b33134c4c292affe395009a6bd3b4662.
 - preview: dépend de la disponibilité du résultat combiné ; aucune vérifiée.
-- blockers: checkpoint shared vérifié par CI 40969724576 ; préparation des dépendances backend possible indépendamment. La vérification combinée attend le SHA Claude prêt à relire.
+- blockers: contrôle final backend en cours dans CI 40972089496 après correction P0-TYPES-001 ; 19 tests SDK et constructions des dépendances déjà vérifiés dans CI 40971268236. La vérification combinée attend le SHA frontend Claude prêt à relire.
 
 ## Évaluation et utilisation
 
