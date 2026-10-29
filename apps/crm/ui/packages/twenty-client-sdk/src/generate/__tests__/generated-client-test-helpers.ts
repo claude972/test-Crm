@@ -9,7 +9,7 @@ import { transform } from 'esbuild';
 import { buildClientWrapperSource } from '../client-wrapper';
 
 const kovaaLabClientTemplateSource = readFileSync(
-  join(__dirname, '..', 'kovaa-lab-client-template.ts'),
+  join(__dirname, '..', 'twenty-client-template.ts'),
   'utf-8',
 );
 
