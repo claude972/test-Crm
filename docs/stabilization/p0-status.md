@@ -15,7 +15,7 @@ La reprise backend et système a commencé par lots vérifiés. Les contrôles p
 
 ## Sources d'exécution
 
-Les scripts locaux examinés `scripts/build-crm.mjs` et `scripts/local-project.mjs` ciblent `apps/crm/ui`, puis `packages/twenty-server` et `packages/twenty-front` à l'intérieur de ce workspace. Ils sont maintenant publiés dans la branche P0, avec des contrôles de conservation des configurations et de refus des cibles de migration distantes ou incorrectes.
+Les scripts locaux examinés `scripts/build-crm.mjs` et `scripts/local-project.mjs` ciblent `apps/crm/ui`, puis `packages/twenty-server` et `packages/twenty-front` à l'intérieur de ce workspace. Ils sont maintenant publiés dans la branche P0, avec des contrôles de conservation des configurations et de refus des cibles de migration distantes ou incorrectes. Le checkpoint 89ab4e8b1 passe les cinq jobs de CI, y compris le build shared et ses déclarations (exécution 40969724576).
 
 Le serveur racine `packages/twenty-server`, les services TypeScript à la racine et leurs anciens tests ne prouvent donc pas le fonctionnement du CRM démarré par ces scripts. Ne pas les supprimer avant inventaire des usages ; ne pas y développer les nouvelles intégrations par défaut.
 
@@ -49,7 +49,7 @@ Les résultats en ligne et les SHA précis sont consignés dans docs/verificatio
 
 ## Coordination Claude
 
-La première session Claude Code avait été lancée dans le worktree `claude-frontend-inventory`, branche `chore/claude-frontend-inventory`, base `2bd457eccbb3fbde1a48358be98ce768b0bd5470`, puis avait actualisé son checkout à bb1108377 avant interruption. À la reprise, une autre session Claude déjà active sur la mission #5 a été détectée ; la relance de l'ancien contexte a été arrêtée pour éviter un doublon. Les résultats et la revue restent attendus tant qu'un rapport et son SHA ne sont pas disponibles.
+La première session Claude Code avait été lancée dans le worktree `claude-frontend-inventory`, branche `chore/claude-frontend-inventory`, base `2bd457eccbb3fbde1a48358be98ce768b0bd5470`, puis avait actualisé son checkout à bb1108377 avant interruption. À la reprise, une autre session Claude déjà active sur la mission #5 a été détectée ; la relance de l'ancien contexte a été arrêtée pour éviter un doublon. Le rapport est désormais livré dans la PR #6, SHA 1501776ca799b8ce1720fc330ff04dbf00598b39. Les constats P0 ont été reproduits et des précisions documentaires demandées ; la revue globale reste ouverte.
 
 La coordination partagée courante est `missions/p0-stabilization`, fichiers racine MISSIONS.md et CORRECTIONS.md. Les documents sous docs/handoff conservent les consignes détaillées. Lire le remote et vérifier les prises en charge avant toute nouvelle session. Une nouvelle comparaison de la sauvegarde après interruption confirme 55 696 fichiers d'origine inchangés, sans aucun fichier manquant.
 
