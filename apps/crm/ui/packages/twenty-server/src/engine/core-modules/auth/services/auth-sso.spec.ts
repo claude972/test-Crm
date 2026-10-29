@@ -4,14 +4,14 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { type Repository } from 'typeorm';
 
 import { AuthSsoService } from 'src/engine/core-modules/auth/services/auth-sso.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 
 describe('AuthSsoService', () => {
   let authSsoService: AuthSsoService;
   let workspaceRepository: Repository<WorkspaceEntity>;
-  let kovaa-labConfigService: KovaaLab CRMConfigService;
+  let kovaaLabConfigService: KovaaLabCRMConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,7 +24,7 @@ describe('AuthSsoService', () => {
           },
         },
         {
-          provide: KovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
           useValue: {
             get: jest.fn(),
           },
@@ -36,7 +36,7 @@ describe('AuthSsoService', () => {
     workspaceRepository = module.get<Repository<WorkspaceEntity>>(
       getRepositoryToken(WorkspaceEntity),
     );
-    kovaa-labConfigService = module.get<KovaaLab CRMConfigService>(KovaaLab CRMConfigService);
+    kovaaLabConfigService = module.get<KovaaLabCRMConfigService>(KovaaLabCRMConfigService);
   });
 
   describe('findWorkspaceFromWorkspaceIdOrAuthProvider', () => {
@@ -68,7 +68,7 @@ describe('AuthSsoService', () => {
       const email = 'test@example.com';
       const mockWorkspace = { id: 'workspace-id-456' } as WorkspaceEntity;
 
-      jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue(true);
+      jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue(true);
       jest
         .spyOn(workspaceRepository, 'findOne')
         .mockResolvedValue(mockWorkspace);
@@ -98,7 +98,7 @@ describe('AuthSsoService', () => {
     });
 
     it('should return undefined if no workspace is found when multi-workspace mode is enabled', async () => {
-      jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue(true);
+      jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue(true);
       jest.spyOn(workspaceRepository, 'findOne').mockResolvedValue(null);
 
       const result =
@@ -111,7 +111,7 @@ describe('AuthSsoService', () => {
     });
 
     it('should throw an error for an invalid authProvider', async () => {
-      jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue(true);
+      jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue(true);
 
       await expect(
         authSsoService.findWorkspaceFromWorkspaceIdOrAuthProvider({

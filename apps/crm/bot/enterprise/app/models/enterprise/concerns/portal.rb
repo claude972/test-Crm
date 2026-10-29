@@ -7,7 +7,7 @@ module Enterprise::Concerns::Portal
 
   def enqueue_cloudflare_verification
     return if custom_domain.blank?
-    return unless KovaaLab CharApp.kovaa-lab_cloud?
+    return unless ChatwootApp.chatwoot_cloud?
 
     Enterprise::CloudflareVerificationJob.perform_later(id)
   end

@@ -43,7 +43,7 @@ module Redis::SecureStorage
     private
 
     def ensure_encryption_configured!
-      return if KovaaLab Char.encryption_configured?
+      return if Chatwoot.encryption_configured?
 
       raise EncryptionNotConfigured, 'Encryption must be configured to use sensitive Redis storage'
     end

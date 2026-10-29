@@ -64,7 +64,7 @@ export class RoleTargetService {
       );
 
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },
@@ -140,7 +140,7 @@ export class RoleTargetService {
     workspaceId: string;
   }): Promise<void> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },

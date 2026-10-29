@@ -7,7 +7,7 @@ class Integrations::BotProcessorService
 
     process_content(message)
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: (hook&.account || agent_bot&.account)).capture_exception
+    ChatwootExceptionTracker.new(e, account: (hook&.account || agent_bot&.account)).capture_exception
   end
 
   private

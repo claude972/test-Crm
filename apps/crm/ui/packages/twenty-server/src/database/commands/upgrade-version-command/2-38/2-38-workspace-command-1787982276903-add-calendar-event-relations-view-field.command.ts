@@ -12,7 +12,7 @@ import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/deco
 import { type FlatViewField } from 'src/engine/metadata-modules/flat-view-field/types/flat-view-field.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const CALENDAR_EVENT_RECORD_PAGE_FIELDS_VIEW_UNIVERSAL_IDENTIFIER =
@@ -49,8 +49,8 @@ export class AddCalendarEventRelationsViewFieldCommand extends ProvisionedWorksp
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -89,10 +89,10 @@ export class AddCalendarEventRelationsViewFieldCommand extends ProvisionedWorksp
     }
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const viewFieldsToCreate =
@@ -125,7 +125,7 @@ export class AddCalendarEventRelationsViewFieldCommand extends ProvisionedWorksp
         {
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           allFlatEntityOperationByMetadataName: {
             viewField: {

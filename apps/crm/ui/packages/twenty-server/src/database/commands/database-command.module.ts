@@ -34,7 +34,7 @@ import { RotateSigningKeysCronCommand } from 'src/engine/core-modules/jwt/crons/
 import { FileModule } from 'src/engine/core-modules/file/file.module';
 import { PendingWakeUpModule } from 'src/engine/core-modules/pending-wake-up/pending-wake-up.module';
 import { PublicDomainModule } from 'src/engine/core-modules/public-domain/public-domain.module';
-import { KovaaLab CRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
+import { KovaaLabCRMConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
 import { UserSessionModule } from 'src/engine/core-modules/user-session/user-session.module';
 import { UpgradeStatusCommand } from 'src/engine/core-modules/upgrade/commands/upgrade-status.command';
 import { UpgradeModule } from 'src/engine/core-modules/upgrade/upgrade.module';
@@ -45,7 +45,7 @@ import { AiAgentTriggerModule } from 'src/engine/metadata-modules/ai/ai-agent-tr
 import { FieldMetadataModule } from 'src/engine/metadata-modules/field-metadata/field-metadata.module';
 import { ObjectMetadataModule } from 'src/engine/metadata-modules/object-metadata/object-metadata.module';
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
-import { provideWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
+import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 import { CodeInterpreterSessionCleanupModule } from 'src/engine/core-modules/code-interpreter/crons/code-interpreter-session-cleanup.module';
 import { TrashCleanupModule } from 'src/engine/trash-cleanup/trash-cleanup.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
@@ -97,7 +97,7 @@ import { AutomatedTriggerModule } from 'src/modules/workflow/workflow-trigger/au
     PublicDomainModule,
     EventLogCleanupModule,
     EnterpriseModule,
-    KovaaLab CRMConfigModule,
+    KovaaLabCRMConfigModule,
     MarketplaceModule,
     ApplicationInstallModule,
     ApplicationUpgradeModule,

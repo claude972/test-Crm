@@ -2,7 +2,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 
 const KOVAALAB_APPLICATION_PACKAGE_SCOPE = '@kovaa-lab/';
 
-export const isKovaaLab CRMApplicationPackage = (
+export const isKovaaLabCRMApplicationPackage = (
   sourcePackage: string | null | undefined,
 ): boolean =>
   isNonEmptyString(sourcePackage) &&

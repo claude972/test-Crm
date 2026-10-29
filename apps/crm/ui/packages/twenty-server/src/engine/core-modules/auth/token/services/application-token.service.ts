@@ -23,9 +23,9 @@ import {
   AuthException,
   AuthExceptionCode,
 } from 'src/engine/core-modules/auth/auth.exception';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 const APPLICATION_REFRESH_TOKEN_INVALID_OR_EXPIRED_MESSAGE =
   'Application refresh token invalid or expired';
@@ -39,7 +39,7 @@ export class ApplicationTokenService {
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     @InjectWorkspaceScopedRepository(ApplicationEntity)
     private readonly applicationRepository: WorkspaceScopedRepository<ApplicationEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async generateApplicationAccessToken({
@@ -68,7 +68,7 @@ export class ApplicationTokenService {
       tokenType: JwtTokenTypeEnum.APPLICATION_ACCESS,
       expiresIn:
         expiresIn ??
-        this.kovaa-labConfigService.get('APPLICATION_ACCESS_TOKEN_EXPIRES_IN'),
+        this.kovaaLabConfigService.get('APPLICATION_ACCESS_TOKEN_EXPIRES_IN'),
     });
   }
 
@@ -110,7 +110,7 @@ export class ApplicationTokenService {
       ),
     );
 
-    const expiresIn = this.kovaa-labConfigService.get(
+    const expiresIn = this.kovaaLabConfigService.get(
       'APPLICATION_ACCESS_TOKEN_EXPIRES_IN',
     );
 
@@ -139,10 +139,10 @@ export class ApplicationTokenService {
   }> {
     await this.validateWorkspaceAndApplication(workspaceId, applicationId);
 
-    const accessTokenExpiresIn = this.kovaa-labConfigService.get(
+    const accessTokenExpiresIn = this.kovaaLabConfigService.get(
       'APPLICATION_ACCESS_TOKEN_EXPIRES_IN',
     );
-    const refreshTokenExpiresIn = this.kovaa-labConfigService.get(
+    const refreshTokenExpiresIn = this.kovaaLabConfigService.get(
       'APPLICATION_REFRESH_TOKEN_EXPIRES_IN',
     );
 

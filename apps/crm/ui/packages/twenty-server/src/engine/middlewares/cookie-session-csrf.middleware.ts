@@ -5,7 +5,7 @@ import { type NextFunction, type Request, type Response } from 'express';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserSessionCookieService } from 'src/engine/core-modules/user-session/services/user-session-cookie.service';
 import { isRequestOriginAllowed } from 'src/engine/core-modules/user-session/utils/is-request-origin-allowed.util';
 
@@ -15,7 +15,7 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 @Injectable()
 export class CookieSessionCsrfMiddleware implements NestMiddleware {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly userSessionCookieService: UserSessionCookieService,
     private readonly jwtWrapperService: JwtWrapperService,
   ) {}
@@ -48,7 +48,7 @@ export class CookieSessionCsrfMiddleware implements NestMiddleware {
       isRequestOriginAllowed({
         origin,
         request,
-        kovaa-labConfigService: this.kovaa-labConfigService,
+        kovaaLabConfigService: this.kovaaLabConfigService,
       })
     ) {
       return next();

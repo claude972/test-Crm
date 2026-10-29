@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { isNonEmptyString } from '@sniptt/guards';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type ResendWebhookHeaders } from 'src/modules/messaging-webhooks/drivers/resend/types/resend-webhook-headers.type';
 import { verifySvixSignature } from 'src/modules/messaging-webhooks/drivers/resend/utils/verify-svix-signature.util';
 import { MessagingWebhookExceptionCode } from 'src/modules/messaging-webhooks/messaging-webhook-exception-code.enum';
@@ -14,10 +14,10 @@ const TIMESTAMP_TOLERANCE_SECONDS = 5 * 60;
 export class ResendWebhookVerifierService {
   private readonly logger = new Logger(ResendWebhookVerifierService.name);
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   assertSigned(rawBody: Buffer, headers: ResendWebhookHeaders): void {
-    const signingSecret = this.kovaa-labConfigService.get(
+    const signingSecret = this.kovaaLabConfigService.get(
       'RESEND_WEBHOOK_SIGNING_SECRET',
     );
 

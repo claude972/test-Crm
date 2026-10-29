@@ -8,8 +8,8 @@ import {
 } from 'typeorm';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { UpgradeAwareRepositoryState } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-repository-state';
-import { wrapRepositoryWithUpgradeAwareProxy } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-repository.proxy';
+import { UpgradeAwareRepositoryState } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-repository-state';
+import { wrapRepositoryWithUpgradeAwareProxy } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-repository.proxy';
 
 const logger = new Logger('InstallUpgradeAwareRepositoryProxy');
 

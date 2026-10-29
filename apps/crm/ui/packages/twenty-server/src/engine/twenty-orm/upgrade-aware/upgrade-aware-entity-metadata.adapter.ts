@@ -17,7 +17,7 @@ import {
   formatUpgradeAwareDecoratorReferenceProblems,
   validateUpgradeAwareEntityDecorators,
 } from 'src/engine/core-modules/upgrade/utils/validate-upgrade-aware-entity-decorators.util';
-import { UpgradeAwareRepositoryState } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-repository-state';
+import { UpgradeAwareRepositoryState } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-repository-state';
 
 type EntityMetadataSnapshot = {
   tableName: string;

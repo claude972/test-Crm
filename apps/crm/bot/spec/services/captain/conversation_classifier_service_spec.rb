@@ -18,7 +18,7 @@ RSpec.describe Captain::ConversationClassifierService do
   it 'records the classifier request as a Jev generation without changing its answer' do
     span = instance_double(OpenTelemetry::Trace::Span, set_attribute: nil)
     tracer = instance_double(OpenTelemetry::Trace::Tracer)
-    allow(KovaaLab CharApp).to receive(:otel_enabled?).and_return(true)
+    allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
     allow(OpentelemetryConfig).to receive(:tracer).and_return(tracer)
     allow(tracer).to receive(:in_span).and_yield(span)
 

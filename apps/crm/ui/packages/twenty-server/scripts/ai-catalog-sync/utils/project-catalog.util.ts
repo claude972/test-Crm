@@ -1,6 +1,6 @@
 // By source path: the consuming repo runs this from a sparse checkout where 'kovaa-lab-shared/ai' does not resolve
-import { isAiSdkPackage } from '../../../../kovaa-lab-shared/src/ai/utils/is-ai-sdk-package.util';
-import { isDataResidency } from '../../../../kovaa-lab-shared/src/ai/utils/is-data-residency.util';
+import { isAiSdkPackage } from '../../../../twenty-shared/src/ai/utils/is-ai-sdk-package.util';
+import { isDataResidency } from '../../../../twenty-shared/src/ai/utils/is-data-residency.util';
 
 import {
   type CatalogSpec,

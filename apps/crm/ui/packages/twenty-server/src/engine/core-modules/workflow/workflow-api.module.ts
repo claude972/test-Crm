@@ -17,7 +17,7 @@ import { WorkflowCoreModule } from 'src/engine/core-modules/workflow/workflow-co
 import { WorkflowVersionEntity } from 'src/engine/core-modules/workflow/entities/workflow-version.entity';
 import { WorkflowVersionCoreModule } from 'src/engine/core-modules/workflow/workflow-version-core.module';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { provideWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
+import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 import { ConnectedAccountMetadataModule } from 'src/engine/metadata-modules/connected-account/connected-account-metadata.module';
 import { PermissionsModule } from 'src/engine/metadata-modules/permissions/permissions.module';
 import { WorkflowCommonModule } from 'src/modules/workflow/common/workflow-common.module';

@@ -1,10 +1,10 @@
 import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/types/flat-index-metadata.type';
 import { IndexType } from 'kovaa-lab-shared/types';
-import { type AllStandardObjectIndexName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-index-name.type';
+import { type AllStandardObjectIndexName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-index-name.type';
 import {
   type CreateStandardIndexArgs,
   createStandardIndexFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/index/create-standard-index-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/index/create-standard-index-flat-metadata.util';
 
 export const buildOpportunityStandardFlatIndexMetadatas = ({
   now,
@@ -12,7 +12,7 @@ export const buildOpportunityStandardFlatIndexMetadatas = ({
   workspaceId,
   standardObjectMetadataRelatedEntityIds,
   dependencyFlatEntityMaps,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: Omit<CreateStandardIndexArgs<'opportunity'>, 'context'>): Record<
   AllStandardObjectIndexName<'opportunity'>,
   FlatIndexMetadata
@@ -26,7 +26,7 @@ export const buildOpportunityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   companyIdIndex: createStandardIndexFlatMetadata({
@@ -38,7 +38,7 @@ export const buildOpportunityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   stageIndex: createStandardIndexFlatMetadata({
@@ -50,7 +50,7 @@ export const buildOpportunityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   searchVectorGinIndex: createStandardIndexFlatMetadata({
@@ -64,7 +64,7 @@ export const buildOpportunityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
 });

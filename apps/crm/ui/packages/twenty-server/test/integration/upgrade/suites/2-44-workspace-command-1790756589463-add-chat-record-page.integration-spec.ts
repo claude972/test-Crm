@@ -8,8 +8,8 @@ import {
 import { PageLayoutType, WidgetType } from 'kovaa-lab-shared/types';
 
 import { type AddChatRecordPageCommand } from 'src/database/commands/upgrade-version-command/2-44/2-44-workspace-command-1790756589463-add-chat-record-page.command';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
-import { type WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 

@@ -1,8 +1,8 @@
 import {
   applyRowAccessCondition,
   buildQueryBuilder,
-} from 'src/engine/kovaa-lab-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
+} from 'src/engine/twenty-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 
 const GUARDED_OR_CHAIN =
   '(("person"."id" = :a) OR ("person"."id" = :b)) AND ("person"."companyId" = :rowAccessCompanyId)';

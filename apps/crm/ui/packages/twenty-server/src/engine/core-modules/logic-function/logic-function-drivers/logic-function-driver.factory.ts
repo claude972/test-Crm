@@ -17,16 +17,16 @@ import { LocalDriver } from 'src/engine/core-modules/logic-function/logic-functi
 import { getLambdaResourceNamespace } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/lambda/utils/get-lambda-resource-namespace.util';
 import { LogicFunctionResourceService } from 'src/engine/core-modules/logic-function/logic-function-resource/logic-function-resource.service';
 import { SdkClientArchiveService } from 'src/engine/core-modules/sdk-client/sdk-client-archive.service';
-import { DriverFactoryBase } from 'src/engine/core-modules/kovaa-lab-config/dynamic-factory.base';
-import { ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
-import { ConfigGroupHashService } from 'src/engine/core-modules/kovaa-lab-config/services/config-group-hash.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { DriverFactoryBase } from 'src/engine/core-modules/twenty-config/dynamic-factory.base';
+import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
+import { ConfigGroupHashService } from 'src/engine/core-modules/twenty-config/services/config-group-hash.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 
 @Injectable()
 export class LogicFunctionDriverFactory extends DriverFactoryBase<LogicFunctionDriver> {
   constructor(
-    kovaa-labConfigService: KovaaLab CRMConfigService,
+    kovaaLabConfigService: KovaaLabCRMConfigService,
     configGroupHashService: ConfigGroupHashService,
     private readonly logicFunctionResourceService: LogicFunctionResourceService,
     private readonly sdkClientArchiveService: SdkClientArchiveService,
@@ -35,11 +35,11 @@ export class LogicFunctionDriverFactory extends DriverFactoryBase<LogicFunctionD
     @InjectCacheStorage(CacheStorageNamespace.ModuleApplications)
     private readonly cacheStorageService: CacheStorageService,
   ) {
-    super(kovaa-labConfigService, configGroupHashService);
+    super(kovaaLabConfigService, configGroupHashService);
   }
 
   protected buildConfigKey(): string {
-    const driverType = this.kovaa-labConfigService.get('LOGIC_FUNCTION_TYPE');
+    const driverType = this.kovaaLabConfigService.get('LOGIC_FUNCTION_TYPE');
 
     if (driverType === LogicFunctionDriverType.LAMBDA) {
       return `lambda|${this.configGroupHashService.computeHash(ConfigVariablesGroup.LOGIC_FUNCTION_CONFIG)}`;
@@ -49,7 +49,7 @@ export class LogicFunctionDriverFactory extends DriverFactoryBase<LogicFunctionD
   }
 
   protected createDriver(): LogicFunctionDriver {
-    const driverType = this.kovaa-labConfigService.get('LOGIC_FUNCTION_TYPE');
+    const driverType = this.kovaaLabConfigService.get('LOGIC_FUNCTION_TYPE');
 
     switch (driverType) {
       case LogicFunctionDriverType.DISABLED:
@@ -64,32 +64,32 @@ export class LogicFunctionDriverFactory extends DriverFactoryBase<LogicFunctionD
         });
 
       case LogicFunctionDriverType.LAMBDA: {
-        const region = this.kovaa-labConfigService.get(
+        const region = this.kovaaLabConfigService.get(
           'LOGIC_FUNCTION_LAMBDA_REGION',
         );
-        const accessKeyId = this.kovaa-labConfigService.get(
+        const accessKeyId = this.kovaaLabConfigService.get(
           'LOGIC_FUNCTION_LAMBDA_ACCESS_KEY_ID',
         );
-        const secretAccessKey = this.kovaa-labConfigService.get(
+        const secretAccessKey = this.kovaaLabConfigService.get(
           'LOGIC_FUNCTION_LAMBDA_SECRET_ACCESS_KEY',
         );
-        const lambdaRole = this.kovaa-labConfigService.get(
+        const lambdaRole = this.kovaaLabConfigService.get(
           'LOGIC_FUNCTION_LAMBDA_ROLE',
         );
-        const subhostingRole = this.kovaa-labConfigService.get(
+        const subhostingRole = this.kovaaLabConfigService.get(
           'LOGIC_FUNCTION_LAMBDA_SUBHOSTING_ROLE',
         );
-        const s3BucketName = this.kovaa-labConfigService.get('STORAGE_S3_NAME');
+        const s3BucketName = this.kovaaLabConfigService.get('STORAGE_S3_NAME');
         const layerBucket =
-          this.kovaa-labConfigService.get('LOGIC_FUNCTION_LAMBDA_LAYER_BUCKET') ??
+          this.kovaaLabConfigService.get('LOGIC_FUNCTION_LAMBDA_LAYER_BUCKET') ??
           s3BucketName ??
           'kovaa-lab-lambda-layer';
         const layerBucketRegion =
-          this.kovaa-labConfigService.get(
+          this.kovaaLabConfigService.get(
             'LOGIC_FUNCTION_LAMBDA_LAYER_BUCKET_REGION',
           ) ?? region;
         const resourceTags =
-          this.kovaa-labConfigService.get('LOGIC_FUNCTION_LAMBDA_RESOURCE_TAGS') ??
+          this.kovaaLabConfigService.get('LOGIC_FUNCTION_LAMBDA_RESOURCE_TAGS') ??
           {};
         const resourceNamespace = getLambdaResourceNamespace({
           lambdaRoleArn: lambdaRole,
@@ -104,7 +104,7 @@ export class LogicFunctionDriverFactory extends DriverFactoryBase<LogicFunctionD
             ? { accessKeyId, secretAccessKey }
             : fromNodeProviderChain({ clientConfig: { region } }),
           region,
-          endpoint: this.kovaa-labConfigService.get(
+          endpoint: this.kovaaLabConfigService.get(
             'LOGIC_FUNCTION_LAMBDA_ENDPOINT',
           ),
           lambdaRole,

@@ -4,12 +4,12 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { pascalCase } from 'kovaa-lab-shared/utils';
 import { DataSource } from 'typeorm';
 
-import { type KovaaLab CRMAllVersion } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-all-versions.constant';
+import { type KovaaLabCRMAllVersion } from 'src/engine/core-modules/upgrade/constants/twenty-all-versions.constant';
 import { type InstanceCommandType } from 'src/engine/core-modules/upgrade/decorators/registered-instance-command.decorator';
 
 type GenerateInstanceCommandArgs = {
   migrationName: string;
-  version: KovaaLab CRMAllVersion;
+  version: KovaaLabCRMAllVersion;
   timestamp: number;
   type?: InstanceCommandType;
 };

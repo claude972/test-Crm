@@ -4,9 +4,9 @@ import { v4 } from 'uuid';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { createStandardCommandMenuItemFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/command-menu-item/create-standard-command-menu-item-flat-metadata.util';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { createStandardCommandMenuItemFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/command-menu-item/create-standard-command-menu-item-flat-metadata.util';
 
 // Provisions standard commands a workspace predates. A command whose object
 // the workspace does not have is left out rather than failing the whole run.
@@ -30,7 +30,7 @@ export const buildMissingStandardCommandMenuItemsToCreate = ({
   workspaceId: string;
   now: string;
 }): FlatCommandMenuItem[] => {
-  const kovaa-labStandardApplicationId = Object.values(
+  const kovaaLabStandardApplicationId = Object.values(
     flatCommandMenuItemByUniversalIdentifier,
   ).find(
     (flatCommandMenuItem) =>
@@ -38,7 +38,7 @@ export const buildMissingStandardCommandMenuItemsToCreate = ({
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
   )?.applicationId;
 
-  if (!isDefined(kovaa-labStandardApplicationId)) {
+  if (!isDefined(kovaaLabStandardApplicationId)) {
     return [];
   }
 
@@ -65,7 +65,7 @@ export const buildMissingStandardCommandMenuItemsToCreate = ({
         commandMenuItemName,
         commandMenuItemId: v4(),
         workspaceId,
-        kovaa-labStandardApplicationId,
+        kovaaLabStandardApplicationId,
         dependencyFlatEntityMaps: { flatObjectMetadataMaps },
         now,
       }),

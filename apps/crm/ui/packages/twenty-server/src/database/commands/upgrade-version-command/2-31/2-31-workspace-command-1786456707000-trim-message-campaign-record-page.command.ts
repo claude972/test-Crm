@@ -10,7 +10,7 @@ import { ApplicationService } from 'src/engine/core-modules/application/applicat
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { type FlatPageLayoutWidget } from 'src/engine/metadata-modules/flat-page-layout-widget/types/flat-page-layout-widget.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const MESSAGE_CAMPAIGN_PAGE_LAYOUT_UNIVERSAL_IDENTIFIER =
@@ -58,8 +58,8 @@ export class TrimMessageCampaignRecordPageCommand extends ProvisionedWorkspaceCo
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -83,10 +83,10 @@ export class TrimMessageCampaignRecordPageCommand extends ProvisionedWorkspaceCo
     }
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const pageLayoutWidgetsToDelete = REMOVED_WIDGET_UNIVERSAL_IDENTIFIERS.map(
@@ -143,7 +143,7 @@ export class TrimMessageCampaignRecordPageCommand extends ProvisionedWorkspaceCo
         {
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           allFlatEntityOperationByMetadataName: {
             pageLayoutWidget: {

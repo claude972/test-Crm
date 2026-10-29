@@ -7,8 +7,8 @@ import { type RunOnWorkspaceArgs } from 'src/database/commands/command-runners/w
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const COMPOSE_EMAIL_UNIVERSAL_IDENTIFIER =
@@ -39,8 +39,8 @@ export class AddComposeEmailCommandMenuItemCommand extends ProvisionedWorkspaceC
       `${isDryRun ? '[DRY RUN] ' : ''}Checking compose email command for workspace ${workspaceId}`,
     );
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -64,10 +64,10 @@ export class AddComposeEmailCommandMenuItemCommand extends ProvisionedWorkspaceC
     }
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const itemToCreate =
@@ -103,7 +103,7 @@ export class AddComposeEmailCommandMenuItemCommand extends ProvisionedWorkspaceC
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 

@@ -134,8 +134,8 @@ export class BackfillCompanyPersonImageIdentifierFieldMetadataIdCommand extends 
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -152,7 +152,7 @@ export class BackfillCompanyPersonImageIdentifierFieldMetadataIdCommand extends 
           workspaceId,
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 

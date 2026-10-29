@@ -2,49 +2,49 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-flat-entity-maps.constant';
 import { getMetadataFlatEntityMapsKey } from 'src/engine/metadata-modules/flat-entity/utils/get-metadata-flat-entity-maps-key.util';
-import { KOVAALAB_STANDARD_ALL_METADATA_NAME } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-all-metadata-name.constant';
-import { type KovaaLab CRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/kovaa-lab-standard-all-flat-entity-maps.type';
-import { buildStandardFlatAgentChatChannelMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/agent-chat-channel/build-standard-flat-agent-chat-channel-maps.util';
-import { buildStandardFlatAgentMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/agent-metadata/build-standard-flat-agent-metadata-maps.util';
-import { buildStandardFlatFieldMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/build-standard-flat-field-metadata-maps.util';
-import { getStandardObjectMetadataRelatedEntityIds } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/get-standard-object-metadata-related-entity-ids.util';
-import { WORKSPACE_CREATION_ONLY_WIDGET_TYPES } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/workspace-creation-only-widget-types.constant';
-import { getStandardPageLayoutMetadataRelatedEntityIds } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/get-standard-page-layout-metadata-related-entity-ids.util';
-import { buildStandardFlatIndexMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/index/build-standard-flat-index-metadata-maps.util';
-import { buildStandardFlatCommandMenuItemMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/command-menu-item/build-standard-flat-command-menu-item-maps.util';
-import { buildStandardFlatNavigationMenuItemMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/navigation-menu-item/build-standard-flat-navigation-menu-item-maps.util';
-import { buildStandardFlatObjectMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/object-metadata/build-standard-flat-object-metadata-maps.util';
-import { buildStandardFlatPageLayoutTabMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-tab/build-standard-flat-page-layout-tab-metadata-maps.util';
-import { buildStandardFlatPageLayoutWidgetMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-widget/build-standard-flat-page-layout-widget-metadata-maps.util';
+import { KOVAALAB_STANDARD_ALL_METADATA_NAME } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-all-metadata-name.constant';
+import { type KovaaLabCRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/types/twenty-standard-all-flat-entity-maps.type';
+import { buildStandardFlatAgentChatChannelMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/agent-chat-channel/build-standard-flat-agent-chat-channel-maps.util';
+import { buildStandardFlatAgentMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/agent-metadata/build-standard-flat-agent-metadata-maps.util';
+import { buildStandardFlatFieldMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/build-standard-flat-field-metadata-maps.util';
+import { getStandardObjectMetadataRelatedEntityIds } from 'src/engine/workspace-manager/twenty-standard-application/utils/get-standard-object-metadata-related-entity-ids.util';
+import { WORKSPACE_CREATION_ONLY_WIDGET_TYPES } from 'src/engine/workspace-manager/twenty-standard-application/constants/workspace-creation-only-widget-types.constant';
+import { getStandardPageLayoutMetadataRelatedEntityIds } from 'src/engine/workspace-manager/twenty-standard-application/utils/get-standard-page-layout-metadata-related-entity-ids.util';
+import { buildStandardFlatIndexMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/index/build-standard-flat-index-metadata-maps.util';
+import { buildStandardFlatCommandMenuItemMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/command-menu-item/build-standard-flat-command-menu-item-maps.util';
+import { buildStandardFlatNavigationMenuItemMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/navigation-menu-item/build-standard-flat-navigation-menu-item-maps.util';
+import { buildStandardFlatObjectMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/object-metadata/build-standard-flat-object-metadata-maps.util';
+import { buildStandardFlatPageLayoutTabMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-tab/build-standard-flat-page-layout-tab-metadata-maps.util';
+import { buildStandardFlatPageLayoutWidgetMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-widget/build-standard-flat-page-layout-widget-metadata-maps.util';
 import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
-import { computeStandardRecordFormFlatEntities } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout/compute-standard-record-form-flat-entities.util';
-import { buildStandardFlatPageLayoutMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout/build-standard-flat-page-layout-metadata-maps.util';
-import { buildStandardFlatPermissionFlagMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/permission-flag/build-standard-flat-permission-flag-metadata-maps.util';
-import { buildStandardFlatRoleMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/role-metadata/build-standard-flat-role-metadata-maps.util';
-import { buildStandardFlatSearchFieldMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/search-field-metadata/build-standard-flat-search-field-metadata-maps.util';
-import { buildStandardFlatSkillMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/skill-metadata/build-standard-flat-skill-metadata-maps.util';
-import { buildStandardFlatTimelineActivityTypeMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/timeline-activity-type/build-standard-flat-timeline-activity-type-maps.util';
-import { buildStandardFlatViewFieldMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field/build-standard-flat-view-field-metadata-maps.util';
-import { buildStandardFlatViewFieldGroupMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-field-group/build-standard-flat-view-field-group-metadata-maps.util';
-import { buildStandardFlatViewFilterMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-filter/build-standard-flat-view-filter-metadata-maps.util';
-import { buildStandardFlatViewGroupMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-group/build-standard-flat-view-group-metadata-maps.util';
-import { buildStandardFlatViewMetadataMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view/build-standard-flat-view-metadata-maps.util';
+import { computeStandardRecordFormFlatEntities } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout/compute-standard-record-form-flat-entities.util';
+import { buildStandardFlatPageLayoutMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout/build-standard-flat-page-layout-metadata-maps.util';
+import { buildStandardFlatPermissionFlagMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/permission-flag/build-standard-flat-permission-flag-metadata-maps.util';
+import { buildStandardFlatRoleMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/role-metadata/build-standard-flat-role-metadata-maps.util';
+import { buildStandardFlatSearchFieldMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/search-field-metadata/build-standard-flat-search-field-metadata-maps.util';
+import { buildStandardFlatSkillMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/skill-metadata/build-standard-flat-skill-metadata-maps.util';
+import { buildStandardFlatTimelineActivityTypeMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/timeline-activity-type/build-standard-flat-timeline-activity-type-maps.util';
+import { buildStandardFlatViewFieldMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/build-standard-flat-view-field-metadata-maps.util';
+import { buildStandardFlatViewFieldGroupMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/build-standard-flat-view-field-group-metadata-maps.util';
+import { buildStandardFlatViewFilterMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-filter/build-standard-flat-view-filter-metadata-maps.util';
+import { buildStandardFlatViewGroupMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-group/build-standard-flat-view-group-metadata-maps.util';
+import { buildStandardFlatViewMetadataMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/build-standard-flat-view-metadata-maps.util';
 import { type IdByUniversalIdentifierByMetadataName } from 'src/engine/workspace-manager/workspace-migration/services/utils/enrich-create-workspace-migration-action-with-ids.util';
 
-export type ComputeKovaaLab CRMStandardApplicationAllFlatEntityMapsArgs = {
+export type ComputeKovaaLabCRMStandardApplicationAllFlatEntityMapsArgs = {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   isWorkspaceCreation?: boolean;
 };
 
-export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
+export const computeKovaaLabCRMStandardApplicationAllFlatEntityMaps = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   isWorkspaceCreation = false,
-}: ComputeKovaaLab CRMStandardApplicationAllFlatEntityMapsArgs): {
-  allFlatEntityMaps: KovaaLab CRMStandardAllFlatEntityMaps;
+}: ComputeKovaaLabCRMStandardApplicationAllFlatEntityMapsArgs): {
+  allFlatEntityMaps: KovaaLabCRMStandardAllFlatEntityMaps;
   // TODO remove once all metadatas has fully been universal migrated
   idByUniversalIdentifierByMetadataName: IdByUniversalIdentifierByMetadataName;
 } => {
@@ -55,7 +55,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps: {
       flatFieldMetadataMaps: createEmptyFlatEntityMaps(),
     },
@@ -68,7 +68,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     dependencyFlatEntityMaps: {
       flatObjectMetadataMaps,
     },
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   });
 
   const flatIndexMaps = buildStandardFlatIndexMetadataMaps({
@@ -79,7 +79,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     now,
     standardObjectMetadataRelatedEntityIds,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   });
 
   const flatSearchFieldMetadataMaps = buildStandardFlatSearchFieldMetadataMaps({
@@ -90,7 +90,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     now,
     standardObjectMetadataRelatedEntityIds,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   });
 
   const flatViewMaps = buildStandardFlatViewMetadataMaps({
@@ -100,7 +100,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     },
     now,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     workspaceId,
   });
 
@@ -111,7 +111,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     },
     now,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     workspaceId,
   });
 
@@ -123,7 +123,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     },
     now,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     workspaceId,
   });
 
@@ -135,7 +135,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     },
     now,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     workspaceId,
   });
 
@@ -148,14 +148,14 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     },
     now,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     workspaceId,
   });
 
   const flatRoleMaps = buildStandardFlatRoleMetadataMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps: undefined,
   });
@@ -163,13 +163,13 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
   const flatPermissionFlagMaps = buildStandardFlatPermissionFlagMetadataMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   });
 
   const flatAgentMaps = buildStandardFlatAgentMetadataMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps: {
       flatRoleMaps,
@@ -179,7 +179,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
   const flatSkillMaps = buildStandardFlatSkillMetadataMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps: undefined,
   });
@@ -190,7 +190,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
   const flatPageLayoutMaps = buildStandardFlatPageLayoutMetadataMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     standardObjectMetadataRelatedEntityIds,
     standardPageLayoutMetadataRelatedEntityIds,
   });
@@ -202,7 +202,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
   const flatPageLayoutTabMaps = buildStandardFlatPageLayoutTabMetadataMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     standardPageLayoutMetadataRelatedEntityIds,
     excludedWidgetTypes,
   });
@@ -211,7 +211,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     buildStandardFlatPageLayoutWidgetMetadataMaps({
       now,
       workspaceId,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       standardObjectMetadataRelatedEntityIds,
       standardPageLayoutMetadataRelatedEntityIds,
       excludedWidgetTypes,
@@ -220,7 +220,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
   const standardRecordFormFlatEntities = computeStandardRecordFormFlatEntities({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     flatObjectMetadataMaps,
     flatFieldMetadataMaps,
   });
@@ -249,7 +249,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
   const flatNavigationMenuItemMaps = buildStandardFlatNavigationMenuItemMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps: {
       flatViewMaps,
     },
@@ -258,7 +258,7 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
   const flatCommandMenuItemMaps = buildStandardFlatCommandMenuItemMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps: {
       flatObjectMetadataMaps,
     },
@@ -268,16 +268,16 @@ export const computeKovaaLab CRMStandardApplicationAllFlatEntityMaps = ({
     buildStandardFlatTimelineActivityTypeMaps({
       now,
       workspaceId,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
     });
 
   const flatAgentChatChannelMaps = buildStandardFlatAgentChatChannelMaps({
     now,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   });
 
-  const allFlatEntityMaps: KovaaLab CRMStandardAllFlatEntityMaps = {
+  const allFlatEntityMaps: KovaaLabCRMStandardAllFlatEntityMaps = {
     flatViewFieldMaps,
     flatViewFieldGroupMaps,
     flatViewFilterMaps,

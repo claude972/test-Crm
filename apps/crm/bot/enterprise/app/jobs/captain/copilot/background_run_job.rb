@@ -22,7 +22,7 @@ module Captain::Copilot::BackgroundRunJob
   rescue Captain::Copilot::LimitExceededError => e
     finalize(run, token, error: e.message)
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: run&.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: run&.account).capture_exception
     handle_failure(run, token, e)
   end
 

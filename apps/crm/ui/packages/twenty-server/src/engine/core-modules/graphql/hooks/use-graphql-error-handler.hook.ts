@@ -27,7 +27,7 @@ import {
 import { type I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { type MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { shouldCaptureException } from 'src/engine/utils/global-exception-handler.util';
 import { translateUserFriendlyMessageDescriptors } from 'src/engine/core-modules/i18n/utils/translate-user-friendly-message-descriptors.util';
 
@@ -45,7 +45,7 @@ type GraphQLErrorHandlerHookOptions = {
 
   i18nService: I18nService;
 
-  kovaa-labConfigService: KovaaLab CRMConfigService;
+  kovaaLabConfigService: KovaaLabCRMConfigService;
   // `null` disables the event id extension; any other value falls back to DEFAULT_EVENT_ID_KEY.
   eventIdKey?: string | null;
 };
@@ -246,7 +246,7 @@ export const useGraphQLErrorHandlerHook = <
         const currentMetadataVersion = context.req.workspaceMetadataVersion;
         const requestMetadataVersion = headers[SCHEMA_VERSION_HEADER];
         const backendAppVersion =
-          options.kovaa-labConfigService.get('APP_VERSION');
+          options.kovaaLabConfigService.get('APP_VERSION');
         const appVersionHeaderValue = headers[APP_VERSION_HEADER];
         const frontEndAppVersion =
           appVersionHeaderValue && Array.isArray(appVersionHeaderValue)

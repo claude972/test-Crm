@@ -2,7 +2,7 @@ import { msg } from '@lingui/core/macro';
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 
 import { EngineComponentKey } from 'src/engine/metadata-modules/command-menu-item/enums/engine-component-key.enum';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import { CommandMenuItemAvailabilityType } from 'kovaa-lab-shared/types';
 
 export const STANDARD_COMMAND_MENU_ITEMS = {

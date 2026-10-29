@@ -25,7 +25,7 @@ import {
 } from 'src/engine/core-modules/email-verification/email-verification.exception';
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 
 @Injectable()
@@ -38,7 +38,7 @@ export class EmailVerificationService {
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly domainsServerConfigService: DomainServerConfigService,
     private readonly emailService: EmailService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly emailVerificationTokenService: EmailVerificationTokenService,
     private readonly i18nService: I18nService,
   ) {}
@@ -58,7 +58,7 @@ export class EmailVerificationService {
     verifyEmailRedirectPath?: string;
     verificationTrigger?: EmailVerificationTrigger;
   }) {
-    if (!this.kovaa-labConfigService.get('IS_EMAIL_VERIFICATION_REQUIRED')) {
+    if (!this.kovaaLabConfigService.get('IS_EMAIL_VERIFICATION_REQUIRED')) {
       return { success: false };
     }
 
@@ -107,9 +107,9 @@ export class EmailVerificationService {
     const subject = i18n._(emailVerificationMsg);
 
     await this.emailService.send({
-      from: `${this.kovaa-labConfigService.get(
+      from: `${this.kovaaLabConfigService.get(
         'EMAIL_FROM_NAME',
-      )} <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      )} <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       to: email,
       subject,
       text,
@@ -124,7 +124,7 @@ export class EmailVerificationService {
     workspace: WorkspaceDomainConfig | undefined,
     locale: keyof typeof APP_LOCALES,
   ) {
-    if (!this.kovaa-labConfigService.get('IS_EMAIL_VERIFICATION_REQUIRED')) {
+    if (!this.kovaaLabConfigService.get('IS_EMAIL_VERIFICATION_REQUIRED')) {
       throw new EmailVerificationException(
         'Email verification token cannot be sent because email verification is not required',
         EmailVerificationExceptionCode.EMAIL_VERIFICATION_NOT_REQUIRED,

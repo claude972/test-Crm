@@ -4,7 +4,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { MessageFolderPendingSyncAction } from 'kovaa-lab-shared/types';
 
 import { deleteConnectedAccount } from 'test/integration/metadata/suites/connected-account/utils/delete-connected-account.util';
-import { updateConfigVariable } from 'test/integration/kovaa-lab-config/utils/update-config-variable.util';
+import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 import { appendMessageOverImap } from 'test/integration/utils/append-message-over-imap.util';
 import { connectDovecotImapAccount } from 'test/integration/utils/connect-dovecot-imap-account.util';
 import { findImportedMessageSubjects } from 'test/integration/utils/find-imported-records.util';

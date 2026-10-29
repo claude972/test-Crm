@@ -49,7 +49,7 @@ import { JOB_LATENCY_MS_BUCKET_BOUNDARIES } from 'src/engine/core-modules/metric
 import { type MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
 import { applyWorkspaceSentryContextFromJobData } from 'src/engine/core-modules/sentry/utils/apply-workspace-sentry-context-from-job-data.util';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type BullMQDriverOptions = QueueOptions;
 
@@ -77,13 +77,13 @@ export class BullMQDriver
   constructor(
     private options: BullMQDriverOptions,
     private metricsService: MetricsService,
-    private kovaa-labConfigService: KovaaLab CRMConfigService,
+    private kovaaLabConfigService: KovaaLabCRMConfigService,
     private eventEmitter: EventEmitter2,
   ) {}
 
   onModuleInit() {
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_queue_jobs_waiting_total',
+      metricName: 'kovaaLab_queue_jobs_waiting_total',
       options: {
         description:
           'Current number of jobs waiting in queue, scheduled (delayed) jobs excluded',
@@ -98,7 +98,7 @@ export class BullMQDriver
     });
 
     this.metricsService.createMultiObservableGauge({
-      metricName: 'kovaa-lab_queue_jobs_delayed_total',
+      metricName: 'kovaaLab_queue_jobs_delayed_total',
       options: {
         description:
           'Current number of jobs waiting for their scheduled time (delay or retry backoff)',
@@ -205,7 +205,7 @@ export class BullMQDriver
       return;
     }
 
-    const shutdownTimeoutMs = this.kovaa-labConfigService.get(
+    const shutdownTimeoutMs = this.kovaaLabConfigService.get(
       'AI_STREAM_SHUTDOWN_DRAIN_MS',
     );
 

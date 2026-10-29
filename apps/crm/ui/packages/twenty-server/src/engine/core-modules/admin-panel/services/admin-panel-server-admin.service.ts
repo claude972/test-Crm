@@ -15,8 +15,8 @@ import { EventLogEmitterService } from 'src/engine/core-modules/event-logs/emit/
 import { SERVER_ADMIN_ACCESS_CHANGED_EVENT } from 'src/engine/core-modules/event-logs/emit/events/workspace-event/server-admin/server-admin-access-changed';
 import { UserInputError } from 'src/engine/core-modules/graphql/utils/graphql-errors.util';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { TwoFactorAuthenticationService } from 'src/engine/core-modules/two-factor-authentication/two-factor-authentication.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 
@@ -31,7 +31,7 @@ export class AdminPanelServerAdminService {
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
     private readonly emailService: EmailService,
     private readonly i18nService: I18nService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly eventLogEmitterService: EventLogEmitterService,
   ) {}
 
@@ -72,7 +72,7 @@ export class AdminPanelServerAdminService {
     }
 
     if (
-      this.kovaa-labConfigService.get('NODE_ENV') !== NodeEnvironment.DEVELOPMENT
+      this.kovaaLabConfigService.get('NODE_ENV') !== NodeEnvironment.DEVELOPMENT
     ) {
       await this.twoFactorAuthenticationService.assertFreshStepUpAuthenticationOrThrow(
         {
@@ -168,7 +168,7 @@ export class AdminPanelServerAdminService {
       const actorName = `${actor.firstName} ${actor.lastName}`.trim();
       const targetName =
         `${targetUser.firstName} ${targetUser.lastName}`.trim();
-      const from = `${this.kovaa-labConfigService.get('EMAIL_FROM_NAME')} <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`;
+      const from = `${this.kovaaLabConfigService.get('EMAIL_FROM_NAME')} <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`;
 
       const recipientsByLocale = new Map<UserEntity['locale'], UserEntity[]>();
 

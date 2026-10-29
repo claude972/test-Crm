@@ -84,8 +84,8 @@ export class SetMessageTextDisplayedMaxRowsCommand extends ProvisionedWorkspaceC
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -115,7 +115,7 @@ export class SetMessageTextDisplayedMaxRowsCommand extends ProvisionedWorkspaceC
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 

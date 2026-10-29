@@ -18,14 +18,14 @@ import { InjectCacheStorage } from 'src/engine/core-modules/cache-storage/decora
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 
 @Injectable()
 export class LoginTokenService {
   constructor(
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectCacheStorage(CacheStorageNamespace.EngineAuthSession)
     private readonly cacheStorage: CacheStorageService,
   ) {}
@@ -52,7 +52,7 @@ export class LoginTokenService {
       jti: crypto.randomUUID(),
     };
 
-    const expiresIn = this.kovaa-labConfigService.get('LOGIN_TOKEN_EXPIRES_IN');
+    const expiresIn = this.kovaaLabConfigService.get('LOGIN_TOKEN_EXPIRES_IN');
 
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));
 
@@ -100,7 +100,7 @@ export class LoginTokenService {
     const isFirstUse = await this.cacheStorage.setIfAbsent(
       `${CONSUMED_LOGIN_TOKEN_CACHE_KEY_PREFIX}:${jti}`,
       true,
-      ms(this.kovaa-labConfigService.get('LOGIN_TOKEN_EXPIRES_IN')),
+      ms(this.kovaaLabConfigService.get('LOGIN_TOKEN_EXPIRES_IN')),
     );
 
     if (!isFirstUse) {

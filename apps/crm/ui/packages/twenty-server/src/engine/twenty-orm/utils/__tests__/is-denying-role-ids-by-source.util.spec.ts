@@ -1,4 +1,4 @@
-import { isDenyingRoleIdsBySource } from 'src/engine/kovaa-lab-orm/utils/is-denying-role-ids-by-source.util';
+import { isDenyingRoleIdsBySource } from 'src/engine/twenty-orm/utils/is-denying-role-ids-by-source.util';
 
 describe('isDenyingRoleIdsBySource', () => {
   it('denies when no source restricts', () => {

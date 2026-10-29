@@ -31,7 +31,7 @@ RSpec.describe 'WhatsApp Authorization API', type: :request do
         end
 
         it 'blocks channel creation on KovaaLab Char Cloud when embedded signup is disabled for the account' do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
           account.disable_features!('whatsapp_embedded_signup_inbox_creation')
 
           expect(Whatsapp::EmbeddedSignupService).not_to receive(:new)
@@ -354,7 +354,7 @@ RSpec.describe 'WhatsApp Authorization API', type: :request do
         end
 
         it 'reauthorizes on KovaaLab Char Cloud without requiring the embedded signup account feature' do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
           account.disable_features!('whatsapp_embedded_signup_inbox_creation')
           allow(whatsapp_channel).to receive(:reauthorization_required?).and_return(true)
 
@@ -466,7 +466,7 @@ RSpec.describe 'WhatsApp Authorization API', type: :request do
         let(:fresh_inbox) { create(:inbox, channel: fresh_channel, account: account) }
 
         it 'allows self-hosted reconfigure without a reconfigure feature gate' do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
           reconfigure_params = {
             code: 'auth_code_123',
             business_id: 'business_123',

@@ -184,7 +184,7 @@ export default function BuilderCompose() {
   return (
     <div
       className={cn('compose', {
-        'compose-mobile': window.kovaa-lab.device.mobile
+        'compose-mobile': window.kovaaLab.device.mobile
       })}
     >
       <div className="kovaa-lab-root">

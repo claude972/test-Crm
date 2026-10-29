@@ -6,7 +6,7 @@ import { SESSION_SANDBOX_METADATA_KEY } from 'src/engine/core-modules/code-inter
 
 type SandboxApi = typeof Sandbox;
 
-const SESSION_ACTOR_METADATA_KEY = 'kovaa-labSessionActor';
+const SESSION_ACTOR_METADATA_KEY = 'kovaaLabSessionActor';
 
 type GetOrCreateSessionSandboxArgs = {
   sandboxApi: SandboxApi;

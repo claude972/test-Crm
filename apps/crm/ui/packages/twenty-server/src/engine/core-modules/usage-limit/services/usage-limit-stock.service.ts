@@ -8,7 +8,7 @@ import { CacheStorageService } from 'src/engine/core-modules/cache-storage/servi
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WARM_AND_CONSUME_COUNTERS_SCRIPT } from 'src/engine/core-modules/usage-limit/constants/warm-and-consume-counters-script.constant';
 import {
   UsageLimitException,
@@ -60,7 +60,7 @@ export class UsageLimitStockService {
     private readonly usageLimitEntitlementService: UsageLimitEntitlementService,
     private readonly usageLimitDefaultValueService: UsageLimitDefaultValueService,
     private readonly metricsService: MetricsService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async assertStockAvailable({
@@ -147,7 +147,7 @@ export class UsageLimitStockService {
       !isStockLimit(usageLimit) ||
       findSuppressedUsageLimitDefaults(usageLimit).some((usageLimitDefault) =>
         isDefined(
-          this.kovaa-labConfigService.get(
+          this.kovaaLabConfigService.get(
             usageLimitDefault.limitValueConfigVariable,
           ),
         ),

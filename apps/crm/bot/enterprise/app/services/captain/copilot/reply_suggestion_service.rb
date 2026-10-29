@@ -160,7 +160,7 @@ class Captain::Copilot::ReplySuggestionService
   end
 
   def with_trace(conversation, target_message)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     OpentelemetryConfig.tracer.in_span(TRACE_NAME, attributes: trace_attributes(conversation, target_message)) do |span|
       response = yield

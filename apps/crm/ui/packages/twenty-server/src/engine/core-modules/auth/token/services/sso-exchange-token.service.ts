@@ -18,7 +18,7 @@ import {
   AuthExceptionCode,
 } from 'src/engine/core-modules/auth/auth.exception';
 import { type AuthToken } from 'src/engine/core-modules/auth/dto/auth-token.dto';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 
 const hashSsoExchangeToken = (ssoExchangeToken: string) =>
@@ -37,7 +37,7 @@ export class SsoExchangeTokenService {
   constructor(
     @InjectRepository(AppTokenEntity)
     private readonly appTokenRepository: Repository<AppTokenEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async generateSsoExchangeToken({
@@ -47,7 +47,7 @@ export class SsoExchangeTokenService {
     userId: string;
     authProvider: AuthProviderEnum;
   }): Promise<AuthToken> {
-    const expiresIn = this.kovaa-labConfigService.get(
+    const expiresIn = this.kovaaLabConfigService.get(
       'SHORT_TERM_TOKEN_EXPIRES_IN',
     );
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));

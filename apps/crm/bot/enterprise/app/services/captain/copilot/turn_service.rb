@@ -96,7 +96,7 @@ class Captain::Copilot::TurnService < Llm::BaseAiService
   end
 
   def save_trace_carrier
-    return if !KovaaLab CharApp.otel_enabled? || @run.trace_carrier
+    return if !ChatwootApp.otel_enabled? || @run.trace_carrier
 
     @run.with_lease(@token) { @run.update!(trace_carrier: current_trace_carrier) }
   end
@@ -207,7 +207,7 @@ class Captain::Copilot::TurnService < Llm::BaseAiService
   rescue ArgumentError, ActiveRecord::RecordNotFound => e
     { error: e.message }
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: @account).capture_exception
+    ChatwootExceptionTracker.new(e, account: @account).capture_exception
     { error: "Tool failed (#{e.class.name})" }
   end
 end

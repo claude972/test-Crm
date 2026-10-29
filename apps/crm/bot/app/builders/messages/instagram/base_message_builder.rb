@@ -190,7 +190,7 @@ class Messages::Instagram::BaseMessageBuilder < Messages::Messenger::MessageBuil
   end
 
   def handle_error(error)
-    KovaaLab CharExceptionTracker.new(error, account: @inbox.account).capture_exception
+    ChatwootExceptionTracker.new(error, account: @inbox.account).capture_exception
     true
   end
 

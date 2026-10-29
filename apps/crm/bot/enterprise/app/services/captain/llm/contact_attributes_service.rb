@@ -26,7 +26,7 @@ class Captain::Llm::ContactAttributesService < Llm::BaseAiService
     end
     parse_response(response.content)
   rescue RubyLLM::Error => e
-    KovaaLab CharExceptionTracker.new(e, account: @conversation.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: @conversation.account).capture_exception
     []
   end
 

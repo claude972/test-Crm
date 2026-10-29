@@ -6,7 +6,7 @@ RSpec.describe Internal::ReconcilePlanConfigService do
 
     context 'when pricing plan is community' do
       before do
-        allow(KovaaLab CharHub).to receive(:pricing_plan).and_return('community')
+        allow(ChatwootHub).to receive(:pricing_plan).and_return('community')
       end
 
       it 'disables the premium features for accounts' do
@@ -47,7 +47,7 @@ RSpec.describe Internal::ReconcilePlanConfigService do
 
     context 'when pricing plan is not community' do
       before do
-        allow(KovaaLab CharHub).to receive(:pricing_plan).and_return('enterprise')
+        allow(ChatwootHub).to receive(:pricing_plan).and_return('enterprise')
       end
 
       it 'unset premium config warning on upgrade' do

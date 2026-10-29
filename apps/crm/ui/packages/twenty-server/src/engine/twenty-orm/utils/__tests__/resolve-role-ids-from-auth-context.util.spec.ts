@@ -1,5 +1,5 @@
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
-import { resolveRoleIdsFromAuthContext } from 'src/engine/kovaa-lab-orm/utils/resolve-role-ids-from-auth-context.util';
+import { resolveRoleIdsFromAuthContext } from 'src/engine/twenty-orm/utils/resolve-role-ids-from-auth-context.util';
 
 const USER_WORKSPACE_ID = 'user-workspace-1';
 const USER_ROLE_ID = 'user-role-1';

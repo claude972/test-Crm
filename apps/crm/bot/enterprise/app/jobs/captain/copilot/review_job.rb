@@ -45,7 +45,7 @@ class Captain::Copilot::ReviewJob < ApplicationJob
   rescue Captain::Copilot::LeaseLostError, Captain::Copilot::LimitExceededError
     raise
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: run.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: run.account).capture_exception
     error = e.is_a?(ArgumentError) ? e.message : "Review failed (#{e.class.name})"
     run.with_lease(token) { record_error(run, conversation.id, error) }
   end

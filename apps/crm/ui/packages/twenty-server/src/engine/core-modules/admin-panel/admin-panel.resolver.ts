@@ -79,9 +79,9 @@ import { MarketplaceCatalogSyncCronJob } from 'src/engine/core-modules/applicati
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
-import { type ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { ConfigVariableGraphqlApiExceptionFilter } from 'src/engine/core-modules/kovaa-lab-config/filters/config-variable-graphql-api-exception.filter';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { ConfigVariableGraphqlApiExceptionFilter } from 'src/engine/core-modules/twenty-config/filters/config-variable-graphql-api-exception.filter';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { ThrottlerGraphqlApiExceptionFilter } from 'src/engine/core-modules/throttler/filters/throttler-graphql-api-exception.filter';
 import { TwoFactorAuthenticationExceptionFilter } from 'src/engine/core-modules/two-factor-authentication/two-factor-authentication-exception.filter';
 import { TwoFactorAuthenticationRecoveryCodeDTO } from 'src/engine/core-modules/two-factor-authentication/dto/two-factor-authentication-recovery-code.dto';
@@ -146,7 +146,7 @@ export class AdminPanelResolver {
     private readonly applicationRegistrationVariableService: ApplicationRegistrationVariableService,
     private adminPanelQueueService: AdminPanelQueueService,
     private featureFlagService: FeatureFlagService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly aiModelRegistryService: AiModelRegistryService,
     private readonly usageAnalyticsService: UsageAnalyticsService,
     private readonly maintenanceModeService: MaintenanceModeService,
@@ -448,7 +448,7 @@ export class AdminPanelResolver {
   async getDatabaseConfigVariable(
     @Args('key', { type: () => String }) key: keyof ConfigVariables,
   ): Promise<ConfigVariableDTO> {
-    this.kovaa-labConfigService.validateConfigVariableExists(key as string);
+    this.kovaaLabConfigService.validateConfigVariableExists(key as string);
 
     return this.adminConfigService.getConfigVariable(key);
   }
@@ -460,7 +460,7 @@ export class AdminPanelResolver {
     @Args('value', { type: () => GraphQLJSON })
     value: ConfigVariables[keyof ConfigVariables],
   ): Promise<boolean> {
-    await this.kovaa-labConfigService.set(key, value);
+    await this.kovaaLabConfigService.set(key, value);
 
     return true;
   }
@@ -472,7 +472,7 @@ export class AdminPanelResolver {
     @Args('value', { type: () => GraphQLJSON })
     value: ConfigVariables[keyof ConfigVariables],
   ): Promise<boolean> {
-    await this.kovaa-labConfigService.update(key, value);
+    await this.kovaaLabConfigService.update(key, value);
 
     return true;
   }
@@ -482,7 +482,7 @@ export class AdminPanelResolver {
   async deleteDatabaseConfigVariable(
     @Args('key', { type: () => String }) key: keyof ConfigVariables,
   ): Promise<boolean> {
-    await this.kovaa-labConfigService.delete(key);
+    await this.kovaaLabConfigService.delete(key);
 
     return true;
   }
@@ -610,7 +610,7 @@ export class AdminPanelResolver {
 
     defaultStart.setDate(defaultStart.getDate() - 30);
 
-    const useDollarMode = !this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
+    const useDollarMode = !this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
 
     const items = await this.usageAnalyticsService.getAdminAiUsageByWorkspace({
       periodStart: periodStart ?? defaultStart,

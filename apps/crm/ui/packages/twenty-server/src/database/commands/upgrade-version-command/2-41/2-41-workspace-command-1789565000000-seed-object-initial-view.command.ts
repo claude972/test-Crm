@@ -38,14 +38,14 @@ export class SeedObjectInitialViewCommand extends ProvisionedWorkspaceCommandRun
         'flatViewFieldMaps',
       ]);
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const seedOperations = computeMissingInitialObjectViewOperations({
       flatObjectMetadatas: [
-        kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardFlatApplication.id,
         workspaceCustomFlatApplication.id,
       ].flatMap((applicationId) =>
         findFlatEntitiesByApplicationId({

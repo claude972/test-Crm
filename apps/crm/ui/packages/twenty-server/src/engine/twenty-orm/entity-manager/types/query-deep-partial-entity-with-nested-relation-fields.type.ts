@@ -1,7 +1,7 @@
 import { type RELATION_NESTED_QUERY_KEYWORDS } from 'kovaa-lab-shared/constants';
 import { type QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import { type BaseWorkspaceEntity } from 'src/engine/kovaa-lab-orm/base.workspace-entity';
+import { type BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 
 export type ConnectWhereValue = string | Record<string, string>;
 

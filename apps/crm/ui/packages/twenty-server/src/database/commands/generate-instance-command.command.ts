@@ -8,9 +8,9 @@ import { Command, CommandRunner, Option } from 'nest-commander';
 import { InstanceCommandGenerationService } from 'src/database/commands/instance-command-generation.service';
 import {
   KOVAALAB_ALL_VERSIONS,
-  type KovaaLab CRMAllVersion,
-} from 'src/engine/core-modules/upgrade/constants/kovaa-lab-all-versions.constant';
-import { KOVAALAB_CURRENT_VERSION } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-current-version.constant';
+  type KovaaLabCRMAllVersion,
+} from 'src/engine/core-modules/upgrade/constants/twenty-all-versions.constant';
+import { KOVAALAB_CURRENT_VERSION } from 'src/engine/core-modules/upgrade/constants/twenty-current-version.constant';
 import { type InstanceCommandType } from 'src/engine/core-modules/upgrade/decorators/registered-instance-command.decorator';
 
 const UPGRADE_VERSION_COMMAND_DIR = path.resolve(
@@ -21,7 +21,7 @@ const UPGRADE_VERSION_COMMAND_DIR = path.resolve(
 type GenerateInstanceCommandOptions = {
   name: string;
   type: InstanceCommandType;
-  version?: KovaaLab CRMAllVersion;
+  version?: KovaaLabCRMAllVersion;
 };
 
 @Command({
@@ -65,7 +65,7 @@ export class GenerateInstanceCommandCommand extends CommandRunner {
     flags: '--version <version>',
     description: 'Target version (e.g. 1.23.0). Defaults to CURRENT_VERSION.',
   })
-  parseVersion(value: string): KovaaLab CRMAllVersion {
+  parseVersion(value: string): KovaaLabCRMAllVersion {
     if (
       !KOVAALAB_ALL_VERSIONS.includes(
         value as (typeof KOVAALAB_ALL_VERSIONS)[number],
@@ -76,7 +76,7 @@ export class GenerateInstanceCommandCommand extends CommandRunner {
       );
     }
 
-    return value as KovaaLab CRMAllVersion;
+    return value as KovaaLabCRMAllVersion;
   }
 
   async run(

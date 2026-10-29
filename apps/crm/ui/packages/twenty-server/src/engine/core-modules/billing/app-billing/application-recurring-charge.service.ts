@@ -13,8 +13,8 @@ import { SubscriptionInterval } from 'src/engine/core-modules/billing/enums/bill
 import { BillingService } from 'src/engine/core-modules/billing/services/billing.service';
 import { UsageLimitQuotaService } from 'src/engine/core-modules/usage-limit/services/usage-limit-quota.service';
 import { UsageAnalyticsService } from 'src/engine/core-modules/usage/services/usage-analytics.service';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { type WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 

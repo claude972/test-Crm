@@ -7,7 +7,7 @@ import {
   MessageFolderPendingSyncAction,
 } from 'kovaa-lab-shared/types';
 
-import { KovaaLab CRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
+import { KovaaLabCRMConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
 import { type ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.service';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
@@ -43,7 +43,7 @@ xdescribe('Microsoft dev tests : get message list service', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [KovaaLab CRMConfigModule.forRoot()],
+      imports: [KovaaLabCRMConfigModule.forRoot()],
       providers: [
         MicrosoftGetMessageListService,
         {
@@ -188,7 +188,7 @@ xdescribe('Microsoft dev tests : get message list service for folders', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [KovaaLab CRMConfigModule.forRoot()],
+      imports: [KovaaLabCRMConfigModule.forRoot()],
       providers: [
         MicrosoftGetMessageListService,
         {

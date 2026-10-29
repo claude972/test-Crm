@@ -1,4 +1,4 @@
-export type PerformKovaaLab CRMConfigQueryParams<T> = {
+export type PerformKovaaLabCRMConfigQueryParams<T> = {
   input: T;
   expectToFail?: boolean;
 };

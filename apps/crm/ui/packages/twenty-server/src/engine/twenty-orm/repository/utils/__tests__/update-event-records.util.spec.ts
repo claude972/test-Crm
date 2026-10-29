@@ -1,6 +1,6 @@
 import { type ObjectRecord } from 'kovaa-lab-shared/types';
 
-import { mergeReturnedUpdateTimestamps } from 'src/engine/kovaa-lab-orm/repository/utils/update-event-records.util';
+import { mergeReturnedUpdateTimestamps } from 'src/engine/twenty-orm/repository/utils/update-event-records.util';
 
 describe('update event records util', () => {
   it('merges returned timestamps by record id without replacing event data', () => {

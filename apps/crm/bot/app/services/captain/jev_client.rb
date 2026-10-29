@@ -47,7 +47,7 @@ class Captain::JevClient
   private
 
   def trace_jev_call(body, &)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     traced_jev_call(body, &)
   end
@@ -65,7 +65,7 @@ class Captain::JevClient
   rescue StandardError => e
     raise outcome[:error] if outcome.key?(:error)
 
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
     outcome.key?(:result) ? outcome[:result] : yield
   end
 

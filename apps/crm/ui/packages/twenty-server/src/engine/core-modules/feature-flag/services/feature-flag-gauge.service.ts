@@ -7,7 +7,7 @@ import { DataSource } from 'typeorm';
 import { FeatureFlagEntity } from 'src/engine/core-modules/feature-flag/feature-flag.entity';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 
-const ENABLED_WORKSPACES_METRIC_NAME = 'kovaa-lab_feature_flag_enabled_workspaces';
+const ENABLED_WORKSPACES_METRIC_NAME = 'kovaaLab_feature_flag_enabled_workspaces';
 
 // The rollout gauge counts enabled workspaces across every tenant, so it needs
 // the global repository rather than the workspace-scoped one (there is no

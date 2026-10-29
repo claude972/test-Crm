@@ -10,7 +10,7 @@ import { ApplicationService } from 'src/engine/core-modules/application/applicat
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { type FlatViewField } from 'src/engine/metadata-modules/flat-view-field/types/flat-view-field.type';
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
@@ -66,16 +66,16 @@ export class CreateMessageListMemberViewCommand extends ProvisionedWorkspaceComm
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const viewsToCreate = getStandardFlatEntitiesToCreateOrThrow<FlatView>({
@@ -113,7 +113,7 @@ export class CreateMessageListMemberViewCommand extends ProvisionedWorkspaceComm
           isSystemBuild: true,
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           allFlatEntityOperationByMetadataName: {
             view: {
               flatEntityToCreate: viewsToCreate,

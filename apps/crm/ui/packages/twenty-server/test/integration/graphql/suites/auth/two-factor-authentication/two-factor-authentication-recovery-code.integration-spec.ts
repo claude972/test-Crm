@@ -13,7 +13,7 @@ import { initiateOtpProvisioningForAuthenticatedUser } from 'test/integration/gr
 import { renewToken } from 'test/integration/graphql/utils/renew-token.util';
 import { verifyTwoFactorAuthenticationMethod } from 'test/integration/graphql/utils/verify-two-factor-authentication-method.util';
 import { makeMetadataApiRequest } from 'test/integration/metadata/suites/utils/make-metadata-api-request.util';
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 
 import { AppTokenType } from 'src/engine/core-modules/app-token/app-token.entity';
 import { acquireUserAuthenticationLock } from 'src/engine/core-modules/auth/utils/acquire-user-authentication-lock.util';

@@ -1,0 +1,222 @@
+name: hermes-customer-tools
+
+x-char: &char
+  image: hermes-char:local
+  build:
+    context: ../apps/crm/bot
+    dockerfile: docker/Dockerfile
+  environment: &char-environment
+    RAILS_ENV: production
+    NODE_ENV: production
+    INSTALLATION_ENV: docker
+    FRONTEND_URL: http://localhost:3011
+    SECRET_KEY_BASE: ${CHAR_SECRET_KEY_BASE:?Run setup first}
+    POSTGRES_HOST: char-db
+    POSTGRES_DATABASE: hermes_char
+    POSTGRES_USERNAME: hermes_char
+    POSTGRES_PASSWORD: ${CHAR_DB_PASSWORD:?Run setup first}
+    REDIS_URL: redis://char-redis:6379
+    RAILS_LOG_TO_STDOUT: "true"
+    RAILS_SERVE_STATIC_FILES: "true"
+    ACTIVE_STORAGE_SERVICE: local
+    RAILS_MAX_THREADS: "2"
+    SIDEKIQ_CONCURRENCY: "2"
+    MAILER_SENDER_EMAIL: Hermès CRM <notifications@hermes.example.test>
+    SMTP_ADDRESS: mailpit
+    SMTP_PORT: "1025"
+    SMTP_DOMAIN: hermes.example.test
+    SMTP_ENABLE_STARTTLS_AUTO: "false"
+  volumes:
+    - char-storage:/app/storage
+
+services:
+  mailpit:
+    profiles: [char, forms, calendar]
+    image: axllent/mailpit:v1.32.0@sha256:0790692be935ea4420d085694f7985b1f692ca6a8771ab0e0bd8ba75ac180498
+    ports: ["127.0.0.1:8025:8025", "127.0.0.1:1025:1025"]
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      MP_MAX_MESSAGES: "500"
+    volumes:
+      - mail-data:/data
+    healthcheck:
+      test: [CMD, /mailpit, readyz]
+      interval: 30s
+      retries: 5
+
+  char-db:
+    profiles: [char]
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: hermes_char
+      POSTGRES_USER: hermes_char
+      POSTGRES_PASSWORD: ${CHAR_DB_PASSWORD:?Run setup first}
+    volumes:
+      - char-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U hermes_char -d hermes_char]
+      interval: 5s
+      retries: 20
+  char-redis:
+    profiles: [char]
+    image: redis:7-alpine
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      retries: 20
+  char-init:
+    <<: *char
+    profiles: [char]
+    command: [bundle, exec, rails, db:chatwoot_prepare]
+    depends_on:
+      mailpit: { condition: service_healthy }
+      char-db: { condition: service_healthy }
+      char-redis: { condition: service_healthy }
+  char:
+    <<: *char
+    profiles: [char]
+    ports: ["127.0.0.1:3011:3000"]
+    entrypoint: docker/entrypoints/rails.sh
+    command: [bundle, exec, rails, s, -p, "3000", -b, 0.0.0.0]
+    healthcheck:
+      test: [CMD-SHELL, "wget -q --spider http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      start_period: 120s
+      retries: 20
+    depends_on:
+      char-init: { condition: service_completed_successfully }
+  char-worker:
+    <<: *char
+    profiles: [char]
+    command: [bundle, exec, sidekiq, -C, config/sidekiq.yml]
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          "wget -qO- -T 5 http://127.0.0.1:7433/ >/dev/null || exit 1",
+        ]
+      interval: 15s
+      timeout: 10s
+      start_period: 120s
+      retries: 20
+    depends_on:
+      char-init: { condition: service_completed_successfully }
+
+  forms-db:
+    profiles: [forms]
+    image: mongo:7
+    volumes:
+      - forms-db:/data/db
+    healthcheck:
+      test: [CMD, mongosh, --quiet, --eval, "db.adminCommand('ping').ok"]
+      interval: 30s
+      retries: 20
+  forms-redis:
+    profiles: [forms]
+    image: redis:7-alpine
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      retries: 20
+  forms:
+    profiles: [forms]
+    image: hermes-forms:local
+    build:
+      context: ../apps/crm/form
+      dockerfile: Dockerfile
+    ports: ["127.0.0.1:9157:9157"]
+    environment:
+      NODE_ENV: production
+      APP_HOMEPAGE_URL: http://localhost:9157
+      SESSION_KEY: ${FORMS_SESSION_KEY:?Run setup first}
+      FORM_ENCRYPTION_KEY: ${FORMS_ENCRYPTION_KEY:?Run setup first}
+      INTEGRATION_ENCRYPTION_KEY: ${FORMS_INTEGRATION_KEY:?Run setup first}
+      VERIFY_USER_EMAIL: "false"
+      ENABLE_GOOGLE_FONTS: "false"
+      MONGO_URI: mongodb://forms-db:27017/hermes_forms
+      REDIS_HOST: forms-redis
+      REDIS_PORT: "6379"
+      SMTP_FROM: Hermès CRM <notifications@hermes.example.test>
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_SECURE: "false"
+    volumes:
+      - forms-uploads:/app/packages/server/static/upload
+      - forms-uploads:/app/packages/server/uploads
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          "wget -qO- http://127.0.0.1:9157/health/ready >/dev/null || exit 1",
+        ]
+      interval: 15s
+      start_period: 60s
+      retries: 20
+    depends_on:
+      mailpit: { condition: service_healthy }
+      forms-db: { condition: service_healthy }
+      forms-redis: { condition: service_healthy }
+
+  calendar-db:
+    profiles: [calendar]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hermes_calendar
+      POSTGRES_USER: hermes_calendar
+      POSTGRES_PASSWORD: ${CAL_DB_PASSWORD:?Run setup first}
+    volumes:
+      - calendar-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U hermes_calendar -d hermes_calendar]
+      interval: 5s
+      retries: 20
+  calendar:
+    profiles: [calendar]
+    image: hermes-calendar:local
+    build:
+      context: ../apps/crm/calendar
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        CALCOM_TELEMETRY_DISABLED: "1"
+        MAX_OLD_SPACE_SIZE: "2048"
+        WEB_BUILD_MAX_OLD_SPACE_SIZE: "6144"
+    ports: ["127.0.0.1:3010:3000"]
+    environment:
+      NODE_ENV: production
+      DATABASE_HOST: calendar-db:5432
+      DATABASE_URL: postgresql://hermes_calendar:${CAL_DB_PASSWORD}@calendar-db:5432/hermes_calendar
+      DATABASE_DIRECT_URL: postgresql://hermes_calendar:${CAL_DB_PASSWORD}@calendar-db:5432/hermes_calendar
+      NEXTAUTH_SECRET: ${CAL_AUTH_SECRET:?Run setup first}
+      CALENDSO_ENCRYPTION_KEY: ${CAL_ENCRYPTION_KEY:?Run setup first}
+      NEXT_PUBLIC_WEBAPP_URL: http://localhost:3010
+      NEXTAUTH_URL: http://localhost:3010/api/auth
+      NEXTAUTH_URL_INTERNAL: http://localhost:3000/api/auth
+      NODE_OPTIONS: --max-old-space-size=2048
+      CALCOM_TELEMETRY_DISABLED: "1"
+      EMAIL_FROM: notifications@hermes.example.test
+      EMAIL_FROM_NAME: Hermès CRM
+      EMAIL_SERVER_HOST: mailpit
+      EMAIL_SERVER_PORT: "1025"
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/', {redirect: 'manual', signal: AbortSignal.timeout(10000)}).then(r => process.exit(r.status >= 200 && r.status < 400 ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 60s
+      start_period: 120s
+      retries: 20
+    depends_on:
+      mailpit: { condition: service_healthy }
+      calendar-db: { condition: service_healthy }
+
+volumes:
+  mail-data:
+  char-db:
+  char-storage:
+  forms-db:
+  forms-uploads:
+  calendar-db:

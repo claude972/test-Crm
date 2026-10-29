@@ -21,7 +21,7 @@ import { GateWorkflowVersionNavigationByCoreIndexFlagCommand } from 'src/databas
 import { EnforceActivityTargetUniquenessCommand } from 'src/database/commands/upgrade-version-command/2-38/2-38-workspace-command-1788425677783-enforce-activity-target-uniqueness.command';
 import { ApplicationModule } from 'src/engine/core-modules/application/application.module';
 import { CommandMenuItemEntity } from 'src/engine/metadata-modules/command-menu-item/entities/command-menu-item.entity';
-import { WorkspaceSchemaManagerModule } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/workspace-schema-manager.module';
+import { WorkspaceSchemaManagerModule } from 'src/engine/twenty-orm/workspace-schema-manager/workspace-schema-manager.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { WorkspaceMigrationRunnerModule } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/workspace-migration-runner.module';
 import { WorkspaceMigrationModule } from 'src/engine/workspace-manager/workspace-migration/workspace-migration.module';

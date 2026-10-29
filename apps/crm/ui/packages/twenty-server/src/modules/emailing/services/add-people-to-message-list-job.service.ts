@@ -15,7 +15,7 @@ import {
   PermissionsExceptionCode,
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { ADD_PEOPLE_TO_MESSAGE_LIST_JOB_START_DELAY_MS } from 'src/modules/emailing/constants/add-people-to-message-list-job-start-delay-ms.constant';
 import {
   MessageListException,

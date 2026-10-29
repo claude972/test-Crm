@@ -3,9 +3,9 @@ import { type QueryRunner } from 'typeorm';
 import {
   WorkspaceSchemaManagerException,
   WorkspaceSchemaManagerExceptionCode,
-} from 'src/engine/kovaa-lab-orm/workspace-schema-manager/exceptions/workspace-schema-manager.exception';
-import { type WorkspaceSchemaColumnDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/types/workspace-schema-column-definition.type';
-import { buildSqlColumnDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/utils/build-sql-column-definition.util';
+} from 'src/engine/twenty-orm/workspace-schema-manager/exceptions/workspace-schema-manager.exception';
+import { type WorkspaceSchemaColumnDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/types/workspace-schema-column-definition.type';
+import { buildSqlColumnDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/utils/build-sql-column-definition.util';
 import { computePostgresEnumName } from 'src/engine/workspace-manager/workspace-migration/utils/compute-postgres-enum-name.util';
 import {
   escapeIdentifier,

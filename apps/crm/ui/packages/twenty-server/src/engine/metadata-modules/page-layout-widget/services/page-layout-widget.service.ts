@@ -74,7 +74,7 @@ export class PageLayoutWidgetService {
     errorMessage: string;
   }): Promise<void> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -231,7 +231,7 @@ export class PageLayoutWidgetService {
       : input;
 
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -347,7 +347,7 @@ export class PageLayoutWidgetService {
           ],
         },
       ),
-      this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       ),
     ]);

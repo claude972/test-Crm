@@ -2,7 +2,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { buildWorkflowCommandUpdatePermissionUpdates } from 'src/database/commands/upgrade-version-command/2-45/utils/build-workflow-command-update-permission-updates.util';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const NOW = '2026-09-30T12:00:00.000Z';
 const RECORD_UPDATE_PERMISSION_CONDITION =
@@ -14,11 +14,11 @@ const WORKFLOW_COMMAND_UNIVERSAL_IDENTIFIERS = [
   '26f98606-8b6e-42f2-bc97-2cfc4359bada',
 ];
 
-const { allFlatEntityMaps } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps(
+const { allFlatEntityMaps } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps(
   {
     now: '2026-09-27T12:00:00.000Z',
     workspaceId: '20202020-1111-4111-8111-111111111111',
-    kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+    kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
   },
 );
 

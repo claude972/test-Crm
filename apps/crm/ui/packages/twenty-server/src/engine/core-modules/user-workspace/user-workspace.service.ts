@@ -12,7 +12,7 @@ import { FileStorageExceptionCode } from 'src/engine/core-modules/file-storage/i
 import { type AppTokenEntity } from 'src/engine/core-modules/app-token/app-token.entity';
 import { ApprovedAccessDomainService } from 'src/engine/core-modules/approved-access-domain/services/approved-access-domain.service';
 import { getJoinableWorkspacesFromApprovedAccessDomains } from 'src/engine/core-modules/approved-access-domain/utils/get-joinable-workspaces-from-approved-access-domains.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   AuthException,
   AuthExceptionCode,
@@ -38,12 +38,12 @@ import {
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
 import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-target.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { RoleAssignmentValidationService } from 'src/engine/metadata-modules/role-assignment-validation/services/role-assignment-validation.service';
 import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { type WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 import { assert } from 'src/utils/assert';
@@ -70,7 +70,7 @@ export class UserWorkspaceService {
     private readonly fileUrlService: FileUrlService,
     private readonly onboardingService: OnboardingService,
     private readonly coreEntityCacheService: CoreEntityCacheService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workflowRunRecordShareService: WorkflowRunRecordShareService,
     private readonly workspaceCacheService: WorkspaceCacheService,
   ) {}
@@ -415,7 +415,7 @@ export class UserWorkspaceService {
     );
 
     // Email-domain discovery is the only "listing" source: PUBLIC only.
-    const workspacesFromApprovedAccessDomain = this.kovaa-labConfigService.get(
+    const workspacesFromApprovedAccessDomain = this.kovaaLabConfigService.get(
       'IS_EMAIL_VERIFICATION_REQUIRED',
     )
       ? getJoinableWorkspacesFromApprovedAccessDomains({
@@ -680,7 +680,7 @@ export class UserWorkspaceService {
     canAutoLoginIntoWorkspaces = true,
   ) {
     const shouldHideInvitations =
-      this.kovaa-labConfigService.get('IS_EMAIL_VERIFICATION_REQUIRED') &&
+      this.kovaaLabConfigService.get('IS_EMAIL_VERIFICATION_REQUIRED') &&
       !user.isEmailVerified;
 
     const availableWorkspacesForSignUpToList = shouldHideInvitations

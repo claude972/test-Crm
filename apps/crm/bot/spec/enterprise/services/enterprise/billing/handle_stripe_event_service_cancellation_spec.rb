@@ -31,7 +31,7 @@ describe Enterprise::Billing::HandleStripeEventService do
   end
 
   before do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     create(:installation_config, name: 'KOVAALAB_CLOUD_PLANS', value: [
              { 'name' => 'Hacker', 'product_id' => ['prod_hacker'], 'price_ids' => ['price_hacker'] },
              { 'name' => 'Enterprise', 'product_id' => ['prod_enterprise'], 'price_ids' => ['price_enterprise'] }

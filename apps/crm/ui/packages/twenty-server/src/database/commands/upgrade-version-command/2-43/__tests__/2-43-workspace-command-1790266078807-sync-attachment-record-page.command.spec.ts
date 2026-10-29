@@ -11,16 +11,16 @@ import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-enti
 import { type FlatViewField } from 'src/engine/metadata-modules/flat-view-field/types/flat-view-field.type';
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { FlatViewFieldValidatorService } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/services/flat-view-field-validator.service';
 
 jest.mock(
-  'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant',
+  'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant',
 );
 
-const computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMaps,
+const computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMaps,
 );
 
 const WORKSPACE_ID = '20202020-0000-0000-0000-000000000001';
@@ -57,12 +57,12 @@ const WIDGET_UNIVERSAL_IDENTIFIERS = [
 
 const STANDARD_MAPS = jest
   .requireActual<
-    typeof import('src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant')
-  >('src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant')
-  .computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    typeof import('src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant')
+  >('src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant')
+  .computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
     now: '2026-09-23T00:00:00.000Z',
     workspaceId: WORKSPACE_ID,
-    kovaa-labStandardApplicationId: STANDARD_APPLICATION.id,
+    kovaaLabStandardApplicationId: STANDARD_APPLICATION.id,
   }).allFlatEntityMaps;
 
 const STANDARD_FIELDS_VIEW_ID = '20202020-0000-0000-0000-000000000010';
@@ -106,7 +106,7 @@ describe('SyncAttachmentRecordPageCommand', () => {
       .fn()
       .mockResolvedValue({ status: 'success' });
 
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
       allFlatEntityMaps: {
         flatViewMaps: buildMaps([
           {
@@ -139,16 +139,16 @@ describe('SyncAttachmentRecordPageCommand', () => {
         ]),
       },
     } as unknown as ReturnType<
-      typeof computeKovaaLab CRMStandardApplicationAllFlatEntityMaps
+      typeof computeKovaaLabCRMStandardApplicationAllFlatEntityMaps
     >);
 
     command = new SyncAttachmentRecordPageCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: STANDARD_APPLICATION,
+            kovaaLabStandardFlatApplication: STANDARD_APPLICATION,
           }),
       } as unknown as ApplicationService,
       {
@@ -599,7 +599,7 @@ describe('SyncAttachmentRecordPageCommand', () => {
     await runOnWorkspace();
 
     expect(
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock,
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock,
     ).not.toHaveBeenCalled();
     expect(
       validateBuildAndRunLegacyWorkspaceMigrationMock,

@@ -5,7 +5,7 @@ import {
   SecretEncryptionExceptionCode,
 } from 'src/engine/core-modules/secret-encryption/exceptions/secret-encryption.exception';
 import { type ResolvedEncryptionKeys } from 'src/engine/core-modules/secret-encryption/types/resolved-encryption-keys.type';
-import { type EnvironmentConfigDriver } from 'src/engine/core-modules/kovaa-lab-config/drivers/environment-config.driver';
+import { type EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
 
 export const resolveEncryptionKeysOrThrow = ({
   environmentConfigDriver,

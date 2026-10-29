@@ -9,14 +9,14 @@ import {
 
 import { timingSafeEqual } from 'crypto';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class CloudflareSecretMatchGuard implements CanActivate {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const cloudflareWebhookSecret = this.kovaa-labConfigService.get(
+    const cloudflareWebhookSecret = this.kovaaLabConfigService.get(
       'CLOUDFLARE_WEBHOOK_SECRET',
     );
 

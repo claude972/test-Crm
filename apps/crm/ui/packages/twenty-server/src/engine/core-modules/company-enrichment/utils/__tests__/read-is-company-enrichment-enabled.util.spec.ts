@@ -1,10 +1,10 @@
 import { readIsCompanyEnrichmentEnabled } from 'src/engine/core-modules/company-enrichment/utils/read-is-company-enrichment-enabled.util';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const buildConfigService = (values: Record<string, unknown>) =>
   ({
     get: (key: string) => values[key],
-  }) as KovaaLab CRMConfigService;
+  }) as KovaaLabCRMConfigService;
 
 describe('readIsCompanyEnrichmentEnabled', () => {
   it('should be enabled with the AI chat consumer and an api key', () => {

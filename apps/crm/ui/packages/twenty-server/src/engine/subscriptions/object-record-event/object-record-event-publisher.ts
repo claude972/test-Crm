@@ -46,14 +46,14 @@ import { ObjectRecordSubscriptionEvent } from 'src/engine/subscriptions/types/ob
 import {
   RolePermissionConfig,
   RoleIdsBySource,
-} from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { buildRowLevelPermissionRecordFilter } from 'src/engine/kovaa-lab-orm/utils/build-row-level-permission-record-filter.util';
-import { computePermissionIntersection } from 'src/engine/kovaa-lab-orm/utils/compute-permission-intersection.util';
-import { type RowAccessPolicySubject } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { isRecordMatchingRLSRowLevelPermissionPredicate } from 'src/engine/kovaa-lab-orm/utils/is-record-matching-rls-row-level-permission-predicate.util';
+} from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { buildRowLevelPermissionRecordFilter } from 'src/engine/twenty-orm/utils/build-row-level-permission-record-filter.util';
+import { computePermissionIntersection } from 'src/engine/twenty-orm/utils/compute-permission-intersection.util';
+import { type RowAccessPolicySubject } from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { isRecordMatchingRLSRowLevelPermissionPredicate } from 'src/engine/twenty-orm/utils/is-record-matching-rls-row-level-permission-predicate.util';
 import { canRolesAccessAllRecords } from 'src/engine/core-modules/record-share/utils/can-roles-access-all-records.util';
-import { buildUserRoleIdsBySource } from 'src/engine/kovaa-lab-orm/utils/build-user-role-ids-by-source.util';
-import { getRoleIdsToIntersect } from 'src/engine/kovaa-lab-orm/utils/get-role-ids-to-intersect.util';
+import { buildUserRoleIdsBySource } from 'src/engine/twenty-orm/utils/build-user-role-ids-by-source.util';
+import { getRoleIdsToIntersect } from 'src/engine/twenty-orm/utils/get-role-ids-to-intersect.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { WorkspaceEventBatch } from 'src/engine/workspace-event-emitter/types/workspace-event-batch.type';
 import { parseEventNameOrThrow } from 'src/engine/workspace-event-emitter/utils/parse-event-name';

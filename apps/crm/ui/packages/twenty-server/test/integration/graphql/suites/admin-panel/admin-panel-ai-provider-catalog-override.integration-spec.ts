@@ -1,7 +1,7 @@
 import { getAiProviders } from 'test/integration/graphql/suites/user-session/utils/get-ai-providers.util';
-import { createConfigVariable } from 'test/integration/kovaa-lab-config/utils/create-config-variable.util';
-import { deleteConfigVariable } from 'test/integration/kovaa-lab-config/utils/delete-config-variable.util';
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { createConfigVariable } from 'test/integration/twenty-config/utils/create-config-variable.util';
+import { deleteConfigVariable } from 'test/integration/twenty-config/utils/delete-config-variable.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 
 import { gql } from 'graphql-tag';
 

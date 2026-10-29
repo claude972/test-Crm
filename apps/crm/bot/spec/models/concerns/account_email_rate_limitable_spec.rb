@@ -23,7 +23,7 @@ RSpec.describe AccountEmailRateLimitable do
 
   describe '#within_email_rate_limit?' do
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       account.update!(limits: { 'emails' => 2 })
     end
 
@@ -38,7 +38,7 @@ RSpec.describe AccountEmailRateLimitable do
 
     context 'when self-hosted' do
       before do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
         2.times { account.increment_email_sent_count }
       end
 
@@ -49,7 +49,7 @@ RSpec.describe AccountEmailRateLimitable do
 
     context 'when kovaa-lab cloud' do
       before do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         2.times { account.increment_email_sent_count }
       end
 
@@ -87,7 +87,7 @@ RSpec.describe AccountEmailRateLimitable do
   describe '#reserve_email_send_capacity' do
     context 'when kovaa-lab cloud' do
       before do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         account.update!(limits: { 'emails' => 2 })
       end
 
@@ -120,7 +120,7 @@ RSpec.describe AccountEmailRateLimitable do
 
     context 'when self-hosted' do
       before do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
         account.update!(limits: { 'emails' => 1 })
       end
 

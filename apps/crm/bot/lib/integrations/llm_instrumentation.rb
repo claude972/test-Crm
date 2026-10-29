@@ -8,7 +8,7 @@ module Integrations::LlmInstrumentation
   include Integrations::LlmInstrumentationSpans
 
   def instrument_llm_call(params)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     params = llm_instrumentation_params(params) if respond_to?(:llm_instrumentation_params, true)
     result = nil
@@ -21,12 +21,12 @@ module Integrations::LlmInstrumentation
       result
     end
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: resolve_account(params)).capture_exception
+    ChatwootExceptionTracker.new(e, account: resolve_account(params)).capture_exception
     executed ? result : yield
   end
 
   def instrument_agent_session(params)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     result = nil
     executed = false
@@ -44,14 +44,14 @@ module Integrations::LlmInstrumentation
       end
     end
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: resolve_account(params)).capture_exception
+    ChatwootExceptionTracker.new(e, account: resolve_account(params)).capture_exception
     executed ? result : yield
   end
 
   def instrument_tool_call(tool_name, arguments)
     # There is no error handling because tools can fail and LLMs should be
     # aware of those failures and factor them into their response.
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     tracer.in_span(format(TOOL_SPAN_NAME, tool_name)) do |span|
       apply_current_langfuse_attributes(span)
@@ -65,7 +65,7 @@ module Integrations::LlmInstrumentation
   end
 
   def instrument_embedding_call(params)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     instrument_with_span(params[:span_name] || 'llm.embedding', params) do |span, track_result|
       set_embedding_span_attributes(span, params)
@@ -77,7 +77,7 @@ module Integrations::LlmInstrumentation
   end
 
   def instrument_audio_transcription(params)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     instrument_with_span(params[:span_name] || 'llm.audio.transcription', params) do |span, track_result|
       set_audio_transcription_span_attributes(span, params)
@@ -89,7 +89,7 @@ module Integrations::LlmInstrumentation
   end
 
   def instrument_moderation_call(params)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     instrument_with_span(params[:span_name] || 'llm.moderation', params) do |span, track_result|
       set_moderation_span_attributes(span, params)

@@ -1,23 +1,23 @@
 import { POSTGRESQL_ERROR_CODES } from 'src/engine/api/graphql/workspace-query-runner/constants/postgres-error-codes.constants';
 import { PostgresException } from 'src/engine/api/graphql/workspace-query-runner/utils/postgres-exception';
-import { computeKovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/error-handling/compute-kovaa-lab-orm-exception.util';
+import { computeKovaaLabCRMOrmException } from 'src/engine/twenty-orm/error-handling/compute-twenty-orm-exception.util';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 const buildPostgresError = (message: string, code: string): Error =>
   Object.assign(new Error(message), { code });
 
-describe('computeKovaaLab CRMOrmException', () => {
+describe('computeKovaaLabCRMOrmException', () => {
   it('should map the pg client query timeout to QUERY_READ_TIMEOUT when the error carries no code', () => {
     const error = new Error('Query read timeout');
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
-    expect(result).toBeInstanceOf(KovaaLab CRMOrmException);
-    expect((result as KovaaLab CRMOrmException).code).toBe(
-      KovaaLab CRMOrmExceptionCode.QUERY_READ_TIMEOUT,
+    expect(result).toBeInstanceOf(KovaaLabCRMOrmException);
+    expect((result as KovaaLabCRMOrmException).code).toBe(
+      KovaaLabCRMOrmExceptionCode.QUERY_READ_TIMEOUT,
     );
     expect(result.message).toBe('Query read timeout');
   });
@@ -28,11 +28,11 @@ describe('computeKovaaLab CRMOrmException', () => {
       POSTGRESQL_ERROR_CODES.UNIQUE_VIOLATION,
     );
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
-    expect(result).toBeInstanceOf(KovaaLab CRMOrmException);
-    expect((result as KovaaLab CRMOrmException).code).toBe(
-      KovaaLab CRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED,
+    expect(result).toBeInstanceOf(KovaaLabCRMOrmException);
+    expect((result as KovaaLabCRMOrmException).code).toBe(
+      KovaaLabCRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED,
     );
   });
 
@@ -46,7 +46,7 @@ describe('computeKovaaLab CRMOrmException', () => {
       },
     );
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
     expect(result.message).toBe(
       'A duplicate entry was detected: unique constraint messageThreadTarget.IDX_UNIQUE_9f2b1a was violated',
@@ -59,7 +59,7 @@ describe('computeKovaaLab CRMOrmException', () => {
       POSTGRESQL_ERROR_CODES.UNIQUE_VIOLATION,
     );
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
     expect(result.message).toBe('A duplicate entry was detected');
   });
@@ -70,11 +70,11 @@ describe('computeKovaaLab CRMOrmException', () => {
       POSTGRESQL_ERROR_CODES.INVALID_TEXT_REPRESENTATION,
     );
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
-    expect(result).toBeInstanceOf(KovaaLab CRMOrmException);
-    expect((result as KovaaLab CRMOrmException).code).toBe(
-      KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+    expect(result).toBeInstanceOf(KovaaLabCRMOrmException);
+    expect((result as KovaaLabCRMOrmException).code).toBe(
+      KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
     );
     expect(result.message).toBe(
       'invalid input syntax for type uuid: "not-a-uuid"',
@@ -86,13 +86,13 @@ describe('computeKovaaLab CRMOrmException', () => {
     POSTGRESQL_ERROR_CODES.FOREIGN_KEY_VIOLATION,
     POSTGRESQL_ERROR_CODES.RESTRICT_VIOLATION,
   ])('should map the constraint violation %s to INVALID_INPUT', (code) => {
-    const result = computeKovaaLab CRMOrmException(
+    const result = computeKovaaLabCRMOrmException(
       buildPostgresError('constraint violation', code),
     );
 
-    expect(result).toBeInstanceOf(KovaaLab CRMOrmException);
-    expect((result as KovaaLab CRMOrmException).code).toBe(
-      KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+    expect(result).toBeInstanceOf(KovaaLabCRMOrmException);
+    expect((result as KovaaLabCRMOrmException).code).toBe(
+      KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
     );
   });
 
@@ -103,16 +103,16 @@ describe('computeKovaaLab CRMOrmException', () => {
   ])(
     'should map the transient failure %s to TRANSIENT_DATABASE_ERROR',
     (code) => {
-      const result = computeKovaaLab CRMOrmException(
+      const result = computeKovaaLabCRMOrmException(
         buildPostgresError(
           'terminating connection due to idle-in-transaction timeout',
           code,
         ),
       );
 
-      expect(result).toBeInstanceOf(KovaaLab CRMOrmException);
-      expect((result as KovaaLab CRMOrmException).code).toBe(
-        KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
+      expect(result).toBeInstanceOf(KovaaLabCRMOrmException);
+      expect((result as KovaaLabCRMOrmException).code).toBe(
+        KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
       );
     },
   );
@@ -123,7 +123,7 @@ describe('computeKovaaLab CRMOrmException', () => {
       POSTGRESQL_ERROR_CODES.READ_ONLY_SQL_TRANSACTION,
     );
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
     expect(result).toBeInstanceOf(PostgresException);
     expect((result as PostgresException).code).toBe(
@@ -135,37 +135,37 @@ describe('computeKovaaLab CRMOrmException', () => {
   it('should return a TRANSIENT_DATABASE_ERROR exception when the socket dies before postgres reports a code', () => {
     const error = new Error('Connection terminated unexpectedly');
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
-    expect(result).toBeInstanceOf(KovaaLab CRMOrmException);
-    expect((result as KovaaLab CRMOrmException).code).toBe(
-      KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
+    expect(result).toBeInstanceOf(KovaaLabCRMOrmException);
+    expect((result as KovaaLabCRMOrmException).code).toBe(
+      KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
     );
   });
 
   it('should return an unrecognised driver error untouched', () => {
     const error = new Error('some driver failure nobody maps');
 
-    expect(computeKovaaLab CRMOrmException(error)).toBe(error);
+    expect(computeKovaaLabCRMOrmException(error)).toBe(error);
   });
 
   it('should return an error carrying an unknown code untouched', () => {
     const error = buildPostgresError('some driver failure', 'NOT_A_PG_CODE');
 
-    expect(computeKovaaLab CRMOrmException(error)).toBe(error);
+    expect(computeKovaaLabCRMOrmException(error)).toBe(error);
   });
 
   it('should leave an exception the query builder already computed untouched', () => {
-    const error = new KovaaLab CRMOrmException(
+    const error = new KovaaLabCRMOrmException(
       'Join path "person.tasks" is to-many',
-      KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+      KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
     );
 
-    expect(computeKovaaLab CRMOrmException(error)).toBe(error);
+    expect(computeKovaaLabCRMOrmException(error)).toBe(error);
   });
 
   it('should wrap a non-Error throw rather than reading message off it', () => {
-    const result = computeKovaaLab CRMOrmException('connection lost');
+    const result = computeKovaaLabCRMOrmException('connection lost');
 
     expect(result).toBeInstanceOf(Error);
     expect(result.message).toBe('connection lost');
@@ -177,7 +177,7 @@ describe('computeKovaaLab CRMOrmException', () => {
       POSTGRESQL_ERROR_CODES.UNIQUE_VIOLATION,
     );
 
-    const result = computeKovaaLab CRMOrmException(error);
+    const result = computeKovaaLabCRMOrmException(error);
 
     expect((result as Error & { cause?: Error }).cause).toBe(error);
   });

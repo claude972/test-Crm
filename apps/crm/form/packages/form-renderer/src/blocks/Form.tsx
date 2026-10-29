@@ -275,7 +275,7 @@ export const Form: FC<FormProps> = ({
   }
 
   useEnterKey(`kovaa-lab-${state.instanceId}-${field.id}`, (event: KeyboardEvent) => {
-    if (window.kovaa-lab.device.mobile) {
+    if (window.kovaaLab.device.mobile) {
       return event.preventDefault()
     }
 

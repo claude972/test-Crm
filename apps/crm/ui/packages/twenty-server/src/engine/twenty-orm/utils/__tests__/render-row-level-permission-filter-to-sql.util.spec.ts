@@ -8,8 +8,8 @@ import { type ObjectLiteral } from 'typeorm';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { UNSATISFIABLE_RECORD_FILTER } from 'src/engine/kovaa-lab-orm/constants/unsatisfiable-record-filter.constant';
-import { renderRowLevelPermissionFilterToSql } from 'src/engine/kovaa-lab-orm/utils/render-row-level-permission-filter-to-sql.util';
+import { UNSATISFIABLE_RECORD_FILTER } from 'src/engine/twenty-orm/constants/unsatisfiable-record-filter.constant';
+import { renderRowLevelPermissionFilterToSql } from 'src/engine/twenty-orm/utils/render-row-level-permission-filter-to-sql.util';
 
 const createFlatFieldMetadata = (
   overrides: Partial<FlatFieldMetadata>,

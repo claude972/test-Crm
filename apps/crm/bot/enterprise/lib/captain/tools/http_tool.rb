@@ -50,7 +50,7 @@ class Captain::Tools::HttpTool < Captain::Tools::BasePublicTool
   # 1MB of text ≈ 250K tokens, which exceeds most LLM context windows
   MAX_RESPONSE_SIZE = 1.megabyte
   # Customer details KovaaLab Char sends with every request. They are dropped on a redirect to another origin, like credentials.
-  PERSONAL_HEADERS = %w[X-KovaaLab Char-Contact-Email X-KovaaLab Char-Contact-Phone X-KovaaLab Char-Verified-Email].freeze
+  PERSONAL_HEADERS = %w[X-Chatwoot-Contact-Email X-Chatwoot-Contact-Phone X-Chatwoot-Verified-Email].freeze
 
   # Route through SafeFetch so custom tool requests share the app's centralized HTTP
   # fetching (resolution, timeouts, response size limits, and redirect handling).
@@ -81,7 +81,7 @@ class Captain::Tools::HttpTool < Captain::Tools::BasePublicTool
     # The contact email can be typed by anyone, so the email the customer verified travels in its own header.
     # The admin test request runs without a conversation, so it has no customer to look up.
     verified_email = stored_verified_email(tool_context.state) if tool_context
-    headers['X-KovaaLab Char-Verified-Email'] = verified_email if verified_email
+    headers['X-Chatwoot-Verified-Email'] = verified_email if verified_email
     headers['Content-Type'] = 'application/json' if json_body.present?
     headers
   end

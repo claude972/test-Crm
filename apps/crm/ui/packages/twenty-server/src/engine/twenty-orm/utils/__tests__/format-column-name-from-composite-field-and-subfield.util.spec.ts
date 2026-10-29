@@ -1,4 +1,4 @@
-import { formatColumnNamesFromCompositeFieldAndSubfields } from 'src/engine/kovaa-lab-orm/utils/format-column-names-from-composite-field-and-subfield.util';
+import { formatColumnNamesFromCompositeFieldAndSubfields } from 'src/engine/twenty-orm/utils/format-column-names-from-composite-field-and-subfield.util';
 
 describe('formatColumnNamesFromCompositeFieldAndSubfields', () => {
   it('should return fieldName when subFieldName is not defined', () => {

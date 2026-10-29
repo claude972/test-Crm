@@ -1,5 +1,5 @@
 # TODO: lets use HTTParty instead of RestClient
-class KovaaLab CharHub
+class ChatwootHub
   DEFAULT_BASE_URL = 'https://hub.2.kovaa-lab.com'.freeze
 
   def self.base_url
@@ -37,13 +37,13 @@ class KovaaLab CharHub
   end
 
   def self.pricing_plan
-    return 'community' unless KovaaLab CharApp.enterprise?
+    return 'community' unless ChatwootApp.enterprise?
 
     InstallationConfig.find_by(name: 'INSTALLATION_PRICING_PLAN')&.value || 'community'
   end
 
   def self.pricing_plan_quantity
-    return 0 unless KovaaLab CharApp.enterprise?
+    return 0 unless ChatwootApp.enterprise?
 
     InstallationConfig.find_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY')&.value || 0
   end
@@ -59,7 +59,7 @@ class KovaaLab CharHub
   def self.instance_config
     {
       installation_identifier: installation_identifier,
-      installation_version: KovaaLab Char.config[:version],
+      installation_version: Chatwoot.config[:version],
       installation_host: URI.parse(ENV.fetch('FRONTEND_URL', '')).host,
       installation_env: ENV.fetch('INSTALLATION_ENV', ''),
       edition: ENV.fetch('CW_EDITION', '')
@@ -91,7 +91,7 @@ class KovaaLab CharHub
     rescue *ExceptionList::REST_CLIENT_EXCEPTIONS => e
       Rails.logger.error "Exception: #{e.message}"
     rescue StandardError => e
-      KovaaLab CharExceptionTracker.new(e).capture_exception
+      ChatwootExceptionTracker.new(e).capture_exception
     end
     parsed_response
   end
@@ -102,7 +102,7 @@ class KovaaLab CharHub
   rescue *ExceptionList::REST_CLIENT_EXCEPTIONS => e
     Rails.logger.error "Exception: #{e.message}"
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
   end
 
   def self.send_push(fcm_options)
@@ -110,7 +110,7 @@ class KovaaLab CharHub
   rescue *ExceptionList::REST_CLIENT_EXCEPTIONS => e
     Rails.logger.error "Exception: #{e.message}"
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
   end
 
   def self.send_push_with_response(fcm_options)
@@ -126,8 +126,8 @@ class KovaaLab CharHub
   rescue *ExceptionList::REST_CLIENT_EXCEPTIONS => e
     Rails.logger.error "Exception: #{e.message}"
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
   end
 end
 
-KovaaLab CharHub.singleton_class.prepend_mod_with('KovaaLab CharHub')
+ChatwootHub.singleton_class.prepend_mod_with('ChatwootHub')

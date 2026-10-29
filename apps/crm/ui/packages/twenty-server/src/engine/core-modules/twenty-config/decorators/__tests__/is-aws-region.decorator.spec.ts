@@ -1,6 +1,6 @@
 import { validateSync } from 'class-validator';
 
-import { IsAWSRegion } from 'src/engine/core-modules/kovaa-lab-config/decorators/is-aws-region.decorator';
+import { IsAWSRegion } from 'src/engine/core-modules/twenty-config/decorators/is-aws-region.decorator';
 
 describe('IsAWSRegion', () => {
   class ConfigVariables {

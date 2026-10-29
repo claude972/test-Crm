@@ -2,8 +2,8 @@ import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-enti
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
 import { type FlatRole } from 'src/engine/metadata-modules/flat-role/types/flat-role.type';
-import { STANDARD_FLAT_ROLE_METADATA_BUILDERS_BY_ROLE_NAME } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/role-metadata/create-standard-flat-role-metadata.util';
-import { type CreateStandardRoleArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/role-metadata/create-standard-role-flat-metadata.util';
+import { STANDARD_FLAT_ROLE_METADATA_BUILDERS_BY_ROLE_NAME } from 'src/engine/workspace-manager/twenty-standard-application/utils/role-metadata/create-standard-flat-role-metadata.util';
+import { type CreateStandardRoleArgs } from 'src/engine/workspace-manager/twenty-standard-application/utils/role-metadata/create-standard-role-flat-metadata.util';
 
 export const buildStandardFlatRoleMetadataMaps = (
   args: Omit<CreateStandardRoleArgs, 'context'>,

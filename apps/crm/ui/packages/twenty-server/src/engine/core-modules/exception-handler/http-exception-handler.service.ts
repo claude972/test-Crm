@@ -19,8 +19,8 @@ import { CustomError } from 'kovaa-lab-shared/utils';
 import { PostgresException } from 'src/engine/api/graphql/workspace-query-runner/utils/postgres-exception';
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
 import { hasRestResponse } from 'src/engine/core-modules/exception-handler/utils/has-rest-response.util';
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { isKovaaLab CRMOrmUserInputError } from 'src/engine/kovaa-lab-orm/utils/is-kovaa-lab-orm-user-input-error.util';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { isKovaaLabCRMOrmUserInputError } from 'src/engine/twenty-orm/utils/is-twenty-orm-user-input-error.util';
 import { handleException } from 'src/engine/utils/global-exception-handler.util';
 
 interface RequestAndParams {
@@ -96,8 +96,8 @@ export class HttpExceptionHandlerService {
     }
 
     if (
-      exception instanceof KovaaLab CRMOrmException &&
-      isKovaaLab CRMOrmUserInputError(exception)
+      exception instanceof KovaaLabCRMOrmException &&
+      isKovaaLabCRMOrmUserInputError(exception)
     ) {
       exception = new BadRequestException(exception.message);
       statusCode = 400;

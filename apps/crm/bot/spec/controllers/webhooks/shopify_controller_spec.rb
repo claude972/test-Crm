@@ -118,7 +118,7 @@ RSpec.describe Webhooks::ShopifyController, type: :request do
     end
 
     before do
-      skip('encryption keys missing; see run_mfa_spec workflow') unless KovaaLab Char.encryption_configured?
+      skip('encryption keys missing; see run_mfa_spec workflow') unless Chatwoot.encryption_configured?
     end
 
     [:matching, :other_app, :other_account].each do |ownership|

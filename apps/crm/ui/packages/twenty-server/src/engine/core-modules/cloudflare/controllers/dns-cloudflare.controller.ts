@@ -9,7 +9,7 @@ import { AuthRestApiExceptionFilter } from 'src/engine/core-modules/auth/filters
 import { CloudflareSecretMatchGuard } from 'src/engine/core-modules/cloudflare/guards/cloudflare-secret.guard';
 import { DnsCloudflareService } from 'src/engine/core-modules/cloudflare/services/dns-cloudflare.service';
 import { DnsManagerExceptionFilter } from 'src/engine/core-modules/dns-manager/exceptions/dns-manager-exception-filter';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 
@@ -18,7 +18,7 @@ import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 export class DnsCloudflareController {
   constructor(
     protected readonly dnsCloudflareService: DnsCloudflareService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   @Post([
@@ -30,8 +30,8 @@ export class DnsCloudflareController {
     const hostname = req.body?.data?.data?.hostname;
 
     const zoneIds = [
-      this.kovaa-labConfigService.get('CLOUDFLARE_PUBLIC_DOMAIN_ZONE_ID'),
-      this.kovaa-labConfigService.get('CLOUDFLARE_ZONE_ID'),
+      this.kovaaLabConfigService.get('CLOUDFLARE_PUBLIC_DOMAIN_ZONE_ID'),
+      this.kovaaLabConfigService.get('CLOUDFLARE_ZONE_ID'),
     ];
 
     // since notification are not scoped to a zone, we need to check if the zone is in the list of zones

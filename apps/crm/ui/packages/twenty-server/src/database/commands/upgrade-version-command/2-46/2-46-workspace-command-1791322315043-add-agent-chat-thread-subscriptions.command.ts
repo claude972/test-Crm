@@ -13,8 +13,8 @@ import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/deco
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
@@ -70,18 +70,18 @@ export class AddAgentChatThreadSubscriptionsCommand extends ProvisionedWorkspace
       ],
     );
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const fieldsToCreate = hasParticipantObject
       ? getStandardFlatEntitiesToCreateOrThrow<FlatFieldMetadata>({
-          standardFlatEntityMaps: computeKovaaLab CRMStandardApplicationAllFlatEntityMaps(
+          standardFlatEntityMaps: computeKovaaLabCRMStandardApplicationAllFlatEntityMaps(
             {
               now: new Date().toISOString(),
               workspaceId,
-              kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+              kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
             },
           ).allFlatEntityMaps.flatFieldMetadataMaps,
           existingFlatEntityMaps: flatFieldMetadataMaps,

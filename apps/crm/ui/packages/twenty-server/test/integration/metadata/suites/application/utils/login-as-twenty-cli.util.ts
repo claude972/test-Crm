@@ -7,7 +7,7 @@ const CLI_CALLBACK_URL = 'http://127.0.0.1:53682/callback';
 
 // Same browser flow as `kovaa-lab remote add`: authorize the CLI client with PKCE
 // as the workspace admin, then exchange the code for the CLI access token.
-export const loginAsKovaaLab CRMCli = async (): Promise<string> => {
+export const loginAsKovaaLabCRMCli = async (): Promise<string> => {
   const baseUrl = `http://localhost:${APP_PORT}`;
 
   const discovery = await request(baseUrl)

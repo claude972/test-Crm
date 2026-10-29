@@ -1,6 +1,6 @@
 import { registerDecorator, type ValidationOptions } from 'class-validator';
 
-import { PositiveDurationConstraint } from 'src/engine/core-modules/kovaa-lab-config/validators/positive-duration.validator';
+import { PositiveDurationConstraint } from 'src/engine/core-modules/twenty-config/validators/positive-duration.validator';
 
 const IS_ZERO_ALLOWED = true;
 

@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { buildImapTlsOptions } from 'src/engine/core-modules/imap-smtp-caldav-connection/utils/build-imap-tls-options.util';
 import { buildMailServerCertificateOptions } from 'src/engine/core-modules/imap-smtp-caldav-connection/utils/build-mail-server-certificate-options.util';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.service';
 import {
@@ -27,7 +27,7 @@ export class ImapClientProvider {
 
   constructor(
     private readonly secureHttpClientService: SecureHttpClientService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly connectedAccountTokenEncryptionService: ConnectedAccountTokenEncryptionService,
     @InjectRepository(ConnectedAccountEntity)
     private readonly connectedAccountRepository: Repository<ConnectedAccountEntity>,
@@ -109,7 +109,7 @@ export class ImapClientProvider {
       disableIMAP4rev2: true,
       tls: buildMailServerCertificateOptions({
         host: imapParams.host,
-        isSelfSignedCertificateAllowed: this.kovaa-labConfigService.get(
+        isSelfSignedCertificateAllowed: this.kovaaLabConfigService.get(
           'IMAP_SMTP_ALLOW_SELF_SIGNED',
         ),
       }),

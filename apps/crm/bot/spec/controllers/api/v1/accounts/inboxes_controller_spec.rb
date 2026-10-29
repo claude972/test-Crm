@@ -220,7 +220,7 @@ RSpec.describe 'Inboxes API', type: :request do
       end
 
       it 'returns only the configured state for an embedded signup WhatsApp business management token' do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         whatsapp_channel = create(
           :channel_whatsapp,
           account: account,

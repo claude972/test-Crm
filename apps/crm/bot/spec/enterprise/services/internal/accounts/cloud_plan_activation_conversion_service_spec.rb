@@ -6,7 +6,7 @@ RSpec.describe Internal::Accounts::CloudPlanActivationConversionService do
   let(:account) { create(:account) }
 
   before do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     create(:installation_config, name: 'KOVAALAB_CLOUD_PLANS', value: [
              { 'name' => 'Hacker' },
              { 'name' => 'Startups' }

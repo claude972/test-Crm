@@ -58,8 +58,8 @@ export class RestoreSettingsNavigationCommandMenuItemLabelsCommand extends Provi
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -75,7 +75,7 @@ export class RestoreSettingsNavigationCommandMenuItemLabelsCommand extends Provi
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 

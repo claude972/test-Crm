@@ -2,11 +2,11 @@ import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type FlatViewFieldGroup } from 'src/engine/metadata-modules/flat-view-field-group/types/flat-view-field-group.type';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
-import { type AllStandardObjectViewFieldGroupName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-view-field-group-name.type';
-import { type AllStandardObjectViewName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-view-name.type';
-import { type StandardBuilderArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/metadata-standard-buillder-args.type';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
+import { type AllStandardObjectViewFieldGroupName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-view-field-group-name.type';
+import { type AllStandardObjectViewName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-view-name.type';
+import { type StandardBuilderArgs } from 'src/engine/workspace-manager/twenty-standard-application/types/metadata-standard-buillder-args.type';
 
 type CreateStandardViewFieldGroupOptions<
   O extends AllStandardObjectName,
@@ -35,7 +35,7 @@ export const createStandardViewFieldGroupFlatMetadata = <
   objectName,
   context: { viewName, viewFieldGroupName, name, position, isVisible },
   standardObjectMetadataRelatedEntityIds,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: CreateStandardViewFieldGroupArgs<O, V>): FlatViewFieldGroup => {
   // @ts-expect-error ignore
@@ -59,7 +59,7 @@ export const createStandardViewFieldGroupFlatMetadata = <
     viewFieldIds: [],
     viewFieldUniversalIdentifiers: [],
     universalIdentifier: viewFieldGroupDefinition.universalIdentifier,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     isActive: true,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,

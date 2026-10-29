@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { type FullNameMetadata } from 'kovaa-lab-shared/types';
 import { DeepPartial } from 'typeorm';
 
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { PersonWorkspaceEntity } from 'src/modules/person/standard-objects/person.workspace-entity';
 
 @Injectable()

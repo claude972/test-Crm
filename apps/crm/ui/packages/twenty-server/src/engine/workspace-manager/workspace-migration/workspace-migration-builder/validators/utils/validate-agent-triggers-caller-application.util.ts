@@ -1,7 +1,7 @@
 import { msg, t } from '@lingui/core/macro';
 
 import { AiExceptionCode } from 'src/engine/metadata-modules/ai/ai.exception';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { type FlatEntityValidationError } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/types/failed-flat-entity-validation.type';
 
 // Triggers start runs on their own, so only the agent's application may schedule them

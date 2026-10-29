@@ -1,9 +1,9 @@
 import { type QueryConfig } from 'pg';
 
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 export type NamedParameters = Record<string, unknown>;
 
@@ -84,9 +84,9 @@ export const compileNamedParameters = (
     const parameterName = sql.slice(nameStartIndex, nameEndIndex);
 
     if (!(parameterName in parameters)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Parameter ":${parameterName}" is referenced by the query but was never provided`,
-        KovaaLab CRMOrmExceptionCode.MISSING_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.MISSING_PARAMETER,
       );
     }
 
@@ -94,9 +94,9 @@ export const compileNamedParameters = (
 
     if (isSpread) {
       if (!Array.isArray(parameterValue)) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Parameter ":...${parameterName}" expects an array`,
-          KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+          KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
         );
       }
 
@@ -140,8 +140,8 @@ const findClosingQuoteIndex = (
     return index;
   }
 
-  throw new KovaaLab CRMOrmException(
+  throw new KovaaLabCRMOrmException(
     `Unterminated ${quote === "'" ? 'string literal' : 'quoted identifier'} in SQL`,
-    KovaaLab CRMOrmExceptionCode.MALFORMED_SQL,
+    KovaaLabCRMOrmExceptionCode.MALFORMED_SQL,
   );
 };

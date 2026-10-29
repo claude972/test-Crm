@@ -6,7 +6,7 @@ import { type DataSource } from 'typeorm';
 import { ClickHouseService } from 'src/database/clickhouse/clickhouse.service';
 import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 import { makeAdminPanelApiRequestAsNonServerAdmin } from 'test/integration/graphql/suites/admin-panel/utils/make-admin-panel-api-request-as-non-server-admin.util';
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 
 import {
   SEED_APPLE_WORKSPACE_ID,

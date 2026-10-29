@@ -21,9 +21,9 @@ import { computeRecordValidationRuleViolations } from 'src/engine/metadata-modul
 import {
   attachToOneRelationToRecords,
   collectForeignKeys,
-} from 'src/engine/kovaa-lab-orm/repository/utils/attach-relations.util';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/repository/utils/attach-relations.util';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 type ValidateRecordsAgainstValidationRulesArgs<TEntity extends ObjectLiteral> =
   {

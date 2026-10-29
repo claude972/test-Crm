@@ -6,7 +6,7 @@ import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-
 import {
   createStandardViewFlatMetadata,
   type CreateStandardViewArgs,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view/create-standard-view-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/view/create-standard-view-flat-metadata.util';
 
 export const computeStandardTimelineActivityViews = (
   args: Omit<CreateStandardViewArgs<'timelineActivity'>, 'context'>,

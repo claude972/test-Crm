@@ -43,9 +43,9 @@ import {
   WebhookExceptionCode,
 } from 'src/engine/metadata-modules/webhook/webhook.exception';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import { WorkspaceMigrationV2Exception } from 'src/engine/workspace-manager/workspace-migration.exception';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import {
@@ -91,17 +91,17 @@ describe('isUserFacingToolExecutionError', () => {
     ],
     [
       'a database input error',
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         'Unknown column',
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
       ),
       true,
     ],
     [
       'a database read timeout',
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         'Query read timeout',
-        KovaaLab CRMOrmExceptionCode.QUERY_READ_TIMEOUT,
+        KovaaLabCRMOrmExceptionCode.QUERY_READ_TIMEOUT,
       ),
       false,
     ],

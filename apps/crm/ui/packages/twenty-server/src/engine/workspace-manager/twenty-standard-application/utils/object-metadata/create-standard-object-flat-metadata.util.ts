@@ -9,9 +9,9 @@ import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from 'kovaa-lab-sh
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-field-name.type';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
-import { type StandardBuilderArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/metadata-standard-buillder-args.type';
+import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
+import { type StandardBuilderArgs } from 'src/engine/workspace-manager/twenty-standard-application/types/metadata-standard-buillder-args.type';
 
 export type CreateStandardObjectContext<O extends AllStandardObjectName> = {
   universalIdentifier: string;
@@ -85,7 +85,7 @@ export const createStandardObjectFlatMetadata = <
   },
   workspaceId,
   standardObjectMetadataRelatedEntityIds,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: CreateStandardObjectArgs<O>): FlatObjectMetadata => {
   const labelIdentifierFieldMetadataUniversalIdentifier =
@@ -116,7 +116,7 @@ export const createStandardObjectFlatMetadata = <
 
   return {
     universalIdentifier,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     workspaceId,
     nameSingular,
     namePlural,

@@ -37,7 +37,7 @@ export class BackfillWorkspaceCustomApplicationDefaultRoleCommand extends Provis
     options,
   }: RunOnWorkspaceArgs): Promise<void> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 

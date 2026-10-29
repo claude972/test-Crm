@@ -19,7 +19,7 @@ import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-m
 import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/types/flat-index-metadata.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const WORKFLOW_RUN_THREAD_FIELD_UNIVERSAL_IDENTIFIERS = [
@@ -80,15 +80,15 @@ export class AddWorkflowRunToChatThreadsCommand extends ProvisionedWorkspaceComm
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     // Preserves the shipped 2.44 upgrade path after 2.46 dropped the run link
@@ -140,7 +140,7 @@ export class AddWorkflowRunToChatThreadsCommand extends ProvisionedWorkspaceComm
       await this.runMigration({
         workspaceId,
         applicationUniversalIdentifier:
-          kovaa-labStandardFlatApplication.universalIdentifier,
+          kovaaLabStandardFlatApplication.universalIdentifier,
         allFlatEntityOperationByMetadataName: {
           fieldMetadata: {
             flatEntityToCreate: fieldsToCreate,
@@ -185,7 +185,7 @@ export class AddWorkflowRunToChatThreadsCommand extends ProvisionedWorkspaceComm
     await this.runMigration({
       workspaceId,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardFlatApplication.universalIdentifier,
       allFlatEntityOperationByMetadataName: {
         objectMetadata: {
           flatEntityToCreate: [],
@@ -210,8 +210,8 @@ export class AddWorkflowRunToChatThreadsCommand extends ProvisionedWorkspaceComm
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -220,7 +220,7 @@ export class AddWorkflowRunToChatThreadsCommand extends ProvisionedWorkspaceComm
     await this.runMigration({
       workspaceId,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardFlatApplication.universalIdentifier,
       allFlatEntityOperationByMetadataName: {
         objectMetadata: {
           flatEntityToCreate: [],

@@ -114,8 +114,8 @@ export class AddNotRecordedCallRecordingStatusCommand extends ProvisionedWorkspa
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -139,7 +139,7 @@ export class AddNotRecordedCallRecordingStatusCommand extends ProvisionedWorkspa
         {
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           allFlatEntityOperationByMetadataName: {
             fieldMetadata: {

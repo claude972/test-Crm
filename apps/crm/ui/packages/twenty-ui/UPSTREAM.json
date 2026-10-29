@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/twentyhq/twenty",
+  "commit": "ad7f4e9d8bb9d3d7e253a3f4d6f467aed9a96c72",
+  "path": "packages/twenty-ui",
+  "license": "MIT",
+  "adaptations": [
+    "Local package and Nx project named kovaa-lab-ui; sources kept in packages/twenty-ui.",
+    "Package specifiers, CSS cascade layer and generation scripts adapted to the local package name.",
+    "Upstream component identifiers and MIT license preserved."
+  ]
+}

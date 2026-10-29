@@ -4,9 +4,9 @@ import { InjectCacheStorage } from 'src/engine/core-modules/cache-storage/decora
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { WorkflowRunWorkspaceEntity } from 'src/modules/workflow/common/standard-objects/workflow-run.workspace-entity';
 import { NOT_STARTED_RUNS_FIND_OPTIONS } from 'src/modules/workflow/workflow-runner/workflow-run-queue/constants/not-started-runs-find-options';
 
@@ -17,7 +17,7 @@ export class WorkflowThrottlingWorkspaceService {
     private readonly cacheStorage: CacheStorageService,
     private readonly workspaceOrmManager: WorkspaceOrmManager,
     private readonly throttlerService: ThrottlerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async consumeRemainingRunsToEnqueueCount(
@@ -27,8 +27,8 @@ export class WorkflowThrottlingWorkspaceService {
     return this.throttlerService.tokenBucketConsumeUpTo(
       this.getWorkflowExecutionSoftThrottleCacheKey(workspaceId),
       requestedRunCount,
-      this.kovaa-labConfigService.get('WORKFLOW_EXEC_SOFT_THROTTLE_LIMIT'),
-      this.kovaa-labConfigService.get('WORKFLOW_EXEC_SOFT_THROTTLE_TTL'),
+      this.kovaaLabConfigService.get('WORKFLOW_EXEC_SOFT_THROTTLE_LIMIT'),
+      this.kovaaLabConfigService.get('WORKFLOW_EXEC_SOFT_THROTTLE_TTL'),
     );
   }
 
@@ -36,8 +36,8 @@ export class WorkflowThrottlingWorkspaceService {
     await this.throttlerService.tokenBucketThrottleOrThrow(
       this.getWorkflowExecutionHardThrottleCacheKey(workspaceId),
       1,
-      this.kovaa-labConfigService.get('WORKFLOW_EXEC_HARD_THROTTLE_LIMIT'),
-      this.kovaa-labConfigService.get('WORKFLOW_EXEC_HARD_THROTTLE_TTL'),
+      this.kovaaLabConfigService.get('WORKFLOW_EXEC_HARD_THROTTLE_LIMIT'),
+      this.kovaaLabConfigService.get('WORKFLOW_EXEC_HARD_THROTTLE_TTL'),
     );
   }
 

@@ -8,8 +8,8 @@ import { getSettingsPath, isDefined } from 'kovaa-lab-shared/utils';
 import { Repository } from 'typeorm';
 
 import { ApprovedAccessDomainEntity } from 'src/engine/core-modules/approved-access-domain/approved-access-domain.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import {
   ApprovedAccessDomainException,
   ApprovedAccessDomainExceptionCode,
@@ -24,7 +24,7 @@ import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
 import { decodeJwtHeader } from 'src/engine/core-modules/jwt/utils/decode-jwt-header.util';
 import { isAsymmetricJwtHeader } from 'src/engine/core-modules/jwt/utils/is-asymmetric-jwt-header.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 import { getDomainFromEmail } from 'src/utils/get-domain-from-email';
@@ -44,7 +44,7 @@ export class ApprovedAccessDomainService {
     @InjectRepository(ApprovedAccessDomainEntity)
     private readonly approvedAccessDomainRepositoryUnscoped: Repository<ApprovedAccessDomainEntity>,
     private readonly emailService: EmailService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly fileUrlService: FileUrlService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly jwtWrapperService: JwtWrapperService,
@@ -114,7 +114,7 @@ export class ApprovedAccessDomainService {
         firstName: sender.name.firstName,
         lastName: sender.name.lastName,
       },
-      serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
+      serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
       locale: sender.locale,
     });
     const html = await renderEmail(emailTemplate);
@@ -125,7 +125,7 @@ export class ApprovedAccessDomainService {
     const i18n = this.i18nService.getI18nInstance(sender.locale);
 
     await this.emailService.send({
-      from: `${sender.name.firstName} ${sender.name.lastName} (via KovaaLab CRM) <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      from: `${sender.name.firstName} ${sender.name.lastName} (via KovaaLab CRM) <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       to,
       subject: i18n._(msg`Approve your access domain`),
       text,

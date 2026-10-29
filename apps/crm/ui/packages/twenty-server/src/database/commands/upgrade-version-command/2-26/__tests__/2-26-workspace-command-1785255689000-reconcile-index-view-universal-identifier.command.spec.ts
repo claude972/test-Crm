@@ -165,10 +165,10 @@ describe('ReconcileIndexViewUniversalIdentifierCommand', () => {
         invalidateCache: invalidateCacheMock,
       } as unknown as WorkspaceMigrationRunnerService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: {
+            kovaaLabStandardFlatApplication: {
               universalIdentifier: STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
             },
             workspaceCustomFlatApplication: {

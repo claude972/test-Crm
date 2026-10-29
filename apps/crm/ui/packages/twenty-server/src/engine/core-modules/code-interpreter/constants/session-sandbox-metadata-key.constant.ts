@@ -1,1 +1,1 @@
-export const SESSION_SANDBOX_METADATA_KEY = 'kovaa-labSessionId';
+export const SESSION_SANDBOX_METADATA_KEY = 'kovaaLabSessionId';

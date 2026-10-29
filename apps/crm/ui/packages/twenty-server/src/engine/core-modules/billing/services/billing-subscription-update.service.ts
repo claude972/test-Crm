@@ -51,12 +51,12 @@ import { buildSubscriptionItemsUpdate } from 'src/engine/core-modules/billing/ut
 import { isSamePhaseSignature } from 'src/engine/core-modules/billing/utils/is-same-phase-signature.util';
 import { toPhaseUpdateParams } from 'src/engine/core-modules/billing/utils/to-phase-update-params.util';
 import { type SubscriptionStripePrices } from 'src/engine/core-modules/billing/types/subscription-stripe-prices.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { type WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 @Injectable()
 export class BillingSubscriptionUpdateService {
@@ -74,7 +74,7 @@ export class BillingSubscriptionUpdateService {
     private readonly stripeSubscriptionScheduleService: StripeSubscriptionScheduleService,
     private readonly billingSubscriptionService: BillingSubscriptionService,
     private readonly workspaceOrmManager: WorkspaceOrmManager,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async changeResourceCreditPrice(
@@ -212,7 +212,7 @@ export class BillingSubscriptionUpdateService {
     const planSwitch = getPlanSwitchOrThrow({
       currentPlanKey,
       targetPlanKey,
-      plansConfig: this.kovaa-labConfigService.get('BILLING_PLANS'),
+      plansConfig: this.kovaaLabConfigService.get('BILLING_PLANS'),
     });
 
     await this.updateSubscription(workspaceId, billingSubscription.id, {
@@ -620,7 +620,7 @@ export class BillingSubscriptionUpdateService {
         const isDowngrade =
           isDefined(currentPlan) &&
           getBillingPlanConfig({
-            plansConfig: this.kovaa-labConfigService.get('BILLING_PLANS'),
+            plansConfig: this.kovaaLabConfigService.get('BILLING_PLANS'),
             planKey: currentPlan,
           }).downgradePlanKeys.includes(update.newPlan);
 

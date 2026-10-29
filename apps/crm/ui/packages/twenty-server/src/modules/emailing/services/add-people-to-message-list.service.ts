@@ -8,7 +8,7 @@ import { ActorFromAuthContextService } from 'src/engine/core-modules/actor/servi
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { CommonApiContextBuilderService } from 'src/engine/core-modules/record-crud/services/common-api-context-builder.service';
 import { UserWorkspaceAuthContextService } from 'src/engine/core-modules/user-workspace/services/user-workspace-auth-context.service';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { ADD_PEOPLE_TO_MESSAGE_LIST_MAX_PERSON_COUNT } from 'src/modules/emailing/constants/add-people-to-message-list-max-person-count.constant';
 import { ADD_PEOPLE_TO_MESSAGE_LIST_PAGE_SIZE } from 'src/modules/emailing/constants/add-people-to-message-list-page-size.constant';
 import {

@@ -2,7 +2,7 @@
   "name": "kovaa-lab-companion",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "packages/kovaa-lab-companion/src",
+  "sourceRoot": "packages/twenty-companion/src",
   "implicitDependencies": ["kovaa-lab-ui"],
   "targets": {
     "build": {
@@ -10,7 +10,7 @@
       "cache": true,
       "dependsOn": ["kovaa-lab-ui:build"],
       "options": {
-        "cwd": "packages/kovaa-lab-companion",
+        "cwd": "packages/twenty-companion",
         "command": "yarn build"
       },
       "inputs": ["default", "^default"],
@@ -21,7 +21,7 @@
       "cache": true,
       "dependsOn": ["kovaa-lab-ui:build"],
       "options": {
-        "cwd": "packages/kovaa-lab-companion",
+        "cwd": "packages/twenty-companion",
         "command": "yarn typecheck"
       },
       "inputs": ["default", "^default"]
@@ -30,14 +30,14 @@
       "executor": "nx:run-commands",
       "cache": true,
       "options": {
-        "cwd": "packages/kovaa-lab-companion",
+        "cwd": "packages/twenty-companion",
         "command": "yarn lint:unlocalized-strings"
       },
       "inputs": [
         "{projectRoot}/src/**/*.{ts,tsx}",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/.oxlintrc.i18n.json",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/check-unlocalized-strings.mjs",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/filter-unlocalized-strings.mjs",
+        "{workspaceRoot}/packages/twenty-oxlint-rules/.oxlintrc.i18n.json",
+        "{workspaceRoot}/packages/twenty-oxlint-rules/scripts/check-unlocalized-strings.mjs",
+        "{workspaceRoot}/packages/twenty-oxlint-rules/scripts/filter-unlocalized-strings.mjs",
         "{projectRoot}/package.json",
         "{workspaceRoot}/yarn.lock"
       ]
@@ -47,7 +47,7 @@
       "cache": true,
       "dependsOn": ["kovaa-lab-ui:build"],
       "options": {
-        "cwd": "packages/kovaa-lab-companion",
+        "cwd": "packages/twenty-companion",
         "command": "yarn test"
       },
       "inputs": ["default", "^default"]
@@ -57,7 +57,7 @@
       "cache": false,
       "dependsOn": ["kovaa-lab-ui:build"],
       "options": {
-        "cwd": "packages/kovaa-lab-companion",
+        "cwd": "packages/twenty-companion",
         "command": "yarn package"
       }
     },
@@ -66,7 +66,7 @@
       "cache": false,
       "dependsOn": ["kovaa-lab-ui:build"],
       "options": {
-        "cwd": "packages/kovaa-lab-companion",
+        "cwd": "packages/twenty-companion",
         "command": "yarn package:archive"
       }
     }

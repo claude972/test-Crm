@@ -1,6 +1,6 @@
 import { plainToClass } from 'class-transformer';
 
-import { CastToPositiveNumber } from 'src/engine/core-modules/kovaa-lab-config/decorators/cast-to-positive-number.decorator';
+import { CastToPositiveNumber } from 'src/engine/core-modules/twenty-config/decorators/cast-to-positive-number.decorator';
 
 class TestClass {
   @CastToPositiveNumber()

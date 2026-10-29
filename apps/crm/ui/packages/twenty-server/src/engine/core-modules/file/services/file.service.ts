@@ -24,9 +24,9 @@ import { getContentDisposition } from 'src/engine/core-modules/file/utils/get-co
 import { removeFileFolderFromFileEntityPath } from 'src/engine/core-modules/file/utils/remove-file-folder-from-file-entity-path.utils';
 import { resolveByteRange } from 'src/engine/core-modules/file/utils/resolve-byte-range.util';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { streamToBuffer } from 'src/utils/stream-to-buffer';
 
 @Injectable()
@@ -36,7 +36,7 @@ export class FileService {
   constructor(
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly fileStorageService: FileStorageService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectWorkspaceScopedRepository(FileEntity)
     private readonly fileRepository: WorkspaceScopedRepository<FileEntity>,
     @InjectWorkspaceScopedRepository(ApplicationEntity)
@@ -221,7 +221,7 @@ export class FileService {
 
     const presignedUrl = await this.fileStorageService.getPresignedUrl({
       ...resourceIdentifier,
-      expiresInSeconds: this.kovaa-labConfigService.get(
+      expiresInSeconds: this.kovaaLabConfigService.get(
         'STORAGE_S3_PRESIGNED_URL_EXPIRES_IN',
       ),
       responseContentType: mimeType,

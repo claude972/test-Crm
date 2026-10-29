@@ -2,7 +2,7 @@ import {
   getUpdateEventRecords,
   mergeRecordsWithUpdateValues,
   mergeRecordWithUpdateValues,
-} from 'src/engine/kovaa-lab-orm/utils/merge-records-with-update-values.util';
+} from 'src/engine/twenty-orm/utils/merge-records-with-update-values.util';
 
 describe('mergeRecordsWithUpdateValues', () => {
   it('merges shared concrete values into every record', () => {

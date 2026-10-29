@@ -123,7 +123,7 @@ class Shopify::SignupService < AccountBuilder
   def finalize_shopify_installation
     @pending_installation&.consume!
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: @account).capture_exception
+    ChatwootExceptionTracker.new(e, account: @account).capture_exception
   end
 
   def committed_shopify_signup?
@@ -139,7 +139,7 @@ class Shopify::SignupService < AccountBuilder
   end
 
   def recover_committed_shopify_signup(error)
-    KovaaLab CharExceptionTracker.new(error, account: @account).capture_exception
+    ChatwootExceptionTracker.new(error, account: @account).capture_exception
     @user.notification_settings.find_or_create_by!(account: @account) do |setting|
       setting.selected_email_flags = [:email_conversation_assignment]
       setting.selected_push_flags = [:push_conversation_assignment]
@@ -158,7 +158,7 @@ class Shopify::SignupService < AccountBuilder
 
     @user.send_confirmation_instructions
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: @account).capture_exception
+    ChatwootExceptionTracker.new(e, account: @account).capture_exception
   end
 
   def build_user

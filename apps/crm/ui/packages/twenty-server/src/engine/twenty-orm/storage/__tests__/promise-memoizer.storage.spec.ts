@@ -1,4 +1,4 @@
-import { PromiseMemoizer } from 'src/engine/kovaa-lab-orm/storage/promise-memoizer.storage';
+import { PromiseMemoizer } from 'src/engine/twenty-orm/storage/promise-memoizer.storage';
 
 describe('PromiseMemoizer', () => {
   let memoizer: PromiseMemoizer<string>;

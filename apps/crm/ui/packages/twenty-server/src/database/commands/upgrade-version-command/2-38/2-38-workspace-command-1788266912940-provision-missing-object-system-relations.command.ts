@@ -114,8 +114,8 @@ export class ProvisionMissingObjectSystemRelationsCommand extends ProvisionedWor
         ) ?? new Set();
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -126,8 +126,8 @@ export class ProvisionMissingObjectSystemRelationsCommand extends ProvisionedWor
         holderFlatObjectMetadataByNameSingular,
         existingColumnNamesByHolderNameSingular,
         existingTableNames: new Set(columnNamesByTableName.keys()),
-        kovaa-labStandardApplicationUniversalIdentifier:
-          kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardApplicationUniversalIdentifier:
+          kovaaLabStandardFlatApplication.universalIdentifier,
       });
 
     if (unprovisionableSystemRelations.length > 0) {

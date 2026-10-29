@@ -1,8 +1,8 @@
 import { type Pool } from 'pg';
 
-import { type CompiledStatement } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
-import { computeKovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/error-handling/compute-kovaa-lab-orm-exception.util';
-import { type QueryExecutor } from 'src/engine/kovaa-lab-orm/executor/types/query-executor.type';
+import { type CompiledStatement } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
+import { computeKovaaLabCRMOrmException } from 'src/engine/twenty-orm/error-handling/compute-twenty-orm-exception.util';
+import { type QueryExecutor } from 'src/engine/twenty-orm/executor/types/query-executor.type';
 
 export class PoolQueryExecutor implements QueryExecutor {
   private readonly pool: Pool;
@@ -19,7 +19,7 @@ export class PoolQueryExecutor implements QueryExecutor {
 
       return result.rows as Record<string, unknown>[];
     } catch (error) {
-      throw computeKovaaLab CRMOrmException(error);
+      throw computeKovaaLabCRMOrmException(error);
     }
   }
 }

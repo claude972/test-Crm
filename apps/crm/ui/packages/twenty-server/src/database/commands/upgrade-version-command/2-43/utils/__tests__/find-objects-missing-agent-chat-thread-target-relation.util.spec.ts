@@ -180,7 +180,7 @@ const buildArgs = ({
     targetFlatObjectMetadata,
     existingTargetColumnNames: new Set(targetColumnNames),
     existingTableNames,
-    kovaa-labStandardApplicationUniversalIdentifier: STANDARD_APP_UID,
+    kovaaLabStandardApplicationUniversalIdentifier: STANDARD_APP_UID,
   };
 };
 

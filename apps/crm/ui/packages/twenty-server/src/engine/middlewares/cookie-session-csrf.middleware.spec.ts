@@ -3,7 +3,7 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import { type NextFunction, type Request, type Response } from 'express';
 
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserSessionCookieService } from 'src/engine/core-modules/user-session/services/user-session-cookie.service';
 import { CookieSessionCsrfMiddleware } from 'src/engine/middlewares/cookie-session-csrf.middleware';
 
@@ -48,7 +48,7 @@ describe('CookieSessionCsrfMiddleware', () => {
         CookieSessionCsrfMiddleware,
         UserSessionCookieService,
         {
-          provide: KovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
           useValue: {
             get: jest.fn((key: string) => mockConfig[key]),
           },

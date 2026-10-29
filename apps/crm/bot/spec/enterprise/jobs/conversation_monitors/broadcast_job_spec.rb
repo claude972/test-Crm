@@ -10,7 +10,7 @@ RSpec.describe ConversationMonitors::BroadcastJob do
       create(:user, account: account, role: :administrator)
       described_class.schedule(monitor.id)
       if feature == 'enterprise'
-        allow(KovaaLab CharApp).to receive(:enterprise?).and_return(false)
+        allow(ChatwootApp).to receive(:enterprise?).and_return(false)
       else
         account.disable_features!(feature)
       end

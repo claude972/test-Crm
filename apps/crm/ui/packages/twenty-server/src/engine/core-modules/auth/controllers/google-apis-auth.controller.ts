@@ -28,7 +28,7 @@ import { parseRelativeUrl } from 'src/engine/core-modules/domain/domain-server-c
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
 import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
@@ -40,7 +40,7 @@ export class GoogleAPIsAuthController {
     private readonly googleAPIsService: GoogleAPIsService,
     private readonly transientTokenService: TransientTokenService,
     private readonly connectedAccountOAuthService: ConnectedAccountOAuthService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly onboardingService: OnboardingService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly guardRedirectService: GuardRedirectService,
@@ -150,7 +150,7 @@ export class GoogleAPIsAuthController {
         this.guardRedirectService.getRedirectErrorUrlAndCaptureExceptions({
           error,
           workspace: workspace ?? {
-            subdomain: this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN'),
+            subdomain: this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN'),
             customDomain: null,
           },
           pathname: getSettingsPath(SettingsPath.Accounts),

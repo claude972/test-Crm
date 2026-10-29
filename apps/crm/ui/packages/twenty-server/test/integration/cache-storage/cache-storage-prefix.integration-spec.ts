@@ -9,10 +9,10 @@ import { randomUUID } from 'crypto';
 import { FlushCacheCommand } from 'src/engine/core-modules/cache-storage/commands/flush-cache.command';
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { CONFIG_VARIABLES_INSTANCE_TOKEN } from 'src/engine/core-modules/kovaa-lab-config/constants/config-variables-instance-tokens.constants';
-import { EnvironmentConfigDriver } from 'src/engine/core-modules/kovaa-lab-config/drivers/environment-config.driver';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { CONFIG_VARIABLES_INSTANCE_TOKEN } from 'src/engine/core-modules/twenty-config/constants/config-variables-instance-tokens.constants';
+import { EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 describe('Cache storage prefix', () => {
   let cache: RedisCache;
@@ -43,7 +43,7 @@ describe('Cache storage prefix', () => {
     { prefix: '{kovaa-lab-cache}', otherPrefix: '{other-cache}' },
     { prefix: '{kovaa-lab[prod]}', otherPrefix: '{kovaa-labp}' },
     { prefix: '{kovaa-lab*}', otherPrefix: '{kovaa-lab-other}' },
-    { prefix: '{kovaa-lab?}', otherPrefix: '{kovaa-labX}' },
+    { prefix: '{kovaa-lab?}', otherPrefix: '{kovaaLabX}' },
     { prefix: '{kovaa-lab\\prod}', otherPrefix: '{kovaa-labprod}' },
     { prefix: '{kovaa-lab]prod}', otherPrefix: '{kovaa-labprod}' },
   ])('cache:flush with prefix "$prefix"', ({ prefix, otherPrefix }) => {
@@ -65,7 +65,7 @@ describe('Cache storage prefix', () => {
             useValue: new ConfigVariables(),
           },
           EnvironmentConfigDriver,
-          KovaaLab CRMConfigService,
+          KovaaLabCRMConfigService,
           FlushCacheCommand,
         ],
       }).compile();

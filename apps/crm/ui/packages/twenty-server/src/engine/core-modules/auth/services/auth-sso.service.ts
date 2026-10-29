@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
@@ -12,7 +12,7 @@ export class AuthSsoService {
   constructor(
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   private getAuthProviderColumnNameByProvider(authProvider: AuthProviderEnum) {
@@ -36,7 +36,7 @@ export class AuthSsoService {
     workspaceId?: string,
   ) {
     if (
-      this.kovaa-labConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
+      this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
       !workspaceId
     ) {
       // Multi-workspace enable mode but on non workspace url.

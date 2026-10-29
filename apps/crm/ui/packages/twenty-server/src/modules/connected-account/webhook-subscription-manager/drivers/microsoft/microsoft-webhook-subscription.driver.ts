@@ -5,7 +5,7 @@ import { type Subscription } from '@microsoft/microsoft-graph-types';
 import { ApiPath, WebhookSubscriptionChannelType } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { MICROSOFT_SUBSCRIPTION_TTL_MS } from 'src/modules/connected-account/webhook-subscription-manager/drivers/microsoft/constants/microsoft-subscription-ttl-ms.constant';
 import {
   WebhookSubscriptionDriverException,
@@ -47,7 +47,7 @@ const MICROSOFT_GRAPH_RESOURCE_CONFIG_BY_CHANNEL_TYPE: Record<
 export class MicrosoftWebhookSubscriptionDriver implements WebhookSubscriptionDriver {
   constructor(
     private readonly microsoftOAuth2ClientProvider: MicrosoftOAuth2ClientProvider,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async createSubscription(
@@ -60,7 +60,7 @@ export class MicrosoftWebhookSubscriptionDriver implements WebhookSubscriptionDr
     const graphClient =
       await this.microsoftOAuth2ClientProvider.getClient(connectedAccountId);
 
-    const notificationUrl = `${this.kovaa-labConfigService.get('SERVER_URL')}/${resourceConfig.notificationPath}`;
+    const notificationUrl = `${this.kovaaLabConfigService.get('SERVER_URL')}/${resourceConfig.notificationPath}`;
 
     const SUBSCRIPTION_TTL_MS =
       MICROSOFT_SUBSCRIPTION_TTL_MS - MICROSOFT_SUBSCRIPTION_TTL_BUFFER_MS;

@@ -10,7 +10,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { ProvisionedWorkspaceCommandRunner } from 'src/database/commands/command-runners/provisioned-workspace.command-runner';
 import { WorkspaceIteratorService } from 'src/database/commands/command-runners/workspace-iterator.service';
 import { type RunOnWorkspaceArgs } from 'src/database/commands/command-runners/workspace.command-runner';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMapsPre231 } from 'src/database/commands/upgrade-version-command/2-10/utils/compute-kovaa-lab-standard-application-all-flat-entity-maps-pre-2-31.util';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMapsPre231 } from 'src/database/commands/upgrade-version-command/2-10/utils/compute-twenty-standard-application-all-flat-entity-maps-pre-2-31.util';
 import { ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { type FlatApplication } from 'src/engine/core-modules/application/types/flat-application.type';
 import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/services/feature-flag.service';
@@ -71,24 +71,24 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     await this.deleteAllRecordPageLayoutEntities({
       workspaceId,
-      kovaa-labStandardFlatApplication,
+      kovaaLabStandardFlatApplication,
     });
 
     await this.createStandardRecordPageLayouts({
       workspaceId,
-      kovaa-labStandardFlatApplication,
+      kovaaLabStandardFlatApplication,
     });
 
     await this.createCustomObjectPageLayouts({
       workspaceId,
-      kovaa-labStandardFlatApplication,
+      kovaaLabStandardFlatApplication,
     });
 
     await this.featureFlagService.enableFeatureFlags(
@@ -108,10 +108,10 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
 
   private async deleteAllRecordPageLayoutEntities({
     workspaceId,
-    kovaa-labStandardFlatApplication,
+    kovaaLabStandardFlatApplication,
   }: {
     workspaceId: string;
-    kovaa-labStandardFlatApplication: FlatApplication;
+    kovaaLabStandardFlatApplication: FlatApplication;
   }): Promise<void> {
     const {
       flatPageLayoutMaps,
@@ -222,7 +222,7 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 
@@ -238,16 +238,16 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
 
   private async createStandardRecordPageLayouts({
     workspaceId,
-    kovaa-labStandardFlatApplication,
+    kovaaLabStandardFlatApplication,
   }: {
     workspaceId: string;
-    kovaa-labStandardFlatApplication: FlatApplication;
+    kovaaLabStandardFlatApplication: FlatApplication;
   }): Promise<void> {
     const standardMaps =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMapsPre231({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMapsPre231({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const { flatObjectMetadataMaps, flatFieldMetadataMaps } =
@@ -440,7 +440,7 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 
@@ -456,10 +456,10 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
 
   private async createCustomObjectPageLayouts({
     workspaceId,
-    kovaa-labStandardFlatApplication,
+    kovaaLabStandardFlatApplication,
   }: {
     workspaceId: string;
-    kovaa-labStandardFlatApplication: FlatApplication;
+    kovaaLabStandardFlatApplication: FlatApplication;
   }): Promise<void> {
     const {
       flatObjectMetadataMaps,
@@ -515,7 +515,7 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
       const fieldsView = computeSystemViewToCreate({
         objectMetadata: customObject,
         applicationUniversalIdentifier:
-          kovaa-labStandardFlatApplication.universalIdentifier,
+          kovaaLabStandardFlatApplication.universalIdentifier,
         viewKey: SYSTEM_VIEW_KEYS.FIELDS_WIDGET,
       });
 
@@ -529,7 +529,7 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
         objectFlatFieldMetadatas: objectFieldMetadatas,
         viewUniversalIdentifier: fieldsView.universalIdentifier,
         applicationUniversalIdentifier:
-          kovaa-labStandardFlatApplication.universalIdentifier,
+          kovaaLabStandardFlatApplication.universalIdentifier,
         labelIdentifierFieldMetadataUniversalIdentifier:
           customObject.labelIdentifierFieldMetadataUniversalIdentifier,
         excludeLabelIdentifier: true,
@@ -539,7 +539,7 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
         computeSystemRecordPageLayoutToCreate({
           objectMetadata: customObject,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           recordPageFieldsViewUniversalIdentifier:
             fieldsView.universalIdentifier,
         });
@@ -583,7 +583,7 @@ export class BackfillRecordPageLayoutsCommand extends ProvisionedWorkspaceComman
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 

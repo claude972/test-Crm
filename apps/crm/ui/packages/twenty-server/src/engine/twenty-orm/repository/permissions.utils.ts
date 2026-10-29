@@ -18,10 +18,10 @@ import {
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
-import { validateWritabilityOrThrow } from 'src/engine/kovaa-lab-orm/repository/validate-writability-or-throw.util';
-import { isObjectOperationPermitted } from 'src/engine/kovaa-lab-orm/utils/is-object-operation-permitted.util';
+import { validateWritabilityOrThrow } from 'src/engine/twenty-orm/repository/validate-writability-or-throw.util';
+import { isObjectOperationPermitted } from 'src/engine/twenty-orm/utils/is-object-operation-permitted.util';
 import { resolveObjectSharing } from 'src/engine/core-modules/record-share/utils/resolve-object-sharing.util';
-import { getColumnNameToFieldMetadataIdMap } from 'src/engine/kovaa-lab-orm/utils/get-column-name-to-field-metadata-id.util';
+import { getColumnNameToFieldMetadataIdMap } from 'src/engine/twenty-orm/utils/get-column-name-to-field-metadata-id.util';
 
 export type OperationType =
   | 'select'

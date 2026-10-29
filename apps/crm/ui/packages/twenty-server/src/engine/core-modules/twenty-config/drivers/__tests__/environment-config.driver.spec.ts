@@ -2,9 +2,9 @@ import { ConfigService } from '@nestjs/config';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { validateSync } from 'class-validator';
 
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { CONFIG_VARIABLES_INSTANCE_TOKEN } from 'src/engine/core-modules/kovaa-lab-config/constants/config-variables-instance-tokens.constants';
-import { EnvironmentConfigDriver } from 'src/engine/core-modules/kovaa-lab-config/drivers/environment-config.driver';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { CONFIG_VARIABLES_INSTANCE_TOKEN } from 'src/engine/core-modules/twenty-config/constants/config-variables-instance-tokens.constants';
+import { EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
 
 describe('EnvironmentConfigDriver', () => {
   let driver: EnvironmentConfigDriver;

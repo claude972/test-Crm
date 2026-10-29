@@ -10,7 +10,7 @@ describe('findReservedVariableNamesInApplicationManifest', () => {
       findReservedVariableNamesInApplicationManifest({
         serverVariables: { APP_API_KEY: { isSecret: true } },
         applicationVariables: {
-          kovaa-lab_api_url: {
+          kovaaLab_api_url: {
             universalIdentifier: 'application-variable-id',
             isSecret: false,
           },

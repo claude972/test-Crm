@@ -14,7 +14,7 @@ import { FileService } from 'src/engine/core-modules/file/services/file.service'
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
 import { CodeInterpreterTool } from 'src/engine/core-modules/tool/tools/code-interpreter-tool/code-interpreter-tool';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const SERVER_URL = 'http://localhost:3000';
 const WORKSPACE_ID = 'workspace-id';
@@ -65,12 +65,12 @@ const runInterpreter = async (
       { provide: FileService, useValue: {} },
       { provide: FileUrlService, useValue: {} },
       { provide: SecureHttpClientService, useValue: {} },
-      { provide: KovaaLab CRMConfigService, useValue: { get: () => SERVER_URL } },
+      { provide: KovaaLabCRMConfigService, useValue: { get: () => SERVER_URL } },
       { provide: JwtWrapperService, useValue: jwtWrapperService },
       {
         provide: ApplicationService,
         useValue: {
-          findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+          findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
             .fn()
             .mockResolvedValue({
               workspaceCustomFlatApplication: {

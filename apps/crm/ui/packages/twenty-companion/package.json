@@ -17,7 +17,7 @@
     "start": "yarn native:setup && electron .",
     "preview": "yarn lingui:compile && vite --host 127.0.0.1 --port 4317",
     "typecheck": "tsc --noEmit",
-    "lint:unlocalized-strings": "node ../kovaa-lab-oxlint-rules/scripts/check-unlocalized-strings.mjs . src",
+    "lint:unlocalized-strings": "node ../twenty-oxlint-rules/scripts/check-unlocalized-strings.mjs . src",
     "test": "vitest run --passWithNoTests",
     "package": "yarn native:setup && yarn lingui:compile && node scripts/package.mjs",
     "package:archive": "yarn native:setup && yarn lingui:compile && node scripts/archive.mjs",
@@ -31,9 +31,9 @@
     "@lingui/core": "5.9.5",
     "@recallai/desktop-sdk": "2.0.29",
     "clsx": "^2.1.1",
+    "kovaa-lab-ui": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "kovaa-lab-ui": "workspace:*",
     "zod": "^4.1.0"
   },
   "devDependencies": {

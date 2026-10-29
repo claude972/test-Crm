@@ -1,7 +1,7 @@
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { type WorkspaceMigrationBuilderOptions } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/workspace-migration-builder-options.type';
 
-export const isCallerKovaaLab CRMStandardApp = (
+export const isCallerKovaaLabCRMStandardApp = (
   buildOptions: WorkspaceMigrationBuilderOptions,
 ) =>
   buildOptions.applicationUniversalIdentifier ===

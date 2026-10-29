@@ -1,9 +1,9 @@
 import { type ConfigVariableValue } from 'kovaa-lab-shared/types';
 
-import { createConfigVariable } from 'test/integration/kovaa-lab-config/utils/create-config-variable.util';
-import { deleteConfigVariable } from 'test/integration/kovaa-lab-config/utils/delete-config-variable.util';
-import { getConfigVariable } from 'test/integration/kovaa-lab-config/utils/get-config-variable.util';
-import { updateConfigVariable } from 'test/integration/kovaa-lab-config/utils/update-config-variable.util';
+import { createConfigVariable } from 'test/integration/twenty-config/utils/create-config-variable.util';
+import { deleteConfigVariable } from 'test/integration/twenty-config/utils/delete-config-variable.util';
+import { getConfigVariable } from 'test/integration/twenty-config/utils/get-config-variable.util';
+import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 
 // Registers beforeAll/afterAll hooks that apply a database config override for
 // the suite and restore the previous state afterwards, rather than blindly

@@ -1,5 +1,5 @@
 import { buildStandardObjectBaseFields } from '@/metadata/utils/internal/build-standard-object-base-fields.util';
-import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/KovaaLab CRMStandardApplicationUniversalIdentifier';
+import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/TwentyStandardApplicationUniversalIdentifier';
 import { getSystemRelationFieldUniversalIdentifier } from '@/application/deterministic-identifier/get-system-relation-field-universal-identifier.util';
 import { STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS } from '@/metadata/constants/standard-object-universal-identifiers.constant';
 import { buildStandardObjectSystemFields } from '@/metadata/utils/internal/build-standard-object-system-fields.util';

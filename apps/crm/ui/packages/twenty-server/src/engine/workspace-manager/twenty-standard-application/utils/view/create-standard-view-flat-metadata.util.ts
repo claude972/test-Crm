@@ -10,11 +10,11 @@ import {
 } from 'kovaa-lab-shared/types';
 
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-field-name.type';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
-import { type AllStandardObjectViewName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-view-name.type';
-import { type StandardBuilderArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/metadata-standard-buillder-args.type';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
+import { type AllStandardObjectViewName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-view-name.type';
+import { type StandardBuilderArgs } from 'src/engine/workspace-manager/twenty-standard-application/types/metadata-standard-buillder-args.type';
 
 export type CreateStandardViewOptions<O extends AllStandardObjectName> = {
   viewName: AllStandardObjectViewName<O>;
@@ -62,7 +62,7 @@ export const createStandardViewFlatMetadata = <
     calendarEndFieldName,
   },
   standardObjectMetadataRelatedEntityIds,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: CreateStandardViewArgs<O>): FlatView => {
   // @ts-expect-error ignore
@@ -136,7 +136,7 @@ export const createStandardViewFlatMetadata = <
     objectMetadataUniversalIdentifier,
     id: standardObjectMetadataRelatedEntityIds[objectName].views[viewName].id,
     universalIdentifier: viewDefinition.universalIdentifier,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     workspaceId,

@@ -6,7 +6,7 @@ require 'rails_helper'
 # line below it is escaped (`\--`, `\-`, `\==`) so cmark cannot read the pair
 # as a setext heading. Every channel renderer must show no backslash, no
 # accidental heading, and keep the composed lines.
-describe KovaaLab CharMarkdownRenderer do
+describe ChatwootMarkdownRenderer do
   signature_tail = "\n\nThanks \\\nSivin | KovaaLab Char\n\n![](https://example.com/logo.png)"
 
   fixtures = {

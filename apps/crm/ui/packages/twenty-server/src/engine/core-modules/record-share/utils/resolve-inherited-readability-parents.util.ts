@@ -15,8 +15,8 @@ import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object
 import { type InheritedReadabilityChildrenParent } from 'src/engine/core-modules/record-share/types/inherited-readability-children-parent.type';
 import { type InheritedReadabilityColumnParent } from 'src/engine/core-modules/record-share/types/inherited-readability-column-parent.type';
 import { type InheritedReadabilityParent } from 'src/engine/core-modules/record-share/types/inherited-readability-parent.type';
-import { getRelationFlatFieldMetadatasOfObject } from 'src/engine/kovaa-lab-orm/utils/get-relation-flat-field-metadatas-of-object.util';
-import { isManyToOneFlatFieldMetadata } from 'src/engine/kovaa-lab-orm/utils/is-many-to-one-flat-field-metadata.util';
+import { getRelationFlatFieldMetadatasOfObject } from 'src/engine/twenty-orm/utils/get-relation-flat-field-metadatas-of-object.util';
+import { isManyToOneFlatFieldMetadata } from 'src/engine/twenty-orm/utils/is-many-to-one-flat-field-metadata.util';
 
 type RelationFlatFieldMetadata =
   OrmFlatFieldMetadata<MorphOrRelationFieldMetadataType>;

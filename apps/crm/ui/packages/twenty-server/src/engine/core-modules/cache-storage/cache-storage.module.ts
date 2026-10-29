@@ -6,7 +6,7 @@ import { cacheStorageModuleFactory } from 'src/engine/core-modules/cache-storage
 import { FlushCacheCommand } from 'src/engine/core-modules/cache-storage/commands/flush-cache.command';
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Global()
 @Module({
@@ -15,7 +15,7 @@ import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-con
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: cacheStorageModuleFactory,
-      inject: [KovaaLab CRMConfigService],
+      inject: [KovaaLabCRMConfigService],
     }),
   ],
   providers: [
@@ -23,15 +23,15 @@ import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-con
       provide: cacheStorageNamespace,
       useFactory: (
         cacheManager: Cache,
-        kovaa-labConfigService: KovaaLab CRMConfigService,
+        kovaaLabConfigService: KovaaLabCRMConfigService,
       ) => {
         return new CacheStorageService(
           cacheManager,
           cacheStorageNamespace,
-          kovaa-labConfigService.get('REDIS_CACHE_PREFIX'),
+          kovaaLabConfigService.get('REDIS_CACHE_PREFIX'),
         );
       },
-      inject: [CACHE_MANAGER, KovaaLab CRMConfigService],
+      inject: [CACHE_MANAGER, KovaaLabCRMConfigService],
     })),
     FlushCacheCommand,
   ],

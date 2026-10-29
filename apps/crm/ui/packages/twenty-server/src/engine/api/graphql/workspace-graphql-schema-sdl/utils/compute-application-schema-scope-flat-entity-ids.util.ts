@@ -17,19 +17,19 @@ export type ApplicationSchemaScopeFlatEntityIds = {
 
 export const computeApplicationSchemaScopeFlatEntityIds = ({
   applicationId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   flatObjectMetadataMaps,
   flatFieldMetadataMaps,
   flatIndexMaps,
 }: {
   applicationId: string;
-  kovaa-labStandardApplicationId?: string;
+  kovaaLabStandardApplicationId?: string;
   flatObjectMetadataMaps: FlatEntityMaps<FlatObjectMetadata>;
   flatFieldMetadataMaps: FlatEntityMaps<FlatFieldMetadata>;
   flatIndexMaps?: FlatEntityMaps<FlatIndexMetadata>;
 }): ApplicationSchemaScopeFlatEntityIds => {
-  const scopeApplicationIds = isDefined(kovaa-labStandardApplicationId)
-    ? [kovaa-labStandardApplicationId, applicationId]
+  const scopeApplicationIds = isDefined(kovaaLabStandardApplicationId)
+    ? [kovaaLabStandardApplicationId, applicationId]
     : [applicationId];
 
   const flatObjectMetadataIds = new Set(

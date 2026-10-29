@@ -18,7 +18,7 @@ class Messages::Instagram::Messenger::MessageBuilder < Messages::Instagram::Base
     Rails.logger.error e
     {}
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: @inbox.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: @inbox.account).capture_exception
     {}
   end
 

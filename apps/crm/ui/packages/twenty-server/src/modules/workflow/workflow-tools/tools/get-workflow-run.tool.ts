@@ -2,7 +2,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { StepStatus } from 'kovaa-lab-shared/workflow';
 import { z } from 'zod';
 
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { type WorkflowRunWorkspaceEntity } from 'src/modules/workflow/common/standard-objects/workflow-run.workspace-entity';
 import {
   type WorkflowToolContext,

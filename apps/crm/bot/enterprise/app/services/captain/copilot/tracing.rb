@@ -8,7 +8,7 @@ module Captain::Copilot::Tracing
   # The span records input and the block's result as its output. An error is recorded on the span and raised to the job,
   # which reports it, so it is not reported here as well.
   def with_copilot_trace(span_name, params, turn:, input:)
-    return yield unless KovaaLab CharApp.otel_enabled?
+    return yield unless ChatwootApp.otel_enabled?
 
     params = params.merge(session_id: "copilot_thread_#{turn.copilot_thread_id}")
     OpenTelemetry::Context.with_current(turn_trace_context(turn)) do

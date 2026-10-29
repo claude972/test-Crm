@@ -150,7 +150,7 @@ const buildArgs = (targetLegs: TargetLegSpecification[]) => {
     flatFieldMetadataMaps: addAll(flatFieldMetadatas),
     flatIndexMaps: addAll(flatIndexMetadatas),
     holderFlatObjectMetadataByNameSingular,
-    kovaa-labStandardApplicationUniversalIdentifier: STANDARD_APP_UID,
+    kovaaLabStandardApplicationUniversalIdentifier: STANDARD_APP_UID,
   };
 };
 

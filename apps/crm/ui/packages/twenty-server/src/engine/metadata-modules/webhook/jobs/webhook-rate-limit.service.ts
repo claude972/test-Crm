@@ -7,7 +7,7 @@ import { type SpeedBucketRequest } from 'src/engine/core-modules/usage-limit/typ
 import { UsageOperationType } from 'src/engine/core-modules/usage/enums/usage-operation-type.enum';
 import { UsageResourceType } from 'src/engine/core-modules/usage/enums/usage-resource-type.enum';
 import { type WebhookJobData } from 'src/engine/metadata-modules/webhook/types/webhook-job-data.type';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 @Injectable()
 export class WebhookRateLimitService {

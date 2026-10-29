@@ -23,8 +23,8 @@ import {
   STANDARD_WORKFLOW_PAGE_LAYOUT_CONFIG,
   STANDARD_WORKFLOW_RUN_PAGE_LAYOUT_CONFIG,
   STANDARD_WORKFLOW_VERSION_PAGE_LAYOUT_CONFIG,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config';
-import { type StandardRecordPageLayouts } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/page-layout-config/standard-page-layout-config.type';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config';
+import { type StandardRecordPageLayouts } from 'src/engine/workspace-manager/twenty-standard-application/utils/page-layout-config/standard-page-layout-config.type';
 
 export const STANDARD_PAGE_LAYOUTS = {
   myFirstDashboard: STANDARD_DASHBOARD_PAGE_LAYOUT_CONFIG,

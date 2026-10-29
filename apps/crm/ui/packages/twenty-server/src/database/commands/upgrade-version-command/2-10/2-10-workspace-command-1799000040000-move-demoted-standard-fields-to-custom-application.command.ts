@@ -73,8 +73,8 @@ export class MoveDemotedStandardFieldsToCustomApplicationCommand extends Provisi
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -100,7 +100,7 @@ export class MoveDemotedStandardFieldsToCustomApplicationCommand extends Provisi
       }
 
       const isStillOwnedByStandardApplication =
-        flatFieldMetadata.applicationId === kovaa-labStandardFlatApplication.id &&
+        flatFieldMetadata.applicationId === kovaaLabStandardFlatApplication.id &&
         !flatFieldMetadata.isCustom;
 
       if (!isStillOwnedByStandardApplication) {

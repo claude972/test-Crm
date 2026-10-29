@@ -9,7 +9,7 @@ class Integrations::Facebook::MessageCreator
 
   def perform
     # begin
-    return if response.echo? && response.sent_from_kovaa-lab_app?
+    return if response.echo? && response.sent_from_chatwoot_app?
 
     if agent_message_via_echo?
       create_agent_message
@@ -17,7 +17,7 @@ class Integrations::Facebook::MessageCreator
       create_contact_message
     end
     # rescue => e
-    # KovaaLab CharExceptionTracker.new(e).capture_exception
+    # ChatwootExceptionTracker.new(e).capture_exception
     # end
   end
 

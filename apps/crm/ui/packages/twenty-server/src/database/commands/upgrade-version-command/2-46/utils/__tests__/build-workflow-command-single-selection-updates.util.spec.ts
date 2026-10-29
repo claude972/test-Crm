@@ -2,7 +2,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { buildWorkflowCommandSingleSelectionUpdates } from 'src/database/commands/upgrade-version-command/2-46/utils/build-workflow-command-single-selection-updates.util';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const NOW = '2026-10-07T12:00:00.000Z';
 const SINGLE_SELECTION_CONDITION = 'numberOfSelectedRecords == 1 and ';
@@ -13,11 +13,11 @@ const WORKFLOW_COMMAND_UNIVERSAL_IDENTIFIERS = [
   '92781d24-b875-4282-8cdb-d127f04a5c7d',
 ];
 
-const { allFlatEntityMaps } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps(
+const { allFlatEntityMaps } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps(
   {
     now: '2026-10-06T12:00:00.000Z',
     workspaceId: '20202020-1111-4111-8111-111111111111',
-    kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+    kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
   },
 );
 

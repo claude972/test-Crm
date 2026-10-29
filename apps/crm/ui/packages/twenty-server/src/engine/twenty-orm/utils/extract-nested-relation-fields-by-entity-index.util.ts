@@ -5,16 +5,16 @@ import {
   type ConnectObject,
   type CreateObject,
   type DisconnectObject,
-} from 'src/engine/kovaa-lab-orm/entity-manager/types/query-deep-partial-entity-with-nested-relation-fields.type';
+} from 'src/engine/twenty-orm/entity-manager/types/query-deep-partial-entity-with-nested-relation-fields.type';
 import {
   type RelationConnectQueryFieldsByEntityIndex,
   type RelationCreateQueryFieldsByEntityIndex,
   type RelationDisconnectQueryFieldsByEntityIndex,
-} from 'src/engine/kovaa-lab-orm/entity-manager/types/relation-nested-query-fields-by-entity-index.type';
+} from 'src/engine/twenty-orm/entity-manager/types/relation-nested-query-fields-by-entity-index.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 const hasRelationConnect = (value: unknown): value is ConnectObject => {
   if (!isDefined(value) || typeof value !== 'object') {
@@ -126,16 +126,16 @@ export const extractNestedRelationFieldsByEntityIndex = (
       const hasDisconnect = hasRelationDisconnect(value);
 
       if (hasConnect && hasDisconnect) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Cannot have both connect and disconnect for the same relation field ${key}.`,
-          KovaaLab CRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
+          KovaaLabCRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
         );
       }
 
       if (hasCreate && (hasConnect || hasDisconnect)) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Cannot combine create, connect, and disconnect for the same relation field ${key}.`,
-          KovaaLab CRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
+          KovaaLabCRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
         );
       }
 

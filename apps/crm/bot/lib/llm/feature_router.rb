@@ -50,7 +50,7 @@ module Llm::FeatureRouter
 
     def installation_model_override(feature_key)
       return unless feature_key == 'conversation_completion'
-      return unless KovaaLab CharApp.self_hosted_paid?
+      return unless ChatwootApp.self_hosted_paid?
 
       InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence
     end

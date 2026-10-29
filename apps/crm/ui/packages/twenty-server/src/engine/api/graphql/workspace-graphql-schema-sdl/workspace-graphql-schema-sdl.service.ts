@@ -24,7 +24,7 @@ import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object
 import { SCHEMA_SDL_CACHE_DEPENDENCIES } from 'src/engine/api/graphql/workspace-graphql-schema-sdl/constants/schema-sdl-cache-dependencies.constant';
 import { WorkspaceCacheStorageService } from 'src/engine/workspace-cache-storage/workspace-cache-storage.service';
 import { combineCacheHashes } from 'src/engine/workspace-cache/utils/combine-cache-hashes.util';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 export type WorkspaceGraphqlSchemaSDLResult = {
   sdl: string;
@@ -88,7 +88,7 @@ export class WorkspaceGraphqlSchemaSDLService {
     let flatIndexMaps = allFlatIndexMaps;
 
     if (isDefined(applicationId)) {
-      const kovaa-labStandardApplicationId =
+      const kovaaLabStandardApplicationId =
         flatApplicationMaps?.idByUniversalIdentifier[
           KOVAALAB_STANDARD_APPLICATION.universalIdentifier
         ];
@@ -99,7 +99,7 @@ export class WorkspaceGraphqlSchemaSDLService {
         flatIndexMetadataIds,
       } = computeApplicationSchemaScopeFlatEntityIds({
         applicationId,
-        kovaa-labStandardApplicationId,
+        kovaaLabStandardApplicationId,
         flatObjectMetadataMaps: allFlatObjectMetadataMaps,
         flatFieldMetadataMaps: allFlatFieldMetadataMaps,
         flatIndexMaps: allFlatIndexMaps,

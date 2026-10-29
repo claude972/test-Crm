@@ -10,7 +10,7 @@ import { CacheStorageService } from 'src/engine/core-modules/cache-storage/servi
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WARM_AND_CONSUME_COUNTERS_SCRIPT } from 'src/engine/core-modules/usage-limit/constants/warm-and-consume-counters-script.constant';
 import { UsageLimitException } from 'src/engine/core-modules/usage-limit/exceptions/usage-limit.exception';
 import { UsageLimitDefaultValueService } from 'src/engine/core-modules/usage-limit/services/usage-limit-default-value.service';
@@ -95,7 +95,7 @@ export class UsageLimitQuotaService {
     private readonly usageLimitEntitlementService: UsageLimitEntitlementService,
     private readonly usageLimitDefaultValueService: UsageLimitDefaultValueService,
     private readonly metricsService: MetricsService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async findExhaustedScope(
@@ -737,7 +737,7 @@ export class UsageLimitQuotaService {
     workspaceId: string;
     resourceType: UsageResourceType;
   }): Promise<QuotaLimitDefault[]> {
-    if (!this.kovaa-labConfigService.get('CLICKHOUSE_URL')) {
+    if (!this.kovaaLabConfigService.get('CLICKHOUSE_URL')) {
       return [];
     }
 

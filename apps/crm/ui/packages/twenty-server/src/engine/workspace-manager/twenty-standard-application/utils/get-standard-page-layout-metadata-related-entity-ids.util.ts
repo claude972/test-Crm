@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 
-import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout.constant';
+import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout.constant';
 
 type WidgetIds = Record<string, { id: string }>;
 

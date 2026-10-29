@@ -24,7 +24,7 @@ import {
 } from 'src/engine/core-modules/file/types/file-status.type';
 import { WasIntroducedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/was-introduced-in-upgrade.decorator';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { nullableBigintColumnTransformer } from 'src/engine/kovaa-lab-orm/utils/nullable-bigint-column-transformer.util';
+import { nullableBigintColumnTransformer } from 'src/engine/twenty-orm/utils/nullable-bigint-column-transformer.util';
 
 @Entity('file')
 @Check(

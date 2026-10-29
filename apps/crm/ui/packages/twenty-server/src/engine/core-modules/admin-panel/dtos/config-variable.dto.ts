@@ -3,9 +3,9 @@ import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
 import { ConfigVariableValue } from 'kovaa-lab-shared/types';
 
-import { ConfigSource } from 'src/engine/core-modules/kovaa-lab-config/enums/config-source.enum';
-import { ConfigVariableType } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variable-type.enum';
-import { ConfigVariableOptions } from 'src/engine/core-modules/kovaa-lab-config/types/config-variable-options.type';
+import { ConfigSource } from 'src/engine/core-modules/twenty-config/enums/config-source.enum';
+import { ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
+import { ConfigVariableOptions } from 'src/engine/core-modules/twenty-config/types/config-variable-options.type';
 
 registerEnumType(ConfigSource, {
   name: 'ConfigSource',

@@ -1,7 +1,7 @@
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { validatePredicateValueCompatibility } from 'src/engine/kovaa-lab-orm/utils/validate-predicate-value-compatibility.util';
+import { validatePredicateValueCompatibility } from 'src/engine/twenty-orm/utils/validate-predicate-value-compatibility.util';
 
 describe('validatePredicateValueCompatibility', () => {
   const createMockFieldMetadata = (

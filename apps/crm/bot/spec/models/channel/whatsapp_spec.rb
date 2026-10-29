@@ -24,7 +24,7 @@ RSpec.describe Channel::Whatsapp do
     let(:source) { 'embedded_signup' }
 
     context 'when running on KovaaLab Char Cloud' do
-      before { allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true) }
+      before { allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true) }
 
       context 'with a business management token' do
         let(:business_management_token) { 'business-token' }
@@ -53,7 +53,7 @@ RSpec.describe Channel::Whatsapp do
     end
 
     context 'when running outside KovaaLab Char Cloud' do
-      before { allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false) }
+      before { allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false) }
 
       let(:business_management_token) { 'business-token' }
 

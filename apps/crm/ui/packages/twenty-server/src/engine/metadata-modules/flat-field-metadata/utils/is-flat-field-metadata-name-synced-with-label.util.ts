@@ -1,7 +1,7 @@
 import { computeMetadataNameFromLabel } from 'kovaa-lab-shared/metadata';
 
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { isCallerKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/is-caller-kovaa-lab-standard-app.util';
+import { isCallerKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/is-caller-twenty-standard-app.util';
 import { type WorkspaceMigrationBuilderOptions } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/workspace-migration-builder-options.type';
 
 export const isFlatFieldMetadataNameSyncedWithLabel = ({
@@ -16,7 +16,7 @@ export const isFlatFieldMetadataNameSyncedWithLabel = ({
 }) => {
   const computedName = computeMetadataNameFromLabel({
     label: flatFieldMetadata.label,
-    applyCustomSuffix: !isCallerKovaaLab CRMStandardApp(buildOptions),
+    applyCustomSuffix: !isCallerKovaaLabCRMStandardApp(buildOptions),
   });
 
   return flatFieldMetadata.name === computedName;

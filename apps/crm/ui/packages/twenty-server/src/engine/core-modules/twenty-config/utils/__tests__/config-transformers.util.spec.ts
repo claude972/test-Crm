@@ -1,4 +1,4 @@
-import { configTransformers } from 'src/engine/core-modules/kovaa-lab-config/utils/config-transformers.util';
+import { configTransformers } from 'src/engine/core-modules/twenty-config/utils/config-transformers.util';
 
 describe('configTransformers', () => {
   describe('boolean', () => {

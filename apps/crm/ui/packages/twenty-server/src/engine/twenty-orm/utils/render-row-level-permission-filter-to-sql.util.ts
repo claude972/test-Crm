@@ -19,9 +19,9 @@ import { buildFieldMapsFromFlatObjectMetadata } from 'src/engine/metadata-module
 import { isMorphOrRelationFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-morph-or-relation-flat-field-metadata.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 const ALWAYS_TRUE_CONDITION = '1=1';
 
@@ -175,9 +175,9 @@ const renderFieldCondition = (
     });
 
   if (!isDefined(fieldMetadata)) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `Cannot render row level permission predicate: field "${fieldNameOrJoinColumnName}" does not exist on object "${tableAlias}"`,
-      KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA,
+      KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA,
     );
   }
 
@@ -185,9 +185,9 @@ const renderFieldCondition = (
     isReferencedByFieldName &&
     isMorphOrRelationFlatFieldMetadata(fieldMetadata)
   ) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `Cannot render row level permission predicate on relation "${fieldNameOrJoinColumnName}": traversing a relation requires an additional join, which a join condition cannot express`,
-      KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA,
+      KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA,
     );
   }
 
@@ -230,9 +230,9 @@ const renderCompositeFieldCondition = (
   );
 
   if (!isDefined(compositeType)) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `Cannot render row level permission predicate: composite type definition not found for type "${fieldMetadata.type}"`,
-      KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA,
+      KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA,
     );
   }
 
@@ -249,9 +249,9 @@ const renderCompositeFieldCondition = (
     );
 
     if (!isKnownSubField) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Cannot render row level permission predicate: "${subFieldName}" is not a sub field of composite type "${fieldMetadata.type}"`,
-        KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA,
+        KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA,
       );
     }
 

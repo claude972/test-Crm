@@ -39,8 +39,8 @@ import {
   ViewExceptionCode,
 } from 'src/engine/metadata-modules/view/exceptions/view.exception';
 import { WebhookException } from 'src/engine/metadata-modules/webhook/webhook.exception';
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { isKovaaLab CRMOrmUserInputError } from 'src/engine/kovaa-lab-orm/utils/is-kovaa-lab-orm-user-input-error.util';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { isKovaaLabCRMOrmUserInputError } from 'src/engine/twenty-orm/utils/is-twenty-orm-user-input-error.util';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import {
   WorkspaceMigrationRunnerException,
@@ -137,8 +137,8 @@ export const isUserFacingToolExecutionError = (error: unknown): boolean => {
     );
   }
 
-  if (error instanceof KovaaLab CRMOrmException) {
-    return isKovaaLab CRMOrmUserInputError(error);
+  if (error instanceof KovaaLabCRMOrmException) {
+    return isKovaaLabCRMOrmUserInputError(error);
   }
 
   if (error instanceof LogicFunctionException) {

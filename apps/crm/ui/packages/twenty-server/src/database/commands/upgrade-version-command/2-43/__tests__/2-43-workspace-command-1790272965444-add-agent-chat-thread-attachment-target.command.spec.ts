@@ -4,7 +4,7 @@ import { type WorkspaceIteratorService } from 'src/database/commands/command-run
 import { AddAgentChatThreadAttachmentTargetCommand } from 'src/database/commands/upgrade-version-command/2-43/2-43-workspace-command-1790272965444-add-agent-chat-thread-attachment-target.command';
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const WORKSPACE_ID = '20202020-1111-4111-8111-111111111111';
@@ -26,10 +26,10 @@ const buildExistingMetadata = ({
   hasAgentChatThread?: boolean;
 }) => {
   const existing = structuredClone(
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: '2026-01-01T00:00:00Z',
       workspaceId: WORKSPACE_ID,
-      kovaa-labStandardApplicationId: APPLICATION_ID,
+      kovaaLabStandardApplicationId: APPLICATION_ID,
     }).allFlatEntityMaps,
   );
 
@@ -67,10 +67,10 @@ const buildCommand = ({
   const command = new AddAgentChatThreadAttachmentTargetCommand(
     {} as WorkspaceIteratorService,
     {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
         .fn()
         .mockResolvedValue({
-          kovaa-labStandardFlatApplication: {
+          kovaaLabStandardFlatApplication: {
             id: APPLICATION_ID,
             universalIdentifier: APPLICATION_ID,
           },

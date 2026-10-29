@@ -152,7 +152,7 @@ const computeForAppB = (
 ): ReturnType<typeof computeApplicationSchemaScopeFlatEntityIds> =>
   computeApplicationSchemaScopeFlatEntityIds({
     applicationId: APP_B_ID,
-    kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+    kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
     ...maps,
   });
 

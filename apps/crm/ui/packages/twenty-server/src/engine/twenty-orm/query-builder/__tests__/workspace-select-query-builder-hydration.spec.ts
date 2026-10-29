@@ -1,8 +1,8 @@
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import {
   SCHEMA_NAME,
   buildQueryBuilder,
-} from 'src/engine/kovaa-lab-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
+} from 'src/engine/twenty-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
 
 describe('WorkspaceSelectQueryBuilder joined hydration', () => {
   it('should project every joined column for a leftJoinAndSelect', () => {
@@ -130,7 +130,7 @@ describe('WorkspaceSelectQueryBuilder joined hydration', () => {
     queryBuilder.leftJoin('person.company', 'company');
 
     queryBuilder.addSelect('unknown.name');
-    expect(() => queryBuilder.getQuery()).toThrow(KovaaLab CRMOrmException);
+    expect(() => queryBuilder.getQuery()).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should keep the v1 permission surface for joinAndSelect projections', () => {
@@ -151,7 +151,7 @@ describe('WorkspaceSelectQueryBuilder joined hydration', () => {
     queryBuilder.setFindOptions({ select: { id: true } });
     queryBuilder.leftJoinAndSelect('person.people', 'people');
 
-    await expect(queryBuilder.getMany()).rejects.toThrow(KovaaLab CRMOrmException);
+    await expect(queryBuilder.getMany()).rejects.toThrow(KovaaLabCRMOrmException);
   });
 
   it('should render an added join condition on a selected inner join', () => {

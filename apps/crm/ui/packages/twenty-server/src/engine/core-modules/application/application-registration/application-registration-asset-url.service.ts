@@ -6,7 +6,7 @@ import { buildRegistryCdnUrl } from 'src/engine/core-modules/application/applica
 import { type ApplicationRegistrationEntity } from 'src/engine/core-modules/application/application-registration/application-registration.entity';
 import { ApplicationRegistrationSourceType } from 'src/engine/core-modules/application/application-registration/enums/application-registration-source-type.enum';
 import { toGalleryImagePaths } from 'src/engine/core-modules/application/application-registration/utils/to-gallery-image-paths.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 type AssetSourceFields = Pick<
   ApplicationRegistrationEntity,
@@ -20,7 +20,7 @@ type AssetSourceFields = Pick<
 // pass through untouched.
 @Injectable()
 export class ApplicationRegistrationAssetUrlService {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   buildLogoUrl(
     registration: AssetSourceFields &
@@ -81,7 +81,7 @@ export class ApplicationRegistrationAssetUrlService {
 
     // A fileId marks the path as stored in server file storage.
     if (isDefined(fileId)) {
-      const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
+      const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
 
       // Encode segments so URL-reserved characters (#, ?, spaces) in file
       // names survive; directory separators are kept as route path segments.
@@ -103,7 +103,7 @@ export class ApplicationRegistrationAssetUrlService {
       isDefined(registration.latestAvailableVersion)
     ) {
       return buildRegistryCdnUrl({
-        cdnBaseUrl: this.kovaa-labConfigService.get('APP_REGISTRY_CDN_URL'),
+        cdnBaseUrl: this.kovaaLabConfigService.get('APP_REGISTRY_CDN_URL'),
         packageName: registration.sourcePackage,
         version: registration.latestAvailableVersion,
         filePath: path,

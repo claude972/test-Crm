@@ -8,7 +8,7 @@ module Enterprise::Captain::ReplySuggestionService
   private
 
   def use_search_tool?
-    KovaaLab CharApp.kovaa-lab_cloud? || KovaaLab CharApp.self_hosted_paid?
+    ChatwootApp.chatwoot_cloud? || ChatwootApp.self_hosted_paid?
   end
 
   def prompt_variables

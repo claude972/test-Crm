@@ -65,7 +65,7 @@ export class ViewFieldService {
     }
 
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },
@@ -140,7 +140,7 @@ export class ViewFieldService {
     updateViewFieldInput: UpdateViewFieldInput;
   }): Promise<ViewFieldDTO> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },
@@ -229,7 +229,7 @@ export class ViewFieldService {
     workspaceId: string;
   }): Promise<ViewFieldDTO> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },

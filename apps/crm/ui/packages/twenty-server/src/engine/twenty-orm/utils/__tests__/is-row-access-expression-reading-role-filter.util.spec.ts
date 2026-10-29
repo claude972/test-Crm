@@ -3,8 +3,8 @@
 import { RecordShareAccessLevel } from 'kovaa-lab-shared/types';
 
 import { COMPANY_FLAT_OBJECT_MOCK } from 'src/engine/metadata-modules/flat-object-metadata/__mocks__/company-flat-object.mock';
-import { type RowAccessExpression } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { isRowAccessExpressionReadingRoleFilter } from 'src/engine/kovaa-lab-orm/utils/is-row-access-expression-reading-role-filter.util';
+import { type RowAccessExpression } from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { isRowAccessExpressionReadingRoleFilter } from 'src/engine/twenty-orm/utils/is-row-access-expression-reading-role-filter.util';
 
 const recordShared: RowAccessExpression = {
   kind: 'recordShared',

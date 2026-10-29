@@ -5,12 +5,12 @@ import { type ProvisionedWorkspaceCommandRunner } from 'src/database/commands/co
 import { type WorkspaceCommandRunner } from 'src/database/commands/command-runners/workspace.command-runner';
 import {
   KOVAALAB_ALL_VERSIONS,
-  type KovaaLab CRMAllVersion,
-} from 'src/engine/core-modules/upgrade/constants/kovaa-lab-all-versions.constant';
-import { KOVAALAB_CROSS_UPGRADE_SUPPORTED_VERSIONS } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-cross-upgrade-supported-version.constant';
-import { KOVAALAB_CURRENT_VERSION } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-current-version.constant';
-import { KOVAALAB_NEXT_VERSIONS } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-next-versions.constant';
-import { KOVAALAB_PREVIOUS_VERSIONS } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-previous-versions.constant';
+  type KovaaLabCRMAllVersion,
+} from 'src/engine/core-modules/upgrade/constants/twenty-all-versions.constant';
+import { KOVAALAB_CROSS_UPGRADE_SUPPORTED_VERSIONS } from 'src/engine/core-modules/upgrade/constants/twenty-cross-upgrade-supported-version.constant';
+import { KOVAALAB_CURRENT_VERSION } from 'src/engine/core-modules/upgrade/constants/twenty-current-version.constant';
+import { KOVAALAB_NEXT_VERSIONS } from 'src/engine/core-modules/upgrade/constants/twenty-next-versions.constant';
+import { KOVAALAB_PREVIOUS_VERSIONS } from 'src/engine/core-modules/upgrade/constants/twenty-previous-versions.constant';
 import { getRegisteredInstanceCommandMetadata } from 'src/engine/core-modules/upgrade/decorators/registered-instance-command.decorator';
 import { getRegisteredWorkspaceCommandMetadata } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { type FastInstanceCommand } from 'src/engine/core-modules/upgrade/interfaces/fast-instance-command.interface';
@@ -24,21 +24,21 @@ type WorkspaceCommand =
 export type RegisteredFastInstanceCommand = {
   name: string;
   command: FastInstanceCommand;
-  version: KovaaLab CRMAllVersion;
+  version: KovaaLabCRMAllVersion;
   timestamp: number;
 };
 
 export type RegisteredSlowInstanceCommand = {
   name: string;
   command: SlowInstanceCommand;
-  version: KovaaLab CRMAllVersion;
+  version: KovaaLabCRMAllVersion;
   timestamp: number;
 };
 
 export type RegisteredWorkspaceCommand = {
   name: string;
   command: WorkspaceCommand;
-  version: KovaaLab CRMAllVersion;
+  version: KovaaLabCRMAllVersion;
   timestamp: number;
 };
 
@@ -59,7 +59,7 @@ export class UpgradeCommandRegistryService implements OnModuleInit {
   private readonly logger = new Logger(UpgradeCommandRegistryService.name);
 
   private readonly bundlesByVersion = new Map<
-    KovaaLab CRMAllVersion,
+    KovaaLabCRMAllVersion,
     VersionBundle
   >();
 
@@ -182,12 +182,12 @@ export class UpgradeCommandRegistryService implements OnModuleInit {
     }
   }
 
-  getBundleForVersion(version: KovaaLab CRMAllVersion): VersionBundle {
+  getBundleForVersion(version: KovaaLabCRMAllVersion): VersionBundle {
     return this.bundlesByVersion.get(version) ?? buildEmptyVersionBundle();
   }
 
   getLastWorkspaceCommandForVersion(
-    version: KovaaLab CRMAllVersion,
+    version: KovaaLabCRMAllVersion,
   ): RegisteredWorkspaceCommand | undefined {
     const bundle = this.getBundleForVersion(version);
 
@@ -207,7 +207,7 @@ export class UpgradeCommandRegistryService implements OnModuleInit {
   }
 
   private computeCommandName(
-    version: KovaaLab CRMAllVersion,
+    version: KovaaLabCRMAllVersion,
     className: string,
     timestamp: number,
   ): string {
@@ -271,7 +271,7 @@ export class UpgradeCommandRegistryService implements OnModuleInit {
   }
 
   private validateNoTimestampDuplicatesWithinKind(
-    version: KovaaLab CRMAllVersion,
+    version: KovaaLabCRMAllVersion,
     kind: 'fast-instance' | 'slow-instance' | 'workspace',
     entries:
       | RegisteredFastInstanceCommand[]

@@ -7,7 +7,7 @@ import { getFieldOptionValues } from 'src/engine/core-modules/record-crud/utils/
 import { referenceJsonSchemaDefinition } from 'src/engine/core-modules/record-crud/utils/reference-json-schema-definition.util';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { isMorphOrRelationFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-morph-or-relation-flat-field-metadata.util';
-import { isManyToOneFlatFieldMetadata } from 'src/engine/kovaa-lab-orm/utils/is-many-to-one-flat-field-metadata.util';
+import { isManyToOneFlatFieldMetadata } from 'src/engine/twenty-orm/utils/is-many-to-one-flat-field-metadata.util';
 
 type SharedFilterName = keyof typeof SHARED_FILTER_JSON_SCHEMAS;
 

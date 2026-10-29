@@ -86,12 +86,12 @@ describe('getFunctionInputSchema', () => {
     ]);
   });
 
-  it('should resolve KovaaLab CRMRecord markers to record schemas', () => {
+  it('should resolve KovaaLabCRMRecord markers to record schemas', () => {
     const fileContent = `
         export const main = (params: {
-          company: KovaaLab CRMRecord<'company-universal-identifier'>;
-          companies: KovaaLab CRMRecord<'company-universal-identifier'>[];
-          otherCompanies: Array<KovaaLab CRMRecord<'company-universal-identifier'>>;
+          company: KovaaLabCRMRecord<'company-universal-identifier'>;
+          companies: KovaaLabCRMRecord<'company-universal-identifier'>[];
+          otherCompanies: Array<KovaaLabCRMRecord<'company-universal-identifier'>>;
         }): void => {
           return;
         };
@@ -119,9 +119,9 @@ describe('getFunctionInputSchema', () => {
     ]);
   });
 
-  it('should leave a bare KovaaLab CRMRecord without a literal argument unresolved', () => {
+  it('should leave a bare KovaaLabCRMRecord without a literal argument unresolved', () => {
     const fileContent = `
-        export const main = (params: { record: KovaaLab CRMRecord }): void => {
+        export const main = (params: { record: KovaaLabCRMRecord }): void => {
           return;
         };
       `;

@@ -1,5 +1,5 @@
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { compileNamedParameters } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { compileNamedParameters } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
 
 describe('compileNamedParameters', () => {
   it('should turn a named parameter into a positional placeholder', () => {
@@ -69,7 +69,7 @@ describe('compileNamedParameters', () => {
 
   it('should throw when a referenced parameter was not provided', () => {
     expect(() => compileNamedParameters('"id" = :missing', {})).toThrow(
-      KovaaLab CRMOrmException,
+      KovaaLabCRMOrmException,
     );
   });
 
@@ -93,12 +93,12 @@ describe('compileNamedParameters', () => {
   it('should throw when a spread parameter is not an array', () => {
     expect(() =>
       compileNamedParameters('"id" IN (:...ids)', { ids: 'a' }),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should throw on an unterminated string literal', () => {
     expect(() => compileNamedParameters(`"a" = 'unterminated`, {})).toThrow(
-      KovaaLab CRMOrmException,
+      KovaaLabCRMOrmException,
     );
   });
 

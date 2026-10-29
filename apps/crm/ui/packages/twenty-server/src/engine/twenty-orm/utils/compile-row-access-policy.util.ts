@@ -9,8 +9,8 @@ import {
   type RowAccessPolicy,
   type RowAccessCompilationEnvironment,
   type SqlCondition,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { combineSqlConditions } from 'src/engine/kovaa-lab-orm/utils/combine-sql-conditions.util';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { combineSqlConditions } from 'src/engine/twenty-orm/utils/combine-sql-conditions.util';
 
 export const compileRowAccessPolicy = ({
   policy,

@@ -1,11 +1,11 @@
 import { type Pool, type PoolClient } from 'pg';
 
 import { POSTGRESQL_ERROR_CODES } from 'src/engine/api/graphql/workspace-query-runner/constants/postgres-error-codes.constants';
-import { runInRollbackSafeTransaction } from 'src/engine/kovaa-lab-orm/datasource/utils/run-in-rollback-safe-transaction.util';
+import { runInRollbackSafeTransaction } from 'src/engine/twenty-orm/datasource/utils/run-in-rollback-safe-transaction.util';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 const buildClient = () => ({
   query: jest.fn().mockResolvedValue({ rows: [] }),
@@ -32,9 +32,9 @@ describe('runInRollbackSafeTransaction', () => {
       work: async () => 'never runs',
     }).catch((thrownError: Error) => thrownError);
 
-    expect(error).toBeInstanceOf(KovaaLab CRMOrmException);
-    expect((error as KovaaLab CRMOrmException).code).toBe(
-      KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
+    expect(error).toBeInstanceOf(KovaaLabCRMOrmException);
+    expect((error as KovaaLabCRMOrmException).code).toBe(
+      KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
     );
   });
 
@@ -134,9 +134,9 @@ describe('runInRollbackSafeTransaction', () => {
         work: async () => 'done',
       }).catch((thrownError: Error) => thrownError);
 
-      expect(error).toBeInstanceOf(KovaaLab CRMOrmException);
-      expect((error as KovaaLab CRMOrmException).code).toBe(
-        KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
+      expect(error).toBeInstanceOf(KovaaLabCRMOrmException);
+      expect((error as KovaaLabCRMOrmException).code).toBe(
+        KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
       );
       expect((error as Error & { cause?: Error }).cause).toBe(commitError);
     },
@@ -162,8 +162,8 @@ describe('runInRollbackSafeTransaction', () => {
       },
     }).catch((thrownError: Error) => thrownError);
 
-    expect((error as KovaaLab CRMOrmException).code).toBe(
-      KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
+    expect((error as KovaaLabCRMOrmException).code).toBe(
+      KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
     );
     expect((error as Error & { cause?: Error }).cause).toBe(workError);
   });

@@ -43,7 +43,7 @@ class Captain::Copilot::ActionJob < ApplicationJob
   rescue Captain::Copilot::LeaseLostError
     raise
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: run.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: run.account).capture_exception
     run.with_lease(token) { save_item(run, id, :awaiting_retry, "Change failed (#{e.class.name})") }
   end
 

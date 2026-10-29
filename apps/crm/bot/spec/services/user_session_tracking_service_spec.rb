@@ -112,17 +112,17 @@ RSpec.describe UserSessionTrackingService do
       end
     end
 
-    context 'with X-KovaaLab Char-* structured headers' do
+    context 'with X-Chatwoot-* structured headers' do
       let(:ua) { 'KovaaLab Char/3759 CFNetwork/3886.100.1 Darwin/27.0.0' }
 
       context 'when platform is ios and model is an iPhone' do
         let(:headers) do
           {
-            'X-KovaaLab Char-Client-Name' => 'KovaaLab Char Mobile',
-            'X-KovaaLab Char-Client-Version' => '4.7.0',
-            'X-KovaaLab Char-Platform' => 'ios',
-            'X-KovaaLab Char-Platform-Version' => '18.2',
-            'X-KovaaLab Char-Device-Model' => 'iPhone 15 Pro'
+            'X-Chatwoot-Client-Name' => 'KovaaLab Char Mobile',
+            'X-Chatwoot-Client-Version' => '4.7.0',
+            'X-Chatwoot-Platform' => 'ios',
+            'X-Chatwoot-Platform-Version' => '18.2',
+            'X-Chatwoot-Device-Model' => 'iPhone 15 Pro'
           }
         end
 
@@ -142,11 +142,11 @@ RSpec.describe UserSessionTrackingService do
       context 'when platform is ios and model is an iPad' do
         let(:headers) do
           {
-            'X-KovaaLab Char-Client-Name' => 'KovaaLab Char Mobile',
-            'X-KovaaLab Char-Client-Version' => '4.7.0',
-            'X-KovaaLab Char-Platform' => 'ios',
-            'X-KovaaLab Char-Platform-Version' => '18.2',
-            'X-KovaaLab Char-Device-Model' => 'iPad Pro 11-inch'
+            'X-Chatwoot-Client-Name' => 'KovaaLab Char Mobile',
+            'X-Chatwoot-Client-Version' => '4.7.0',
+            'X-Chatwoot-Platform' => 'ios',
+            'X-Chatwoot-Platform-Version' => '18.2',
+            'X-Chatwoot-Device-Model' => 'iPad Pro 11-inch'
           }
         end
 
@@ -164,11 +164,11 @@ RSpec.describe UserSessionTrackingService do
         let(:ua) { 'okhttp/4.9.2' }
         let(:headers) do
           {
-            'X-KovaaLab Char-Client-Name' => 'KovaaLab Char Mobile',
-            'X-KovaaLab Char-Client-Version' => '4.7.0',
-            'X-KovaaLab Char-Platform' => 'android',
-            'X-KovaaLab Char-Platform-Version' => '14',
-            'X-KovaaLab Char-Device-Model' => 'Pixel 7 Pro'
+            'X-Chatwoot-Client-Name' => 'KovaaLab Char Mobile',
+            'X-Chatwoot-Client-Version' => '4.7.0',
+            'X-Chatwoot-Platform' => 'android',
+            'X-Chatwoot-Platform-Version' => '14',
+            'X-Chatwoot-Device-Model' => 'Pixel 7 Pro'
           }
         end
 
@@ -184,13 +184,13 @@ RSpec.describe UserSessionTrackingService do
         end
       end
 
-      context 'when X-KovaaLab Char-Client-Name is blank' do
+      context 'when X-Chatwoot-Client-Name is blank' do
         let(:ua) { 'okhttp/4.9.2' }
         let(:headers) do
           {
-            'X-KovaaLab Char-Client-Name' => '',
-            'X-KovaaLab Char-Platform' => 'android',
-            'X-KovaaLab Char-Device-Model' => 'Pixel 7 Pro'
+            'X-Chatwoot-Client-Name' => '',
+            'X-Chatwoot-Platform' => 'android',
+            'X-Chatwoot-Device-Model' => 'Pixel 7 Pro'
           }
         end
 
@@ -205,7 +205,7 @@ RSpec.describe UserSessionTrackingService do
         end
       end
 
-      context 'when no X-KovaaLab Char-* headers are sent (real browser)' do
+      context 'when no X-Chatwoot-* headers are sent (real browser)' do
         let(:ua) { 'Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0' }
         let(:headers) { {} }
 
@@ -253,11 +253,11 @@ RSpec.describe UserSessionTrackingService do
     context 'when the client reports different metadata than it did at sign in' do
       let(:headers) do
         {
-          'X-KovaaLab Char-Client-Name' => 'KovaaLab Char Mobile',
-          'X-KovaaLab Char-Client-Version' => '4.9.1',
-          'X-KovaaLab Char-Platform' => 'ios',
-          'X-KovaaLab Char-Platform-Version' => '26.5.2',
-          'X-KovaaLab Char-Device-Model' => 'iPhone 15'
+          'X-Chatwoot-Client-Name' => 'KovaaLab Char Mobile',
+          'X-Chatwoot-Client-Version' => '4.9.1',
+          'X-Chatwoot-Platform' => 'ios',
+          'X-Chatwoot-Platform-Version' => '26.5.2',
+          'X-Chatwoot-Device-Model' => 'iPhone 15'
         }
       end
 

@@ -100,8 +100,8 @@ export class AddWorkflowRunStepLogsFieldCommand extends ProvisionedWorkspaceComm
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -109,7 +109,7 @@ export class AddWorkflowRunStepLogsFieldCommand extends ProvisionedWorkspaceComm
       await this.fieldMetadataService.createManyFields({
         createFieldInputs: [createFieldInput],
         workspaceId,
-        ownerFlatApplication: kovaa-labStandardFlatApplication,
+        ownerFlatApplication: kovaaLabStandardFlatApplication,
         isSystemBuild: true,
       });
     } catch (error) {

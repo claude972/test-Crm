@@ -8,13 +8,13 @@ class AccountDashboard < Administrate::BaseDashboard
   # which determines how the attribute is displayed
   # on pages throughout the dashboard.
 
-  enterprise_attribute_types = if KovaaLab CharApp.enterprise?
+  enterprise_attribute_types = if ChatwootApp.enterprise?
                                  attributes = {
                                    limits: AccountLimitsField
                                  }
 
                                  # Only show manually managed features in KovaaLab Char Cloud deployment
-                                 attributes[:manually_managed_features] = ManuallyManagedFeaturesField if KovaaLab CharApp.kovaa-lab_cloud?
+                                 attributes[:manually_managed_features] = ManuallyManagedFeaturesField if ChatwootApp.chatwoot_cloud?
 
                                  # Add all_features last so it appears after manually_managed_features
                                  attributes[:all_features] = AccountFeaturesField
@@ -55,9 +55,9 @@ class AccountDashboard < Administrate::BaseDashboard
 
   # SHOW_PAGE_ATTRIBUTES
   # an array of attributes that will be displayed on the model's show page.
-  enterprise_show_page_attributes = if KovaaLab CharApp.enterprise?
+  enterprise_show_page_attributes = if ChatwootApp.enterprise?
                                       attrs = %i[custom_attributes limits]
-                                      attrs << :manually_managed_features if KovaaLab CharApp.kovaa-lab_cloud?
+                                      attrs << :manually_managed_features if ChatwootApp.chatwoot_cloud?
                                       attrs << :all_features
                                       attrs << :captain_models
                                       attrs
@@ -79,9 +79,9 @@ class AccountDashboard < Administrate::BaseDashboard
   # FORM_ATTRIBUTES
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
-  enterprise_form_attributes = if KovaaLab CharApp.enterprise?
+  enterprise_form_attributes = if ChatwootApp.enterprise?
                                  attrs = %i[limits]
-                                 attrs << :manually_managed_features if KovaaLab CharApp.kovaa-lab_cloud?
+                                 attrs << :manually_managed_features if ChatwootApp.chatwoot_cloud?
                                  attrs << :all_features
                                  attrs << :captain_models
                                  attrs
@@ -126,7 +126,7 @@ class AccountDashboard < Administrate::BaseDashboard
     attrs += %i[suspension_category suspension_reason] if action == 'update'
 
     # Add manually_managed_features to permitted attributes only for KovaaLab Char Cloud
-    attrs << { manually_managed_features: [] } if KovaaLab CharApp.kovaa-lab_cloud?
+    attrs << { manually_managed_features: [] } if ChatwootApp.chatwoot_cloud?
 
     attrs
   end

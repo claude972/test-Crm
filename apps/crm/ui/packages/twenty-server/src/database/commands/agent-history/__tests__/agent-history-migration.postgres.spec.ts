@@ -2,7 +2,7 @@ import { backfillWorkspaceChatThreadOwnerGrants } from 'src/engine/metadata-modu
 import { LinkChatMessageSendersToWorkspaceMembersCommand } from 'src/database/commands/upgrade-version-command/2-44/2-44-workspace-command-1790605326331-link-chat-message-senders-to-workspace-members.command';
 import { AgentHistoryWorkspaceStorageService } from 'src/engine/metadata-modules/ai/ai-history/services/agent-history-workspace-storage.service';
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
-import { withWorkspaceContext } from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
+import { withWorkspaceContext } from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
 import { AgentChatService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat.service';
 import { AgentChatQueueService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-queue.service';
 import { AgentChatThreadService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-thread.service';
@@ -20,17 +20,17 @@ import { AgentHistoryMigrationDataService } from 'src/database/commands/agent-hi
 import { AgentHistoryMigrationValidationService } from 'src/database/commands/agent-history/agent-history-migration-validation.service';
 import { AdminPanelChatService } from 'src/engine/core-modules/admin-panel/services/admin-panel-chat.service';
 import { computeFlatIndexFieldColumnNames } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/action-handlers/index/utils/index-action-handler.utils';
-import { WorkspaceSchemaIndexManagerService } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/services/workspace-schema-index-manager.service';
+import { WorkspaceSchemaIndexManagerService } from 'src/engine/twenty-orm/workspace-schema-manager/services/workspace-schema-index-manager.service';
 import { updateAgentChatThreadUsage } from 'src/engine/metadata-modules/ai/ai-chat/utils/update-agent-chat-thread-usage.util';
 import { Logger } from '@nestjs/common';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { WorkspaceDataSource } from 'src/engine/kovaa-lab-orm/datasource/workspace-data-source';
-import { WorkspaceSchemaTableManagerService } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/services/workspace-schema-table-manager.service';
+import { WorkspaceDataSource } from 'src/engine/twenty-orm/datasource/workspace-data-source';
+import { WorkspaceSchemaTableManagerService } from 'src/engine/twenty-orm/workspace-schema-manager/services/workspace-schema-table-manager.service';
 import { generateColumnDefinitions } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/generate-column-definitions.util';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { buildObjectIdByNameMaps } from 'src/engine/metadata-modules/flat-object-metadata/utils/build-object-id-by-name-maps.util';
 import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-flat-entity-maps.constant';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { AgentHistoryRepository } from 'src/engine/metadata-modules/ai/ai-history/repositories/agent-history-repository';
 import { AgentChatThreadWorkspaceEntity } from 'src/engine/metadata-modules/ai/ai-history/standard-objects/agent-chat-thread.workspace-entity';
 import { DataSource, IsNull, type Repository } from 'typeorm';
@@ -78,10 +78,10 @@ const SCHEMA = getWorkspaceSchemaName(WORKSPACE_ID);
     );
     const pool = new Pool({ connectionString: DATABASE_URL });
     const { allFlatEntityMaps: metadata } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         workspaceId: WORKSPACE_ID,
         now: new Date().toISOString(),
-        kovaa-labStandardApplicationId: OWNER_ID,
+        kovaaLabStandardApplicationId: OWNER_ID,
       });
     for (const object of Object.values(
       metadata.flatObjectMetadataMaps.byUniversalIdentifier,
@@ -907,8 +907,8 @@ const SCHEMA = getWorkspaceSchemaName(WORKSPACE_ID);
       const command = new LinkChatMessageSendersToWorkspaceMembersCommand(
         {} as never,
         {
-          findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: async () => ({
-            kovaa-labStandardFlatApplication: {
+          findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: async () => ({
+            kovaaLabStandardFlatApplication: {
               id: OWNER_ID,
               universalIdentifier: OWNER_ID,
             },

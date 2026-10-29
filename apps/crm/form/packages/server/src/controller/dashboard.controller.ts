@@ -83,7 +83,7 @@ export class DashboardController {
       title: 'KovaaLab Dashboard - Create and Manage Custom Forms Effortlessly',
       description:
         "Simplify your form creation process with KovaaLab's intuitive dashboard. Design, customize, and manage forms all in one place, with no coding required.",
-      kovaa-lab: this.runtimeConfig()
+      kovaaLab: this.runtimeConfig()
     })
   }
 }

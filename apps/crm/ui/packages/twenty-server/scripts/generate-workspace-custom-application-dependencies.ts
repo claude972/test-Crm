@@ -12,7 +12,7 @@ import { join, resolve } from 'path';
 import { isNonEmptyString } from '@sniptt/guards';
 import semver from 'semver';
 
-import { KOVAALAB_PREVIOUS_VERSIONS } from '../src/engine/core-modules/upgrade/constants/kovaa-lab-previous-versions.constant';
+import { KOVAALAB_PREVIOUS_VERSIONS } from '../src/engine/core-modules/upgrade/constants/twenty-previous-versions.constant';
 
 const APPLICATION_PACKAGE_CONSTANTS_DIRECTORY = resolve(
   __dirname,

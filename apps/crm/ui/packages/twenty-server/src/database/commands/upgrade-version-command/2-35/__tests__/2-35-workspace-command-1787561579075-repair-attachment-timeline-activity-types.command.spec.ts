@@ -55,10 +55,10 @@ const buildCommand = ({
   const command = new RepairAttachmentTimelineActivityTypesCommand(
     {} as WorkspaceIteratorService,
     {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
         .fn()
         .mockResolvedValue({
-          kovaa-labStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
+          kovaaLabStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
         }),
     } as unknown as ApplicationService,
     {

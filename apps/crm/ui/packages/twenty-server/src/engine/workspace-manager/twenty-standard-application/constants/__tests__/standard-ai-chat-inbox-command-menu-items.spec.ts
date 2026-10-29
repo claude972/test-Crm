@@ -1,6 +1,6 @@
 import { evaluateConditionalAvailabilityExpression } from 'kovaa-lab-shared/utils';
 
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
 
 const INBOX_COMMAND_MENU_ITEM_NAMES = [
   'markAiChatAsDone',

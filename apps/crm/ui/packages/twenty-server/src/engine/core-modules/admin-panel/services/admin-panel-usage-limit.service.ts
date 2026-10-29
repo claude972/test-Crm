@@ -4,8 +4,8 @@ import {
   type AdminPanelUsageLimitDefaultDTO,
   type AdminPanelWorkspaceUsageLimitsDTO,
 } from 'src/engine/core-modules/admin-panel/dtos/admin-panel-workspace-usage-limits.dto';
-import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/kovaa-lab-config/types/optional-numeric-config-variable-key.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/twenty-config/types/optional-numeric-config-variable-key.type';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UsageLimitService } from 'src/engine/core-modules/usage-limit/services/usage-limit.service';
 import { type UsageLimitEntity } from 'src/engine/core-modules/usage-limit/usage-limit.entity';
 import { buildUsageLimitDefaultScopes } from 'src/engine/core-modules/usage-limit/utils/build-usage-limit-default-scopes.util';
@@ -17,7 +17,7 @@ import { fromUsageLimitEntityToDto } from 'src/engine/core-modules/usage-limit/u
 export class AdminPanelUsageLimitService {
   constructor(
     private readonly usageLimitService: UsageLimitService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async findWorkspaceUsageLimits(
@@ -36,7 +36,7 @@ export class AdminPanelUsageLimitService {
   ): AdminPanelUsageLimitDefaultDTO[] {
     const getConfigValue = <TKey extends OptionalNumericConfigVariableKey>(
       key: TKey,
-    ) => this.kovaa-labConfigService.get(key);
+    ) => this.kovaaLabConfigService.get(key);
 
     return buildUsageLimitDefaultScopes({ getConfigValue }).map(
       (usageLimitDefault) => {

@@ -18,7 +18,7 @@ RSpec.describe 'Shopify custom app setup', type: :request do
   end
 
   it 'saves credentials privately, connects through Shopify, and removes the saved details on disconnect' do
-    skip('encryption keys missing; see run_mfa_spec workflow') unless KovaaLab Char.encryption_configured?
+    skip('encryption keys missing; see run_mfa_spec workflow') unless Chatwoot.encryption_configured?
 
     post configuration_url, params: configuration, headers: headers, as: :json
     saved_configuration = response.parsed_body.fetch('custom_app')
@@ -57,7 +57,7 @@ RSpec.describe 'Shopify custom app setup', type: :request do
   end
 
   it 'shows custom setup and retrieves orders without public app credentials' do
-    skip('encryption keys missing; see run_mfa_spec workflow') unless KovaaLab Char.encryption_configured?
+    skip('encryption keys missing; see run_mfa_spec workflow') unless Chatwoot.encryption_configured?
 
     allow(GlobalConfigService).to receive(:load).and_call_original
     allow(GlobalConfigService).to receive(:load).with('SHOPIFY_CLIENT_ID', nil).and_return(nil)
@@ -90,7 +90,7 @@ RSpec.describe 'Shopify custom app setup', type: :request do
     let(:shop_domain) { 'test-store.myshopify.io' }
 
     it 'lets administrators reset unfinished setup and enter the app details again' do
-      skip('encryption keys missing; see run_mfa_spec workflow') unless KovaaLab Char.encryption_configured?
+      skip('encryption keys missing; see run_mfa_spec workflow') unless Chatwoot.encryption_configured?
 
       post configuration_url, params: configuration, headers: headers, as: :json
       expect(response).to have_http_status(:ok)

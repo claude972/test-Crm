@@ -7,8 +7,8 @@ RSpec.describe Captain::BaseTaskService, type: :model do
   let(:perform_result) { { message: 'Test response' } }
   let(:exhausted_usage_limits) do
     {
-      agents: KovaaLab CharApp.max_limit,
-      inboxes: KovaaLab CharApp.max_limit,
+      agents: ChatwootApp.max_limit,
+      inboxes: ChatwootApp.max_limit,
       captain: { responses: { current_available: 0 } }
     }
   end
@@ -37,7 +37,7 @@ RSpec.describe Captain::BaseTaskService, type: :model do
   describe '#perform with enterprise usage tracking' do
     # Ensure captain is enabled by default for tests unless explicitly testing disabled state
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       allow(account).to receive(:feature_enabled?).and_call_original
       allow(account).to receive(:feature_enabled?).with('captain_tasks').and_return(true)
       allow(Integrations::Openai::KeyValidator).to receive(:valid?).and_return(true)
@@ -45,7 +45,7 @@ RSpec.describe Captain::BaseTaskService, type: :model do
 
     context 'when usage limit is exceeded' do
       before do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         allow(account).to receive(:usage_limits).and_return(exhausted_usage_limits)
       end
 
@@ -130,7 +130,7 @@ RSpec.describe Captain::BaseTaskService, type: :model do
 
       context 'when the captain_responses quota is exhausted on Cloud' do
         before do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
           allow(account).to receive(:usage_limits).and_return(exhausted_usage_limits)
         end
 
@@ -165,7 +165,7 @@ RSpec.describe Captain::BaseTaskService, type: :model do
 
       context 'when the captain_responses quota is exhausted on Cloud' do
         before do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
           allow(account).to receive(:usage_limits).and_return(exhausted_usage_limits)
         end
 
@@ -183,7 +183,7 @@ RSpec.describe Captain::BaseTaskService, type: :model do
 
       context 'when on KovaaLab Char Cloud' do
         before do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         end
 
         it 'returns upgrade error message' do
@@ -199,7 +199,7 @@ RSpec.describe Captain::BaseTaskService, type: :model do
 
       context 'when self-hosted' do
         before do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
         end
 
         it 'returns disabled error message' do
@@ -250,7 +250,7 @@ RSpec.describe Captain::BaseTaskService, type: :model do
 
       context 'when the captain_responses quota is exhausted on Cloud' do
         before do
-          allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+          allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
           allow(account).to receive(:usage_limits).and_return(exhausted_usage_limits)
         end
 

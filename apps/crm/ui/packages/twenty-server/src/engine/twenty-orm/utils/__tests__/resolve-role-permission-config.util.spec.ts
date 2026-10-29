@@ -1,6 +1,6 @@
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { type FlatRoleTargetByAgentIdMaps } from 'src/engine/metadata-modules/flat-agent/types/flat-role-target-by-agent-id-maps.type';
-import { resolveRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/resolve-role-permission-config.util';
+import { resolveRolePermissionConfig } from 'src/engine/twenty-orm/utils/resolve-role-permission-config.util';
 
 const USER_WORKSPACE_ID = 'user-workspace-1';
 const USER_ROLE_ID = 'user-role-1';

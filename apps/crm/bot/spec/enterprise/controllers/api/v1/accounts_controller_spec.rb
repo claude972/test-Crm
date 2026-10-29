@@ -17,7 +17,7 @@ RSpec.describe 'Enterprise Accounts API', type: :request do
     end
 
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     end
 
     it 'records marketing attribution for unauthenticated signup requests' do
@@ -78,23 +78,23 @@ RSpec.describe 'Enterprise Accounts API', type: :request do
     end
 
     it 'hides the latest kovaa-lab version on cloud' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
 
       get "/api/v1/accounts/#{account.id}",
           headers: admin.create_new_auth_token,
           as: :json
 
-      expect(response.parsed_body['latest_kovaa-lab_version']).to be_nil
+      expect(response.parsed_body['latest_chatwoot_version']).to be_nil
     end
 
     it 'exposes the latest kovaa-lab version on self-hosted enterprise' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
 
       get "/api/v1/accounts/#{account.id}",
           headers: admin.create_new_auth_token,
           as: :json
 
-      expect(response.parsed_body['latest_kovaa-lab_version']).to eq('4.16.1')
+      expect(response.parsed_body['latest_chatwoot_version']).to eq('4.16.1')
     end
   end
 end

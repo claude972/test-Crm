@@ -17,7 +17,7 @@ import {
   EmailVerificationException,
   EmailVerificationExceptionCode,
 } from 'src/engine/core-modules/email-verification/email-verification.exception';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 
 @Injectable()
@@ -27,11 +27,11 @@ export class EmailVerificationTokenService {
     private readonly appTokenRepository: Repository<AppTokenEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async generateToken(userId: string, email: string): Promise<AuthToken> {
-    const expiresIn = this.kovaa-labConfigService.get(
+    const expiresIn = this.kovaaLabConfigService.get(
       'EMAIL_VERIFICATION_TOKEN_EXPIRES_IN',
     );
     const expiresAt = addMilliseconds(new Date().getTime(), ms(expiresIn));

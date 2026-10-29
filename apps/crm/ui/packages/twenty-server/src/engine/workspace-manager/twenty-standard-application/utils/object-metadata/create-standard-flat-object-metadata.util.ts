@@ -7,12 +7,12 @@ import {
 } from 'kovaa-lab-shared/types';
 
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import {
   type CreateStandardObjectArgs,
   createStandardObjectFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/object-metadata/create-standard-object-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/object-metadata/create-standard-object-flat-metadata.util';
 
 export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
   agentChatThread: (
@@ -405,7 +405,7 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'attachment'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -442,14 +442,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   blocklist: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'blocklist'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -478,14 +478,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   calendarChannelEventAssociation: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'calendarChannelEventAssociation'>,
@@ -526,14 +526,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   calendarEventParticipant: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'calendarEventParticipant'>,
@@ -573,14 +573,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   calendarEvent: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'calendarEvent'>,
@@ -620,14 +620,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   calendarEventTarget: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'calendarEventTarget'>,
@@ -669,14 +669,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   callRecording: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'callRecording'>,
@@ -715,14 +715,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   company: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'company'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -750,14 +750,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   dashboard: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'dashboard'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -790,14 +790,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageCampaign: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'messageCampaign'>,
@@ -832,14 +832,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageList: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'messageList'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -868,14 +868,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageListMember: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'messageListMember'>,
@@ -914,14 +914,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageChannelMessageAssociation: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'messageChannelMessageAssociation'>,
@@ -962,14 +962,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageChannelMessageAssociationMessageFolder: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'messageChannelMessageAssociationMessageFolder'>,
@@ -1011,14 +1011,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageParticipant: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'messageParticipant'>,
@@ -1058,14 +1058,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageThread: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'messageThread'>,
@@ -1104,14 +1104,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   messageThreadTarget: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'messageThreadTarget'>,
@@ -1153,14 +1153,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   message: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'message'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1187,14 +1187,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   note: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'note'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1222,14 +1222,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   noteTarget: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'noteTarget'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1266,14 +1266,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   opportunity: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'opportunity'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1308,14 +1308,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   person: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'person'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1347,14 +1347,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   recordShare: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'recordShare'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1394,14 +1394,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   shortLink: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'shortLink'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1441,14 +1441,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   task: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'task'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1476,14 +1476,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   taskTarget: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'taskTarget'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1520,14 +1520,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   timelineActivity: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'timelineActivity'>,
@@ -1569,14 +1569,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   workflow: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'workflow'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1603,14 +1603,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   workflowAutomatedTrigger: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'workflowAutomatedTrigger'>,
@@ -1650,14 +1650,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   workflowRun: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<CreateStandardObjectArgs<'workflowRun'>, 'context' | 'objectName'>) =>
     createStandardObjectFlatMetadata({
@@ -1695,14 +1695,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   workflowVersion: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'workflowVersion'>,
@@ -1742,14 +1742,14 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
   workspaceMember: ({
     now,
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     dependencyFlatEntityMaps,
   }: Omit<
     CreateStandardObjectArgs<'workspaceMember'>,
@@ -1790,7 +1790,7 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       },
       workspaceId,
       standardObjectMetadataRelatedEntityIds,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       now,
     }),
 } satisfies {

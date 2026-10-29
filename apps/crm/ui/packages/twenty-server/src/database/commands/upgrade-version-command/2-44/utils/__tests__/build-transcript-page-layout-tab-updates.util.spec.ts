@@ -3,14 +3,14 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { buildTranscriptPageLayoutTabUpdates } from 'src/database/commands/upgrade-version-command/2-44/utils/build-transcript-page-layout-tab-updates.util';
 import { type FlatPageLayoutTab } from 'src/engine/metadata-modules/flat-page-layout-tab/types/flat-page-layout-tab.type';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const NOW = '2026-09-21T12:00:00.000Z';
-const { allFlatEntityMaps } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps(
+const { allFlatEntityMaps } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps(
   {
     now: '2026-09-20T12:00:00.000Z',
     workspaceId: '20202020-1111-4111-8111-111111111111',
-    kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+    kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
   },
 );
 

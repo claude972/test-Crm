@@ -4,16 +4,16 @@ import { type WorkspaceIteratorService } from 'src/database/commands/command-run
 import { AddDuplicateMessageListCommandMenuItemCommand } from 'src/database/commands/upgrade-version-command/2-39/2-39-workspace-command-1788639976437-add-duplicate-message-list-command-menu-item.command';
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 jest.mock(
-  'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant',
+  'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant',
 );
 
-const computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMaps,
+const computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock = jest.mocked(
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMaps,
 );
 
 const WORKSPACE_ID = '20202020-0000-0000-0000-000000000001';
@@ -47,21 +47,21 @@ describe('AddDuplicateMessageListCommandMenuItemCommand', () => {
       .fn()
       .mockResolvedValue({ status: 'success' });
 
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
       allFlatEntityMaps: {
         flatCommandMenuItemMaps: buildMaps([ITEM_UNIVERSAL_IDENTIFIER]),
       },
     } as unknown as ReturnType<
-      typeof computeKovaaLab CRMStandardApplicationAllFlatEntityMaps
+      typeof computeKovaaLabCRMStandardApplicationAllFlatEntityMaps
     >);
 
     command = new AddDuplicateMessageListCommandMenuItemCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: STANDARD_APPLICATION,
+            kovaaLabStandardFlatApplication: STANDARD_APPLICATION,
           }),
       } as unknown as ApplicationService,
       { getOrRecompute: getOrRecomputeMock } as unknown as WorkspaceCacheService,

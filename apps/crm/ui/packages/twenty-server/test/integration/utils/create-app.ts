@@ -10,7 +10,7 @@ import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 
 import { AppModule } from 'src/app.module';
 import { settings } from 'src/engine/constants/settings';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { applyCredentialedCors } from 'src/engine/core-modules/user-session/utils/apply-credentialed-cors.util';
 import { StripeSDKMockService } from 'src/engine/core-modules/billing/stripe/stripe-sdk/mocks/stripe-sdk-mock.service';
 import { StripeSDKService } from 'src/engine/core-modules/billing/stripe/stripe-sdk/services/stripe-sdk.service';
@@ -62,7 +62,7 @@ export const createApp = async (
 
   // The production CORS setup, not the Nest wildcard default, so integration
   // tests exercise the credentialed-origin allowlist the deployment runs.
-  applyCredentialedCors(app, app.get(KovaaLab CRMConfigService));
+  applyCredentialedCors(app, app.get(KovaaLabCRMConfigService));
 
   app.use(
     '/graphql',

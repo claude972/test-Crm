@@ -35,7 +35,7 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
 
     context 'with MFA authentication' do
       before do
-        skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+        skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
         user.enable_two_factor!
         user.update!(otp_required_for_login: true)
       end
@@ -165,7 +165,7 @@ RSpec.describe DeviseOverrides::SessionsController, type: :controller do
       let(:user) { create(:user, password: 'Test@123456', account: account) }
 
       before do
-        skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+        skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
         account.update!(enforce_mfa: true)
       end
 

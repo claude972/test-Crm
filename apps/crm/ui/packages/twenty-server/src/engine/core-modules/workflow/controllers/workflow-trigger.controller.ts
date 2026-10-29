@@ -20,9 +20,9 @@ import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 import { PermissionsGraphqlApiExceptionFilter } from 'src/engine/metadata-modules/permissions/utils/permissions-graphql-api-exception.filter';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import { WorkflowVersionStatus } from 'src/engine/core-modules/workflow/entities/workflow-version.entity';
 import { WorkflowCoreSyncService } from 'src/engine/core-modules/workflow/services/workflow-core-sync.service';
 import { WorkflowVersionCoreSyncService } from 'src/engine/core-modules/workflow/services/workflow-version-core-sync.service';
@@ -168,10 +168,10 @@ export class WorkflowTriggerController {
     workspaceId: string,
   ): never {
     if (
-      error instanceof KovaaLab CRMOrmException &&
+      error instanceof KovaaLabCRMOrmException &&
       [
-        KovaaLab CRMOrmExceptionCode.WORKSPACE_NOT_FOUND,
-        KovaaLab CRMOrmExceptionCode.WORKSPACE_SCHEMA_NOT_FOUND,
+        KovaaLabCRMOrmExceptionCode.WORKSPACE_NOT_FOUND,
+        KovaaLabCRMOrmExceptionCode.WORKSPACE_SCHEMA_NOT_FOUND,
       ].includes(error.code)
     ) {
       throw new WorkflowTriggerException(

@@ -8,7 +8,7 @@ import {
   SecretEncryptionException,
   SecretEncryptionExceptionCode,
 } from 'src/engine/core-modules/secret-encryption/exceptions/secret-encryption.exception';
-import { EnvironmentConfigDriver } from 'src/engine/core-modules/kovaa-lab-config/drivers/environment-config.driver';
+import { EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
 
 import { computeEncryptionKeyId } from './utils/compute-encryption-key-id.util';
 import { decryptAesCtrOrThrow } from './utils/decrypt-aes-ctr-or-throw.util';

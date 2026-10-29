@@ -8,7 +8,7 @@ import { EngineComponentKey } from 'src/engine/metadata-modules/command-menu-ite
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
 import { type WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { getWorkflowPrefillIds } from 'src/engine/workspace-manager/standard-objects-prefill-data/utils/prefill-workflows.util';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const QUICK_LEAD_COMMAND_MENU_ITEM_UNIVERSAL_IDENTIFIER =
@@ -26,7 +26,7 @@ export const prefillWorkflowCommandMenuItems = async ({
   workspaceMigrationValidateBuildAndRunService: WorkspaceMigrationValidateBuildAndRunService;
 }): Promise<void> => {
   const { workspaceCustomFlatApplication } =
-    await applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    await applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
       { workspaceId },
     );
 

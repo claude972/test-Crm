@@ -25,9 +25,9 @@ import { type LoggerOptions } from 'typeorm/logger/LoggerOptions';
 
 import { IsLambdaResourceTags } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/lambda/decorators/is-lambda-resource-tags.decorator';
 import { LogicFunctionDriverType } from 'src/engine/core-modules/logic-function/logic-function-drivers/interfaces/logic-function-driver.interface';
-import { type AwsRegion } from 'src/engine/core-modules/kovaa-lab-config/interfaces/aws-region.interface';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
-import { SupportDriver } from 'src/engine/core-modules/kovaa-lab-config/interfaces/support.interface';
+import { type AwsRegion } from 'src/engine/core-modules/twenty-config/interfaces/aws-region.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
+import { SupportDriver } from 'src/engine/core-modules/twenty-config/interfaces/support.interface';
 
 import { IsBillingPlansConfig } from 'src/engine/core-modules/billing/decorators/is-billing-plans-config.decorator';
 import { type BillingPlansConfig } from 'src/engine/core-modules/billing/types/billing-plans-config.type';
@@ -42,29 +42,29 @@ import { ADDRESS_AUTOCOMPLETE_DRIVER_TYPE } from 'src/engine/core-modules/geo-ma
 import { type AddressAutocompleteDriverType } from 'src/engine/core-modules/geo-map/types/address-autocomplete-driver-type.type';
 import {
   LoggerDriverType,
-  type KovaaLab CRMLogLevel,
+  type KovaaLabCRMLogLevel,
 } from 'src/engine/core-modules/logger/interfaces';
 import { type MeterDriver } from 'src/engine/core-modules/metrics/types/meter-driver.type';
 import { MeterTemporality } from 'src/engine/core-modules/metrics/types/meter-temporality.type';
-import { CastToLogLevelArray } from 'src/engine/core-modules/kovaa-lab-config/decorators/cast-to-log-level-array.decorator';
-import { CastToMeterDriverArray } from 'src/engine/core-modules/kovaa-lab-config/decorators/cast-to-meter-driver.decorator';
-import { CastToPositiveNumber } from 'src/engine/core-modules/kovaa-lab-config/decorators/cast-to-positive-number.decorator';
-import { CastToTypeORMLogLevelArray } from 'src/engine/core-modules/kovaa-lab-config/decorators/cast-to-typeorm-log-level-array.decorator';
-import { CastToUpperSnakeCase } from 'src/engine/core-modules/kovaa-lab-config/decorators/cast-to-upper-snake-case.decorator';
-import { ConfigVariablesMetadata } from 'src/engine/core-modules/kovaa-lab-config/decorators/config-variables-metadata.decorator';
-import { IsAWSRegion } from 'src/engine/core-modules/kovaa-lab-config/decorators/is-aws-region.decorator';
+import { CastToLogLevelArray } from 'src/engine/core-modules/twenty-config/decorators/cast-to-log-level-array.decorator';
+import { CastToMeterDriverArray } from 'src/engine/core-modules/twenty-config/decorators/cast-to-meter-driver.decorator';
+import { CastToPositiveNumber } from 'src/engine/core-modules/twenty-config/decorators/cast-to-positive-number.decorator';
+import { CastToTypeORMLogLevelArray } from 'src/engine/core-modules/twenty-config/decorators/cast-to-typeorm-log-level-array.decorator';
+import { CastToUpperSnakeCase } from 'src/engine/core-modules/twenty-config/decorators/cast-to-upper-snake-case.decorator';
+import { ConfigVariablesMetadata } from 'src/engine/core-modules/twenty-config/decorators/config-variables-metadata.decorator';
+import { IsAWSRegion } from 'src/engine/core-modules/twenty-config/decorators/is-aws-region.decorator';
 import { DEFAULT_WORKSPACE_AUTO_LOGIN_WINDOW } from 'src/engine/core-modules/auth/constants/default-workspace-auto-login-window.constant';
-import { IsNonNegativeDuration } from 'src/engine/core-modules/kovaa-lab-config/decorators/is-non-negative-duration.decorator';
-import { IsPositiveDuration } from 'src/engine/core-modules/kovaa-lab-config/decorators/is-positive-duration.decorator';
-import { IsOptionalOrEmptyString } from 'src/engine/core-modules/kovaa-lab-config/decorators/is-optional-or-empty-string.decorator';
-import { IsStrictlyLowerThan } from 'src/engine/core-modules/kovaa-lab-config/decorators/is-strictly-lower-than.decorator';
-import { IsKovaaLab CRMSemVer } from 'src/engine/core-modules/kovaa-lab-config/decorators/is-kovaa-lab-semver.decorator';
-import { ConfigVariableType } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variable-type.enum';
-import { ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
+import { IsNonNegativeDuration } from 'src/engine/core-modules/twenty-config/decorators/is-non-negative-duration.decorator';
+import { IsPositiveDuration } from 'src/engine/core-modules/twenty-config/decorators/is-positive-duration.decorator';
+import { IsOptionalOrEmptyString } from 'src/engine/core-modules/twenty-config/decorators/is-optional-or-empty-string.decorator';
+import { IsStrictlyLowerThan } from 'src/engine/core-modules/twenty-config/decorators/is-strictly-lower-than.decorator';
+import { IsKovaaLabCRMSemVer } from 'src/engine/core-modules/twenty-config/decorators/is-twenty-semver.decorator';
+import { ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
+import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
 import {
   ConfigVariableException,
   ConfigVariableExceptionCode,
-} from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.exception';
+} from 'src/engine/core-modules/twenty-config/twenty-config.exception';
 import { type OnboardingEnrichmentCreditRewardTier } from 'src/engine/core-modules/onboarding/types/onboarding-enrichment-credit-reward-tier.type';
 import { type PlanUsageLimitDefaults } from 'src/engine/core-modules/usage-limit/types/plan-usage-limit-defaults.type';
 import { type AiProvidersConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-providers-config.type';
@@ -1298,7 +1298,7 @@ export class ConfigVariables {
   })
   @CastToLogLevelArray()
   @IsOptional()
-  LOG_LEVELS: KovaaLab CRMLogLevel[] = ['log', 'error', 'warn', 'performance'];
+  LOG_LEVELS: KovaaLabCRMLogLevel[] = ['log', 'error', 'warn', 'performance'];
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.LOGGING,
@@ -1626,6 +1626,16 @@ export class ConfigVariables {
   @CastToPositiveNumber()
   @IsOptional()
   NODE_PORT = 3000;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.SERVER_CONFIG,
+    description: 'Address on which the HTTP server listens',
+    type: ConfigVariableType.STRING,
+    isEnvOnly: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  NODE_HOST = '0.0.0.0';
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.SERVER_CONFIG,
@@ -2356,7 +2366,7 @@ export class ConfigVariables {
     isHiddenInAdminPanel: true,
   })
   @IsOptionalOrEmptyString()
-  @IsKovaaLab CRMSemVer()
+  @IsKovaaLabCRMSemVer()
   APP_VERSION?: string;
 
   @ConfigVariablesMetadata({

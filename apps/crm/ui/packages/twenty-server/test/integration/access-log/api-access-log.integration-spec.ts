@@ -4,7 +4,7 @@ import { ConsoleLogger } from '@nestjs/common';
 import gql from 'graphql-tag';
 import request from 'supertest';
 
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { USER_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-users.util';
 import { makeGraphqlApiRequest } from 'test/integration/graphql/utils/make-graphql-api-request.util';
@@ -46,10 +46,10 @@ const parseLogfmt = (line: string): Record<string, string> =>
   );
 
 describe('API access log', () => {
-  const kovaa-labConfigService = getAppProviderByClassName<KovaaLab CRMConfigService>(
-    'KovaaLab CRMConfigService',
+  const kovaaLabConfigService = getAppProviderByClassName<KovaaLabCRMConfigService>(
+    'KovaaLabCRMConfigService',
   );
-  const readConfig = kovaa-labConfigService.get.bind(kovaa-labConfigService);
+  const readConfig = kovaaLabConfigService.get.bind(kovaaLabConfigService);
 
   let isAccessLogEnabled = true;
 
@@ -86,7 +86,7 @@ describe('API access log', () => {
 
   beforeAll(() => {
     jest
-      .spyOn(kovaa-labConfigService, 'get')
+      .spyOn(kovaaLabConfigService, 'get')
       .mockImplementation((key) =>
         key === 'API_ACCESS_LOG_ENABLED' ? isAccessLogEnabled : readConfig(key),
       );

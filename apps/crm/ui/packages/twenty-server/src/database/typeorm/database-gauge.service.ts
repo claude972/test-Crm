@@ -27,7 +27,7 @@ export class DatabaseGaugeService implements OnModuleInit {
     });
 
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_database_up',
+      metricName: 'kovaaLab_database_up',
       options: {
         description: 'Whether the database is reachable (1 = up, 0 = down)',
       },

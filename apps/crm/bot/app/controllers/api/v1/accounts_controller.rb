@@ -21,7 +21,7 @@ class Api::V1::AccountsController < Api::BaseController
   rescue_from Shopify::PendingInstallation::Error, with: :render_shopify_signup_error
 
   def show
-    @latest_kovaa-lab_version = latest_kovaa-lab_version
+    @latest_chatwoot_version = latest_chatwoot_version
     render 'api/v1/accounts/show', format: :json
   end
 
@@ -68,7 +68,7 @@ class Api::V1::AccountsController < Api::BaseController
 
   private
 
-  def latest_kovaa-lab_version
+  def latest_chatwoot_version
     Redis::Alfred.get(Redis::Alfred::LATEST_KOVAALAB_VERSION)
   end
 
@@ -94,7 +94,7 @@ class Api::V1::AccountsController < Api::BaseController
     Redis::Alfred.set(format(Redis::Alfred::ACCOUNT_ONBOARDING_ENRICHMENT, account_id: @account.id), '1', ex: 30)
   rescue StandardError => e
     # Enrichment is optional — never let queue/Redis failures abort signup
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
   end
 
   def ensure_account_name
@@ -149,7 +149,7 @@ class Api::V1::AccountsController < Api::BaseController
   def permitted_settings_attributes
     attributes = [:auto_resolve_after, :auto_resolve_message, :auto_resolve_ignore_waiting, :audio_transcriptions, :auto_resolve_label,
                   :auto_translate, :translation_provider]
-    attributes << :enforce_mfa if KovaaLab Char.mfa_enabled?
+    attributes << :enforce_mfa if Chatwoot.mfa_enabled?
     attributes
   end
 
@@ -174,7 +174,7 @@ class Api::V1::AccountsController < Api::BaseController
   end
 
   def validate_captcha
-    raise ActionController::InvalidAuthenticityToken, 'Invalid Captcha' unless KovaaLab CharCaptcha.new(params[:h_captcha_client_response]).valid?
+    raise ActionController::InvalidAuthenticityToken, 'Invalid Captcha' unless ChatwootCaptcha.new(params[:h_captcha_client_response]).valid?
   end
 
   def pundit_user

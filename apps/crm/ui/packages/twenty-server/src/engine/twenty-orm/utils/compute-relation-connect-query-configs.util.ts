@@ -20,18 +20,18 @@ import {
 } from 'src/engine/metadata-modules/flat-field-metadata/utils/build-field-maps-from-flat-object-metadata.util';
 import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/types/flat-index-metadata.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type ConnectObject } from 'src/engine/kovaa-lab-orm/entity-manager/types/query-deep-partial-entity-with-nested-relation-fields.type';
+import { type ConnectObject } from 'src/engine/twenty-orm/entity-manager/types/query-deep-partial-entity-with-nested-relation-fields.type';
 import {
   type RelationConnectQueryConfig,
   type UniqueConstraintCondition,
-} from 'src/engine/kovaa-lab-orm/entity-manager/types/relation-connect-query-config.type';
-import { type RelationConnectQueryFieldsByEntityIndex } from 'src/engine/kovaa-lab-orm/entity-manager/types/relation-nested-query-fields-by-entity-index.type';
+} from 'src/engine/twenty-orm/entity-manager/types/relation-connect-query-config.type';
+import { type RelationConnectQueryFieldsByEntityIndex } from 'src/engine/twenty-orm/entity-manager/types/relation-nested-query-fields-by-entity-index.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { formatCompositeField } from 'src/engine/kovaa-lab-orm/utils/format-data.util';
-import { getAssociatedRelationFieldName } from 'src/engine/kovaa-lab-orm/utils/get-associated-relation-field-name.util';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { formatCompositeField } from 'src/engine/twenty-orm/utils/format-data.util';
+import { getAssociatedRelationFieldName } from 'src/engine/twenty-orm/utils/get-associated-relation-field-name.util';
 import { isFieldMetadataEntityOfType } from 'src/engine/utils/is-field-metadata-of-type.util';
 
 export const computeRelationConnectQueryConfigs = (
@@ -165,9 +165,9 @@ const computeRecordToConnectCondition = (
   ) {
     const objectMetadataNameSingular = flatObjectMetadata.nameSingular;
 
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `Connect is not allowed for ${connectFieldName} on ${flatObjectMetadata.nameSingular}`,
-      KovaaLab CRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
+      KovaaLabCRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
       {
         userFriendlyMessage: msg`Connect is not allowed for ${connectFieldName} on ${objectMetadataNameSingular}`,
       },
@@ -183,9 +183,9 @@ const computeRecordToConnectCondition = (
     : undefined;
 
   if (!isDefined(targetObjectMetadata)) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `Target object metadata not found for ${connectFieldName}`,
-      KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA,
+      KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA,
       {
         userFriendlyMessage: msg`Target object metadata not found for ${connectFieldName}`,
       },
@@ -254,9 +254,9 @@ const checkUniqueConstraintFullyPopulated = (
   );
 
   if (!hasUniqueConstraintFieldFullyPopulated) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `Missing required fields: at least one unique constraint have to be fully populated for '${connectFieldName}'.`,
-      KovaaLab CRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR,
+      KovaaLabCRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR,
       {
         userFriendlyMessage: msg`Missing required fields: at least one unique constraint have to be fully populated for "${connectFieldName}".`,
       },
@@ -269,9 +269,9 @@ const checkUniqueConstraintFullyPopulated = (
       .find((uniqueConstraintField) => uniqueConstraintField.name === key);
 
     if (!isDefined(field)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Field ${key} is not a unique constraint field for '${connectFieldName}'.`,
-        KovaaLab CRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR,
+        KovaaLabCRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR,
       );
     }
 
@@ -287,9 +287,9 @@ const checkNoRelationFieldConflictOrThrow = (
     isDefined(entity[fieldName]) && isDefined(entity[`${fieldName}Id`]);
 
   if (hasRelationFieldConflict) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `${fieldName} and ${fieldName}Id cannot be both provided.`,
-      KovaaLab CRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
+      KovaaLabCRMOrmExceptionCode.CONNECT_NOT_ALLOWED,
       {
         userFriendlyMessage: msg`${fieldName} and ${fieldName}Id cannot be both provided.`,
       },
@@ -336,9 +336,9 @@ const checkUniqueConstraintsAreSameOrThrow = (
   ) {
     const connectFieldName = relationConnectQueryConfig.connectFieldName;
 
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `Expected the same constraint fields to be used consistently across all operations for ${relationConnectQueryConfig.connectFieldName}.`,
-      KovaaLab CRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR,
+      KovaaLabCRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR,
       {
         userFriendlyMessage: msg`Expected the same constraint fields to be used consistently across all operations for ${connectFieldName}.`,
       },

@@ -157,7 +157,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def log_error(error)
-    KovaaLab CharExceptionTracker.new(error, account: account).capture_exception
+    ChatwootExceptionTracker.new(error, account: account).capture_exception
   end
 
   def error_action_reason(error)

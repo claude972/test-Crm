@@ -101,7 +101,7 @@ RSpec.describe 'Profile Sessions API', type: :request do
 
   describe 'MFA enforcement over api_access_token' do
     before do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       account.update!(enforce_mfa: true)
     end
 

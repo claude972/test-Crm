@@ -5,7 +5,7 @@ import {
 
 describe('getHostnameFromUrlOrUndefined', () => {
   it('returns the lowercased hostname of a valid url', () => {
-    expect(getHostnameFromUrlOrUndefined('https://WithKovaaLab CRM.com')).toBe(
+    expect(getHostnameFromUrlOrUndefined('https://WithKovaaLabCRM.com')).toBe(
       'withkovaa-lab.com',
     );
   });
@@ -51,7 +51,7 @@ describe('isHostUnderPublicFunctionDomain', () => {
   it('is case-insensitive and strips the port', () => {
     expect(
       isHostUnderPublicFunctionDomain({
-        host: 'ACME.WithKovaaLab CRM.com:443',
+        host: 'ACME.WithKovaaLabCRM.com:443',
         publicDomainBaseHostname,
       }),
     ).toBe(true);

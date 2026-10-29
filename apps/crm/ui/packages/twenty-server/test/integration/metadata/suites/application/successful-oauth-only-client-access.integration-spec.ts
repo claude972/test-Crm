@@ -9,7 +9,7 @@ import { createAppTarballUpload } from 'test/integration/metadata/suites/applica
 import { createApplicationFileUploads } from 'test/integration/metadata/suites/application/utils/create-application-file-uploads.util';
 import { exportApplication } from 'test/integration/metadata/suites/application/utils/export-application.util';
 import { installApplication } from 'test/integration/metadata/suites/application/utils/install-application.util';
-import { loginAsKovaaLab CRMCli } from 'test/integration/metadata/suites/application/utils/login-as-kovaa-lab-cli.util';
+import { loginAsKovaaLabCRMCli } from 'test/integration/metadata/suites/application/utils/login-as-twenty-cli.util';
 import { putApplicationFileUploadTarget } from 'test/integration/metadata/suites/application/utils/put-application-file-upload-target.util';
 import {
   type ApplicationWithResources,
@@ -24,7 +24,7 @@ import { ToolCategory } from 'kovaa-lab-shared/ai';
 
 import { type LogicFunctionExecutorService } from 'src/engine/core-modules/logic-function/logic-function-executor/logic-function-executor.service';
 import { LogicFunctionExecutionStatus } from 'src/engine/metadata-modules/logic-function/dtos/logic-function-execution-result.dto';
-import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-cli-application-registration.constant';
+import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-cli-application-registration.constant';
 
 describe('OAuth-only client access to installed applications should succeed', () => {
   let installedApplication: ApplicationWithResources;
@@ -36,7 +36,7 @@ describe('OAuth-only client access to installed applications should succeed', ()
       name: 'Installed Application',
     });
 
-    cliToken = await loginAsKovaaLab CRMCli();
+    cliToken = await loginAsKovaaLabCRMCli();
   }, 120000);
 
   beforeEach(() => {

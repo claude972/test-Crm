@@ -26,13 +26,13 @@ import { SyncMessageFoldersService } from 'src/modules/messaging/message-folder-
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { CalendarChannelEntity } from 'src/engine/metadata-modules/calendar-channel/entities/calendar-channel.entity';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import {
   CalendarEventListFetchJob,
   type CalendarEventListFetchJobData,
@@ -73,7 +73,7 @@ export class MicrosoftAPIsService {
     private readonly createCalendarChannelService: CreateCalendarChannelService,
     private readonly createConnectedAccountService: CreateConnectedAccountService,
     private readonly updateConnectedAccountOnReconnectService: UpdateConnectedAccountOnReconnectService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly syncMessageFoldersService: SyncMessageFoldersService,
     private readonly emailAliasManagerService: EmailAliasManagerService,
     private readonly onboardingRecentMessagesImportService: OnboardingRecentMessagesImportService,
@@ -198,7 +198,7 @@ export class MicrosoftAPIsService {
           }
 
           if (
-            this.kovaa-labConfigService.get(
+            this.kovaaLabConfigService.get(
               'MESSAGING_PROVIDER_MICROSOFT_ENABLED',
             ) &&
             existingMessageChannels.length === 0
@@ -214,7 +214,7 @@ export class MicrosoftAPIsService {
           }
 
           if (
-            this.kovaa-labConfigService.get(
+            this.kovaaLabConfigService.get(
               'CALENDAR_PROVIDER_MICROSOFT_ENABLED',
             ) &&
             existingCalendarChannels.length === 0
@@ -254,7 +254,7 @@ export class MicrosoftAPIsService {
       );
 
       if (
-        this.kovaa-labConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED')
+        this.kovaaLabConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED')
       ) {
         const connectedAccountForAliases =
           await this.connectedAccountRepository.findOne({
@@ -270,7 +270,7 @@ export class MicrosoftAPIsService {
       }
 
       if (
-        this.kovaa-labConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED') &&
+        this.kovaaLabConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED') &&
         existingMessageChannels.length === 0
       ) {
         const newMessageChannel = await this.messageChannelRepository.findOne({
@@ -290,7 +290,7 @@ export class MicrosoftAPIsService {
       }
 
       if (
-        this.kovaa-labConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED')
+        this.kovaaLabConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED')
       ) {
         const messageChannels = await this.messageChannelRepository.find({
           where: {
@@ -327,7 +327,7 @@ export class MicrosoftAPIsService {
         }
       }
 
-      if (this.kovaa-labConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED')) {
+      if (this.kovaaLabConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED')) {
         const calendarChannels = await this.calendarChannelRepository.find({
           where: {
             connectedAccountId: newOrExistingConnectedAccountId,
@@ -375,7 +375,7 @@ export class MicrosoftAPIsService {
   }): Promise<void> {
     if (
       !isSyncEnabled ||
-      !this.kovaa-labConfigService.get(
+      !this.kovaaLabConfigService.get(
         'IS_CONNECTED_ACCOUNT_WEBHOOK_SUBSCRIPTION_ENABLED',
       )
     ) {

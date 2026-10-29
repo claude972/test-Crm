@@ -4,7 +4,7 @@ class Internal::CheckNewVersionsJob < ApplicationJob
   def perform
     return unless Rails.env.production?
 
-    @instance_info = KovaaLab CharHub.sync_with_hub
+    @instance_info = ChatwootHub.sync_with_hub
     update_version_info
   end
 

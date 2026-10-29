@@ -4,7 +4,7 @@ RSpec.describe 'Search indexing', type: :request do
   let(:robots_directives) { Nokogiri::HTML(response.body).css('head meta[name="robots"]').map { |tag| tag['content'] } }
 
   before do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
   end
 
   describe 'application login' do
@@ -19,7 +19,7 @@ RSpec.describe 'Search indexing', type: :request do
     end
 
     it 'allows indexing on Cloud' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
 
       get '/app/login'
 
@@ -34,7 +34,7 @@ RSpec.describe 'Search indexing', type: :request do
 
     [false, true].each do |cloud|
       it "prevents indexing on #{cloud ? 'Cloud' : 'self-hosted installations'}" do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(cloud)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(cloud)
 
         get '/widget', params: { website_token: web_widget.website_token }
 
@@ -46,7 +46,7 @@ RSpec.describe 'Search indexing', type: :request do
 
   describe 'Super Admin' do
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     end
 
     it 'prevents indexing of the sign-in page even on Cloud' do

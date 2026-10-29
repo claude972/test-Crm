@@ -7,11 +7,11 @@ import {
 } from 'kovaa-lab-shared/types';
 
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-field-name.type';
-import { buildStandardTargetFlatFieldMetadatas } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/build-standard-target-flat-field-metadatas.util';
-import { type CreateStandardFieldArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
-import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
+import { buildStandardTargetFlatFieldMetadatas } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/build-standard-target-flat-field-metadatas.util';
+import { type CreateStandardFieldArgs } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
+import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 
 export const buildMessageThreadTargetStandardFlatFieldMetadatas = ({
   ...args

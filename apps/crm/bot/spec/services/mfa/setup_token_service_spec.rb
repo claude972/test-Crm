@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Mfa::SetupTokenService do
   before do
-    skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+    skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
   end
 
   let(:user) { create(:user, password: 'Test@123456') }

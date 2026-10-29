@@ -3,8 +3,8 @@ import {
   PermissionsExceptionCode,
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
-import { resolveRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/resolve-role-permission-config.util';
-import { isValidationRuleEnforcementEnabled } from 'src/engine/kovaa-lab-orm/utils/is-validation-rule-enforcement-enabled.util';
+import { resolveRolePermissionConfig } from 'src/engine/twenty-orm/utils/resolve-role-permission-config.util';
+import { isValidationRuleEnforcementEnabled } from 'src/engine/twenty-orm/utils/is-validation-rule-enforcement-enabled.util';
 import { Injectable, type Type } from '@nestjs/common';
 
 import { type ObjectLiteral } from 'typeorm';
@@ -14,19 +14,19 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { getWorkspaceAuthContext } from 'src/engine/core-modules/auth/storage/workspace-auth-context.storage';
 import { EnterprisePlanService } from 'src/engine/core-modules/enterprise/services/enterprise-plan.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { buildObjectIdByNameMaps } from 'src/engine/metadata-modules/flat-object-metadata/utils/build-object-id-by-name-maps.util';
-import { ExecuteInWorkspaceContextOptions } from 'src/engine/kovaa-lab-orm/types/execute-in-workspace-context-options.type';
-import { type WorkspaceTransactionScope } from 'src/engine/kovaa-lab-orm/types/workspace-transaction-scope.type';
+import { ExecuteInWorkspaceContextOptions } from 'src/engine/twenty-orm/types/execute-in-workspace-context-options.type';
+import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
 import {
   type ORMWorkspaceContext,
   withWorkspaceContext,
   getWorkspaceContext,
-} from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
-import type { RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { WorkspaceDataSourceService } from 'src/engine/kovaa-lab-orm/datasource/workspace-data-source.service';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
+} from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
+import type { RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { WorkspaceDataSourceService } from 'src/engine/twenty-orm/datasource/workspace-data-source.service';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { convertClassNameToObjectMetadataName } from 'src/engine/workspace-manager/utils/convert-class-to-object-metadata-name.util';
 
@@ -36,7 +36,7 @@ export class WorkspaceOrmManager {
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly workspaceDataSourceService: WorkspaceDataSourceService,
     private readonly enterprisePlanService: EnterprisePlanService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   getRepository<T extends ObjectLiteral = ObjectRecord>(
@@ -173,7 +173,7 @@ export class WorkspaceOrmManager {
       featureFlagsMap,
       billingEntitlements,
       hasValidEnterprisePlan: this.enterprisePlanService.isValid(),
-      isBillingEnabled: this.kovaa-labConfigService.get('IS_BILLING_ENABLED'),
+      isBillingEnabled: this.kovaaLabConfigService.get('IS_BILLING_ENABLED'),
     })
       ? (
           await this.workspaceCacheService.getOrRecompute(workspaceId, [

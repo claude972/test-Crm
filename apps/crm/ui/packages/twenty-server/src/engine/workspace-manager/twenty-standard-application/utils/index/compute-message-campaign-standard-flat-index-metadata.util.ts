@@ -1,10 +1,10 @@
 import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/types/flat-index-metadata.type';
 import { IndexType } from 'kovaa-lab-shared/types';
-import { type AllStandardObjectIndexName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-index-name.type';
+import { type AllStandardObjectIndexName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-index-name.type';
 import {
   type CreateStandardIndexArgs,
   createStandardIndexFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/index/create-standard-index-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/index/create-standard-index-flat-metadata.util';
 
 export const buildMessageCampaignStandardFlatIndexMetadatas = ({
   now,
@@ -12,7 +12,7 @@ export const buildMessageCampaignStandardFlatIndexMetadatas = ({
   workspaceId,
   standardObjectMetadataRelatedEntityIds,
   dependencyFlatEntityMaps,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: Omit<CreateStandardIndexArgs<'messageCampaign'>, 'context'>): Record<
   AllStandardObjectIndexName<'messageCampaign'>,
   FlatIndexMetadata
@@ -26,7 +26,7 @@ export const buildMessageCampaignStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   listIdIndex: createStandardIndexFlatMetadata({
@@ -38,7 +38,7 @@ export const buildMessageCampaignStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   searchVectorGinIndex: createStandardIndexFlatMetadata({
@@ -52,7 +52,7 @@ export const buildMessageCampaignStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
 });

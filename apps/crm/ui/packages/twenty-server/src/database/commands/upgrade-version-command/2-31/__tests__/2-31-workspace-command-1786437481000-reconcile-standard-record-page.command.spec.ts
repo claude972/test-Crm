@@ -132,10 +132,10 @@ describe('ReconcileStandardRecordPageCommand', () => {
         invalidateCache: invalidateCacheMock,
       } as unknown as WorkspaceMigrationRunnerService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: {
+            kovaaLabStandardFlatApplication: {
               id: STANDARD_APPLICATION_ID,
               universalIdentifier: STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
             },

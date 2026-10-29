@@ -20,7 +20,7 @@ import { canCallerReachApplication } from 'src/engine/core-modules/application/u
 import { ForbiddenError } from 'src/engine/core-modules/graphql/utils/graphql-errors.util';
 import { SdkClientChecksumsDTO } from 'src/engine/core-modules/sdk-client/dtos/sdk-client-checksums.dto';
 import { getInstalledSdkMetadataModule } from 'src/engine/core-modules/sdk-client/utils/get-installed-sdk-metadata-module.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { type IDataloaders } from 'src/engine/dataloaders/dataloader.interface';
 import { AgentDTO } from 'src/engine/metadata-modules/ai/ai-agent/dtos/agent.dto';
@@ -55,7 +55,7 @@ import { ApplicationTargetGuard } from 'src/engine/guards/application-target.gua
 @UseFilters(ApplicationExceptionFilter)
 export class ApplicationResolver {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly applicationStopService: ApplicationStopService,
     private readonly applicationService: ApplicationService,
@@ -115,7 +115,7 @@ export class ApplicationResolver {
   ): string | null {
     return buildPublicAssetLogoUrl({
       logo: application.logo,
-      serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
+      serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
       workspaceId: workspace.id,
       applicationId: application.id,
     });

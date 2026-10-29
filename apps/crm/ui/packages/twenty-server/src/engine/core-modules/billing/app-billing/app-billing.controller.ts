@@ -27,7 +27,7 @@ import { AppBillingService } from 'src/engine/core-modules/billing/app-billing/a
 import { ChargeDto } from 'src/engine/core-modules/billing/app-billing/dtos/charge.dto';
 import { type SubscriptionInactiveReason } from 'src/engine/core-modules/billing/types/subscription-inactive-reason.type';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UsageQuotaAdmissionService } from 'src/engine/core-modules/usage-limit/services/usage-quota-admission.service';
 import { UsageOperationType } from 'src/engine/core-modules/usage/enums/usage-operation-type.enum';
 import { UsageResourceType } from 'src/engine/core-modules/usage/enums/usage-resource-type.enum';
@@ -63,7 +63,7 @@ export class AppBillingController {
     private readonly appBillingService: AppBillingService,
     private readonly usageQuotaAdmissionService: UsageQuotaAdmissionService,
     private readonly throttlerService: ThrottlerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   // Lets an app check credits before starting work; returns a verdict, never a balance an app has no business reading
@@ -116,7 +116,7 @@ export class AppBillingController {
     @Body() charge: ChargeDto,
   ): Promise<void> {
     // Without billing no listener consumes the event, so fail fast rather than silently drop charges
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       throw new NotFoundException();
     }
 

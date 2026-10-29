@@ -1,6 +1,6 @@
 import { type ObjectsPermissions } from 'kovaa-lab-shared/types';
 
-import { computePermissionIntersection } from 'src/engine/kovaa-lab-orm/utils/compute-permission-intersection.util';
+import { computePermissionIntersection } from 'src/engine/twenty-orm/utils/compute-permission-intersection.util';
 
 describe('computePermissionIntersection', () => {
   const objectMetadataId1 = 'object-1';

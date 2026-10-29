@@ -26,11 +26,11 @@ import { ViewFilterGroupEntity } from 'src/engine/metadata-modules/view-filter-g
 import { ViewFilterEntity } from 'src/engine/metadata-modules/view-filter/entities/view-filter.entity';
 import { ViewSortEntity } from 'src/engine/metadata-modules/view-sort/entities/view-sort.entity';
 import { ViewEntity } from 'src/engine/metadata-modules/view/entities/view.entity';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 const authContext = buildSystemAuthContext(SEED_APPLE_WORKSPACE_ID);
 
@@ -69,7 +69,7 @@ describe('2-42 workspace command 1789744500000 - PurgeSoftDeletedViewsCommand (i
   let purgedViewFilterId: string;
   let softDeletedViewFilterGroupId: string;
   let softDeletedViewSortId: string;
-  let kovaa-labStandardApplicationId: string;
+  let kovaaLabStandardApplicationId: string;
 
   const runCommand = (options: { dryRun?: boolean } = {}) =>
     workspaceOrmManager.executeInWorkspaceContext(
@@ -262,7 +262,7 @@ describe('2-42 workspace command 1789744500000 - PurgeSoftDeletedViewsCommand (i
 
     lastViewIds = lastViews.map(({ id }) => id).sort();
 
-    const kovaa-labStandardApplication =
+    const kovaaLabStandardApplication =
       await getCoreRepository<ApplicationEntity>(
         ApplicationEntity,
       ).findOneOrFail({
@@ -272,11 +272,11 @@ describe('2-42 workspace command 1789744500000 - PurgeSoftDeletedViewsCommand (i
         },
       });
 
-    kovaa-labStandardApplicationId = kovaa-labStandardApplication.id;
+    kovaaLabStandardApplicationId = kovaaLabStandardApplication.id;
 
     await getCoreRepository<ViewEntity>(ViewEntity).update(
       { id: purgedViewId },
-      { applicationId: kovaa-labStandardApplicationId },
+      { applicationId: kovaaLabStandardApplicationId },
     );
 
     await getCoreRepository<ViewEntity>(ViewEntity).softDelete({
@@ -361,7 +361,7 @@ describe('2-42 workspace command 1789744500000 - PurgeSoftDeletedViewsCommand (i
       ViewEntity,
     ).findOneOrFail({ where: { id: purgedViewId }, withDeleted: true });
 
-    expect(purgedViewBeforeRun.applicationId).toBe(kovaa-labStandardApplicationId);
+    expect(purgedViewBeforeRun.applicationId).toBe(kovaaLabStandardApplicationId);
 
     await runCommand();
     await runCommand();

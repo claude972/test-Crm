@@ -18,7 +18,7 @@ const APPLICATION_PUBLIC_DOMAIN = 'forwarded-headers-app.example.com';
 
 const CUSTOM_HEADER_NAME = 'x-custom-header';
 const CUSTOM_HEADER_VALUE = 'custom-value';
-const SESSION_COOKIE = 'kovaa-lab_session=raw-session-token';
+const SESSION_COOKIE = 'kovaaLab_session=raw-session-token';
 
 const ECHO_HEADERS_BUILT_HANDLER_CODE = `export const main = async (event) => event.headers;
 `;

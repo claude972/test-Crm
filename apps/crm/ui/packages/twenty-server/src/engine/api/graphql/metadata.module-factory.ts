@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/node';
 import GraphQLJSON from 'graphql-type-json';
 import { ApiPath } from 'kovaa-lab-shared/types';
 
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
 
 import { METADATA_GRAPHQL_OPERATIONS_TO_CACHE } from 'src/engine/api/graphql/graphql-config/constants/metadata-graphql-operations-to-cache.constant';
 import { useCachedMetadata } from 'src/engine/api/graphql/graphql-config/hooks/use-cached-metadata';
@@ -18,14 +18,14 @@ import { useGraphQLErrorHandlerHook } from 'src/engine/core-modules/graphql/hook
 import { useValidateGraphqlQueryComplexity } from 'src/engine/core-modules/graphql/hooks/use-validate-graphql-query-complexity.hook';
 import { type I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { type MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type DataloaderService } from 'src/engine/dataloaders/dataloader.service';
 import { renderApolloPlayground } from 'src/engine/utils/render-apollo-playground.util';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { ModulesModule } from 'src/modules/modules.module';
 
 export const metadataModuleFactory = async (
-  kovaa-labConfigService: KovaaLab CRMConfigService,
+  kovaaLabConfigService: KovaaLabCRMConfigService,
   exceptionHandlerService: ExceptionHandlerService,
   dataloaderService: DataloaderService,
   cacheStorageService: CacheStorageService,
@@ -51,7 +51,7 @@ export const metadataModuleFactory = async (
         metricsService: metricsService,
         exceptionHandlerService,
         i18nService,
-        kovaa-labConfigService,
+        kovaaLabConfigService,
       }),
       useCachedMetadata({
         cacheGetter: cacheStorageService.get.bind(cacheStorageService),
@@ -63,10 +63,10 @@ export const metadataModuleFactory = async (
           ),
       }),
       useDisableIntrospectionAndSuggestionsForUnauthenticatedUsers(
-        kovaa-labConfigService.get('NODE_ENV') === NodeEnvironment.PRODUCTION,
+        kovaaLabConfigService.get('NODE_ENV') === NodeEnvironment.PRODUCTION,
       ),
       useValidateGraphqlQueryComplexity({
-        maximumAllowedFields: kovaa-labConfigService.get('GRAPHQL_MAX_FIELDS'),
+        maximumAllowedFields: kovaaLabConfigService.get('GRAPHQL_MAX_FIELDS'),
         maximumAllowedRootResolvers: 10,
         maximumAllowedNestedFields: 10,
         checkDuplicateRootResolvers: true,
@@ -78,7 +78,7 @@ export const metadataModuleFactory = async (
     }),
   };
 
-  if (kovaa-labConfigService.get('NODE_ENV') === NodeEnvironment.DEVELOPMENT) {
+  if (kovaaLabConfigService.get('NODE_ENV') === NodeEnvironment.DEVELOPMENT) {
     config.renderGraphiQL = () => {
       return renderApolloPlayground({ path: ApiPath.Metadata });
     };

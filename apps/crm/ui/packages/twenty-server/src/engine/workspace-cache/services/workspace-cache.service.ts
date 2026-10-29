@@ -21,8 +21,8 @@ import { PUBLISH_WORKSPACE_CACHE_SCRIPT } from 'src/engine/workspace-cache/const
 import { InjectCacheStorage } from 'src/engine/core-modules/cache-storage/decorators/cache-storage.decorator';
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { PromiseMemoizer } from 'src/engine/kovaa-lab-orm/storage/promise-memoizer.storage';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { PromiseMemoizer } from 'src/engine/twenty-orm/storage/promise-memoizer.storage';
 import {
   WORKSPACE_CACHE_KEY,
   WORKSPACE_CACHE_OPTIONS,
@@ -134,7 +134,7 @@ export class WorkspaceCacheService implements OnModuleInit, OnModuleDestroy {
     private readonly discoveryService: DiscoveryService,
     private readonly reflector: Reflector,
     private readonly cacheMetricsService: WorkspaceCacheMetricsService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async onModuleInit() {
@@ -498,7 +498,7 @@ export class WorkspaceCacheService implements OnModuleInit, OnModuleDestroy {
       entries: invalidatedKeys.map(({ keyName, expectedHash }) => ({
         key: `${this.buildCacheKey(workspaceId, keyName)}:hash`,
         value: expectedHash,
-        ttl: this.kovaa-labConfigService.get('CACHE_STORAGE_TTL') * 1000,
+        ttl: this.kovaaLabConfigService.get('CACHE_STORAGE_TTL') * 1000,
       })),
       keysToDelete: cacheKeyNames.map(
         (keyName) => `${this.buildCacheKey(workspaceId, keyName)}:data`,
@@ -754,7 +754,7 @@ export class WorkspaceCacheService implements OnModuleInit, OnModuleDestroy {
     if (computed.length > 0) {
       const redisWriteStartedAt = performance.now();
       const cacheTtlMs =
-        this.kovaa-labConfigService.get('CACHE_STORAGE_TTL') * 1000;
+        this.kovaaLabConfigService.get('CACHE_STORAGE_TTL') * 1000;
       const publishArgumentsByEntry = computed.map(
         ({ keyName, data, expectedHash, hashToPublish }) => {
           const serializedExpectedHash = isDefined(expectedHash)

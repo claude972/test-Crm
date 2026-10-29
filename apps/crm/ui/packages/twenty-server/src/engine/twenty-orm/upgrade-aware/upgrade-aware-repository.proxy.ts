@@ -5,8 +5,8 @@ import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { type EntityMetadata } from 'typeorm/metadata/EntityMetadata';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type UpgradeAwareRepositoryState } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-repository-state';
-import { UpgradeUnavailableEntityWriteException } from 'src/engine/kovaa-lab-orm/upgrade-aware/exceptions/upgrade-unavailable-entity-write.exception';
+import { type UpgradeAwareRepositoryState } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-repository-state';
+import { UpgradeUnavailableEntityWriteException } from 'src/engine/twenty-orm/upgrade-aware/exceptions/upgrade-unavailable-entity-write.exception';
 
 const logger = new Logger('UpgradeAwareRepositoryProxy');
 

@@ -6,23 +6,23 @@ import { GoogleRecaptchaDriver } from 'src/engine/core-modules/captcha/drivers/g
 import { TurnstileDriver } from 'src/engine/core-modules/captcha/drivers/turnstile.driver';
 import { CaptchaDriverType } from 'src/engine/core-modules/captcha/interfaces';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { DriverFactoryBase } from 'src/engine/core-modules/kovaa-lab-config/dynamic-factory.base';
-import { ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
-import { ConfigGroupHashService } from 'src/engine/core-modules/kovaa-lab-config/services/config-group-hash.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { DriverFactoryBase } from 'src/engine/core-modules/twenty-config/dynamic-factory.base';
+import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
+import { ConfigGroupHashService } from 'src/engine/core-modules/twenty-config/services/config-group-hash.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class CaptchaDriverFactory extends DriverFactoryBase<CaptchaDriver | null> {
   constructor(
-    kovaa-labConfigService: KovaaLab CRMConfigService,
+    kovaaLabConfigService: KovaaLabCRMConfigService,
     configGroupHashService: ConfigGroupHashService,
     private readonly secureHttpClientService: SecureHttpClientService,
   ) {
-    super(kovaa-labConfigService, configGroupHashService);
+    super(kovaaLabConfigService, configGroupHashService);
   }
 
   protected buildConfigKey(): string {
-    const driver = this.kovaa-labConfigService.get('CAPTCHA_DRIVER');
+    const driver = this.kovaaLabConfigService.get('CAPTCHA_DRIVER');
 
     if (!driver) {
       return 'disabled';
@@ -32,9 +32,9 @@ export class CaptchaDriverFactory extends DriverFactoryBase<CaptchaDriver | null
   }
 
   protected createDriver(): CaptchaDriver | null {
-    const driver = this.kovaa-labConfigService.get('CAPTCHA_DRIVER');
-    const siteKey = this.kovaa-labConfigService.get('CAPTCHA_SITE_KEY');
-    const secretKey = this.kovaa-labConfigService.get('CAPTCHA_SECRET_KEY');
+    const driver = this.kovaaLabConfigService.get('CAPTCHA_DRIVER');
+    const siteKey = this.kovaaLabConfigService.get('CAPTCHA_SITE_KEY');
+    const secretKey = this.kovaaLabConfigService.get('CAPTCHA_SECRET_KEY');
 
     if (!driver) {
       return null;
@@ -70,7 +70,7 @@ export class CaptchaDriverFactory extends DriverFactoryBase<CaptchaDriver | null
   }
 
   getCurrentDriver(): CaptchaDriver | null {
-    const driver = this.kovaa-labConfigService.get('CAPTCHA_DRIVER');
+    const driver = this.kovaaLabConfigService.get('CAPTCHA_DRIVER');
 
     if (!driver) {
       return null;

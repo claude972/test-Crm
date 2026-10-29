@@ -1,6 +1,6 @@
 import { type Milliseconds } from 'cache-manager';
 
-import { type CacheKey } from 'src/engine/kovaa-lab-orm/storage/types/cache-key.type';
+import { type CacheKey } from 'src/engine/twenty-orm/storage/types/cache-key.type';
 
 type AsyncFactoryCallback<T> = () => Promise<T | null>;
 

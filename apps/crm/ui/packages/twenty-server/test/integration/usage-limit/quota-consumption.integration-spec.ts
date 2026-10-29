@@ -29,7 +29,7 @@ import { UserCreditsFallback } from 'src/engine/core-modules/billing/enums/billi
 import { type CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { type MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type CreateUsageLimitInput } from 'src/engine/core-modules/usage-limit/dtos/create-usage-limit.input';
 import { type UsageLimitEntitlementService } from 'src/engine/core-modules/usage-limit/services/usage-limit-entitlement.service';
 import { type UsageLimitQuotaService } from 'src/engine/core-modules/usage-limit/services/usage-limit-quota.service';
@@ -839,8 +839,8 @@ describe('Usage quota consumption', () => {
 
     beforeAll(async () => {
       emailDailyLimit = Number(
-        getAppProviderByClassName<KovaaLab CRMConfigService>(
-          'KovaaLab CRMConfigService',
+        getAppProviderByClassName<KovaaLabCRMConfigService>(
+          'KovaaLabCRMConfigService',
         ).get('EMAIL_SEND_WORKSPACE_DAILY_LIMIT'),
       );
 
@@ -1079,13 +1079,13 @@ describe('Usage quota consumption', () => {
         );
 
       beforeAll(async () => {
-        const kovaa-labConfigService =
-          getAppProviderByClassName<KovaaLab CRMConfigService>('KovaaLab CRMConfigService');
-        const readConfig = kovaa-labConfigService.get.bind(kovaa-labConfigService);
+        const kovaaLabConfigService =
+          getAppProviderByClassName<KovaaLabCRMConfigService>('KovaaLabCRMConfigService');
+        const readConfig = kovaaLabConfigService.get.bind(kovaaLabConfigService);
         const periodStart = startOfMonth(new Date());
 
         jest
-          .spyOn(kovaa-labConfigService, 'get')
+          .spyOn(kovaaLabConfigService, 'get')
           .mockImplementation((key) =>
             key === 'AI_USER_CREDITS_LIMIT'
               ? USER_CREDITS_LIMIT_MICRO

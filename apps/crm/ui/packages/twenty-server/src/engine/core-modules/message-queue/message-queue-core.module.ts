@@ -119,7 +119,7 @@ export class MessageQueueCoreModule extends ConfigurableModuleClass {
         return new BullMQDriver(
           config.options,
           config.metricsService,
-          config.kovaa-labConfigService,
+          config.kovaaLabConfigService,
           config.eventEmitter,
         );
       }

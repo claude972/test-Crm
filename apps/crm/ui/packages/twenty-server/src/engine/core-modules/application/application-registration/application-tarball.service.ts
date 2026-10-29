@@ -42,8 +42,8 @@ import {
 import { FILE_STATUS } from 'src/engine/core-modules/file/types/file-status.type';
 import { findReservedVariableNamesInApplicationManifest } from 'src/engine/core-modules/application/utils/find-reserved-variable-names-in-application-manifest.util';
 import { removeFileFolderFromFileEntityPath } from 'src/engine/core-modules/file/utils/remove-file-folder-from-file-entity-path.utils';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import type { ApplicationManifest, Manifest } from 'kovaa-lab-shared/application';
 
 const TARBALL_FILE_NAME = 'app.tar.gz';
@@ -57,7 +57,7 @@ const APPLICATION_TARBALL_PUBLISH_LOCK_OPTIONS = {
 type ExtractedTarball = {
   contentDir: string;
   manifest: { application: ApplicationManifest };
-  packageJson: { version: string; engines?: { kovaa-lab?: string } } | null;
+  packageJson: { version: string; engines?: { 'kovaa-lab'?: string } } | null;
 };
 
 type RegisterExtractedTarballParams = {
@@ -456,7 +456,7 @@ export class ApplicationTarballService {
 
     const packageJson = await readJsonFile<{
       version: string;
-      engines?: { kovaa-lab?: string };
+      engines?: { 'kovaa-lab'?: string };
     }>(contentDir, 'package.json');
 
     if (manifest === null) {
@@ -502,7 +502,7 @@ export class ApplicationTarballService {
 
     const versionValidation =
       await this.applicationVersionValidationService.validateServerCompatibility(
-        packageJson?.engines?.kovaa-lab,
+        packageJson?.engines?.['kovaa-lab'],
       );
 
     if (!versionValidation.compatible) {
@@ -612,7 +612,7 @@ export class ApplicationTarballService {
     ownerWorkspaceId: string,
   ): Promise<string> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId: ownerWorkspaceId },
       );
 

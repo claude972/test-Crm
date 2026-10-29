@@ -21,7 +21,7 @@ import { readIsPersonEnrichmentEnabled } from 'src/engine/core-modules/company-e
 import { toWorkspacePersonEnrichment } from 'src/engine/core-modules/company-enrichment/utils/to-workspace-person-enrichment.util';
 import { KeyValuePairType } from 'src/engine/core-modules/key-value-pair/key-value-pair.entity';
 import { KeyValuePairService } from 'src/engine/core-modules/key-value-pair/key-value-pair.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 
 @Injectable()
@@ -32,7 +32,7 @@ export class PersonEnrichmentService {
   constructor(
     private readonly userWorkspaceService: UserWorkspaceService,
     private readonly peopleDataLabsClientService: PeopleDataLabsClientService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly enrichmentThrottleService: EnrichmentThrottleService,
     private readonly keyValuePairService: KeyValuePairService<PersonEnrichmentAttemptKeyValueTypeMap>,
   ) {}
@@ -72,7 +72,7 @@ export class PersonEnrichmentService {
     email: string;
     workspaceId: string;
   }): Promise<WorkspaceEnrichmentResult<WorkspacePersonEnrichment>> {
-    if (!readIsPersonEnrichmentEnabled(this.kovaa-labConfigService)) {
+    if (!readIsPersonEnrichmentEnabled(this.kovaaLabConfigService)) {
       return { outcome: 'unavailable', enrichment: null };
     }
 

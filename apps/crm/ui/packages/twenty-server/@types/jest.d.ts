@@ -4,7 +4,6 @@ import { type INestApplication } from '@nestjs/common';
 import 'jest';
 import { type DataSource } from 'typeorm';
 
-import { type DataSourceService } from 'src/engine/metadata-modules/data-source/data-source.service';
 
 declare module '@jest/types' {
   namespace Config {
@@ -35,7 +34,6 @@ declare global {
   var testDataSource: DataSource;
   var workflowTestServices: ReturnType<typeof createWorkflowTestServices>;
   var app: INestApplication;
-  var dataSourceService: DataSourceService;
   var jobDrainState: { lastStalledFingerprint: string | null };
 }
 

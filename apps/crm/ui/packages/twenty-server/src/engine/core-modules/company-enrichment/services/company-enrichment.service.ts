@@ -21,7 +21,7 @@ import { toWorkspaceCompanyEnrichment } from 'src/engine/core-modules/company-en
 import { KeyValuePairType } from 'src/engine/core-modules/key-value-pair/key-value-pair.entity';
 import { KeyValuePairService } from 'src/engine/core-modules/key-value-pair/key-value-pair.service';
 import { readIsCompanyEnrichmentEnabled } from 'src/engine/core-modules/company-enrichment/utils/read-is-company-enrichment-enabled.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { getDomainFromEmail } from 'src/utils/get-domain-from-email';
 import { isWorkDomain } from 'src/utils/is-work-email';
@@ -34,7 +34,7 @@ export class CompanyEnrichmentService {
   constructor(
     private readonly userWorkspaceService: UserWorkspaceService,
     private readonly peopleDataLabsClientService: PeopleDataLabsClientService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly enrichmentThrottleService: EnrichmentThrottleService,
     private readonly keyValuePairService: KeyValuePairService<CompanyEnrichmentAttemptKeyValueTypeMap>,
   ) {}
@@ -101,7 +101,7 @@ export class CompanyEnrichmentService {
   }
 
   private hasEnrichmentConsumer(): boolean {
-    return readIsCompanyEnrichmentEnabled(this.kovaa-labConfigService);
+    return readIsCompanyEnrichmentEnabled(this.kovaaLabConfigService);
   }
 
   private resolveEnrichmentResult({

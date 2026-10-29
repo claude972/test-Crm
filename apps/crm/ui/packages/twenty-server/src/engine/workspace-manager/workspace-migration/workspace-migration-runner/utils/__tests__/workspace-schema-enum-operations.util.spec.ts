@@ -2,7 +2,7 @@ import { FieldMetadataType } from 'kovaa-lab-shared/types';
 import { type QueryRunner } from 'typeorm';
 
 import { getFlatFieldMetadataMock } from 'src/engine/metadata-modules/flat-field-metadata/__mocks__/get-flat-field-metadata.mock';
-import { type WorkspaceSchemaManagerService } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/workspace-schema-manager.service';
+import { type WorkspaceSchemaManagerService } from 'src/engine/twenty-orm/workspace-schema-manager/workspace-schema-manager.service';
 import { WorkspaceMigrationActionExecutionException } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/exceptions/workspace-migration-action-execution.exception';
 import {
   collectEnumOperationsForField,

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe KovaaLab CharHub do
+RSpec.describe ChatwootHub do
   describe '.base_url' do
     it 'uses the static hub url outside development for enterprise edition' do
       with_modified_env KOVAALAB_HUB_URL: 'https://custom.example.com' do

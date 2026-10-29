@@ -1,4 +1,4 @@
-class KovaaLab CharMarkdownRenderer
+class ChatwootMarkdownRenderer
   def initialize(content)
     @content = content
   end

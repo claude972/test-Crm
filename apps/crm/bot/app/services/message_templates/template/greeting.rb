@@ -6,7 +6,7 @@ class MessageTemplates::Template::Greeting
       conversation.messages.create!(greeting_message_params)
     end
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: conversation.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: conversation.account).capture_exception
     true
   end
 

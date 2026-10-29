@@ -56,7 +56,7 @@ Rails.application.routes.draw do
         end
 
         scope module: :accounts do
-          if KovaaLab CharApp.enterprise?
+          if ChatwootApp.enterprise?
             resources :monitors, only: [:index, :show, :create, :update, :destroy] do
               collection do
                 post :preview
@@ -178,7 +178,7 @@ Rails.application.routes.draw do
             end
           end
           resources :campaigns, only: [:index, :create, :show, :update, :destroy] do
-            if KovaaLab CharApp.enterprise?
+            if ChatwootApp.enterprise?
               get 'analytics/metrics', to: 'campaigns/analytics#metrics'
               get 'analytics/contacts', to: 'campaigns/analytics#contacts'
             end
@@ -195,9 +195,9 @@ Rails.application.routes.draw do
               post :filter
             end
             scope module: :conversations do
-              resources :campaign_history, only: [:index] if KovaaLab CharApp.enterprise?
+              resources :campaign_history, only: [:index] if ChatwootApp.enterprise?
               resources :messages, only: [:index, :create, :destroy, :update] do
-                post :auto_translate, on: :collection if KovaaLab CharApp.enterprise?
+                post :auto_translate, on: :collection if ChatwootApp.enterprise?
                 member do
                   post :translate
                   post :retry
@@ -227,7 +227,7 @@ Rails.application.routes.draw do
               post :destroy_custom_attributes
               get :attachments
               get :inbox_assistant
-              get :reporting_events if KovaaLab CharApp.enterprise?
+              get :reporting_events if ChatwootApp.enterprise?
             end
           end
 
@@ -260,7 +260,7 @@ Rails.application.routes.draw do
                 end
               end
               resources :notes, only: [:index]
-              resource :enrichment, only: [:create] if KovaaLab CharApp.enterprise?
+              resource :enrichment, only: [:create] if ChatwootApp.enterprise?
             end
           end
           resources :contacts, only: [:index, :show, :update, :create, :destroy] do
@@ -282,7 +282,7 @@ Rails.application.routes.draw do
               resources :labels, only: [:create, :index]
               resources :notes
               get :attachments, to: 'attachments#index'
-              post :call, on: :member, to: 'calls#create' if KovaaLab CharApp.enterprise?
+              post :call, on: :member, to: 'calls#create' if ChatwootApp.enterprise?
             end
           end
           resources :data_imports, only: [:index, :show, :create] do
@@ -303,7 +303,7 @@ Rails.application.routes.draw do
               get :download
             end
             member do
-              patch :update if KovaaLab CharApp.enterprise?
+              patch :update if ChatwootApp.enterprise?
             end
           end
           resources :applied_slas, only: [:index] do
@@ -312,9 +312,9 @@ Rails.application.routes.draw do
               get :download
             end
           end
-          resources :reporting_events, only: [:index] if KovaaLab CharApp.enterprise?
+          resources :reporting_events, only: [:index] if ChatwootApp.enterprise?
 
-          if KovaaLab CharApp.enterprise?
+          if ChatwootApp.enterprise?
             resources :calls, only: [:index]
             resources :whatsapp_calls, only: [:show] do
               member do
@@ -345,7 +345,7 @@ Rails.application.routes.draw do
             post :register_webhook, on: :member
             post :reset_secret, on: :member
             post :rotate_hmac_token, on: :member
-            if KovaaLab CharApp.enterprise?
+            if ChatwootApp.enterprise?
               resource :conference, only: %i[create destroy], controller: 'conference' do
                 get :token, on: :member
               end
@@ -426,7 +426,7 @@ Rails.application.routes.draw do
 
           namespace :whatsapp do
             resource :authorization, only: [:create]
-            resource :access_request, only: [:create] if KovaaLab CharApp.enterprise?
+            resource :access_request, only: [:create] if ChatwootApp.enterprise?
             post 'manual/preview', to: 'manual_setup#preview'
             post 'manual/connect', to: 'manual_setup#connect'
             get 'manual/:inbox_id/webhook_status', to: 'manual_setup#webhook_status'
@@ -617,7 +617,7 @@ Rails.application.routes.draw do
     end
   end
 
-  if KovaaLab CharApp.enterprise?
+  if ChatwootApp.enterprise?
     namespace :enterprise, defaults: { format: 'json' } do
       namespace :api do
         namespace :v1 do
@@ -752,7 +752,7 @@ Rails.application.routes.draw do
     resources :callback, only: [:create]
     resources :delivery_status, only: [:create]
 
-    if KovaaLab CharApp.enterprise?
+    if ChatwootApp.enterprise?
       post 'voice/call/:phone', to: 'voice#call_twiml', as: :voice_call
       get 'voice/wait/:phone', to: 'voice#wait_twiml', as: :voice_wait
       post 'voice/status/:phone', to: 'voice#status', as: :voice_status

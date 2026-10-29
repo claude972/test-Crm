@@ -10,7 +10,7 @@ import {
 import {
   ConfigVariableException,
   ConfigVariableExceptionCode,
-} from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.exception';
+} from 'src/engine/core-modules/twenty-config/twenty-config.exception';
 
 @Catch(ConfigVariableException)
 export class ConfigVariableGraphqlApiExceptionFilter implements ExceptionFilter {

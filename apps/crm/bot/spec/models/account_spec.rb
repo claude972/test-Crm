@@ -44,9 +44,9 @@ RSpec.describe Account do
   describe 'usage_limits' do
     let(:account) { create(:account) }
 
-    it 'returns KovaaLab CharApp.max limits' do
-      expect(account.usage_limits[:agents]).to eq(KovaaLab CharApp.max_limit)
-      expect(account.usage_limits[:inboxes]).to eq(KovaaLab CharApp.max_limit)
+    it 'returns ChatwootApp.max limits' do
+      expect(account.usage_limits[:agents]).to eq(ChatwootApp.max_limit)
+      expect(account.usage_limits[:inboxes]).to eq(ChatwootApp.max_limit)
     end
   end
 
@@ -63,7 +63,7 @@ RSpec.describe Account do
     let(:account) { create(:account) }
 
     before do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
     end
 
     it 'returns false by default' do
@@ -81,7 +81,7 @@ RSpec.describe Account do
 
     it 'returns false when MFA feature is unavailable' do
       account.update!(enforce_mfa: true)
-      allow(KovaaLab Char).to receive(:mfa_enabled?).and_return(false)
+      allow(Chatwoot).to receive(:mfa_enabled?).and_return(false)
       expect(account.enforce_mfa?).to be false
     end
   end

@@ -3,8 +3,8 @@ import { TWO_NESTED_ONE_TO_MANY_QUERY_GQL_FIELDS } from 'test/integration/graphq
 import { findManyOperationFactory } from 'test/integration/graphql/utils/find-many-operation-factory.util';
 import { groupByOperationFactory } from 'test/integration/graphql/utils/group-by-operation-factory.util';
 import { makeGraphqlApiRequest } from 'test/integration/graphql/utils/make-graphql-api-request.util';
-import { createConfigVariable } from 'test/integration/kovaa-lab-config/utils/create-config-variable.util';
-import { deleteConfigVariable } from 'test/integration/kovaa-lab-config/utils/delete-config-variable.util';
+import { createConfigVariable } from 'test/integration/twenty-config/utils/create-config-variable.util';
+import { deleteConfigVariable } from 'test/integration/twenty-config/utils/delete-config-variable.util';
 
 describe('Query Complexity - Failing Scenarios', () => {
   beforeAll(async () => {

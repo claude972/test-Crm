@@ -1,15 +1,15 @@
 import 'reflect-metadata';
-import { KovaaLab CRMAllVersion } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-all-versions.constant';
+import { KovaaLabCRMAllVersion } from 'src/engine/core-modules/upgrade/constants/twenty-all-versions.constant';
 
 export type RegisteredWorkspaceCommandMetadata = {
-  version: KovaaLab CRMAllVersion;
+  version: KovaaLabCRMAllVersion;
   timestamp: number;
 };
 
 const REGISTERED_WORKSPACE_COMMAND_KEY = 'REGISTERED_WORKSPACE_COMMAND';
 
 export const RegisteredWorkspaceCommand =
-  (version: KovaaLab CRMAllVersion, timestamp: number): ClassDecorator =>
+  (version: KovaaLabCRMAllVersion, timestamp: number): ClassDecorator =>
   (target) => {
     Reflect.defineMetadata(
       REGISTERED_WORKSPACE_COMMAND_KEY,

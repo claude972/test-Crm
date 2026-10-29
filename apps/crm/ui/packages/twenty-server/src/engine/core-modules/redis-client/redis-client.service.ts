@@ -4,7 +4,7 @@ import IORedis from 'ioredis';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class RedisClientService implements OnModuleDestroy {
@@ -12,13 +12,13 @@ export class RedisClientService implements OnModuleDestroy {
   private redisQueueClient: IORedis | null = null;
   private redisPubSubClient: RedisPubSub | null = null;
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   getQueueClient() {
     if (!this.redisQueueClient) {
       const redisQueueUrl =
-        this.kovaa-labConfigService.get('REDIS_QUEUE_URL') ??
-        this.kovaa-labConfigService.get('REDIS_URL');
+        this.kovaaLabConfigService.get('REDIS_QUEUE_URL') ??
+        this.kovaaLabConfigService.get('REDIS_URL');
 
       if (!redisQueueUrl) {
         throw new Error('REDIS_QUEUE_URL or REDIS_URL must be defined');
@@ -33,12 +33,12 @@ export class RedisClientService implements OnModuleDestroy {
   }
 
   getQueuePrefix() {
-    return this.kovaa-labConfigService.get('REDIS_QUEUE_PREFIX');
+    return this.kovaaLabConfigService.get('REDIS_QUEUE_PREFIX');
   }
 
   getClient() {
     if (!this.redisClient) {
-      const redisUrl = this.kovaa-labConfigService.get('REDIS_URL');
+      const redisUrl = this.kovaaLabConfigService.get('REDIS_URL');
 
       if (!redisUrl) {
         throw new Error('REDIS_URL must be defined');

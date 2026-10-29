@@ -1,15 +1,15 @@
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { buildColumnResultAlias } from 'src/engine/kovaa-lab-orm/sql/utils/build-column-result-alias.util';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { buildColumnResultAlias } from 'src/engine/twenty-orm/sql/utils/build-column-result-alias.util';
 import {
   quoteColumn,
   renderWhereExpressionWithRowAccess,
   type WhereClause,
-} from 'src/engine/kovaa-lab-orm/sql/utils/build-select-statement.util';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/sql/utils/build-select-statement.util';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 export type MutationKind = 'update' | 'delete' | 'soft-delete' | 'restore';
 
@@ -95,9 +95,9 @@ export const buildMutationStatement = (
   }
 
   if (state.setClauses.length === 0) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       `An UPDATE on "${state.tableShape.nameSingular}" needs at least one column to set`,
-      KovaaLab CRMOrmExceptionCode.INVALID_QUERY,
+      KovaaLabCRMOrmExceptionCode.INVALID_QUERY,
     );
   }
 

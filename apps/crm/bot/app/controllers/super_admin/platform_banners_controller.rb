@@ -1,9 +1,9 @@
 class SuperAdmin::PlatformBannersController < SuperAdmin::ApplicationController
-  before_action :ensure_kovaa-lab_cloud
+  before_action :ensure_chatwoot_cloud
 
   private
 
-  def ensure_kovaa-lab_cloud
-    raise ActionController::RoutingError, 'Not Found' unless KovaaLab CharApp.kovaa-lab_cloud?
+  def ensure_chatwoot_cloud
+    raise ActionController::RoutingError, 'Not Found' unless ChatwootApp.chatwoot_cloud?
   end
 end

@@ -79,8 +79,8 @@ export class FollowWorkflowVisibilityOnRunsCommand extends ProvisionedWorkspaceC
 
     await this.grantWorkflowRunVisibility(workspaceId);
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -98,7 +98,7 @@ export class FollowWorkflowVisibilityOnRunsCommand extends ProvisionedWorkspaceC
           workspaceId,
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           allFlatEntityOperationByMetadataName: {
             objectMetadata: {
               flatEntityToCreate: [],
@@ -119,8 +119,8 @@ export class FollowWorkflowVisibilityOnRunsCommand extends ProvisionedWorkspaceC
       await this.workspaceCacheService.getOrRecompute(workspaceId, [
         'flatObjectMetadataMaps',
       ]);
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -143,7 +143,7 @@ export class FollowWorkflowVisibilityOnRunsCommand extends ProvisionedWorkspaceC
           workspaceId,
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           allFlatEntityOperationByMetadataName: {
             objectMetadata: {
               flatEntityToCreate: [],

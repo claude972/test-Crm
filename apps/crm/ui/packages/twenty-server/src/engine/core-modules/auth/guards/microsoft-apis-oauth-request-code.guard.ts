@@ -13,7 +13,7 @@ import { MicrosoftAPIsOauthRequestCodeStrategy } from 'src/engine/core-modules/a
 import { TransientTokenService } from 'src/engine/core-modules/auth/token/services/transient-token.service';
 import { setRequestExtraParams } from 'src/engine/core-modules/auth/utils/google-apis-set-request-extra-params.util';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 
@@ -22,7 +22,7 @@ export class MicrosoftAPIsOauthRequestCodeGuard extends AuthGuard(
   'microsoft-apis',
 ) {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly transientTokenService: TransientTokenService,
     private readonly connectedAccountOAuthService: ConnectedAccountOAuthService,
     private readonly guardRedirectService: GuardRedirectService,
@@ -40,8 +40,8 @@ export class MicrosoftAPIsOauthRequestCodeGuard extends AuthGuard(
 
     try {
       if (
-        !this.kovaa-labConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED') &&
-        !this.kovaa-labConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED')
+        !this.kovaaLabConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED') &&
+        !this.kovaaLabConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED')
       ) {
         throw new AuthException(
           'Microsoft apis auth is not enabled',
@@ -65,7 +65,7 @@ export class MicrosoftAPIsOauthRequestCodeGuard extends AuthGuard(
         workspaceId,
       });
 
-      new MicrosoftAPIsOauthRequestCodeStrategy(this.kovaa-labConfigService);
+      new MicrosoftAPIsOauthRequestCodeStrategy(this.kovaaLabConfigService);
       setRequestExtraParams(request, {
         transientToken: request.query.transientToken,
         redirectLocation: request.query.redirectLocation,

@@ -11,8 +11,8 @@ import {
   WorkflowVersionEntity,
   WorkflowVersionStatus as CoreWorkflowVersionStatus,
 } from 'src/engine/core-modules/workflow/entities/workflow-version.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { PostgresAdvisoryLockService } from 'src/database/typeorm/postgres-advisory-lock.service';
 import { ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { CoreWorkflowAccessService } from 'src/engine/core-modules/workflow/services/core-workflow-access.service';
@@ -83,7 +83,7 @@ export class CoreWorkflowVersionWriteService {
     const universalIdentifier =
       applicationUniversalIdentifier ??
       (
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         )
       ).workspaceCustomFlatApplication.universalIdentifier;
@@ -328,7 +328,7 @@ export class CoreWorkflowVersionWriteService {
     const coreWorkflowVersionId = uuidv4();
 
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 

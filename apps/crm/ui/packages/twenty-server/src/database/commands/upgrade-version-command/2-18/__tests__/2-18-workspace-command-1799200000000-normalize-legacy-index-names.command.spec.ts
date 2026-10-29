@@ -5,7 +5,7 @@ import { doesPhysicalIndexExist } from 'src/database/commands/upgrade-version-co
 import { getPhysicalIndexDefinition } from 'src/database/commands/upgrade-version-command/2-18/utils/get-physical-index-definition.util';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { type WorkspaceIteratorService } from 'src/database/commands/command-runners/workspace-iterator.service';
-import { type WorkspaceSchemaManagerService } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/workspace-schema-manager.service';
+import { type WorkspaceSchemaManagerService } from 'src/engine/twenty-orm/workspace-schema-manager/workspace-schema-manager.service';
 import { generateFlatIndexMetadataWithNameOrThrow } from 'src/engine/metadata-modules/index-metadata/utils/generate-flat-index.util';
 import {
   deleteIndexMetadata,

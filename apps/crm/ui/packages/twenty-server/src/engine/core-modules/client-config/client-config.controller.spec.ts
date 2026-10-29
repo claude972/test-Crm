@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing';
 
-import { SupportDriver } from 'src/engine/core-modules/kovaa-lab-config/interfaces/support.interface';
+import { SupportDriver } from 'src/engine/core-modules/twenty-config/interfaces/support.interface';
 
 import { ClientConfigService } from 'src/engine/core-modules/client-config/services/client-config.service';
 import { ModelFamily } from 'src/engine/metadata-modules/ai/ai-models/types/model-family.enum';
@@ -113,7 +113,7 @@ describe('ClientConfigController', () => {
         isBookCallOnboardingStepEnabled: false,
         isCompanyEnrichmentEnabled: false,
         isTwoFactorAuthenticationEnabled: false,
-        allowRequestsToKovaaLab CRMIcons: true,
+        allowRequestsToKovaaLabCRMIcons: true,
         isCloudflareIntegrationEnabled: false,
         isClickHouseConfigured: false,
         isWorkspaceSchemaDDLLocked: false,

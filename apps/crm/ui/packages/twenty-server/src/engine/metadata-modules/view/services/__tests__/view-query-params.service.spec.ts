@@ -7,7 +7,7 @@ import {
 import { type WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { ViewQueryParamsService } from 'src/engine/metadata-modules/view/services/view-query-params.service';
 import { type ViewService } from 'src/engine/metadata-modules/view/services/view.service';
-import { type WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 
 jest.mock('src/engine/metadata-modules/view/services/view.service', () => ({
   ViewService: class {},
@@ -18,7 +18,7 @@ jest.mock(
     WorkspaceManyOrAllFlatEntityMapsCacheService: class {},
   }),
 );
-jest.mock('src/engine/kovaa-lab-orm/workspace-orm.manager', () => ({
+jest.mock('src/engine/twenty-orm/workspace-orm.manager', () => ({
   WorkspaceOrmManager: class {},
 }));
 

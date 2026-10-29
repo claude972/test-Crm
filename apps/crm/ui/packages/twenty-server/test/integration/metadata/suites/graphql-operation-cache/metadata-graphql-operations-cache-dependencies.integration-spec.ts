@@ -10,7 +10,7 @@ import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/
 import { type WorkspaceCacheOrDerivedCacheKeyName } from 'src/engine/workspace-cache/types/workspace-cache-key.type';
 
 // Mirrors OBJECT_METADATA_FRAGMENT from kovaa-lab-front
-// (packages/kovaa-lab-front/src/modules/object-metadata/graphql/fragment.ts):
+// (packages/twenty-front/src/modules/object-metadata/graphql/fragment.ts):
 // the recorded resolver reads are only as complete as this selection set.
 const OBJECT_METADATA_ITEMS_QUERY = gql`
   query ObjectMetadataItems {
@@ -141,7 +141,7 @@ const OBJECT_METADATA_ITEMS_BASELINE_QUERY = gql`
 `;
 
 // Mirrors VIEW_FRAGMENT from kovaa-lab-front
-// (packages/kovaa-lab-front/src/modules/views/graphql/fragments/viewFragment.ts).
+// (packages/twenty-front/src/modules/views/graphql/fragments/viewFragment.ts).
 const FIND_ALL_VIEWS_QUERY = gql`
   query FindAllViews {
     getViews {

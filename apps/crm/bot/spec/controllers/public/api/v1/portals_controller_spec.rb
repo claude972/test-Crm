@@ -31,7 +31,7 @@ RSpec.describe Public::Api::V1::PortalsController, type: :request do
 
       get "/hc/#{portal.slug}/en"
 
-      expect(response.headers['Set-Cookie'].to_s).not_to include('_kovaa-lab_session')
+      expect(response.headers['Set-Cookie'].to_s).not_to include('_chatwoot_session')
     ensure
       ActionController::Base.allow_forgery_protection = previous
     end

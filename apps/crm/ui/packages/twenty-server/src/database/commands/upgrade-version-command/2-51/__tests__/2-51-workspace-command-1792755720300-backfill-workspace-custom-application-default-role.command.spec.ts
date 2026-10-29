@@ -56,7 +56,7 @@ describe('BackfillWorkspaceCustomApplicationDefaultRoleCommand', () => {
     } as unknown as WorkspaceCacheService;
 
     const applicationService = {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest.fn(
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest.fn(
         async () => ({
           workspaceCustomFlatApplication: {
             id: CUSTOM_APPLICATION_ID,

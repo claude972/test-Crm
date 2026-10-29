@@ -6,7 +6,7 @@ import { ApiPath } from 'kovaa-lab-shared/types';
 import { ALL_OAUTH_SCOPES } from 'src/engine/core-modules/application/application-oauth/constants/oauth-scopes';
 import { ApplicationRegistrationService } from 'src/engine/core-modules/application/application-registration/application-registration.service';
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 import { cleanServerUrl } from 'src/utils/clean-server-url';
@@ -15,7 +15,7 @@ import { getRequestBaseUrl } from 'src/utils/get-request-base-url.util';
 @Controller(ApiPath.WellKnown)
 export class OAuthDiscoveryController {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly domainServerConfigService: DomainServerConfigService,
     private readonly applicationRegistrationService: ApplicationRegistrationService,
   ) {}
@@ -89,7 +89,7 @@ export class OAuthDiscoveryController {
   }
 
   private isApiHost(request: Request): boolean {
-    const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
+    const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
 
     return request.get('host') === new URL(serverUrl).host;
   }

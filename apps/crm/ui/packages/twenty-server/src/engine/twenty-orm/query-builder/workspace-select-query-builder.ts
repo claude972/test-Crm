@@ -10,10 +10,10 @@ import { InstanceChecker } from 'typeorm/util/InstanceChecker';
 import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfaces/relation-type.interface';
 
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { type QueryExecutor } from 'src/engine/kovaa-lab-orm/executor/types/query-executor.type';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { type QueryExecutor } from 'src/engine/twenty-orm/executor/types/query-executor.type';
 import {
   type FindOptionsLike,
   type ObjectWhereLike,
@@ -23,12 +23,12 @@ import {
   isNegatedWhereFactoryLike,
   isObjectWhereLike,
   isWhereFactoryLike,
-} from 'src/engine/kovaa-lab-orm/query-builder/types/query-builder.type';
-import { WorkspaceMutationQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-mutation-query-builder';
-import { type MutationKind } from 'src/engine/kovaa-lab-orm/sql/utils/build-mutation-statement.util';
-import { buildOrderByClauses } from 'src/engine/kovaa-lab-orm/sql/utils/build-order-by-clauses.util';
-import { collectReferencedColumnNames } from 'src/engine/kovaa-lab-orm/sql/utils/collect-referenced-column-names.util';
-import { compileNamedParameters } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
+} from 'src/engine/twenty-orm/query-builder/types/query-builder.type';
+import { WorkspaceMutationQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-mutation-query-builder';
+import { type MutationKind } from 'src/engine/twenty-orm/sql/utils/build-mutation-statement.util';
+import { buildOrderByClauses } from 'src/engine/twenty-orm/sql/utils/build-order-by-clauses.util';
+import { collectReferencedColumnNames } from 'src/engine/twenty-orm/sql/utils/collect-referenced-column-names.util';
+import { compileNamedParameters } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
 import {
   RESERVED_PARAMETER_NAMES,
   buildCountStatement,
@@ -50,11 +50,11 @@ import {
   type SelectClause,
   type SelectStatementState,
   type WhereClause,
-} from 'src/engine/kovaa-lab-orm/sql/utils/build-select-statement.util';
+} from 'src/engine/twenty-orm/sql/utils/build-select-statement.util';
 import {
   type WorkspaceRelationShape,
   type WorkspaceTableShape,
-} from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
 
 let objectWhereParameterSequence = 0;
@@ -221,9 +221,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
   setParameters(parameters: Record<string, unknown>): this {
     for (const parameterName of Object.keys(parameters)) {
       if (RESERVED_PARAMETER_NAMES.includes(parameterName)) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Parameter name "${parameterName}" is reserved for pagination`,
-          KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+          KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
         );
       }
     }
@@ -396,16 +396,16 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
     const [parentAlias, relationFieldName] = relationPath.split('.');
 
     if (!isDefined(relationFieldName)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Join path "${relationPath}" must be of the form "<alias>.<relationField>"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
     if (alias === this.alias) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Join alias "${alias}" collides with the main query alias`,
-        KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
       );
     }
 
@@ -416,9 +416,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
     const parentTableShape = this.getTableShapeForAlias(parentAlias);
 
     if (!isDefined(parentTableShape)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Join path "${relationPath}" references "${parentAlias}", which is neither the main alias nor a joined alias`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
@@ -426,9 +426,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
       parentTableShape.relationShapeByFieldName[relationFieldName];
 
     if (!isDefined(relationShape)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Relation "${relationFieldName}" does not exist on "${parentTableShape.nameSingular}"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
@@ -493,16 +493,16 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
       const tableShape = this.getTableShapeForAlias(alias);
 
       if (!isDefined(tableShape)) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Selection "${expression}" references "${alias}", which is neither the main alias nor a joined alias`,
-          KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+          KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
         );
       }
 
       if (!isDefined(tableShape.columnShapeByColumnName[columnName])) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Column "${columnName}" does not exist on "${tableShape.nameSingular}"`,
-          KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+          KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
         );
       }
 
@@ -790,17 +790,17 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
     kind: MutationKind,
   ): WorkspaceMutationQueryBuilder {
     if (selectQueryBuilder.joinClauses.length > 0) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `A mutation cannot carry a relation join; rewrite the filter as an "id IN (subquery)" predicate first`,
-        KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+        KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
       );
     }
 
     // Row-level permission predicates are injected on the select path only, so an EXISTS here would be unfiltered
     if (selectQueryBuilder.existsFilterClauses.length > 0) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `A mutation cannot carry a relation filter; rewrite the filter as an "id IN (subquery)" predicate first`,
-        KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+        KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
       );
     }
 
@@ -871,9 +871,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
 
     // Dropping an unreadable condition would widen the query, or make a delete hit every row
     if (typeof condition !== 'string') {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'A where condition must be a SQL string, a where object or a where factory',
-        KovaaLab CRMOrmExceptionCode.INVALID_QUERY,
+        KovaaLabCRMOrmExceptionCode.INVALID_QUERY,
       );
     }
 
@@ -942,9 +942,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
               this.tableShape.columnShapeByColumnName[compositeColumnName],
             )
           ) {
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               `Column "${compositeColumnName}" does not exist on "${this.tableShape.nameSingular}"`,
-              KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+              KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
             );
           }
 
@@ -961,9 +961,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
         continue;
       }
 
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Column "${columnName}" does not exist on "${this.tableShape.nameSingular}"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
       );
     }
 
@@ -982,9 +982,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
       this.tableShape.relationShapeByFieldName[relationFieldName];
 
     if (!isDefined(relationShape)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Unknown relation "${relationFieldName}" on "${this.tableShape.nameSingular}"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
@@ -1029,9 +1029,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
         })?.condition;
 
     if (!isDefined(correlationCondition)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Relation "${relationFieldName}" on "${this.tableShape.nameSingular}" cannot be filtered on because its inverse foreign key could not be resolved`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
@@ -1182,9 +1182,9 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
           return rawSql;
         }
         default:
-          throw new KovaaLab CRMOrmException(
+          throw new KovaaLabCRMOrmException(
             `Object where does not support the "${value.type}" operator on "${columnName}"`,
-            KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+            KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
           );
       }
     }

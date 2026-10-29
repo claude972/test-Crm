@@ -1,15 +1,15 @@
 import { type DynamicModule, Global, Module } from '@nestjs/common';
 
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { CONFIG_VARIABLES_INSTANCE_TOKEN } from 'src/engine/core-modules/kovaa-lab-config/constants/config-variables-instance-tokens.constants';
-import { DatabaseConfigModule } from 'src/engine/core-modules/kovaa-lab-config/drivers/database-config.module';
-import { ConfigGroupHashService } from 'src/engine/core-modules/kovaa-lab-config/services/config-group-hash.service';
-import { ConfigurableModuleClass } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module-definition';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { CONFIG_VARIABLES_INSTANCE_TOKEN } from 'src/engine/core-modules/twenty-config/constants/config-variables-instance-tokens.constants';
+import { DatabaseConfigModule } from 'src/engine/core-modules/twenty-config/drivers/database-config.module';
+import { ConfigGroupHashService } from 'src/engine/core-modules/twenty-config/services/config-group-hash.service';
+import { ConfigurableModuleClass } from 'src/engine/core-modules/twenty-config/twenty-config.module-definition';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Global()
 @Module({})
-export class KovaaLab CRMConfigModule extends ConfigurableModuleClass {
+export class KovaaLabCRMConfigModule extends ConfigurableModuleClass {
   static forRoot(): DynamicModule {
     const isConfigVariablesInDbEnabled =
       process.env.IS_CONFIG_VARIABLES_IN_DB_ENABLED !== 'false';
@@ -19,17 +19,17 @@ export class KovaaLab CRMConfigModule extends ConfigurableModuleClass {
       : [];
 
     return {
-      module: KovaaLab CRMConfigModule,
+      module: KovaaLabCRMConfigModule,
       imports,
       providers: [
-        KovaaLab CRMConfigService,
+        KovaaLabCRMConfigService,
         ConfigGroupHashService,
         {
           provide: CONFIG_VARIABLES_INSTANCE_TOKEN,
           useValue: new ConfigVariables(),
         },
       ],
-      exports: [KovaaLab CRMConfigService, ConfigGroupHashService],
+      exports: [KovaaLabCRMConfigService, ConfigGroupHashService],
     };
   }
 }

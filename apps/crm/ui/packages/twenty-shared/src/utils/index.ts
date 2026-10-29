@@ -385,7 +385,7 @@ export { isSearchableFieldType } from './validation/isSearchableFieldType';
 export { isSupportedViewGroupLoadLimit } from './validation/isSupportedViewGroupLoadLimit';
 export { isTagColor } from './validation/isTagColor';
 export { isValidLocale } from './validation/isValidLocale';
-export { isValidKovaaLab CRMSubdomain } from './validation/isValidKovaaLab CRMSubdomain';
+export { isValidKovaaLabCRMSubdomain } from './validation/isValidTwentySubdomain';
 export { isValidUuid } from './validation/isValidUuid';
 export { isValidVariable } from './validation/isValidVariable';
 export { normalizeLocale } from './validation/normalizeLocale';

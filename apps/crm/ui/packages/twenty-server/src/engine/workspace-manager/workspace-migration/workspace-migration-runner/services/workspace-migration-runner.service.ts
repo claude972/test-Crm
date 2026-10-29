@@ -11,7 +11,7 @@ import { LoggerService } from 'src/engine/core-modules/logger/logger.service';
 import { WORKSPACE_MIGRATION_DURATION_MS_BUCKET_BOUNDARIES } from 'src/engine/core-modules/metrics/constants/workspace-migration-duration-ms-bucket-boundaries.constant';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { AllFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/all-flat-entity-maps.type';
 import { getFlatEntityMapsExceptionContext } from 'src/engine/metadata-modules/flat-entity/utils/get-flat-entity-maps-exception-context.util';
@@ -47,7 +47,7 @@ export class WorkspaceMigrationRunnerService {
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly metricsService: MetricsService,
     private readonly logger: LoggerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly featureFlagService: FeatureFlagService,
     private readonly deferredWorkspaceMigrationActionRunnerService: DeferredWorkspaceMigrationActionRunnerService,
     private readonly inFlightDeferredWorkspaceMigrationActionsService: InFlightDeferredWorkspaceMigrationActionsService,
@@ -247,7 +247,7 @@ export class WorkspaceMigrationRunnerService {
     metadataEvents: MetadataEvent[];
     hasSchemaMetadataChanged: boolean;
   }> => {
-    if (this.kovaa-labConfigService.get('WORKSPACE_SCHEMA_DDL_LOCKED')) {
+    if (this.kovaaLabConfigService.get('WORKSPACE_SCHEMA_DDL_LOCKED')) {
       throw new WorkspaceMigrationRunnerException({
         message:
           'Workspace schema DDL changes are locked. This is typically set during hot upgrades.',

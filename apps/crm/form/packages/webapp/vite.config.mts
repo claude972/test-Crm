@@ -70,7 +70,7 @@ export default ({ mode }: ConfigEnv) => {
               'react-sortablejs',
               'qrcode.react'
             ],
-            kovaa-lab: [
+            'kovaa-lab': [
               '@heyooo-inc/react-router',
               '@kovaa-lab/answer-utils',
               '@kovaa-lab/shared-types-enums',

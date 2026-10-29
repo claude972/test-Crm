@@ -83,7 +83,7 @@ export class ToolOutputSpillService {
       const filename = `tool-output-${options.toolName}-${fileId}.json`;
 
       const { workspaceCustomFlatApplication } =
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         );
 

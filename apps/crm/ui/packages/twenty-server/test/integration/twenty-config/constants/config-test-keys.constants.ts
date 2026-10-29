@@ -1,4 +1,4 @@
-import { type ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
+import { type ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
 
 type ConfigKey = keyof ConfigVariables;
 

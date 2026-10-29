@@ -9,7 +9,7 @@ import {
   AuthExceptionCode,
 } from 'src/engine/core-modules/auth/auth.exception';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type TransientTokenJwtPayload } from 'src/engine/core-modules/auth/types/transient-token-jwt-payload.type';
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 
@@ -17,7 +17,7 @@ import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-t
 export class TransientTokenService {
   constructor(
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async generateTransientToken({
@@ -33,7 +33,7 @@ export class TransientTokenService {
       type: JwtTokenTypeEnum.LOGIN,
     };
 
-    const expiresIn = this.kovaa-labConfigService.get(
+    const expiresIn = this.kovaaLabConfigService.get(
       'SHORT_TERM_TOKEN_EXPIRES_IN',
     );
 

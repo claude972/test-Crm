@@ -13,19 +13,19 @@ import { getMetadataFlatEntityMapsKey } from 'src/engine/metadata-modules/flat-e
 import { findManyFlatEntityByUniversalIdentifierInUniversalFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-many-flat-entity-by-universal-identifier-in-universal-flat-entity-maps.util';
 import { getSubFlatEntityMapsByApplicationIdsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/get-sub-flat-entity-maps-by-application-ids-or-throw.util';
 import { computeMissingInitialObjectViewOperations } from 'src/engine/metadata-modules/view/utils/compute-missing-initial-object-view-operations.util';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
-import { KOVAALAB_STANDARD_ALL_METADATA_NAME } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-all-metadata-name.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
+import { KOVAALAB_STANDARD_ALL_METADATA_NAME } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-all-metadata-name.constant';
 import { keepWorkspaceOwnedProperties } from 'src/engine/metadata-modules/flat-entity/utils/keep-workspace-owned-properties.util';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { FromToAllUniversalFlatEntityMaps } from 'src/engine/workspace-manager/workspace-migration/types/workspace-migration-orchestrator.type';
 
 // TODO completely deprecate this file once we've created the kovaa-lab-standard kovaa-lab-app manifest
 @Injectable()
-export class KovaaLab CRMStandardApplicationService {
+export class KovaaLabCRMStandardApplicationService {
   constructor(
     private readonly applicationService: ApplicationService,
     private readonly workspaceMigrationValidateBuildAndRunService: WorkspaceMigrationValidateBuildAndRunService,
@@ -33,13 +33,13 @@ export class KovaaLab CRMStandardApplicationService {
     private readonly workspaceOrmManager: WorkspaceOrmManager,
   ) {}
 
-  async synchronizeKovaaLab CRMStandardApplicationOrThrow({
+  async synchronizeKovaaLabCRMStandardApplicationOrThrow({
     workspaceId,
   }: {
     workspaceId: string;
   }) {
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },
@@ -47,7 +47,7 @@ export class KovaaLab CRMStandardApplicationService {
     const {
       featureFlagsMap,
       billingEntitlements,
-      ...fromKovaaLab CRMStandardAllFlatEntityMaps
+      ...fromKovaaLabCRMStandardAllFlatEntityMaps
     } = await this.workspaceCacheService.getOrRecompute(workspaceId, [
       ...KOVAALAB_STANDARD_ALL_METADATA_NAME.map(getMetadataFlatEntityMapsKey),
       'featureFlagsMap',
@@ -55,12 +55,12 @@ export class KovaaLab CRMStandardApplicationService {
     ]);
 
     const {
-      allFlatEntityMaps: toKovaaLab CRMStandardAllFlatEntityMaps,
+      allFlatEntityMaps: toKovaaLabCRMStandardAllFlatEntityMaps,
       idByUniversalIdentifierByMetadataName,
-    } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: new Date().toISOString(),
       workspaceId,
-      kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+      kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       isWorkspaceCreation: true,
     });
 
@@ -69,11 +69,11 @@ export class KovaaLab CRMStandardApplicationService {
     for (const metadataName of KOVAALAB_STANDARD_ALL_METADATA_NAME) {
       const flatEntityMapsKey = getMetadataFlatEntityMapsKey(metadataName);
       const fromFlatEntityMaps =
-        fromKovaaLab CRMStandardAllFlatEntityMaps[flatEntityMapsKey];
+        fromKovaaLabCRMStandardAllFlatEntityMaps[flatEntityMapsKey];
       const from = getSubFlatEntityMapsByApplicationIdsOrThrow<
         MetadataFlatEntity<typeof metadataName>
       >({
-        applicationIds: [kovaa-labStandardFlatApplication.id],
+        applicationIds: [kovaaLabStandardFlatApplication.id],
         flatEntityMaps: fromFlatEntityMaps,
       });
 
@@ -83,7 +83,7 @@ export class KovaaLab CRMStandardApplicationService {
           metadataName,
           fromFlatEntityMaps: from,
           toFlatEntityMaps:
-            toKovaaLab CRMStandardAllFlatEntityMaps[flatEntityMapsKey],
+            toKovaaLabCRMStandardAllFlatEntityMaps[flatEntityMapsKey],
         }),
       };
 
@@ -98,7 +98,7 @@ export class KovaaLab CRMStandardApplicationService {
             isSystemBuild: true,
             inferDeletionFromMissingEntities: true,
             applicationUniversalIdentifier:
-              kovaa-labStandardFlatApplication.universalIdentifier,
+              kovaaLabStandardFlatApplication.universalIdentifier,
           },
           fromToAllFlatEntityMaps,
           workspaceId,
@@ -117,17 +117,17 @@ export class KovaaLab CRMStandardApplicationService {
       );
     }
 
-    if (!isDefined(kovaa-labStandardFlatApplication.defaultRoleId)) {
+    if (!isDefined(kovaaLabStandardFlatApplication.defaultRoleId)) {
       await this.setStandardApplicationDefaultRoleOrThrow({
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
     }
 
     await this.seedStandardObjectInitialViewsOrThrow({
       workspaceId,
       standardObjectMetadataUniversalIdentifiers: Object.keys(
-        toKovaaLab CRMStandardAllFlatEntityMaps.flatObjectMetadataMaps
+        toKovaaLabCRMStandardAllFlatEntityMaps.flatObjectMetadataMaps
           .byUniversalIdentifier,
       ),
     });
@@ -135,10 +135,10 @@ export class KovaaLab CRMStandardApplicationService {
 
   private async setStandardApplicationDefaultRoleOrThrow({
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
   }: {
     workspaceId: string;
-    kovaa-labStandardApplicationId: string;
+    kovaaLabStandardApplicationId: string;
   }): Promise<void> {
     const { flatRoleMaps } = await this.workspaceCacheService.getOrRecompute(
       workspaceId,
@@ -157,7 +157,7 @@ export class KovaaLab CRMStandardApplicationService {
       );
     }
 
-    await this.applicationService.update(kovaa-labStandardApplicationId, {
+    await this.applicationService.update(kovaaLabStandardApplicationId, {
       workspaceId,
       defaultRoleId: adminFlatRole.id,
     });
@@ -178,7 +178,7 @@ export class KovaaLab CRMStandardApplicationService {
       ]);
 
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 

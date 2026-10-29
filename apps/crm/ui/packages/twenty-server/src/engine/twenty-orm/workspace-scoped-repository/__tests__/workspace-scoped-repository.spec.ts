@@ -1,6 +1,6 @@
 import { Not, type Repository } from 'typeorm';
 
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 type FakeEntity = {
   id: string;
   status: string;

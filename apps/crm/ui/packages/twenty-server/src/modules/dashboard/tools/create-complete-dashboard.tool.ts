@@ -7,7 +7,7 @@ import {
   type PageLayoutWidgetGridPosition,
   type WidgetType,
 } from 'kovaa-lab-shared/types';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import {
   widgetPositionSchema,
   widgetConfigurationSchema,

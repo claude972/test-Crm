@@ -388,7 +388,7 @@ describe('BullMQDriver queue job count gauges', () => {
 
   it('reports the runnable backlog without the delayed jobs', async () => {
     await expect(
-      collectGauge('kovaa-lab_queue_jobs_waiting_total'),
+      collectGauge('kovaaLab_queue_jobs_waiting_total'),
     ).resolves.toEqual([
       { value: 3, attributes: { queue: MessageQueue.workflowQueue } },
     ]);
@@ -403,7 +403,7 @@ describe('BullMQDriver queue job count gauges', () => {
 
   it('reports the delayed jobs on their own gauge', async () => {
     await expect(
-      collectGauge('kovaa-lab_queue_jobs_delayed_total'),
+      collectGauge('kovaaLab_queue_jobs_delayed_total'),
     ).resolves.toEqual([
       { value: 7, attributes: { queue: MessageQueue.workflowQueue } },
     ]);

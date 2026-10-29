@@ -22,7 +22,7 @@ import { getGroupableSubFieldsForCompositeType } from 'src/engine/metadata-modul
 import { isCompositeFieldMetadataType } from 'src/engine/metadata-modules/field-metadata/utils/is-composite-field-metadata-type.util';
 import { isMorphOrRelationFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-morph-or-relation-flat-field-metadata.util';
 import { computeMorphOrRelationFieldJoinColumnName } from 'src/engine/metadata-modules/field-metadata/utils/compute-morph-or-relation-field-join-column-name.util';
-import { isManyToOneFlatFieldMetadata } from 'src/engine/kovaa-lab-orm/utils/is-many-to-one-flat-field-metadata.util';
+import { isManyToOneFlatFieldMetadata } from 'src/engine/twenty-orm/utils/is-many-to-one-flat-field-metadata.util';
 
 const TRUE_JSON_SCHEMA: JSONSchema7 = { type: 'boolean', const: true };
 

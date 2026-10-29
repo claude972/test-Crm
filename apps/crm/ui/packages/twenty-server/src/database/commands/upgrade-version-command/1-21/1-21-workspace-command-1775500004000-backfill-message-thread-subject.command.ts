@@ -201,8 +201,8 @@ export class BackfillMessageThreadSubjectCommand extends ProvisionedWorkspaceCom
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -220,7 +220,7 @@ export class BackfillMessageThreadSubjectCommand extends ProvisionedWorkspaceCom
             STANDARD_OBJECTS.messageThread.fields.subject.universalIdentifier,
         },
         applicationUniversalIdentifier:
-          kovaa-labStandardFlatApplication.universalIdentifier,
+          kovaaLabStandardFlatApplication.universalIdentifier,
         objectMetadataUniversalIdentifier:
           messageThreadObjectMetadata.universalIdentifier,
       }),
@@ -239,7 +239,7 @@ export class BackfillMessageThreadSubjectCommand extends ProvisionedWorkspaceCom
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
         },
       );
 

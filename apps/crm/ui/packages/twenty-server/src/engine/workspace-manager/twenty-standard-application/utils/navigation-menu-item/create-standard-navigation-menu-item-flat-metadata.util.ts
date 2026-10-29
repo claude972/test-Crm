@@ -8,8 +8,8 @@ import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-
 import {
   STANDARD_NAVIGATION_MENU_ITEM_DEFAULT_COLORS,
   STANDARD_NAVIGATION_MENU_ITEMS,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-navigation-menu-item.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+} from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-navigation-menu-item.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 export const createStandardNavigationMenuItemFlatMetadata = ({
   workspaceId,
@@ -18,7 +18,7 @@ export const createStandardNavigationMenuItemFlatMetadata = ({
   position,
   navigationMenuItemId,
   dependencyFlatEntityMaps: { flatViewMaps },
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: {
   workspaceId: string;
@@ -29,7 +29,7 @@ export const createStandardNavigationMenuItemFlatMetadata = ({
   dependencyFlatEntityMaps: {
     flatViewMaps: FlatEntityMaps<FlatView>;
   };
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   now: string;
 }): FlatNavigationMenuItem => {
   const navigationMenuItemDefinition =
@@ -59,7 +59,7 @@ export const createStandardNavigationMenuItemFlatMetadata = ({
     id: navigationMenuItemId,
     type: navigationMenuItemDefinition.type,
     universalIdentifier: navigationMenuItemDefinition.universalIdentifier,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     workspaceId,

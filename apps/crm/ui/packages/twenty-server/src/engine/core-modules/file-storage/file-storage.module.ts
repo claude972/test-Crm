@@ -8,9 +8,9 @@ import { FileStorageDriverFactory } from 'src/engine/core-modules/file-storage/f
 import { FileStorageService } from 'src/engine/core-modules/file-storage/services/file-storage.service';
 import { ServerFileStorageService } from 'src/engine/core-modules/file-storage/services/server-file-storage.service';
 import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
-import { KovaaLab CRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
+import { KovaaLabCRMConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
 import { UsageLimitModule } from 'src/engine/core-modules/usage-limit/usage-limit.module';
-import { provideWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
+import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 @Global()
 export class FileStorageModule {
@@ -18,7 +18,7 @@ export class FileStorageModule {
     return {
       module: FileStorageModule,
       imports: [
-        KovaaLab CRMConfigModule,
+        KovaaLabCRMConfigModule,
         CacheLockModule,
         TypeOrmModule.forFeature([FileEntity]),
         WorkspaceCacheModule,

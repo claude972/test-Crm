@@ -1,9 +1,9 @@
 import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/types/flat-index-metadata.type';
-import { type AllStandardObjectIndexName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-index-name.type';
+import { type AllStandardObjectIndexName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-index-name.type';
 import {
   type CreateStandardIndexArgs,
   createStandardIndexFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/index/create-standard-index-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/index/create-standard-index-flat-metadata.util';
 
 export const buildTimelineActivityStandardFlatIndexMetadatas = ({
   now,
@@ -11,7 +11,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
   workspaceId,
   standardObjectMetadataRelatedEntityIds,
   dependencyFlatEntityMaps,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: Omit<CreateStandardIndexArgs<'timelineActivity'>, 'context'>): Record<
   AllStandardObjectIndexName<'timelineActivity'>,
   FlatIndexMetadata
@@ -25,7 +25,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   personIdIndex: createStandardIndexFlatMetadata({
@@ -37,7 +37,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   companyIdIndex: createStandardIndexFlatMetadata({
@@ -49,7 +49,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   opportunityIdIndex: createStandardIndexFlatMetadata({
@@ -61,7 +61,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   noteIdIndex: createStandardIndexFlatMetadata({
@@ -73,7 +73,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   taskIdIndex: createStandardIndexFlatMetadata({
@@ -85,7 +85,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   workflowIdIndex: createStandardIndexFlatMetadata({
@@ -97,7 +97,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   workflowVersionIdIndex: createStandardIndexFlatMetadata({
@@ -109,7 +109,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   workflowRunIdIndex: createStandardIndexFlatMetadata({
@@ -121,7 +121,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   dashboardIdIndex: createStandardIndexFlatMetadata({
@@ -133,7 +133,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   messageListIdIndex: createStandardIndexFlatMetadata({
@@ -145,7 +145,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   messageCampaignIdIndex: createStandardIndexFlatMetadata({
@@ -157,7 +157,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   linkedRecordIdIndex: createStandardIndexFlatMetadata({
@@ -169,7 +169,7 @@ export const buildTimelineActivityStandardFlatIndexMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
 });

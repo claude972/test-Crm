@@ -12,7 +12,7 @@ class Email::SendOnEmailService < Base::SendOnChannelService
     Rails.logger.info("Email message #{message.id} sent with source_id: #{reply_mail.message_id}")
     message.update(source_id: reply_mail.message_id)
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e, account: message.account).capture_exception
+    ChatwootExceptionTracker.new(e, account: message.account).capture_exception
     Messages::StatusUpdateService.new(message, 'failed', e.message).perform
   end
 end

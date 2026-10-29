@@ -4,13 +4,13 @@ import { type ObjectLiteral } from 'typeorm';
 import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfaces/relation-type.interface';
 
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
-import { buildColumnResultAlias } from 'src/engine/kovaa-lab-orm/sql/utils/build-column-result-alias.util';
+import { buildColumnResultAlias } from 'src/engine/twenty-orm/sql/utils/build-column-result-alias.util';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { type FindOptionsLike } from 'src/engine/kovaa-lab-orm/query-builder/types/query-builder.type';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { type FindOptionsLike } from 'src/engine/twenty-orm/query-builder/types/query-builder.type';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 export type WhereClause = {
   operator: 'and' | 'or';
@@ -156,9 +156,9 @@ const buildJoinPropertyPath = (
     );
 
     if (!isDefined(joinClause)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Alias "${currentAlias}" does not belong to this statement`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
@@ -228,9 +228,9 @@ export const buildProjection = (
 
   for (const columnName of selectedColumnNames) {
     if (!isDefined(state.tableShape.columnShapeByColumnName[columnName])) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Column "${columnName}" does not exist on "${state.tableShape.nameSingular}"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
       );
     }
   }
@@ -459,9 +459,9 @@ export const buildJoinClause = (state: SelectStatementState): string =>
           : undefined);
 
       if (!isDefined(condition)) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Only to-one relations can be joined; "${joinClause.alias}" is to-many and must be loaded as a separate query`,
-          KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+          KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
         );
       }
 

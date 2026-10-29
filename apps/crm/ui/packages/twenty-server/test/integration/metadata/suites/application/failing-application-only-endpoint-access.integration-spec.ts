@@ -5,7 +5,7 @@ import {
   type ApplicationOnlyEndpointTarget,
   makeApplicationOnlyRestRequest,
 } from 'test/integration/metadata/suites/application/utils/application-only-endpoint-request-factories.util';
-import { loginAsKovaaLab CRMCli } from 'test/integration/metadata/suites/application/utils/login-as-kovaa-lab-cli.util';
+import { loginAsKovaaLabCRMCli } from 'test/integration/metadata/suites/application/utils/login-as-twenty-cli.util';
 import { uninstallApplication } from 'test/integration/metadata/suites/application/utils/uninstall-application.util';
 import {
   type ApplicationWithAppConnection,
@@ -25,7 +25,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { type AppBillingService } from 'src/engine/core-modules/billing/app-billing/app-billing.service';
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
-import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-cli-application-registration.constant';
+import { KOVAALAB_CLI_APPLICATION_REGISTRATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-cli-application-registration.constant';
 
 type GlobalTestContext = {
   application: ApplicationWithAppConnection;
@@ -135,7 +135,7 @@ const restRequestNames = Object.keys(
 describe('Application-only endpoints with a non-application caller should fail', () => {
   let globalTestContext: GlobalTestContext;
   let applicationToCleanUp: ApplicationWithAppConnection | undefined;
-  let isKovaaLab CRMCliInstalled = false;
+  let isKovaaLabCRMCliInstalled = false;
 
   beforeAll(async () => {
     const application = await setupApplicationWithAppConnection({
@@ -162,9 +162,9 @@ describe('Application-only endpoints with a non-application caller should fail',
 
     expect(createMessageChannelResponse.body.errors).toBeUndefined();
 
-    const oauthClientToken = await loginAsKovaaLab CRMCli();
+    const oauthClientToken = await loginAsKovaaLabCRMCli();
 
-    isKovaaLab CRMCliInstalled = true;
+    isKovaaLabCRMCliInstalled = true;
 
     globalTestContext = {
       application,
@@ -200,7 +200,7 @@ describe('Application-only endpoints with a non-application caller should fail',
       await cleanupApplicationWithAppConnection(applicationToCleanUp);
     }
 
-    if (isKovaaLab CRMCliInstalled) {
+    if (isKovaaLabCRMCliInstalled) {
       await uninstallApplication({
         universalIdentifier:
           KOVAALAB_CLI_APPLICATION_REGISTRATION.universalIdentifier,

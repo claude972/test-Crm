@@ -81,14 +81,14 @@ RSpec.describe Account, type: :model do
     let(:account) { create(:account) }
 
     it 'is always enabled for self-hosted enterprise accounts' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
       account.disable_features!('api_and_webhooks')
 
       expect(account.api_and_webhooks_enabled?).to be true
     end
 
     it 'uses the account feature flag on KovaaLab Char Cloud' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       account.disable_features!('api_and_webhooks')
 
       expect(account.api_and_webhooks_enabled?).to be false
@@ -184,7 +184,7 @@ RSpec.describe Account, type: :model do
     let(:assistant) { create(:captain_assistant, account: account) }
 
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       create(:installation_config, name: 'ACCOUNT_AGENTS_LIMIT', value: 20)
     end
 
@@ -270,7 +270,7 @@ RSpec.describe Account, type: :model do
       it 'returns default values' do
         account.custom_attributes = { 'plan_name': 'unknown' }
         expect(account.captain_monthly_limit).to eq(
-          { documents: KovaaLab CharApp.max_limit, responses: KovaaLab CharApp.max_limit }.with_indifferent_access
+          { documents: ChatwootApp.max_limit, responses: ChatwootApp.max_limit }.with_indifferent_access
         )
       end
     end
@@ -323,7 +323,7 @@ RSpec.describe Account, type: :model do
       account.update(limits: { agents: '' })
       InstallationConfig.where(name: 'ACCOUNT_AGENTS_LIMIT').update(value: '')
 
-      expect(account.usage_limits[:agents]).to eq(KovaaLab CharApp.max_limit)
+      expect(account.usage_limits[:agents]).to eq(ChatwootApp.max_limit)
     end
   end
 
@@ -339,7 +339,7 @@ RSpec.describe Account, type: :model do
     end
 
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       allow(ActiveRecord).to receive(:after_all_transactions_commit).and_yield
       account.enable_features!('captain_integration')
       allow(AdministratorNotifications::CaptainNotificationMailer).to receive(:with).with(account: account).and_return(mailer)
@@ -371,7 +371,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'does not count or queue response usage outside KovaaLab Char Cloud' do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
 
       account.increment_response_usage
 
@@ -549,7 +549,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'enables Captain V2 for new paid self-hosted accounts' do
-      allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(true)
+      allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
 
       account = create(:account)
 
@@ -586,7 +586,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'uses the enterprise cadence for paid self-hosted installs without a plan_name' do
-      allow(KovaaLab CharApp).to receive(:self_hosted_paid?).and_return(true)
+      allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
       create(:installation_config, name: 'CAPTAIN_DOCUMENT_AUTO_SYNC_INTERVALS', value: { enterprise: 6 }.to_json)
       account.update!(custom_attributes: {})
 

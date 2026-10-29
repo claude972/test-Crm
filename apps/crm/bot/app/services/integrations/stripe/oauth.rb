@@ -25,7 +25,7 @@ class Integrations::Stripe::Oauth
   def self.configured?
     GlobalConfig.get_value('STRIPE_APP_AUTHORIZE_URL').present? &&
       configuration_errors(url: GlobalConfig.get_value('STRIPE_APP_AUTHORIZE_URL'),
-                           key: GlobalConfig.get_value('STRIPE_APP_SECRET_KEY')).empty? && KovaaLab Char.encryption_configured?
+                           key: GlobalConfig.get_value('STRIPE_APP_SECRET_KEY')).empty? && Chatwoot.encryption_configured?
   end
 
   def self.callback_url

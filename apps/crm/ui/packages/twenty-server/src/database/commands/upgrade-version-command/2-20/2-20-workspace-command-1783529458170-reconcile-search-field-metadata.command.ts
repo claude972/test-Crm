@@ -117,8 +117,8 @@ export class ReconcileSearchFieldMetadataCommand extends ProvisionedWorkspaceCom
       'flatApplicationMaps',
     ]);
 
-    const { kovaa-labStandardFlatApplication, workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication, workspaceCustomFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -144,7 +144,7 @@ export class ReconcileSearchFieldMetadataCommand extends ProvisionedWorkspaceCom
         flatFieldMetadataMaps,
         flatSearchFieldMetadataMaps,
         applicationUniversalIdentifierById,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
         workspaceCustomApplicationId: workspaceCustomFlatApplication.id,
       });
 

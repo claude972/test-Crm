@@ -1,15 +1,16 @@
-# Architecture
+# Architecture — état observé
 
-KovaaLab CRM est composé de cinq modules principaux:
-- **Boîte**: Gestion des boîtes.
-- **Calendrier**: Gestion des calendriers.
-- **Formulaire**: Gestion des formulaires.
-- **Bot**: Gestion des bots.
-- **UI**: Gestion de l'interface utilisateur.
+Le projet rassemble quatre applications indépendantes :
 
-## Modules par source
-- **Boîte**: Gère les différentes boîtes utilisées dans le CRM.
-- **Calendrier**: Gère les événements et les rendez-vous.
-- **Formulaire**: Gère les formulaires pour la saisie de données.
-- **Bot**: Intègre des bots pour l'automatisation des tâches.
-- **UI**: Assure une interface utilisateur conviviale.
+| Application | Sources | Stack principale |
+| --- | --- | --- |
+| CRM, API et worker | apps/crm/ui | React/Vite/Linaria, NestJS, TypeORM, GraphQL, PostgreSQL/Redis, Nx/Yarn |
+| Char | apps/crm/bot | Rails/Vue, issu de Chatwoot |
+| Forms | apps/crm/form | Workspace pnpm, frontend et serveur séparés |
+| Cal.diy | apps/crm/calendar | Next.js, Prisma, tRPC ; import encore local non suivi à l'inventaire P0 |
+
+Les scripts publiés ciblent le CRM sous `apps/crm/ui`. Le serveur racine `packages/twenty-server` et les ébauches à la racine doivent être inventoriés avant toute suppression ; ils ne sont pas le backend ciblé par ces scripts.
+
+L'intégration Outils clients et ses configurations existent dans les changements locaux non publiés. Elles ouvrent les applications dans des onglets séparés ; une URL ne prouve pas la disponibilité d'un service. SSO et synchronisation interapplications restent des chantiers à concevoir et vérifier.
+
+Voir [les limites de la base publiée](stabilization/p0-status.md) avant de lancer ou modifier le projet.

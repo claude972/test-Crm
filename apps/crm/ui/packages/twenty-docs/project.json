@@ -1,0 +1,6 @@
+{
+  "name": "kovaa-lab-docs",
+  "projectType": "library",
+  "tags": ["scope:docs"],
+  "targets": {}
+}

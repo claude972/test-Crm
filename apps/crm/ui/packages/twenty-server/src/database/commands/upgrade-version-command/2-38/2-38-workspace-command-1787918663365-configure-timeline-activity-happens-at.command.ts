@@ -44,8 +44,8 @@ export class ConfigureTimelineActivityHappensAtCommand extends ProvisionedWorksp
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -68,7 +68,7 @@ export class ConfigureTimelineActivityHappensAtCommand extends ProvisionedWorksp
        WHERE timeline_activity_type."workspaceId" = $1
          AND timeline_activity_type."applicationId" = $2
          AND timeline_activity_type."universalIdentifier" = happens_at."universalIdentifier"`,
-      [workspaceId, kovaa-labStandardFlatApplication.id, ...happensAtParameters],
+      [workspaceId, kovaaLabStandardFlatApplication.id, ...happensAtParameters],
     );
 
     validateStandardMetadataUpdateCount({

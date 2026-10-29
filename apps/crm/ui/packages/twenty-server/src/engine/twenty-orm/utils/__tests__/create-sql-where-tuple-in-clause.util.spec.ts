@@ -1,4 +1,4 @@
-import { createSqlWhereTupleInClause } from 'src/engine/kovaa-lab-orm/utils/create-sql-where-tuple-in-clause.utils';
+import { createSqlWhereTupleInClause } from 'src/engine/twenty-orm/utils/create-sql-where-tuple-in-clause.utils';
 
 describe('createSqlWhereTupleInClause', () => {
   it('should create a valid SQL WHERE clause for a tuple IN clause', () => {

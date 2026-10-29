@@ -1,7 +1,7 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/kovaa-lab-config/types/optional-numeric-config-variable-key.type';
+import { type ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/twenty-config/types/optional-numeric-config-variable-key.type';
 import { type UsageLimitDefaultDefinition } from 'src/engine/core-modules/usage-limit/types/usage-limit-default-definition.type';
 import { type UsageLimitScope } from 'src/engine/core-modules/usage-limit/utils/build-usage-limit-scope.util';
 import { findSingleOperationType } from 'src/engine/core-modules/usage-limit/utils/find-single-operation-type.util';

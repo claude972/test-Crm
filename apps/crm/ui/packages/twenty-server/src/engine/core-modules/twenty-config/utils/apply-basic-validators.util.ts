@@ -1,10 +1,10 @@
-import { type ConfigVariableType } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variable-type.enum';
+import { type ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
 import {
   ConfigVariableException,
   ConfigVariableExceptionCode,
-} from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.exception';
-import { type ConfigVariableOptions } from 'src/engine/core-modules/kovaa-lab-config/types/config-variable-options.type';
-import { typeTransformers } from 'src/engine/core-modules/kovaa-lab-config/utils/type-transformers.registry';
+} from 'src/engine/core-modules/twenty-config/twenty-config.exception';
+import { type ConfigVariableOptions } from 'src/engine/core-modules/twenty-config/types/config-variable-options.type';
+import { typeTransformers } from 'src/engine/core-modules/twenty-config/utils/type-transformers.registry';
 
 export function applyBasicValidators(
   type: ConfigVariableType,

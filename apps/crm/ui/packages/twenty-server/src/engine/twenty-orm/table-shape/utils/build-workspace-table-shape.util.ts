@@ -11,16 +11,16 @@ import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-fiel
 import { isMorphOrRelationFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-morph-or-relation-flat-field-metadata.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import { computeObjectTargetTable } from 'src/engine/utils/compute-object-target-table.util';
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import {
   type WorkspaceColumnShape,
   type WorkspaceRelationShape,
   type WorkspaceTableShape,
-} from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 export const buildWorkspaceTableShape = ({
   workspaceId,
@@ -83,9 +83,9 @@ export const buildWorkspaceTableShape = ({
       );
 
       if (!isDefined(compositeType)) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Composite type "${flatFieldMetadata.type}" has no definition, so the columns for field "${flatFieldMetadata.name}" cannot be derived`,
-          KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+          KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
         );
       }
 

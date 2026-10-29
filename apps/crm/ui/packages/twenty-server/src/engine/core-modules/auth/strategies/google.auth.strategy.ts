@@ -16,7 +16,7 @@ import {
 } from 'src/engine/core-modules/auth/auth.exception';
 import { type SocialSsoSignInUpActionType } from 'src/engine/core-modules/auth/types/sign-in-up.type';
 import { type SocialSsoState } from 'src/engine/core-modules/auth/types/social-sso-state.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type GoogleRequest = Omit<
   Request,
@@ -38,11 +38,11 @@ export type GoogleRequest = Omit<
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(kovaa-labConfigService: KovaaLab CRMConfigService) {
+  constructor(kovaaLabConfigService: KovaaLabCRMConfigService) {
     super({
-      clientID: kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
-      clientSecret: kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
-      callbackURL: kovaa-labConfigService.get('AUTH_GOOGLE_CALLBACK_URL'),
+      clientID: kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_ID'),
+      clientSecret: kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_SECRET'),
+      callbackURL: kovaaLabConfigService.get('AUTH_GOOGLE_CALLBACK_URL'),
       scope: ['email', 'profile'],
       passReqToCallback: true,
     });

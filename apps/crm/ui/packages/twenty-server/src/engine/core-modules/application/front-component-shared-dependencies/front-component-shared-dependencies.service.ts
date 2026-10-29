@@ -11,7 +11,7 @@ import { ApplicationService } from 'src/engine/core-modules/application/applicat
 import { FileStorageService } from 'src/engine/core-modules/file-storage/services/file-storage.service';
 import { type FileResponse } from 'src/engine/core-modules/file/types/file-response.type';
 import { getContentDisposition } from 'src/engine/core-modules/file/utils/get-content-disposition.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const SHARED_DEPENDENCIES_BUNDLE_MIME_TYPE = 'application/javascript';
 
@@ -20,7 +20,7 @@ export class FrontComponentSharedDependenciesService {
   constructor(
     private readonly applicationService: ApplicationService,
     private readonly fileStorageService: FileStorageService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async getBuiltSharedDependenciesPresignedUrlOrStream({
@@ -55,7 +55,7 @@ export class FrontComponentSharedDependenciesService {
 
     const presignedUrl = await this.fileStorageService.getPresignedUrl({
       ...resourceIdentifier,
-      expiresInSeconds: this.kovaa-labConfigService.get(
+      expiresInSeconds: this.kovaaLabConfigService.get(
         'STORAGE_S3_PRESIGNED_URL_EXPIRES_IN',
       ),
       responseContentType: SHARED_DEPENDENCIES_BUNDLE_MIME_TYPE,

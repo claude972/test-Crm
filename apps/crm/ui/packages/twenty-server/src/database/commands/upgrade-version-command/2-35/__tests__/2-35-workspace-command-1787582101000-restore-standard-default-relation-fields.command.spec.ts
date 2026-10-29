@@ -5,15 +5,15 @@ import { type WorkspaceIteratorService } from 'src/database/commands/command-run
 import { RestoreStandardDefaultRelationFieldsCommand } from 'src/database/commands/upgrade-version-command/2-35/2-35-workspace-command-1787582101000-restore-standard-default-relation-fields.command';
 import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { type WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 jest.mock(
-  'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant',
+  'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant',
 );
 
-const computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock =
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMaps as jest.Mock;
+const computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock =
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMaps as jest.Mock;
 
 const WORKSPACE_ID = '20202020-0000-0000-0000-000000000001';
 const STANDARD_APPLICATION = {
@@ -111,7 +111,7 @@ const mockStandardMaps = ({
   indexes?: { universalIdentifier: string }[];
   objects?: { universalIdentifier: string }[];
 } = {}) => {
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
     allFlatEntityMaps: {
       flatFieldMetadataMaps: buildByUniversalIdentifierMap(fields),
       flatIndexMaps: buildByUniversalIdentifierMap(indexes),
@@ -138,10 +138,10 @@ describe('RestoreStandardDefaultRelationFieldsCommand', () => {
     command = new RestoreStandardDefaultRelationFieldsCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: STANDARD_APPLICATION,
+            kovaaLabStandardFlatApplication: STANDARD_APPLICATION,
           }),
       } as unknown as ApplicationService,
       {

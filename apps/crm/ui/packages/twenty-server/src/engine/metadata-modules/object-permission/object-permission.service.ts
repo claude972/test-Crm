@@ -324,7 +324,7 @@ export class ObjectPermissionService {
 
   private async getFlatApplicationForWorkspace(workspaceId: string) {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     return workspaceCustomFlatApplication;

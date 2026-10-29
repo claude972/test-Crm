@@ -11,7 +11,7 @@ import { RotateSecretEncryptionCommand } from 'src/database/commands/secret-encr
 import { SecretEncryptionRotationRunnerService } from 'src/database/commands/secret-encryption-rotation/services/secret-encryption-rotation-runner.service';
 import { KeyValuePairEntity } from 'src/engine/core-modules/key-value-pair/key-value-pair.entity';
 import { SecretEncryptionModule } from 'src/engine/core-modules/secret-encryption/secret-encryption.module';
-import { KovaaLab CRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
+import { KovaaLabCRMConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 
 const ROTATION_ENTITIES = [
@@ -34,7 +34,7 @@ const DEDICATED_ROTATION_HANDLERS = [
 @Module({
   imports: [
     SecretEncryptionModule,
-    KovaaLab CRMConfigModule,
+    KovaaLabCRMConfigModule,
     TypeOrmModule.forFeature(ROTATION_ENTITIES),
     WorkspaceCacheModule,
   ],

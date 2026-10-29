@@ -9,7 +9,7 @@ import { DpaService } from 'src/engine/core-modules/dpa/services/dpa.service';
 import { FileUrlModule } from 'src/engine/core-modules/file/file-url/file-url.module';
 import { PermissionsModule } from 'src/engine/metadata-modules/permissions/permissions.module';
 
-// FileStorageService and KovaaLab CRMConfigService are provided by @Global() modules.
+// FileStorageService and KovaaLabCRMConfigService are provided by @Global() modules.
 @Module({
   imports: [
     TypeOrmModule.forFeature([DpaAgreementEntity]),

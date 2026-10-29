@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { type UniversalFlatObjectMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-object-metadata.type';
 import { computeTableName } from 'src/engine/utils/compute-table-name.util';
 
@@ -23,7 +23,7 @@ export const generateDeterministicIndexName = ({
 
   const tableName = computeTableName(
     flatObjectMetadata.nameSingular,
-    !belongsToKovaaLab CRMStandardApp(flatObjectMetadata),
+    !belongsToKovaaLabCRMStandardApp(flatObjectMetadata),
   );
 
   [tableName, ...orderedIndexColumnNames].forEach((column) => {

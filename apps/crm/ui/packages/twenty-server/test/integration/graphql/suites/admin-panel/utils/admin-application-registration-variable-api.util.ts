@@ -2,7 +2,7 @@ import {
   findAdminApplicationRegistrationVariablesQueryFactory,
   updateAdminApplicationRegistrationVariableMutationFactory,
 } from 'test/integration/graphql/suites/admin-panel/utils/admin-application-registration-variable-query-factories.util';
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 
 import { type BaseGraphQLError } from 'src/engine/core-modules/graphql/utils/graphql-errors.util';
 

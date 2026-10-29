@@ -14,8 +14,8 @@ RSpec.describe Messages::AudioTranscriptionService, type: :service do
     # Mock usage limits for transcription to be available
     allow(account).to receive(:usage_limits).and_return(
       {
-        agents: KovaaLab CharApp.max_limit,
-        inboxes: KovaaLab CharApp.max_limit,
+        agents: ChatwootApp.max_limit,
+        inboxes: ChatwootApp.max_limit,
         captain: { responses: { current_available: 100 } }
       }
     )

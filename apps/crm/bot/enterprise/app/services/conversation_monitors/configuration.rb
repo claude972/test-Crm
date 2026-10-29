@@ -11,7 +11,7 @@ class ConversationMonitors::Configuration
   MAX_REQUEST_BYTES = 60_000
 
   def self.enabled?(account)
-    KovaaLab CharApp.enterprise? && account.feature_enabled?('reports') && account.feature_enabled?('conversation_monitors')
+    ChatwootApp.enterprise? && account.feature_enabled?('reports') && account.feature_enabled?('conversation_monitors')
   end
 
   def self.configured?

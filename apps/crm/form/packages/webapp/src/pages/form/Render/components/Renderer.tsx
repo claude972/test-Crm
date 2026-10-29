@@ -88,7 +88,7 @@ export const Renderer: FC<RendererProps> = ({ form, query, locale, contactId }) 
     }
 
     const key =
-      window.kovaa-lab?.googleRecaptchaKey ||
+      window.kovaaLab?.googleRecaptchaKey ||
       (form.settings as Any)?.googleRecaptchaKey ||
       GOOGLE_RECAPTCHA_KEY
 
@@ -96,8 +96,8 @@ export const Renderer: FC<RendererProps> = ({ form, query, locale, contactId }) 
       throw new Error('Google reCAPTCHA key is not configured')
     }
 
-    window.kovaa-lab = window.kovaa-lab || {}
-    window.kovaa-lab.googleRecaptchaKey = key
+    window.kovaaLab = window.kovaaLab || {}
+    window.kovaaLab.googleRecaptchaKey = key
 
     await loadExternalScript(
       'google-recaptcha-sdk',

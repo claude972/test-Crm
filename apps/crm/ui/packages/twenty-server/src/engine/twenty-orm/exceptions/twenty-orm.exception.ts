@@ -9,7 +9,7 @@ import {
 } from 'src/engine/api/graphql/workspace-query-runner/constants/postgres-error-messages.constants';
 import { CustomException } from 'src/utils/custom-exception';
 
-export enum KovaaLab CRMOrmExceptionCode {
+export enum KovaaLabCRMOrmExceptionCode {
   WORKSPACE_SCHEMA_NOT_FOUND = 'WORKSPACE_SCHEMA_NOT_FOUND',
   ROLES_PERMISSIONS_VERSION_NOT_FOUND = 'ROLES_PERMISSIONS_VERSION_NOT_FOUND',
   FEATURE_FLAG_MAP_VERSION_NOT_FOUND = 'FEATURE_FLAG_MAP_VERSION_NOT_FOUND',
@@ -43,75 +43,75 @@ export enum KovaaLab CRMOrmExceptionCode {
   ENTITY_NOT_FOUND = 'ENTITY_NOT_FOUND',
 }
 
-const getKovaaLab CRMOrmExceptionUserFriendlyMessage = (
-  code: KovaaLab CRMOrmExceptionCode,
+const getKovaaLabCRMOrmExceptionUserFriendlyMessage = (
+  code: KovaaLabCRMOrmExceptionCode,
 ) => {
   switch (code) {
-    case KovaaLab CRMOrmExceptionCode.WORKSPACE_SCHEMA_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.WORKSPACE_SCHEMA_NOT_FOUND:
       return msg`Workspace schema not found.`;
-    case KovaaLab CRMOrmExceptionCode.ROLES_PERMISSIONS_VERSION_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.ROLES_PERMISSIONS_VERSION_NOT_FOUND:
       return msg`Roles and permissions configuration not found.`;
-    case KovaaLab CRMOrmExceptionCode.FEATURE_FLAG_MAP_VERSION_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.FEATURE_FLAG_MAP_VERSION_NOT_FOUND:
       return msg`Feature configuration not found.`;
-    case KovaaLab CRMOrmExceptionCode.USER_WORKSPACE_ROLE_MAP_VERSION_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.USER_WORKSPACE_ROLE_MAP_VERSION_NOT_FOUND:
       return msg`User workspace role configuration not found.`;
-    case KovaaLab CRMOrmExceptionCode.API_KEY_ROLE_MAP_VERSION_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.API_KEY_ROLE_MAP_VERSION_NOT_FOUND:
       return msg`API key role configuration not found.`;
-    case KovaaLab CRMOrmExceptionCode.MALFORMED_METADATA:
+    case KovaaLabCRMOrmExceptionCode.MALFORMED_METADATA:
       return msg`Data structure is invalid.`;
-    case KovaaLab CRMOrmExceptionCode.WORKSPACE_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.WORKSPACE_NOT_FOUND:
       return msg`Workspace not found.`;
-    case KovaaLab CRMOrmExceptionCode.CONNECT_RECORD_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.CONNECT_RECORD_NOT_FOUND:
       return msg`Related record not found.`;
-    case KovaaLab CRMOrmExceptionCode.CONNECT_NOT_ALLOWED:
+    case KovaaLabCRMOrmExceptionCode.CONNECT_NOT_ALLOWED:
       return msg`This connection is not allowed.`;
-    case KovaaLab CRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR:
+    case KovaaLabCRMOrmExceptionCode.CONNECT_UNIQUE_CONSTRAINT_ERROR:
       return msg`A record with this relationship already exists.`;
-    case KovaaLab CRMOrmExceptionCode.MISSING_MAIN_ALIAS_TARGET:
+    case KovaaLabCRMOrmExceptionCode.MISSING_MAIN_ALIAS_TARGET:
       return msg`Missing main alias target.`;
-    case KovaaLab CRMOrmExceptionCode.METHOD_NOT_ALLOWED:
+    case KovaaLabCRMOrmExceptionCode.METHOD_NOT_ALLOWED:
       return msg`This operation is not allowed.`;
-    case KovaaLab CRMOrmExceptionCode.QUERY_READ_TIMEOUT:
+    case KovaaLabCRMOrmExceptionCode.QUERY_READ_TIMEOUT:
       return msg`Query timed out. Please try again.`;
-    case KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR:
+    case KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR:
       return TRANSIENT_DATABASE_ERROR_USER_FRIENDLY_MESSAGE;
-    case KovaaLab CRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED:
+    case KovaaLabCRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED:
       return msg`A duplicate entry was detected.`;
-    case KovaaLab CRMOrmExceptionCode.TOO_MANY_RECORDS_TO_UPDATE:
+    case KovaaLabCRMOrmExceptionCode.TOO_MANY_RECORDS_TO_UPDATE:
       return msg`Too many records to update at once.`;
-    case KovaaLab CRMOrmExceptionCode.INVALID_INPUT:
+    case KovaaLabCRMOrmExceptionCode.INVALID_INPUT:
       return INVALID_INPUT_USER_FRIENDLY_MESSAGE;
-    case KovaaLab CRMOrmExceptionCode.RLS_VALIDATION_FAILED:
+    case KovaaLabCRMOrmExceptionCode.RLS_VALIDATION_FAILED:
       return msg`Record does not satisfy security constraints.`;
-    case KovaaLab CRMOrmExceptionCode.NO_ROLE_FOUND_FOR_USER_WORKSPACE:
+    case KovaaLabCRMOrmExceptionCode.NO_ROLE_FOUND_FOR_USER_WORKSPACE:
       return msg`No role found for user.`;
-    case KovaaLab CRMOrmExceptionCode.ENUM_TYPE_NAME_NOT_FOUND:
-    case KovaaLab CRMOrmExceptionCode.ORM_EVENT_DATA_CORRUPTED:
-    case KovaaLab CRMOrmExceptionCode.MISSING_PARAMETER:
-    case KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER:
-    case KovaaLab CRMOrmExceptionCode.MALFORMED_SQL:
-    case KovaaLab CRMOrmExceptionCode.UNKNOWN_OBJECT:
-    case KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN:
-    case KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION:
-    case KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION:
-    case KovaaLab CRMOrmExceptionCode.MISSING_ALIAS:
-    case KovaaLab CRMOrmExceptionCode.INVALID_QUERY:
-    case KovaaLab CRMOrmExceptionCode.ENTITY_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.ENUM_TYPE_NAME_NOT_FOUND:
+    case KovaaLabCRMOrmExceptionCode.ORM_EVENT_DATA_CORRUPTED:
+    case KovaaLabCRMOrmExceptionCode.MISSING_PARAMETER:
+    case KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER:
+    case KovaaLabCRMOrmExceptionCode.MALFORMED_SQL:
+    case KovaaLabCRMOrmExceptionCode.UNKNOWN_OBJECT:
+    case KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN:
+    case KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION:
+    case KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION:
+    case KovaaLabCRMOrmExceptionCode.MISSING_ALIAS:
+    case KovaaLabCRMOrmExceptionCode.INVALID_QUERY:
+    case KovaaLabCRMOrmExceptionCode.ENTITY_NOT_FOUND:
       return STANDARD_ERROR_MESSAGE;
     default:
       assertUnreachable(code);
   }
 };
 
-export class KovaaLab CRMOrmException extends CustomException<KovaaLab CRMOrmExceptionCode> {
+export class KovaaLabCRMOrmException extends CustomException<KovaaLabCRMOrmExceptionCode> {
   constructor(
     message: string,
-    code: KovaaLab CRMOrmExceptionCode,
+    code: KovaaLabCRMOrmExceptionCode,
     { userFriendlyMessage }: { userFriendlyMessage?: MessageDescriptor } = {},
   ) {
     super(message, code, {
       userFriendlyMessage:
-        userFriendlyMessage ?? getKovaaLab CRMOrmExceptionUserFriendlyMessage(code),
+        userFriendlyMessage ?? getKovaaLabCRMOrmExceptionUserFriendlyMessage(code),
     });
   }
 }

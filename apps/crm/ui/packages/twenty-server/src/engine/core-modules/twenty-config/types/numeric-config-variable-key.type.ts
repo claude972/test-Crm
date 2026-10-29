@@ -1,4 +1,4 @@
-import { type ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
+import { type ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
 
 export type NumericConfigVariableKey = {
   [Key in keyof ConfigVariables]-?: ConfigVariables[Key] extends number

@@ -14,7 +14,7 @@ import {
 import {
   type OperationType,
   validateOperationIsPermittedOrThrow,
-} from 'src/engine/kovaa-lab-orm/repository/permissions.utils';
+} from 'src/engine/twenty-orm/repository/permissions.utils';
 
 describe('validateOperationIsPermittedOrThrow - system objects permissions', () => {
   const SYSTEM_OBJECT_ID = 'system-obj-message-id';

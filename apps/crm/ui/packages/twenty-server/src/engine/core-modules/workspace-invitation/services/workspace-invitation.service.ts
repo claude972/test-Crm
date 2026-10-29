@@ -33,7 +33,7 @@ import { FileUrlService } from 'src/engine/core-modules/file/file-url/file-url.s
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { type SendInvitationsDTO } from 'src/engine/core-modules/workspace-invitation/dtos/send-invitations.dto';
 import { castAppTokenToWorkspaceInvitationUtil } from 'src/engine/core-modules/workspace-invitation/utils/cast-app-token-to-workspace-invitation.util';
@@ -54,7 +54,7 @@ export class WorkspaceInvitationService {
     @InjectRepository(UserWorkspaceEntity)
     private readonly userWorkspaceRepository: Repository<UserWorkspaceEntity>,
     private readonly roleAssignmentValidationService: RoleAssignmentValidationService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly emailService: EmailService,
     private readonly onboardingService: OnboardingService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
@@ -311,7 +311,7 @@ export class WorkspaceInvitationService {
     }
 
     const isOnboardingInviteReward =
-      this.kovaa-labConfigService.get('IS_BILLING_ENABLED') &&
+      this.kovaaLabConfigService.get('IS_BILLING_ENABLED') &&
       (isOnboardingInviteRewardOverride ??
         (await this.onboardingService.isOnboardingInviteTeamPending({
           userId: sender.userId,
@@ -383,7 +383,7 @@ export class WorkspaceInvitationService {
             firstName: sender.name.firstName,
             lastName: sender.name.lastName,
           },
-          serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
+          serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
           locale: sender.locale,
         };
 
@@ -398,7 +398,7 @@ export class WorkspaceInvitationService {
         const subject = i18n._(joinTeamMsg);
 
         await this.emailService.send({
-          from: `${sender.name.firstName} ${sender.name.lastName} (via KovaaLab CRM) <${this.kovaa-labConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+          from: `${sender.name.firstName} ${sender.name.lastName} (via KovaaLab CRM) <${this.kovaaLabConfigService.get('EMAIL_FROM_ADDRESS')}>`,
           to: invitation.value.email,
           subject,
           text,
@@ -453,7 +453,7 @@ export class WorkspaceInvitationService {
     roleId?: string,
     isOnboardingInvitation = false,
   ) {
-    const expiresIn = this.kovaa-labConfigService.get(
+    const expiresIn = this.kovaaLabConfigService.get(
       'INVITATION_TOKEN_EXPIRES_IN',
     );
 
@@ -492,10 +492,10 @@ export class WorkspaceInvitationService {
           await this.throttlerService.tokenBucketThrottleOrThrow(
             `invitation-resending-workspace:throttler:${email}`,
             1,
-            this.kovaa-labConfigService.get(
+            this.kovaaLabConfigService.get(
               'INVITATION_SENDING_BY_EMAIL_THROTTLE_LIMIT',
             ),
-            this.kovaa-labConfigService.get(
+            this.kovaaLabConfigService.get(
               'INVITATION_SENDING_BY_EMAIL_THROTTLE_TTL_IN_MS',
             ),
           );
@@ -505,10 +505,10 @@ export class WorkspaceInvitationService {
       await this.throttlerService.tokenBucketThrottleOrThrow(
         `invitation-resending-workspace:throttler:${workspaceId}`,
         emails.length,
-        this.kovaa-labConfigService.get(
+        this.kovaaLabConfigService.get(
           'INVITATION_SENDING_BY_WORKSPACE_THROTTLE_LIMIT',
         ),
-        this.kovaa-labConfigService.get(
+        this.kovaaLabConfigService.get(
           'INVITATION_SENDING_BY_WORKSPACE_THROTTLE_TTL_IN_MS',
         ),
       );

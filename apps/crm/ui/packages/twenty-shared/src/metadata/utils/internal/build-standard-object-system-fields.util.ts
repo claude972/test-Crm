@@ -1,4 +1,4 @@
-import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/KovaaLab CRMStandardApplicationUniversalIdentifier';
+import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/TwentyStandardApplicationUniversalIdentifier';
 import { getFieldUniversalIdentifier } from '@/application/deterministic-identifier/get-field-universal-identifier.util';
 
 export const STANDARD_OBJECT_SYSTEM_FIELD_NAMES = [

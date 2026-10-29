@@ -11,7 +11,7 @@ import {
   GraphqlQueryFilterFieldParser,
   type ParentFilterScope,
 } from './graphql-query-filter-field.parser';
-import { type WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
+import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 
 export class GraphqlQueryFilterConditionParser {
   private queryFilterFieldParser: GraphqlQueryFilterFieldParser;

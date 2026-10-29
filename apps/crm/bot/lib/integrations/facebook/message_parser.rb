@@ -68,7 +68,7 @@ class Integrations::Facebook::MessageParser
     @messaging.dig('message', 'app_id')
   end
 
-  def sent_from_kovaa-lab_app?
+  def sent_from_chatwoot_app?
     app_id.present? && app_id.to_s == GlobalConfigService.load('FB_APP_ID', '').to_s
   end
 

@@ -16,8 +16,8 @@ import {
   type RowAccessPolicy,
   type RowAccessPolicyContext,
   type RowAccessPolicyTarget,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { buildPostgresSafeAlias } from 'src/engine/kovaa-lab-orm/sql/utils/build-postgres-safe-alias.util';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { buildPostgresSafeAlias } from 'src/engine/twenty-orm/sql/utils/build-postgres-safe-alias.util';
 
 type BuildParentPolicy = (target: RowAccessPolicyTarget) => RowAccessPolicy;
 

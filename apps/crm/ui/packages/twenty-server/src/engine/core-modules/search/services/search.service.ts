@@ -41,7 +41,7 @@ import {
 import { type RecordsWithObjectMetadataItem } from 'src/engine/core-modules/search/types/records-with-object-metadata-item.type';
 import { formatSearchTerms } from 'src/engine/core-modules/search/utils/format-search-terms';
 import { hasCjkCharacters } from 'src/engine/core-modules/search/utils/has-cjk-characters';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type IDataloaders } from 'src/engine/dataloaders/dataloader.interface';
 import { computeCompositeColumnName } from 'src/engine/metadata-modules/field-metadata/utils/compute-column-name.util';
 import { isCompositeFieldMetadataType } from 'src/engine/metadata-modules/field-metadata/utils/is-composite-field-metadata-type.util';
@@ -52,11 +52,11 @@ import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object
 import { getEffectiveImageIdentifierFieldMetadataId } from 'src/engine/metadata-modules/object-metadata/utils/get-effective-image-identifier-field-metadata-id.util';
 import { SEARCH_VECTOR_FIELD } from 'src/engine/metadata-modules/search-field-metadata/constants/search-vector-field.constants';
 import { resolveEffectiveEntityProperty } from 'src/engine/metadata-modules/overrides/utils/resolve-effective-entity-property.util';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
-import { getWorkspaceContext } from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
-import { resolveRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/resolve-role-permission-config.util';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { getWorkspaceContext } from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
+import { resolveRolePermissionConfig } from 'src/engine/twenty-orm/utils/resolve-role-permission-config.util';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
 import { ApplicationTranslationCatalogService } from 'src/engine/metadata-modules/application-translation-catalog/services/application-translation-catalog.service';
 import { resolveEffectiveFlatEntityProperty } from 'src/engine/metadata-modules/overrides/utils/resolve-effective-flat-entity-property.util';
 
@@ -76,7 +76,7 @@ export class SearchService {
   constructor(
     private readonly workspaceOrmManager: WorkspaceOrmManager,
     private readonly fileUrlService: FileUrlService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly applicationTranslationCatalogService: ApplicationTranslationCatalogService,
   ) {}
 
@@ -397,7 +397,7 @@ export class SearchService {
     limit: number;
     filter: ObjectRecordFilterInput;
   }) {
-    const timeoutMs = this.kovaa-labConfigService.get(
+    const timeoutMs = this.kovaaLabConfigService.get(
       'SEARCH_ILIKE_FALLBACK_TIMEOUT_MS',
     );
 
@@ -715,7 +715,7 @@ export class SearchService {
         );
       }
       case FieldMetadataType.LINKS: {
-        if (!this.kovaa-labConfigService.get('ALLOW_REQUESTS_TO_KOVAALAB_ICONS')) {
+        if (!this.kovaaLabConfigService.get('ALLOW_REQUESTS_TO_KOVAALAB_ICONS')) {
           return '';
         }
 

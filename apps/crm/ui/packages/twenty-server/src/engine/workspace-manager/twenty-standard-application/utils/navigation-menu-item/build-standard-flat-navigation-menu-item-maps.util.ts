@@ -5,12 +5,12 @@ import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/typ
 import { type FlatNavigationMenuItemMaps } from 'src/engine/metadata-modules/flat-navigation-menu-item/types/flat-navigation-menu-item-maps.type';
 import { addFlatNavigationMenuItemToMapsAndUpdateIndex } from 'src/engine/metadata-modules/flat-navigation-menu-item/utils/add-flat-navigation-menu-item-to-maps-and-update-index.util';
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
-import { STANDARD_NAVIGATION_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-navigation-menu-item.constant';
-import { createStandardNavigationMenuItemFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/navigation-menu-item/create-standard-navigation-menu-item-flat-metadata.util';
+import { STANDARD_NAVIGATION_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-navigation-menu-item.constant';
+import { createStandardNavigationMenuItemFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/navigation-menu-item/create-standard-navigation-menu-item-flat-metadata.util';
 import {
   createStandardNavigationMenuItemFolderFlatMetadata,
   createStandardNavigationMenuItemFolderItemFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/navigation-menu-item/create-standard-navigation-menu-item-folder-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/navigation-menu-item/create-standard-navigation-menu-item-folder-flat-metadata.util';
 
 const FLAT_NAVIGATION_MENU_ITEM_NAMES = [
   'allCompanies',
@@ -30,12 +30,12 @@ const WORKFLOWS_FOLDER_ITEM_NAMES = [
 export const buildStandardFlatNavigationMenuItemMaps = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   dependencyFlatEntityMaps: { flatViewMaps },
 }: {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   dependencyFlatEntityMaps: {
     flatViewMaps: FlatEntityMaps<FlatView>;
   };
@@ -60,7 +60,7 @@ export const buildStandardFlatNavigationMenuItemMaps = ({
         dependencyFlatEntityMaps: {
           flatViewMaps,
         },
-        kovaa-labStandardApplicationId,
+        kovaaLabStandardApplicationId,
         now,
       },
     );
@@ -81,7 +81,7 @@ export const buildStandardFlatNavigationMenuItemMaps = ({
     position: workflowsFolderDefinition.position,
     navigationMenuItemId: workflowsFolderId,
     workspaceId,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   });
 
@@ -101,7 +101,7 @@ export const buildStandardFlatNavigationMenuItemMaps = ({
       position: folderItemDefinition.position,
       navigationMenuItemId: v4(),
       workspaceId,
-      kovaa-labStandardApplicationId,
+      kovaaLabStandardApplicationId,
       dependencyFlatEntityMaps: {
         flatViewMaps,
       },

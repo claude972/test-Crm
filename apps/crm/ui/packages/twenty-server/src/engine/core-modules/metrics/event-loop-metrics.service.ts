@@ -25,7 +25,7 @@ export class EventLoopMetricsService implements OnModuleInit, OnModuleDestroy {
   constructor(private readonly metricsService: MetricsService) {
     this.delayHistogram = this.metricsService
       .getMeter()
-      .createHistogram('kovaa-lab_nodejs_eventloop_delay_seconds', {
+      .createHistogram('kovaaLab_nodejs_eventloop_delay_seconds', {
         description: 'Node.js event loop lag, sampled per interval',
         unit: 's',
         advice: { explicitBucketBoundaries: DELAY_BUCKETS_SECONDS },
@@ -47,7 +47,7 @@ export class EventLoopMetricsService implements OnModuleInit, OnModuleDestroy {
     this.sampler.unref();
 
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_nodejs_eventloop_utilization',
+      metricName: 'kovaaLab_nodejs_eventloop_utilization',
       options: {
         description:
           'Fraction of time the Node.js event loop was busy since the previous scrape',

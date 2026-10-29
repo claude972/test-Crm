@@ -4,17 +4,17 @@ import { type FlatAgentChatChannel } from 'src/engine/metadata-modules/flat-agen
 import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-flat-entity-maps.constant';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
-import { STANDARD_AGENT_CHAT_CHANNEL } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-agent-chat-channel.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { STANDARD_AGENT_CHAT_CHANNEL } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-agent-chat-channel.constant';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 export const buildStandardFlatAgentChatChannelMaps = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
 }): FlatEntityMaps<FlatAgentChatChannel> => {
   let flatAgentChatChannelMaps = createEmptyFlatEntityMaps();
 
@@ -33,7 +33,7 @@ export const buildStandardFlatAgentChatChannelMaps = ({
         navigationMenuItemIds: [],
         navigationMenuItemUniversalIdentifiers: [],
         workspaceId,
-        applicationId: kovaa-labStandardApplicationId,
+        applicationId: kovaaLabStandardApplicationId,
         applicationUniversalIdentifier:
           KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
         createdAt: now,

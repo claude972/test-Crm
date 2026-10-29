@@ -5,7 +5,7 @@ RSpec.describe 'Public Articles API', type: :request do
 
   describe 'GET /public/api/v1/portals/:slug/articles' do
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       portal.account.enable_features!(:help_center, :help_center_embedding_search)
     end
 

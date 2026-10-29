@@ -52,10 +52,10 @@ import { ShareWithService } from 'src/engine/core-modules/record-share/services/
 import { type ShareWithInput } from 'src/engine/core-modules/record-share/types/share-with-input.type';
 import { resolveObjectSharing } from 'src/engine/core-modules/record-share/utils/resolve-object-sharing.util';
 import { resolveShareWithToWrite } from 'src/engine/core-modules/record-share/utils/resolve-share-with-to-write.util';
-import { WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
-import { RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { containsNestedRelationCreate } from 'src/engine/kovaa-lab-orm/utils/contains-nested-relation-create.util';
-import { getNestedRelationFieldNames } from 'src/engine/kovaa-lab-orm/utils/get-nested-relation-field-names.util';
+import { WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { containsNestedRelationCreate } from 'src/engine/twenty-orm/utils/contains-nested-relation-create.util';
+import { getNestedRelationFieldNames } from 'src/engine/twenty-orm/utils/get-nested-relation-field-names.util';
 
 const MAX_NESTED_RELATION_CREATE_DEPTH = 5;
 

@@ -24,7 +24,7 @@ import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-
 import { FieldDisplayMode } from 'src/engine/metadata-modules/page-layout-widget/enums/field-display-mode.enum';
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 const LIST = STANDARD_OBJECTS.messageList;
@@ -129,16 +129,16 @@ export class SyncMessageListRecordPageCommand extends ProvisionedWorkspaceComman
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const fieldsToCreate =
@@ -212,7 +212,7 @@ export class SyncMessageListRecordPageCommand extends ProvisionedWorkspaceComman
           standardFlatPageLayoutWidgetMaps:
             standardAllFlatEntityMaps.flatPageLayoutWidgetMaps,
           membersView,
-          standardApplicationId: kovaa-labStandardFlatApplication.id,
+          standardApplicationId: kovaaLabStandardFlatApplication.id,
         })
       : EMPTY_RECORD_PAGE_OPERATIONS;
 
@@ -247,7 +247,7 @@ export class SyncMessageListRecordPageCommand extends ProvisionedWorkspaceComman
           isSystemBuild: true,
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           allFlatEntityOperationByMetadataName: {
             fieldMetadata: {
               flatEntityToCreate: fieldsToCreate,

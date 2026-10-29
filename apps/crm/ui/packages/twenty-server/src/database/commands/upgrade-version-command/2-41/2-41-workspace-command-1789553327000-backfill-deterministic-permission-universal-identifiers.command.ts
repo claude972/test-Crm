@@ -73,7 +73,7 @@ export class BackfillDeterministicPermissionUniversalIdentifiersCommand extends 
     const isDryRun = options.dryRun ?? false;
 
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 

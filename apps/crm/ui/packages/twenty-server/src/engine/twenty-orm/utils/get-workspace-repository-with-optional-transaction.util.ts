@@ -1,10 +1,10 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { type ObjectLiteral } from 'typeorm';
 
-import { type WorkspaceRepository } from 'src/engine/kovaa-lab-orm/repository/workspace-repository';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { type WorkspaceTransactionScope } from 'src/engine/kovaa-lab-orm/types/workspace-transaction-scope.type';
-import { type WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
+import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 
 export const getWorkspaceRepositoryWithOptionalTransaction = <
   Entity extends ObjectLiteral,

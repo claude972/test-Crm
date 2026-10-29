@@ -1,5 +1,18 @@
 {
   "devDependencies": {
     "ts-jest": "^29.4.15"
+  },
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/local-project.mjs setup",
+    "install:crm": "node scripts/build-crm.mjs install",
+    "build": "node scripts/build-crm.mjs build",
+    "check": "node scripts/build-crm.mjs check",
+    "init": "node scripts/local-project.mjs init",
+    "start": "node scripts/local-project.mjs start",
+    "start:crm": "node scripts/local-project.mjs start-crm",
+    "stop": "node scripts/local-project.mjs stop",
+    "status": "node scripts/local-project.mjs status",
+    "backup": "node scripts/backup-local.mjs"
   }
 }

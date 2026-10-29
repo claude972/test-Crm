@@ -13,7 +13,7 @@ type BuildSearchVectorGinIndexBackfillOperationsArgs = {
   flatObjectMetadataMaps: FlatEntityMaps<FlatObjectMetadata>;
   flatFieldMetadataMaps: FlatEntityMaps<FlatFieldMetadata>;
   flatIndexMaps: FlatEntityMaps<FlatIndexMetadata>;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   workspaceCustomApplicationId: string;
 };
 
@@ -25,7 +25,7 @@ export const buildSearchVectorGinIndexBackfillOperations = ({
   flatObjectMetadataMaps,
   flatFieldMetadataMaps,
   flatIndexMaps,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   workspaceCustomApplicationId,
 }: BuildSearchVectorGinIndexBackfillOperationsArgs): Record<
   string,
@@ -54,7 +54,7 @@ export const buildSearchVectorGinIndexBackfillOperations = ({
     flatObjectMetadataMaps.byUniversalIdentifier,
   ).filter(isDefined)) {
     if (
-      flatObjectMetadata.applicationId === kovaa-labStandardApplicationId ||
+      flatObjectMetadata.applicationId === kovaaLabStandardApplicationId ||
       flatObjectMetadata.applicationId === workspaceCustomApplicationId
     ) {
       continue;

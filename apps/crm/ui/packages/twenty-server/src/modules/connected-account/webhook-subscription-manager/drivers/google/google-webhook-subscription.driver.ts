@@ -8,7 +8,7 @@ import { v4 } from 'uuid';
 
 import { WebhookSubscriptionChannelType } from 'kovaa-lab-shared/types';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { GOOGLE_CALENDAR_WATCH_TTL_MS } from 'src/modules/connected-account/webhook-subscription-manager/drivers/google/google-calendar-watch-ttl-ms.constant';
 import {
   WebhookSubscriptionDriverException,
@@ -26,7 +26,7 @@ import { GoogleOAuth2ClientProvider } from 'src/modules/connected-account/oauth2
 export class GoogleWebhookSubscriptionDriver implements WebhookSubscriptionDriver {
   constructor(
     private readonly googleOAuth2ClientProvider: GoogleOAuth2ClientProvider,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async createSubscription(
@@ -72,7 +72,7 @@ export class GoogleWebhookSubscriptionDriver implements WebhookSubscriptionDrive
   private async watchGmailMailbox(
     connectedAccountId: string,
   ): Promise<WebhookSubscriptionResult> {
-    const pubSubTopicName = this.kovaa-labConfigService.get(
+    const pubSubTopicName = this.kovaaLabConfigService.get(
       'MESSAGING_GMAIL_PUBSUB_TOPIC',
     );
 
@@ -128,7 +128,7 @@ export class GoogleWebhookSubscriptionDriver implements WebhookSubscriptionDrive
   ): Promise<WebhookSubscriptionResult> {
     const calendarClient = await this.getCalendarClient(connectedAccountId);
 
-    const notificationAddress = `${this.kovaa-labConfigService.get('SERVER_URL')}/webhooks/google/calendar`;
+    const notificationAddress = `${this.kovaaLabConfigService.get('SERVER_URL')}/webhooks/google/calendar`;
     const watchChannelId = v4();
 
     const { data } = await calendarClient.events

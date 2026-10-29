@@ -7,7 +7,7 @@ import {
   WidgetType,
 } from 'kovaa-lab-shared/types';
 
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 
 export const CONDITIONAL_DISPLAY_DEVICE_MOBILE = {
   and: [{ '===': [{ var: 'device' }, 'MOBILE'] }],

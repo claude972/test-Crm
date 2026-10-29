@@ -1,13 +1,13 @@
 import { msg } from '@lingui/core/macro';
 import { ViewType, ViewKey } from 'kovaa-lab-shared/types';
 
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import { INDEX_VIEW_NAME } from 'src/engine/metadata-modules/view/constants/index-view-name.constant';
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
 import {
   createStandardViewFlatMetadata,
   type CreateStandardViewArgs,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view/create-standard-view-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/view/create-standard-view-flat-metadata.util';
 
 export const computeStandardMessageCampaignViews = (
   args: Omit<CreateStandardViewArgs<'messageCampaign'>, 'context'>,

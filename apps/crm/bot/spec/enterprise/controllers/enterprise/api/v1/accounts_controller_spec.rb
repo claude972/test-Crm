@@ -29,7 +29,7 @@ RSpec.describe 'Enterprise Billing APIs', type: :request do
 
   describe 'API token access' do
     before do
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       account.disable_features!('api_and_webhooks')
     end
 
@@ -53,8 +53,8 @@ RSpec.describe 'Enterprise Billing APIs', type: :request do
 
   describe 'API token access when the account enforces MFA' do
     before do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
-      allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
+      allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
       account.enable_features!('api_and_webhooks')
       account.update!(enforce_mfa: true)
     end
@@ -327,8 +327,8 @@ RSpec.describe 'Enterprise Billing APIs', type: :request do
               },
               'conversation' => {},
               'captain' => {
-                'documents' => { 'consumed' => 0, 'current_available' => KovaaLab CharApp.max_limit, 'total_count' => KovaaLab CharApp.max_limit },
-                'responses' => { 'consumed' => 0, 'current_available' => KovaaLab CharApp.max_limit, 'total_count' => KovaaLab CharApp.max_limit }
+                'documents' => { 'consumed' => 0, 'current_available' => ChatwootApp.max_limit, 'total_count' => ChatwootApp.max_limit },
+                'responses' => { 'consumed' => 0, 'current_available' => ChatwootApp.max_limit, 'total_count' => ChatwootApp.max_limit }
               },
               'non_web_inboxes' => {}
             }

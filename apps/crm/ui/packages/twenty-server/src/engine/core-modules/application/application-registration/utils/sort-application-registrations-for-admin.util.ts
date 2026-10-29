@@ -1,5 +1,5 @@
 import { type ApplicationRegistrationEntity } from 'src/engine/core-modules/application/application-registration/application-registration.entity';
-import { isKovaaLab CRMApplicationPackage } from 'src/engine/core-modules/application/application-registration/utils/is-kovaa-lab-application-package.util';
+import { isKovaaLabCRMApplicationPackage } from 'src/engine/core-modules/application/application-registration/utils/is-twenty-application-package.util';
 
 type AdminSortableApplicationRegistration = Pick<
   ApplicationRegistrationEntity,
@@ -39,11 +39,11 @@ export const sortApplicationRegistrationsForAdmin = <
       return left.isListed ? 1 : -1;
     }
 
-    const isLeftFromKovaaLab CRM = isKovaaLab CRMApplicationPackage(left.sourcePackage);
-    const isRightFromKovaaLab CRM = isKovaaLab CRMApplicationPackage(right.sourcePackage);
+    const isLeftFromKovaaLabCRM = isKovaaLabCRMApplicationPackage(left.sourcePackage);
+    const isRightFromKovaaLabCRM = isKovaaLabCRMApplicationPackage(right.sourcePackage);
 
-    if (isLeftFromKovaaLab CRM !== isRightFromKovaaLab CRM) {
-      return isLeftFromKovaaLab CRM ? -1 : 1;
+    if (isLeftFromKovaaLabCRM !== isRightFromKovaaLabCRM) {
+      return isLeftFromKovaaLabCRM ? -1 : 1;
     }
 
     const installCountDifference =

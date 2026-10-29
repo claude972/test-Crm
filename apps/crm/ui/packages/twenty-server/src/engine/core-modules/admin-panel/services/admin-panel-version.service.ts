@@ -5,19 +5,19 @@ import * as z from 'zod';
 
 import { type VersionInfoDTO } from 'src/engine/core-modules/admin-panel/dtos/version-info.dto';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class AdminPanelVersionService {
   private readonly logger = new Logger(AdminPanelVersionService.name);
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly secureHttpClientService: SecureHttpClientService,
   ) {}
 
   async getVersionInfo(): Promise<VersionInfoDTO> {
-    const currentVersion = this.kovaa-labConfigService.get('APP_VERSION');
+    const currentVersion = this.kovaaLabConfigService.get('APP_VERSION');
 
     try {
       const httpClient = this.secureHttpClientService.getHttpClient();

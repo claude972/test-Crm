@@ -14,5 +14,5 @@ json.payload do
     end
   end
 
-  json.partial! 'enterprise/api/v1/accounts/assignable_agents/assistants' if KovaaLab CharApp.enterprise?
+  json.partial! 'enterprise/api/v1/accounts/assignable_agents/assistants' if ChatwootApp.enterprise?
 end

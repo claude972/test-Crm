@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 
 import { type Request } from 'express';
 
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { warnOnceOnDisallowedBrowserPreflight } from 'src/engine/core-modules/user-session/utils/apply-credentialed-cors.util';
 
 describe('warnOnceOnDisallowedBrowserPreflight', () => {
@@ -15,9 +15,9 @@ describe('warnOnceOnDisallowedBrowserPreflight', () => {
 
   let mockConfig: Record<string, unknown> = { ...defaultConfig };
 
-  const kovaa-labConfigService = {
+  const kovaaLabConfigService = {
     get: jest.fn((key: string) => mockConfig[key]),
-  } as unknown as KovaaLab CRMConfigService;
+  } as unknown as KovaaLabCRMConfigService;
 
   const buildPreflightRequest = ({
     origin,
@@ -56,12 +56,12 @@ describe('warnOnceOnDisallowedBrowserPreflight', () => {
   it('should warn once per disallowed cross-origin preflight', () => {
     warnOnceOnDisallowedBrowserPreflight({
       request: buildPreflightRequest({ origin: 'https://tenant.example.net' }),
-      kovaa-labConfigService,
+      kovaaLabConfigService,
       warnedOrigins,
     });
     warnOnceOnDisallowedBrowserPreflight({
       request: buildPreflightRequest({ origin: 'https://tenant.example.net' }),
-      kovaa-labConfigService,
+      kovaaLabConfigService,
       warnedOrigins,
     });
 
@@ -76,7 +76,7 @@ describe('warnOnceOnDisallowedBrowserPreflight', () => {
 
     warnOnceOnDisallowedBrowserPreflight({
       request: buildPreflightRequest({ origin: 'https://front.example.net' }),
-      kovaa-labConfigService,
+      kovaaLabConfigService,
       warnedOrigins,
     });
 
@@ -89,7 +89,7 @@ describe('warnOnceOnDisallowedBrowserPreflight', () => {
         origin: 'https://lan.example.internal',
         host: 'lan.example.internal',
       }),
-      kovaa-labConfigService,
+      kovaaLabConfigService,
       warnedOrigins,
     });
 
@@ -102,7 +102,7 @@ describe('warnOnceOnDisallowedBrowserPreflight', () => {
         origin: 'https://tenant.example.net',
         method: 'POST',
       }),
-      kovaa-labConfigService,
+      kovaaLabConfigService,
       warnedOrigins,
     });
     warnOnceOnDisallowedBrowserPreflight({
@@ -110,7 +110,7 @@ describe('warnOnceOnDisallowedBrowserPreflight', () => {
         origin: 'https://tenant.example.net',
         requestedMethod: '',
       }),
-      kovaa-labConfigService,
+      kovaaLabConfigService,
       warnedOrigins,
     });
 

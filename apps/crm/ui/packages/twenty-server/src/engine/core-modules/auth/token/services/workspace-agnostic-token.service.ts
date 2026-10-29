@@ -15,7 +15,7 @@ import { type RawAuthContext } from 'src/engine/core-modules/auth/types/raw-auth
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 import { type WorkspaceAgnosticTokenJwtPayload } from 'src/engine/core-modules/auth/types/workspace-agnostic-token-jwt-payload.type';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { userValidator } from 'src/engine/core-modules/user/user.validate';
 
@@ -23,7 +23,7 @@ import { userValidator } from 'src/engine/core-modules/user/user.validate';
 export class WorkspaceAgnosticTokenService {
   constructor(
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
   ) {}
@@ -35,7 +35,7 @@ export class WorkspaceAgnosticTokenService {
     userId: string;
     authProvider: WorkspaceAgnosticTokenJwtPayload['authProvider'];
   }): Promise<AuthToken> {
-    const expiresIn = this.kovaa-labConfigService.get(
+    const expiresIn = this.kovaaLabConfigService.get(
       'WORKSPACE_AGNOSTIC_TOKEN_EXPIRES_IN',
     );
 

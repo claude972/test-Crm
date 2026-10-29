@@ -1,4 +1,4 @@
-import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/KovaaLab CRMStandardApplicationUniversalIdentifier';
+import { KOVAALAB_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/TwentyStandardApplicationUniversalIdentifier';
 import { getSystemViewFieldUniversalIdentifier } from '@/application/deterministic-identifier/get-system-view-field-universal-identifier.util';
 import {
   getSystemViewUniversalIdentifier,

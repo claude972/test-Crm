@@ -3,7 +3,7 @@ import { type INestApplication, Logger } from '@nestjs/common';
 import { isNonEmptyString } from '@sniptt/guards';
 import { type NextFunction, type Request, type Response } from 'express';
 
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { resolveAllowedCredentialedOrigins } from 'src/engine/core-modules/user-session/utils/resolve-allowed-credentialed-origins.util';
 import { getRequestBaseUrl } from 'src/utils/get-request-base-url.util';
 
@@ -23,11 +23,11 @@ const toComparableOrigin = (value: string): string | undefined => {
 // Browsers report a rejected credentialed wildcard only in their console (#24037), so warn once per origin.
 export const warnOnceOnDisallowedBrowserPreflight = ({
   request,
-  kovaa-labConfigService,
+  kovaaLabConfigService,
   warnedOrigins,
 }: {
   request: Request;
-  kovaa-labConfigService: KovaaLab CRMConfigService;
+  kovaaLabConfigService: KovaaLabCRMConfigService;
   warnedOrigins: Set<string>;
 }): void => {
   if (
@@ -55,7 +55,7 @@ export const warnOnceOnDisallowedBrowserPreflight = ({
   }
 
   if (
-    resolveAllowedCredentialedOrigins(kovaa-labConfigService).has(comparableOrigin)
+    resolveAllowedCredentialedOrigins(kovaaLabConfigService).has(comparableOrigin)
   ) {
     return;
   }
@@ -77,7 +77,7 @@ export const warnOnceOnDisallowedBrowserPreflight = ({
 // Shared with the integration test harness so the CORS behavior under test is the deployed one.
 export const applyCredentialedCors = (
   app: INestApplication,
-  kovaa-labConfigService: KovaaLab CRMConfigService,
+  kovaaLabConfigService: KovaaLabCRMConfigService,
 ): void => {
   const warnedOrigins = new Set<string>();
 
@@ -86,7 +86,7 @@ export const applyCredentialedCors = (
     response.vary('Origin');
     warnOnceOnDisallowedBrowserPreflight({
       request,
-      kovaa-labConfigService,
+      kovaaLabConfigService,
       warnedOrigins,
     });
     next();
@@ -100,7 +100,7 @@ export const applyCredentialedCors = (
     ) => {
       if (
         origin &&
-        resolveAllowedCredentialedOrigins(kovaa-labConfigService).has(
+        resolveAllowedCredentialedOrigins(kovaaLabConfigService).has(
           origin.toLowerCase(),
         )
       ) {

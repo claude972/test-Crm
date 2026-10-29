@@ -8,12 +8,12 @@
       "executor": "nx:run-commands",
       "cache": true,
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "parallel": false,
         "commands": [
           "rimraf dist",
           "nest build --path ./tsconfig.build.json",
-          "mkdir -p dist/assets/kovaa-lab-client-sdk && cp ../kovaa-lab-client-sdk/package.json dist/assets/kovaa-lab-client-sdk/ && cp -r ../kovaa-lab-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist"
+          "mkdir -p dist/assets/kovaa-lab-client-sdk && cp ../twenty-client-sdk/package.json dist/assets/kovaa-lab-client-sdk/ && cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist"
         ]
       },
       "dependsOn": ["^build"]
@@ -21,7 +21,7 @@
     "test:integration:secure": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "commands": [
           "NODE_ENV=test NODE_OPTIONS=\"--max-old-space-size=6144\" nx jest --config ./jest-integration-secure.config.ts --logHeapUsage"
         ]
@@ -31,7 +31,7 @@
     "test:integration": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "commands": [
           "NODE_ENV=test NODE_OPTIONS=\"--max-old-space-size=6144\" nx jest --config ./jest-integration.config.ts --logHeapUsage"
         ]
@@ -39,7 +39,7 @@
       "parallel": false,
       "configurations": {
         "with-db-reset": {
-          "cwd": "packages/kovaa-lab-server",
+          "cwd": "packages/twenty-server",
           "commands": [
             "NODE_ENV=test NODE_OPTIONS=\"--max-old-space-size=12288 --import tsx/esm\" nx database:reset > reset-logs.log && NODE_ENV=test NODE_OPTIONS=\"--max-old-space-size=6144\" nx jest --config ./jest-integration.config.ts --logHeapUsage"
           ]
@@ -50,16 +50,16 @@
       "executor": "nx:run-commands",
       "dependsOn": ["^build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
-        "command": "jest --config ./jest.config.mjs --ci --maxWorkers=3 --workerIdleMemoryLimit=1GB --cacheDirectory=../../.cache/jest/packages/kovaa-lab-server"
+        "cwd": "packages/twenty-server",
+        "command": "jest --config ./jest.config.mjs --ci --maxWorkers=3 --workerIdleMemoryLimit=1GB --cacheDirectory=../../.cache/jest/packages/twenty-server"
       }
     },
     "build:packageJson": {
       "executor": "@nx/js:tsc",
       "options": {
-        "main": "packages/kovaa-lab-server/dist/main.js",
-        "tsConfig": "packages/kovaa-lab-server/tsconfig.json",
-        "outputPath": "packages/kovaa-lab-server/dist",
+        "main": "packages/twenty-server/dist/main.js",
+        "tsConfig": "packages/twenty-server/tsconfig.json",
+        "outputPath": "packages/twenty-server/dist",
         "updateBuildableProjectDepsInPackageJson": true
       }
     },
@@ -72,14 +72,14 @@
       "cache": false,
       "dependsOn": ["^build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "rimraf dist && NODE_ENV=development nest start --watch"
       }
     },
     "start:ci": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "NODE_ENV=development nest start"
       }
     },
@@ -87,7 +87,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "curl -f -s http://localhost:3000/healthz > /dev/null 2>&1 && echo '✅ Server already running' || (echo '🚀 Server not running, starting...' && nohup nest start &)"
       }
     },
@@ -95,7 +95,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["^build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "rimraf dist && NODE_ENV=development nest start --watch --debug"
       }
     },
@@ -123,14 +123,14 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "node dist/command/command.js"
       }
     },
     "command-no-deps": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "node dist/command/command.js"
       }
     },
@@ -138,7 +138,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["^build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "NODE_ENV=development nest start --watch --entryFile queue-worker/queue-worker"
       }
     },
@@ -146,21 +146,21 @@
       "executor": "nx:run-commands",
       "dependsOn": ["^build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "ts-node"
       }
     },
     "ts-node-no-deps": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "ts-node"
       }
     },
     "ts-node-no-deps-transpile-only": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "ts-node --transpile-only"
       }
     },
@@ -174,7 +174,7 @@
         "{projectRoot}/tsconfig*.json",
         "{workspaceRoot}/tsconfig.base.json",
         "{projectRoot}/.oxlintrc.json",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/dist/oxlint-plugin.mjs"
+        "{workspaceRoot}/packages/twenty-oxlint-rules/dist/oxlint-plugin.mjs"
       ],
       "options": {
         "cwd": "{projectRoot}",
@@ -208,14 +208,14 @@
     "test:debug": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ../../node_modules/.bin/jest --runInBand"
       }
     },
     "jest": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "jest"
       }
     },
@@ -223,7 +223,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "node dist/command/command.js run-instance-commands --force"
       }
     },
@@ -231,7 +231,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "commands": [
           "node dist/database/scripts/setup-db.js",
           "nx database:migrate -- --include-slow"
@@ -243,7 +243,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "node dist/command/command.js generate:instance-command"
       },
       "cache": false
@@ -251,7 +251,7 @@
     "generate:integration-test": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "commands": [
           "nx ts-node-no-deps -- ./test/integration/graphql/codegen/index.ts"
         ],
@@ -263,7 +263,7 @@
       "dependsOn": ["build"],
       "configurations": {
         "no-seed": {
-          "cwd": "packages/kovaa-lab-server",
+          "cwd": "packages/twenty-server",
           "commands": [
             "node dist/database/scripts/truncate-clickhouse.js",
             "node dist/database/scripts/truncate-db.js",
@@ -273,7 +273,7 @@
           "parallel": false
         },
         "seed": {
-          "cwd": "packages/kovaa-lab-server",
+          "cwd": "packages/twenty-server",
           "commands": [
             "node dist/database/scripts/truncate-clickhouse.js",
             "node dist/database/scripts/truncate-db.js",
@@ -289,14 +289,14 @@
     "clickhouse:migrate": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "nx ts-node-no-deps-transpile-only -- src/database/clickhouse/migrations/run-migrations.ts"
       }
     },
     "clickhouse:seed": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/kovaa-lab-server",
+        "cwd": "packages/twenty-server",
         "command": "nx ts-node-no-deps-transpile-only -- src/database/clickhouse/seeds/run-seeds.ts"
       }
     },

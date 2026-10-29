@@ -4,7 +4,7 @@ import { type FlatViewFilter } from 'src/engine/metadata-modules/flat-view-filte
 import {
   createStandardViewFilterFlatMetadata,
   type CreateStandardViewFilterArgs,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/view-filter/create-standard-view-filter-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/view-filter/create-standard-view-filter-flat-metadata.util';
 
 export const computeStandardPersonViewFilters = (
   args: Omit<CreateStandardViewFilterArgs<'person'>, 'context'>,

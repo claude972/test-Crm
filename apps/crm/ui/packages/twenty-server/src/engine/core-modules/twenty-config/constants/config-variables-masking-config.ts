@@ -1,4 +1,4 @@
-import { ConfigVariablesMaskingStrategies } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-masking-strategies.enum';
+import { ConfigVariablesMaskingStrategies } from 'src/engine/core-modules/twenty-config/enums/config-variables-masking-strategies.enum';
 
 type LastNCharsConfig = {
   strategy: ConfigVariablesMaskingStrategies.LAST_N_CHARS;

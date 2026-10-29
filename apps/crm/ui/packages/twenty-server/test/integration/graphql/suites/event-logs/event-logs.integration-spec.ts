@@ -470,7 +470,7 @@ describe('Event Logs (integration)', () => {
 
       it('should filter by date range (start and end)', async () => {
         const now = new Date();
-        const kovaa-labMinutesAgo = new Date(now.getTime() - 20 * 60 * 1000);
+        const kovaaLabMinutesAgo = new Date(now.getTime() - 20 * 60 * 1000);
         const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
         const response = await makeEventLogsQuery({
@@ -478,7 +478,7 @@ describe('Event Logs (integration)', () => {
           first: 50,
           filters: {
             dateRange: {
-              start: kovaa-labMinutesAgo.toISOString(),
+              start: kovaaLabMinutesAgo.toISOString(),
               end: fiveMinutesAgo.toISOString(),
             },
           },
@@ -491,7 +491,7 @@ describe('Event Logs (integration)', () => {
             const timestamp = new Date(record.timestamp).getTime();
 
             expect(timestamp).toBeGreaterThanOrEqual(
-              kovaa-labMinutesAgo.getTime(),
+              kovaaLabMinutesAgo.getTime(),
             );
             expect(timestamp).toBeLessThanOrEqual(fiveMinutesAgo.getTime());
           },

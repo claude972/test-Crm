@@ -5,7 +5,7 @@
   <title>KovaaLab</title>
   <link href="https://cdnjs.cloudflare.com" rel="dns-prefetch" />
   <link href="https://js.stripe.com" rel="dns-prefetch" />
-  {{#if kovaa-lab.enableGoogleFonts}}
+  {{#if kovaaLab.enableGoogleFonts}}
   <link href="https://fonts.gstatic.com" rel="dns-prefetch" />
   {{/if}}
   <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -27,9 +27,9 @@
   <script>
 		;(function () {
 			const userAgent = window.navigator.userAgent;
-			const kovaa-lab = {{{json kovaa-lab}}};
+			const kovaaLab = {{{json kovaaLab}}};
 
-			kovaa-lab.device = {
+			kovaaLab.device = {
 				ios: /iPad|iPhone|iPod/i.test(userAgent),
 				android: /Android/i.test(userAgent),
 				mobile: /Android|iPad|iPhone|iPod/i.test(userAgent),
@@ -38,7 +38,7 @@
         locale: '{{locale}}'
 			};
 
-			window.kovaa-lab = kovaa-lab;
+			window.kovaaLab = kovaaLab;
 		})();
 	</script>
 </head>

@@ -26,10 +26,10 @@ import { type UserWorkspaceRoleMap } from 'src/engine/metadata-modules/role-targ
 import {
   type RoleIdsBySource,
   type RolePermissionConfig,
-} from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { buildAgentRoleIdsBySource } from 'src/engine/kovaa-lab-orm/utils/build-agent-role-ids-by-source.util';
-import { buildUserRoleIdsBySource } from 'src/engine/kovaa-lab-orm/utils/build-user-role-ids-by-source.util';
-import { getRoleIdsToIntersect } from 'src/engine/kovaa-lab-orm/utils/get-role-ids-to-intersect.util';
+} from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { buildAgentRoleIdsBySource } from 'src/engine/twenty-orm/utils/build-agent-role-ids-by-source.util';
+import { buildUserRoleIdsBySource } from 'src/engine/twenty-orm/utils/build-user-role-ids-by-source.util';
+import { getRoleIdsToIntersect } from 'src/engine/twenty-orm/utils/get-role-ids-to-intersect.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 
 @Injectable()

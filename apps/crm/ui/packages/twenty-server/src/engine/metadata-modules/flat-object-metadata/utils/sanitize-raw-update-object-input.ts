@@ -7,7 +7,7 @@ import {
   ObjectMetadataException,
   ObjectMetadataExceptionCode,
 } from 'src/engine/metadata-modules/object-metadata/object-metadata.exception';
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { dispatchUpdateToAuthoredOverride } from 'src/engine/metadata-modules/overrides/utils/dispatch-update-to-authored-override.util';
 import { findInvalidTranslationOverrideProperties } from 'src/engine/metadata-modules/overrides/utils/find-invalid-translation-override-properties.util';
 import { mergeTranslationsIntoOverrides } from 'src/engine/metadata-modules/overrides/utils/merge-translations-into-overrides.util';
@@ -28,7 +28,7 @@ export const sanitizeRawUpdateObjectInput = ({
     ownerApplicationUniversalIdentifier:
       existingFlatObjectMetadata.applicationUniversalIdentifier,
   };
-  const isStandardObject = belongsToKovaaLab CRMStandardApp(
+  const isStandardObject = belongsToKovaaLabCRMStandardApp(
     existingFlatObjectMetadata,
   );
   const updatedEditableObjectProperties = extractAndSanitizeObjectStringFields(

@@ -1,0 +1,109 @@
+name: P0 source integrity
+on:
+  push:
+    branches: [chore/p0-stabilization]
+    paths:
+      - '.github/workflows/p0-integrity.yml'
+      - 'apps/**'
+      - 'scripts/**'
+      - 'infra/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Makefile'
+      - 'docker-compose.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  forms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install isolated verification tools
+        run: npm install --prefix "$RUNNER_TEMP/hermes-p0" --ignore-scripts --no-audit --no-fund typescript@5.4.5 handlebars@4.7.8
+      - name: Check Forms syntax, runtime bootstrap and credential compatibility
+        env:
+          HERMES_CHECK_MODULES: ${{ runner.temp }}/hermes-p0
+        run: node scripts/check-forms-p0.cjs
+  char-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.4'
+          bundler-cache: false
+      - name: Compile Char backend sources without loading Rails or touching data
+        run: ruby scripts/check-char-p0.rb
+  crm-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install isolated verification tools
+        run: npm install --prefix "$RUNNER_TEMP/hermes-p0" --ignore-scripts --no-audit --no-fund typescript@5.4.5
+      - name: Check CRM backend syntax, internal imports and SDK wire compatibility
+        env:
+          HERMES_CHECK_MODULES: ${{ runner.temp }}/hermes-p0
+        run: node scripts/check-crm-p0.cjs
+  crm-workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install CRM dependencies from the committed immutable lockfile
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build the shared package and verify emitted artifacts
+        working-directory: apps/crm/ui/packages/twenty-shared
+        env:
+          FORCE_COLOR: '0'
+        run: |
+          node ../../node_modules/vite/bin/vite.js --version
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          test -s dist/index.cjs
+          test -s dist/application.mjs
+      - name: Generate and verify shared TypeScript declarations
+        working-directory: apps/crm/ui/packages/twenty-shared
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: |
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/application/index.d.ts
+  local-orchestration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check script syntax
+        run: for file in scripts/*.mjs; do node --check "$file" || exit 1; done
+      - name: Check private configuration preservation and migration boundaries
+        run: node scripts/check-runtime-p0.cjs
+      - name: Generate isolated CI configuration
+        run: node scripts/local-project.mjs setup
+      - name: Validate Compose without starting services
+        run: |
+          docker compose --env-file apps/crm/ui/.runtime/infra.env -f infra/crm.compose.yml config --quiet
+          docker compose --env-file .runtime/customer-tools.env -f infra/modules.compose.yml --profile char --profile forms --profile calendar config --quiet

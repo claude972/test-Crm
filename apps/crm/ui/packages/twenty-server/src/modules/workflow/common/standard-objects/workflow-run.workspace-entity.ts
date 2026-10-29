@@ -6,7 +6,7 @@ import {
   type WorkflowRunStepLogs,
 } from 'kovaa-lab-shared/workflow';
 
-import { BaseWorkspaceEntity } from 'src/engine/kovaa-lab-orm/base.workspace-entity';
+import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 import { type EntityRelation } from 'src/engine/workspace-manager/workspace-migration/types/entity-relation.interface';
 import { type TimelineActivityWorkspaceEntity } from 'src/modules/timeline/standard-objects/timeline-activity.workspace-entity';
 import { type WorkflowVersionWorkspaceEntity } from 'src/modules/workflow/common/standard-objects/workflow-version.workspace-entity';

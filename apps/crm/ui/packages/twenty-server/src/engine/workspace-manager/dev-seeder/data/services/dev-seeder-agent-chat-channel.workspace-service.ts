@@ -15,7 +15,7 @@ import { AGENT_CHAT_CHANNEL_THREAD_DATA_SEED_IDS } from 'src/engine/workspace-ma
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { USER_WORKSPACE_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-user-workspaces.util';
 import { WORKSPACE_MEMBER_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/data/constants/workspace-member-data-seeds.constant';
-import { STANDARD_AGENT_CHAT_CHANNEL } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-agent-chat-channel.constant';
+import { STANDARD_AGENT_CHAT_CHANNEL } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-agent-chat-channel.constant';
 
 const AGENT_CHAT_CHANNEL_SEED_NAMESPACE =
   '8f1d2c3b-4a5e-4f60-9b7a-6c5d4e3f2a10';

@@ -14,15 +14,15 @@ import {
   DatabasePoolMetricsService,
   DatabasePoolName,
 } from 'src/database/typeorm/database-pool-metrics.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceRecordStockService } from 'src/engine/core-modules/usage-limit/services/workspace-record-stock.service';
-import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
-import { getWorkspaceContext } from 'src/engine/kovaa-lab-orm/storage/orm-workspace-context.storage';
-import { WorkspaceDataSource } from 'src/engine/kovaa-lab-orm/datasource/workspace-data-source';
+import { type WorkspaceInternalContext } from 'src/engine/twenty-orm/interfaces/workspace-internal-context.interface';
+import { getWorkspaceContext } from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
+import { WorkspaceDataSource } from 'src/engine/twenty-orm/datasource/workspace-data-source';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import { WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
 
 // Workspace DATE fields are date-only: keep Postgres's raw 'YYYY-MM-DD' instead of a JS Date, like the v1 datasource
@@ -45,7 +45,7 @@ export class WorkspaceDataSourceService
   private replicaPool: Pool | null = null;
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workspaceEventEmitter: WorkspaceEventEmitter,
     @InjectDataSource()
     private readonly coreDataSource: DataSource,
@@ -55,8 +55,8 @@ export class WorkspaceDataSourceService
 
   onModuleInit(): void {
     this.primaryPool = this.createPool({
-      connectionString: this.kovaa-labConfigService.get('PG_DATABASE_URL'),
-      queryTimeoutMs: this.kovaa-labConfigService.get(
+      connectionString: this.kovaaLabConfigService.get('PG_DATABASE_URL'),
+      queryTimeoutMs: this.kovaaLabConfigService.get(
         'PG_DATABASE_PRIMARY_TIMEOUT_MS',
       ),
     });
@@ -66,12 +66,12 @@ export class WorkspaceDataSourceService
       pool: this.primaryPool,
     });
 
-    const replicaUrl = this.kovaa-labConfigService.get('PG_DATABASE_REPLICA_URL');
+    const replicaUrl = this.kovaaLabConfigService.get('PG_DATABASE_REPLICA_URL');
 
     if (isDefined(replicaUrl)) {
       this.replicaPool = this.createPool({
         connectionString: replicaUrl,
-        queryTimeoutMs: this.kovaa-labConfigService.get(
+        queryTimeoutMs: this.kovaaLabConfigService.get(
           'PG_DATABASE_REPLICA_TIMEOUT_MS',
         ),
       });
@@ -89,9 +89,9 @@ export class WorkspaceDataSourceService
       : this.primaryPool;
 
     if (!isDefined(pool)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'WorkspaceDataSourceService has not been initialized. Make sure the module has been initialized.',
-        KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+        KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
       );
     }
 
@@ -141,15 +141,15 @@ export class WorkspaceDataSourceService
     const pool = new Pool({
       connectionString,
       types: DATE_ONLY_POOL_TYPES,
-      max: this.kovaa-labConfigService.get('PG_POOL_MAX_CONNECTIONS'),
-      idleTimeoutMillis: this.kovaa-labConfigService.get(
+      max: this.kovaaLabConfigService.get('PG_POOL_MAX_CONNECTIONS'),
+      idleTimeoutMillis: this.kovaaLabConfigService.get(
         'PG_POOL_IDLE_TIMEOUT_MS',
       ),
-      allowExitOnIdle: this.kovaa-labConfigService.get(
+      allowExitOnIdle: this.kovaaLabConfigService.get(
         'PG_POOL_ALLOW_EXIT_ON_IDLE',
       ),
       query_timeout: queryTimeoutMs,
-      ssl: this.kovaa-labConfigService.get('PG_SSL_ALLOW_SELF_SIGNED')
+      ssl: this.kovaaLabConfigService.get('PG_SSL_ALLOW_SELF_SIGNED')
         ? { rejectUnauthorized: false }
         : undefined,
     });

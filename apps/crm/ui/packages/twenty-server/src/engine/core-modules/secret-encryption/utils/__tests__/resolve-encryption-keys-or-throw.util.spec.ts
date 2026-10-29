@@ -3,7 +3,7 @@ import {
   SecretEncryptionExceptionCode,
 } from 'src/engine/core-modules/secret-encryption/exceptions/secret-encryption.exception';
 import { resolveEncryptionKeysOrThrow } from 'src/engine/core-modules/secret-encryption/utils/resolve-encryption-keys-or-throw.util';
-import { type EnvironmentConfigDriver } from 'src/engine/core-modules/kovaa-lab-config/drivers/environment-config.driver';
+import { type EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
 
 type EnvMap = Partial<{
   ENCRYPTION_KEY: string;

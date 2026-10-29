@@ -7,7 +7,7 @@ import {
   TEST_KEY_NOTIFICATION,
   TEST_KEY_SOFT_DELETION,
   TEST_KEY_STRING_VALUE,
-} from 'test/integration/kovaa-lab-config/constants/config-test-keys.constants';
+} from 'test/integration/twenty-config/constants/config-test-keys.constants';
 
 import { createConfigVariable } from './utils/create-config-variable.util';
 import { deleteConfigVariable } from './utils/delete-config-variable.util';
@@ -16,7 +16,7 @@ import { getConfigVariablesGrouped } from './utils/get-config-variables-grouped.
 import { makeUnauthenticatedApiRequest } from './utils/make-unauthenticated-api-request.util';
 import { updateConfigVariable } from './utils/update-config-variable.util';
 
-describe('KovaaLab CRMConfig Integration', () => {
+describe('KovaaLabCRMConfig Integration', () => {
   afterAll(async () => {
     await deleteConfigVariable({
       input: { key: TEST_KEY_NOTIFICATION },

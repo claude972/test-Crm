@@ -17,7 +17,7 @@ import {
   createWebhookReceiver,
   deleteWebhook,
 } from 'test/integration/metadata/suites/utils/webhook-test.util';
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 import { expectEventually } from 'test/integration/utils/expect-eventually.util';
 
 const WEBHOOK_RECEIVER_PORT = 4319;

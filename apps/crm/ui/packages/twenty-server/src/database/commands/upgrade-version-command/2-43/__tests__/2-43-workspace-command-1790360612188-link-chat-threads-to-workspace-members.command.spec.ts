@@ -18,10 +18,10 @@ const buildCommand = ({ hasAgentChatThread = true } = {}) => {
   const command = new LinkChatThreadsToWorkspaceMembersCommand(
     {} as WorkspaceIteratorService,
     {
-      findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+      findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
         .fn()
         .mockResolvedValue({
-          kovaa-labStandardFlatApplication: {
+          kovaaLabStandardFlatApplication: {
             id: '20202020-2222-4222-8222-222222222222',
             universalIdentifier: 'kovaa-lab-standard',
           },

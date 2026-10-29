@@ -3,14 +3,14 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { v4 } from 'uuid';
 
 import { collectRecordShareStandardUniversalIdentifiers } from 'src/database/commands/upgrade-version-command/2-40/utils/collect-record-share-standard-universal-identifiers.util';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 describe('collectRecordShareStandardUniversalIdentifiers', () => {
   const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-    computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+    computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
       now: new Date().toISOString(),
       workspaceId: v4(),
-      kovaa-labStandardApplicationId: v4(),
+      kovaaLabStandardApplicationId: v4(),
     });
 
   const universalIdentifiers = collectRecordShareStandardUniversalIdentifiers(

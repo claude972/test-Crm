@@ -27,7 +27,7 @@ import { type AppOAuthStateJwtPayload } from 'src/engine/core-modules/auth/types
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import {
   ConnectedAccountEntity,
@@ -67,7 +67,7 @@ export class ConnectionProviderOAuthFlowService {
     private readonly oauthProviderService: ConnectionProviderService,
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly secureHttpClientService: SecureHttpClientService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly connectedAccountTokenEncryptionService: ConnectedAccountTokenEncryptionService,
     private readonly connectionProviderLifecycleHookService: ConnectionProviderLifecycleHookService,
     private readonly appConnectionAccessService: AppConnectionAccessService,
@@ -326,7 +326,7 @@ export class ConnectionProviderOAuthFlowService {
   }
 
   private getServerUrl(): string {
-    return this.kovaa-labConfigService.get('SERVER_URL');
+    return this.kovaaLabConfigService.get('SERVER_URL');
   }
 
   private async resolveConnectedAccountHandle({

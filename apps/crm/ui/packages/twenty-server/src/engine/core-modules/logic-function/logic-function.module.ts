@@ -7,7 +7,7 @@ import { LogicFunctionResourceModule } from 'src/engine/core-modules/logic-funct
 import { LogicFunctionTriggerModule } from 'src/engine/core-modules/logic-function/logic-function-trigger/logic-function-trigger.module';
 import { LogicFunctionExecutorModule } from 'src/engine/core-modules/logic-function/logic-function-executor/logic-function-executor.module';
 import { SdkClientModule } from 'src/engine/core-modules/sdk-client/sdk-client.module';
-import { KovaaLab CRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
+import { KovaaLabCRMConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 
 @Global()
@@ -17,7 +17,7 @@ export class LogicFunctionModule {
     return {
       module: LogicFunctionModule,
       imports: [
-        KovaaLab CRMConfigModule,
+        KovaaLabCRMConfigModule,
         CacheLockModule,
         LogicFunctionResourceModule,
         LogicFunctionTriggerModule,

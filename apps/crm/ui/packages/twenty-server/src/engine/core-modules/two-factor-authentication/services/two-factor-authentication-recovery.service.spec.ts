@@ -18,7 +18,7 @@ import {
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { TwoFactorAuthenticationMethodEntity } from 'src/engine/core-modules/two-factor-authentication/entities/two-factor-authentication-method.entity';
 import { TwoFactorAuthenticationRecoveryService } from 'src/engine/core-modules/two-factor-authentication/services/two-factor-authentication-recovery.service';
 import { OTPStatus } from 'src/engine/core-modules/two-factor-authentication/strategies/otp/otp.constants';
@@ -29,7 +29,7 @@ import { hashTwoFactorAuthenticationRecoveryCode } from 'src/engine/core-modules
 import { UserSessionService } from 'src/engine/core-modules/user-session/services/user-session.service';
 import { UserSessionRevokedReason } from 'src/engine/core-modules/user-session/types/user-session-revoked-reason.type';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
-import { getWorkspaceScopedRepositoryToken } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
+import { getWorkspaceScopedRepositoryToken } from 'src/engine/twenty-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
 
 jest.mock('kovaa-lab-emails', () => ({
   ...jest.requireActual('kovaa-lab-emails'),
@@ -192,7 +192,7 @@ describe('TwoFactorAuthenticationRecoveryService', () => {
           },
         },
         {
-          provide: KovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
           useValue: {
             get: (key: string) =>
               key === 'TWO_FACTOR_AUTHENTICATION_RECOVERY_CODE_EXPIRES_IN'

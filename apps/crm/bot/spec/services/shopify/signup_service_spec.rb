@@ -155,9 +155,9 @@ RSpec.describe Shopify::SignupService do
 
       it 'returns the committed signup when pending installation cleanup fails' do
         cleanup_error = StandardError.new('Redis unavailable')
-        exception_tracker = instance_double(KovaaLab CharExceptionTracker, capture_exception: nil)
+        exception_tracker = instance_double(ChatwootExceptionTracker, capture_exception: nil)
         allow(pending_installation).to receive(:consume!).and_raise(cleanup_error)
-        allow(KovaaLab CharExceptionTracker).to receive(:new)
+        allow(ChatwootExceptionTracker).to receive(:new)
           .with(cleanup_error, account: instance_of(Account))
           .and_return(exception_tracker)
 
@@ -172,12 +172,12 @@ RSpec.describe Shopify::SignupService do
 
       it 'returns and finalizes a signup when a commit callback raises', :aggregate_failures do
         callback_error = StandardError.new('Commit callback failed')
-        exception_tracker = instance_double(KovaaLab CharExceptionTracker, capture_exception: nil)
+        exception_tracker = instance_double(ChatwootExceptionTracker, capture_exception: nil)
         allow(Rails.configuration.dispatcher).to receive(:dispatch).and_call_original
         allow(Rails.configuration.dispatcher).to receive(:dispatch)
           .with(Events::Types::ACCOUNT_CREATED, anything, account: instance_of(Account))
           .and_raise(callback_error)
-        allow(KovaaLab CharExceptionTracker).to receive(:new)
+        allow(ChatwootExceptionTracker).to receive(:new)
           .with(callback_error, account: instance_of(Account))
           .and_return(exception_tracker)
 
@@ -199,13 +199,13 @@ RSpec.describe Shopify::SignupService do
 
       it 'returns the committed signup when confirmation delivery fails', :aggregate_failures do
         delivery_error = StandardError.new('Mail delivery unavailable')
-        exception_tracker = instance_double(KovaaLab CharExceptionTracker, capture_exception: nil)
+        exception_tracker = instance_double(ChatwootExceptionTracker, capture_exception: nil)
         allow(User).to receive(:new).and_wrap_original do |method, *args|
           method.call(*args).tap do |user|
             allow(user).to receive(:send_confirmation_instructions).and_raise(delivery_error)
           end
         end
-        allow(KovaaLab CharExceptionTracker).to receive(:new)
+        allow(ChatwootExceptionTracker).to receive(:new)
           .with(delivery_error, account: instance_of(Account))
           .and_return(exception_tracker)
 

@@ -1,7 +1,7 @@
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 
-import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-field-name.type';
-import { type AllStandardObjectName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-name.type';
+import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
+import { type AllStandardObjectName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-name.type';
 
 export const SEARCH_FIELDS_BY_STANDARD_OBJECT_NAME = {
   agentChatThread: [],

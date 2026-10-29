@@ -3,7 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 
 import { DataSource } from 'typeorm';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type FastInstanceCommand } from 'src/engine/core-modules/upgrade/interfaces/fast-instance-command.interface';
 import { type SlowInstanceCommand } from 'src/engine/core-modules/upgrade/interfaces/slow-instance-command.interface';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
@@ -22,7 +22,7 @@ export class InstanceCommandRunnerService {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly upgradeMigrationService: UpgradeMigrationService,
     private readonly workspaceVersionService: WorkspaceVersionService,
     private readonly upgradeStatusService: UpgradeStatusService,
@@ -36,7 +36,7 @@ export class InstanceCommandRunnerService {
     name: string;
   }): Promise<RunSingleMigrationResult> {
     const executedByVersion =
-      this.kovaa-labConfigService.get('APP_VERSION') ?? 'unknown';
+      this.kovaaLabConfigService.get('APP_VERSION') ?? 'unknown';
 
     const isAlreadyCompleted =
       await this.upgradeMigrationService.isLastAttemptCompleted({
@@ -141,7 +141,7 @@ export class InstanceCommandRunnerService {
 
     if (!skipDataMigration) {
       const executedByVersion =
-        this.kovaa-labConfigService.get('APP_VERSION') ?? 'unknown';
+        this.kovaaLabConfigService.get('APP_VERSION') ?? 'unknown';
 
       try {
         this.logger.log(`${name} starting data migration...`);

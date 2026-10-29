@@ -2,10 +2,10 @@ import { Any, Equal } from 'typeorm';
 
 import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfaces/relation-type.interface';
 
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { applyFindOptionsToQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/utils/apply-find-options.util';
-import { buildQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { applyFindOptionsToQueryBuilder } from 'src/engine/twenty-orm/query-builder/utils/apply-find-options.util';
+import { buildQueryBuilder } from 'src/engine/twenty-orm/query-builder/__tests__/workspace-select-query-builder-test-shapes.util';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 
 describe('WorkspaceSelectQueryBuilder relation-keyed where', () => {
   it('should filter a to-many relation with a correlated EXISTS instead of a join', () => {
@@ -56,7 +56,7 @@ describe('WorkspaceSelectQueryBuilder relation-keyed where', () => {
         relationFieldName: 'unknown',
         applyWhere: () => {},
       }),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should correlate a to-one relation on the parent join column', () => {
@@ -215,7 +215,7 @@ describe('WorkspaceSelectQueryBuilder relation-keyed where', () => {
 
     expect(() =>
       queryBuilder.where({ orphans: { name: Equal('KovaaLab CRM') } }),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('should carry relation filters into a builder that copies the where clauses', () => {
@@ -246,6 +246,6 @@ describe('WorkspaceSelectQueryBuilder relation-keyed where', () => {
         queryBuilder,
         'delete',
       ),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 });

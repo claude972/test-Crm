@@ -11,11 +11,11 @@ import {
   ConnectedAccountRefreshAccessTokenExceptionCode,
 } from 'src/engine/metadata-modules/connected-account/exceptions/connected-account-refresh-tokens.exception';
 import {
-  type KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+  type KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { MessageChannelSyncStatusService } from 'src/modules/messaging/common/services/message-channel-sync-status.service';
 import { MESSAGING_THROTTLE_MAX_ATTEMPTS } from 'src/modules/messaging/message-import-manager/constants/messaging-throttle-max-attempts';
 import {
@@ -45,7 +45,7 @@ export class MessageImportExceptionHandlerService {
     exception:
       | MessageImportDriverException
       | Error
-      | KovaaLab CRMOrmException
+      | KovaaLabCRMOrmException
       | ConnectedAccountRefreshAccessTokenException,
     syncStep: MessageImportSyncStep,
     messageChannel: Pick<
@@ -72,8 +72,8 @@ export class MessageImportExceptionHandlerService {
             workspaceId,
           );
           break;
-        case KovaaLab CRMOrmExceptionCode.QUERY_READ_TIMEOUT:
-        case KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR:
+        case KovaaLabCRMOrmExceptionCode.QUERY_READ_TIMEOUT:
+        case KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR:
         case MessageImportDriverExceptionCode.TEMPORARY_ERROR:
         case ConnectedAccountRefreshAccessTokenExceptionCode.TEMPORARY_NETWORK_ERROR:
         case MessageNetworkExceptionCode.ECONNABORTED:

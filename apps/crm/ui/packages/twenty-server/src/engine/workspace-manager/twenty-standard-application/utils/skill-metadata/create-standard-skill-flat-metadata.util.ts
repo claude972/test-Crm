@@ -1,10 +1,10 @@
 import { v4 } from 'uuid';
 
 import { type FlatSkill } from 'src/engine/metadata-modules/flat-skill/types/flat-skill.type';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { STANDARD_SKILL } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-skill.constant';
-import { type AllStandardSkillName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-skill-name.type';
-import { type StandardBuilderArgs } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/metadata-standard-buillder-args.type';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { STANDARD_SKILL } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-skill.constant';
+import { type AllStandardSkillName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-skill-name.type';
+import { type StandardBuilderArgs } from 'src/engine/workspace-manager/twenty-standard-application/types/metadata-standard-buillder-args.type';
 
 export type CreateStandardSkillContext = {
   skillName: AllStandardSkillName;
@@ -35,7 +35,7 @@ export const createStandardSkillFlatMetadata = ({
     isActive = true,
   },
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   now,
 }: CreateStandardSkillArgs): FlatSkill => {
   const universalIdentifier = STANDARD_SKILL[skillName].universalIdentifier;
@@ -52,7 +52,7 @@ export const createStandardSkillFlatMetadata = ({
     isSystem,
     isActive,
     workspaceId,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     createdAt: now,

@@ -9,7 +9,7 @@ RSpec.describe Enterprise::Billing::CancelCloudSubscriptionsService do
   describe '#perform' do
     context 'when deployment is not cloud' do
       it 'does not call stripe subscriptions api' do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(false)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(false)
         allow(Stripe::Subscription).to receive(:list)
 
         service.perform
@@ -22,7 +22,7 @@ RSpec.describe Enterprise::Billing::CancelCloudSubscriptionsService do
       let(:custom_attributes) { {} }
 
       it 'does not call stripe subscriptions api' do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         allow(Stripe::Subscription).to receive(:list)
 
         service.perform
@@ -41,7 +41,7 @@ RSpec.describe Enterprise::Billing::CancelCloudSubscriptionsService do
       let(:sub_3) { Stripe::Subscription.construct_from(base.merge(id: 'sub_3', cancel_at_period_end: true)) }
 
       it 'schedules cancellation at the period end, skipping the ones already cancelling' do
-        allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+        allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
         allow(Stripe::Subscription).to receive(:list).and_return(subscription_response)
         allow(Stripe::Subscription).to receive(:update)
 

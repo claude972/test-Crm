@@ -66,7 +66,7 @@
         "{projectRoot}/package.json",
         "{workspaceRoot}/yarn.lock",
         "{projectRoot}/.oxlintrc.json",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/dist/oxlint-plugin.mjs"
+        "{workspaceRoot}/packages/twenty-oxlint-rules/dist/oxlint-plugin.mjs"
       ],
       "options": {
         "cwd": "{projectRoot}",
@@ -83,15 +83,15 @@
       "cache": true,
       "inputs": [
         "{projectRoot}/src/**/*.{ts,tsx}",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/.oxlintrc.i18n.json",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/check-unlocalized-strings.mjs",
-        "{workspaceRoot}/packages/kovaa-lab-oxlint-rules/scripts/filter-unlocalized-strings.mjs",
+        "{workspaceRoot}/packages/twenty-oxlint-rules/.oxlintrc.i18n.json",
+        "{workspaceRoot}/packages/twenty-oxlint-rules/scripts/check-unlocalized-strings.mjs",
+        "{workspaceRoot}/packages/twenty-oxlint-rules/scripts/filter-unlocalized-strings.mjs",
         "{projectRoot}/package.json",
         "{workspaceRoot}/yarn.lock"
       ],
       "options": {
         "cwd": "{projectRoot}",
-        "command": "node ../kovaa-lab-oxlint-rules/scripts/check-unlocalized-strings.mjs . src"
+        "command": "node ../twenty-oxlint-rules/scripts/check-unlocalized-strings.mjs . src"
       }
     },
     "lint:i18n": {

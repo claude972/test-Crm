@@ -1,8 +1,8 @@
 import { buildHideAskAiInSidePanelCommandMenuItemUpdate } from 'src/database/commands/upgrade-version-command/2-38/utils/build-hide-ask-ai-in-side-panel-command-menu-item-update.util';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
 import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-flat-entity-maps.constant';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { createStandardCommandMenuItemFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/command-menu-item/create-standard-command-menu-item-flat-metadata.util';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { createStandardCommandMenuItemFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/command-menu-item/create-standard-command-menu-item-flat-metadata.util';
 
 const NOW = '2026-09-01T12:00:00.000Z';
 const LEGACY_COMMAND_MENU_ITEM: FlatCommandMenuItem = Object.freeze({
@@ -10,7 +10,7 @@ const LEGACY_COMMAND_MENU_ITEM: FlatCommandMenuItem = Object.freeze({
     commandMenuItemName: 'askAi',
     commandMenuItemId: 'ask-ai-command-id',
     workspaceId: 'workspace-id',
-    kovaa-labStandardApplicationId: 'application-id',
+    kovaaLabStandardApplicationId: 'application-id',
     dependencyFlatEntityMaps: {
       flatObjectMetadataMaps: createEmptyFlatEntityMaps(),
     },

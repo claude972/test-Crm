@@ -7,7 +7,7 @@ import { WrapBareSelectFilterValuesCommand } from 'src/database/commands/upgrade
 import { RelabelAppPermissionFlagsCommand } from 'src/database/commands/upgrade-version-command/2-50/2-50-workspace-command-1792429840509-relabel-app-permission-flags.command';
 import { ApplicationModule } from 'src/engine/core-modules/application/application.module';
 import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
-import { WorkspaceSchemaManagerModule } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/workspace-schema-manager.module';
+import { WorkspaceSchemaManagerModule } from 'src/engine/twenty-orm/workspace-schema-manager/workspace-schema-manager.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { WorkspaceMigrationModule } from 'src/engine/workspace-manager/workspace-migration/workspace-migration.module';
 

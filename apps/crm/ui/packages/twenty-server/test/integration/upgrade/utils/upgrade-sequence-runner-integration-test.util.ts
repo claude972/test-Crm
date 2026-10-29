@@ -13,7 +13,7 @@ import {
 } from 'src/database/commands/command-runners/workspace-iterator.service';
 import { CoreEntityCacheService } from 'src/engine/core-entity-cache/services/core-entity-cache.service';
 import { ApplicationEntity } from 'src/engine/core-modules/application/application.entity';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { InstanceCommandRunnerService } from 'src/engine/core-modules/upgrade/services/instance-command-runner.service';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
 import {
@@ -27,8 +27,8 @@ import { UpgradeStatusService } from 'src/engine/core-modules/upgrade/services/u
 import { WorkspaceCommandRunnerService } from 'src/engine/core-modules/upgrade/services/workspace-command-runner.service';
 import { UpgradeMigrationEntity } from 'src/engine/core-modules/upgrade/upgrade-migration.entity';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { UpgradeAwareEntityMetadataAdapter } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { UpgradeAwareEntityMetadataAdapter } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-entity-metadata.adapter';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import {
   SEED_APPLE_WORKSPACE_ID,
@@ -211,7 +211,7 @@ export const createUpgradeSequenceRunnerIntegrationTestModule = async ({
         useValue: dataSource,
       },
       {
-        provide: KovaaLab CRMConfigService,
+        provide: KovaaLabCRMConfigService,
         useValue: {
           get: (key: string) =>
             key === 'APP_VERSION' ? EXECUTED_BY_VERSION : undefined,

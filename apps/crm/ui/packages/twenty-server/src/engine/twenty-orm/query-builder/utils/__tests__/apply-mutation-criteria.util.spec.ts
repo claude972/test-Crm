@@ -2,10 +2,10 @@ import { runInNewContext } from 'node:vm';
 
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 
-import { KovaaLab CRMOrmException } from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { applyMutationCriteriaToQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/utils/apply-mutation-criteria.util';
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+import { KovaaLabCRMOrmException } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { applyMutationCriteriaToQueryBuilder } from 'src/engine/twenty-orm/query-builder/utils/apply-mutation-criteria.util';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const buildColumn = (columnName: string) => ({
   columnName,
@@ -84,13 +84,13 @@ describe('applyMutationCriteriaToQueryBuilder', () => {
   it('throws on an empty criteria array', () => {
     expect(() =>
       applyMutationCriteriaToQueryBuilder(buildQueryBuilder(), []),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('throws on an empty-string id criterion', () => {
     expect(() =>
       applyMutationCriteriaToQueryBuilder(buildQueryBuilder(), ''),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it.each([
@@ -101,7 +101,7 @@ describe('applyMutationCriteriaToQueryBuilder', () => {
   ])('throws on %s, which would reach every row', (_label, criteria) => {
     expect(() =>
       applyMutationCriteriaToQueryBuilder(buildQueryBuilder(), criteria),
-    ).toThrow(KovaaLab CRMOrmException);
+    ).toThrow(KovaaLabCRMOrmException);
   });
 
   it('applies a where object built in another realm', () => {

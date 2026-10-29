@@ -8,7 +8,7 @@ import { type FlatApplication } from 'src/engine/core-modules/application/types/
 import { FileStorageService } from 'src/engine/core-modules/file-storage/services/file-storage.service';
 import { type FileResponse } from 'src/engine/core-modules/file/types/file-response.type';
 import { getContentDisposition } from 'src/engine/core-modules/file/utils/get-content-disposition.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { findFlatEntityByIdInFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps-or-throw.util';
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
@@ -33,7 +33,7 @@ export class FrontComponentService {
     private readonly workspaceManyOrAllFlatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
     private readonly applicationService: ApplicationService,
     private readonly fileStorageService: FileStorageService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async findAll(workspaceId: string): Promise<FrontComponentDTO[]> {
@@ -87,7 +87,7 @@ export class FrontComponentService {
     const resolvedOwnerFlatApplication =
       ownerFlatApplication ??
       (
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         )
       ).workspaceCustomFlatApplication;
@@ -155,7 +155,7 @@ export class FrontComponentService {
     const resolvedOwnerFlatApplication =
       ownerFlatApplication ??
       (
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         )
       ).workspaceCustomFlatApplication;
@@ -230,7 +230,7 @@ export class FrontComponentService {
     const resolvedOwnerFlatApplication =
       ownerFlatApplication ??
       (
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         )
       ).workspaceCustomFlatApplication;
@@ -326,7 +326,7 @@ export class FrontComponentService {
 
     const presignedUrl = await this.fileStorageService.getPresignedUrl({
       ...resourceIdentifier,
-      expiresInSeconds: this.kovaa-labConfigService.get(
+      expiresInSeconds: this.kovaaLabConfigService.get(
         'STORAGE_S3_PRESIGNED_URL_EXPIRES_IN',
       ),
       responseContentType: mimeType,

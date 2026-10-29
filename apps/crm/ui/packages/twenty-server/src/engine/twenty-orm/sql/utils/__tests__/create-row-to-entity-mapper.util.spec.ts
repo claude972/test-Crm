@@ -1,4 +1,4 @@
-import { createRowToEntityMapper } from 'src/engine/kovaa-lab-orm/sql/utils/build-select-statement.util';
+import { createRowToEntityMapper } from 'src/engine/twenty-orm/sql/utils/build-select-statement.util';
 
 describe('createRowToEntityMapper', () => {
   it('maps selected flat columns and preserves null and undefined values', () => {

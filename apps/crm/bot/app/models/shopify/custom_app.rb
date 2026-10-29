@@ -49,7 +49,7 @@ class Shopify::CustomApp < ApplicationRecord
   end
 
   def require_encryption
-    errors.add(:client_secret, 'requires configured Active Record encryption') unless KovaaLab Char.encryption_configured?
+    errors.add(:client_secret, 'requires configured Active Record encryption') unless Chatwoot.encryption_configured?
   end
 
   def preserve_existing_billing

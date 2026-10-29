@@ -15,7 +15,7 @@ import { type ToolExecutionContext } from 'src/engine/core-modules/tool/types/to
 import { type Tool } from 'src/engine/core-modules/tool/types/tool.type';
 
 const HELP_CENTER_MCP_URL = 'https://docs.kovaa-lab.com/mcp';
-const HELP_CENTER_MCP_SEARCH_TOOL_NAME = 'search_kovaa-lab_documentation';
+const HELP_CENTER_MCP_SEARCH_TOOL_NAME = 'search_kovaaLab_documentation';
 const HELP_CENTER_REQUEST_TIMEOUT_MS = 10_000;
 const HELP_CENTER_REQUEST_RETRIES = 2;
 

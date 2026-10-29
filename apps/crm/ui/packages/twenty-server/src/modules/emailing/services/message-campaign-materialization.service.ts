@@ -18,9 +18,9 @@ import { type SendCampaignEmailBatchJobData } from 'src/engine/core-modules/emai
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { MessageCampaignLifecycleService } from 'src/modules/emailing/services/message-campaign-lifecycle.service';
 import { MessageCampaignWorkspaceEntity } from 'src/modules/emailing/standard-objects/message-campaign.workspace-entity';
 import { type CampaignRecipient } from 'src/engine/core-modules/emailing-domain/types/campaign-recipient.type';
@@ -57,7 +57,7 @@ export class MessageCampaignMaterializationService {
     private readonly messageQueueService: MessageQueueService,
     @InjectMessageQueue(MessageQueue.campaignSendQueue)
     private readonly campaignSendQueueService: MessageQueueService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async processMaterializeJob({
@@ -346,7 +346,7 @@ export class MessageCampaignMaterializationService {
     }
 
     const batchSize = resolveCampaignSendBatchSize(
-      this.kovaa-labConfigService.get('EMAIL_SEND_RATE_LIMITING_LIMIT'),
+      this.kovaaLabConfigService.get('EMAIL_SEND_RATE_LIMITING_LIMIT'),
     );
 
     await this.campaignSendQueueService.bulkAdd<SendCampaignEmailBatchJobData>(

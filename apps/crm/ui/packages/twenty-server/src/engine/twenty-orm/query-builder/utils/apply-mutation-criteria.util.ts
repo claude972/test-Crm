@@ -1,14 +1,14 @@
 import { In } from 'typeorm';
 
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { type WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 import {
   isObjectWhereLike,
   type ObjectWhereLike,
-} from 'src/engine/kovaa-lab-orm/query-builder/types/query-builder.type';
+} from 'src/engine/twenty-orm/query-builder/types/query-builder.type';
 
 export type MutationCriteria =
   | string
@@ -19,9 +19,9 @@ export type MutationCriteria =
 // An empty where object would make the mutation reach every row
 const assertWhereObjectFilters = (whereObject: ObjectWhereLike): void => {
   if (Object.keys(whereObject).length === 0) {
-    throw new KovaaLab CRMOrmException(
+    throw new KovaaLabCRMOrmException(
       'A mutation criteria where object cannot be empty',
-      KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+      KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
     );
   }
 };
@@ -32,9 +32,9 @@ export const applyMutationCriteriaToQueryBuilder = (
 ): WorkspaceSelectQueryBuilder => {
   if (typeof criteria === 'string') {
     if (criteria.length === 0) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'A mutation criteria id cannot be an empty string',
-        KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
       );
     }
 
@@ -45,9 +45,9 @@ export const applyMutationCriteriaToQueryBuilder = (
 
   if (Array.isArray(criteria)) {
     if (criteria.length === 0) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'A mutation criteria array cannot be empty',
-        KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
       );
     }
 
@@ -58,9 +58,9 @@ export const applyMutationCriteriaToQueryBuilder = (
     }
 
     if (!criteria.every(isObjectWhereLike)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'A mutation criteria array must be all ids or all where objects',
-        KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
       );
     }
 

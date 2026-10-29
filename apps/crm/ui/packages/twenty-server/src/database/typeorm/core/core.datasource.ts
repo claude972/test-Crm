@@ -61,7 +61,7 @@ export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
   // `legacy-typeorm-migrations-do-not-add/` and are loaded here only so the
   // `_typeorm_migrations` table stays consistent for older deployments.
   // Do NOT add new files there: write a fast/slow instance command instead.
-  // See `packages/kovaa-lab-server/docs/UPGRADE_COMMANDS.md`.
+  // See `packages/twenty-server/docs/UPGRADE_COMMANDS.md`.
   migrations:
     process.env.IS_BILLING_ENABLED === 'true'
       ? [

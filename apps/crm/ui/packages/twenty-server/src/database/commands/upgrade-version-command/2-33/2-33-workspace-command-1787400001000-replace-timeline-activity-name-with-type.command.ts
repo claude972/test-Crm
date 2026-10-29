@@ -13,7 +13,7 @@ import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object
 import { type FlatTimelineActivityType } from 'src/engine/metadata-modules/flat-timeline-activity-type/types/flat-timeline-activity-type.type';
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { buildTimelineActivityTypeBackfillQuery } from 'src/database/commands/upgrade-version-command/2-33/utils/build-timeline-activity-type-backfill-query.util';
 
@@ -78,22 +78,22 @@ export class ReplaceTimelineActivityNameWithTypeCommand extends ProvisionedWorks
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     await this.createTypesAndField({
       workspaceId,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardFlatApplication.universalIdentifier,
       standardAllFlatEntityMaps,
     });
 
@@ -102,7 +102,7 @@ export class ReplaceTimelineActivityNameWithTypeCommand extends ProvisionedWorks
     await this.repointLabelIdentifierToLinkedRecordCachedName({
       workspaceId,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardFlatApplication.universalIdentifier,
     });
 
     this.logger.log(
@@ -118,7 +118,7 @@ export class ReplaceTimelineActivityNameWithTypeCommand extends ProvisionedWorks
     workspaceId: string;
     applicationUniversalIdentifier: string;
     standardAllFlatEntityMaps: ReturnType<
-      typeof computeKovaaLab CRMStandardApplicationAllFlatEntityMaps
+      typeof computeKovaaLabCRMStandardApplicationAllFlatEntityMaps
     >['allFlatEntityMaps'];
   }): Promise<void> {
     const { flatFieldMetadataMaps, flatTimelineActivityTypeMaps } =

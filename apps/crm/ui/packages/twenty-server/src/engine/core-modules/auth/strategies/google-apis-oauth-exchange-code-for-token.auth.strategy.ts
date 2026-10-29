@@ -10,12 +10,12 @@ import { GoogleAPIsOauthCommonStrategy } from 'src/engine/core-modules/auth/stra
 import { type APIsOAuthRequest } from 'src/engine/core-modules/auth/types/apis-oauth-request.type';
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { type APIsOAuthState } from 'src/engine/core-modules/auth/types/apis-oauth-state.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class GoogleAPIsOauthExchangeCodeForTokenStrategy extends GoogleAPIsOauthCommonStrategy {
-  constructor(kovaa-labConfigService: KovaaLab CRMConfigService) {
-    super(kovaa-labConfigService);
+  constructor(kovaaLabConfigService: KovaaLabCRMConfigService) {
+    super(kovaaLabConfigService);
   }
 
   async validate(

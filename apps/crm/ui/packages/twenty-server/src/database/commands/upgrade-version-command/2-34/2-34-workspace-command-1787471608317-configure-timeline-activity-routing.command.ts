@@ -69,8 +69,8 @@ export class ConfigureTimelineActivityRoutingCommand extends ProvisionedWorkspac
       return;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -104,7 +104,7 @@ export class ConfigureTimelineActivityRoutingCommand extends ProvisionedWorkspac
        WHERE timeline_activity_type."workspaceId" = $1
          AND timeline_activity_type."applicationId" = $2
          AND timeline_activity_type."universalIdentifier" = routing."universalIdentifier"`,
-        [workspaceId, kovaa-labStandardFlatApplication.id, ...routingParameters],
+        [workspaceId, kovaaLabStandardFlatApplication.id, ...routingParameters],
         queryRunner,
       );
 

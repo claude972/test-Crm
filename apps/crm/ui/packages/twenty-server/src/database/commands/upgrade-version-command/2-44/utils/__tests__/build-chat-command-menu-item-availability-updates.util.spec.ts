@@ -2,7 +2,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { buildChatCommandMenuItemAvailabilityUpdates } from 'src/database/commands/upgrade-version-command/2-44/utils/build-chat-command-menu-item-availability-updates.util';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const NOW = '2026-09-29T12:00:00.000Z';
 const ASK_AI_UNIVERSAL_IDENTIFIER = 'ce5fb54d-2b19-4dd1-b7b4-9532a1761a41';
@@ -10,11 +10,11 @@ const NAVIGATE_TO_NEXT_RECORD_UNIVERSAL_IDENTIFIER =
   '3db2457d-8e96-4b8e-94c9-ed95d3f95738';
 const PREVIOUS_ASK_AI_EXPRESSION = 'permissionFlags.AI and not isInSidePanel';
 
-const { allFlatEntityMaps } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps(
+const { allFlatEntityMaps } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps(
   {
     now: '2026-09-27T12:00:00.000Z',
     workspaceId: '20202020-1111-4111-8111-111111111111',
-    kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+    kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
   },
 );
 

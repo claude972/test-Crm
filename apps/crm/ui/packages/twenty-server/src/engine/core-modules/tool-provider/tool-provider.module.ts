@@ -27,7 +27,7 @@ import { RoleToolsModule } from 'src/engine/metadata-modules/role/tools/role-too
 import { UserRoleModule } from 'src/engine/metadata-modules/user-role/user-role.module';
 import { ViewToolsModule } from 'src/engine/metadata-modules/view/tools/view-tools.module';
 import { WebhookToolsModule } from 'src/engine/metadata-modules/webhook/tools/webhook-tools.module';
-import { provideWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
+import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { EmailingModule } from 'src/modules/emailing/emailing.module';
 

@@ -47,10 +47,10 @@ describe('RelabelAttachmentTargetFieldsCommand', () => {
     command = new RelabelAttachmentTargetFieldsCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
+            kovaaLabStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
           }),
       } as unknown as ApplicationService,
       {

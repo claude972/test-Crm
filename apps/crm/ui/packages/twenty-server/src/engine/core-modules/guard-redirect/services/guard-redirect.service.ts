@@ -10,13 +10,13 @@ import {
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type CustomException } from 'src/utils/custom-exception';
 
 @Injectable()
 export class GuardRedirectService {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly domainsServerConfigService: DomainServerConfigService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
@@ -62,7 +62,7 @@ export class GuardRedirectService {
           customDomain: subdomainAndCustomDomainFromReferer.customDomain,
         }
       : {
-          subdomain: this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN'),
+          subdomain: this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN'),
           customDomain: null,
         };
   }

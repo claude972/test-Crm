@@ -1,4 +1,4 @@
-import { isChildRecordBoundAtDeletion } from 'src/engine/kovaa-lab-orm/utils/is-child-record-bound-at-deletion.util';
+import { isChildRecordBoundAtDeletion } from 'src/engine/twenty-orm/utils/is-child-record-bound-at-deletion.util';
 
 describe('isChildRecordBoundAtDeletion', () => {
   it('should bind a live child record whatever the record state', () => {

@@ -3,7 +3,7 @@ import { type ActorMetadata } from 'kovaa-lab-shared/types';
 import { type ShareWithInput } from 'src/engine/core-modules/record-share/types/share-with-input.type';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { type ObjectRecordProperties } from 'src/engine/core-modules/record-crud/types/object-record-properties.type';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
 
 export type CreateManyRecordsParams = {
   objectName: string;

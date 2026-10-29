@@ -1,5 +1,5 @@
 import { msg } from '@lingui/core/macro';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import {
   DateDisplayFormat,
   FieldMetadataType,
@@ -9,19 +9,19 @@ import {
 
 import { STANDARD_RELATION_FIELD_PROPERTIES_BY_RELATION_OBJECT } from 'src/engine/metadata-modules/object-metadata/constants/standard-relation-field-properties.constant';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-field-name.type';
+import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
 import {
   type CreateStandardFieldArgs,
   createStandardFieldFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
-import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
+import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
 export const buildWorkflowRunStandardFlatFieldMetadatas = ({
   now,
   objectName,
   workspaceId,
   standardObjectMetadataRelatedEntityIds,
   dependencyFlatEntityMaps,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: Omit<
   CreateStandardFieldArgs<'workflowRun', FieldMetadataType>,
   'context'
@@ -44,7 +44,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   createdAt: createStandardFieldFlatMetadata({
@@ -68,7 +68,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   updatedAt: createStandardFieldFlatMetadata({
@@ -95,7 +95,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   deletedAt: createStandardFieldFlatMetadata({
@@ -121,7 +121,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   name: createStandardFieldFlatMetadata({
@@ -145,7 +145,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   enqueuedAt: createStandardFieldFlatMetadata({
@@ -172,7 +172,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   startedAt: createStandardFieldFlatMetadata({
@@ -199,7 +199,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   endedAt: createStandardFieldFlatMetadata({
@@ -226,7 +226,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   status: createStandardFieldFlatMetadata({
@@ -316,7 +316,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   createdBy: createStandardFieldFlatMetadata({
@@ -346,7 +346,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   updatedBy: createStandardFieldFlatMetadata({
@@ -376,7 +376,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   state: createStandardFieldFlatMetadata({
@@ -400,7 +400,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   stepLogs: createStandardFieldFlatMetadata({
@@ -425,7 +425,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   coreWorkflowId: createStandardFieldFlatMetadata({
@@ -453,7 +453,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   coreWorkflowVersionId: createStandardFieldFlatMetadata({
@@ -481,7 +481,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   position: createStandardFieldFlatMetadata({
@@ -507,7 +507,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   searchVector: createStandardFieldFlatMetadata({
@@ -532,7 +532,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   workflowVersion: createStandardRelationFieldFlatMetadata({
@@ -564,7 +564,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   workflow: createStandardRelationFieldFlatMetadata({
@@ -596,7 +596,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   timelineActivities: createStandardRelationFieldFlatMetadata({
@@ -629,7 +629,7 @@ export const buildWorkflowRunStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
 });

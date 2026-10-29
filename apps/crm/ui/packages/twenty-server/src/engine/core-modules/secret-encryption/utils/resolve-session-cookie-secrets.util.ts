@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import { isNonEmptyString } from '@sniptt/guards';
 
 import { deriveInstanceHmacKey } from 'src/engine/core-modules/secret-encryption/utils/derive-instance-hmac-key.util';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const SESSION_COOKIE_HMAC_PURPOSE = 'session-cookie';
 
@@ -11,15 +11,15 @@ const buildLegacySessionSecret = (appSecret: string) =>
   createHash('sha256').update(`${appSecret}SESSION_STORE_SECRET`).digest('hex');
 
 export const resolveSessionCookieSecretsOrThrow = ({
-  kovaa-labConfigService,
+  kovaaLabConfigService,
 }: {
-  kovaa-labConfigService: Pick<KovaaLab CRMConfigService, 'get'>;
+  kovaaLabConfigService: Pick<KovaaLabCRMConfigService, 'get'>;
 }): string[] => {
-  const encryptionKey = kovaa-labConfigService.get('ENCRYPTION_KEY');
-  const fallbackEncryptionKey = kovaa-labConfigService.get(
+  const encryptionKey = kovaaLabConfigService.get('ENCRYPTION_KEY');
+  const fallbackEncryptionKey = kovaaLabConfigService.get(
     'FALLBACK_ENCRYPTION_KEY',
   );
-  const appSecret = kovaa-labConfigService.get('APP_SECRET');
+  const appSecret = kovaaLabConfigService.get('APP_SECRET');
 
   const rawPrimary = isNonEmptyString(encryptionKey)
     ? encryptionKey

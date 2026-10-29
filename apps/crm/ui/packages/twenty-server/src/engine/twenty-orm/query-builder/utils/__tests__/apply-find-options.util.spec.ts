@@ -7,9 +7,9 @@ import {
   applyFindOptionsToQueryBuilder,
   normalizeFindOptionsRelations,
   splitFindOptionsOrder,
-} from 'src/engine/kovaa-lab-orm/query-builder/utils/apply-find-options.util';
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
-import { type WorkspaceTableShape } from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/query-builder/utils/apply-find-options.util';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
+import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const SCHEMA_NAME = 'workspace_test';
 

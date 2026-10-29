@@ -9,7 +9,7 @@ import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain
 import { buildUrlWithPathnameAndSearchParams } from 'src/engine/core-modules/domain/domain-server-config/utils/build-url-with-pathname-and-search-params.util';
 import { WorkspaceDomainConfig } from 'src/engine/core-modules/domain/workspace-domains/types/workspace-domain-config.type';
 import { PublicDomainEntity } from 'src/engine/core-modules/public-domain/public-domain.entity';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceNotFoundDefaultError } from 'src/engine/core-modules/workspace/workspace.exception';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
@@ -18,7 +18,7 @@ import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder
 export class WorkspaceDomainsService {
   constructor(
     private readonly domainServerConfigService: DomainServerConfigService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     // Request routing resolves workspace via the public domain registry.
@@ -74,7 +74,7 @@ export class WorkspaceDomainsService {
   }
 
   private async getDefaultWorkspace() {
-    if (this.kovaa-labConfigService.get('IS_MULTIWORKSPACE_ENABLED')) {
+    if (this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED')) {
       throw new Error(
         'Default workspace does not exist when multi-workspace is enabled',
       );
@@ -117,7 +117,7 @@ export class WorkspaceDomainsService {
     const { subdomain, customDomain, isUnderPublicDomainUrl } =
       this.domainServerConfigService.getSubdomainAndCustomDomainFromUrl(origin);
 
-    if (!this.kovaa-labConfigService.get('IS_MULTIWORKSPACE_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED')) {
       // Still resolve the public domain so route triggers can scope by application.
       const publicDomain = isDefined(customDomain)
         ? await this.publicDomainRepository.findOne({
@@ -250,10 +250,10 @@ export class WorkspaceDomainsService {
     return url.toString();
   }
 
-  private getKovaaLab CRMWorkspaceUrl(subdomain: string) {
+  private getKovaaLabCRMWorkspaceUrl(subdomain: string) {
     const url = this.domainServerConfigService.getFrontUrl();
 
-    url.hostname = this.kovaa-labConfigService.get('IS_MULTIWORKSPACE_ENABLED')
+    url.hostname = this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED')
       ? `${subdomain}.${url.hostname}`
       : url.hostname;
 
@@ -265,7 +265,7 @@ export class WorkspaceDomainsService {
   ) {
     if (!workspace) {
       return {
-        subdomain: this.kovaa-labConfigService.get('DEFAULT_SUBDOMAIN'),
+        subdomain: this.kovaaLabConfigService.get('DEFAULT_SUBDOMAIN'),
         customDomain: null,
         isCustomDomainEnabled: false,
       };
@@ -292,7 +292,7 @@ export class WorkspaceDomainsService {
         isCustomDomainEnabled && customDomain
           ? this.getCustomWorkspaceUrl(customDomain)
           : undefined,
-      subdomainUrl: this.getKovaaLab CRMWorkspaceUrl(subdomain),
+      subdomainUrl: this.getKovaaLabCRMWorkspaceUrl(subdomain),
     };
   }
 

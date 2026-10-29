@@ -4,7 +4,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { buildRemoveWorkflowCoreIndexFlagCommandMenuItemUpdates } from 'src/database/commands/upgrade-version-command/2-47/utils/build-remove-workflow-core-index-flag-command-menu-item-updates.util';
 import { EngineComponentKey } from 'src/engine/metadata-modules/command-menu-item/enums/engine-component-key.enum';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const NOW = '2026-10-12T12:00:00.000Z';
 const FLAG = 'featureFlags.IS_WORKFLOW_CORE_INDEX_PAGE_ENABLED';
@@ -13,11 +13,11 @@ const ADD_TO_FAVORITES_UNIVERSAL_IDENTIFIER =
 const REMOVE_FROM_FAVORITES_UNIVERSAL_IDENTIFIER =
   '3ea42507-44fa-4895-a36d-cbfef7355a50';
 
-const { allFlatEntityMaps } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps(
+const { allFlatEntityMaps } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps(
   {
     now: '2026-10-01T12:00:00.000Z',
     workspaceId: '20202020-1111-4111-8111-111111111111',
-    kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+    kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
   },
 );
 

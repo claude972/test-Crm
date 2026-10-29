@@ -6,7 +6,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { getAgentChatThreadTargetSchemaAdditions } from 'src/database/commands/upgrade-version-command/2-43/utils/get-agent-chat-thread-target-schema-additions.util';
 import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-flat-entity-maps.constant';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const TARGET_IDENTIFIER =
   STANDARD_OBJECTS.agentChatThreadTarget.universalIdentifier;
@@ -21,10 +21,10 @@ const STANDARD_REVERSE_FIELD_IDENTIFIERS = [
 ];
 
 const createStandardMetadata = () =>
-  computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+  computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
     now: '2026-01-01T00:00:00Z',
     workspaceId: '20202020-1111-4111-8111-111111111111',
-    kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+    kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
   }).allFlatEntityMaps;
 
 // A workspace that already carries agent history but not the target object.

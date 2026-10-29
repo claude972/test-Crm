@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe KovaaLab CharMarkdownRenderer do
+RSpec.describe ChatwootMarkdownRenderer do
   let(:markdown_content) { 'This is a *test* content with ^markdown^' }
   let(:doc) { instance_double(CommonMarker::Node) }
   let(:renderer) { described_class.new(markdown_content) }

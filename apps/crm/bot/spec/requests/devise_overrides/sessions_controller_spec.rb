@@ -35,7 +35,7 @@ RSpec.describe 'Session authentication responses', type: :request do
 
   context 'with MFA' do
     before do
-      skip('Skipping since MFA is not configured in this environment') unless KovaaLab Char.encryption_configured?
+      skip('Skipping since MFA is not configured in this environment') unless Chatwoot.encryption_configured?
       user.enable_two_factor!
     end
 

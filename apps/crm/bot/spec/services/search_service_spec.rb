@@ -179,7 +179,7 @@ describe SearchService do
         end
 
         it 'filters messages by time range with LIKE search' do
-          allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+          allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
           allow(account).to receive(:feature_enabled?).and_call_original
           allow(account).to receive(:feature_enabled?).with('search_with_gin').and_return(false)
           allow(account).to receive(:feature_enabled?).with('advanced_search').and_return(true)
@@ -192,7 +192,7 @@ describe SearchService do
         end
 
         it 'filters messages by time range with GIN search' do
-          allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+          allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
           allow(account).to receive(:feature_enabled?).and_call_original
           allow(account).to receive(:feature_enabled?).with('search_with_gin').and_return(true)
           allow(account).to receive(:feature_enabled?).with('advanced_search').and_return(true)
@@ -205,7 +205,7 @@ describe SearchService do
         end
 
         it 'filters messages by sender (contact)' do
-          allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+          allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
           allow(account).to receive(:feature_enabled?).and_call_original
           allow(account).to receive(:feature_enabled?).with('search_with_gin').and_return(false)
           allow(account).to receive(:feature_enabled?).with('advanced_search').and_return(true)
@@ -218,7 +218,7 @@ describe SearchService do
         end
 
         it 'filters messages by sender (agent)' do
-          allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+          allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
           allow(account).to receive(:feature_enabled?).and_call_original
           allow(account).to receive(:feature_enabled?).with('search_with_gin').and_return(false)
           allow(account).to receive(:feature_enabled?).with('advanced_search').and_return(true)
@@ -231,7 +231,7 @@ describe SearchService do
         end
 
         it 'filters messages by inbox' do
-          allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+          allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
           allow(account).to receive(:feature_enabled?).and_call_original
           allow(account).to receive(:feature_enabled?).with('search_with_gin').and_return(false)
           allow(account).to receive(:feature_enabled?).with('advanced_search').and_return(true)
@@ -244,7 +244,7 @@ describe SearchService do
         end
 
         it 'combines multiple filters' do
-          allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+          allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
           allow(account).to receive(:feature_enabled?).and_call_original
           allow(account).to receive(:feature_enabled?).with('search_with_gin').and_return(false)
           allow(account).to receive(:feature_enabled?).with('advanced_search').and_return(true)
@@ -500,7 +500,7 @@ describe SearchService do
     let(:search_results) { instance_double(Searchkick::Relation, load: []) }
 
     before do
-      allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(true)
+      allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(true)
       allow(account).to receive(:feature_enabled?).and_call_original
       allow(account).to receive(:feature_enabled?).with('advanced_search').and_return(true)
       allow(Message).to receive(:search).and_return(search_results)
@@ -508,7 +508,7 @@ describe SearchService do
 
     context 'when advanced_search feature flag is disabled' do
       it 'ignores filters and falls back to standard search' do
-        allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(false)
+        allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(false)
         contact = create(:contact, account: account)
         inbox2 = create(:inbox, account: account)
 
@@ -532,7 +532,7 @@ describe SearchService do
         ).and_return(search_results)
 
         expect(search_results).to receive(:load).and_return(search_results)
-        expect(KovaaLab CharExceptionTracker).not_to receive(:new)
+        expect(ChatwootExceptionTracker).not_to receive(:new)
         expect(search_service.perform[:messages]).to eq(search_results)
       end
     end
@@ -784,10 +784,10 @@ describe SearchService do
     let(:params) { { q: 'test' } }
     let(:search_type) { 'Message' }
     let(:query) { instance_double(Searchkick::Query) }
-    let(:exception_tracker) { instance_double(KovaaLab CharExceptionTracker, capture_exception: nil) }
+    let(:exception_tracker) { instance_double(ChatwootExceptionTracker, capture_exception: nil) }
 
     before do
-      allow(KovaaLab CharApp).to receive(:advanced_search_allowed?).and_return(true)
+      allow(ChatwootApp).to receive(:advanced_search_allowed?).and_return(true)
       allow(Searchkick::Query).to receive(:new).and_return(query)
     end
 
@@ -802,7 +802,7 @@ describe SearchService do
 
         error = Faraday::ConnectionFailed.new('Connection refused')
         expect(query).to receive(:execute).and_raise(error)
-        expect(KovaaLab CharExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
+        expect(ChatwootExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
         expect(exception_tracker).to receive(:capture_exception)
 
         expect(search_service).to receive(:filter_messages_with_like).and_call_original
@@ -818,7 +818,7 @@ describe SearchService do
         search_service = described_class.new(current_user: user, current_account: account, params: params, search_type: search_type)
 
         expect(search_service).not_to receive(:advanced_search)
-        expect(KovaaLab CharExceptionTracker).not_to receive(:new)
+        expect(ChatwootExceptionTracker).not_to receive(:new)
 
         expect(search_service).to receive(:filter_messages_with_gin).and_call_original
         expect { search_service.perform }.not_to raise_error
@@ -833,7 +833,7 @@ describe SearchService do
 
         error = Faraday::TimeoutError.new('timeout')
         expect(query).to receive(:execute).and_raise(error)
-        expect(KovaaLab CharExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
+        expect(ChatwootExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
         expect(exception_tracker).to receive(:capture_exception)
 
         expect(search_service).to receive(:filter_messages_with_like).and_call_original
@@ -849,7 +849,7 @@ describe SearchService do
 
         error = OpenSearch::Transport::Transport::Errors::ServiceUnavailable.new('[503] unavailable')
         expect(query).to receive(:execute).and_raise(error)
-        expect(KovaaLab CharExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
+        expect(ChatwootExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
         expect(exception_tracker).to receive(:capture_exception)
 
         expect(search_service).to receive(:filter_messages_with_like).and_call_original
@@ -869,7 +869,7 @@ describe SearchService do
 
         error = Searchkick::Error.new('Search unavailable')
         expect(query).to receive(:execute).and_raise(error)
-        expect(KovaaLab CharExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
+        expect(ChatwootExceptionTracker).to receive(:new).with(error, user: user, account: account).and_return(exception_tracker)
         expect(exception_tracker).to receive(:capture_exception)
 
         results = search_service.perform[:messages]

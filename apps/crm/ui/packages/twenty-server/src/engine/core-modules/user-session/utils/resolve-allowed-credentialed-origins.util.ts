@@ -1,8 +1,8 @@
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 // Opaque schemes (file:, data:) serialise to "null", which would allowlist every sandboxed document.
 const toOrigin = (url: string): string | undefined => {
@@ -117,15 +117,15 @@ const computeAllowedCredentialedOrigins = ({
 };
 
 export const resolveAllowedCredentialedOrigins = (
-  kovaa-labConfigService: Pick<KovaaLab CRMConfigService, 'get'>,
+  kovaaLabConfigService: Pick<KovaaLabCRMConfigService, 'get'>,
 ): ReadonlySet<string> => {
   const allowedOriginsSettings: AllowedOriginsSettings = {
-    serverUrl: kovaa-labConfigService.get('SERVER_URL'),
-    frontendUrl: kovaa-labConfigService.get('FRONTEND_URL'),
-    authCookieAllowedOrigins: kovaa-labConfigService.get(
+    serverUrl: kovaaLabConfigService.get('SERVER_URL'),
+    frontendUrl: kovaaLabConfigService.get('FRONTEND_URL'),
+    authCookieAllowedOrigins: kovaaLabConfigService.get(
       'AUTH_COOKIE_ALLOWED_ORIGINS',
     ),
-    nodeEnvironment: kovaa-labConfigService.get('NODE_ENV'),
+    nodeEnvironment: kovaaLabConfigService.get('NODE_ENV'),
   };
 
   if (

@@ -1,5 +1,5 @@
 import { msg } from '@lingui/core/macro';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import {
   DateDisplayFormat,
   FieldMetadataType,
@@ -8,12 +8,12 @@ import {
 } from 'kovaa-lab-shared/types';
 
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-field-name.type';
+import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
 import {
   type CreateStandardFieldArgs,
   createStandardFieldFlatMetadata,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
-import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
+import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
 import { CallRecordingRequestStatus } from 'src/modules/call-recording/common/enums/call-recording-request-status.enum';
 import { CallRecordingStatus } from 'src/modules/call-recording/common/enums/call-recording-status.enum';
 
@@ -23,7 +23,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
   workspaceId,
   standardObjectMetadataRelatedEntityIds,
   dependencyFlatEntityMaps,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: Omit<
   CreateStandardFieldArgs<'callRecording', FieldMetadataType>,
   'context'
@@ -46,7 +46,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   createdAt: createStandardFieldFlatMetadata({
@@ -70,7 +70,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   updatedAt: createStandardFieldFlatMetadata({
@@ -97,7 +97,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   deletedAt: createStandardFieldFlatMetadata({
@@ -123,7 +123,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   title: createStandardFieldFlatMetadata({
@@ -147,7 +147,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   status: createStandardFieldFlatMetadata({
@@ -237,7 +237,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   recordingRequestStatus: createStandardFieldFlatMetadata({
@@ -282,7 +282,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   applicationId: createStandardFieldFlatMetadata({
@@ -306,7 +306,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   externalBotId: createStandardFieldFlatMetadata({
@@ -330,7 +330,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   externalRecordingId: createStandardFieldFlatMetadata({
@@ -357,7 +357,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   startedAt: createStandardFieldFlatMetadata({
@@ -381,7 +381,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   endedAt: createStandardFieldFlatMetadata({
@@ -405,7 +405,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   video: createStandardFieldFlatMetadata({
@@ -432,7 +432,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   audio: createStandardFieldFlatMetadata({
@@ -459,7 +459,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   transcript: createStandardFieldFlatMetadata({
@@ -483,7 +483,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   summary: createStandardFieldFlatMetadata({
@@ -507,7 +507,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   calendarEvent: createStandardRelationFieldFlatMetadata({
@@ -539,7 +539,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   createdBy: createStandardFieldFlatMetadata({
@@ -569,7 +569,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   updatedBy: createStandardFieldFlatMetadata({
@@ -599,7 +599,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   position: createStandardFieldFlatMetadata({
@@ -624,7 +624,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   searchVector: createStandardFieldFlatMetadata({
@@ -648,7 +648,7 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
 });

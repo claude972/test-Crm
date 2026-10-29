@@ -1,4 +1,4 @@
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 import {
   type WorkspaceDataExportGraphqlError,
   type WorkspaceDataExportPayload,

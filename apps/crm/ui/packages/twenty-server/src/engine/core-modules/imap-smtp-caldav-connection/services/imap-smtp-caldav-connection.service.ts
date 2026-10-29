@@ -20,7 +20,7 @@ import { buildMailServerCertificateOptions } from 'src/engine/core-modules/imap-
 import { buildSmtpTlsOptions } from 'src/engine/core-modules/imap-smtp-caldav-connection/utils/build-smtp-tls-options.util';
 import { isMailServerCertificateError } from 'src/engine/core-modules/imap-smtp-caldav-connection/utils/is-mail-server-certificate-error.util';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { CalDavClientService } from 'src/modules/calendar/calendar-event-import-manager/drivers/caldav/services/caldav-client.service';
 import { CalDavFetchEventsService } from 'src/modules/calendar/calendar-event-import-manager/drivers/caldav/services/caldav-fetch-events.service';
 
@@ -30,7 +30,7 @@ export class ImapSmtpCaldavService {
 
   constructor(
     private readonly secureHttpClientService: SecureHttpClientService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly caldavClientService: CalDavClientService,
     private readonly caldavFetchEventsService: CalDavFetchEventsService,
     private readonly imapSmtpCaldavValidatorService: ImapSmtpCaldavValidatorService,
@@ -55,7 +55,7 @@ export class ImapSmtpCaldavService {
       disableIMAP4rev2: true,
       tls: buildMailServerCertificateOptions({
         host: params.host,
-        isSelfSignedCertificateAllowed: this.kovaa-labConfigService.get(
+        isSelfSignedCertificateAllowed: this.kovaaLabConfigService.get(
           'IMAP_SMTP_ALLOW_SELF_SIGNED',
         ),
       }),
@@ -148,7 +148,7 @@ export class ImapSmtpCaldavService {
       },
       tls: buildMailServerCertificateOptions({
         host: params.host,
-        isSelfSignedCertificateAllowed: this.kovaa-labConfigService.get(
+        isSelfSignedCertificateAllowed: this.kovaaLabConfigService.get(
           'IMAP_SMTP_ALLOW_SELF_SIGNED',
         ),
       }),
@@ -222,7 +222,7 @@ export class ImapSmtpCaldavService {
     accountType: AccountType;
   }): Promise<boolean> {
     if (
-      !this.kovaa-labConfigService.get(
+      !this.kovaaLabConfigService.get(
         'IS_IMAP_SMTP_CALDAV_CONNECTION_TEST_ENABLED',
       )
     ) {

@@ -10,7 +10,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { type AppBillingService } from 'src/engine/core-modules/billing/app-billing/app-billing.service';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 
 describe('AppBillingController (integration)', () => {
   let applicationId: string;

@@ -27,8 +27,8 @@ import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/works
 import { EMPTY_ORCHESTRATOR_FAILURE_REPORT } from 'src/engine/workspace-manager/workspace-migration/constant/empty-orchestrator-failure-report.constant';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 @Injectable()
 export class FieldMetadataService {
@@ -100,7 +100,7 @@ export class FieldMetadataService {
     const resolvedOwnerFlatApplication =
       ownerFlatApplication ??
       (
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         )
       ).workspaceCustomFlatApplication;
@@ -218,7 +218,7 @@ export class FieldMetadataService {
     ownerFlatApplication?: FlatApplication;
   }): Promise<FlatFieldMetadata> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const resolvedOwnerFlatApplication =
@@ -381,7 +381,7 @@ export class FieldMetadataService {
     const resolvedOwnerFlatApplication =
       ownerFlatApplication ??
       (
-        await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+        await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
           { workspaceId },
         )
       ).workspaceCustomFlatApplication;

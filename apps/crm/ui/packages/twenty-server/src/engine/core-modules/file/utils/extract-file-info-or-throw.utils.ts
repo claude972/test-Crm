@@ -10,7 +10,7 @@ import {
 } from 'src/engine/core-modules/file-storage/interfaces/file-storage-exception';
 
 import { detectPdf } from '@file-type/pdf';
-import { KOVAALAB_MIME_POLICY } from 'src/engine/core-modules/file/constants/kovaa-lab-mime-policy.constant';
+import { KOVAALAB_MIME_POLICY } from 'src/engine/core-modules/file/constants/twenty-mime-policy.constant';
 import { buildFileInfo } from 'src/engine/core-modules/file/utils/build-file-info.util';
 
 const fileTypeParser = new FileTypeParser({

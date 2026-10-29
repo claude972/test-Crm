@@ -45,7 +45,7 @@ module Enterprise::DeviseOverrides::OmniauthCallbacksController
 
     Internal::Accounts::MarketingAttributionService.new(account: @account, cookies: cookies).perform
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
   end
 
   def handle_saml_auth

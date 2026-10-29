@@ -25,13 +25,13 @@ import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/typ
 import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/orm-flat-field-metadata.type';
 import type { FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import { type InheritedReadabilityChildRecords } from 'src/engine/core-modules/record-share/types/inherited-readability-child-records.type';
 import { type DatabaseBatchEventInput } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
 
-export const formatKovaaLab CRMOrmEventToDatabaseBatchEvent = <
+export const formatKovaaLabCRMOrmEventToDatabaseBatchEvent = <
   T extends ObjectLiteral,
 >({
   action,
@@ -133,9 +133,9 @@ export const formatKovaaLab CRMOrmEventToDatabaseBatchEvent = <
           );
 
           if (!isDefined(correspondingRecordBefore)) {
-            throw new KovaaLab CRMOrmException(
+            throw new KovaaLabCRMOrmException(
               `Record mismatch detected while computing event data for ${action.toUpperCase()} action`,
-              KovaaLab CRMOrmExceptionCode.ORM_EVENT_DATA_CORRUPTED,
+              KovaaLabCRMOrmExceptionCode.ORM_EVENT_DATA_CORRUPTED,
             );
           }
 

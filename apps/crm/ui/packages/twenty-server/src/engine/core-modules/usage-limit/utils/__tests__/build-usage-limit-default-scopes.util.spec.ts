@@ -1,5 +1,5 @@
-import { type ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/kovaa-lab-config/types/optional-numeric-config-variable-key.type';
+import { type ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/twenty-config/types/optional-numeric-config-variable-key.type';
 import { buildUsageLimitDefaultScopes } from 'src/engine/core-modules/usage-limit/utils/build-usage-limit-default-scopes.util';
 import { UsageResourceType } from 'src/engine/core-modules/usage/enums/usage-resource-type.enum';
 

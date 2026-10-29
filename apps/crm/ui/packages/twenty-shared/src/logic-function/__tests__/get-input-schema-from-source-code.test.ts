@@ -24,10 +24,10 @@ describe('getInputSchemaFromSourceCode', () => {
     const result = await getInputSchemaFromSourceCode(fileContent);
     expect(result).toEqual(DEFAULT_TOOL_INPUT_SCHEMA);
   });
-  it('should infer record schemas from KovaaLab CRMRecord markers', async () => {
+  it('should infer record schemas from KovaaLabCRMRecord markers', async () => {
     const fileContent = `
         function testFunction(params: {
-          companies: KovaaLab CRMRecord<'company-universal-identifier'>[];
+          companies: KovaaLabCRMRecord<'company-universal-identifier'>[];
         }) { return }
       `;
     const result = await getInputSchemaFromSourceCode(fileContent);

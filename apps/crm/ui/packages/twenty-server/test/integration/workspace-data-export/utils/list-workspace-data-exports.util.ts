@@ -1,4 +1,4 @@
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 import { type WorkspaceDataExportPayload } from 'test/integration/workspace-data-export/types/workspace-data-export-payload.type';
 import { workspaceDataExportsQueryFactory } from 'test/integration/workspace-data-export/utils/workspace-data-exports.query-factory.util';
 

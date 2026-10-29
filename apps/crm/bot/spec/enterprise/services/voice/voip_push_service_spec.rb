@@ -599,12 +599,12 @@ RSpec.describe Voice::VoipPushService do
       config.except!('APNS_VOIP_KEY', 'APNS_VOIP_KEY_ID', 'APNS_VOIP_TEAM_ID')
       subscribe(agent, 'apns_voip', 'apple-1')
       subscribe(agent, 'fcm', 'android-1', platform: 'Android')
-      allow(KovaaLab CharExceptionTracker).to receive(:new).and_call_original
+      allow(ChatwootExceptionTracker).to receive(:new).and_call_original
 
       described_class.new(call: call).perform('ring')
 
       expect(Apnotic::Connection).not_to have_received(:new)
-      expect(KovaaLab CharExceptionTracker).not_to have_received(:new)
+      expect(ChatwootExceptionTracker).not_to have_received(:new)
       expect(fcm_client).to have_received(:send_v1).once
     end
 
@@ -623,13 +623,13 @@ RSpec.describe Voice::VoipPushService do
       config.delete('FIREBASE_CREDENTIALS')
       subscribe(agent, 'apns_voip', 'apple-1')
       subscribe(agent, 'fcm', 'android-1', platform: 'Android')
-      tracker = instance_double(KovaaLab CharExceptionTracker, capture_exception: nil)
-      allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(tracker)
+      tracker = instance_double(ChatwootExceptionTracker, capture_exception: nil)
+      allow(ChatwootExceptionTracker).to receive(:new).and_return(tracker)
 
       described_class.new(call: call).perform('ring')
 
       expect(fcm_client).not_to have_received(:send_v1)
-      expect(KovaaLab CharExceptionTracker).to have_received(:new)
+      expect(ChatwootExceptionTracker).to have_received(:new)
         .with(an_instance_of(ArgumentError).and(having_attributes(message: /FIREBASE_CREDENTIALS/)))
       expect(apple_connection).to have_received(:push).once
     end
@@ -638,13 +638,13 @@ RSpec.describe Voice::VoipPushService do
       config.delete('APNS_VOIP_KEY')
       subscribe(agent, 'apns_voip', 'apple-1')
       subscribe(agent, 'fcm', 'android-1', platform: 'Android')
-      tracker = instance_double(KovaaLab CharExceptionTracker, capture_exception: nil)
-      allow(KovaaLab CharExceptionTracker).to receive(:new).and_return(tracker)
+      tracker = instance_double(ChatwootExceptionTracker, capture_exception: nil)
+      allow(ChatwootExceptionTracker).to receive(:new).and_return(tracker)
 
       described_class.new(call: call).perform('ring')
 
       expect(Apnotic::Connection).not_to have_received(:new)
-      expect(KovaaLab CharExceptionTracker).to have_received(:new).with(an_instance_of(ArgumentError).and(having_attributes(message: /APNS_VOIP_KEY\b/)))
+      expect(ChatwootExceptionTracker).to have_received(:new).with(an_instance_of(ArgumentError).and(having_attributes(message: /APNS_VOIP_KEY\b/)))
       expect(fcm_client).to have_received(:send_v1).once
     end
 

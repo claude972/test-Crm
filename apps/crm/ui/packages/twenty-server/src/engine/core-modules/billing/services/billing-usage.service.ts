@@ -24,7 +24,7 @@ import { type SubscriptionInactiveReason } from 'src/engine/core-modules/billing
 import { computePlanWorkspaceCreditsMicro } from 'src/engine/core-modules/billing/utils/compute-plan-workspace-credits-micro.util';
 import { getBillingSubscriptionPeriod } from 'src/engine/core-modules/billing/utils/get-billing-subscription-period.util';
 import { getCurrentPeriodMaxSeats } from 'src/engine/core-modules/billing/utils/get-current-period-max-seats.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UsageAnalyticsService } from 'src/engine/core-modules/usage/services/usage-analytics.service';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
@@ -39,7 +39,7 @@ export class BillingUsageService {
   constructor(
     private readonly billingCreditGrantService: BillingCreditGrantService,
     private readonly billingSubscriptionService: BillingSubscriptionService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly billingSubscriptionItemService: BillingSubscriptionItemService,
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly clickHouseService: ClickHouseService,
@@ -50,7 +50,7 @@ export class BillingUsageService {
   async getSubscriptionInactiveReason(
     workspaceId: string,
   ): Promise<SubscriptionInactiveReason | null> {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       return null;
     }
 

@@ -6,21 +6,21 @@ import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-module
 import { type FlatTimelineActivityType } from 'src/engine/metadata-modules/flat-timeline-activity-type/types/flat-timeline-activity-type.type';
 import { STANDARD_TIMELINE_ACTIVITY_TYPE_DEFINITIONS } from 'src/engine/metadata-modules/timeline-activity-type/constants/standard-timeline-activity-type-definitions.constant';
 import { TimelineActivityTypeEntity } from 'src/engine/metadata-modules/timeline-activity-type/entities/timeline-activity-type.entity';
-import { UpgradeAwareRepositoryState } from 'src/engine/kovaa-lab-orm/upgrade-aware/upgrade-aware-repository-state';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { UpgradeAwareRepositoryState } from 'src/engine/twenty-orm/upgrade-aware/upgrade-aware-repository-state';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 
 export const buildStandardFlatTimelineActivityTypeMaps = ({
   now,
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   hiddenTimelineActivityTypeColumnPropertyNames = UpgradeAwareRepositoryState.getInstance().getHiddenColumnPropertyNames(
     TimelineActivityTypeEntity,
   ),
 }: {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   hiddenTimelineActivityTypeColumnPropertyNames?: ReadonlySet<string>;
 }): FlatEntityMaps<FlatTimelineActivityType> => {
   let flatTimelineActivityTypeMaps = createEmptyFlatEntityMaps();
@@ -65,7 +65,7 @@ export const buildStandardFlatTimelineActivityTypeMaps = ({
         isActive: true,
         overrides: null,
         workspaceId,
-        applicationId: kovaa-labStandardApplicationId,
+        applicationId: kovaaLabStandardApplicationId,
         universalIdentifier: definition.universalIdentifier,
         applicationUniversalIdentifier:
           KOVAALAB_STANDARD_APPLICATION.universalIdentifier,

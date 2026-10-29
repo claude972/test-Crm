@@ -4,7 +4,7 @@ import { InjectCacheStorage } from 'src/engine/core-modules/cache-storage/decora
 import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
 import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
 import { type MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const CACHE_BUCKET_DURATION_MS = 15000; // 15 seconds window for each cache bucket
 
@@ -16,9 +16,9 @@ export class MetricsCacheService {
   constructor(
     @InjectCacheStorage(CacheStorageNamespace.EngineMetrics)
     private readonly cacheStorage: CacheStorageService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {
-    this.healthMetricsTimeWindowInMinutes = this.kovaa-labConfigService.get(
+    this.healthMetricsTimeWindowInMinutes = this.kovaaLabConfigService.get(
       'HEALTH_METRICS_TIME_WINDOW_IN_MINUTES',
     );
     this.healthCacheTtl = this.healthMetricsTimeWindowInMinutes * 60000 * 2;

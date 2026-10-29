@@ -5,8 +5,8 @@ import { type APP_LOCALES } from 'kovaa-lab-shared/translations';
 import { Repository } from 'typeorm';
 
 import { ApplicationTranslationEntity } from 'src/engine/core-modules/application/application-translation/application-translation.entity';
-import { PromiseMemoizer } from 'src/engine/kovaa-lab-orm/storage/promise-memoizer.storage';
-import { type CacheKey } from 'src/engine/kovaa-lab-orm/storage/types/cache-key.type';
+import { PromiseMemoizer } from 'src/engine/twenty-orm/storage/promise-memoizer.storage';
+import { type CacheKey } from 'src/engine/twenty-orm/storage/types/cache-key.type';
 
 type ApplicationCatalogsByLocale = Partial<
   Record<keyof typeof APP_LOCALES, Record<string, string>>

@@ -18,7 +18,7 @@ import { ApplicationService } from 'src/engine/core-modules/application/applicat
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { WorkspaceSchemaManagerService } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/workspace-schema-manager.service';
+import { WorkspaceSchemaManagerService } from 'src/engine/twenty-orm/workspace-schema-manager/workspace-schema-manager.service';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { getWorkspaceSchemaContextForMigration } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/get-workspace-schema-context-for-migration.util';
@@ -85,8 +85,8 @@ export class BackfillMissingSystemRelationIndexesCommand extends ProvisionedWork
         holderFlatObjectMetadata;
     }
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -94,8 +94,8 @@ export class BackfillMissingSystemRelationIndexesCommand extends ProvisionedWork
       flatFieldMetadataMaps,
       flatIndexMaps,
       holderFlatObjectMetadataByNameSingular,
-      kovaa-labStandardApplicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+      kovaaLabStandardApplicationUniversalIdentifier:
+        kovaaLabStandardFlatApplication.universalIdentifier,
     });
 
     if (missingIndexes.length === 0) {

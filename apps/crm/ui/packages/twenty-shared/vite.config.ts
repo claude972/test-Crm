@@ -35,7 +35,7 @@ const entryFileNames = (chunk: any, extension: 'cjs' | 'mjs') => {
 export default defineConfig(() => {
   return {
     root: __dirname,
-    cacheDir: '../../node_modules/.vite/packages/kovaa-lab-shared',
+    cacheDir: '../../node_modules/.vite/packages/twenty-shared',
     plugins: [createBundledSourcePlugin()],
     resolve: {
       tsconfigPaths: true,

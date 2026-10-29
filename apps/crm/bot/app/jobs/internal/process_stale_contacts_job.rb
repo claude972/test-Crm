@@ -14,7 +14,7 @@ class Internal::ProcessStaleContactsJob < ApplicationJob
 
   # Process only a subset of accounts per day to avoid flooding the queue
   def perform
-    return unless KovaaLab CharApp.kovaa-lab_cloud?
+    return unless ChatwootApp.chatwoot_cloud?
 
     # Use the day of the month to determine which accounts to process
     day_of_month = Date.current.day

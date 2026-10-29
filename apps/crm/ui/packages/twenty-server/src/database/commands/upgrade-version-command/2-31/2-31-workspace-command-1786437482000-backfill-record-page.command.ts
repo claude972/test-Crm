@@ -24,7 +24,7 @@ import { computeSystemViewToCreate } from 'src/engine/metadata-modules/metadata-
 import { computeSystemViewFieldsToCreate } from 'src/engine/metadata-modules/metadata-side-effect/handlers/utils/compute-system-view-fields-to-create.util';
 import { WidgetConfigurationType } from 'src/engine/metadata-modules/page-layout-widget/enums/widget-configuration-type.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { type UniversalFlatPageLayoutTab } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-page-layout-tab.type';
 import { type UniversalFlatPageLayoutWidget } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-page-layout-widget.type';
@@ -94,22 +94,22 @@ export class BackfillRecordPageCommand extends ProvisionedWorkspaceCommandRunner
       'flatPageLayoutMaps',
     ]);
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const { allFlatEntityMaps: standardFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const backfillOperationsByApplication =
       this.computeBackfillOperationsByApplication({
-        kovaa-labStandardApplicationUniversalIdentifier:
-          kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardApplicationUniversalIdentifier:
+          kovaaLabStandardFlatApplication.universalIdentifier,
         standardFlatEntityMaps,
         flatViewMaps,
         flatViewFieldMaps,
@@ -160,7 +160,7 @@ export class BackfillRecordPageCommand extends ProvisionedWorkspaceCommandRunner
   }
 
   private computeBackfillOperationsByApplication({
-    kovaa-labStandardApplicationUniversalIdentifier,
+    kovaaLabStandardApplicationUniversalIdentifier,
     standardFlatEntityMaps,
     flatViewMaps,
     flatViewFieldMaps,
@@ -169,7 +169,7 @@ export class BackfillRecordPageCommand extends ProvisionedWorkspaceCommandRunner
     flatFieldMetadataMaps,
     flatPageLayoutMaps,
   }: {
-    kovaa-labStandardApplicationUniversalIdentifier: string;
+    kovaaLabStandardApplicationUniversalIdentifier: string;
     standardFlatEntityMaps: StandardRecordPageFlatEntityMaps;
   } & Pick<
     AllFlatEntityMaps,
@@ -218,7 +218,7 @@ export class BackfillRecordPageCommand extends ProvisionedWorkspaceCommandRunner
 
       const isStandardObject =
         flatObjectMetadata.applicationUniversalIdentifier ===
-        kovaa-labStandardApplicationUniversalIdentifier;
+        kovaaLabStandardApplicationUniversalIdentifier;
 
       if (isStandardObject) {
         this.collectStandardObjectRecordPageOperations({

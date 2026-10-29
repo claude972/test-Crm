@@ -25,7 +25,7 @@ import { ConnectedAccountMetadataService } from 'src/engine/metadata-modules/con
 import { findFlatEntityByUniversalIdentifierOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier-or-throw.util';
 import { getMetadataFlatEntityMapsKey } from 'src/engine/metadata-modules/flat-entity/utils/get-metadata-flat-entity-maps-key.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { WorkspaceMigration } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/workspace-migration.type';
@@ -95,8 +95,8 @@ export class ApplicationManifestMigrationService {
 
     const now = new Date().toISOString();
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -132,8 +132,8 @@ export class ApplicationManifestMigrationService {
       applicationIds:
         ownerFlatApplication.universalIdentifier ===
         KOVAALAB_STANDARD_APPLICATION.universalIdentifier
-          ? [kovaa-labStandardFlatApplication.id]
-          : [ownerFlatApplication.id, kovaa-labStandardFlatApplication.id],
+          ? [kovaaLabStandardFlatApplication.id]
+          : [ownerFlatApplication.id, kovaaLabStandardFlatApplication.id],
       fromAllFlatEntityMaps: existingAllFlatEntityMaps,
     });
 
@@ -225,7 +225,7 @@ export class ApplicationManifestMigrationService {
 
     const workspaceCustomFlatApplication = hasWorkflows
       ? (
-          await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+          await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
             { workspaceId },
           )
         ).workspaceCustomFlatApplication

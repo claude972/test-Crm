@@ -7,8 +7,8 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { AiExceptionCode } from 'src/engine/metadata-modules/ai/ai.exception';
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { type UniversalFlatAgent } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-agent.type';
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
-import { isCallerKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/is-caller-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
+import { isCallerKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/is-caller-twenty-standard-app.util';
 import { type FailedFlatEntityValidation } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/types/failed-flat-entity-validation.type';
 import { getEmptyFlatEntityValidationError } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/utils/get-flat-entity-validation-error.util';
 import { type FlatEntityUpdateValidationArgs } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/universal-flat-entity-update-validation-args.type';
@@ -104,8 +104,8 @@ export class FlatAgentValidatorService {
     }
 
     if (
-      !isCallerKovaaLab CRMStandardApp(buildOptions) &&
-      belongsToKovaaLab CRMStandardApp({
+      !isCallerKovaaLabCRMStandardApp(buildOptions) &&
+      belongsToKovaaLabCRMStandardApp({
         universalIdentifier: existingAgent.universalIdentifier,
         applicationUniversalIdentifier:
           existingAgent.applicationUniversalIdentifier,
@@ -155,8 +155,8 @@ export class FlatAgentValidatorService {
     }
 
     if (
-      !isCallerKovaaLab CRMStandardApp(buildOptions) &&
-      belongsToKovaaLab CRMStandardApp({
+      !isCallerKovaaLabCRMStandardApp(buildOptions) &&
+      belongsToKovaaLabCRMStandardApp({
         universalIdentifier: fromFlatAgent.universalIdentifier,
         applicationUniversalIdentifier:
           fromFlatAgent.applicationUniversalIdentifier,

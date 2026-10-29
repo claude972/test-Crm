@@ -199,7 +199,7 @@ describe('buildSearchFieldMetadataBackfillOperations', () => {
         ]),
         flatSearchFieldMetadataMaps: buildFlatSearchFieldMetadataMaps([]),
         applicationUniversalIdentifierById,
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -259,7 +259,7 @@ describe('buildSearchFieldMetadataBackfillOperations', () => {
         ]),
         flatSearchFieldMetadataMaps: buildFlatSearchFieldMetadataMaps([]),
         applicationUniversalIdentifierById,
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -294,7 +294,7 @@ describe('buildSearchFieldMetadataBackfillOperations', () => {
         ]),
         flatSearchFieldMetadataMaps: buildFlatSearchFieldMetadataMaps([]),
         applicationUniversalIdentifierById,
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -328,7 +328,7 @@ describe('buildSearchFieldMetadataBackfillOperations', () => {
         ]),
         flatSearchFieldMetadataMaps: buildFlatSearchFieldMetadataMaps([]),
         applicationUniversalIdentifierById,
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -362,7 +362,7 @@ describe('buildSearchFieldMetadataBackfillOperations', () => {
         ]),
         flatSearchFieldMetadataMaps: buildFlatSearchFieldMetadataMaps([]),
         applicationUniversalIdentifierById,
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 
@@ -411,7 +411,7 @@ describe('buildSearchFieldMetadataBackfillOperations', () => {
           existingSearchFieldMetadata,
         ]),
         applicationUniversalIdentifierById,
-        kovaa-labStandardApplicationId: STANDARD_APPLICATION_ID,
+        kovaaLabStandardApplicationId: STANDARD_APPLICATION_ID,
         workspaceCustomApplicationId: CUSTOM_APPLICATION_ID,
       });
 

@@ -9,7 +9,7 @@ import { CUSTOM_AI_PROVIDER_ACCESS_RETRY_INTERVAL_MS } from 'src/engine/core-mod
 import { MAX_SEATS_WITHOUT_ENTERPRISE_KEY } from 'src/engine/core-modules/enterprise/constants/max-seats-without-organization-key.constant';
 import { EnterprisePlanService } from 'src/engine/core-modules/enterprise/services/enterprise-plan.service';
 import { hasCustomAiProviderAccess } from 'src/engine/core-modules/enterprise/utils/has-custom-ai-provider-access.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type CustomAiProviderAccess = {
   hasAccess: boolean;
@@ -27,7 +27,7 @@ export class CustomAiProviderAccessService {
   private didLastRefreshFail = false;
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly enterprisePlanService: EnterprisePlanService,
   ) {}
 
@@ -39,7 +39,7 @@ export class CustomAiProviderAccessService {
       const seatCount = await this.enterprisePlanService.getBillableSeatCount();
 
       this.hasAccess = hasCustomAiProviderAccess({
-        isBillingEnabled: this.kovaa-labConfigService.get('IS_BILLING_ENABLED'),
+        isBillingEnabled: this.kovaaLabConfigService.get('IS_BILLING_ENABLED'),
         hasValidEnterprisePlan: this.enterprisePlanService.isValid(),
         seatCount,
       });

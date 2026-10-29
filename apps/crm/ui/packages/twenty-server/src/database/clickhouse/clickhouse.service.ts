@@ -15,7 +15,7 @@ import {
   ClickHouseException,
   ClickHouseExceptionCode,
 } from 'src/database/clickhouse/clickhouse.exception';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export type ClickHouseInsertOptions = {
   clientId?: string;
@@ -33,10 +33,10 @@ export class ClickHouseService implements OnModuleInit, OnModuleDestroy {
   private isClientInitializing: Map<string, boolean> = new Map();
   private readonly logger = new Logger(ClickHouseService.name);
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {
-    if (this.kovaa-labConfigService.get('CLICKHOUSE_URL')) {
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {
+    if (this.kovaaLabConfigService.get('CLICKHOUSE_URL')) {
       this.mainClient = createClient({
-        url: this.kovaa-labConfigService.get('CLICKHOUSE_URL'),
+        url: this.kovaaLabConfigService.get('CLICKHOUSE_URL'),
         compression: {
           response: true,
           request: true,
@@ -55,7 +55,7 @@ export class ClickHouseService implements OnModuleInit, OnModuleDestroy {
     clientId: string,
     url?: string,
   ): Promise<ClickHouseClient | undefined> {
-    if (!this.kovaa-labConfigService.get('CLICKHOUSE_URL')) {
+    if (!this.kovaaLabConfigService.get('CLICKHOUSE_URL')) {
       return undefined;
     }
 
@@ -91,7 +91,7 @@ export class ClickHouseService implements OnModuleInit, OnModuleDestroy {
     url?: string,
   ): Promise<ClickHouseClient> {
     const client = createClient({
-      url: url ?? this.kovaa-labConfigService.get('CLICKHOUSE_URL'),
+      url: url ?? this.kovaaLabConfigService.get('CLICKHOUSE_URL'),
       compression: {
         response: true,
         request: true,

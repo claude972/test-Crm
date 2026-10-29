@@ -1,6 +1,6 @@
 import { type ActorMetadata, type RichTextMetadata } from 'kovaa-lab-shared/types';
 
-import { BaseWorkspaceEntity } from 'src/engine/kovaa-lab-orm/base.workspace-entity';
+import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 import { type EntityRelation } from 'src/engine/workspace-manager/workspace-migration/types/entity-relation.interface';
 import { type AttachmentWorkspaceEntity } from 'src/modules/attachment/standard-objects/attachment.workspace-entity';
 import { type TaskTargetWorkspaceEntity } from 'src/modules/task/standard-objects/task-target.workspace-entity';

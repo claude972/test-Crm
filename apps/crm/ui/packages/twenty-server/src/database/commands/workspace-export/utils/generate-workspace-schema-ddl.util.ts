@@ -11,9 +11,9 @@ import { getTargetSearchFieldMetadatasForTsVectorField } from 'src/engine/metada
 import { type ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { SEARCH_VECTOR_FIELD } from 'src/engine/metadata-modules/search-field-metadata/constants/search-vector-field.constants';
 import { type SearchFieldMetadataEntity } from 'src/engine/metadata-modules/search-field-metadata/search-field-metadata.entity';
-import { buildSqlColumnDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/utils/build-sql-column-definition.util';
+import { buildSqlColumnDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/utils/build-sql-column-definition.util';
 import { computeTableName } from 'src/engine/utils/compute-table-name.util';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import {
   escapeIdentifier,
   escapeLiteral,

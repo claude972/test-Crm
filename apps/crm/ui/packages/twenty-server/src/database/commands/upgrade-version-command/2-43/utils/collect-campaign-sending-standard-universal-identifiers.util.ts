@@ -1,7 +1,7 @@
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type KovaaLab CRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/kovaa-lab-standard-all-flat-entity-maps.type';
+import { type KovaaLabCRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/types/twenty-standard-all-flat-entity-maps.type';
 
 const CAMPAIGN_SENDING_OBJECT_UNIVERSAL_IDENTIFIERS: string[] = [
   STANDARD_OBJECTS.campaignDelivery.universalIdentifier,
@@ -11,7 +11,7 @@ const CAMPAIGN_SENDING_OBJECT_UNIVERSAL_IDENTIFIERS: string[] = [
 export const collectCampaignSendingStandardUniversalIdentifiers = ({
   standardAllFlatEntityMaps,
 }: {
-  standardAllFlatEntityMaps: KovaaLab CRMStandardAllFlatEntityMaps;
+  standardAllFlatEntityMaps: KovaaLabCRMStandardAllFlatEntityMaps;
 }): { objectMetadata: string[]; fieldMetadata: string[]; index: string[] } => {
   const belongsToCampaignSendingObject = ({
     objectMetadataUniversalIdentifier,

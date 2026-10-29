@@ -6,7 +6,7 @@ import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { SECRET_ENCRYPTION_ENVELOPE_V2_PREFIX } from 'src/engine/core-modules/secret-encryption/constants/secret-encryption.constant';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import {
   ConnectedAccountRefreshAccessTokenException,
@@ -76,7 +76,7 @@ describe('GoogleOAuth2ClientProvider', () => {
       providers: [
         GoogleOAuth2ClientProvider,
         {
-          provide: KovaaLab CRMConfigService,
+          provide: KovaaLabCRMConfigService,
           useValue: {
             get: jest.fn().mockImplementation((key: string) => {
               if (key === 'AUTH_GOOGLE_CLIENT_ID') return 'google-client-id';

@@ -1,10 +1,10 @@
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { readIsPersonEnrichmentEnabled } from 'src/engine/core-modules/company-enrichment/utils/read-is-person-enrichment-enabled.util';
 
 const buildConfigService = (configValues: Record<string, unknown>) =>
   ({
     get: (key: string) => configValues[key],
-  }) as KovaaLab CRMConfigService;
+  }) as KovaaLabCRMConfigService;
 
 describe('readIsPersonEnrichmentEnabled', () => {
   it('should be enabled when the onboarding ai chat and the api key are configured', () => {

@@ -2,21 +2,21 @@ import { Injectable } from '@nestjs/common';
 
 import { createHash } from 'crypto';
 
-import { ConfigVariables } from 'src/engine/core-modules/kovaa-lab-config/config-variables';
-import { type ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { ConfigVariables } from 'src/engine/core-modules/twenty-config/config-variables';
+import { type ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { TypedReflect } from 'src/utils/typed-reflect';
 
 @Injectable()
 export class ConfigGroupHashService {
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {}
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
 
   computeHash(group: ConfigVariablesGroup): string {
     const groupVariables = this.getConfigVariablesByGroup(group);
 
     const configValues = groupVariables
       .map(
-        (key) => `${key}=${JSON.stringify(this.kovaa-labConfigService.get(key))}`,
+        (key) => `${key}=${JSON.stringify(this.kovaaLabConfigService.get(key))}`,
       )
       .sort()
       .join('|');

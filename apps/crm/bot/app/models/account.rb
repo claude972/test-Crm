@@ -163,8 +163,8 @@ class Account < ApplicationRecord
 
   def usage_limits
     {
-      agents: KovaaLab CharApp.max_limit.to_i,
-      inboxes: KovaaLab CharApp.max_limit.to_i
+      agents: ChatwootApp.max_limit.to_i,
+      inboxes: ChatwootApp.max_limit.to_i
     }
   end
 
@@ -173,7 +173,7 @@ class Account < ApplicationRecord
   end
 
   def enforce_mfa?
-    KovaaLab Char.mfa_enabled? && enforce_mfa == true
+    Chatwoot.mfa_enabled? && enforce_mfa == true
   end
 
   def locale_english_name

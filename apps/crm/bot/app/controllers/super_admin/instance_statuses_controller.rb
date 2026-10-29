@@ -1,18 +1,18 @@
 class SuperAdmin::InstanceStatusesController < SuperAdmin::ApplicationController
   def show
     @metrics = {}
-    kovaa-lab_version
+    chatwoot_version
     sha
     postgres_status
     redis_metrics
-    kovaa-lab_edition
+    chatwoot_edition
     instance_meta
   end
 
-  def kovaa-lab_edition
-    @metrics['KovaaLab Char edition'] = if KovaaLab CharApp.enterprise?
+  def chatwoot_edition
+    @metrics['KovaaLab Char edition'] = if ChatwootApp.enterprise?
                                      'Enterprise'
-                                   elsif KovaaLab CharApp.custom?
+                                   elsif ChatwootApp.custom?
                                      'Custom'
                                    else
                                      'Community'
@@ -25,8 +25,8 @@ class SuperAdmin::InstanceStatusesController < SuperAdmin::ApplicationController
     @metrics['Database Migrations'] = migrations_context.needs_migration? ? 'pending' : 'completed'
   end
 
-  def kovaa-lab_version
-    @metrics['KovaaLab Char version'] = KovaaLab Char.config[:version]
+  def chatwoot_version
+    @metrics['KovaaLab Char version'] = Chatwoot.config[:version]
   end
 
   def sha

@@ -11,7 +11,7 @@ import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 import { type UniversalFlatObjectMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-object-metadata.type';
 import { type UniversalFlatView } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-view.type';
@@ -67,16 +67,16 @@ export class FixMessageThreadViewAndLabelIdentifierCommand extends ProvisionedWo
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
     const { allFlatEntityMaps: standardAllFlatEntityMaps } =
-      computeKovaaLab CRMStandardApplicationAllFlatEntityMaps({
+      computeKovaaLabCRMStandardApplicationAllFlatEntityMaps({
         now: new Date().toISOString(),
         workspaceId,
-        kovaa-labStandardApplicationId: kovaa-labStandardFlatApplication.id,
+        kovaaLabStandardApplicationId: kovaaLabStandardFlatApplication.id,
       });
 
     const {
@@ -170,7 +170,7 @@ export class FixMessageThreadViewAndLabelIdentifierCommand extends ProvisionedWo
           },
           workspaceId,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           isSystemBuild: true,
         },
       );
@@ -197,7 +197,7 @@ export class FixMessageThreadViewAndLabelIdentifierCommand extends ProvisionedWo
     existingFlatViewMaps,
   }: {
     standardAllFlatEntityMaps: ReturnType<
-      typeof computeKovaaLab CRMStandardApplicationAllFlatEntityMaps
+      typeof computeKovaaLabCRMStandardApplicationAllFlatEntityMaps
     >['allFlatEntityMaps'];
     existingFlatViewMaps: FlatViewMaps;
   }): UniversalFlatView | undefined {
@@ -247,7 +247,7 @@ export class FixMessageThreadViewAndLabelIdentifierCommand extends ProvisionedWo
     existingFlatFieldMetadataMaps,
   }: {
     standardAllFlatEntityMaps: ReturnType<
-      typeof computeKovaaLab CRMStandardApplicationAllFlatEntityMaps
+      typeof computeKovaaLabCRMStandardApplicationAllFlatEntityMaps
     >['allFlatEntityMaps'];
     existingFlatFieldMetadataMaps: FlatFieldMetadataMaps;
   }): UniversalFlatViewField[] {

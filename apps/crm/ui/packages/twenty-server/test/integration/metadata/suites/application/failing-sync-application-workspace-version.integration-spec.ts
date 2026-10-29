@@ -6,7 +6,7 @@ import { type Manifest } from 'kovaa-lab-shared/application';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-import { KOVAALAB_CURRENT_VERSION } from 'src/engine/core-modules/upgrade/constants/kovaa-lab-current-version.constant';
+import { KOVAALAB_CURRENT_VERSION } from 'src/engine/core-modules/upgrade/constants/twenty-current-version.constant';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 
 // The sync flow can run cache-lock retries with real delays, so fake timers

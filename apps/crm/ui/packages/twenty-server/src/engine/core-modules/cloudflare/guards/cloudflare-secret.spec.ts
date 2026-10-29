@@ -1,6 +1,6 @@
 import { type ExecutionContext } from '@nestjs/common';
 
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { CloudflareSecretMatchGuard } from 'src/engine/core-modules/cloudflare/guards/cloudflare-secret.guard';
 
 const buildMockContext = (headers: Record<string, unknown>) =>
@@ -12,17 +12,17 @@ const buildMockContext = (headers: Record<string, unknown>) =>
 
 describe('CloudflareSecretMatchGuard.canActivate', () => {
   let guard: CloudflareSecretMatchGuard;
-  let kovaa-labConfigService: KovaaLab CRMConfigService;
+  let kovaaLabConfigService: KovaaLabCRMConfigService;
 
   beforeEach(() => {
-    kovaa-labConfigService = {
+    kovaaLabConfigService = {
       get: jest.fn(),
-    } as unknown as KovaaLab CRMConfigService;
-    guard = new CloudflareSecretMatchGuard(kovaa-labConfigService);
+    } as unknown as KovaaLabCRMConfigService;
+    guard = new CloudflareSecretMatchGuard(kovaaLabConfigService);
   });
 
   it('should return true when the webhook secret matches', () => {
-    jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue('valid-secret');
+    jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue('valid-secret');
 
     const context = buildMockContext({
       'cf-webhook-auth': 'valid-secret',
@@ -32,7 +32,7 @@ describe('CloudflareSecretMatchGuard.canActivate', () => {
   });
 
   it('should throw InternalServerErrorException when env is not set', () => {
-    jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue(undefined);
+    jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue(undefined);
 
     const context = buildMockContext({
       'cf-webhook-auth': 'any-value',
@@ -44,7 +44,7 @@ describe('CloudflareSecretMatchGuard.canActivate', () => {
   });
 
   it('should return false when the header is missing', () => {
-    jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue('valid-secret');
+    jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue('valid-secret');
 
     const context = buildMockContext({});
 
@@ -52,7 +52,7 @@ describe('CloudflareSecretMatchGuard.canActivate', () => {
   });
 
   it('should return false when the header value is wrong', () => {
-    jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue('valid-secret');
+    jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue('valid-secret');
 
     const context = buildMockContext({
       'cf-webhook-auth': 'wrong-secret',
@@ -62,7 +62,7 @@ describe('CloudflareSecretMatchGuard.canActivate', () => {
   });
 
   it('should return false when the header is an empty string', () => {
-    jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue('valid-secret');
+    jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue('valid-secret');
 
     const context = buildMockContext({
       'cf-webhook-auth': '',
@@ -72,7 +72,7 @@ describe('CloudflareSecretMatchGuard.canActivate', () => {
   });
 
   it('should return false when header length differs from secret', () => {
-    jest.spyOn(kovaa-labConfigService, 'get').mockReturnValue('short');
+    jest.spyOn(kovaaLabConfigService, 'get').mockReturnValue('short');
 
     const context = buildMockContext({
       'cf-webhook-auth': 'much-longer-value',

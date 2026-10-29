@@ -6,7 +6,7 @@ import { ApplicationVariableEntityService } from 'src/engine/core-modules/applic
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { type FlatApplicationVariable } from 'src/engine/metadata-modules/flat-application-variable/types/flat-application-variable.type';
-import { getWorkspaceScopedRepositoryToken } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
+import { getWorkspaceScopedRepositoryToken } from 'src/engine/twenty-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 
 const WORKSPACE_ID = 'workspace-id';

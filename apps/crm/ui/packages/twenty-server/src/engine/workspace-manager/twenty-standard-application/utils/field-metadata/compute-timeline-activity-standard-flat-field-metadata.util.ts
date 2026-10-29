@@ -1,5 +1,5 @@
 import { msg } from '@lingui/core/macro';
-import { i18nLabel } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/i18n-label.util';
+import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 import {
   DateDisplayFormat,
@@ -8,21 +8,21 @@ import {
   RelationType,
 } from 'kovaa-lab-shared/types';
 
-import { createStandardMorphRelationHeadFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-morph-relation-head-flat-metadata.util';
+import { createStandardMorphRelationHeadFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-morph-relation-head-flat-metadata.util';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/all-standard-object-field-name.type';
+import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
 import {
   createStandardFieldFlatMetadata,
   type CreateStandardFieldArgs,
-} from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
-import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
+} from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-field-flat-metadata.util';
+import { createStandardRelationFieldFlatMetadata } from 'src/engine/workspace-manager/twenty-standard-application/utils/field-metadata/create-standard-relation-field-flat-metadata.util';
 export const buildTimelineActivityStandardFlatFieldMetadatas = ({
   now,
   objectName,
   workspaceId,
   standardObjectMetadataRelatedEntityIds,
   dependencyFlatEntityMaps,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
 }: Omit<
   CreateStandardFieldArgs<'timelineActivity', FieldMetadataType>,
   'context'
@@ -48,7 +48,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   createdAt: createStandardFieldFlatMetadata({
@@ -72,7 +72,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   updatedAt: createStandardFieldFlatMetadata({
@@ -99,7 +99,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   deletedAt: createStandardFieldFlatMetadata({
@@ -125,7 +125,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   createdBy: createStandardFieldFlatMetadata({
@@ -155,7 +155,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   updatedBy: createStandardFieldFlatMetadata({
@@ -185,7 +185,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   position: createStandardFieldFlatMetadata({
@@ -210,7 +210,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   happensAt: createStandardFieldFlatMetadata({
@@ -232,7 +232,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   timelineActivityTypeId: createStandardFieldFlatMetadata({
@@ -257,7 +257,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   timelineActivityTypeSnapshot: createStandardFieldFlatMetadata({
@@ -282,7 +282,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   properties: createStandardFieldFlatMetadata({
@@ -306,7 +306,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   linkedRecordCachedName: createStandardFieldFlatMetadata({
@@ -334,7 +334,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   linkedRecordId: createStandardFieldFlatMetadata({
@@ -359,7 +359,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   linkedObjectMetadataId: createStandardFieldFlatMetadata({
@@ -387,7 +387,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
 
@@ -420,7 +420,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   target: createStandardMorphRelationHeadFlatMetadata({
@@ -428,7 +428,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     workspaceId,
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetPerson: createStandardRelationFieldFlatMetadata({
@@ -458,7 +458,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetCompany: createStandardRelationFieldFlatMetadata({
@@ -488,7 +488,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetOpportunity: createStandardRelationFieldFlatMetadata({
@@ -518,7 +518,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetNote: createStandardRelationFieldFlatMetadata({
@@ -548,7 +548,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetTask: createStandardRelationFieldFlatMetadata({
@@ -578,7 +578,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetWorkflow: createStandardRelationFieldFlatMetadata({
@@ -608,7 +608,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetWorkflowVersion: createStandardRelationFieldFlatMetadata({
@@ -638,7 +638,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetWorkflowRun: createStandardRelationFieldFlatMetadata({
@@ -668,7 +668,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetDashboard: createStandardRelationFieldFlatMetadata({
@@ -698,7 +698,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetMessageList: createStandardRelationFieldFlatMetadata({
@@ -728,7 +728,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   targetMessageCampaign: createStandardRelationFieldFlatMetadata({
@@ -758,7 +758,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
   searchVector: createStandardFieldFlatMetadata({
@@ -782,7 +782,7 @@ export const buildTimelineActivityStandardFlatFieldMetadatas = ({
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
-    kovaa-labStandardApplicationId,
+    kovaaLabStandardApplicationId,
     now,
   }),
 });

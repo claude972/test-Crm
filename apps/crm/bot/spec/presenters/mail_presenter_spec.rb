@@ -257,7 +257,7 @@ RSpec.describe MailPresenter do
 
         expect(presenter.original_sender).to be_nil
         expect(presenter.sender_name).to be_nil
-        expect(presenter.notification_email_from_kovaa-lab?).to be(false)
+        expect(presenter.notification_email_from_chatwoot?).to be(false)
       end
 
       it 'falls back to from header when reply_to is malformed' do
@@ -285,7 +285,7 @@ RSpec.describe MailPresenter do
 
         with_modified_env MAILER_SENDER_EMAIL: 'KovaaLab Char <accounts@kovaa-lab.com>' do
           presenter = described_class.new(mail_with_uppercase_sender)
-          expect(presenter.notification_email_from_kovaa-lab?).to be(true)
+          expect(presenter.notification_email_from_chatwoot?).to be(true)
         end
       end
     end

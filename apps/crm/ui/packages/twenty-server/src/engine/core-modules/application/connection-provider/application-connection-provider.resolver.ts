@@ -7,7 +7,7 @@ import { ApplicationExceptionFilter } from 'src/engine/core-modules/application/
 import { ApplicationConnectionProviderDTO } from 'src/engine/core-modules/application/connection-provider/dtos/application-connection-provider.dto';
 import { ConnectionProviderService } from 'src/engine/core-modules/application/connection-provider/connection-provider.service';
 import { buildPublicAssetLogoUrl } from 'src/engine/core-modules/application/utils/build-public-asset-logo-url.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { ApplicationTargetArg } from 'src/engine/decorators/auth/application-target-arg.decorator';
 import { AuthWorkspace } from 'src/engine/decorators/auth/auth-workspace.decorator';
@@ -33,7 +33,7 @@ import { ApplicationTargetGuard } from 'src/engine/guards/application-target.gua
 export class ApplicationConnectionProviderResolver {
   constructor(
     private readonly oauthProviderService: ConnectionProviderService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   @Query(() => [ApplicationConnectionProviderDTO])
@@ -88,7 +88,7 @@ export class ApplicationConnectionProviderResolver {
   ): string | null {
     return buildPublicAssetLogoUrl({
       logo: connectionProvider.logo,
-      serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
+      serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
       workspaceId: workspace.id,
       applicationId: connectionProvider.applicationId,
     });

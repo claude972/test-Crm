@@ -30,7 +30,7 @@ class Installation::OnboardingController < ApplicationController
     ::Redis::Alfred.delete(::Redis::Alfred::KOVAALAB_INSTALLATION_ONBOARDING)
     return if onboarding_params[:subscribe_to_updates].blank?
 
-    KovaaLab CharHub.register_instance(
+    ChatwootHub.register_instance(
       onboarding_params.dig(:user, :company),
       onboarding_params.dig(:user, :name),
       onboarding_params.dig(:user, :email)

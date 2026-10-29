@@ -20,7 +20,7 @@ import {
 import { type InputJsonSchema } from '@/logic-function';
 import { isDefined } from '@/utils/validation/isDefined';
 
-const KOVAALAB_RECORD_TYPE_NAME = 'KovaaLab CRMRecord';
+const KOVAALAB_RECORD_TYPE_NAME = 'KovaaLabCRMRecord';
 
 const getObjectUniversalIdentifierFromTypeArgument = (
   typeReferenceNode: TypeReferenceNode,

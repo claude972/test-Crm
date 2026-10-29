@@ -24,10 +24,10 @@ describe('ConfigureStandardTimelineRenderersCommand', () => {
     const command = new ConfigureStandardTimelineRenderersCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
+            kovaaLabStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
           }),
       } as unknown as ApplicationService,
       {
@@ -69,10 +69,10 @@ describe('ConfigureStandardTimelineRenderersCommand', () => {
     const command = new ConfigureStandardTimelineRenderersCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow: jest
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow: jest
           .fn()
           .mockResolvedValue({
-            kovaa-labStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
+            kovaaLabStandardFlatApplication: { id: STANDARD_APPLICATION_ID },
           }),
       } as unknown as ApplicationService,
       {
@@ -97,7 +97,7 @@ describe('ConfigureStandardTimelineRenderersCommand', () => {
     const command = new ConfigureStandardTimelineRenderersCommand(
       {} as WorkspaceIteratorService,
       {
-        findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow:
+        findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow:
           findStandardApplication,
       } as unknown as ApplicationService,
       {

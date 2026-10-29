@@ -6,7 +6,7 @@ import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Repository } from 'typeorm';
 
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import {
   ConnectedAccountRefreshAccessTokenException,
@@ -18,7 +18,7 @@ import { ConnectedAccountRefreshTokensService } from 'src/modules/connected-acco
 @Injectable()
 export class GoogleOAuth2ClientProvider {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly logger: Logger,
     private readonly connectedAccountRefreshTokensService: ConnectedAccountRefreshTokensService,
     private readonly connectedAccountTokenEncryptionService: ConnectedAccountTokenEncryptionService,
@@ -66,8 +66,8 @@ export class GoogleOAuth2ClientProvider {
         workspaceId: connectedAccount.workspaceId,
       });
 
-    const clientId = this.kovaa-labConfigService.get('AUTH_GOOGLE_CLIENT_ID');
-    const clientSecret = this.kovaa-labConfigService.get(
+    const clientId = this.kovaaLabConfigService.get('AUTH_GOOGLE_CLIENT_ID');
+    const clientSecret = this.kovaaLabConfigService.get(
       'AUTH_GOOGLE_CLIENT_SECRET',
     );
 

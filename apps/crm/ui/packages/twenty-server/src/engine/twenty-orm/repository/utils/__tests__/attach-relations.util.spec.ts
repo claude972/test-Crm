@@ -5,7 +5,7 @@ import {
   attachToOneRelationToRecords,
   collectForeignKeys,
   collectRecordIds,
-} from 'src/engine/kovaa-lab-orm/repository/utils/attach-relations.util';
+} from 'src/engine/twenty-orm/repository/utils/attach-relations.util';
 
 const asRecords = (records: Record<string, unknown>[]): ObjectRecord[] =>
   records as ObjectRecord[];

@@ -18,7 +18,7 @@ import {
   CustomAiProviderAccessService,
 } from 'src/engine/core-modules/enterprise/services/custom-ai-provider-access.service';
 import { UserInputError } from 'src/engine/core-modules/graphql/utils/graphql-errors.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { AiModelRegistryService } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-registry.service';
 import { DefaultAiCatalogService } from 'src/engine/metadata-modules/ai/ai-models/services/default-ai-catalog.service';
 import { aiProviderConfigSchema } from 'src/engine/metadata-modules/ai/ai-models/types/ai-provider-config.schema';
@@ -31,7 +31,7 @@ const PROVIDER_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
 @Injectable()
 export class AdminPanelAiProviderService {
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly customAiProviderAccessService: CustomAiProviderAccessService,
     private readonly aiModelRegistryService: AiModelRegistryService,
     private readonly defaultAiCatalogService: DefaultAiCatalogService,
@@ -60,7 +60,7 @@ export class AdminPanelAiProviderService {
       this.aiModelRegistryService.getResolvedProvidersForAdmin();
     const catalogNames = this.aiModelRegistryService.getCatalogProviderNames();
     const rawCatalog = this.defaultAiCatalogService.getDefaultAiCatalog();
-    const customProviders = this.kovaa-labConfigService.get('AI_PROVIDERS');
+    const customProviders = this.kovaaLabConfigService.get('AI_PROVIDERS');
     const masked: Record<string, Record<string, unknown>> = {};
 
     for (const [key, config] of Object.entries(providers)) {
@@ -128,11 +128,11 @@ export class AdminPanelAiProviderService {
     }
 
     const customProviders = {
-      ...this.kovaa-labConfigService.get('AI_PROVIDERS'),
+      ...this.kovaaLabConfigService.get('AI_PROVIDERS'),
     };
 
     customProviders[providerName] = validatedProviderConfig.data;
-    await this.kovaa-labConfigService.set('AI_PROVIDERS', customProviders);
+    await this.kovaaLabConfigService.set('AI_PROVIDERS', customProviders);
 
     return true;
   }
@@ -140,11 +140,11 @@ export class AdminPanelAiProviderService {
   // No access check so an instance past the threshold can still clean up its providers
   async removeProvider(providerName: string): Promise<boolean> {
     const customProviders = {
-      ...this.kovaa-labConfigService.get('AI_PROVIDERS'),
+      ...this.kovaaLabConfigService.get('AI_PROVIDERS'),
     };
 
     delete customProviders[providerName];
-    await this.kovaa-labConfigService.set('AI_PROVIDERS', customProviders);
+    await this.kovaaLabConfigService.set('AI_PROVIDERS', customProviders);
 
     return true;
   }
@@ -170,7 +170,7 @@ export class AdminPanelAiProviderService {
     }
 
     const customProviders = {
-      ...this.kovaa-labConfigService.get('AI_PROVIDERS'),
+      ...this.kovaaLabConfigService.get('AI_PROVIDERS'),
     };
 
     const existing = customProviders[providerName];
@@ -201,7 +201,7 @@ export class AdminPanelAiProviderService {
       ],
     };
 
-    await this.kovaa-labConfigService.set('AI_PROVIDERS', customProviders);
+    await this.kovaaLabConfigService.set('AI_PROVIDERS', customProviders);
 
     return true;
   }
@@ -214,7 +214,7 @@ export class AdminPanelAiProviderService {
     modelName: string;
   }): Promise<boolean> {
     const customProviders = {
-      ...this.kovaa-labConfigService.get('AI_PROVIDERS'),
+      ...this.kovaaLabConfigService.get('AI_PROVIDERS'),
     };
 
     const existing = customProviders[providerName];
@@ -234,7 +234,7 @@ export class AdminPanelAiProviderService {
       ),
     };
 
-    await this.kovaa-labConfigService.set('AI_PROVIDERS', customProviders);
+    await this.kovaaLabConfigService.set('AI_PROVIDERS', customProviders);
 
     return true;
   }

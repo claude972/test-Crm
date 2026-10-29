@@ -14,9 +14,9 @@ import {
 import { BillingEntitlementSyncService } from 'src/engine/core-modules/billing-webhook/services/billing-entitlement-sync.service';
 import { BillingCustomerEntity } from 'src/engine/core-modules/billing/entities/billing-customer.entity';
 import { StripeEntitlementService } from 'src/engine/core-modules/billing/stripe/services/stripe-entitlement.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 // Stripe stops retrying failed webhooks and a missing entitlement reads as denied, so dropped events need reconciling
 @Command({
@@ -26,7 +26,7 @@ import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-sc
 export class BillingSyncEntitlementsCommand extends WorkspaceCommandRunner {
   constructor(
     protected readonly workspaceIteratorService: WorkspaceIteratorService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly stripeEntitlementService: StripeEntitlementService,
     private readonly billingEntitlementSyncService: BillingEntitlementSyncService,
     @InjectWorkspaceScopedRepository(BillingCustomerEntity)
@@ -43,7 +43,7 @@ export class BillingSyncEntitlementsCommand extends WorkspaceCommandRunner {
     options,
     index,
   }: RunOnWorkspaceArgs): Promise<void> {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       if (index === 0) {
         this.logger.log(
           chalk.yellow('Billing is disabled, skipping entitlement sync'),

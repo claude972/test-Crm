@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 
 import { ENTITLEMENT_KEYS_GRANTED_WITHOUT_BILLING } from 'src/engine/core-modules/billing/constants/entitlement-keys-granted-without-billing.constant';
 import { type BillingEntitlements } from 'src/engine/core-modules/billing/types/billing-entitlements.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceCache } from 'src/engine/workspace-cache/decorators/workspace-cache.decorator';
 import { WorkspaceCacheProvider } from 'src/engine/workspace-cache/interfaces/workspace-cache-provider.service';
 import { type WorkspaceCacheProviderContext } from 'src/engine/workspace-cache/types/workspace-cache-provider-context.type';
@@ -19,10 +19,10 @@ const BILLING_ENTITLEMENTS_ROWS_REQUIREMENT = {
 export class WorkspaceBillingEntitlementsCacheService extends WorkspaceCacheProvider<BillingEntitlements> {
   override readonly rowsRequirement: WorkspaceCacheRowsRequirement;
 
-  constructor(private readonly kovaa-labConfigService: KovaaLab CRMConfigService) {
+  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {
     super();
 
-    this.rowsRequirement = this.kovaa-labConfigService.get('IS_BILLING_ENABLED')
+    this.rowsRequirement = this.kovaaLabConfigService.get('IS_BILLING_ENABLED')
       ? BILLING_ENTITLEMENTS_ROWS_REQUIREMENT
       : {};
   }
@@ -32,7 +32,7 @@ export class WorkspaceBillingEntitlementsCacheService extends WorkspaceCacheProv
   }: WorkspaceCacheProviderContext<
     typeof BILLING_ENTITLEMENTS_ROWS_REQUIREMENT
   >): BillingEntitlements {
-    if (!this.kovaa-labConfigService.get('IS_BILLING_ENABLED')) {
+    if (!this.kovaaLabConfigService.get('IS_BILLING_ENABLED')) {
       return Object.fromEntries(
         ENTITLEMENT_KEYS_GRANTED_WITHOUT_BILLING.map((key) => [key, true]),
       );

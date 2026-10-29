@@ -26,7 +26,7 @@ class Captain::Tools::HandoffTool < Captain::Tools::BasePublicTool
 
     "Conversation handed off to human support team#{" (Reason: #{reason})" if reason}"
   rescue StandardError => e
-    KovaaLab CharExceptionTracker.new(e).capture_exception
+    ChatwootExceptionTracker.new(e).capture_exception
     failure_result('Failed to handoff conversation', tool_context.state)
   end
 

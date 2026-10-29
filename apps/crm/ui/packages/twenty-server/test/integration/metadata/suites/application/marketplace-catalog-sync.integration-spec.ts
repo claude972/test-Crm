@@ -14,7 +14,7 @@ import { insertCatalogApplicationRegistration } from 'test/integration/metadata/
 import { stubNpmRegistry } from 'test/integration/metadata/suites/application/utils/stub-npm-registry.util';
 import { syncMarketplaceCatalogFromRegistryPackage } from 'test/integration/metadata/suites/application/utils/sync-marketplace-catalog-from-registry-package.util';
 import { upsertApplicationRegistrationFromCatalog } from 'test/integration/metadata/suites/application/utils/upsert-application-registration-from-catalog.util';
-import { makeAdminPanelApiRequest } from 'test/integration/kovaa-lab-config/utils/make-admin-panel-api-request.util';
+import { makeAdminPanelApiRequest } from 'test/integration/twenty-config/utils/make-admin-panel-api-request.util';
 import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 import { type DataSource } from 'typeorm';
 
@@ -24,7 +24,7 @@ import { type ApplicationPackageFetcherService } from 'src/engine/core-modules/a
 import { type ApplicationRegistrationLookupService } from 'src/engine/core-modules/application/application-registration/application-registration-lookup/application-registration-lookup.service';
 import { type ApplicationRegistrationService } from 'src/engine/core-modules/application/application-registration/application-registration.service';
 import { ApplicationRegistrationSourceType } from 'src/engine/core-modules/application/application-registration/enums/application-registration-source-type.enum';
-import { type KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 
 const TEST_WORKSPACE_ID = SEED_APPLE_WORKSPACE_ID;
@@ -855,11 +855,12 @@ describe('Marketplace Catalog Sync (integration)', () => {
         sourcePackage: SOURCE_PACKAGE,
         latestAvailableVersion: '1.0.0',
       });
-      const registryBaseUrl = getAppProviderByClassName<KovaaLab CRMConfigService>(
-        'KovaaLab CRMConfigService',
-      )
-        .get('APP_REGISTRY_URL')
-        .replace(/\/$/, '');
+      const registryBaseUrl =
+        getAppProviderByClassName<KovaaLabCRMConfigService>(
+          'KovaaLabCRMConfigService',
+        )
+          .get('APP_REGISTRY_URL')
+          .replace(/\/$/, '');
       const manifest = buildBaseManifest({
         appId: universalIdentifier,
         roleId: crypto.randomUUID(),

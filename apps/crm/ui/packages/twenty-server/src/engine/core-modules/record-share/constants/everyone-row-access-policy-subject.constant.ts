@@ -2,7 +2,7 @@
 
 import { EVERYONE_PRINCIPAL_ID } from 'kovaa-lab-shared/constants';
 
-import { type RowAccessPolicySubject } from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
+import { type RowAccessPolicySubject } from 'src/engine/twenty-orm/types/row-access-policy.type';
 
 export const EVERYONE_ROW_ACCESS_POLICY_SUBJECT: RowAccessPolicySubject = {
   isSystemContext: false,

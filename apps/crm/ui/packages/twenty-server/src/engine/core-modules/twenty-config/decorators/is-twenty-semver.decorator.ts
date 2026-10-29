@@ -8,7 +8,7 @@ import {
 import semver from 'semver';
 
 @ValidatorConstraint({ async: false })
-export class IsKovaaLab CRMSemVerValidator implements ValidatorConstraintInterface {
+export class IsKovaaLabCRMSemVerValidator implements ValidatorConstraintInterface {
   validate(version: string) {
     const parsed = semver.parse(version);
 
@@ -20,7 +20,7 @@ export class IsKovaaLab CRMSemVerValidator implements ValidatorConstraintInterfa
   }
 }
 
-export const IsKovaaLab CRMSemVer =
+export const IsKovaaLabCRMSemVer =
   (validationOptions?: ValidationOptions) =>
   (object: object, propertyName: string) => {
     registerDecorator({
@@ -28,6 +28,6 @@ export const IsKovaaLab CRMSemVer =
       propertyName: propertyName,
       options: validationOptions,
       constraints: [],
-      validator: IsKovaaLab CRMSemVerValidator,
+      validator: IsKovaaLabCRMSemVerValidator,
     });
   };

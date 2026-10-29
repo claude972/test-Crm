@@ -14,9 +14,9 @@ import {
 } from 'src/engine/api/graphql/workspace-query-runner/constants/postgres-error-messages.constants';
 import { PostgresException } from 'src/engine/api/graphql/workspace-query-runner/utils/postgres-exception';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 import { CustomException } from 'src/utils/custom-exception';
 
 const KNOWN_POSTGRES_ERROR_CODES: string[] = Object.values(
@@ -51,7 +51,7 @@ const computeDuplicateEntryMessage = (error: Error): string => {
   return `${DUPLICATE_ENTRY_DETECTED_MESSAGE}: unique constraint ${qualifiedConstraintName} was violated`;
 };
 
-export const computeKovaaLab CRMOrmException = (error: unknown): Error => {
+export const computeKovaaLabCRMOrmException = (error: unknown): Error => {
   if (!(error instanceof Error)) {
     return new Error(String(error));
   }
@@ -62,9 +62,9 @@ export const computeKovaaLab CRMOrmException = (error: unknown): Error => {
 
   if (error.message.includes(QUERY_READ_TIMEOUT_MESSAGE)) {
     return withCause(
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         QUERY_READ_TIMEOUT_MESSAGE,
-        KovaaLab CRMOrmExceptionCode.QUERY_READ_TIMEOUT,
+        KovaaLabCRMOrmExceptionCode.QUERY_READ_TIMEOUT,
         { userFriendlyMessage: QUERY_READ_TIMEOUT_USER_FRIENDLY_MESSAGE },
       ),
       error,
@@ -80,9 +80,9 @@ export const computeKovaaLab CRMOrmException = (error: unknown): Error => {
       TRANSIENT_POSTGRESQL_ERROR_CODES.includes(errorCode))
   ) {
     return withCause(
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         error.message,
-        KovaaLab CRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
+        KovaaLabCRMOrmExceptionCode.TRANSIENT_DATABASE_ERROR,
         { userFriendlyMessage: TRANSIENT_DATABASE_ERROR_USER_FRIENDLY_MESSAGE },
       ),
       error,
@@ -95,9 +95,9 @@ export const computeKovaaLab CRMOrmException = (error: unknown): Error => {
 
   if (errorCode === POSTGRESQL_ERROR_CODES.UNIQUE_VIOLATION) {
     return withCause(
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         computeDuplicateEntryMessage(error),
-        KovaaLab CRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED,
+        KovaaLabCRMOrmExceptionCode.DUPLICATE_ENTRY_DETECTED,
         { userFriendlyMessage: DUPLICATE_ENTRY_USER_FRIENDLY_MESSAGE },
       ),
       error,
@@ -106,9 +106,9 @@ export const computeKovaaLab CRMOrmException = (error: unknown): Error => {
 
   if (errorCode === POSTGRESQL_ERROR_CODES.INVALID_TEXT_REPRESENTATION) {
     return withCause(
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         error.message,
-        KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+        KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
         { userFriendlyMessage: INVALID_INPUT_USER_FRIENDLY_MESSAGE },
       ),
       error,
@@ -120,9 +120,9 @@ export const computeKovaaLab CRMOrmException = (error: unknown): Error => {
 
   if (isDefined(constraintViolationMessage)) {
     return withCause(
-      new KovaaLab CRMOrmException(
+      new KovaaLabCRMOrmException(
         error.message,
-        KovaaLab CRMOrmExceptionCode.INVALID_INPUT,
+        KovaaLabCRMOrmExceptionCode.INVALID_INPUT,
         { userFriendlyMessage: constraintViolationMessage },
       ),
       error,

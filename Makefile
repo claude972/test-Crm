@@ -1,47 +1,46 @@
-# KovaaLab CRM Makefile
 SHELL := /bin/bash
+.DEFAULT_GOAL := help
 
-.PHONY: start stop restart dev test clean setup docs
+.PHONY: help setup install build check init migrate start start-crm stop restart status backup clean
 
-start:
-	@echo "Starting KovaaLab CRM..."
-	@docker-compose up -d postgres redis
-	@sleep 10
-	@docker-compose up -d api web
-
-stop:
-	@echo "Stopping KovaaLab CRM..."
-	@docker-compose down
-
-restart:
-	@make stop
-	@make start
-
-dev:
-	@echo "Starting development..."
-	@cd packages/twenty-server && npm run dev
-
-test:
-	@echo "Running tests..."
-	@cd packages/twenty-server && npm run test
-
-migrate:
-	@echo "Running migrations..."
-	@cd packages/twenty-server && npm run migrate
-
-seed:
-	@echo "Seeding database..."
-	@cd packages/twenty-server && npm run seed
-
-clean:
-	@echo "Cleaning up..."
-	@rm -rf packages/twenty-server/dist
-	@docker-compose down -v --remove-all-networks
+help:
+	@echo "Hermès CRM : setup, install, build, check, init, start, start-crm, stop, restart, status, backup"
+	@echo "Les modules se construisent avec : node scripts/customer-tools.mjs build <forms|char|calendar>"
 
 setup:
-	@echo "Setting up KovaaLab CRM..."
-	@cp .env.example .env
-	@npm install
-	@make migrate
-	@make seed
-	@echo "Setup complete! Start with: make start"
+	node scripts/local-project.mjs setup
+
+install:
+	node scripts/build-crm.mjs install
+
+build:
+	node scripts/build-crm.mjs build
+
+check:
+	node scripts/build-crm.mjs check
+
+init migrate:
+	node scripts/local-project.mjs init
+
+start:
+	node scripts/local-project.mjs start
+
+start-crm:
+	node scripts/local-project.mjs start-crm
+
+stop:
+	node scripts/local-project.mjs stop
+
+restart:
+	$(MAKE) stop
+	$(MAKE) start
+
+status:
+	node scripts/local-project.mjs status
+
+backup:
+	node scripts/backup-local.mjs
+
+# Réinitialise uniquement le cache Nx ; les bases et volumes sont conservés.
+clean:
+	cd apps/crm/ui && node .yarn/releases/yarn-4.18.1.cjs nx reset

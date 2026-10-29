@@ -1,7 +1,7 @@
 import { type APP_LOCALES } from 'kovaa-lab-shared/translations';
 
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { type MessageIdTranslator } from 'src/engine/metadata-modules/overrides/types/message-id-translator.type';
 import { resolveEffectiveEntityProperty } from 'src/engine/metadata-modules/overrides/utils/resolve-effective-entity-property.util';
 
@@ -24,7 +24,7 @@ export const resolveEffectiveFieldDescription = ({
     i18nContext: {
       locale,
       i18nInstance,
-      isStandardApp: belongsToKovaaLab CRMStandardApp(flatFieldMetadata),
+      isStandardApp: belongsToKovaaLabCRMStandardApp(flatFieldMetadata),
       workspaceCustomApplicationUniversalIdentifier,
       ownerApplicationUniversalIdentifier:
         flatFieldMetadata.applicationUniversalIdentifier,

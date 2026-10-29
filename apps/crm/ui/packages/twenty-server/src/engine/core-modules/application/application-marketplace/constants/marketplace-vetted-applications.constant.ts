@@ -1,4 +1,4 @@
-import { KOVAALAB_PUBLIC_APP_UNIVERSAL_IDENTIFIERS } from 'src/engine/core-modules/application/application-marketplace/constants/kovaa-lab-public-app-universal-identifiers.constant';
+import { KOVAALAB_PUBLIC_APP_UNIVERSAL_IDENTIFIERS } from 'src/engine/core-modules/application/application-marketplace/constants/twenty-public-app-universal-identifiers.constant';
 
 export const MARKETPLACE_VETTED_APPLICATIONS: {
   universalIdentifier: string;

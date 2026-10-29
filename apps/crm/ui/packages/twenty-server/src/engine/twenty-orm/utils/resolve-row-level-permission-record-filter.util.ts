@@ -6,10 +6,10 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { isUserAuthContext } from 'src/engine/core-modules/auth/guards/is-user-auth-context.guard';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { buildRowLevelPermissionRecordFilter } from 'src/engine/kovaa-lab-orm/utils/build-row-level-permission-record-filter.util';
-import { getRoleIdsFromRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/get-role-ids-from-role-permission-config.util';
+import { type WorkspaceInternalContext } from 'src/engine/twenty-orm/interfaces/workspace-internal-context.interface';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { buildRowLevelPermissionRecordFilter } from 'src/engine/twenty-orm/utils/build-row-level-permission-record-filter.util';
+import { getRoleIdsFromRolePermissionConfig } from 'src/engine/twenty-orm/utils/get-role-ids-from-role-permission-config.util';
 
 export const resolveRowLevelPermissionRecordFilter = ({
   internalContext,

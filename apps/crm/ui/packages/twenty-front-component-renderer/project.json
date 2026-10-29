@@ -1,7 +1,7 @@
 {
   "name": "kovaa-lab-front-component-renderer",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/kovaa-lab-front-component-renderer/src",
+  "sourceRoot": "packages/twenty-front-component-renderer/src",
   "projectType": "library",
   "tags": ["scope:frontend"],
   "targets": {
@@ -31,20 +31,20 @@
         "{projectRoot}/scripts/remote-dom/**/*",
         "{projectRoot}/src/constants/**/*",
         "{projectRoot}/src/types/**/*",
-        "{workspaceRoot}/packages/kovaa-lab-ui/src/**/index.ts",
-        "{workspaceRoot}/packages/kovaa-lab-ui/src/**/*.tsx"
+        "{workspaceRoot}/packages/twenty-ui/src/**/index.ts",
+        "{workspaceRoot}/packages/twenty-ui/src/**/*.tsx"
       ],
       "outputs": [
         "{projectRoot}/src/host/generated/*",
         "{projectRoot}/src/remote/generated/*"
       ],
       "options": {
-        "cwd": "packages/kovaa-lab-front-component-renderer",
-        "command": "tsx -r tsconfig-paths/register scripts/remote-dom/generate-remote-dom-elements.ts"
+        "cwd": "packages/twenty-front-component-renderer",
+        "command": "FORCE_COLOR=0 tsx -r tsconfig-paths/register scripts/remote-dom/generate-remote-dom-elements.ts"
       },
       "configurations": {
         "verbose": {
-          "command": "tsx -r tsconfig-paths/register scripts/remote-dom/generate-remote-dom-elements.ts --verbose"
+          "command": "FORCE_COLOR=0 tsx -r tsconfig-paths/register scripts/remote-dom/generate-remote-dom-elements.ts --verbose"
         }
       }
     },
@@ -79,8 +79,8 @@
         "{projectRoot}/src/remote/sandbox/generated/frontComponentSandboxDocument.ts"
       ],
       "options": {
-        "cwd": "packages/kovaa-lab-front-component-renderer",
-        "command": "tsx -r tsconfig-paths/register scripts/front-component-sandbox/build-sandbox-document.ts"
+        "cwd": "packages/twenty-front-component-renderer",
+        "command": "FORCE_COLOR=0 tsx -r tsconfig-paths/register scripts/front-component-sandbox/build-sandbox-document.ts"
       }
     },
     "storybook:prebuild": {
@@ -107,16 +107,16 @@
         "{projectRoot}/src/__stories__/showcase/**/*",
         "{projectRoot}/src/__stories__/kovaa-lab-ui-gallery/**/*",
         "{projectRoot}/src/__stories__/shared/front-components/**/*",
-        "{workspaceRoot}/packages/kovaa-lab-sdk/src/front-component-renderer/build/**/*",
-        "{workspaceRoot}/packages/kovaa-lab-shared/src/front-component-build/**/*",
-        "{workspaceRoot}/packages/kovaa-lab-shared/vite.bundled-source-plugin.ts"
+        "{workspaceRoot}/packages/twenty-sdk/src/front-component-renderer/build/**/*",
+        "{workspaceRoot}/packages/twenty-shared/src/front-component-build/**/*",
+        "{workspaceRoot}/packages/twenty-shared/vite.bundled-source-plugin.ts"
       ],
       "outputs": [
         "{projectRoot}/src/__stories__/example-sources-built/*",
         "{projectRoot}/src/__stories__/example-sources-built-preact/*"
       ],
       "options": {
-        "command": "tsx {projectRoot}/scripts/front-component-stories/build-source-examples.ts"
+        "command": "FORCE_COLOR=0 tsx {projectRoot}/scripts/front-component-stories/build-source-examples.ts"
       }
     },
     "storybook:build": {

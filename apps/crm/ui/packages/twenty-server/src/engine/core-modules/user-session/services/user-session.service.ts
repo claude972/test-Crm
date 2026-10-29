@@ -27,7 +27,7 @@ import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/typ
 import { EventLogEmitterService } from 'src/engine/core-modules/event-logs/emit/event-log-emitter.service';
 import { AUTH_SESSION_EVENT } from 'src/engine/core-modules/event-logs/emit/events/workspace-event/auth-session/auth-session';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserSessionEntity } from 'src/engine/core-modules/user-session/user-session.entity';
 import { UserSessionRevokedReason } from 'src/engine/core-modules/user-session/types/user-session-revoked-reason.type';
 import { UserSessionCookieService } from 'src/engine/core-modules/user-session/services/user-session-cookie.service';
@@ -70,7 +70,7 @@ export class UserSessionService {
     private readonly appTokenRepository: Repository<AppTokenEntity>,
     @InjectCacheStorage(CacheStorageNamespace.EngineAuthSession)
     private readonly cacheStorageService: CacheStorageService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly eventLogEmitterService: EventLogEmitterService,
     private readonly userSessionCookieService: UserSessionCookieService,
@@ -200,7 +200,7 @@ export class UserSessionService {
     return isRequestOriginAllowed({
       origin,
       request,
-      kovaa-labConfigService: this.kovaa-labConfigService,
+      kovaaLabConfigService: this.kovaaLabConfigService,
     });
   }
 
@@ -308,7 +308,7 @@ export class UserSessionService {
     const lifetime =
       input.isImpersonating === true
         ? IMPERSONATION_SESSION_LIFETIME
-        : this.kovaa-labConfigService.get('SESSION_ABSOLUTE_LIFETIME');
+        : this.kovaaLabConfigService.get('SESSION_ABSOLUTE_LIFETIME');
 
     const now = new Date();
     const sessionToken = generateUserSessionToken();
@@ -644,7 +644,7 @@ export class UserSessionService {
   }
 
   private getIdleTimeoutMs(): number {
-    return ms(this.kovaa-labConfigService.get('SESSION_IDLE_TIMEOUT'));
+    return ms(this.kovaaLabConfigService.get('SESSION_IDLE_TIMEOUT'));
   }
 
   // Must stay well inside the idle timeout, or a continuously active user goes idle between touches.

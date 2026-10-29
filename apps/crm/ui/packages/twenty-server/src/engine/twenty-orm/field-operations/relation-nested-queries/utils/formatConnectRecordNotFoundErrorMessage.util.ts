@@ -1,6 +1,6 @@
 import { msg } from '@lingui/core/macro';
 
-import { type UniqueConstraintCondition } from 'src/engine/kovaa-lab-orm/entity-manager/types/relation-connect-query-config.type';
+import { type UniqueConstraintCondition } from 'src/engine/twenty-orm/entity-manager/types/relation-connect-query-config.type';
 
 export const formatConnectRecordNotFoundErrorMessage = (
   connectFieldName: string,

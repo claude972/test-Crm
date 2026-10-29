@@ -35,7 +35,7 @@ export class UpgradeGaugeService implements OnModuleInit {
 
   onModuleInit() {
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_upgrade_instance_health',
+      metricName: 'kovaaLab_upgrade_instance_health',
       options: {
         description:
           'Instance upgrade health (1 = up-to-date, 0 = behind, -1 = failed, -2 = unknown)',
@@ -56,7 +56,7 @@ export class UpgradeGaugeService implements OnModuleInit {
     });
 
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_upgrade_workspaces_behind_total',
+      metricName: 'kovaaLab_upgrade_workspaces_behind_total',
       options: {
         description: 'Number of workspaces behind on upgrade commands',
       },
@@ -69,7 +69,7 @@ export class UpgradeGaugeService implements OnModuleInit {
     });
 
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_upgrade_workspaces_failed_total',
+      metricName: 'kovaaLab_upgrade_workspaces_failed_total',
       options: {
         description: 'Number of workspaces with a failed upgrade command',
       },
@@ -82,7 +82,7 @@ export class UpgradeGaugeService implements OnModuleInit {
     });
 
     this.metricsService.createObservableGauge({
-      metricName: 'kovaa-lab_upgrade_workspaces_up_to_date_total',
+      metricName: 'kovaaLab_upgrade_workspaces_up_to_date_total',
       options: {
         description: 'Number of workspaces up-to-date on upgrade commands',
       },
@@ -95,7 +95,7 @@ export class UpgradeGaugeService implements OnModuleInit {
     });
 
     this.metricsService.createInfoGauge({
-      metricName: 'kovaa-lab_upgrade_instance',
+      metricName: 'kovaaLab_upgrade_instance',
       options: {
         description:
           'Inferred instance version (semver-ish, derived from the last applied upgrade migration), carried as the `version` attribute',

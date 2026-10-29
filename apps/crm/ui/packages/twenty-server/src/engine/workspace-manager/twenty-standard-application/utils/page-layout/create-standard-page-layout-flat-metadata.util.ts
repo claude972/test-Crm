@@ -2,11 +2,11 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { STANDARD_OBJECTS } from 'kovaa-lab-shared/metadata';
 
 import { type FlatPageLayout } from 'src/engine/metadata-modules/flat-page-layout/types/flat-page-layout.type';
-import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/kovaa-lab-standard-applications';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { PageLayoutType } from 'kovaa-lab-shared/types';
-import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-page-layout.constant';
-import { type StandardObjectMetadataRelatedEntityIds } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/get-standard-object-metadata-related-entity-ids.util';
-import { type StandardPageLayoutMetadataRelatedEntityIds } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/get-standard-page-layout-metadata-related-entity-ids.util';
+import { STANDARD_PAGE_LAYOUTS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-page-layout.constant';
+import { type StandardObjectMetadataRelatedEntityIds } from 'src/engine/workspace-manager/twenty-standard-application/utils/get-standard-object-metadata-related-entity-ids.util';
+import { type StandardPageLayoutMetadataRelatedEntityIds } from 'src/engine/workspace-manager/twenty-standard-application/utils/get-standard-page-layout-metadata-related-entity-ids.util';
 
 export type CreateStandardPageLayoutContext = {
   layoutName: string;
@@ -19,7 +19,7 @@ export type CreateStandardPageLayoutContext = {
 export type CreateStandardPageLayoutArgs = {
   now: string;
   workspaceId: string;
-  kovaa-labStandardApplicationId: string;
+  kovaaLabStandardApplicationId: string;
   standardObjectMetadataRelatedEntityIds: StandardObjectMetadataRelatedEntityIds;
   standardPageLayoutMetadataRelatedEntityIds: StandardPageLayoutMetadataRelatedEntityIds;
   context: CreateStandardPageLayoutContext;
@@ -70,7 +70,7 @@ export const createStandardPageLayoutFlatMetadata = ({
     defaultTabUniversalIdentifier,
   },
   workspaceId,
-  kovaa-labStandardApplicationId,
+  kovaaLabStandardApplicationId,
   standardObjectMetadataRelatedEntityIds,
   standardPageLayoutMetadataRelatedEntityIds,
   now,
@@ -111,7 +111,7 @@ export const createStandardPageLayoutFlatMetadata = ({
   return {
     id: layoutIds.id,
     universalIdentifier,
-    applicationId: kovaa-labStandardApplicationId,
+    applicationId: kovaaLabStandardApplicationId,
     applicationUniversalIdentifier:
       KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
     workspaceId,

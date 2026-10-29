@@ -8,7 +8,7 @@ import { DatabaseGaugeService } from 'src/database/typeorm/database-gauge.servic
 import { DatabasePoolMetricsService } from 'src/database/typeorm/database-pool-metrics.service';
 import { PostgresAdvisoryLockService } from 'src/database/typeorm/postgres-advisory-lock.service';
 import { MetricsModule } from 'src/engine/core-modules/metrics/metrics.module';
-import { installUpgradeAwareRepositoryProxy } from 'src/engine/kovaa-lab-orm/upgrade-aware/install-upgrade-aware-repository-proxy';
+import { installUpgradeAwareRepositoryProxy } from 'src/engine/twenty-orm/upgrade-aware/install-upgrade-aware-repository-proxy';
 
 @Module({
   imports: [

@@ -250,7 +250,7 @@ export const Blocks = () => {
   const { t } = useTranslation()
 
   function handleResize() {
-    if (window.kovaa-lab.device.android) {
+    if (window.kovaaLab.device.android) {
       document.activeElement?.scrollIntoView()
     }
   }

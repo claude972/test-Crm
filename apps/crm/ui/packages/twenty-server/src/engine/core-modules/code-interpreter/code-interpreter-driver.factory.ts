@@ -6,23 +6,23 @@ import { CodeInterpreterDriverType } from 'src/engine/core-modules/code-interpre
 import { DisabledDriver } from 'src/engine/core-modules/code-interpreter/drivers/disabled.driver';
 import { E2BDriver } from 'src/engine/core-modules/code-interpreter/drivers/e2b.driver';
 import { LocalDriver } from 'src/engine/core-modules/code-interpreter/drivers/local.driver';
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
-import { DriverFactoryBase } from 'src/engine/core-modules/kovaa-lab-config/dynamic-factory.base';
-import { ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
-import { ConfigGroupHashService } from 'src/engine/core-modules/kovaa-lab-config/services/config-group-hash.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
+import { DriverFactoryBase } from 'src/engine/core-modules/twenty-config/dynamic-factory.base';
+import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
+import { ConfigGroupHashService } from 'src/engine/core-modules/twenty-config/services/config-group-hash.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class CodeInterpreterDriverFactory extends DriverFactoryBase<CodeInterpreterDriver> {
   constructor(
-    kovaa-labConfigService: KovaaLab CRMConfigService,
+    kovaaLabConfigService: KovaaLabCRMConfigService,
     configGroupHashService: ConfigGroupHashService,
   ) {
-    super(kovaa-labConfigService, configGroupHashService);
+    super(kovaaLabConfigService, configGroupHashService);
   }
 
   protected buildConfigKey(): string {
-    const driverType = this.kovaa-labConfigService.get('CODE_INTERPRETER_TYPE');
+    const driverType = this.kovaaLabConfigService.get('CODE_INTERPRETER_TYPE');
 
     if (driverType === CodeInterpreterDriverType.E_2_B) {
       return `e2b|${this.configGroupHashService.computeHash(ConfigVariablesGroup.CODE_INTERPRETER_CONFIG)}`;
@@ -32,8 +32,8 @@ export class CodeInterpreterDriverFactory extends DriverFactoryBase<CodeInterpre
   }
 
   protected createDriver(): CodeInterpreterDriver {
-    const driverType = this.kovaa-labConfigService.get('CODE_INTERPRETER_TYPE');
-    const timeoutMs = this.kovaa-labConfigService.get(
+    const driverType = this.kovaaLabConfigService.get('CODE_INTERPRETER_TYPE');
+    const timeoutMs = this.kovaaLabConfigService.get(
       'CODE_INTERPRETER_TIMEOUT_MS',
     );
 
@@ -44,7 +44,7 @@ export class CodeInterpreterDriverFactory extends DriverFactoryBase<CodeInterpre
         );
 
       case CodeInterpreterDriverType.LOCAL: {
-        const nodeEnv = this.kovaa-labConfigService.get('NODE_ENV');
+        const nodeEnv = this.kovaaLabConfigService.get('NODE_ENV');
 
         if (nodeEnv === NodeEnvironment.PRODUCTION) {
           return new DisabledDriver(
@@ -54,14 +54,14 @@ export class CodeInterpreterDriverFactory extends DriverFactoryBase<CodeInterpre
 
         return new LocalDriver({
           timeoutMs,
-          idleTimeoutMs: this.kovaa-labConfigService.get(
+          idleTimeoutMs: this.kovaaLabConfigService.get(
             'CODE_INTERPRETER_IDLE_TIMEOUT_MS',
           ),
         });
       }
 
       case CodeInterpreterDriverType.E_2_B: {
-        const apiKey = this.kovaa-labConfigService.get('E2B_API_KEY');
+        const apiKey = this.kovaaLabConfigService.get('E2B_API_KEY');
 
         if (!apiKey) {
           throw new Error(
@@ -72,7 +72,7 @@ export class CodeInterpreterDriverFactory extends DriverFactoryBase<CodeInterpre
         return new E2BDriver({
           apiKey,
           timeoutMs,
-          idleTimeoutMs: this.kovaa-labConfigService.get(
+          idleTimeoutMs: this.kovaaLabConfigService.get(
             'CODE_INTERPRETER_IDLE_TIMEOUT_MS',
           ),
         });

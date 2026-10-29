@@ -18,7 +18,7 @@ import { isMorphOrRelationFlatFieldMetadata } from 'src/engine/metadata-modules/
 import { type FlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/types/flat-index-metadata.type';
 import { isSystemUniqueFlatIndexMetadata } from 'src/engine/metadata-modules/flat-index-metadata/utils/is-system-unique-flat-index-metadata.util';
 import { generateFlatIndexMetadataWithNameOrThrow } from 'src/engine/metadata-modules/index-metadata/utils/generate-flat-index.util';
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { type UniversalFlatFieldMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-field-metadata.type';
 import { type UniversalFlatIndexMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-index-metadata.type';
 
@@ -58,7 +58,7 @@ export const fromDeleteFieldInputToFlatFieldMetadatasToDelete = ({
   }
 
   if (
-    belongsToKovaaLab CRMStandardApp(flatFieldMetadataToDelete) ||
+    belongsToKovaaLabCRMStandardApp(flatFieldMetadataToDelete) ||
     flatFieldMetadataToDelete.isSystem
   ) {
     throw new FieldMetadataException(

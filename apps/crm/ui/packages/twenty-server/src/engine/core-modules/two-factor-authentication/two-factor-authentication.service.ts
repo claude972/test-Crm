@@ -30,8 +30,8 @@ import { TwoFactorAuthenticationMethodEntity } from 'src/engine/core-modules/two
 import { TOTP_DEFAULT_CONFIGURATION } from 'src/engine/core-modules/two-factor-authentication/strategies/otp/totp/constants/totp.strategy.constants';
 import { TotpStrategy } from 'src/engine/core-modules/two-factor-authentication/strategies/otp/totp/totp.strategy';
 import { buildTwoFactorAuthenticationOtpRateLimitKey } from 'src/engine/core-modules/two-factor-authentication/utils/build-two-factor-authentication-otp-rate-limit-key.util';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
@@ -133,7 +133,7 @@ export class TwoFactorAuthenticationService {
         workspaceId,
       });
 
-      const issuer = `KovaaLab CRM${workspaceDisplayName ? ` - ${workspaceDisplayName}` : ''}`;
+      const issuer = `KovaaLabCRM${workspaceDisplayName ? ` - ${workspaceDisplayName}` : ''}`;
       const reuseUri = authenticator.keyuri(userEmail, issuer, existingSecret);
 
       return reuseUri;
@@ -172,7 +172,7 @@ export class TwoFactorAuthenticationService {
       TOTP_DEFAULT_CONFIGURATION,
     ).initiate(
       userEmail,
-      `KovaaLab CRM${workspaceDisplayName ? ` - ${workspaceDisplayName}` : ''}`,
+      `KovaaLabCRM${workspaceDisplayName ? ` - ${workspaceDisplayName}` : ''}`,
     );
 
     return {

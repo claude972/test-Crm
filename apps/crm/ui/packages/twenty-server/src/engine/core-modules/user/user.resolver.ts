@@ -11,7 +11,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 import { In, Repository } from 'typeorm';
 
-import { SupportDriver } from 'src/engine/core-modules/kovaa-lab-config/interfaces/support.interface';
+import { SupportDriver } from 'src/engine/core-modules/twenty-config/interfaces/support.interface';
 
 import { MetadataResolver } from 'src/engine/api/graphql/graphql-config/decorators/metadata-resolver.decorator';
 import { ApiKeyEntity } from 'src/engine/core-modules/api-key/api-key.entity';
@@ -28,7 +28,7 @@ import {
   OnboardingStepKeys,
 } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { type FlatApplication } from 'src/engine/core-modules/application/types/flat-application.type';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { buildTwoFactorAuthenticationMethodSummary } from 'src/engine/core-modules/two-factor-authentication/utils/two-factor-authentication-method.presenter';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
@@ -76,8 +76,8 @@ import { type UserWorkspacePermissions } from 'src/engine/metadata-modules/permi
 import { PermissionsGraphqlApiExceptionFilter } from 'src/engine/metadata-modules/permissions/utils/permissions-graphql-api-exception.filter';
 import { fromUserWorkspacePermissionsToUserWorkspacePermissionsDto } from 'src/engine/metadata-modules/role/utils/fromUserWorkspacePermissionsToUserWorkspacePermissionsDto';
 import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
-import { buildSystemAuthContext } from 'src/engine/kovaa-lab-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { AccountsToReconnectKeys } from 'src/modules/connected-account/types/accounts-to-reconnect-key-value.type';
 import { WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
 
@@ -96,7 +96,7 @@ export class UserResolver {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly userService: UserService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly onboardingService: OnboardingService,
     private readonly userVarService: UserVarsService,
     @InjectRepository(UserWorkspaceEntity)
@@ -391,11 +391,11 @@ export class UserResolver {
     }
 
     if (
-      this.kovaa-labConfigService.get('SUPPORT_DRIVER') !== SupportDriver.FRONT
+      this.kovaaLabConfigService.get('SUPPORT_DRIVER') !== SupportDriver.FRONT
     ) {
       return null;
     }
-    const key = this.kovaa-labConfigService.get('SUPPORT_FRONT_HMAC_KEY');
+    const key = this.kovaaLabConfigService.get('SUPPORT_FRONT_HMAC_KEY');
 
     return getHMACKey(parent.email, key);
   }
@@ -747,7 +747,7 @@ export class UserResolver {
       canCredentialAutoLoginIntoWorkspaces({
         isWorkspaceScopedCredential: isDefined(workspace),
         authenticatedAt,
-        autoLoginWindow: this.kovaa-labConfigService.get(
+        autoLoginWindow: this.kovaaLabConfigService.get(
           'WORKSPACE_AUTO_LOGIN_WINDOW',
         ),
         now: new Date(),

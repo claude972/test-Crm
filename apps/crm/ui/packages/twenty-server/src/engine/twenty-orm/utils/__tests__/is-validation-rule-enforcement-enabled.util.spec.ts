@@ -3,7 +3,7 @@
 import { FeatureFlagKey } from 'kovaa-lab-shared/types';
 
 import { BillingEntitlementKey } from 'src/engine/core-modules/billing/enums/billing-entitlement-key.enum';
-import { isValidationRuleEnforcementEnabled } from 'src/engine/kovaa-lab-orm/utils/is-validation-rule-enforcement-enabled.util';
+import { isValidationRuleEnforcementEnabled } from 'src/engine/twenty-orm/utils/is-validation-rule-enforcement-enabled.util';
 
 const FLAG_ON = { [FeatureFlagKey.IS_RECORD_CREATION_FORM_ENABLED]: true };
 

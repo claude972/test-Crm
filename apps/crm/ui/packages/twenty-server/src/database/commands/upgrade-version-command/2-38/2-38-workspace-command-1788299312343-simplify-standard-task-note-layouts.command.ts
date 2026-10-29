@@ -31,8 +31,8 @@ export class SimplifyStandardTaskNoteLayoutsCommand extends ProvisionedWorkspace
   }: RunOnWorkspaceArgs): Promise<void> {
     const isDryRun = options.dryRun ?? false;
 
-    const { kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
 
@@ -54,7 +54,7 @@ export class SimplifyStandardTaskNoteLayoutsCommand extends ProvisionedWorkspace
       skippedLayouts,
     } = computeStandardTaskNoteLayoutMigrationOperations({
       flatMaps,
-      standardApplicationId: kovaa-labStandardFlatApplication.id,
+      standardApplicationId: kovaaLabStandardFlatApplication.id,
     });
 
     for (const skippedLayout of skippedLayouts) {
@@ -89,7 +89,7 @@ export class SimplifyStandardTaskNoteLayoutsCommand extends ProvisionedWorkspace
         {
           isSystemBuild: true,
           applicationUniversalIdentifier:
-            kovaa-labStandardFlatApplication.universalIdentifier,
+            kovaaLabStandardFlatApplication.universalIdentifier,
           workspaceId,
           allFlatEntityOperationByMetadataName: {
             pageLayoutTab: {

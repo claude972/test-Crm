@@ -24,10 +24,10 @@ import { applyReplacementTags } from 'src/engine/core-modules/emailing-domain/ut
 import { escapeHtml } from 'src/engine/core-modules/emailing-domain/utils/escape-html.util';
 import { ShortLinkService } from 'src/engine/core-modules/short-link/services/short-link.service';
 import { hashShortLink } from 'src/engine/core-modules/short-link/utils/hash-short-link.util';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { TRACKABLE_URL_PATTERN } from 'src/modules/emailing/constants/trackable-url-pattern.constant';
 import { CAMPAIGN_BATCH_VARIABLE_TAG_PATTERN } from 'src/modules/emailing/constants/campaign-batch-variable-tag-pattern.constant';
 import { CAMPAIGN_TRACKING_TAG_PREFIX_BY_MESSAGE_PART } from 'src/modules/emailing/constants/campaign-tracking-tag-prefix-by-message-part.constant';
@@ -70,7 +70,7 @@ export class CampaignTrackingContentService {
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     private readonly shortLinkService: ShortLinkService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly campaignEngagementEventService: CampaignEngagementEventService,
     private readonly messageSuppressionService: MessageSuppressionService,
   ) {}
@@ -403,7 +403,7 @@ export class CampaignTrackingContentService {
     emailingDomainId: string;
   }): Promise<string | undefined> {
     if (
-      this.kovaa-labConfigService.get('EMAILING_DOMAIN_DRIVER') ===
+      this.kovaaLabConfigService.get('EMAILING_DOMAIN_DRIVER') ===
       EmailingDomainDriver.LOG
     ) {
       if (!isNonEmptyString(workspace.subdomain)) {
@@ -411,8 +411,8 @@ export class CampaignTrackingContentService {
       }
 
       return buildLogDriverUnsubscribeBaseUrl({
-        serverUrl: this.kovaa-labConfigService.get('SERVER_URL'),
-        isMultiWorkspaceEnabled: this.kovaa-labConfigService.get(
+        serverUrl: this.kovaaLabConfigService.get('SERVER_URL'),
+        isMultiWorkspaceEnabled: this.kovaaLabConfigService.get(
           'IS_MULTIWORKSPACE_ENABLED',
         ),
         subdomain: workspace.subdomain,

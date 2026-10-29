@@ -11,7 +11,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "cwd": "packages/create-kovaa-lab-app",
+        "cwd": "packages/create-twenty-app",
         "command": "tsx src/cli.ts"
       }
     },
@@ -19,7 +19,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "cwd": "packages/create-kovaa-lab-app",
+        "cwd": "packages/create-twenty-app",
         "command": "node dist/cli.cjs"
       }
     },

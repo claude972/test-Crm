@@ -3,18 +3,18 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { findAddNodeWorkflowCommandMenuItem } from 'src/database/commands/upgrade-version-command/2-44/utils/find-add-node-workflow-command-menu-item.util';
 import { EngineComponentKey } from 'src/engine/metadata-modules/command-menu-item/enums/engine-component-key.enum';
 import { type FlatCommandMenuItem } from 'src/engine/metadata-modules/flat-command-menu-item/types/flat-command-menu-item.type';
-import { computeKovaaLab CRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/utils/kovaa-lab-standard-application-all-flat-entity-maps.constant';
+import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 
 const ADD_NODE_WORKFLOW_UNIVERSAL_IDENTIFIER =
   '818117fa-6cad-4ebc-83c1-40f4afc28d94';
 const TIDY_UP_WORKFLOW_UNIVERSAL_IDENTIFIER =
   '1f3a3cab-161a-4775-af47-11be4d0bf411';
 
-const { allFlatEntityMaps } = computeKovaaLab CRMStandardApplicationAllFlatEntityMaps(
+const { allFlatEntityMaps } = computeKovaaLabCRMStandardApplicationAllFlatEntityMaps(
   {
     now: '2026-09-27T12:00:00.000Z',
     workspaceId: '20202020-1111-4111-8111-111111111111',
-    kovaa-labStandardApplicationId: '20202020-2222-4222-8222-222222222222',
+    kovaaLabStandardApplicationId: '20202020-2222-4222-8222-222222222222',
   },
 );
 

@@ -61,8 +61,8 @@ import { SearchModule } from 'src/engine/core-modules/search/search.module';
 import { WorkspaceSsoModule } from 'src/engine/core-modules/sso/sso.module';
 import { WellKnownModule } from 'src/engine/core-modules/well-known/well-known.module';
 import { TelemetryModule } from 'src/engine/core-modules/telemetry/telemetry.module';
-import { KovaaLab CRMConfigModule } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.module';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UsageModule } from 'src/engine/core-modules/usage/usage.module';
 import { UserModule } from 'src/engine/core-modules/user/user.module';
 import { WorkflowApiModule } from 'src/engine/core-modules/workflow/workflow-api.module';
@@ -86,7 +86,7 @@ import { FileApiModule } from './file/file-api.module';
 @Module({
   imports: [
     EnvironmentModule,
-    KovaaLab CRMConfigModule.forRoot(),
+    KovaaLabCRMConfigModule.forRoot(),
     HealthModule,
     AuthModule,
     BillingModule,
@@ -137,13 +137,13 @@ import { FileApiModule } from './file/file-api.module';
     FileStorageModule.forRoot(),
     LoggerModule.forRootAsync({
       useFactory: loggerModuleFactory,
-      inject: [KovaaLab CRMConfigService],
+      inject: [KovaaLabCRMConfigService],
     }),
     MetricsModule,
     MessageQueueModule.registerAsync({
       useFactory: messageQueueModuleFactory,
       inject: [
-        KovaaLab CRMConfigService,
+        KovaaLabCRMConfigService,
         RedisClientService,
         MetricsService,
         EventEmitter2,
@@ -151,7 +151,7 @@ import { FileApiModule } from './file/file-api.module';
     }),
     ExceptionHandlerModule.forRootAsync({
       useFactory: exceptionHandlerModuleFactory,
-      inject: [KovaaLab CRMConfigService, HttpAdapterHost],
+      inject: [KovaaLabCRMConfigService, HttpAdapterHost],
     }),
     EmailModule.forRoot(),
     CaptchaModule.forRoot(),

@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/node';
 import GraphQLJSON from 'graphql-type-json';
 import { ApiPath } from 'kovaa-lab-shared/types';
 
-import { NodeEnvironment } from 'src/engine/core-modules/kovaa-lab-config/interfaces/node-environment.interface';
+import { NodeEnvironment } from 'src/engine/core-modules/twenty-config/interfaces/node-environment.interface';
 
 import { DirectExecutionService } from 'src/engine/api/graphql/direct-execution/direct-execution.service';
 import { useDirectExecution } from 'src/engine/api/graphql/direct-execution/hooks/use-direct-execution.hook';
@@ -23,7 +23,7 @@ import { useGraphQLErrorHandlerHook } from 'src/engine/core-modules/graphql/hook
 import { useValidateGraphqlQueryComplexity } from 'src/engine/core-modules/graphql/hooks/use-validate-graphql-query-complexity.hook';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type FlatWorkspace } from 'src/engine/core-modules/workspace/types/flat-workspace.type';
 import { DataloaderService } from 'src/engine/dataloaders/dataloader.service';
 import { renderApolloPlayground } from 'src/engine/utils/render-apollo-playground.util';
@@ -40,7 +40,7 @@ export class GraphQLConfigService implements GqlOptionsFactory<
 > {
   constructor(
     private readonly exceptionHandlerService: ExceptionHandlerService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly moduleRef: ModuleRef,
     private readonly metricsService: MetricsService,
     private readonly dataloaderService: DataloaderService,
@@ -51,25 +51,25 @@ export class GraphQLConfigService implements GqlOptionsFactory<
 
   createGqlOptions(): YogaDriverConfig {
     const isDebugMode =
-      this.kovaa-labConfigService.get('NODE_ENV') === NodeEnvironment.DEVELOPMENT;
+      this.kovaaLabConfigService.get('NODE_ENV') === NodeEnvironment.DEVELOPMENT;
     const plugins = [
       useDirectExecution({
         directExecutionService: this.directExecutionService,
         featureFlagService: this.featureFlagService,
         isProductionEnvironment:
-          this.kovaa-labConfigService.get('NODE_ENV') ===
+          this.kovaaLabConfigService.get('NODE_ENV') ===
           NodeEnvironment.PRODUCTION,
       }),
       useGraphQLErrorHandlerHook({
         metricsService: this.metricsService,
         exceptionHandlerService: this.exceptionHandlerService,
         i18nService: this.i18nService,
-        kovaa-labConfigService: this.kovaa-labConfigService,
+        kovaaLabConfigService: this.kovaaLabConfigService,
       }),
       useValidateGraphqlQueryComplexity({
         maximumAllowedFields:
-          this.kovaa-labConfigService.get('GRAPHQL_MAX_FIELDS'),
-        maximumAllowedRootResolvers: this.kovaa-labConfigService.get(
+          this.kovaaLabConfigService.get('GRAPHQL_MAX_FIELDS'),
+        maximumAllowedRootResolvers: this.kovaaLabConfigService.get(
           'GRAPHQL_MAX_ROOT_RESOLVERS',
         ),
         checkDuplicateRootResolvers: true,

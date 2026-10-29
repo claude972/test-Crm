@@ -9,7 +9,7 @@ describe Enterprise::Billing::HandleStripeEventService do
   let!(:account) { create(:account, custom_attributes: { stripe_customer_id: 'cus_123' }) }
 
   before do
-    allow(KovaaLab CharApp).to receive(:kovaa-lab_cloud?).and_return(true)
+    allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
     # Create cloud plans configuration
     create(:installation_config, {
              name: 'KOVAALAB_CLOUD_PLANS',

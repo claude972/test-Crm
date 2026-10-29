@@ -24,8 +24,8 @@ import {
   type FieldMapsForObject,
 } from 'src/engine/metadata-modules/flat-field-metadata/utils/build-field-maps-from-flat-object-metadata.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { formatCompositeFieldValue } from 'src/engine/kovaa-lab-orm/utils/format-composite-field-value.util';
-import { getCompositeFieldMetadataCollection } from 'src/engine/kovaa-lab-orm/utils/get-composite-field-metadata-collection';
+import { formatCompositeFieldValue } from 'src/engine/twenty-orm/utils/format-composite-field-value.util';
+import { getCompositeFieldMetadataCollection } from 'src/engine/twenty-orm/utils/get-composite-field-metadata-collection';
 import { isFieldMetadataEntityOfType } from 'src/engine/utils/is-field-metadata-of-type.util';
 
 type CompositeFieldMetadataWithRequiredProperties = {

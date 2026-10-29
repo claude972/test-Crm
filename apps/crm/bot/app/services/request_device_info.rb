@@ -30,19 +30,19 @@ class RequestDeviceInfo
   private
 
   def mobile_client_headers
-    name = @request.headers['X-KovaaLab Char-Client-Name']
+    name = @request.headers['X-Chatwoot-Client-Name']
     return nil if name.blank?
 
     @mobile = true
-    platform = @request.headers['X-KovaaLab Char-Platform']
-    model = @request.headers['X-KovaaLab Char-Device-Model']
+    platform = @request.headers['X-Chatwoot-Platform']
+    model = @request.headers['X-Chatwoot-Device-Model']
 
     {
       browser_name: name,
-      browser_version: @request.headers['X-KovaaLab Char-Client-Version'],
+      browser_version: @request.headers['X-Chatwoot-Client-Version'],
       device_name: device_name_for_icon(platform, model),
       platform_name: model,
-      platform_version: @request.headers['X-KovaaLab Char-Platform-Version']
+      platform_version: @request.headers['X-Chatwoot-Platform-Version']
     }
   end
 

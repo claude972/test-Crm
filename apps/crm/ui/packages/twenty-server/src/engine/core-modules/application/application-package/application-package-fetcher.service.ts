@@ -32,10 +32,10 @@ import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
 import { removeFileFolderFromFileEntityPath } from 'src/engine/core-modules/file/utils/remove-file-folder-from-file-entity-path.utils';
 import { MAX_REQUEST_BODY_SIZE } from 'src/engine/constants/max-request-body-size.constant';
 import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { streamToBuffer } from 'src/utils/stream-to-buffer';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 
 const APP_FETCHER_TMPDIR = join(tmpdir(), 'kovaa-lab-app-fetcher');
 const RESOLUTION_TIMEOUT_MS = 30_000;
@@ -58,7 +58,7 @@ export class ApplicationPackageFetcherService implements OnModuleInit {
   private readonly logger = new Logger(ApplicationPackageFetcherService.name);
 
   constructor(
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly fileStorageService: FileStorageService,
     private readonly secureHttpClientService: SecureHttpClientService,
     // Tarball lookup keyed by ApplicationRegistration id (catalog rows have null ownerWorkspaceId).
@@ -142,10 +142,10 @@ export class ApplicationPackageFetcherService implements OnModuleInit {
       assertValidNpmVersionSpec(version);
 
       return await this.fetchRegistryTarballUrlOrThrow(
-        this.kovaa-labConfigService.get('APP_REGISTRY_URL'),
+        this.kovaaLabConfigService.get('APP_REGISTRY_URL'),
         packageName,
         version,
-        this.kovaa-labConfigService.get('APP_REGISTRY_TOKEN'),
+        this.kovaaLabConfigService.get('APP_REGISTRY_TOKEN'),
       );
     } catch (error) {
       if (!(error instanceof ApplicationException)) {
@@ -177,8 +177,8 @@ export class ApplicationPackageFetcherService implements OnModuleInit {
     await fs.mkdir(workDir, { recursive: true });
 
     try {
-      const registryUrl = this.kovaa-labConfigService.get('APP_REGISTRY_URL');
-      const authToken = this.kovaa-labConfigService.get('APP_REGISTRY_TOKEN');
+      const registryUrl = this.kovaaLabConfigService.get('APP_REGISTRY_URL');
+      const authToken = this.kovaaLabConfigService.get('APP_REGISTRY_TOKEN');
 
       assertValidNpmPackageName(sourcePackage);
 

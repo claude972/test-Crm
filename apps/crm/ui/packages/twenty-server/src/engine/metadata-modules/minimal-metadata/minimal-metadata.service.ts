@@ -17,7 +17,7 @@ import { MinimalViewDTO } from 'src/engine/metadata-modules/minimal-metadata/dto
 import { getWorkspaceCustomApplicationUniversalIdentifierOrThrow } from 'src/engine/metadata-modules/overrides/utils/get-workspace-custom-application-universal-identifier-or-throw.util';
 import { resolveEffectiveEntityProperty } from 'src/engine/metadata-modules/overrides/utils/resolve-effective-entity-property.util';
 import { resolveEffectiveFlatEntityProperty } from 'src/engine/metadata-modules/overrides/utils/resolve-effective-flat-entity-property.util';
-import { belongsToKovaaLab CRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-kovaa-lab-standard-app.util';
+import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { type WorkspaceCacheKeyName } from 'src/engine/workspace-cache/types/workspace-cache-key.type';
 
@@ -103,7 +103,7 @@ export class MinimalMetadataService {
           }) === true,
       )
       .map((flatObjectMetadata) => {
-        const isStandardApp = belongsToKovaaLab CRMStandardApp(flatObjectMetadata);
+        const isStandardApp = belongsToKovaaLabCRMStandardApp(flatObjectMetadata);
 
         const overrides = flatObjectMetadata.overrides ?? undefined;
         const i18nContext = {

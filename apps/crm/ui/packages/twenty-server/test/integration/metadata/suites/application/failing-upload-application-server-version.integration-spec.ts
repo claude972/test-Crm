@@ -40,7 +40,7 @@ describe('Publish application is gated by the instance server version', () => {
         version: '1.0.0',
         // Require a server version far above any real instance version so the
         // instance-level compatibility check always rejects it.
-        engines: { kovaa-lab: '>=999.0.0' },
+        engines: { 'kovaa-lab': '>=999.0.0' },
       }),
     });
 
@@ -69,7 +69,7 @@ describe('Publish application is gated by the instance server version', () => {
       'package.json': JSON.stringify({
         name: `test-blank-server-version-${universalIdentifier}`,
         version: '1.0.0',
-        engines: { kovaa-lab: '  ' },
+        engines: { 'kovaa-lab': '  ' },
       }),
     });
 

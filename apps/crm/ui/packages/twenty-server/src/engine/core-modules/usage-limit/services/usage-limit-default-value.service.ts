@@ -4,15 +4,15 @@ import { isUndefined } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { BillingCreditAllowanceService } from 'src/engine/core-modules/billing/services/billing-credit-allowance.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
-import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/kovaa-lab-config/types/optional-numeric-config-variable-key.type';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { type OptionalNumericConfigVariableKey } from 'src/engine/core-modules/twenty-config/types/optional-numeric-config-variable-key.type';
 import { getPlanLimitDefaultValue } from 'src/engine/core-modules/usage-limit/utils/get-plan-limit-default-value.util';
 
 @Injectable()
 export class UsageLimitDefaultValueService {
   constructor(
     private readonly billingCreditAllowanceService: BillingCreditAllowanceService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async findDefaultLimitValue({
@@ -23,9 +23,9 @@ export class UsageLimitDefaultValueService {
     limitValueConfigVariable: OptionalNumericConfigVariableKey;
   }): Promise<number | null> {
     const instanceValue =
-      this.kovaa-labConfigService.get(limitValueConfigVariable) ?? null;
+      this.kovaaLabConfigService.get(limitValueConfigVariable) ?? null;
 
-    const usageLimitDefaultsByPlan = this.kovaa-labConfigService.get(
+    const usageLimitDefaultsByPlan = this.kovaaLabConfigService.get(
       'USAGE_LIMIT_DEFAULTS_BY_PLAN',
     );
 

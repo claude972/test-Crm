@@ -12,9 +12,9 @@ RSpec.describe Internal::CheckNewVersionsJob do
   end
 
   it 'updates the plan info' do
-    data = { 'version' => '1.2.3', 'plan' => 'enterprise', 'plan_quantity' => 1, 'kovaa-lab_support_website_token' => '123',
-             'kovaa-lab_support_identifier_hash' => '123', 'kovaa-lab_support_script_url' => '123' }
-    allow(KovaaLab CharHub).to receive(:sync_with_hub).and_return(data)
+    data = { 'version' => '1.2.3', 'plan' => 'enterprise', 'plan_quantity' => 1, 'chatwoot_support_website_token' => '123',
+             'chatwoot_support_identifier_hash' => '123', 'chatwoot_support_script_url' => '123' }
+    allow(ChatwootHub).to receive(:sync_with_hub).and_return(data)
     job
     expect(InstallationConfig.find_by(name: 'INSTALLATION_PRICING_PLAN').value).to eq 'enterprise'
     expect(InstallationConfig.find_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').value).to eq 1
@@ -25,7 +25,7 @@ RSpec.describe Internal::CheckNewVersionsJob do
 
   it 'calls Internal::ReconcilePlanConfigService' do
     data = { 'version' => '1.2.3' }
-    allow(KovaaLab CharHub).to receive(:sync_with_hub).and_return(data)
+    allow(ChatwootHub).to receive(:sync_with_hub).and_return(data)
     job
     expect(reconsile_premium_config_service).to have_received(:perform)
   end

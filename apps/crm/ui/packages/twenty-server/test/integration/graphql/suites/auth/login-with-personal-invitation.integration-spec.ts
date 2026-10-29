@@ -12,7 +12,7 @@ import {
 import { signUp } from 'test/integration/graphql/utils/sign-up.util';
 import { verifyEmailAndGetLoginTokenOperationFactory } from 'test/integration/graphql/utils/verify-email-and-get-login-token-operation-factory.util';
 import { makeMetadataApiRequest } from 'test/integration/metadata/suites/utils/make-metadata-api-request.util';
-import { updateConfigVariable } from 'test/integration/kovaa-lab-config/utils/update-config-variable.util';
+import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 
 import { AppTokenType } from 'src/engine/core-modules/app-token/app-token.entity';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';

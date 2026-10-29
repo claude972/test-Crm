@@ -1,13 +1,13 @@
 import { type DataSource, type QueryRunner } from 'typeorm';
 
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
 
 import { type WorkspaceIteratorService } from 'src/database/commands/command-runners/workspace-iterator.service';
 import { RepairOrphanCoreWorkflowVersionsCommand } from 'src/database/commands/upgrade-version-command/2-28/2-28-workspace-command-1785600000000-repair-orphan-core-workflow-versions.command';
-import { type WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 
 const WORKSPACE_ID = '20202020-0000-0000-0000-000000000001';
@@ -55,9 +55,9 @@ const setup = ({
 
   const count = objectMissing
     ? jest.fn().mockRejectedValue(
-        new KovaaLab CRMOrmException(
+        new KovaaLabCRMOrmException(
           'Object "workflowVersion" does not exist in this workspace',
-          KovaaLab CRMOrmExceptionCode.UNKNOWN_OBJECT,
+          KovaaLabCRMOrmExceptionCode.UNKNOWN_OBJECT,
         ),
       )
     : jest.fn().mockResolvedValue(0);

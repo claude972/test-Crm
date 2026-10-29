@@ -4,10 +4,10 @@ import {
   type ValidationOptions,
 } from 'class-validator';
 
-import { type ConfigVariableType } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variable-type.enum';
-import { type ConfigVariablesGroup } from 'src/engine/core-modules/kovaa-lab-config/enums/config-variables-group.enum';
-import { type ConfigVariableOptions } from 'src/engine/core-modules/kovaa-lab-config/types/config-variable-options.type';
-import { applyBasicValidators } from 'src/engine/core-modules/kovaa-lab-config/utils/apply-basic-validators.util';
+import { type ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
+import { type ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
+import { type ConfigVariableOptions } from 'src/engine/core-modules/twenty-config/types/config-variable-options.type';
+import { applyBasicValidators } from 'src/engine/core-modules/twenty-config/utils/apply-basic-validators.util';
 import { TypedReflect } from 'src/utils/typed-reflect';
 
 export interface ConfigVariablesMetadataOptions {

@@ -3,13 +3,13 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { MESSAGE_CAMPAIGN_MESSAGE_INDEX_UNIVERSAL_IDENTIFIERS } from 'src/database/commands/upgrade-version-command/2-38/constants/message-campaign-message-index-universal-identifiers.constant';
 import { MESSAGE_CAMPAIGN_STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS } from 'src/database/commands/upgrade-version-command/2-38/constants/message-campaign-standard-object-universal-identifiers.constant';
 import { type MessageCampaignStandardUniversalIdentifiers } from 'src/database/commands/upgrade-version-command/2-38/types/message-campaign-standard-universal-identifiers.type';
-import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-command-menu-item.constant';
-import { type KovaaLab CRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/kovaa-lab-standard-application/types/kovaa-lab-standard-all-flat-entity-maps.type';
+import { STANDARD_COMMAND_MENU_ITEMS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-command-menu-item.constant';
+import { type KovaaLabCRMStandardAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/types/twenty-standard-all-flat-entity-maps.type';
 
 export const collectMessageCampaignStandardUniversalIdentifiers = ({
   standardAllFlatEntityMaps,
 }: {
-  standardAllFlatEntityMaps: KovaaLab CRMStandardAllFlatEntityMaps;
+  standardAllFlatEntityMaps: KovaaLabCRMStandardAllFlatEntityMaps;
 }): MessageCampaignStandardUniversalIdentifiers => {
   const objectUniversalIdentifiers = new Set(
     MESSAGE_CAMPAIGN_STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS,

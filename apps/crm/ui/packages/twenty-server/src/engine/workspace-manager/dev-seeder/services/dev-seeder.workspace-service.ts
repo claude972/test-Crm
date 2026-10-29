@@ -16,7 +16,7 @@ import { EmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/dr
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
 import { SdkClientGenerationService } from 'src/engine/core-modules/sdk-client/sdk-client-generation.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
 import { UpgradeSequenceReaderService } from 'src/engine/core-modules/upgrade/services/upgrade-sequence-reader.service';
 import { type UpgradeMigrationStatus } from 'src/engine/core-modules/upgrade/upgrade-migration.entity';
@@ -59,8 +59,8 @@ import { PrefillFrontComponentService } from 'src/engine/workspace-manager/stand
 import { PrefillLogicFunctionService } from 'src/engine/workspace-manager/standard-objects-prefill-data/services/prefill-logic-function.service';
 import { getSeedFrontComponentDefinitions } from 'src/engine/workspace-manager/standard-objects-prefill-data/utils/prefill-front-component-definitions.util';
 import { getCreateCompanyWhenAddingNewPersonCodeStepLogicFunctionDefinitions } from 'src/engine/workspace-manager/standard-objects-prefill-data/utils/prefill-workflow-code-step-logic-functions.util';
-import { STANDARD_ROLE } from 'src/engine/workspace-manager/kovaa-lab-standard-application/constants/standard-role.constant';
-import { KovaaLab CRMStandardApplicationService } from 'src/engine/workspace-manager/kovaa-lab-standard-application/services/kovaa-lab-standard-application.service';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
+import { KovaaLabCRMStandardApplicationService } from 'src/engine/workspace-manager/twenty-standard-application/services/twenty-standard-application.service';
 import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
 
 @Injectable()
@@ -68,9 +68,9 @@ export class DevSeederWorkspaceService {
   constructor(
     private readonly agentHistoryStorageService: AgentHistoryWorkspaceStorageService,
     private readonly workspaceCacheStorageService: WorkspaceCacheStorageService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
     private readonly workspaceSchemaService: WorkspaceSchemaService,
-    private readonly kovaa-labStandardApplicationService: KovaaLab CRMStandardApplicationService,
+    private readonly kovaaLabStandardApplicationService: KovaaLabCRMStandardApplicationService,
     private readonly devSeederMetadataService: DevSeederMetadataService,
     private readonly devSeederPermissionsService: DevSeederPermissionsService,
     private readonly devSeederDataService: DevSeederDataService,
@@ -98,8 +98,8 @@ export class DevSeederWorkspaceService {
     options?: { light?: boolean },
   ): Promise<void> {
     const light = options?.light ?? false;
-    const isBillingEnabled = this.kovaa-labConfigService.get('IS_BILLING_ENABLED');
-    const appVersion = this.kovaa-labConfigService.get('APP_VERSION') ?? 'unknown';
+    const isBillingEnabled = this.kovaaLabConfigService.get('IS_BILLING_ENABLED');
+    const appVersion = this.kovaaLabConfigService.get('APP_VERSION') ?? 'unknown';
 
     const lastAttemptedInstanceCommand =
       await this.upgradeMigrationService.getLastAttemptedInstanceCommandOrThrow();
@@ -129,14 +129,14 @@ export class DevSeederWorkspaceService {
       databaseSchema: schemaName,
     });
 
-    const { workspaceCustomFlatApplication, kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { workspaceCustomFlatApplication, kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },
       );
 
-    await this.kovaa-labStandardApplicationService.synchronizeKovaaLab CRMStandardApplicationOrThrow(
+    await this.kovaaLabStandardApplicationService.synchronizeKovaaLabCRMStandardApplicationOrThrow(
       {
         workspaceId,
       },
@@ -144,9 +144,9 @@ export class DevSeederWorkspaceService {
 
     await this.sdkClientGenerationService.generateSdkClientForApplication({
       workspaceId,
-      applicationId: kovaa-labStandardFlatApplication.id,
+      applicationId: kovaaLabStandardFlatApplication.id,
       applicationUniversalIdentifier:
-        kovaa-labStandardFlatApplication.universalIdentifier,
+        kovaaLabStandardFlatApplication.universalIdentifier,
       trigger: 'dev-seeder',
     });
 
@@ -170,7 +170,7 @@ export class DevSeederWorkspaceService {
 
     await this.devSeederPermissionsService.initPermissions({
       workspaceId,
-      kovaa-labStandardFlatApplication,
+      kovaaLabStandardFlatApplication,
       workspaceCustomFlatApplication,
       light,
     });
@@ -217,7 +217,7 @@ export class DevSeederWorkspaceService {
 
     await seedPageLayouts({
       workspaceId,
-      flatApplication: kovaa-labStandardFlatApplication,
+      flatApplication: kovaaLabStandardFlatApplication,
       objectMetadataItems,
       workspaceMigrationValidateBuildAndRunService:
         this.workspaceMigrationValidateBuildAndRunService,
@@ -237,7 +237,7 @@ export class DevSeederWorkspaceService {
     await this.seedAgentChat({
       workspaceId,
       chatReferenceIds: {
-        applicationId: kovaa-labStandardFlatApplication.id,
+        applicationId: kovaaLabStandardFlatApplication.id,
         objectMetadataId: companyObjectMetadataItem.id,
         roleId: adminRole.id,
         viewId: allCompaniesView.id,
@@ -333,7 +333,7 @@ export class DevSeederWorkspaceService {
         ),
       });
 
-      await this.applicationService.createKovaaLab CRMStandardApplication(
+      await this.applicationService.createKovaaLabCRMStandardApplication(
         {
           workspaceId,
           skipCacheInvalidation: true,
@@ -343,7 +343,7 @@ export class DevSeederWorkspaceService {
 
       await seedApiKeys({ queryRunner, schemaName, workspaceId });
       if (
-        this.kovaa-labConfigService.get('EMAILING_DOMAIN_DRIVER') ===
+        this.kovaaLabConfigService.get('EMAILING_DOMAIN_DRIVER') ===
         EmailingDomainDriver.LOG
       ) {
         await seedEmailingDomains({ queryRunner, schemaName, workspaceId });

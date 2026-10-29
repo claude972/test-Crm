@@ -17,7 +17,7 @@ RSpec.describe 'Enterprise SAML OmniAuth Callbacks', type: :request do
   end
 
   before do
-    allow(KovaaLab CharApp).to receive(:enterprise?).and_return(true)
+    allow(ChatwootApp).to receive(:enterprise?).and_return(true)
     allow(GlobalConfigService).to receive(:load).and_call_original
     allow(GlobalConfigService).to receive(:load).with('FRONTEND_URL', 'http://localhost:3000').and_return('http://www.example.com')
     account.enable_features!('saml')

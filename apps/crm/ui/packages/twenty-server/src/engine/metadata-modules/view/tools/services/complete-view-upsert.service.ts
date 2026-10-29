@@ -96,7 +96,7 @@ export class CompleteViewUpsertService {
     sorts?: CompleteViewSortSpec[];
   }): Promise<ViewDTO> {
     const { workspaceCustomFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         {
           workspaceId,
         },

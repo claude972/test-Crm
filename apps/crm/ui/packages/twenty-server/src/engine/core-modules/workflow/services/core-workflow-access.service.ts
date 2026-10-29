@@ -10,8 +10,8 @@ import { WorkflowVersionEntity } from 'src/engine/core-modules/workflow/entities
 import { WorkflowEntity } from 'src/engine/core-modules/workflow/entities/workflow.entity';
 import { canApplicationStartCoreWorkflow } from 'src/engine/core-modules/workflow/utils/can-application-start-core-workflow.util';
 import { canChangeCoreWorkflowVisibility } from 'src/engine/core-modules/workflow/utils/can-change-core-workflow-visibility.util';
-import { InjectWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
-import { WorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import {
   WorkflowQueryValidationException,
   WorkflowQueryValidationExceptionCode,
@@ -39,8 +39,8 @@ export class CoreWorkflowAccessService {
     }
 
     await this.assertCoreWorkflowsAreAccessibleOrThrow(args);
-    const { workspaceCustomFlatApplication, kovaa-labStandardFlatApplication } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+    const { workspaceCustomFlatApplication, kovaaLabStandardFlatApplication } =
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId: args.workspaceId },
       );
     const workflows = await this.coreWorkflowRepository.find(args.workspaceId, {
@@ -51,7 +51,7 @@ export class CoreWorkflowAccessService {
       workflows.some(
         (workflow) =>
           workflow.applicationId !== workspaceCustomFlatApplication.id &&
-          workflow.applicationId !== kovaa-labStandardFlatApplication.id,
+          workflow.applicationId !== kovaaLabStandardFlatApplication.id,
       )
     ) {
       throw new WorkflowQueryValidationException(

@@ -8,7 +8,7 @@ import {
 import { type AiModelTier, type AiSdkPackage } from 'kovaa-lab-shared/ai';
 import { FeatureFlagKey } from 'kovaa-lab-shared/types';
 
-import { SupportDriver } from 'src/engine/core-modules/kovaa-lab-config/interfaces/support.interface';
+import { SupportDriver } from 'src/engine/core-modules/twenty-config/interfaces/support.interface';
 
 import { BillingTrialPeriodDTO } from 'src/engine/core-modules/billing/dtos/billing-trial-period.dto';
 import { CaptchaDriverType } from 'src/engine/core-modules/captcha/interfaces';
@@ -420,7 +420,7 @@ export class ClientConfig {
   isEmailingDomainInDemoMode: boolean;
 
   @Field(() => Boolean)
-  allowRequestsToKovaaLab CRMIcons: boolean;
+  allowRequestsToKovaaLabCRMIcons: boolean;
 
   @Field(() => String, { nullable: true })
   calendarBookingPageId?: string;

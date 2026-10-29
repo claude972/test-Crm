@@ -24,12 +24,12 @@ import {
   PermissionsExceptionCode,
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
-import { FilesFieldSync } from 'src/engine/kovaa-lab-orm/field-operations/files-field-sync/files-field-sync';
+import { FilesFieldSync } from 'src/engine/twenty-orm/field-operations/files-field-sync/files-field-sync';
 import {
   type OperationType,
   validateOperationIsPermittedOrThrow,
-} from 'src/engine/kovaa-lab-orm/repository/permissions.utils';
-import { type WorkspaceInternalContext } from 'src/engine/kovaa-lab-orm/interfaces/workspace-internal-context.interface';
+} from 'src/engine/twenty-orm/repository/permissions.utils';
+import { type WorkspaceInternalContext } from 'src/engine/twenty-orm/interfaces/workspace-internal-context.interface';
 import { canRolesAccessAllRecords } from 'src/engine/core-modules/record-share/utils/can-roles-access-all-records.util';
 import { type InheritedReadabilityChildRecords } from 'src/engine/core-modules/record-share/types/inherited-readability-child-records.type';
 import { type InheritedReadabilityChildrenParent } from 'src/engine/core-modules/record-share/types/inherited-readability-children-parent.type';
@@ -43,47 +43,47 @@ import {
   type RowAccessPolicyEnvironment,
   type RowAccessPolicySubject,
   type SqlCondition,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { compileRowAccessExpression } from 'src/engine/kovaa-lab-orm/utils/compile-row-access-policy.util';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { compileRowAccessExpression } from 'src/engine/twenty-orm/utils/compile-row-access-policy.util';
 import { resolveRecordShareGateKind } from 'src/engine/core-modules/record-share/utils/resolve-record-share-gate-kind.util';
-import { buildRowAccessPolicy } from 'src/engine/kovaa-lab-orm/utils/build-row-access-policy.util';
+import { buildRowAccessPolicy } from 'src/engine/twenty-orm/utils/build-row-access-policy.util';
 import { type RecordShareGrant } from 'src/engine/core-modules/record-share/types/record-share-grant.type';
 import {
   evaluateRowAccessPolicy,
   type RowAccessEvaluationContext,
   type RowAccessRecord,
 } from 'src/engine/core-modules/record-share/utils/evaluate-row-access-policy.util';
-import { isRowAccessExpressionReadingRoleFilter } from 'src/engine/kovaa-lab-orm/utils/is-row-access-expression-reading-role-filter.util';
+import { isRowAccessExpressionReadingRoleFilter } from 'src/engine/twenty-orm/utils/is-row-access-expression-reading-role-filter.util';
 import { resolveObjectSharing } from 'src/engine/core-modules/record-share/utils/resolve-object-sharing.util';
-import { isObjectOperationPermitted } from 'src/engine/kovaa-lab-orm/utils/is-object-operation-permitted.util';
-import { formatData } from 'src/engine/kovaa-lab-orm/utils/format-data.util';
-import { formatResult } from 'src/engine/kovaa-lab-orm/utils/format-result.util';
-import { formatKovaaLab CRMOrmEventToDatabaseBatchEvent } from 'src/engine/kovaa-lab-orm/utils/format-kovaa-lab-orm-event-to-database-batch-event.util';
+import { isObjectOperationPermitted } from 'src/engine/twenty-orm/utils/is-object-operation-permitted.util';
+import { formatData } from 'src/engine/twenty-orm/utils/format-data.util';
+import { formatResult } from 'src/engine/twenty-orm/utils/format-result.util';
+import { formatKovaaLabCRMOrmEventToDatabaseBatchEvent } from 'src/engine/twenty-orm/utils/format-twenty-orm-event-to-database-batch-event.util';
 import {
   getUpdateEventRecords,
   mergeRecordsWithUpdateValues,
-} from 'src/engine/kovaa-lab-orm/utils/merge-records-with-update-values.util';
-import { isChildRecordBoundAtDeletion } from 'src/engine/kovaa-lab-orm/utils/is-child-record-bound-at-deletion.util';
-import { isOwningApplicationAuthContext } from 'src/engine/kovaa-lab-orm/utils/is-owning-application-auth-context.util';
-import { resolvePrincipalIdsFromAuthContext } from 'src/engine/kovaa-lab-orm/utils/resolve-principal-ids-from-auth-context.util';
+} from 'src/engine/twenty-orm/utils/merge-records-with-update-values.util';
+import { isChildRecordBoundAtDeletion } from 'src/engine/twenty-orm/utils/is-child-record-bound-at-deletion.util';
+import { isOwningApplicationAuthContext } from 'src/engine/twenty-orm/utils/is-owning-application-auth-context.util';
+import { resolvePrincipalIdsFromAuthContext } from 'src/engine/twenty-orm/utils/resolve-principal-ids-from-auth-context.util';
 import { resolveInheritedReadabilityChildLinks } from 'src/engine/core-modules/record-share/utils/resolve-inherited-readability-child-links.util';
 import { resolveInheritedReadabilityParents } from 'src/engine/core-modules/record-share/utils/resolve-inherited-readability-parents.util';
-import { type RolePermissionConfig } from 'src/engine/kovaa-lab-orm/types/role-permission-config.type';
-import { getRoleIdsFromRolePermissionConfig } from 'src/engine/kovaa-lab-orm/utils/get-role-ids-from-role-permission-config.util';
-import { resolveRowLevelPermissionRecordFilter } from 'src/engine/kovaa-lab-orm/utils/resolve-row-level-permission-record-filter.util';
-import { validateRLSPredicatesForRecords } from 'src/engine/kovaa-lab-orm/utils/validate-rls-predicates-for-records.util';
-import { getActiveValidationRules } from 'src/engine/kovaa-lab-orm/utils/get-active-validation-rules.util';
-import { validateRecordsAgainstValidationRulesOrThrow } from 'src/engine/kovaa-lab-orm/utils/validate-records-against-validation-rules.util';
+import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config.type';
+import { getRoleIdsFromRolePermissionConfig } from 'src/engine/twenty-orm/utils/get-role-ids-from-role-permission-config.util';
+import { resolveRowLevelPermissionRecordFilter } from 'src/engine/twenty-orm/utils/resolve-row-level-permission-record-filter.util';
+import { validateRLSPredicatesForRecords } from 'src/engine/twenty-orm/utils/validate-rls-predicates-for-records.util';
+import { getActiveValidationRules } from 'src/engine/twenty-orm/utils/get-active-validation-rules.util';
+import { validateRecordsAgainstValidationRulesOrThrow } from 'src/engine/twenty-orm/utils/validate-records-against-validation-rules.util';
 import {
-  KovaaLab CRMOrmException,
-  KovaaLab CRMOrmExceptionCode,
-} from 'src/engine/kovaa-lab-orm/exceptions/kovaa-lab-orm.exception';
-import { type QueryExecutor } from 'src/engine/kovaa-lab-orm/executor/types/query-executor.type';
+  KovaaLabCRMOrmException,
+  KovaaLabCRMOrmExceptionCode,
+} from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
+import { type QueryExecutor } from 'src/engine/twenty-orm/executor/types/query-executor.type';
 import {
   buildInsertStatement,
   type InsertRowValue,
-} from 'src/engine/kovaa-lab-orm/sql/utils/build-insert-statement.util';
-import { type MutationKind } from 'src/engine/kovaa-lab-orm/sql/utils/build-mutation-statement.util';
+} from 'src/engine/twenty-orm/sql/utils/build-insert-statement.util';
+import { type MutationKind } from 'src/engine/twenty-orm/sql/utils/build-mutation-statement.util';
 import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfaces/relation-type.interface';
 import {
   applyFindOptionsToQueryBuilder,
@@ -91,37 +91,37 @@ import {
   splitFindOptionsOrder,
   type WorkspaceFindOptionsRelations,
   type WorkspaceFindOptions,
-} from 'src/engine/kovaa-lab-orm/query-builder/utils/apply-find-options.util';
+} from 'src/engine/twenty-orm/query-builder/utils/apply-find-options.util';
 import {
   applyMutationCriteriaToQueryBuilder,
   type MutationCriteria,
-} from 'src/engine/kovaa-lab-orm/query-builder/utils/apply-mutation-criteria.util';
+} from 'src/engine/twenty-orm/query-builder/utils/apply-mutation-criteria.util';
 import {
   type ObjectWhereLike,
   type OrderByConditionLike,
-} from 'src/engine/kovaa-lab-orm/query-builder/types/query-builder.type';
+} from 'src/engine/twenty-orm/query-builder/types/query-builder.type';
 import {
   attachToManyRelationToRecords,
   attachToOneRelationToRecords,
   collectForeignKeys,
   collectRecordIds,
-} from 'src/engine/kovaa-lab-orm/repository/utils/attach-relations.util';
+} from 'src/engine/twenty-orm/repository/utils/attach-relations.util';
 import {
   matchEntitiesForUpsert,
   partitionEntitiesForSave,
-} from 'src/engine/kovaa-lab-orm/repository/utils/resolve-save-and-upsert.util';
+} from 'src/engine/twenty-orm/repository/utils/resolve-save-and-upsert.util';
 import {
   getUpdateEventColumnsToReturn,
   mergeReturnedUpdateTimestamps,
-} from 'src/engine/kovaa-lab-orm/repository/utils/update-event-records.util';
-import { WorkspaceSelectQueryBuilder } from 'src/engine/kovaa-lab-orm/query-builder/workspace-select-query-builder';
-import { compileNamedParameters } from 'src/engine/kovaa-lab-orm/sql/utils/compile-named-parameters.util';
+} from 'src/engine/twenty-orm/repository/utils/update-event-records.util';
+import { WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
+import { compileNamedParameters } from 'src/engine/twenty-orm/sql/utils/compile-named-parameters.util';
 import { escapeIdentifier } from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
-import { serializeJsonbWriteValue } from 'src/engine/kovaa-lab-orm/sql/utils/serialize-jsonb-write-value.util';
+import { serializeJsonbWriteValue } from 'src/engine/twenty-orm/sql/utils/serialize-jsonb-write-value.util';
 import {
   type WorkspaceRelationShape,
   type WorkspaceTableShape,
-} from 'src/engine/kovaa-lab-orm/table-shape/types/workspace-table-shape.type';
+} from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 
 const ALWAYS_FALSE_CONDITION = '1=0';
 const MUTATION_EVENT_ACTIONS_BY_KIND: Record<
@@ -332,9 +332,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
 
   async findOne(options?: WorkspaceFindOptions): Promise<TEntity | null> {
     if (!isDefined(options?.where)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'findOne requires a "where" condition',
-        KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
       );
     }
 
@@ -366,9 +366,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     const record = await this.findOne(options);
 
     if (!isDefined(record)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `No "${this.options.tableShape.nameSingular}" record matches the given criteria`,
-        KovaaLab CRMOrmExceptionCode.ENTITY_NOT_FOUND,
+        KovaaLabCRMOrmExceptionCode.ENTITY_NOT_FOUND,
       );
     }
 
@@ -446,9 +446,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     if (
       !isDefined(this.options.tableShape.columnShapeByColumnName[columnName])
     ) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Column "${columnName}" does not exist on "${this.options.tableShape.nameSingular}"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
       );
     }
 
@@ -491,9 +491,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
         this.options.tableShape.relationShapeByFieldName[fieldName];
 
       if (!isDefined(relationShape)) {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Relation "${fieldName}" does not exist on "${this.options.tableShape.nameSingular}"`,
-          KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+          KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
         );
       }
 
@@ -521,9 +521,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
           order: orderByRelationFieldName[fieldName],
         });
       } else {
-        throw new KovaaLab CRMOrmException(
+        throw new KovaaLabCRMOrmException(
           `Loading "${relationShape.relationType}" relations through find is not supported yet`,
-          KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+          KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
         );
       }
     }
@@ -543,9 +543,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     nestedRelations?: WorkspaceFindOptionsRelations;
   }): Promise<void> {
     if (!isDefined(joinColumnName)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Relation "${fieldName}" has no join column to resolve`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
@@ -623,9 +623,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     );
 
     if (!isDefined(inverseRelationShape?.joinColumnName)) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Could not resolve the inverse foreign key for a to-many relation on "${this.options.tableShape.nameSingular}"`,
-        KovaaLab CRMOrmExceptionCode.UNKNOWN_RELATION,
+        KovaaLabCRMOrmExceptionCode.UNKNOWN_RELATION,
       );
     }
 
@@ -680,9 +680,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     inputs: { criteria: string; partialEntity: Partial<ObjectRecord> }[],
   ): Promise<UpdateResult> {
     if (inputs.length > QUERY_MAX_RECORDS) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Cannot update more than ${QUERY_MAX_RECORDS} records at once`,
-        KovaaLab CRMOrmExceptionCode.TOO_MANY_RECORDS_TO_UPDATE,
+        KovaaLabCRMOrmExceptionCode.TOO_MANY_RECORDS_TO_UPDATE,
         {
           userFriendlyMessage: msg`You can only update up to ${QUERY_MAX_RECORDS} records at once.`,
         },
@@ -914,9 +914,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
       : conflictPathsOrOptions.conflictPaths;
 
     if (conflictPaths.length === 0) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'upsert requires at least one conflict path',
-        KovaaLab CRMOrmExceptionCode.INVALID_PARAMETER,
+        KovaaLabCRMOrmExceptionCode.INVALID_PARAMETER,
       );
     }
 
@@ -993,9 +993,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
           typeof value === 'object' &&
           value !== null
         ) {
-          throw new KovaaLab CRMOrmException(
+          throw new KovaaLabCRMOrmException(
             `Writing nested relation "${key}" through the ORM v2 repository is not supported yet`,
-            KovaaLab CRMOrmExceptionCode.UNSUPPORTED_OPERATION,
+            KovaaLabCRMOrmExceptionCode.UNSUPPORTED_OPERATION,
           );
         }
       }
@@ -1316,9 +1316,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
             this.options.tableShape.columnShapeByColumnName[columnName],
           )
         ) {
-          throw new KovaaLab CRMOrmException(
+          throw new KovaaLabCRMOrmException(
             `Column "${columnName}" does not exist on "${this.options.tableShape.nameSingular}"`,
-            KovaaLab CRMOrmExceptionCode.UNKNOWN_COLUMN,
+            KovaaLabCRMOrmExceptionCode.UNKNOWN_COLUMN,
           );
         }
         columnNameSet.add(columnName);
@@ -1407,7 +1407,7 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
       DatabaseEventAction.CREATED,
       DatabaseEventAction.UPSERTED,
     ]) {
-      const event = formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+      const event = formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
         action,
         objectMetadataItem: this.options.flatObjectMetadata,
         flatFieldMetadataMaps:
@@ -1686,9 +1686,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
         });
 
     if (kind === 'update' && recordsBefore.length > QUERY_MAX_RECORDS) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         `Cannot update more than ${QUERY_MAX_RECORDS} records at once`,
-        KovaaLab CRMOrmExceptionCode.TOO_MANY_RECORDS_TO_UPDATE,
+        KovaaLabCRMOrmExceptionCode.TOO_MANY_RECORDS_TO_UPDATE,
         {
           userFriendlyMessage: msg`You can only update up to ${QUERY_MAX_RECORDS} records at once.`,
         },
@@ -1990,9 +1990,9 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     if (
       [...admittedRecordIdsBefore].some((id) => !admittedRecordIdsAfter.has(id))
     ) {
-      throw new KovaaLab CRMOrmException(
+      throw new KovaaLabCRMOrmException(
         'Updated record does not satisfy row-level security constraints of your current role',
-        KovaaLab CRMOrmExceptionCode.RLS_VALIDATION_FAILED,
+        KovaaLabCRMOrmExceptionCode.RLS_VALIDATION_FAILED,
       );
     }
   }
@@ -2078,7 +2078,7 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
       : undefined;
 
     for (const action of actions) {
-      const event = formatKovaaLab CRMOrmEventToDatabaseBatchEvent({
+      const event = formatKovaaLabCRMOrmEventToDatabaseBatchEvent({
         action,
         objectMetadataItem: this.options.flatObjectMetadata,
         flatFieldMetadataMaps:

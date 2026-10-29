@@ -12,7 +12,7 @@ import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-m
 import { generateIndexForFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/generate-index-for-flat-field-metadata.util';
 import { isMorphOrRelationFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-morph-or-relation-flat-field-metadata.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
-import { isManyToOneFlatFieldMetadata } from 'src/engine/kovaa-lab-orm/utils/is-many-to-one-flat-field-metadata.util';
+import { isManyToOneFlatFieldMetadata } from 'src/engine/twenty-orm/utils/is-many-to-one-flat-field-metadata.util';
 import { type UniversalFlatIndexMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-index-metadata.type';
 
 export type SystemRelationHolderNameSingular =
@@ -32,7 +32,7 @@ type BuildMissingSystemRelationIndexesArgs = Pick<
     SystemRelationHolderNameSingular,
     FlatObjectMetadata
   >;
-  kovaa-labStandardApplicationUniversalIdentifier: string;
+  kovaaLabStandardApplicationUniversalIdentifier: string;
 };
 
 const collectLeadingIndexedFieldMetadataIds = ({
@@ -58,7 +58,7 @@ export const buildMissingSystemRelationIndexes = ({
   flatFieldMetadataMaps,
   flatIndexMaps,
   holderFlatObjectMetadataByNameSingular,
-  kovaa-labStandardApplicationUniversalIdentifier,
+  kovaaLabStandardApplicationUniversalIdentifier,
 }: BuildMissingSystemRelationIndexesArgs): MissingSystemRelationIndex[] =>
   Object.entries(holderFlatObjectMetadataByNameSingular).flatMap(
     ([holderNameSingular, holderFlatObjectMetadata]) => {
@@ -83,7 +83,7 @@ export const buildMissingSystemRelationIndexes = ({
             isMorphOrRelationFlatFieldMetadata(flatFieldMetadata) &&
             isManyToOneFlatFieldMetadata(flatFieldMetadata) &&
             flatFieldMetadata.applicationUniversalIdentifier !==
-              kovaa-labStandardApplicationUniversalIdentifier &&
+              kovaaLabStandardApplicationUniversalIdentifier &&
             !leadingIndexedFieldMetadataIds.has(flatFieldMetadata.id),
         )
         .map((flatFieldMetadata) => ({

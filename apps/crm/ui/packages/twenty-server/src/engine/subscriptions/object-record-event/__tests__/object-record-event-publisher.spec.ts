@@ -26,7 +26,7 @@ import { COMPANY_FLAT_OBJECT_MOCK } from 'src/engine/metadata-modules/flat-objec
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { RecordAccessPolicyService } from 'src/engine/core-modules/record-share/services/record-access-policy.service';
 import { RecordShareStorageService } from 'src/engine/core-modules/record-share/services/record-share-storage.service';
-import { WorkspaceOrmManager } from 'src/engine/kovaa-lab-orm/workspace-orm.manager';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { type RecordShare } from 'src/engine/core-modules/record-share/types/record-share.type';
 import { EventStreamService } from 'src/engine/subscriptions/event-stream.service';
 import { SubscriptionService } from 'src/engine/subscriptions/subscription.service';
@@ -36,14 +36,14 @@ import { type WorkspaceEventBatch } from 'src/engine/workspace-event-emitter/typ
 import { ObjectRecordEventPublisher } from 'src/engine/subscriptions/object-record-event/object-record-event-publisher';
 
 jest.mock(
-  'src/engine/kovaa-lab-orm/utils/build-row-level-permission-record-filter.util',
+  'src/engine/twenty-orm/utils/build-row-level-permission-record-filter.util',
   () => ({
     buildRowLevelPermissionRecordFilter: jest.fn(),
   }),
 );
 
 jest.mock(
-  'src/engine/kovaa-lab-orm/utils/is-record-matching-rls-row-level-permission-predicate.util',
+  'src/engine/twenty-orm/utils/is-record-matching-rls-row-level-permission-predicate.util',
   () => ({
     isRecordMatchingRLSRowLevelPermissionPredicate: jest.fn(),
   }),
@@ -51,10 +51,10 @@ jest.mock(
 
 const {
   buildRowLevelPermissionRecordFilter,
-} = require('src/engine/kovaa-lab-orm/utils/build-row-level-permission-record-filter.util');
+} = require('src/engine/twenty-orm/utils/build-row-level-permission-record-filter.util');
 const {
   isRecordMatchingRLSRowLevelPermissionPredicate,
-} = require('src/engine/kovaa-lab-orm/utils/is-record-matching-rls-row-level-permission-predicate.util');
+} = require('src/engine/twenty-orm/utils/is-record-matching-rls-row-level-permission-predicate.util');
 
 type MockObjectRecordEvent = {
   recordId: string;

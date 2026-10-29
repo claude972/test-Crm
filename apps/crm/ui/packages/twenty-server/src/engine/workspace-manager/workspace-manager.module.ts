@@ -8,9 +8,9 @@ import { AiAgentModule } from 'src/engine/metadata-modules/ai/ai-agent/ai-agent.
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
 import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
 import { UserRoleModule } from 'src/engine/metadata-modules/user-role/user-role.module';
-import { provideWorkspaceScopedRepository } from 'src/engine/kovaa-lab-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
+import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 import { WorkspaceDataSourceModule } from 'src/engine/workspace-datasource/workspace-datasource.module';
-import { KovaaLab CRMStandardApplicationModule } from 'src/engine/workspace-manager/kovaa-lab-standard-application/kovaa-lab-standard-application.module';
+import { KovaaLabCRMStandardApplicationModule } from 'src/engine/workspace-manager/twenty-standard-application/twenty-standard-application.module';
 
 import { WorkspaceManagerService } from './workspace-manager.service';
 
@@ -18,7 +18,7 @@ import { WorkspaceManagerService } from './workspace-manager.service';
   imports: [
     WorkspaceDataSourceModule,
     AiAgentModule,
-    KovaaLab CRMStandardApplicationModule,
+    KovaaLabCRMStandardApplicationModule,
     TypeOrmModule.forFeature([UserWorkspaceEntity, WorkspaceEntity]),
     RoleModule,
     UserRoleModule,

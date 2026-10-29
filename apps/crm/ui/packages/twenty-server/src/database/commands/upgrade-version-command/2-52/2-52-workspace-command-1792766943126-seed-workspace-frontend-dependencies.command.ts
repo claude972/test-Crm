@@ -35,7 +35,7 @@ export class SeedWorkspaceFrontendDependenciesCommand extends ProvisionedWorkspa
     }
 
     const { workspaceCustomFlatApplication: application } =
-      await this.applicationService.findWorkspaceKovaaLab CRMStandardAndCustomApplicationOrThrow(
+      await this.applicationService.findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow(
         { workspaceId },
       );
     const directory = join(

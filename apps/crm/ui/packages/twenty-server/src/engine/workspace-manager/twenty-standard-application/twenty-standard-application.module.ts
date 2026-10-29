@@ -4,11 +4,11 @@ import { ApplicationModule } from 'src/engine/core-modules/application/applicati
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { WorkspaceMigrationModule } from 'src/engine/workspace-manager/workspace-migration/workspace-migration.module';
 
-import { KovaaLab CRMStandardApplicationService } from './services/kovaa-lab-standard-application.service';
+import { KovaaLabCRMStandardApplicationService } from './services/twenty-standard-application.service';
 
 @Module({
-  providers: [KovaaLab CRMStandardApplicationService],
+  providers: [KovaaLabCRMStandardApplicationService],
   imports: [ApplicationModule, WorkspaceCacheModule, WorkspaceMigrationModule],
-  exports: [KovaaLab CRMStandardApplicationService],
+  exports: [KovaaLabCRMStandardApplicationService],
 })
-export class KovaaLab CRMStandardApplicationModule {}
+export class KovaaLabCRMStandardApplicationModule {}

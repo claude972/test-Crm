@@ -1,6 +1,6 @@
 import { type ValidationArguments } from 'class-validator';
 
-import { PositiveDurationConstraint } from 'src/engine/core-modules/kovaa-lab-config/validators/positive-duration.validator';
+import { PositiveDurationConstraint } from 'src/engine/core-modules/twenty-config/validators/positive-duration.validator';
 
 describe('PositiveDurationConstraint', () => {
   const constraint = new PositiveDurationConstraint();

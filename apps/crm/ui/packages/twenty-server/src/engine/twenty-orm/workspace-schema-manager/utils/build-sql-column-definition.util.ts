@@ -1,6 +1,6 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { type WorkspaceSchemaColumnDefinition } from 'src/engine/kovaa-lab-orm/workspace-schema-manager/types/workspace-schema-column-definition.type';
+import { type WorkspaceSchemaColumnDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/types/workspace-schema-column-definition.type';
 import {
   assertSafeTsVectorExpression,
   escapeIdentifier,

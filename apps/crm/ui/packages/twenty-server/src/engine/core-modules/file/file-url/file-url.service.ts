@@ -7,7 +7,7 @@ import { type FileOutput } from 'src/engine/api/common/common-args-processors/da
 import { FileTokenJwtPayload } from 'src/engine/core-modules/auth/types/file-token-jwt-payload.type';
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/jwt-token-type.enum';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { KovaaLab CRMConfigService } from 'src/engine/core-modules/kovaa-lab-config/kovaa-lab-config.service';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class FileUrlService {
 
   constructor(
     private readonly jwtWrapperService: JwtWrapperService,
-    private readonly kovaa-labConfigService: KovaaLab CRMConfigService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async signWorkspaceLogoUrl(
@@ -103,10 +103,10 @@ export class FileUrlService {
     };
 
     const token = await this.jwtWrapperService.signAsyncOrThrow(payload, {
-      expiresIn: this.kovaa-labConfigService.get('FILE_TOKEN_EXPIRES_IN'),
+      expiresIn: this.kovaaLabConfigService.get('FILE_TOKEN_EXPIRES_IN'),
     });
 
-    const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
+    const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
 
     return `${serverUrl}/file/${fileFolder}/${fileId}?token=${token}`;
   }
@@ -118,7 +118,7 @@ export class FileUrlService {
     fileId: string;
     fileFolder: FileFolder;
   }): string {
-    const serverUrl = this.kovaa-labConfigService.get('SERVER_URL');
+    const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
 
     return `${serverUrl}/file/${fileFolder}/${fileId}`;
   }

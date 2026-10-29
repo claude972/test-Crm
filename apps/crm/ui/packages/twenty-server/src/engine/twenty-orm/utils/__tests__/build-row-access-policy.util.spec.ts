@@ -13,17 +13,17 @@ import {
   type RowAccessCompilationEnvironment,
   type RowAccessPolicyEnvironment,
   type RowAccessPolicySubject,
-} from 'src/engine/kovaa-lab-orm/types/row-access-policy.type';
-import { buildRowAccessPolicy } from 'src/engine/kovaa-lab-orm/utils/build-row-access-policy.util';
-import { compileRowAccessPolicy } from 'src/engine/kovaa-lab-orm/utils/compile-row-access-policy.util';
-import { renderRowLevelPermissionFilterToSql } from 'src/engine/kovaa-lab-orm/utils/render-row-level-permission-filter-to-sql.util';
+} from 'src/engine/twenty-orm/types/row-access-policy.type';
+import { buildRowAccessPolicy } from 'src/engine/twenty-orm/utils/build-row-access-policy.util';
+import { compileRowAccessPolicy } from 'src/engine/twenty-orm/utils/compile-row-access-policy.util';
+import { renderRowLevelPermissionFilterToSql } from 'src/engine/twenty-orm/utils/render-row-level-permission-filter-to-sql.util';
 import { resolveInheritedReadabilityParents } from 'src/engine/core-modules/record-share/utils/resolve-inherited-readability-parents.util';
 
 jest.mock(
   'src/engine/core-modules/record-share/utils/resolve-inherited-readability-parents.util',
 );
 jest.mock(
-  'src/engine/kovaa-lab-orm/utils/render-row-level-permission-filter-to-sql.util',
+  'src/engine/twenty-orm/utils/render-row-level-permission-filter-to-sql.util',
 );
 
 const APPLICATION_ID = 'application-id';
