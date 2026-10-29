@@ -1,3 +1,5 @@
+> **État P0 :** la documentation et les consignes de transmission sont sur `chore/p0-stabilization`. La base publiée ne contient pas encore les réparations locales ni Cal.diy. Lire [l'état réel](docs/stabilization/p0-status.md) avant toute installation ou affirmation de fonctionnement. À chaque nouvelle mission, commencer par [l'index de transmission](docs/handoff/README.md).
+
 1|# test-Crm
 
 # KovaaLab CRM
