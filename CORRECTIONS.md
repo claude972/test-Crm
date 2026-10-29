@@ -88,3 +88,14 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 - Contrôles en cours : https://github.com/claude972/test-Crm/actions/runs/40970658050 construit shared/SDK/e-mails avec déclarations, exécute les tests d'authentification/upload existants, puis vérifie les types et la compilation du serveur.
 - Preview : aucune vérifiée ; aucun envoi de mail, service ou base démarré.
 - Statut : in_progress, pas de succès de la chaîne complète déclaré.
+
+### P0-SDK-001
+- reviewer: codex
+- assigned agent: codex
+- reviewed branch: fix/codex-backend-build
+- reviewed revision: 47d74f7259058ed1936f4f9ea516cdbfc1cb30b8
+- evidence: CI 40970658050 construit shared et le SDK avec leurs déclarations, puis deux suites échouent avant leurs tests : generated-client-test-helpers.ts:12 lit kovaa-lab-client-template.ts, absent. Le fichier réel est twenty-client-template.ts. Le script de génération metadata réutilise aussi le mauvais chemin.
+- expected correction: pointer les lecteurs vers le fichier réel, sans renommer les répertoires ou les protocoles ni modifier les règles d'authentification.
+- status: fixed_pending_review
+- fix commit: deed2c74f4bb6ad40d2522d5309c579cd406539a
+- recheck evidence: nouvelle exécution en attente ; la première exécution ne valide pas les suites auth/upload (un seul test de stub a été exécuté et réussi). Les étapes e-mails/serveur étaient alors ignorées. ec7322d2d permet maintenant de recueillir les résultats de construction indépendants si les dépendances ont bien été produites.
