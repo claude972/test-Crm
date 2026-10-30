@@ -3,6 +3,8 @@ import { type DataSource, type EntityManager } from 'typeorm';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
+import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
+import { type EncryptedString } from 'src/engine/core-modules/secret-encryption/branded-strings/encrypted-string.type';
 import { type EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
 import { type HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
 import { resolveAndValidateHostname } from 'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util';
@@ -69,9 +71,23 @@ function fixture() {
     handle: 'hello@example.com',
     provider: ConnectedAccountProvider.IMAP_SMTP_CALDAV,
     authFailedAt: null,
+    updatedAt: new Date(),
+    handleAliases: [] as string[],
     connectionParameters: {
-      IMAP: { connectionSecurity: 'SSL_TLS' },
-      SMTP: { connectionSecurity: 'STARTTLS' },
+      IMAP: {
+        connectionSecurity: 'SSL_TLS',
+        host: 'imap.example.com',
+        port: 993,
+        username: 'hello@example.com',
+        password: '' as EncryptedString,
+      },
+      SMTP: {
+        connectionSecurity: 'STARTTLS',
+        host: 'smtp.example.com',
+        port: 587,
+        username: 'hello@example.com',
+        password: '' as EncryptedString,
+      },
     },
   };
   const accounts = { findOne: jest.fn(async () => account) };
@@ -151,6 +167,14 @@ function fixture() {
         ? 'unit-only-encryption-key-not-a-live-secret'
         : undefined,
   } as unknown as EnvironmentConfigDriver);
+  account.connectionParameters.IMAP.password = encryption.encryptVersioned(
+    'synthetic-imap-password' as PlaintextString,
+    { workspaceId },
+  );
+  account.connectionParameters.SMTP.password = encryption.encryptVersioned(
+    'synthetic-smtp-password' as PlaintextString,
+    { workspaceId },
+  );
   const service = new HermesConnectionsService(
     source as unknown as DataSource,
     access as unknown as HermesProspectionAccessService,
@@ -659,6 +683,97 @@ describe('encrypted workspace connections', () => {
         async () => [],
       ),
     ).rejects.toThrow('CONNECTION_REVISION_CONFLICT');
+  });
+
+  it('rotates context identity on configuring-owner changes and requires explicit secrets', async () => {
+    const f = fixture();
+    const first = await f.service.save(actor, evolution);
+    const other = {
+      ...actor,
+      userId: '00000000-0000-4000-8000-000000000001',
+      userWorkspaceId: '00000000-0000-4000-8000-000000000002',
+    };
+    await expect(
+      f.service.save(other, {
+        ...evolution,
+        expectedRevision: 1,
+        secrets: undefined,
+      }),
+    ).rejects.toThrow('NEW_OWNER_REQUIRES_SECRETS');
+    const next = await f.service.save(other, {
+      ...evolution,
+      expectedRevision: 1,
+    });
+    expect(next.connectionId).not.toBe(first.connectionId);
+    expect(await f.service.resolve(workspaceId, 'EVOLUTION')).toMatchObject({
+      userWorkspaceId: other.userWorkspaceId,
+      userId: other.userId,
+    });
+  });
+
+  it('waits for the shared workspace lock and reloads revoked configuration inside caller transactions', async () => {
+    const f = fixture();
+    await f.service.save(actor, evolution);
+    f.manager.query.mockImplementationOnce(async () => {
+      f.rows[0] = {
+        ...f.rows[0],
+        enabled: false,
+        configuration: null,
+        revision: 2,
+      };
+    });
+    expect(
+      await f.service.resolve(
+        workspaceId,
+        'EVOLUTION',
+        f.manager as unknown as EntityManager,
+      ),
+    ).toBeNull();
+    expect(f.manager.query).toHaveBeenLastCalledWith(
+      'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+      [`hermes-messaging:${workspaceId}`],
+    );
+  });
+
+  it('ignores health metadata and re-encryption but rejects changed native mailbox credentials until rebind', async () => {
+    const f = fixture();
+    const settings = { connectedAccountId: f.account.id, mailbox: 'INBOX' };
+    const first = await f.service.save(actor, {
+      kind: 'MAIL',
+      expectedRevision: 0,
+      settings,
+    });
+    expect(JSON.stringify(first)).not.toContain('mailCredentialDigest');
+    f.account.updatedAt = new Date(Date.now() + 1000);
+    f.account.handleAliases = ['alias@example.com'];
+    f.account.connectionParameters.SMTP.password =
+      f.encryption.encryptVersioned(
+        'synthetic-smtp-password' as PlaintextString,
+        { workspaceId },
+      );
+    expect(await f.service.resolve(workspaceId, 'MAIL')).toMatchObject({
+      connectionId: first.connectionId,
+    });
+    f.account.connectionParameters.SMTP.password =
+      f.encryption.encryptVersioned(
+        'changed-native-password' as PlaintextString,
+        { workspaceId },
+      );
+    await expect(f.service.resolve(workspaceId, 'MAIL')).rejects.toThrow(
+      'MAIL_ACCOUNT_CHANGED',
+    );
+    const rebound = await f.service.save(actor, {
+      kind: 'MAIL',
+      expectedRevision: 1,
+      settings,
+    });
+    expect(rebound.connectionId).toBe(first.connectionId);
+    expect(await f.service.resolve(workspaceId, 'MAIL')).toMatchObject({
+      revision: 2,
+    });
+    expect(
+      JSON.stringify(await f.service.resolve(workspaceId, 'MAIL')),
+    ).not.toContain('mailCredentialDigest');
   });
 
   it('validates bounded intake secrets and never assumes configured implies verified', async () => {
