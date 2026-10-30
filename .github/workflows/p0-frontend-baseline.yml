@@ -139,10 +139,21 @@ jobs:
           CI: 'true'
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
-          for suite in \
-            src/modules/structures/utils/__tests__/buildStructureScopeCacheKey.test.ts \
-            src/modules/auth/utils/__tests__/purgeSessionStorage.test.ts \
-            src/modules/auth/hooks/__tests__/useAuth.test.tsx; do
+          # One list, used both to assert the files exist and to run them, so
+          # the two can never drift apart.
+          SUITES="
+          src/modules/structures/utils/__tests__/buildStructureScopeCacheKey.test.ts
+          src/modules/auth/utils/__tests__/purgeSessionStorage.test.ts
+          src/modules/auth/hooks/__tests__/useAuth.test.tsx
+          src/modules/connectors/utils/__tests__/parseConnectorCheckedAt.test.ts
+          src/modules/connectors/hooks/__tests__/toConnectorReadState.test.ts
+          src/modules/connectors/components/__tests__/HermesEvolutionConnectionTagPresentation.test.ts
+          src/modules/prospection/utils/__tests__/hermesRowSelection.test.ts
+          src/modules/prospection/utils/__tests__/readHermesCallFailure.test.ts
+          src/modules/prospection/utils/__tests__/validateHermesQualificationInput.test.ts
+          src/modules/prospection/utils/__tests__/validateHermesImportBatchInput.test.ts
+          "
+          for suite in $SUITES; do
             test -f "packages/twenty-front/$suite"
           done
           node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec \
@@ -151,9 +162,7 @@ jobs:
               --runInBand \
               --ci \
               --cacheDirectory /tmp/jest-cache \
-              src/modules/structures/utils/__tests__/buildStructureScopeCacheKey.test.ts \
-              src/modules/auth/utils/__tests__/purgeSessionStorage.test.ts \
-              src/modules/auth/hooks/__tests__/useAuth.test.tsx
+              $SUITES
       # Driven through the JS API rather than the CLI because the promise
       # rejects on failure, which is transparent regardless of how the CLI
       # behaves. Not justified by P0-BUILD-001: that finding established a

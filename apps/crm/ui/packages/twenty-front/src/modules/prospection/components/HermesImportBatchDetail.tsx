@@ -11,8 +11,7 @@ import { HermesCampaignDraftForm } from '@/prospection/components/HermesCampaign
 import { HermesImportRowStatusTag } from '@/prospection/components/HermesImportRowStatusTag';
 import {
   HermesImportRowsTable,
-  isHermesRowQualifiable,
-  isHermesRowSelectable,
+
 } from '@/prospection/components/HermesImportRowsTable';
 import { HermesQualificationForm } from '@/prospection/components/HermesQualificationForm';
 import {
@@ -27,6 +26,10 @@ import {
 } from '@/prospection/types/HermesImportRowStatus';
 import { type HermesCapabilities } from '@/prospection/types/HermesImportState';
 import { buildHermesBatchCounts } from '@/prospection/utils/buildHermesCounts';
+import {
+  isHermesRowQualifiable,
+  isHermesRowSelectable,
+} from '@/prospection/utils/hermesRowSelection';
 import { useIsFeatureEnabled } from '@/workspace/hooks/useIsFeatureEnabled';
 import { FeatureFlagKey } from '~/generated-metadata/graphql';
 
