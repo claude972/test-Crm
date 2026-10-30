@@ -27,12 +27,15 @@ export const HermesCallFailureNote = ({
     failure.kind === 'denied'
       ? t`Not authorised: unrestricted workspace administrators only.`
       : failure.kind === 'conflict'
-        ? // Both documented causes, because the wire carries one generic
-          // CONFLICT for both: a reused batch id and a full workspace are
-          // indistinguishable here. Naming only the batch id would send
-          // someone to change an id that may never have been the problem.
-          // The server's own wording is folded in below.
-          t`Conflict: either this batch id is already used with different content, or this workspace keeps no more batches.`
+        ? // Says what a conflict IS and what to do, and attributes nothing.
+          // This note is shared by the import, the qualification and the draft
+          // forms, and the wire gives one generic CONFLICT for every cause
+          // behind them — a reused batch id, a full workspace, a campaign
+          // already advanced, a campaign limit. Listing the import's two
+          // causes read as fact on the other two screens, which was the same
+          // mistake as naming the batch id alone, one level up. The server's
+          // own wording is folded in below when it sent any.
+          t`Conflict: this no longer matches the server state. Reload before trying again.`
         : fallbackMessage;
 
   return (
