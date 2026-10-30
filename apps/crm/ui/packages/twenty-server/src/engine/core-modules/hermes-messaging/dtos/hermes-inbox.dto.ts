@@ -17,6 +17,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { HermesMediaAssetDTO } from 'src/engine/core-modules/hermes-media/hermes-media.dto';
 import { UUIDScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
 import { type HermesMessagingChannel } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 
@@ -171,4 +172,30 @@ export class HermesSetWorkspaceBotPolicyInputDTO {
     | 'ASSISTED'
     | 'OFF';
   @Field() @IsString() @MinLength(64) @MaxLength(64) expectedRevision: string;
+}
+
+@InputType('HermesInboxReplyV3Input')
+export class HermesInboxReplyV3InputDTO {
+  @Field(() => UUIDScalarType) @IsUUID() conversationId: string;
+  @Field(() => UUIDScalarType) @IsUUID() clientRequestId: string;
+  @Field() @IsIn(['TEXT', 'IMAGE', 'VIDEO', 'AUDIO']) kind:
+    | 'TEXT'
+    | 'IMAGE'
+    | 'VIDEO'
+    | 'AUDIO';
+  @Field() @IsString() @MaxLength(20000) text: string;
+  @Field(() => UUIDScalarType, { nullable: true })
+  @IsOptional()
+  @IsUUID()
+  assetId?: string;
+}
+@ObjectType('HermesInboxMessageV3')
+export class HermesInboxMessageV3DTO extends HermesInboxMessageDTO {
+  @Field() kind: string;
+  @Field(() => [HermesMediaAssetDTO]) attachments: HermesMediaAssetDTO[];
+}
+@ObjectType('HermesInboxMessagesV3Page')
+export class HermesInboxMessagesV3PageDTO {
+  @Field(() => [HermesInboxMessageV3DTO]) items: HermesInboxMessageV3DTO[];
+  @Field(() => String, { nullable: true }) nextCursor: string | null;
 }

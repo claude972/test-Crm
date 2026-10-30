@@ -260,6 +260,7 @@ import { AddParticipantHandleFieldToMessageChannelFastInstanceCommand } from 'sr
 import { AddHermesImportStateFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793335399769-add-hermes-import-state';
 import { AddHermesInboxFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793367531202-add-hermes-inbox';
 import { AddHermesBotPolicyFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793392487144-add-hermes-bot-policy';
+import { AddHermesMediaFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793402072719-add-hermes-media';
 
 export const INSTANCE_COMMANDS = [
   AddViewFieldGroupIdIndexOnViewFieldFastInstanceCommand,
@@ -522,4 +523,5 @@ export const INSTANCE_COMMANDS = [
   AddHermesImportStateFastInstanceCommand,
   AddHermesInboxFastInstanceCommand,
   AddHermesBotPolicyFastInstanceCommand,
+  AddHermesMediaFastInstanceCommand,
 ];

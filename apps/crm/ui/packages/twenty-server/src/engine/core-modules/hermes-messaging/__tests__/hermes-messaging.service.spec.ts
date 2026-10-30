@@ -50,9 +50,11 @@ const matches = (row: Row, criteria: Row) =>
   Object.entries(criteria).every(([key, value]) =>
     value instanceof FindOperator && value.type === 'isNull'
       ? row[key] === null || row[key] === undefined
-      : row[key] === value,
+      : value instanceof FindOperator && value.type === 'in'
+        ? value.value.includes(row[key])
+        : row[key] === value,
   );
-const setup = () => {
+const setup = (media?: Record<string, unknown>) => {
   const tables = new Map<string, Map<string, Row>>();
   let chain: Promise<unknown> = Promise.resolve();
   const table = (name: string) => {
@@ -238,10 +240,12 @@ const setup = () => {
     access as never,
     registry,
     people as never,
+    media as never,
   );
   return {
     service,
     tables,
+    manager,
     dataSource,
     send,
     registry,
@@ -1604,4 +1608,680 @@ describe('persistent messaging service contract', () => {
         service.ingest({ ...event, providerMetadata } as never),
       ).rejects.toThrow('INVALID_MESSAGING_INPUT');
   });
+});
+
+describe('V3 media durable ledger preserves human policy and uncertainty rules', () => {
+  const assetId = randomUUID();
+  const make = () => {
+    const media = {
+      bind: jest.fn(async () => ({ kind: 'IMAGE', size: 7 })),
+      bytes: jest.fn(async () => ({
+        bytes: Buffer.from('fixture'),
+        asset: {
+          id: assetId,
+          kind: 'IMAGE',
+          mimeType: 'image/png',
+          filename: 'fixture.png',
+        },
+      })),
+      digest: jest.fn(async () => 'b'.repeat(64)),
+      attachment: jest.fn(async () => [
+        {
+          id: assetId,
+          kind: 'IMAGE',
+          mimeType: 'image/png',
+          filename: 'fixture.png',
+          size: 7,
+          status: 'ATTACHED',
+        },
+      ]),
+    };
+    const h = setup(media);
+    h.registry.get('WHATSAPP')!.probe = async () => ({
+      status: 'AVAILABLE',
+      canSendMedia: true,
+    });
+    return { ...h, media };
+  };
+  it('allows an authorized human media reply under OFF, reserves before bytes/network and replays without re-sending', async () => {
+    const h = make();
+    const incoming = await h.service.ingest(event);
+    const policy = await h.service.conversationBotPolicy(actor, {
+      conversationId: incoming.conversationId,
+    });
+    await h.service.setConversationBotPolicy(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'OFF',
+      expectedRevision: policy.revision,
+    });
+    const clientRequestId = randomUUID();
+    const input = {
+      conversationId: incoming.conversationId,
+      clientRequestId,
+      kind: 'IMAGE' as const,
+      text: 'Human caption',
+      assetId,
+    };
+    h.media.bytes.mockImplementationOnce(async () => {
+      const reservation = [
+        ...h.table(HermesInboxMessageEntity.name).values(),
+      ].find((message) => message.clientRequestId === clientRequestId);
+      expect(reservation).toMatchObject({
+        status: 'UNCONFIRMED',
+        errorCode: 'DELIVERY_UNCERTAIN',
+        attachmentIds: [assetId],
+      });
+      return {
+        bytes: Buffer.from('fixture'),
+        asset: {
+          id: assetId,
+          kind: 'IMAGE',
+          mimeType: 'image/png',
+          filename: 'fixture.png',
+        },
+      };
+    });
+    const result = await h.service.replyV3(actor, input);
+    expect(result).toMatchObject({
+      kind: 'IMAGE',
+      status: 'ACCEPTED',
+      text: 'Human caption',
+      attachments: [{ id: assetId }],
+    });
+    const replay = await h.service.replyV3(actor, input);
+    expect(replay.id).toBe(result.id);
+    expect(h.send).toHaveBeenCalledTimes(1);
+    expect(h.media.bind).toHaveBeenCalledTimes(1);
+    expect(h.media.bytes).toHaveBeenCalledTimes(1);
+    expect(h.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        media: expect.objectContaining({
+          kind: 'IMAGE',
+          bytes: Buffer.from('fixture'),
+        }),
+      }),
+    );
+    await expect(
+      h.service.replyV3(actor, { ...input, assetId: randomUUID() }),
+    ).rejects.toThrow('CLIENT_REQUEST_CONFLICT');
+  });
+  it('keeps uncertain media sends durable and never re-emits on the same client request', async () => {
+    const h = make();
+    const incoming = await h.service.ingest(event);
+    h.send.mockRejectedValueOnce(
+      Object.assign(Error('provider private detail'), {
+        code: 'DELIVERY_UNCERTAIN',
+      }),
+    );
+    const input = {
+      conversationId: incoming.conversationId,
+      clientRequestId: randomUUID(),
+      kind: 'IMAGE' as const,
+      text: '',
+      assetId,
+    };
+    const first = await h.service.replyV3(actor, input),
+      second = await h.service.replyV3(actor, input);
+    expect(first).toMatchObject({
+      status: 'UNCONFIRMED',
+      errorCode: 'DELIVERY_UNCERTAIN',
+    });
+    expect(second.id).toBe(first.id);
+    expect(h.send).toHaveBeenCalledTimes(1);
+    expect(h.media.bind).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(first)).not.toContain('provider private detail');
+  });
+  it('refuses unverified provider media capability before consuming an asset or reserving a message', async () => {
+    const h = make();
+    const incoming = await h.service.ingest(event);
+    h.registry.get('WHATSAPP')!.probe = async () => ({
+      status: 'AVAILABLE',
+      canSendMedia: false,
+    });
+    await expect(
+      h.service.replyV3(actor, {
+        conversationId: incoming.conversationId,
+        clientRequestId: randomUUID(),
+        kind: 'IMAGE',
+        text: '',
+        assetId,
+      }),
+    ).rejects.toThrow('MEDIA_PROVIDER_NOT_VERIFIED');
+    expect(h.media.bind).not.toHaveBeenCalled();
+    expect(h.media.bytes).not.toHaveBeenCalled();
+    expect(h.send).not.toHaveBeenCalled();
+  });
+  it('never assumes MCP can understand inbound image or voice content', async () => {
+    const h = make();
+    const bot = {
+      draftReply: jest.fn(async () => ({
+        mode: 'DRAFT' as const,
+        status: 'READY' as const,
+        provider: 'HERMES_MCP' as const,
+        text: 'not allowed',
+      })),
+    };
+    h.registry.registerBot(bot);
+    const incoming = await h.service.ingest({
+      ...event,
+      kind: 'IMAGE',
+      mediaAssetId: assetId,
+      text: '',
+    });
+    expect(bot.draftReply).not.toHaveBeenCalled();
+    await expect(
+      h.service.draftReply(actor, {
+        conversationId: incoming.conversationId,
+        messageId: incoming.messageId,
+      }),
+    ).rejects.toThrow('MEDIA_MCP_ANALYSIS_UNSUPPORTED');
+    expect(bot.draftReply).not.toHaveBeenCalled();
+  });
+  it('cannot send a cancelled/revoked asset or ignore incompatible text/audio semantics', async () => {
+    const h = make();
+    const incoming = await h.service.ingest(event);
+    h.media.bind.mockRejectedValueOnce(Error('MEDIA_ASSET_NOT_FOUND'));
+    await expect(
+      h.service.replyV3(actor, {
+        conversationId: incoming.conversationId,
+        clientRequestId: randomUUID(),
+        kind: 'IMAGE',
+        text: '',
+        assetId,
+      }),
+    ).rejects.toThrow('MEDIA_ASSET_NOT_FOUND');
+    await expect(
+      h.service.replyV3(actor, {
+        conversationId: incoming.conversationId,
+        clientRequestId: randomUUID(),
+        kind: 'AUDIO',
+        text: 'unrepresentable caption',
+        assetId,
+      }),
+    ).rejects.toThrow('AUDIO_CAPTION_UNSUPPORTED');
+    expect(h.send).not.toHaveBeenCalled();
+    expect(h.media.bytes).not.toHaveBeenCalled();
+  });
+});
+
+describe('Email rich content uses the same durable core send boundary', () => {
+  const ids = [randomUUID(), randomUUID()];
+  const envelope = {
+    from: 'sender@example.test',
+    to: ['recipient@example.test'],
+    cc: [],
+    bcc: ['hidden@example.test'],
+    subject: 'Real typed contract',
+    text: 'Body',
+    html: '<p>Body</p>',
+    inlineAttachments: [{ assetId: ids[0], cid: 'fixture-image' }],
+  };
+  const make = () => {
+    const media = {
+      bind: jest.fn(async () => ({ kind: 'FILE', size: 7 })),
+      bytes: jest.fn(async () => ({
+        bytes: Buffer.from('fixture'),
+        asset: {
+          kind: 'FILE',
+          mimeType: 'application/pdf',
+          filename: 'fixture.pdf',
+        },
+      })),
+      digest: jest.fn(async () => 'b'.repeat(64)),
+      attachment: jest.fn(async (_workspace: string, id: string) => [
+        {
+          id,
+          kind: 'FILE',
+          mimeType: 'application/pdf',
+          filename: 'fixture.pdf',
+          size: 7,
+          status: 'ATTACHED',
+        },
+      ]),
+    };
+    const h = setup(media);
+    const send = jest.fn(async () => ({
+      providerMessageId: 'email-provider-accepted',
+      acceptedAt: '2026-10-30T12:01:00.000Z',
+    }));
+    h.registry.register({
+      channel: 'EMAIL',
+      probe: async () => ({
+        status: 'AVAILABLE',
+        canSend: true,
+        canComposeRichEmail: true,
+      }),
+      send,
+    });
+    return { ...h, media, emailSend: send };
+  };
+  const incoming = {
+    ...event,
+    channel: 'EMAIL' as const,
+    contactHandle: 'contact@example.test',
+    kind: 'EMAIL' as const,
+  };
+  it('binds all attachments before SMTP, keeps the envelope private and detects changed Bcc on replay', async () => {
+    const h = make(),
+      message = await h.service.ingest(incoming);
+    const input = {
+      conversationId: message.conversationId,
+      clientRequestId: randomUUID(),
+      envelope,
+      attachmentIds: ids,
+    };
+    const result = await h.service.replyEmail(actor, input);
+    expect(h.media.bind).toHaveBeenCalledTimes(2);
+    expect(h.emailSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: envelope,
+        attachments: [
+          {
+            assetId: ids[0],
+            kind: 'FILE',
+            mimeType: 'application/pdf',
+            filename: 'fixture.pdf',
+            bytes: Buffer.from('fixture'),
+          },
+          {
+            assetId: ids[1],
+            kind: 'FILE',
+            mimeType: 'application/pdf',
+            filename: 'fixture.pdf',
+            bytes: Buffer.from('fixture'),
+          },
+        ],
+      }),
+    );
+    expect(result.attachments).toHaveLength(2);
+    expect(result.kind).toBe('EMAIL');
+    expect(result.status).toBe('ACCEPTED');
+    expect(JSON.stringify(result)).not.toContain('hidden@example.test');
+    expect(JSON.stringify(result)).not.toContain('<p>Body</p>');
+    expect((await h.service.replyEmail(actor, input)).id).toBe(result.id);
+    await expect(
+      h.service.replyEmail(actor, {
+        ...input,
+        envelope: { ...envelope, bcc: ['changed@example.test'] },
+      }),
+    ).rejects.toThrow('CLIENT_REQUEST_CONFLICT');
+    expect(h.emailSend).toHaveBeenCalledTimes(1);
+  });
+  it('rolls back the whole reservation when any attachment is revoked or from another scope', async () => {
+    const h = make(),
+      message = await h.service.ingest(incoming);
+    h.table('AssetFixture').set(ids[0], { id: ids[0], status: 'READY' });
+    h.media.bind
+      .mockImplementationOnce(async () => {
+        h.table('AssetFixture').get(ids[0])!.status = 'ATTACHED';
+        return { kind: 'FILE', size: 7 };
+      })
+      .mockRejectedValueOnce(Error('MEDIA_ASSET_NOT_FOUND'));
+    await expect(
+      h.service.replyEmail(actor, {
+        conversationId: message.conversationId,
+        clientRequestId: randomUUID(),
+        envelope,
+        attachmentIds: ids,
+      }),
+    ).rejects.toThrow('MEDIA_ASSET_NOT_FOUND');
+    expect(h.table('AssetFixture').get(ids[0])!.status).toBe('READY');
+    expect(
+      [...h.table(HermesInboxMessageEntity.name).values()].filter(
+        (row) => row.direction === 'OUTBOUND',
+      ),
+    ).toHaveLength(0);
+    expect(h.emailSend).not.toHaveBeenCalled();
+    expect(h.media.bytes).not.toHaveBeenCalled();
+  });
+  it('rejects duplicate asset IDs, injected headers and invalid/out-of-scope inline CID references', async () => {
+    const h = make(),
+      message = await h.service.ingest(incoming);
+    const input = {
+      conversationId: message.conversationId,
+      clientRequestId: randomUUID(),
+      envelope,
+      attachmentIds: ids,
+    };
+    await expect(
+      h.service.replyEmail(actor, {
+        ...input,
+        attachmentIds: [ids[0], ids[0]],
+      }),
+    ).rejects.toThrow('INVALID_MESSAGING_INPUT');
+    await expect(
+      h.service.replyEmail(actor, {
+        ...input,
+        envelope: { ...envelope, subject: 'x\r\nBcc: leak@example.test' },
+      }),
+    ).rejects.toThrow('INVALID_MESSAGING_INPUT');
+    await expect(
+      h.service.replyEmail(actor, {
+        ...input,
+        envelope: {
+          ...envelope,
+          inlineAttachments: [{ assetId: randomUUID(), cid: 'outside' }],
+        },
+      }),
+    ).rejects.toThrow('EMAIL_INLINE_ATTACHMENT_SCOPE_INVALID');
+    await expect(
+      h.service.replyEmail(actor, {
+        ...input,
+        envelope: {
+          ...envelope,
+          inlineAttachments: [
+            { assetId: ids[0], cid: 'https://external.example.test' },
+          ],
+        },
+      }),
+    ).rejects.toThrow('INVALID_MESSAGING_INPUT');
+    expect(h.media.bind).not.toHaveBeenCalled();
+    expect(h.emailSend).not.toHaveBeenCalled();
+  });
+  it('refuses more than25MiB before bytes/network and never changes a WhatsApp thread into an email send', async () => {
+    const h = make(),
+      message = await h.service.ingest(incoming);
+    h.media.bind.mockResolvedValue({ kind: 'FILE', size: 20 * 1024 * 1024 });
+    await expect(
+      h.service.replyEmail(actor, {
+        conversationId: message.conversationId,
+        clientRequestId: randomUUID(),
+        envelope,
+        attachmentIds: ids,
+      }),
+    ).rejects.toThrow('MEDIA_TOTAL_SIZE_EXCEEDED');
+    const wa = await h.service.ingest(event);
+    await expect(
+      h.service.replyEmail(actor, {
+        conversationId: wa.conversationId,
+        clientRequestId: randomUUID(),
+        envelope: { ...envelope, inlineAttachments: [] },
+        attachmentIds: [],
+      }),
+    ).rejects.toThrow('EMAIL_CHANNEL_REQUIRED');
+    expect(h.emailSend).not.toHaveBeenCalled();
+    expect(h.media.bytes).not.toHaveBeenCalled();
+  });
+});
+
+describe('Provider history cannot move the conversation activity backwards', () => {
+  it('preserves MAX(existing,event.occurredAt) for old imports, provider echoes and accepted replies', async () => {
+    const h = setup();
+    const latest = await h.service.ingest({
+      ...event,
+      providerMessageId: 'history-newer',
+      occurredAt: '2026-10-30T12:05:00.000Z',
+    });
+    await h.service.ingest({
+      ...event,
+      providerMessageId: 'history-older',
+      occurredAt: '2026-10-29T12:00:00.000Z',
+    });
+    expect(
+      h.table(HermesConversationEntity.name).get(latest.conversationId)
+        ?.lastMessageAt,
+    ).toEqual(new Date('2026-10-30T12:05:00.000Z'));
+    await h.service.ingest({
+      ...event,
+      direction: 'OUTBOUND',
+      providerMessageId: 'old-provider-echo',
+      occurredAt: '2026-10-29T13:00:00.000Z',
+    });
+    expect(
+      h.table(HermesConversationEntity.name).get(latest.conversationId)
+        ?.lastMessageAt,
+    ).toEqual(new Date('2026-10-30T12:05:00.000Z'));
+    const beforeReply = new Date();
+    await h.service.reply(actor, {
+      conversationId: latest.conversationId,
+      clientRequestId: randomUUID(),
+      text: 'Human reply with an older provider acceptance timestamp',
+    });
+    expect(
+      (
+        h.table(HermesConversationEntity.name).get(latest.conversationId)
+          ?.lastMessageAt as Date
+      ).getTime(),
+    ).toBeGreaterThanOrEqual(
+      Math.max(
+        beforeReply.getTime(),
+        new Date('2026-10-30T12:05:00.000Z').getTime(),
+      ),
+    );
+  });
+});
+
+describe('Mail hydration is observation, never an automatic sending trigger', () => {
+  it('suppresses MCP/AUTO during backfill and never turns a Sent observation into acceptance evidence', async () => {
+    const h = setup();
+    h.registry.register({
+      channel: 'EMAIL',
+      probe: async () => ({ status: 'AVAILABLE' }),
+      send: h.send,
+    });
+    const initial = {
+      ...event,
+      channel: 'EMAIL' as const,
+      kind: 'EMAIL' as const,
+      contactHandle: 'contact@example.test',
+    };
+    const conversation = await h.service.ingest(initial, {
+      suppressAutomation: true,
+      observedOnly: true,
+    });
+    await h.service.setBotMode(actor, {
+      conversationId: conversation.conversationId,
+      mode: 'AUTO',
+    });
+    const bot = {
+      draftReply: jest.fn(async () => ({
+        mode: 'DRAFT' as const,
+        status: 'READY' as const,
+        provider: 'HERMES_MCP' as const,
+        text: 'Must not send from history',
+      })),
+    };
+    h.registry.registerBot(bot);
+    const observed = await h.service.ingest(
+      { ...initial, providerMessageId: 'old-mail-backfill' },
+      { suppressAutomation: true, observedOnly: true },
+    );
+    expect(
+      h.table(HermesInboxMessageEntity.name).get(observed.messageId)?.status,
+    ).toBe('OBSERVED');
+    const sent = {
+      ...initial,
+      providerMessageId: 'sent-folder-observed',
+      direction: 'OUTBOUND' as const,
+    };
+    const first = await h.service.ingest(sent, {
+      suppressAutomation: true,
+      observedOnly: true,
+    });
+    expect(
+      h.table(HermesInboxMessageEntity.name).get(first.messageId)?.status,
+    ).toBe('OBSERVED');
+    expect(bot.draftReply).not.toHaveBeenCalled();
+    expect(h.send).not.toHaveBeenCalled();
+    await h.service.ingest(sent);
+    expect(
+      h.table(HermesInboxMessageEntity.name).get(first.messageId)?.status,
+    ).toBe('ACCEPTED');
+    await h.service.ingest(sent, {
+      suppressAutomation: true,
+      observedOnly: true,
+    });
+    expect(
+      h.table(HermesInboxMessageEntity.name).get(first.messageId)?.status,
+    ).toBe('ACCEPTED');
+    await expect(
+      h.service.ingest({ ...initial, suppressAutomation: true } as never),
+    ).rejects.toThrow('INVALID_MESSAGING_INPUT');
+  });
+});
+
+describe('New mail drafts have a real scoped conversation without a fabricated message', () => {
+  it('creates a deterministic MANUAL conversation and reuses it without messages or network sends', async () => {
+    const h = setup();
+    h.registry.register({
+      channel: 'EMAIL',
+      probe: async () => ({ status: 'AVAILABLE' }),
+      send: h.send,
+    });
+    const input = {
+      clientRequestId: randomUUID(),
+      providerConnectionId: 'fixture-verified-mailbox',
+      contactHandle: 'recipient@example.test',
+      subject: 'Draft subject',
+    };
+    const first = await h.service.ensureEmailDraftConversation(actor, input);
+    const second = await h.service.ensureEmailDraftConversation(actor, input);
+    expect(first.id).toBe(second.id);
+    expect(first.botMode).toBe('MANUAL');
+    expect(first.providerConversationId).toBe(`draft:${input.clientRequestId}`);
+    expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
+    expect(h.send).not.toHaveBeenCalled();
+    await expect(
+      h.service.ensureEmailDraftConversation(actor, {
+        ...input,
+        contactHandle: 'different@example.test',
+      }),
+    ).rejects.toThrow('DRAFT_CONVERSATION_CONFLICT');
+    h.revoke();
+    await expect(
+      h.service.ensureEmailDraftConversation(actor, input),
+    ).rejects.toThrow('ACCESS_DENIED');
+  });
+});
+
+describe('server-only ingress snapshot boundary', () => {
+  it('rechecks the trusted connection snapshot after the advisory lock before any ledger write', async () => {
+    const h = setup();
+    let live = true;
+    let release: () => void = () => {},
+      start: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      }),
+      started = new Promise<void>((resolve) => {
+        start = resolve;
+      });
+    h.manager.query.mockImplementation(async () => {
+      start();
+      await gate;
+      return [];
+    });
+    const assertLive = jest.fn(async (manager?: unknown) => {
+      expect(manager).toBe(h.manager);
+      if (!live) throw new Error('CONNECTION_REVOKED');
+    });
+    const pending = h.service.ingest(event, {
+      suppressAutomation: true,
+      assertLive,
+    });
+    const rejected = expect(pending).rejects.toThrow('CONNECTION_REVOKED');
+    await Promise.race([
+      started,
+      rejected.then(() => {
+        throw new Error('NO_LOCK_GATE');
+      }),
+    ]);
+    live = false;
+    release();
+    await rejected;
+    expect(h.table(HermesConversationEntity.name).size).toBe(0);
+    expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
+    expect(h.send).not.toHaveBeenCalled();
+    expect(assertLive).toHaveBeenCalledWith(h.manager);
+  });
+  it('rolls back a message when the snapshot is revoked while the final insert was awaited', async () => {
+    const h = setup();
+    let live = true;
+    const repository = h.manager.getRepository;
+    h.manager.getRepository = (target) => {
+      const result = repository(target);
+      if (target === HermesInboxMessageEntity) {
+        const save = result.save;
+        result.save = jest.fn(async (row) => {
+          const saved = await save(row);
+          live = false;
+          return saved;
+        });
+      }
+      return result;
+    };
+    const assertLive = jest.fn(async (manager?: unknown) => {
+      expect(manager).toBe(h.manager);
+      if (!live) throw new Error('CONNECTION_REVOKED');
+    });
+    await expect(
+      h.service.ingest(event, { suppressAutomation: true, assertLive }),
+    ).rejects.toThrow('CONNECTION_REVOKED');
+    expect(h.table(HermesConversationEntity.name).size).toBe(0);
+    expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
+    expect(h.send).not.toHaveBeenCalled();
+  });
+});
+
+describe('Editable mail draft conversation keeps a stable identity only before a send reservation', () => {
+  const input = {
+    clientRequestId: randomUUID(),
+    providerConnectionId: 'fixture-verified-mailbox',
+    contactHandle: 'first@example.test',
+    subject: 'First',
+  };
+  const prepare = async () => {
+    const h = setup();
+    h.registry.register({
+      channel: 'EMAIL',
+      probe: async () => ({ status: 'AVAILABLE' }),
+      send: h.send,
+    });
+    const first = await h.service.ensureEmailDraftConversation(actor, input);
+    return { h, first };
+  };
+  it('retargets an unsent draft, clears delegation and preserves OFF', async () => {
+    const { h, first } = await prepare();
+    Object.assign(h.table(HermesConversationEntity.name).get(first.id)!, {
+      botMode: 'OFF',
+      botOwnerUserWorkspaceId: actor.userWorkspaceId,
+    });
+    const second = await h.service.ensureEmailDraftConversation(
+      actor,
+      { ...input, contactHandle: 'new@example.test', subject: 'Edited' },
+      { allowUnsentUpdate: true },
+    );
+    expect(second).toMatchObject({
+      id: first.id,
+      contactHandle: 'new@example.test',
+      subject: 'Edited',
+      botMode: 'OFF',
+      botOwnerUserWorkspaceId: null,
+    });
+    expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
+    expect(h.send).not.toHaveBeenCalled();
+  });
+  it.each(['PENDING', 'ACCEPTED', 'UNCONFIRMED', 'FAILED'])(
+    'freezes all draft edits after %s reservation',
+    async (status) => {
+      const { h, first } = await prepare();
+      h.table(HermesInboxMessageEntity.name).set('reserved', {
+        id: 'reserved',
+        workspaceId: actor.workspaceId,
+        conversationId: first.id,
+        direction: 'OUTBOUND',
+        status,
+      });
+      await expect(
+        h.service.ensureEmailDraftConversation(
+          actor,
+          { ...input, contactHandle: 'new@example.test' },
+          { allowUnsentUpdate: true },
+        ),
+      ).rejects.toThrow('DRAFT_ALREADY_RESERVED');
+      expect(
+        h.table(HermesConversationEntity.name).get(first.id)?.contactHandle,
+      ).toBe(input.contactHandle);
+    },
+  );
 });

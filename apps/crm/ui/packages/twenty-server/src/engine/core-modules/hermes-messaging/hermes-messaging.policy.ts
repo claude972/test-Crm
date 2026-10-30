@@ -28,6 +28,11 @@ const metadataHeader = z
 const providerMetadataSchema = z
   .object({
     rfcMessageId: metadataHeader.optional(),
+    sentCopyState: z.enum(['PENDING', 'UNCONFIRMED', 'SAVED']).optional(),
+    mimeSha256: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
     inReplyTo: metadataHeader.optional(),
     references: z.array(metadataHeader).max(20).optional(),
     mailbox: z
@@ -61,12 +66,36 @@ export const messagingEventSchema = z
       .min(1)
       .max(512)
       .refine((value) => !/[\x00-\x20\x7f]/.test(value)),
-    text: messagingText,
+    text: z
+      .string()
+      .max(20_000)
+      .refine((value) => !value.includes('\0')),
+    kind: z.enum(['IMAGE', 'VIDEO', 'AUDIO', 'EMAIL']).optional(),
+    attachmentIds: z.array(z.string().uuid()).max(10).optional(),
+    mediaAssetId: z.string().uuid().optional(),
     occurredAt: z.string().datetime({ offset: true }),
     subject: z.string().max(512).optional(),
     providerMetadata: providerMetadataSchema.optional(),
   })
-  .strict();
+  .strict()
+  .refine((event) => {
+    if (event.kind === 'EMAIL')
+      return event.channel === 'EMAIL' && !event.mediaAssetId;
+    if (event.kind)
+      return (
+        event.channel === 'WHATSAPP' &&
+        (!!event.mediaAssetId || event.attachmentIds?.length === 1) &&
+        (!event.attachmentIds ||
+          (event.attachmentIds.length === 1 &&
+            (!event.mediaAssetId ||
+              event.mediaAssetId === event.attachmentIds[0])))
+      );
+    return (
+      !event.attachmentIds?.length &&
+      !event.mediaAssetId &&
+      messagingText.safeParse(event.text).success
+    );
+  });
 export const normalizeContactHandle = (
   channel: HermesMessagingChannel,
   value: string,
