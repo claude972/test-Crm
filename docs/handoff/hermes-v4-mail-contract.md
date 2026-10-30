@@ -74,3 +74,7 @@ A stable draft with an existing outbound reservation cannot be sent under a new 
 ### Accepted draft disposition
 
 SendNew with `draftId` returns `draftDisposition` independently of SMTP status and Sent-copy state. After a real ACCEPTED receipt, only native Drafts UIDs with the stable draft Message-ID and an equivalent sender/recipient/body/HTML/attachment signature move recoverably to actual LIST Trash. Unconfirmed sends and newer edited native content remain untouched. Missing folders or lost MOVE ACK are explicit UNAVAILABLE/UNCONFIRMED; there is no global EXPUNGE and no SMTP retry. Legacy SaveDraftV4 for reply/forward still uses native APPEND when no stable draft identity is supplied; stable replacement on that older mutation is not declared complete.
+
+### Safe native MOVE capability
+
+FoldersV4 returns `capabilities:{uidMove,moveUnavailableReason}`. Move/update, replacement of an existing draft and accepted-draft disposition require native MOVE or active IMAP4rev2 semantics. UIDPLUS alone does not enable the ImapFlow emulation (COPY failure and global-expunge risks); unsupported operations fail before side effects with MAIL_SAFE_MOVE_UNAVAILABLE. Reads/Seen updates and first APPEND remain available. This is a real provider capability boundary, not simulated success.

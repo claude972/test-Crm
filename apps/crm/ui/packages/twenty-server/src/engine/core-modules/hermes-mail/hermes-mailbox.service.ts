@@ -51,6 +51,21 @@ export class HermesMailboxService {
     }
   >();
 
+  // ImapFlow otherwise emulates MOVE with COPY + DELETE/EXPUNGE. Only
+  // native MOVE (also mandatory in active IMAP4rev2) may reach messageMove.
+  private canMove(client: ImapFlow) {
+    return !!(
+      client.capabilities?.has('MOVE') ||
+      client.enabled?.has('IMAP4REV2') ||
+      (client.capabilities?.has('IMAP4rev2') &&
+        !client.capabilities?.has('IMAP4rev1'))
+    );
+  }
+  private requireSafeMove(client: ImapFlow) {
+    if (!this.canMove(client))
+      throw new ConflictException('MAIL_SAFE_MOVE_UNAVAILABLE');
+  }
+
   private alive(client: ImapFlow) {
     if (this.expiredClients.has(client))
       throw new ServiceUnavailableException('MAIL_TIMEOUT');
@@ -178,7 +193,16 @@ export class HermesMailboxService {
           unread,
         });
       }
-      return { state: 'AVAILABLE', folders: result };
+      return {
+        state: 'AVAILABLE',
+        folders: result,
+        capabilities: {
+          uidMove: this.canMove(client),
+          moveUnavailableReason: this.canMove(client)
+            ? null
+            : 'MAIL_SAFE_MOVE_UNAVAILABLE',
+        },
+      };
     });
   }
 
@@ -414,6 +438,7 @@ export class HermesMailboxService {
           );
           if (!existing)
             throw new NotFoundException('MAIL_DESTINATION_NOT_FOUND');
+          this.requireSafeMove(client);
         }
         const message = await client.fetchOne(
           String(input.uid),
@@ -435,6 +460,7 @@ export class HermesMailboxService {
         }
         if (input.destination) {
           await this.current(actor, client);
+          this.requireSafeMove(client);
           if (
             !(await client.messageMove(String(input.uid), input.destination, {
               uid: true,
@@ -682,6 +708,11 @@ export class HermesMailboxService {
           }
           if (!matching.length) return { state: 'NOT_FOUND' };
           await this.current(actor, client);
+          if (!this.canMove(client))
+            return {
+              state: 'UNAVAILABLE',
+              reason: 'MAIL_SAFE_MOVE_UNAVAILABLE',
+            };
           if (
             !(await client.messageMove(matching.join(','), trash.path, {
               uid: true,
@@ -905,6 +936,8 @@ export class HermesMailboxService {
           );
           if (latestRevision !== draftRevision && old.length && !trash)
             throw new ConflictException('MAIL_DRAFT_REPLACE_UNAVAILABLE');
+          if (latestRevision !== draftRevision && old.length)
+            this.requireSafeMove(client);
           const conversation = await this.mail.draftConversation(
             actor,
             {
@@ -953,6 +986,7 @@ export class HermesMailboxService {
               'MAIL_DRAFT_SAVE_UNCONFIRMED',
             );
           await this.current(actor, client);
+          if (old.length) this.requireSafeMove(client);
           if (
             old.length &&
             !(await client.messageMove(old.join(','), trash!.path, {

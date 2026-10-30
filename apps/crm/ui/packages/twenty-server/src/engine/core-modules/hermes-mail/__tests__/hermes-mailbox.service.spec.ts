@@ -36,6 +36,8 @@ function fixture() {
   );
   const release = jest.fn();
   const client = {
+    capabilities: new Map([['MOVE', true]]),
+    enabled: new Set<string>(),
     mailbox: { uidValidity: 123n },
     getMailboxLock: jest.fn(async () => ({ release })),
     list: jest.fn(async () => [
@@ -348,6 +350,21 @@ it('persists an empty native draft, replays it, replaces edited content recovera
     draftRevision: first.draftRevision,
   });
   expect(f.client.append).toHaveBeenCalledTimes(1);
+  f.client.capabilities.clear();
+  f.mail.draftConversation.mockClear();
+  await expect(
+    f.service.createDraft(actor, {
+      ...empty,
+      to: ['new@example.org'],
+      subject: 'Edited',
+      text: 'Hello',
+      draftRevision: first.draftRevision,
+    }),
+  ).rejects.toThrow('MAIL_SAFE_MOVE_UNAVAILABLE');
+  expect(f.client.append).toHaveBeenCalledTimes(1);
+  expect(f.mail.draftConversation).not.toHaveBeenCalled();
+  expect(f.client.messageMove).not.toHaveBeenCalled();
+  f.client.capabilities.set('MOVE', true);
   const edited = {
     ...empty,
     to: ['new@example.org'],
@@ -602,10 +619,12 @@ it.each([
   ['ACCEPTED', 'Hello', true],
   ['UNCONFIRMED', 'Hello', false],
   ['ACCEPTED', 'A newer unsent edit', false],
+  ['ACCEPTED', 'Hello', false, false],
 ])(
   'disposes only the exact native draft after accepted send, never after uncertainty or newer edits (%s, %s)',
-  async (status, nativeText, moveExpected) => {
+  async (status, nativeText, moveExpected, moveCapability = true) => {
     const f = fixture();
+    if (!moveCapability) f.client.capabilities.clear();
     const draftId = 'e4d16125-1299-4b15-aa57-d193a423b4e6';
     const raw = await new MailComposer({
       from: 'me@example.com',
@@ -648,11 +667,13 @@ it.each([
     expect(result).toMatchObject({
       status,
       draftDisposition: {
-        state: moveExpected
-          ? 'MOVED_TO_TRASH'
-          : status === 'ACCEPTED'
-            ? 'NOT_FOUND'
-            : 'NOT_ACCEPTED',
+        state: !moveCapability
+          ? 'UNAVAILABLE'
+          : moveExpected
+            ? 'MOVED_TO_TRASH'
+            : status === 'ACCEPTED'
+              ? 'NOT_FOUND'
+              : 'NOT_ACCEPTED',
       },
     });
     expect(f.client.messageMove).toHaveBeenCalledTimes(moveExpected ? 1 : 0);
@@ -663,3 +684,29 @@ it.each([
     expect(f.client.append).not.toHaveBeenCalled();
   },
 );
+
+it('MAIL-005 refuses native move fallback before any flag change when UID MOVE is unavailable', async () => {
+  const f = fixture();
+  f.client.capabilities.clear();
+  f.client.capabilities.set('UIDPLUS', true);
+  await expect(
+    f.service.update(actor, { ...scope, destination: 'Drafts', seen: true }),
+  ).rejects.toThrow('MAIL_SAFE_MOVE_UNAVAILABLE');
+  expect(f.client.messageMove).not.toHaveBeenCalled();
+  expect(f.client.messageFlagsAdd).not.toHaveBeenCalled();
+});
+
+it('MAIL-005 keeps Seen updates available without MOVE and recognizes a natively enabled IMAP4rev2 session', async () => {
+  const f = fixture();
+  f.client.capabilities.clear();
+  await expect(
+    f.service.update(actor, { ...scope, seen: true }),
+  ).resolves.toEqual({ state: 'UPDATED' });
+  const rev2 = fixture();
+  rev2.client.capabilities.clear();
+  rev2.client.enabled.add('IMAP4REV2');
+  await expect(
+    rev2.service.update(actor, { ...scope, destination: 'Drafts' }),
+  ).resolves.toEqual({ state: 'UPDATED' });
+  expect(rev2.client.messageMove).toHaveBeenCalledTimes(1);
+});
