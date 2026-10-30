@@ -32,7 +32,7 @@ const input = {
   text: 'Synthetic reply only',
 };
 
-function fixture() {
+function fixture(reader?: unknown) {
   let serialized = JSON.stringify({
     [workspaceId]: {
       connectionId: 'company-inbox',
@@ -144,6 +144,8 @@ function fixture() {
     inbox as never,
     registry as never,
     redis as never,
+    undefined,
+    reader as never,
   );
   return {
     service,
@@ -388,6 +390,100 @@ describe('rich mailbox adapter boundary', () => {
       }),
       { suppressAutomation: true, observedOnly: true },
     );
+    expect(f.transport.sendMail).not.toHaveBeenCalled();
+  });
+});
+
+describe('authoritative encrypted-connection reader', () => {
+  const record = {
+    connectionId: 'central-mail',
+    revision: '1',
+    userId,
+    userWorkspaceId: memberId,
+    settings: {
+      connectedAccountId: accountId,
+      mailbox: 'INBOX',
+      handle: 'inbox@example.com',
+    },
+    secrets: {},
+  };
+  it('does not resurrect a revoked central binding from legacy environment configuration', async () => {
+    const reader = {
+      resolve: jest.fn(async () => null),
+      workspaceIds: jest.fn(async () => []),
+    };
+    const f = fixture(reader);
+    expect(await f.service.probe(workspaceId)).toMatchObject({
+      status: 'NOT_CONFIGURED',
+      canSend: false,
+    });
+    expect(f.accounts.findOne).not.toHaveBeenCalled();
+    expect(f.imap.getClient).not.toHaveBeenCalled();
+  });
+  it('does not fall back to legacy environment bindings when the reader fails', async () => {
+    const f = fixture({
+      resolve: async () => {
+        throw new Error('REVOKED');
+      },
+    });
+    expect(await f.service.probe(workspaceId)).toMatchObject({
+      status: 'UNAVAILABLE',
+      canSend: false,
+    });
+    expect(f.accounts.findOne).not.toHaveBeenCalled();
+  });
+  it('uses the native encrypted account selected by the central reader', async () => {
+    const reader = { resolve: jest.fn(async () => record) };
+    const f = fixture(reader);
+    expect(await f.service.probe(workspaceId)).toMatchObject({
+      status: 'CONFIGURED_UNVERIFIED',
+      canSend: true,
+    });
+    expect(reader.resolve).toHaveBeenCalledWith(workspaceId, 'MAIL');
+    expect(f.accounts.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          id: accountId,
+          userWorkspaceId: memberId,
+          workspaceId,
+        }),
+      }),
+    );
+  });
+  it('rejects an identity changed between the central binding and native account', async () => {
+    const f = fixture({
+      resolve: async () => ({
+        ...record,
+        settings: { ...record.settings, handle: 'other@example.com' },
+      }),
+    });
+    expect(await f.service.probe(workspaceId)).toMatchObject({
+      status: 'UNAVAILABLE',
+      canSend: false,
+    });
+  });
+  it('rechecks the central revision after opening SMTP and emits nothing after a change', async () => {
+    let revision = '1';
+    const f = fixture({ resolve: async () => ({ ...record, revision }) });
+    f.smtp.getClient.mockImplementation(async () => {
+      revision = '2';
+      return f.transport;
+    });
+    await expect(
+      f.service.send({
+        ...input,
+        providerConnectionId: 'central-mail',
+        email: {
+          from: 'inbox@example.com',
+          to: ['client@example.com'],
+          cc: [],
+          bcc: [],
+          subject: 'Test',
+          text: 'Synthetic',
+          references: [],
+        },
+      }),
+    ).rejects.toThrow('SEND_OUTCOME_UNCONFIRMED');
     expect(f.transport.sendMail).not.toHaveBeenCalled();
   });
 });

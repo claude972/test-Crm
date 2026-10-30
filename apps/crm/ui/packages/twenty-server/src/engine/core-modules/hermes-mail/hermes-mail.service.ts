@@ -55,6 +55,21 @@ const secure = (value: unknown) =>
   value === EmailConnectionSecurity.SSL_TLS ||
   value === EmailConnectionSecurity.STARTTLS;
 
+type HermesMailConnectionsReader = {
+  resolve(
+    workspaceId: string,
+    kind: 'MAIL',
+  ): Promise<null | {
+    connectionId: string;
+    revision: string;
+    userId: string;
+    userWorkspaceId: string;
+    settings: { connectedAccountId: string; mailbox: string; handle: string };
+    secrets: Record<string, never>;
+  }>;
+  workspaceIds(kind: 'MAIL'): Promise<string[]>;
+};
+
 export type HermesMailSyncResult = {
   state: 'SYNCED' | 'PARTIAL' | 'NOT_CONFIGURED' | 'UNAVAILABLE' | 'BUSY';
   received: number;
@@ -98,6 +113,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     @Optional()
     @Inject('HERMES_MEDIA_SERVICE')
     private readonly media?: HermesMediaService,
+    @Optional()
+    @Inject('HERMES_CONNECTIONS_SERVICE')
+    private readonly connections?: HermesMailConnectionsReader,
   ) {}
 
   onModuleInit() {
@@ -112,9 +130,22 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     binding: HermesMailBinding;
     account: ConnectedAccountEntity;
     actor: HermesMessagingActor;
+    revision: string;
   } | null> {
-    const binding = this.bindings().get(workspaceId);
+    const record = this.connections
+      ? await this.connections.resolve(workspaceId, 'MAIL')
+      : undefined;
+    if (this.connections && !record) return null;
+    const binding = record
+      ? {
+          connectionId: record.connectionId,
+          connectedAccountId: record.settings.connectedAccountId,
+          userWorkspaceId: record.userWorkspaceId,
+          mailbox: record.settings.mailbox,
+        }
+      : this.bindings().get(workspaceId);
     if (!binding) return null;
+    const revision = record ? String(record.revision) : JSON.stringify(binding);
     const account = await this.accounts.findOne({
       where: {
         id: binding.connectedAccountId,
@@ -127,6 +158,8 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       !account ||
       account.provider !== ConnectedAccountProvider.IMAP_SMTP_CALDAV ||
       !mailAddress(account.handle) ||
+      (record &&
+        mailAddress(record.settings.handle) !== mailAddress(account.handle)) ||
       !account.connectionParameters?.IMAP ||
       !secure(account.connectionParameters.IMAP.connectionSecurity) ||
       account.authFailedAt
@@ -145,6 +178,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     return {
       binding,
       account,
+      revision,
       actor: { workspaceId, userWorkspaceId: member.id, userId: member.userId },
     };
   }
@@ -676,6 +710,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       if (
         !fresh ||
         fresh.account.id !== item.account.id ||
+        fresh.revision !== item.revision ||
         fresh.account.updatedAt?.getTime() !== item.account.updatedAt?.getTime()
       )
         throw unavailable();
@@ -777,6 +812,14 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       timeoutMs: 15000,
     });
     try {
+      const fresh = await this.connection(input.workspaceId);
+      if (
+        !fresh ||
+        fresh.account.id !== item.account.id ||
+        fresh.revision !== item.revision ||
+        fresh.account.updatedAt?.getTime() !== item.account.updatedAt?.getTime()
+      )
+        throw unavailable();
       const pending = transport.sendMail({
         from: sender,
         to: recipient,
@@ -840,7 +883,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     try {
       let workspaces: string[];
       try {
-        workspaces = [...this.bindings().keys()];
+        workspaces = this.connections
+          ? await this.connections.workspaceIds('MAIL')
+          : [...this.bindings().keys()];
       } catch {
         return;
       }
