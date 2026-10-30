@@ -19,6 +19,7 @@ import { REST_API_BASE_URL } from '@/apollo/constants/RestApiBaseUrl';
 import { type ApolloManager } from '@/apollo/types/ApolloManager';
 import { isSessionSupersededGraphQLError } from '@/apollo/utils/isSessionSupersededGraphQLError';
 import { isMutationOperation } from '@/apollo/utils/isMutationOperation';
+import { isSupersededSessionServerError } from '@/apollo/utils/isSupersededSessionServerError';
 import { isUnauthenticatedGraphQLError } from '@/apollo/utils/isUnauthenticatedGraphQLError';
 import { loggerLink } from '@/apollo/utils/loggerLink';
 import { StreamingRestLink } from '@/apollo/utils/streamingRestLink';
@@ -206,6 +207,7 @@ export class ApolloFactory implements ApolloManager {
             this.isSupersededSessionRejection(error) &&
             !operation.getContext().skipRetry &&
             !isMutationOperation(operation) &&
+            !this.isRestOperation(operation) &&
             isDefined(getSessionGeneration())
           ) {
             return forward(operation);
@@ -342,8 +344,9 @@ export class ApolloFactory implements ApolloManager {
 
   private isSupersededSessionRejection(error: ErrorLike): boolean {
     return (
-      CombinedGraphQLErrors.is(error) &&
-      error.errors.some(isSessionSupersededGraphQLError)
+      (CombinedGraphQLErrors.is(error) &&
+        error.errors.some(isSessionSupersededGraphQLError)) ||
+      isSupersededSessionServerError(error)
     );
   }
 
