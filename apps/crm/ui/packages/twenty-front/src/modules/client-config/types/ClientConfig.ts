@@ -40,6 +40,7 @@ export type ClientConfig = {
   isMicrosoftCalendarEnabled: boolean;
   isMicrosoftMessagingEnabled: boolean;
   isMultiWorkspaceEnabled: boolean;
+  isSameOriginMultiWorkspaceEnabled?: boolean;
   isImapSmtpCaldavEnabled: boolean;
   isEmailingDomainInDemoMode: boolean;
   isCloudflareIntegrationEnabled: boolean;

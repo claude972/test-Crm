@@ -1,5 +1,5 @@
 import { InMemoryCache } from '@apollo/client';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ApolloFactory, type Options } from '@/apollo/services/ApolloFactory';
@@ -26,6 +26,12 @@ import { isMatchingLocation } from '~/utils/isMatchingLocation';
 export const useApolloFactory = (options: Partial<Options> = {}) => {
   // oxlint-disable-next-line kovaa-lab/no-state-useref
   const apolloRef = useRef<ApolloFactory | null>(null);
+  // The client the tree is currently rendering with. A cleanup compares
+  // against it so a remount that keeps the same client disposes nothing.
+  // oxlint-disable-next-line kovaa-lab/no-state-useref
+  const latestClientRef = useRef<ReturnType<ApolloFactory['getClient']> | null>(
+    null,
+  );
 
   const navigate = useNavigate();
   const setIsCookieAuthActive = useSetAtomState(isCookieAuthActiveState);
@@ -47,6 +53,10 @@ export const useApolloFactory = (options: Partial<Options> = {}) => {
 
   const { enqueueToast } = useToast();
 
+  // The workspace a client is built for. A client is never retargeted: when
+  // this changes, the old one is disposed and a new one takes its place.
+  const workspaceScopeId = currentWorkspace?.id ?? null;
+
   const apolloClient = useMemo(() => {
     apolloRef.current = new ApolloFactory({
       uri: `${REACT_APP_SERVER_BASE_URL}/graphql`,
@@ -66,6 +76,7 @@ export const useApolloFactory = (options: Partial<Options> = {}) => {
       devtools: { enabled: process.env.IS_DEBUG_MODE === 'true' },
       currentWorkspaceMember: currentWorkspaceMember,
       currentWorkspace: currentWorkspace,
+      expectedWorkspaceId: workspaceScopeId,
       appVersion,
       onUnauthenticatedError: () => {
         clearSessionGeneration();
@@ -106,15 +117,35 @@ export const useApolloFactory = (options: Partial<Options> = {}) => {
       ...options,
     });
 
-    return apolloRef.current.getClient();
+    const client = apolloRef.current.getClient();
+
+    latestClientRef.current = client;
+
+    return client;
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    workspaceScopeId,
     setCurrentUser,
     setCurrentWorkspaceMember,
     setCurrentWorkspace,
     setReturnToPath,
     enqueueToast,
   ]);
+
+  // Disposal belongs after commit, on the client this effect captured. Reading
+  // the ref here would reach whichever client is current and could stop the
+  // live one; a render-phase disposal is worse still, since a double-invoked
+  // memo or an abandoned render would stop a client that stays in use.
+  useEffect(() => {
+    const disposable = apolloClient;
+
+    return () => {
+      if (latestClientRef.current !== disposable) {
+        disposable.stop();
+        void disposable.clearStore();
+      }
+    };
+  }, [apolloClient]);
 
   useUpdateEffect(() => {
     if (isDefined(apolloRef.current)) {

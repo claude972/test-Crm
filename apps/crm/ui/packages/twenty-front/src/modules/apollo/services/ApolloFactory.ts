@@ -18,6 +18,13 @@ import { logDebug } from '~/utils/logDebug';
 import { REST_API_BASE_URL } from '@/apollo/constants/RestApiBaseUrl';
 import { type ApolloManager } from '@/apollo/types/ApolloManager';
 import { isSessionSupersededGraphQLError } from '@/apollo/utils/isSessionSupersededGraphQLError';
+import {
+  buildExpectedWorkspaceHeaders,
+  stripExpectedWorkspaceHeader,
+} from '@/apollo/utils/buildExpectedWorkspaceHeaders';
+import { resolveExpectedWorkspaceId } from '@/apollo/utils/resolveExpectedWorkspaceId';
+import { isMutationOperation } from '@/apollo/utils/isMutationOperation';
+import { isSupersededSessionServerError } from '@/apollo/utils/isSupersededSessionServerError';
 import { isUnauthenticatedGraphQLError } from '@/apollo/utils/isUnauthenticatedGraphQLError';
 import { loggerLink } from '@/apollo/utils/loggerLink';
 import { StreamingRestLink } from '@/apollo/utils/streamingRestLink';
@@ -50,6 +57,9 @@ export interface Options {
   extraLinks?: ApolloLink[];
   isDebugMode?: boolean;
   appVersion?: string;
+  // The workspace this client is built for. Captured once, never updated:
+  // switching workspace must build a new client rather than retarget this one.
+  expectedWorkspaceId?: string | null;
 }
 
 export class ApolloFactory implements ApolloManager {
@@ -75,11 +85,17 @@ export class ApolloFactory implements ApolloManager {
       extraLinks,
       isDebugMode,
       appVersion,
+      expectedWorkspaceId,
     } = opts;
 
     this.currentWorkspaceMember = currentWorkspaceMember;
     this.currentWorkspace = currentWorkspace;
     this.appVersion = appVersion;
+
+    // A local const, deliberately not a field: updateCurrentWorkspace must not
+    // be able to retarget a client that was already built.
+    const instanceWorkspaceId =
+      expectedWorkspaceId ?? currentWorkspace?.id ?? null;
 
     const buildApolloLink = (): ApolloLink => {
       const uploadLink = new UploadHttpLink({
@@ -97,14 +113,33 @@ export class ApolloFactory implements ApolloManager {
         credentials: 'include',
       });
 
-      const authLink = setContext(async (_, { headers }) => {
+      // Synchronous and first in the chain: the workspace is fixed before any
+      // await, so a late callback from the previous client still carries the
+      // workspace it was built for and the server rejects it.
+      const expectedWorkspaceLink = new ApolloLink((operation, forward) => {
+        operation.setContext((context: Record<string, unknown>) => ({
+          ...context,
+          expectedWorkspaceId: resolveExpectedWorkspaceId(
+            context.expectedWorkspaceId,
+            instanceWorkspaceId,
+          ),
+        }));
+
+        return forward(operation);
+      });
+
+      const authLink = setContext(async (_, context) => {
+        const { headers } = context;
         const locale = this.currentWorkspaceMember?.locale ?? i18n.locale;
 
         return {
           sessionGeneration: getSessionGeneration(),
           headers: {
-            ...headers,
-            ...optionHeaders,
+            ...stripExpectedWorkspaceHeader({
+              ...headers,
+              ...optionHeaders,
+            }),
+            ...buildExpectedWorkspaceHeaders(context.expectedWorkspaceId),
             'x-locale': locale,
             ...(isDefined(this.appVersion) && {
               'X-App-Version': this.appVersion,
@@ -120,8 +155,6 @@ export class ApolloFactory implements ApolloManager {
         attempts: {
           max: 2,
           retryIf: (error, operation) => {
-            // oxlint-disable-next-line no-console
-            console.log('retryIf error from retryLink', error);
             // A retry carries whatever cookie exists by then. See PendingServerSignOutEffect.
             if (operation.getContext().skipRetry === true) {
               return false;
@@ -195,11 +228,17 @@ export class ApolloFactory implements ApolloManager {
           });
       };
 
+      // A superseded session is an answer, not a hiccup. Replaying a read is
+      // harmless, replaying a write is not: the first attempt may already have
+      // written, and the replay would run against the session that superseded
+      // it. Mutations are surfaced to the caller instead.
       const supersededSessionRetryLink = new ErrorLink(
         ({ error, operation, forward }) => {
           if (
             this.isSupersededSessionRejection(error) &&
             !operation.getContext().skipRetry &&
+            !isMutationOperation(operation) &&
+            !this.isRestOperation(operation) &&
             isDefined(getSessionGeneration())
           ) {
             return forward(operation);
@@ -292,6 +331,7 @@ export class ApolloFactory implements ApolloManager {
 
       // Cast because third-party links (apollo-link-rest, apollo-upload-client) reference their own ApolloLink type.
       const links = [
+        expectedWorkspaceLink,
         supersededSessionRetryLink,
         errorLink,
         authLink,
@@ -336,8 +376,9 @@ export class ApolloFactory implements ApolloManager {
 
   private isSupersededSessionRejection(error: ErrorLike): boolean {
     return (
-      CombinedGraphQLErrors.is(error) &&
-      error.errors.some(isSessionSupersededGraphQLError)
+      (CombinedGraphQLErrors.is(error) &&
+        error.errors.some(isSessionSupersededGraphQLError)) ||
+      isSupersededSessionServerError(error)
     );
   }
 

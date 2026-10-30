@@ -1,3 +1,4 @@
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { render, waitFor } from '@testing-library/react';
@@ -169,5 +170,18 @@ describe('VerifyEmail', () => {
       expect(verifyLoginTokenMock).toHaveBeenCalledWith('login-token');
     });
     expect(redirectToWorkspaceDomainMock).not.toHaveBeenCalled();
+  });
+  it('uses the agnostic native verification and picker in same-origin mode even on the canonical workspace host', async () => {
+    isOnAWorkspaceValue = true;
+    jotaiStore.set(isSameOriginMultiWorkspaceEnabledState.atom, true);
+    verifyEmailAndGetWorkspaceAgnosticTokenMock.mockResolvedValue(undefined);
+    renderVerifyEmail(VERIFY_EMAIL_URL);
+    await waitFor(() =>
+      expect(verifyEmailAndGetWorkspaceAgnosticTokenMock).toHaveBeenCalledWith(
+        'valid-token',
+        'user@example.com',
+      ),
+    );
+    expect(verifyEmailAndGetLoginTokenMock).not.toHaveBeenCalled();
   });
 });

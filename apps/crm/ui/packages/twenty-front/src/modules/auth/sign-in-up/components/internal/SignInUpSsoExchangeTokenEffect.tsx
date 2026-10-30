@@ -1,9 +1,13 @@
+import { useAuth } from '@/auth/hooks/useAuth';
 import { useRedeemSsoExchangeToken } from '@/auth/hooks/useRedeemSsoExchangeToken';
 import { useEffect } from 'react';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 export const SignInUpSsoExchangeTokenEffect = () => {
-  const { redeemSsoExchangeToken } = useRedeemSsoExchangeToken();
+  const { getAuthTokensFromLoginToken } = useAuth();
+  const { redeemSsoExchangeToken } = useRedeemSsoExchangeToken({
+    redeemWorkspaceLoginToken: getAuthTokensFromLoginToken,
+  });
 
   useEffect(() => {
     const ssoExchangeToken = new URLSearchParams(
