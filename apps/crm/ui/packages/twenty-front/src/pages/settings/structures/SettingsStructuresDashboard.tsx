@@ -14,6 +14,7 @@ import { SettingsPageContainer } from '@/settings/components/SettingsPageContain
 import { SettingsPageLayout } from '@/settings/components/layout/SettingsPageLayout';
 import { StructureMetricValue } from '@/structures/components/StructureMetricValue';
 import { HERMES_STRUCTURE_DASHBOARD } from '@/structures/graphql/metadata-queries/hermesStructureDashboard';
+import { buildStructureMetricColumns } from '@/structures/utils/buildStructureMetricColumns';
 import { type HermesStructureDashboard } from '@/structures/types/HermesStructureDashboard';
 import { Table } from '@/ui/layout/table/components/Table';
 import { TableBody } from '@/ui/layout/table/components/TableBody';
@@ -58,10 +59,13 @@ export const SettingsStructuresDashboard = () => {
     tasks: t`Tasks`,
   };
 
-  // The columns follow the server's own ordering of the totals, so a metric
-  // added to the contract appears without a frontend change, and a row that is
-  // missing one still lines up with the header.
-  const metricKeys = dashboard?.totals.map((total) => total.key) ?? [];
+  const metricKeys = isDefined(dashboard)
+    ? buildStructureMetricColumns(dashboard)
+    : [];
+
+  const totalByKey = new Map(
+    (dashboard?.totals ?? []).map((total) => [total.key, total]),
+  );
 
   const gridTemplateColumns = `minmax(0, 1.5fr) ${metricKeys
     .map(() => 'minmax(0, 1fr)')
@@ -131,11 +135,27 @@ export const SettingsStructuresDashboard = () => {
                   <TableCell color={themeCssVariables.font.color.secondary}>
                     {t`All your companies`}
                   </TableCell>
-                  {dashboard.totals.map((total) => (
-                    <TableCell key={total.key} align="right">
-                      <StructureMetricValue metric={total} />
-                    </TableCell>
-                  ))}
+                  {/* Mapped over the same keys as the header, not over the
+                      totals array: with the union above the two can differ in
+                      length, and mapping the totals would shift every cell
+                      under the wrong column. */}
+                  {metricKeys.map((key) => {
+                    const total = totalByKey.get(key);
+
+                    return (
+                      <TableCell key={key} align="right">
+                        {isDefined(total) ? (
+                          <StructureMetricValue metric={total} />
+                        ) : (
+                          // Reported by a structure but not summed by the
+                          // server. An empty cell would read as a zero.
+                          <Tag color="gray" variant="soft">
+                            {t`Not summed`}
+                          </Tag>
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
 
                 {dashboard.structures.map((row) => {
