@@ -90,11 +90,11 @@ describe('buildHermesModuleNavigationItems', () => {
   });
 
   it('keeps the reception current on a batch opened through the search parameter', () => {
-    const [, reception] = buildHermesModuleNavigationItems({
+    const reception = buildHermesModuleNavigationItems({
       hasWorkspacePermission: true,
       pathname: '/prospection/campaign-audiences/list-1',
-    });
+    }).find((item) => item.key === 'reception');
 
-    expect(reception.isActive).toBe(true);
+    expect(reception?.isActive).toBe(true);
   });
 });
