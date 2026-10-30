@@ -137,16 +137,6 @@ export const MessagingInboxComposer = ({
       ? draftState.draft.text
       : null;
 
-  // The proposal is never written into the textarea on its own: whatever a
-  // person has already typed is theirs. Inserting it is a separate click.
-  const insertProposal = useCallback(() => {
-    if (proposedText === null) {
-      return;
-    }
-
-    setText(proposedText);
-  }, [proposedText]);
-
   const trimmedLength = text.trim().length;
   const isTooLong = text.length > MESSAGING_INBOX_REPLY_MAX_LENGTH;
   // The contract accepts 1..20000 characters, so both bounds are checked here
@@ -167,11 +157,37 @@ export const MessagingInboxComposer = ({
     [resetToDraft, state.kind],
   );
 
+  // The proposal is never written into the textarea on its own: whatever a
+  // person has already typed is theirs. Inserting it is a separate click, and
+  // it goes through the same handler as typing, so a finished attempt is
+  // dropped: otherwise the Send button could stay hidden, or a retry could
+  // replay the previous body instead of the inserted one.
+  const insertProposal = useCallback(() => {
+    if (proposedText === null) {
+      return;
+    }
+
+    handleTextChange(proposedText);
+  }, [handleTextChange, proposedText]);
+
   const handleStartOver = useCallback(() => {
     setText('');
     resetToDraft();
     dismissDraft();
   }, [dismissDraft, resetToDraft]);
+
+  const isBotStopped =
+    policy.read.kind === 'reported' &&
+    policy.read.policy.effectiveMode === 'OFF';
+
+  // A proposal already in hand is dropped when the bot is stopped. Without
+  // this, going OFF then back to assisted would resurrect an old draft the
+  // policy had invalidated. The human's own text is never touched.
+  useEffect(() => {
+    if (isBotStopped) {
+      dismissDraft();
+    }
+  }, [dismissDraft, isBotStopped]);
 
   const isRefused = state.kind === 'failed' && state.failure.kind === 'denied';
 
