@@ -205,3 +205,14 @@ Rapport partagé Claude et prise de mission publiés dans eef205c2b ; notes Code
 L'inventaire documentaire est relu ; la mission globale n'est pas déclarée done : Claude indique explicitement que sa revue ciblée Forms ff366e7ea/db4d81302 et Char 2bd457ecc n'a pas encore été effectuée. Cette revue et celle de PR #7 restent à livrer, sans dupliquer l'implémentation frontend.
 
 Clarification de contrat transmise directement à la session Claude : faute de serveur de schéma isolé disponible, corriger manuellement le seul identifiant syntaxiquement invalide dans generated-metadata/graphql.ts pour suivre exactement allowRequestsToKovaaLabCRMIcons est acceptable dans P0 ; le rapport doit distinguer cette réparation d'une régénération ou d'une validation globale du schéma, non effectuées. Aucun serveur/donnée d'origine à utiliser pour la génération.
+
+### P0-RUNTIME-001
+- reviewer: codex
+- assigned agent: codex
+- reviewed branch: chore/p0-combined-verification
+- reviewed revision: f7f05f90b1da0e8853a9b033ad35b27112ace668
+- evidence: CI https://github.com/claude972/test-Crm/actions/runs/40979175124 : builds/types/19 tests réussis, mais setup-db.js compilé échoue immédiatement avec MODULE_NOT_FOUND vers ../../../../../src/database/typeorm/raw/raw.datasource. Aucun script d'initialisation applicative n'a atteint la base ; seuls les services jetables du job avaient été créés.
+- expected correction: aligner la racine SWC sur les aliases relatifs au paquet serveur et vérifier une exécution réelle des artefacts, pas seulement leur présence.
+- status: fixed_pending_review
+- fix commit: ed80da151 sur fix/codex-backend-build, PR #7 ; .swcrc baseUrl passe de ./../../ à ., réparation déjà présente dans les originaux locaux et reprise isolément. Rapport backend actualisé.
+- recheck evidence: vérification JSON/diff/Gitleaks réussie ; contrôle de démarrage à relancer sur l'intégration du nouveau checkpoint. Aucun succès runtime ou preview revendiqué. La CI verte 40977970048 ne contenait pas le contrôle runtime.
