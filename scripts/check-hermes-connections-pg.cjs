@@ -197,6 +197,22 @@ const { ConnectedAccountTokenEncryptionService } = fromServer(
       null,
     );
     proofs.push("tombstone-recreate-monotone-new-identity-and-old-id-rejected");
+    const {
+      proveIngressGuards,
+    } = require("./check-hermes-connections-ingress-pg.cjs");
+    proofs.push(
+      ...(await proveIngressGuards({
+        source,
+        gate,
+        service,
+        actor,
+        access,
+        encryption,
+        accountEncryption: new ConnectedAccountTokenEncryptionService(
+          encryption,
+        ),
+      })),
+    );
     await gate.query(
       'DELETE FROM core."workspace" WHERE "id"=ANY($1::uuid[])',
       [[actor.workspaceId, other.workspaceId]],
