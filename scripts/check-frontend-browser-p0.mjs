@@ -47,25 +47,83 @@ let browser;
 let hermesFixture;
 const hermesEvidence = [];
 
+// Only explicitly selected diagnostic fields may reach logs/artifacts. Never dump
+// a response, variables, headers, error cause or arbitrary extensions.
+const diagnosticSecrets = new Set();
+const diagnosticFailures = [];
+function rememberDiagnosticSecrets(value) {
+  if (typeof value === 'string' && value.length > 0) diagnosticSecrets.add(value);
+  else if (Array.isArray(value)) value.forEach(rememberDiagnosticSecrets);
+  else if (value && typeof value === 'object') Object.values(value).forEach(rememberDiagnosticSecrets);
+}
+function safeDiagnosticText(value, limit = 240) {
+  if (typeof value !== 'string' && typeof value !== 'number') return undefined;
+  let text = String(value);
+  for (const secret of diagnosticSecrets) {
+    for (const variant of [secret, encodeURIComponent(secret), JSON.stringify(secret).slice(1, -1)]) {
+      text = text.split(variant).join('[REDACTED]');
+    }
+  }
+  return text
+    .replace(/Bearer\s+[^\s,"']+/gi, 'Bearer [REDACTED]')
+    .replace(/\b[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, '[REDACTED_JWT]')
+    .replace(/\b[A-Za-z0-9_+\/-]{24,}={0,2}\b/g, '[REDACTED_OPAQUE]')
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[REDACTED_EMAIL]')
+    .replace(/[\x00-\x1f\x7f]/g, ' ')
+    .replace(/::/g, ': :')
+    .slice(0, limit);
+}
+function graphqlDiagnostic(endpoint, query, status, body, kind) {
+  const operation = query.match(/\b(?:query|mutation)\s+([A-Za-z_][A-Za-z0-9_]*)/)?.[1] ?? 'anonymous';
+  return {
+    endpoint, operation, httpStatus: status ?? null, kind,
+    errors: Array.isArray(body?.errors) ? body.errors.slice(0, 4).map((error) => ({
+      code: safeDiagnosticText(error?.extensions?.code, 80),
+      path: Array.isArray(error?.path) ? error.path.slice(0, 8).map((part) => safeDiagnosticText(part, 80)) : undefined,
+      message: safeDiagnosticText(error?.message),
+    })) : [],
+  };
+}
+function failGraphql(diagnostic) {
+  diagnosticFailures.push(diagnostic);
+  if (diagnosticFailures.length > 10) diagnosticFailures.shift();
+  writeFileSync(path.join(screenshots, 'hermes-graphql-errors.json'), `${JSON.stringify(diagnosticFailures, null, 2)}\n`, { mode: 0o600 });
+  throw new Error(`P1 Hermes smoke: ${JSON.stringify(diagnostic)}`);
+}
 async function graphql(endpoint, query, variables = {}, token, timeout = 45_000) {
+  rememberDiagnosticSecrets(variables);
+  rememberDiagnosticSecrets(token);
+  rememberDiagnosticSecrets(process.env.APP_SECRET);
+  rememberDiagnosticSecrets(process.env.PG_DATABASE_URL);
+  if (process.env.PG_DATABASE_URL) {
+    rememberDiagnosticSecrets(decodeURIComponent(new URL(process.env.PG_DATABASE_URL).password));
+  }
+  let response;
   try {
-    const response = await fetch(`${API_ORIGIN}/${endpoint}`, {
+    response = await fetch(`${API_ORIGIN}/${endpoint}`, {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(timeout),
       headers: { 'Content-Type': 'application/json', Origin: FRONTEND_ORIGIN, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ query, variables }),
     });
-    assert.equal(response.status, 200);
-    const body = await response.json();
-    assert.ok(!body.errors?.length && body.data);
-    return body.data;
-  } catch {
-    // Do not print GraphQL variables, auth headers or provider response bodies.
-    throw new Error(`P1 Hermes smoke: ${endpoint} operation failed`);
+  } catch (error) {
+    // The transport's message/cause may contain URLs, credentials or request data.
+    failGraphql(graphqlDiagnostic(endpoint, query, undefined, undefined,
+      ['TimeoutError', 'AbortError'].includes(error?.name) ? 'timeout' : 'transport'));
   }
+  let body;
+  try { body = await response.json(); } catch {
+    failGraphql(graphqlDiagnostic(endpoint, query, response.status, undefined, 'invalid-json'));
+  }
+  if (response.status !== 200 || body?.errors?.length || !body?.data) {
+    failGraphql(graphqlDiagnostic(endpoint, query, response.status, body,
+      response.status !== 200 ? 'http' : body?.errors?.length ? 'graphql' : 'missing-data'));
+  }
+  return body.data;
 }
 
 function sessionToken(value) {
   assert.ok(typeof value === 'string' && value.length > 20, 'P1 Hermes smoke: no real auth token');
+  rememberDiagnosticSecrets(value);
   console.info(`::add-mask::${value}`);
   return value;
 }
@@ -81,7 +139,7 @@ async function prepareHermesFixture() {
   const suffix = randomBytes(5).toString('hex');
   hermesFixture = {
     email: `p1-browser-${process.env.GITHUB_RUN_ID}-${suffix}@example.com`,
-    password: randomBytes(24).toString('base64url'),
+    password: `Aa9!${randomBytes(24).toString('base64url')}`,
     companyId: randomUUID(), companyName: `P1 browser synthetic ${suffix}`, companyAttempted: false,
   };
   const fixture = hermesFixture;
@@ -218,9 +276,13 @@ async function metadataUIResult(page, field, action) {
   const pending = page.waitForResponse((response) => hasOperation(response, field), { timeout: 60_000 });
   await action();
   const response = await pending;
-  assert.equal(response.status(), 200, `P1 Hermes smoke: ${field} HTTP failed`);
-  const body = await response.json();
-  assert.ok(!body.errors?.length, `P1 Hermes smoke: ${field} returned GraphQL errors`);
+  let body;
+  try { body = await response.json(); } catch {
+    failGraphql(graphqlDiagnostic('metadata', `query ${field}`, response.status(), undefined, 'invalid-json'));
+  }
+  if (response.status() !== 200 || body?.errors?.length) {
+    failGraphql(graphqlDiagnostic('metadata', `query ${field}`, response.status(), body, response.status() === 200 ? 'graphql' : 'http'));
+  }
   assert.ok(body.data?.[field] && typeof body.data[field] === 'object', `P1 Hermes smoke: ${field} payload missing`);
   return body.data[field];
 }
