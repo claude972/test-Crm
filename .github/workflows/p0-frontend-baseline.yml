@@ -103,9 +103,11 @@ jobs:
         run: node scripts/local-project.mjs setup
       - name: Compile translation catalogues
         run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
-      # The Vite CLI has already been observed exiting 0 without emitting
-      # anything in this repository (P0-BUILD-001), so the build goes through
-      # the JS API, whose promise rejects on failure.
+      # Driven through the JS API rather than the CLI because the promise
+      # rejects on failure, which is transparent regardless of how the CLI
+      # behaves. Not justified by P0-BUILD-001: that finding established a
+      # failing artifact assertion and a missing declarations step, not that
+      # the CLI emitted nothing.
       - name: Build the front bundle
         working-directory: apps/crm/ui/packages/twenty-front
         env:
