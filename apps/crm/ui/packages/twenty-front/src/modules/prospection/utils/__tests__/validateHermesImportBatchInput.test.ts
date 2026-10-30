@@ -37,15 +37,81 @@ describe('validateHermesImportBatchInput', () => {
     expect(input?.rows).toEqual([{ email: '', companyName: 'Example' }]);
   });
 
-  it('still requires a company name, which the review did not question', () => {
+  // This case asserted the opposite until the review: a missing company used
+  // to block the batch. Raw staging is the choice now — the server decides
+  // what is usable and reports it per row — so an absent company travels as
+  // an empty string rather than stopping the import.
+  it('stages a row whose company is absent instead of blocking the batch', () => {
     const { input, issues } = validateHermesImportBatchInput(
       buildForm({
         rowsText: JSON.stringify([{ email: 'someone@example.com' }]),
       }),
     );
 
+    expect(issues).toEqual([]);
+    expect(input?.rows).toEqual([
+      { email: 'someone@example.com', companyName: '' },
+    ]);
+  });
+
+  it('stages a blank company the same way as an absent one', () => {
+    const { input, issues } = validateHermesImportBatchInput(
+      buildForm({
+        rowsText: JSON.stringify([
+          { email: 'someone@example.com', companyName: '   ' },
+        ]),
+      }),
+    );
+
+    expect(issues).toEqual([]);
+    expect(input?.rows).toEqual([
+      { email: 'someone@example.com', companyName: '' },
+    ]);
+  });
+
+  it('stages a row with neither email nor company, leaving both to the server', () => {
+    const { input, issues } = validateHermesImportBatchInput(
+      buildForm({ rowsText: JSON.stringify([{ email: '', companyName: '' }]) }),
+    );
+
+    expect(issues).toEqual([]);
+    expect(input?.rows).toEqual([{ email: '', companyName: '' }]);
+  });
+
+  // The phone is the exception: the input type refuses it and that refusal
+  // rejects the WHOLE batch, so it cannot be left to per-row reporting.
+  it('accepts a phone at the input type bound', () => {
+    const { input, issues } = validateHermesImportBatchInput(
+      buildForm({
+        rowsText: JSON.stringify([
+          {
+            email: 'someone@example.com',
+            companyName: 'Example',
+            phone: '0'.repeat(40),
+          },
+        ]),
+      }),
+    );
+
+    expect(issues).toEqual([]);
+    expect(input?.rows[0].phone).toBe('0'.repeat(40));
+  });
+
+  it('refuses a phone one character past the input type bound', () => {
+    const { input, issues } = validateHermesImportBatchInput(
+      buildForm({
+        rowsText: JSON.stringify([
+          {
+            email: 'someone@example.com',
+            companyName: 'Example',
+            phone: '0'.repeat(41),
+          },
+        ]),
+      }),
+    );
+
     expect(input).toBeNull();
-    expect(codesOf(issues)).toContain('row-company-required');
+    expect(codesOf(issues)).toContain('row-phone-too-long');
   });
 
   it('refuses a source URL carrying credentials', () => {
