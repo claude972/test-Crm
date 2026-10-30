@@ -1,3 +1,4 @@
+import { isNonEmptyString } from '@sniptt/guards';
 import { fromStorage, fromUrl } from '@lingui/detect-locale';
 import { APP_LOCALES } from 'kovaa-lab-shared/translations';
 import {
@@ -13,10 +14,10 @@ export const initialI18nActivate = () => {
 
   let locale: keyof typeof APP_LOCALES = APP_LOCALES['fr-FR'];
 
-  const normalizedUrlLocale = isDefined(urlLocale)
+  const normalizedUrlLocale = isNonEmptyString(urlLocale)
     ? normalizeLocale(urlLocale)
     : null;
-  const normalizedStorageLocale = isDefined(storageLocale)
+  const normalizedStorageLocale = isNonEmptyString(storageLocale)
     ? normalizeLocale(storageLocale)
     : null;
 

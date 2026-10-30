@@ -1,3 +1,6 @@
+import { isAppEffectRedirectEnabledState } from '@/auth/states/isAppEffectRedirectEnabledState';
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
+import { rotateSessionGeneration } from '@/auth/utils/rotateSessionGeneration';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
@@ -124,6 +127,36 @@ describe('useVerifyLogin', () => {
     );
     const { result } = renderHooks();
     await result.current.verifyLoginToken('old-login');
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+  it('keeps a newer navigation lock while an old verification rejection finishes', async () => {
+    jotaiStore.set(isSameOriginMultiWorkspaceEnabledState.atom, true);
+    rotateSessionGeneration();
+    let fail!: (reason: unknown) => void;
+    mockGetAuthTokensFromLoginToken.mockReturnValue(
+      new Promise((_resolve, reject) => {
+        fail = reject;
+      }),
+    );
+    const { result } = renderHooks();
+    const pending = result.current.verifyLoginToken('old-login');
+    rotateSessionGeneration();
+    jotaiStore.set(isAppEffectRedirectEnabledState.atom, false);
+    fail(
+      new CombinedGraphQLErrors({
+        errors: [
+          {
+            message: 'Authentication failed',
+            extensions: {
+              code: 'UNAUTHENTICATED',
+              subCode: 'SESSION_SUPERSEDED',
+            },
+          },
+        ],
+      }),
+    );
+    await pending;
+    expect(jotaiStore.get(isAppEffectRedirectEnabledState.atom)).toBe(false);
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

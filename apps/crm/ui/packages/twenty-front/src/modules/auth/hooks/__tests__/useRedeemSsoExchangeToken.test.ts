@@ -200,6 +200,7 @@ describe('useRedeemSsoExchangeToken', () => {
     await result.current.redeemSsoExchangeToken('global-opaque-proof');
     expect(redeem).not.toHaveBeenCalled();
     expect(jotaiStore.get(isCookieAuthActiveState.atom)).toBe(true);
+    expect(jotaiStore.get(isAppEffectRedirectEnabledState.atom)).toBe(true);
   });
   it('refuses a target token when no native redemption handler is mounted', async () => {
     jotaiStore.set(isSameOriginMultiWorkspaceEnabledState.atom, true);
@@ -239,5 +240,6 @@ describe('useRedeemSsoExchangeToken', () => {
     await pending;
     expect(redeem).not.toHaveBeenCalled();
     expect(getSessionGeneration()).toBe(current);
+    expect(jotaiStore.get(isAppEffectRedirectEnabledState.atom)).toBe(false);
   });
 });

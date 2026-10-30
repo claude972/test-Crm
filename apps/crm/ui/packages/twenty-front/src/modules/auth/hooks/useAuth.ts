@@ -350,7 +350,11 @@ export const useAuth = () => {
           sessionGeneration,
         });
       } finally {
-        setIsAppEffectRedirectEnabled(true);
+        if (
+          !isSameOriginMultiWorkspaceEnabled ||
+          sessionGeneration === getSessionGeneration()
+        )
+          setIsAppEffectRedirectEnabled(true);
       }
     },
     [

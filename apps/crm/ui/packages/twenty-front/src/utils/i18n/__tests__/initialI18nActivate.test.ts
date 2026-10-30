@@ -14,8 +14,8 @@ describe('explicit language choices before French application default', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
-    jest.mocked(fromStorage).mockReturnValue(null);
-    jest.mocked(fromUrl).mockReturnValue(null);
+    jest.mocked(fromStorage).mockReturnValue('');
+    jest.mocked(fromUrl).mockReturnValue('');
     Object.defineProperty(navigator, 'language', {
       configurable: true,
       value: 'en-US',

@@ -53,6 +53,7 @@ export const useRedeemSsoExchangeToken = ({
       setIsAppEffectRedirectEnabled(false);
 
       const requestSessionGeneration = getSessionGeneration();
+      let completionGeneration = requestSessionGeneration;
       try {
         const { data, error } = await getAuthTokensFromSsoExchangeToken({
           variables: { ssoExchangeToken },
@@ -80,11 +81,16 @@ export const useRedeemSsoExchangeToken = ({
           return;
         }
         markSessionActive();
+        completionGeneration = getSessionGeneration();
       } catch (error: unknown) {
         logError(error);
         enqueueToast({ status: 'error', children: t`Authentication failed` });
       } finally {
-        setIsAppEffectRedirectEnabled(true);
+        if (
+          !isSameOriginMultiWorkspaceEnabled ||
+          completionGeneration === getSessionGeneration()
+        )
+          setIsAppEffectRedirectEnabled(true);
       }
     },
     [

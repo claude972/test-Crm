@@ -1,10 +1,16 @@
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { MockLink } from '@apollo/client/testing';
+import { GetCurrentUserDocument } from '~/generated-metadata/graphql';
 import { renderHook } from '@testing-library/react';
 import { Provider } from 'jotai';
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { getSessionGeneration } from '@/auth/utils/getSessionGeneration';
 import { rotateSessionGeneration } from '@/auth/utils/rotateSessionGeneration';
-import { resetWorkspaceSessionAndReload } from '@/auth/utils/resetWorkspaceSessionAndReload';
+import {
+  resetWorkspaceSessionAndReload,
+  purgeWorkspaceSessionCache,
+} from '@/auth/utils/resetWorkspaceSessionAndReload';
 import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import {
   jotaiStore,
@@ -40,13 +46,15 @@ jest.mock('~/utils/i18n/dynamicActivate', () => ({
 }));
 jest.mock('@/auth/utils/resetWorkspaceSessionAndReload', () => ({
   resetWorkspaceSessionAndReload: jest.fn().mockResolvedValue(undefined),
+  purgeWorkspaceSessionCache: jest.fn().mockResolvedValue(undefined),
 }));
 const resultData = (workspaceId: string) => ({
   data: {
     currentUser: {
+      __typename: 'User',
       id: 'synthetic-user',
       email: 'synthetic@example.test',
-      currentWorkspace: { id: workspaceId },
+      currentWorkspace: { __typename: 'Workspace', id: workspaceId },
       workspaceMembers: [],
     },
   },
@@ -78,7 +86,11 @@ describe('verified current-user bootstrap before cache or tenant state changes',
     expect(mockClient.query).toHaveBeenCalledWith(
       expect.objectContaining({
         fetchPolicy: 'no-cache',
-        context: { expectedWorkspaceId: B, skipRetry: true },
+        context: {
+          expectedWorkspaceId: B,
+          skipRetry: true,
+          queryDeduplication: false,
+        },
       }),
     );
     expect(mockClient.writeQuery).not.toHaveBeenCalled();
@@ -90,7 +102,11 @@ describe('verified current-user bootstrap before cache or tenant state changes',
     await result.current.loadCurrentUser({ commitState: false });
     expect(mockClient.query).toHaveBeenCalledWith(
       expect.objectContaining({
-        context: { expectedWorkspaceId: null, skipRetry: true },
+        context: {
+          expectedWorkspaceId: null,
+          skipRetry: true,
+          queryDeduplication: false,
+        },
       }),
     );
   });
@@ -146,11 +162,12 @@ describe('verified current-user bootstrap before cache or tenant state changes',
     expect(mockClient.writeQuery).not.toHaveBeenCalled();
     expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(A);
   });
-  it('commits verified B only when no previous tenant context must be purged', async () => {
+  it('purges unknown persistent metadata before committing verified B on a fresh context', async () => {
     jotaiStore.set(currentWorkspaceState.atom, null);
     jotaiStore.set(currentUserState.atom, null);
     const { result } = render();
     await result.current.loadCurrentUser({ expectedWorkspaceId: B });
+    expect(purgeWorkspaceSessionCache).toHaveBeenCalledTimes(1);
     expect(mockClient.writeQuery).toHaveBeenCalledTimes(1);
     expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(B);
   });
@@ -164,5 +181,73 @@ describe('verified current-user bootstrap before cache or tenant state changes',
     expect(mockClient.query.mock.calls[0][0].context).toBeUndefined();
     expect(resetWorkspaceSessionAndReload).not.toHaveBeenCalled();
     expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(B);
+  });
+  it('never commits B over an unknown persistent cache when the cold-start purge fails', async () => {
+    jotaiStore.set(currentWorkspaceState.atom, null);
+    jotaiStore.set(currentUserState.atom, null);
+    jest
+      .mocked(purgeWorkspaceSessionCache)
+      .mockRejectedValueOnce(new Error('Purge unconfirmed'));
+    const { result } = render();
+    await expect(
+      result.current.loadCurrentUser({ expectedWorkspaceId: B }),
+    ).rejects.toThrow('Purge unconfirmed');
+    expect(mockClient.writeQuery).not.toHaveBeenCalled();
+    expect(jotaiStore.get(currentWorkspaceState.atom)).toBeNull();
+  });
+  it('uses two real Apollo/MockLink requests and discards delayed A instead of deduplicating B onto A', async () => {
+    jest.useFakeTimers();
+    const link = new MockLink([
+      {
+        request: { query: GetCurrentUserDocument, variables: {} },
+        result: resultData(A),
+        delay: 100,
+      },
+      {
+        request: { query: GetCurrentUserDocument, variables: {} },
+        result: resultData(B),
+        delay: 0,
+      },
+    ]);
+    const requested = jest.spyOn(link, 'request');
+    const client = new ApolloClient({
+      link,
+      cache: new InMemoryCache(),
+      queryDeduplication: true,
+    });
+    mockClient.query.mockImplementation((options) => client.query(options));
+    mockClient.writeQuery.mockImplementation((options) =>
+      client.writeQuery(options),
+    );
+    try {
+      const { result } = render();
+      const first = result.current.loadCurrentUser({ expectedWorkspaceId: A });
+      const firstRejected = expect(first).rejects.toMatchObject({
+        errors: [
+          expect.objectContaining({
+            extensions: expect.objectContaining({
+              subCode: 'SESSION_SUPERSEDED',
+            }),
+          }),
+        ],
+      });
+      rotateSessionGeneration();
+      jotaiStore.set(currentWorkspaceState.atom, null);
+      jotaiStore.set(currentUserState.atom, null);
+      const second = result.current.loadCurrentUser({ expectedWorkspaceId: B });
+      await jest.advanceTimersByTimeAsync(0);
+      await second;
+      expect(requested).toHaveBeenCalledTimes(2);
+      expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(B);
+      await jest.advanceTimersByTimeAsync(100);
+      await firstRejected;
+      expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(B);
+      const cached = JSON.stringify(client.cache.extract());
+      expect(cached).toContain(B);
+      expect(cached).not.toContain(A);
+    } finally {
+      client.stop();
+      jest.useRealTimers();
+    }
   });
 });
