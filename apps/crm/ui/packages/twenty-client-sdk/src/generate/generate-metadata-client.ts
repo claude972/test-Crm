@@ -6,7 +6,7 @@ import { DEFAULT_API_URL_NAME } from 'kovaa-lab-shared/application-runtime';
 import { buildClientWrapperSource } from './client-wrapper';
 import { emptyDir, ensureDir } from './fs-utils';
 import { generate } from './genql';
-import kovaa-labClientTemplateSource from './kovaa-lab-client-template.ts?raw';
+import kovaaLabClientTemplateSource from './twenty-client-template.ts?raw';
 
 const COMMON_SCALAR_TYPES = {
   DateTime: 'string',
@@ -24,7 +24,7 @@ export const generateMetadataClient = async ({
   clientWrapperTemplateSource?: string;
 }): Promise<void> => {
   const templateSource =
-    clientWrapperTemplateSource ?? kovaa-labClientTemplateSource;
+    clientWrapperTemplateSource ?? kovaaLabClientTemplateSource;
 
   await ensureDir(outputPath);
   await emptyDir(outputPath);

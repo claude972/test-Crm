@@ -37,7 +37,7 @@ const externalizeNodeBuiltins = (): Plugin => ({
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/kovaa-lab-emails',
+  cacheDir: '../../node_modules/.vite/packages/twenty-emails',
 
   resolve: {
     tsconfigPaths: true,
