@@ -28,6 +28,10 @@ const metadataHeader = z
 const providerMetadataSchema = z
   .object({
     rfcMessageId: metadataHeader.optional(),
+    mimeSha256: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
     inReplyTo: metadataHeader.optional(),
     references: z.array(metadataHeader).max(20).optional(),
     mailbox: z
