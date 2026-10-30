@@ -372,6 +372,33 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Build frontend vert en CI, et correction d'une de mes affirmations
+
+### Le bundle frontend construit
+
+Run **`40985976531`**, workflow « P0 combined checkpoints », sur **`bad53ac26b0c3a17a91c91b95be41986c7343836`** — l'intégration isolée par Root de mon correctif worker `6c7bcd48a`.
+
+| Job | Résultat |
+| --- | --- |
+| `frontend / frontend-sources` | **succès** |
+| `frontend / frontend-bundle` | **succès** |
+| `source-integrity / crm-workspace`, `crm-backend`, `char-backend`, `forms`, `local-orchestration` | succès |
+| `backend-build / backend` | **échec** |
+
+**C'est la première preuve d'exécution de la construction du frontend**, et elle valide le correctif du résolveur worker : le bundle se produit désormais, assertions d'artefacts incluses. Je peux donc enfin revendiquer un build frontend, ce que je refusais jusqu'ici faute de preuve.
+
+**Précision nécessaire** : la **conclusion globale du run est `failure`**, à cause de `backend-build / backend`, qui relève du périmètre de Codex. Dire « la CI est verte » serait inexact ; ce qui est vert, c'est le frontend. Et ce run porte `bad53ac26`, donc mon correctif worker, mais **pas** `6974f96ca` qui aligne les deux configurations Vite — cet alignement reste à passer en CI.
+
+### Correction d'une de mes affirmations sur l'installation locale
+
+J'ai écrit à plusieurs reprises, y compris dans des messages de commit, que l'installation locale du workspace avait **échoué** en laissant « `node_modules/.bin` à 0 binaire, ni `vite` ni `tsgo` », après avoir vu yarn terminer sur `unexpected empty event loop`.
+
+**C'était prématuré.** En libérant du disque je viens de constater que cet arbre portait en réalité **192 binaires et 4,0 Go**. Ma vérification était intervenue pendant l'étape de liaison, encore en cours : l'installation s'était poursuivie après mon contrôle. L'erreur yarn et le code de sortie 0 trompeur étaient réels, mais ma **conclusion** — « installation inutilisable » — ne l'était pas.
+
+Ce que cela change, et ce que cela ne change pas : aucune de mes livraisons ne reposait sur un build local, et je n'ai jamais revendiqué de typecheck. Les preuves que j'ai avancées restent ce qu'elles étaient — parsing, résolution d'imports, convergence avec les originaux, et désormais la CI. Mais mon explication du « pourquoi aucun build local » était fausse, et je la corrige plutôt que de la laisser faire autorité.
+
+Je ne peux plus le revérifier : sur instruction de ne créer aucune nouvelle copie complète, et le disque étant à 100 % avec 1,7 Gio libres, j'ai **supprimé cet arbre** — il était ignoré par git, hors suivi, et la preuve de construction passe désormais par la CI. Libéré : environ 5 Gio, de 1,7 à 6,7 Gio disponibles. **Aucun original touché**, aucune copie créée, worktree resté propre.
+
 ## Audit de la surface PWA existante — agent: claude
 
 - périmètre : `apps/crm/ui/packages/twenty-front`, à `6974f96ca`. **Audit seul : aucune implémentation, aucun service worker ajouté, aucun cache conçu.**
