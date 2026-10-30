@@ -46,6 +46,41 @@ export function validateBaselineFixtureDrift(queries) {
   );
 }
 
+export const IMPORT_STATE_DEFAULT = Object.freeze({
+  version: 1,
+  batches: [],
+  campaignIds: [],
+});
+export const IMPORT_STATE_DEFAULT_SQL =
+  "'" + JSON.stringify(IMPORT_STATE_DEFAULT) + "'::jsonb";
+
+export function parseImportStateCatalogDefault(expression) {
+  assert.equal(typeof expression, "string");
+  assert.match(
+    expression,
+    /^'[^']*'::jsonb$/,
+    "Only a literal native JSONB default may be normalized",
+  );
+  const value = JSON.parse(expression.slice(1, -8));
+  assert.deepEqual(
+    value,
+    IMPORT_STATE_DEFAULT,
+    "The physical default must strictly equal the expected state object",
+  );
+  return value;
+}
+
+export function validateImportStateMetadataDefault(value) {
+  assert.equal(value?.kind, "function");
+  assert.equal(typeof value.source, "string");
+  assert.ok(value.source.length > 0);
+  assert.equal(
+    value.sql,
+    IMPORT_STATE_DEFAULT_SQL,
+    "Only the exact historical function default may be normalized",
+  );
+}
+
 // The generator must never smuggle unrelated schema changes into this patch.
 export function validateMediaSql(up, down) {
   assert.ok(Array.isArray(up) && Array.isArray(down));
@@ -300,14 +335,22 @@ export async function main() {
       .replaceAll(secret, "[redacted]")
       .replaceAll(database.href, "[disposable-db]")
       .replaceAll(database.password, "[redacted]");
+  let fixtureNormalizerPath;
   const run = (args, cwd = server) => {
-    const result = spawnSync(process.execPath, args, {
-      cwd,
-      env,
-      encoding: "utf8",
-      timeout: 300_000,
-      maxBuffer: 32 * 1024 * 1024,
-    });
+    const result = spawnSync(
+      process.execPath,
+      [
+        ...(fixtureNormalizerPath ? ["--require", fixtureNormalizerPath] : []),
+        ...args,
+      ],
+      {
+        cwd,
+        env,
+        encoding: "utf8",
+        timeout: 300_000,
+        maxBuffer: 32 * 1024 * 1024,
+      },
+    );
     if (result.error || result.status !== 0)
       throw new Error(
         redact(
@@ -387,6 +430,77 @@ export async function main() {
         ],
         baseline,
       );
+    }
+    const residualBaselineDrift = schemaDiff(baseline);
+    writeFileSync(
+      path.join(artifactDirectory, "baseline-after-native-sync.json"),
+      JSON.stringify(residualBaselineDrift, null, 2) + "\n",
+    );
+    if (residualBaselineDrift.length) {
+      assert.deepEqual(
+        residualBaselineDrift,
+        [BASELINE_FIXTURE_DRIFT[7]],
+        "Do not normalize an unrelated or additional residual delta",
+      );
+      const catalog = await client.query(
+        `SELECT pg_get_expr(d.adbin,d.adrelid) AS expression FROM pg_attrdef d JOIN pg_attribute a ON a.attrelid=d.adrelid AND a.attnum=d.adnum JOIN pg_class t ON t.oid=d.adrelid JOIN pg_namespace n ON n.oid=t.relnamespace WHERE n.nspname='core' AND t.relname='hermesImportState' AND a.attname='state'`,
+      );
+      assert.equal(catalog.rowCount, 1);
+      const physicalDefault = catalog.rows[0].expression;
+      const actualValue = parseImportStateCatalogDefault(physicalDefault);
+      const proof = await client.query(
+        "SELECT $1::jsonb = $2::jsonb AS equivalent, $1::jsonb AS canonical",
+        [JSON.stringify(actualValue), JSON.stringify(IMPORT_STATE_DEFAULT)],
+      );
+      assert.equal(proof.rows[0].equivalent, true);
+      assert.deepEqual(proof.rows[0].canonical, IMPORT_STATE_DEFAULT);
+      const inspectDefault = (cwd) => {
+        const output = run(
+          [
+            "-e",
+            `const {connectionSource}=require('./dist/database/typeorm/core/core.datasource.js'); (async()=>{await connectionSource.initialize();try{const entity=connectionSource.entityMetadatas.find(item=>item.tablePath==='core.hermesImportState');const column=entity?.columns.find(item=>item.databaseName==='state');if(!column||column.type!=='jsonb'||typeof column.default!=='function')throw Error('Unexpected import-state metadata');console.log('HERMES_DEFAULT:'+JSON.stringify({kind:typeof column.default,source:column.default.toString(),sql:column.default()}));}finally{await connectionSource.destroy();}})().catch(()=>{console.error('Default metadata inspection failed');process.exitCode=1;});`,
+          ],
+          cwd,
+        );
+        const line = output
+          .split("\n")
+          .find((line) => line.startsWith("HERMES_DEFAULT:"));
+        assert.ok(line);
+        const value = JSON.parse(line.slice("HERMES_DEFAULT:".length));
+        validateImportStateMetadataDefault(value);
+        return value;
+      };
+      const baselineDefault = inspectDefault(baseline),
+        featureDefault = inspectDefault(server);
+      assert.deepEqual(
+        featureDefault,
+        baselineDefault,
+        "Baseline and feature must contain the exact same default function before fixture normalization",
+      );
+      fixtureNormalizerPath = path.join(
+        artifactDirectory,
+        "import-state-fixture-normalizer.cjs",
+      );
+      writeFileSync(
+        fixtureNormalizerPath,
+        `const assert=require('node:assert/strict');const {DataSource}=require(${JSON.stringify(requireFromServer.resolve("typeorm"))});const expected=${JSON.stringify(baselineDefault)};const canonical=${JSON.stringify(IMPORT_STATE_DEFAULT)};const initialize=DataSource.prototype.initialize;DataSource.prototype.initialize=async function(...args){const source=await initialize.apply(this,args);const entity=source.entityMetadatas.find(item=>item.tablePath==='core.hermesImportState');if(entity){const column=entity.columns.find(item=>item.databaseName==='state');assert.equal(column?.type,'jsonb');assert.equal(typeof column.default,'function');assert.equal(column.default.toString(),expected.source);assert.equal(column.default(),expected.sql);column.default=JSON.parse(JSON.stringify(canonical));}return source;};\n`,
+      );
+      report.fixtureDefaultNormalization = {
+        scope: "only in-memory TypeORM metadata in fresh fixture subprocesses",
+        reason:
+          "PostgreSQL JSONB key ordering versus a function-valued literal default; native TypeORM object-default semantic comparison",
+        originalSql: BASELINE_FIXTURE_DRIFT[7],
+        physicalDefault,
+        canonicalValue: proof.rows[0].canonical,
+        baselineMetadata: baselineDefault,
+        featureMetadata: featureDefault,
+        postgresSemanticEquality: true,
+      };
+      writeFileSync(
+        path.join(artifactDirectory, "import-state-default-proof.json"),
+        JSON.stringify(report.fixtureDefaultNormalization, null, 2) + "\n",
+      );
+      save();
     }
     assert.deepEqual(
       schemaDiff(baseline),

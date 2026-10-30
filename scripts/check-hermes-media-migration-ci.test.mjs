@@ -31,3 +31,48 @@ test("historical baseline deltas cannot leak into a media migration", () => {
     validateMediaSql([...BASELINE_FIXTURE_DRIFT], [...BASELINE_FIXTURE_DRIFT]),
   );
 });
+
+import {
+  IMPORT_STATE_DEFAULT_SQL,
+  parseImportStateCatalogDefault,
+  validateImportStateMetadataDefault,
+} from "./check-hermes-media-migration-ci.mjs";
+
+test("fixture default normalization accepts only the exact JSON object despite PostgreSQL key ordering", () => {
+  assert.deepEqual(
+    parseImportStateCatalogDefault(
+      `'{"batches": [], "version": 1, "campaignIds": []}'::jsonb`,
+    ),
+    { version: 1, batches: [], campaignIds: [] },
+  );
+  for (const expression of [
+    `'{"version":"1","batches":[],"campaignIds":[]}'::jsonb`,
+    `'{"version":1,"batches":[],"campaignIds":[],"extra":true}'::jsonb`,
+    `'{"version":1,"batches":["hidden"],"campaignIds":[]}'::jsonb`,
+    `now()`,
+    `'{}'::jsonb; DROP TABLE workspace`,
+  ])
+    assert.throws(() => parseImportStateCatalogDefault(expression));
+});
+
+test("only an exact function-valued metadata default may be canonicalized in the fixture", () => {
+  validateImportStateMetadataDefault({
+    kind: "function",
+    source: "() => literal",
+    sql: IMPORT_STATE_DEFAULT_SQL,
+  });
+  assert.throws(() =>
+    validateImportStateMetadataDefault({
+      kind: "object",
+      source: "object",
+      sql: IMPORT_STATE_DEFAULT_SQL,
+    }),
+  );
+  assert.throws(() =>
+    validateImportStateMetadataDefault({
+      kind: "function",
+      source: "() => literal",
+      sql: "'{}'::jsonb",
+    }),
+  );
+});
