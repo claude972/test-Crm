@@ -19,3 +19,10 @@ Source intégration : `7c2f4e3aa` sur `feat/codex-hermes-integration`. Ce checkp
 ## Limites conservées
 
 Web/PWA uniquement. Dashboard commun limité aux sociétés autorisées ; son filtre ne change pas le contexte CRUD. SMTP/Evolution/Hermès MCP/Forms/Cal.diy restent non configurés sans accès vérifié. Les campagnes restent des brouillons ; aucune réception SMTP réelle, livraison, ouverture ou automatisation externe n’est déclarée fonctionnelle sans preuve. Dépôt original et sauvegardes préservés.
+
+
+## Complément 06:20 UTC / 02:20 Martinique
+
+La source `650640f22` intègre les correctifs Claude jusqu’à `e06521999` : sujet200, téléphone40, réception brute des sociétés vides, conflits génériques décrits sans cause inventée, union des colonnes dashboard et accès permanent à son lien depuis le CRM. Les douze suites frontend ont été réellement rejouées : **100/100 tests réussis**. Une ancienne assertion contraire au staging brut a échoué avant d’être corrigée ; aucun succès n’est attribué à cette exécution intermédiaire.
+
+Le run backend `41011984357` a dépassé les fixtures FK et dates, mais a ensuite identifié des emails identiques entre plusieurs personnes d’une même structure. Le correctif `b442fef55` génère des emails uniques par personne tout en conservant les contacts identiques entre structures pour la preuve d’isolation. Aucun index ou contrôle n’a été désactivé ; quantités et assertions restent inchangées. Les sept scénarios dashboard restent à confirmer dans la prochaine CI.
