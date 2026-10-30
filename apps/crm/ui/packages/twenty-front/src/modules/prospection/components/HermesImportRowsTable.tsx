@@ -6,9 +6,7 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesImportRowStatusTag } from '@/prospection/components/HermesImportRowStatusTag';
 import { type HermesImportRow } from '@/prospection/types/HermesImportBatch';
-import {
-  isHermesRowSelectable,
-} from '@/prospection/utils/hermesRowSelection';
+import { isHermesRowSelectable } from '@/prospection/utils/hermesRowSelection';
 import { Table } from '@/ui/layout/table/components/Table';
 import { TableBody } from '@/ui/layout/table/components/TableBody';
 import { TableCell } from '@/ui/layout/table/components/TableCell';

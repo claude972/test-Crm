@@ -9,10 +9,7 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesCampaignDraftForm } from '@/prospection/components/HermesCampaignDraftForm';
 import { HermesImportRowStatusTag } from '@/prospection/components/HermesImportRowStatusTag';
-import {
-  HermesImportRowsTable,
-
-} from '@/prospection/components/HermesImportRowsTable';
+import { HermesImportRowsTable } from '@/prospection/components/HermesImportRowsTable';
 import { HermesQualificationForm } from '@/prospection/components/HermesQualificationForm';
 import {
   ProspectionCounters,
