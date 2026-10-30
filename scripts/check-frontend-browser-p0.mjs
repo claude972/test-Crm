@@ -430,6 +430,9 @@ async function checkHermesReception(page, name) {
     const suffix = `${name}-${randomBytes(4).toString('hex')}`;
     const email = `p1-reception-${suffix}@example.test`;
     const batchName = `P1 synthetic reception ${suffix}`;
+    // Open the secondary path through the same native disclosure a user operates.
+    await page.locator('summary').filter({ hasText: /^Manual JSON deposit — second choice$/ }).click();
+    await page.getByLabel('Batch name', { exact: true }).waitFor({ state: 'visible' });
     await page.getByLabel('Batch name', { exact: true }).fill(batchName);
     await page.getByLabel('Batch id', { exact: true }).fill(`p1-${process.env.GITHUB_RUN_ID}-${suffix}`);
     await page.getByLabel('Source URL', { exact: true }).fill('https://example.test/synthetic-directory');
