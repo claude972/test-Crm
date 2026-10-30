@@ -1,0 +1,23 @@
+name: Hermes V3 live integration checkpoints
+on:
+  push:
+    branches: [feat/hermes-v3-live-preview]
+    paths: ['apps/**', 'scripts/**', '.github/workflows/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hermes-v3-live-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  source-integrity:
+    uses: ./.github/workflows/p0-integrity.yml
+  frontend:
+    uses: ./.github/workflows/p0-frontend-baseline.yml
+  backend:
+    uses: ./.github/workflows/p0-backend-build.yml
+    with:
+      runtime-smoke: true
+      browser-smoke: false
+      hermes-checks: true
+      hermes-integration: true
