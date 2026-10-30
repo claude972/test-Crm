@@ -597,3 +597,69 @@ it('rejects a foreign draft canonical scope before any draft conversation or nat
   expect(f.mail.draftConversation).not.toHaveBeenCalled();
   expect(f.client.append).not.toHaveBeenCalled();
 });
+
+it.each([
+  ['ACCEPTED', 'Hello', true],
+  ['UNCONFIRMED', 'Hello', false],
+  ['ACCEPTED', 'A newer unsent edit', false],
+])(
+  'disposes only the exact native draft after accepted send, never after uncertainty or newer edits (%s, %s)',
+  async (status, nativeText, moveExpected) => {
+    const f = fixture();
+    const draftId = 'e4d16125-1299-4b15-aa57-d193a423b4e6';
+    const raw = await new MailComposer({
+      from: 'me@example.com',
+      to: ['client@example.org'],
+      subject: 'Send',
+      text: nativeText as string,
+      messageId: `<hermes-draft-${draftId}@hermes.invalid>`,
+    })
+      .compile()
+      .build();
+    f.mail.replyRich.mockResolvedValue({
+      id: 'receipt',
+      conversationId: 'canonical',
+      providerConnectionId: 'mail',
+      status,
+    } as never);
+    f.client.list.mockResolvedValue(
+      ['Drafts', 'Trash'].map((path) => ({
+        path,
+        name: path,
+        flags: new Set(),
+        specialUse: path === 'Drafts' ? '\\Drafts' : '\\Trash',
+      })),
+    );
+    f.client.search.mockResolvedValue([50]);
+    f.client.fetchOne.mockImplementation(async (_value, query) => ({
+      uid: 50,
+      size: raw.length,
+      ...(query.source ? { source: raw } : {}),
+    }));
+    f.imap.getClient.mockImplementation(async () => ({ ...f.client }) as never);
+    const result = await f.service.sendNew(actor, {
+      draftId,
+      clientRequestId: 'e4d16125-1299-4b15-aa57-d193a423b4e9',
+      from: 'me@example.com',
+      to: ['client@example.org'],
+      subject: 'Send',
+      text: 'Hello',
+    });
+    expect(result).toMatchObject({
+      status,
+      draftDisposition: {
+        state: moveExpected
+          ? 'MOVED_TO_TRASH'
+          : status === 'ACCEPTED'
+            ? 'NOT_FOUND'
+            : 'NOT_ACCEPTED',
+      },
+    });
+    expect(f.client.messageMove).toHaveBeenCalledTimes(moveExpected ? 1 : 0);
+    if (moveExpected)
+      expect(f.client.messageMove).toHaveBeenCalledWith('50', 'Trash', {
+        uid: true,
+      });
+    expect(f.client.append).not.toHaveBeenCalled();
+  },
+);

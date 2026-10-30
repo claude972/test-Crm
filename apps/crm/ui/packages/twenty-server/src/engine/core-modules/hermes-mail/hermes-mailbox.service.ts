@@ -615,6 +615,94 @@ export class HermesMailboxService {
     }
   }
 
+  private async disposeAcceptedDraft(
+    actor: HermesMessagingActor,
+    receipt: {
+      status: string;
+      providerConnectionId: string;
+      conversationId: string;
+    },
+    draftId: string,
+    envelope: ReturnType<typeof planMailEnvelope>,
+    attachmentIds: string[],
+  ) {
+    if (receipt.status !== 'ACCEPTED') return { state: 'NOT_ACCEPTED' };
+    try {
+      return await this.session(actor, async (client, item) => {
+        if (receipt.providerConnectionId !== item.binding.connectionId)
+          return { state: 'UNAVAILABLE', reason: 'MAIL_CONNECTION_CHANGED' };
+        const listed = await client.list();
+        const drafts = listed.find(
+          (folder) =>
+            folder.specialUse === '\\Drafts' && !folder.flags.has('\\Noselect'),
+        );
+        const trash = listed.find(
+          (folder) =>
+            folder.specialUse === '\\Trash' && !folder.flags.has('\\Noselect'),
+        );
+        if (!drafts || !trash)
+          return {
+            state: 'UNAVAILABLE',
+            reason: 'MAIL_DRAFT_DISPOSITION_UNAVAILABLE',
+          };
+        return this.locked(client, actor, { folder: drafts.path }, async () => {
+          const validity = String(client.mailbox && client.mailbox.uidValidity);
+          const messageId = `<hermes-draft-${draftId}@hermes.invalid>`;
+          const attachments = await this.mail.draftAttachments(
+            actor,
+            receipt.conversationId,
+            attachmentIds,
+          );
+          const signature = mailContentSignature(
+            envelope,
+            attachments.map((file) => ({
+              filename: file.filename,
+              mimeType: file.contentType,
+              bytes: file.content,
+            })),
+          );
+          const found = await client.search(
+            { header: { 'message-id': messageId } },
+            { uid: true },
+          );
+          if (Array.isArray(found) && found.length > 20)
+            return { state: 'UNCONFIRMED', reason: 'MAIL_DRAFT_MATCH_LIMIT' };
+          const matching = [];
+          for (const uid of Array.isArray(found) ? found : []) {
+            const source = await this.source(client, {
+              folder: drafts.path,
+              uid: String(uid),
+              uidValidity: validity,
+            });
+            if (
+              source.messageId === messageId &&
+              mailParsedContentSignature(source) === signature
+            )
+              matching.push(uid);
+          }
+          if (!matching.length) return { state: 'NOT_FOUND' };
+          await this.current(actor, client);
+          if (
+            !(await client.messageMove(matching.join(','), trash.path, {
+              uid: true,
+            }))
+          )
+            return {
+              state: 'UNCONFIRMED',
+              reason: 'MAIL_DRAFT_DISPOSITION_UNCONFIRMED',
+            };
+          await this.current(actor, client);
+          return { state: 'MOVED_TO_TRASH' };
+        });
+      });
+    } catch {
+      return {
+        state: 'UNCONFIRMED',
+        reason: 'MAIL_DRAFT_DISPOSITION_UNCONFIRMED',
+      };
+    }
+  }
+
   async send(actor: HermesMessagingActor, input: HermesMailComposeInput) {
     if (!input.clientRequestId)
       throw new BadRequestException('MAIL_REQUEST_ID_REQUIRED');
@@ -706,13 +794,23 @@ export class HermesMailboxService {
           clientRequestId: input.clientRequestId!,
           attachmentIds: input.attachmentIds ?? [],
         });
-        return this.sentCopy(
+        const copied = await this.sentCopy(
           actor,
           result,
           planned.envelope,
           input.clientRequestId!,
           input.attachmentIds ?? [],
         );
+        const draftDisposition = input.draftId
+          ? await this.disposeAcceptedDraft(
+              actor,
+              result,
+              input.draftId,
+              planned.envelope,
+              input.attachmentIds ?? [],
+            )
+          : { state: 'NOT_REQUESTED' };
+        return { ...copied, draftDisposition };
       },
     );
   }
