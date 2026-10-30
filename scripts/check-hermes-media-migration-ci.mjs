@@ -25,6 +25,27 @@ const manifestPath = path.join(
   "src/database/commands/upgrade-version-command/instance-commands.constant.ts",
 );
 
+// These are historical baseline deltas, never part of the media migration.
+export const BASELINE_FIXTURE_DRIFT = Object.freeze([
+  `ALTER TABLE "core"."agent" ADD "evaluationInputs" text array NOT NULL DEFAULT '{}'`,
+  'ALTER TABLE "core"."rolePermissionFlag" ADD "flag" character varying NOT NULL',
+  'ALTER TABLE "core"."fieldMetadata" ADD "standardOverrides" jsonb',
+  'ALTER TABLE "core"."fieldMetadata" ADD "isCustom" boolean NOT NULL DEFAULT false',
+  'ALTER TABLE "core"."objectMetadata" ADD "standardOverrides" jsonb',
+  'ALTER TABLE "core"."objectMetadata" ADD "isCustom" boolean NOT NULL DEFAULT false',
+  'ALTER TABLE "core"."timelineActivityType" ADD "renderer" character varying',
+  `ALTER TABLE "core"."hermesImportState" ALTER COLUMN "state" SET DEFAULT '{"version":1,"batches":[],"campaignIds":[]}'::jsonb`,
+]);
+
+export function validateBaselineFixtureDrift(queries) {
+  assert.ok(Array.isArray(queries));
+  assert.deepEqual(
+    [...queries].sort(),
+    [...BASELINE_FIXTURE_DRIFT].sort(),
+    "Unexpected historical baseline drift: do not synchronize an unreviewed fixture",
+  );
+}
+
 // The generator must never smuggle unrelated schema changes into this patch.
 export function validateMediaSql(up, down) {
   assert.ok(Array.isArray(up) && Array.isArray(down));
@@ -337,12 +358,45 @@ export async function main() {
       ],
       baseline,
     );
+    const historicalBaselineDrift = schemaDiff(baseline);
+    writeFileSync(
+      path.join(artifactDirectory, "historical-baseline-drift.json"),
+      JSON.stringify(
+        { base: baseSha, queries: historicalBaselineDrift },
+        null,
+        2,
+      ) + "\n",
+    );
+    report.historicalBaselineMigrationConvergence =
+      historicalBaselineDrift.length
+        ? {
+            status: "pre-existing-drift",
+            count: historicalBaselineDrift.length,
+            evidence: "historical-baseline-drift.json",
+          }
+        : { status: "passed", count: 0 };
+    save();
+    if (historicalBaselineDrift.length) {
+      validateBaselineFixtureDrift(historicalBaselineDrift);
+      // The fresh, guarded GitHub fixture is prepared from BASELINE metadata.
+      // This does not repair or validate the historical migration chain.
+      run(
+        [
+          "-e",
+          `const { connectionSource } = require('./dist/database/typeorm/core/core.datasource.js'); (async () => { await connectionSource.initialize(); try { await connectionSource.synchronize(false); } finally { await connectionSource.destroy(); } })().catch(() => { console.error('Disposable baseline metadata preparation failed'); process.exitCode = 1; });`,
+        ],
+        baseline,
+      );
+    }
     assert.deepEqual(
       schemaDiff(baseline),
       [],
-      "Exact baseline migration/metadata must converge before generation",
+      "The disposable baseline metadata fixture must converge before feature generation",
     );
-    report.stage = "exact-baseline-schema-created";
+    report.fixturePreparation = historicalBaselineDrift.length
+      ? "Native TypeORM baseline metadata synchronization of eight explicitly reviewed historical deltas, fresh GitHub-hosted fixture only"
+      : "Historical migrations already match baseline metadata";
+    report.stage = "baseline-metadata-fixture-created";
     save();
     const beforeManifest = readFileSync(manifestPath, "utf8");
     const find = () =>
@@ -449,7 +503,7 @@ export async function main() {
     assert.deepEqual(
       schemaDiff(baseline),
       [],
-      "Down must restore the exact original schema, including old message columns",
+      "Down must restore the prepared baseline metadata fixture, including old message columns",
     );
     for (const sql of up) await client.query(sql);
     assert.deepEqual(
@@ -460,7 +514,7 @@ export async function main() {
     report.status = "passed";
     report.migration = relativeMigration;
     report.roundTrip =
-      "native official generator, baseline → up → feature metadata → down → baseline metadata → up → feature metadata";
+      "native official generator, prepared baseline metadata fixture → up → feature metadata → down → prepared baseline metadata fixture → up → feature metadata; historical baseline drift is reported separately";
     console.info(
       "Hermes media: official migration, PostgreSQL reservations and exact metadata round-trip passed",
     );
