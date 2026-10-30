@@ -259,6 +259,7 @@ import { AddAgentChatChannelNavigationMenuItemFastInstanceCommand } from 'src/da
 import { AddParticipantHandleFieldToMessageChannelFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1792907887530-add-participant-handle-field-to-message-channel';
 import { AddHermesImportStateFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793335399769-add-hermes-import-state';
 import { AddHermesInboxFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793367531202-add-hermes-inbox';
+import { AddHermesBotPolicyFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793392487144-add-hermes-bot-policy';
 
 export const INSTANCE_COMMANDS = [
   AddViewFieldGroupIdIndexOnViewFieldFastInstanceCommand,
@@ -520,4 +521,5 @@ export const INSTANCE_COMMANDS = [
   AddParticipantHandleFieldToMessageChannelFastInstanceCommand,
   AddHermesImportStateFastInstanceCommand,
   AddHermesInboxFastInstanceCommand,
+  AddHermesBotPolicyFastInstanceCommand,
 ];

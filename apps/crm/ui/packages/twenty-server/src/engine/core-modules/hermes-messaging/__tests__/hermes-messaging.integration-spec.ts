@@ -19,6 +19,7 @@ import {
   SEED_YCOMBINATOR_WORKSPACE_ID,
 } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
+import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesInboxMessageEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity';
 import { type HermesMessagingAdapterRegistry } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-adapter.registry';
@@ -326,6 +327,57 @@ describe('Hermes inbox — real HTTP/core SQL and native Person matching', () =>
     ).toBeGreaterThan(0);
     expect(sends).toBe(0);
   });
+  it('persists a V3 local OFF policy through GraphQL, blocks stale updates and scopes access', async () => {
+    const query =
+      'query Policy($input:HermesConversationBotPolicyInput!){hermesConversationBotPolicy(input:$input){conversationId localMode effectiveMode reason revision canDraft canAutoReply}}';
+    const mutation =
+      'mutation Policy($input:HermesSetConversationBotPolicyInput!){hermesSetConversationBotPolicy(input:$input){conversationId localMode effectiveMode revision canDraft canAutoReply}}';
+    const input = { conversationId: a.conversationId };
+    const before = successful(await api(tokenA, query, { input }))
+      .hermesConversationBotPolicy as { revision: string };
+    const command = {
+      ...input,
+      mode: 'OFF',
+      expectedRevision: before.revision,
+    };
+    const updated = successful(
+      await api(tokenA, mutation, { input: command }),
+    ).hermesSetConversationBotPolicy;
+    expect(updated).toMatchObject({
+      localMode: 'OFF',
+      effectiveMode: 'OFF',
+      canDraft: false,
+      canAutoReply: false,
+    });
+    const stored = await getCoreRepository<HermesConversationEntity>(
+      HermesConversationEntity,
+    ).findOneByOrFail({ workspaceId: A, id: a.conversationId });
+    expect(stored.botMode).toBe('OFF');
+    expect(stored.botOwnerUserWorkspaceId).toBeNull();
+    expect(
+      successful(await api(tokenA, query, { input }))
+        .hermesConversationBotPolicy,
+    ).toMatchObject(updated as object);
+    expect(
+      (await api(tokenA, mutation, { input: command })).errors?.length,
+    ).toBeGreaterThan(0);
+    expect(
+      (await api(tokenB, query, { input })).errors?.length,
+    ).toBeGreaterThan(0);
+    expect(
+      (await api(tokenB, mutation, { input: command })).errors?.length,
+    ).toBeGreaterThan(0);
+    const draft =
+      'mutation Draft($input:HermesInboxDraftReplyInput!){hermesInboxDraftReply(input:$input){status text}}';
+    expect(
+      (
+        await api(tokenA, draft, {
+          input: { conversationId: a.conversationId, messageId: a.messageId },
+        })
+      ).errors?.length,
+    ).toBeGreaterThan(0);
+    expect(sends).toBe(0);
+  });
   it('sends once for concurrent HTTP client requests and persists one visible accepted provider response', async () => {
     const input = {
       conversationId: a.conversationId,
@@ -375,6 +427,53 @@ describe('Hermes inbox — real HTTP/core SQL and native Person matching', () =>
     ).toBe('UNCONFIRMED');
     expect(sends).toBe(2);
     uncertain = false;
+  });
+  it('persists workspace/channel policy revisions in SQL without affecting workspace B', async () => {
+    const query =
+      'query { hermesWorkspaceBotPolicies { scope mode revision } }';
+    const mutation =
+      'mutation SetPolicy($input:HermesSetWorkspaceBotPolicyInput!){hermesSetWorkspaceBotPolicy(input:$input){scope mode revision}}';
+    const beforeB = successful(
+      await api(tokenB, query),
+    ).hermesWorkspaceBotPolicies;
+    const beforeA = successful(await api(tokenA, query))
+      .hermesWorkspaceBotPolicies as {
+      scope: string;
+      mode: string;
+      revision: string;
+    }[];
+    const repository = getCoreRepository<HermesBotPolicyEntity>(
+      HermesBotPolicyEntity,
+    );
+    const previous = await repository.findOneBy({
+      workspaceId: A,
+      scope: 'EMAIL',
+    });
+    try {
+      const input = {
+        scope: 'EMAIL',
+        mode: 'OFF',
+        expectedRevision: beforeA.find((policy) => policy.scope === 'EMAIL')!
+          .revision,
+      };
+      const updated = successful(
+        await api(tokenA, mutation, { input }),
+      ).hermesSetWorkspaceBotPolicy;
+      expect(updated).toMatchObject({ scope: 'EMAIL', mode: 'OFF' });
+      expect(
+        await repository.findOneBy({ workspaceId: A, scope: 'EMAIL' }),
+      ).toMatchObject({ mode: 'OFF' });
+      expect(
+        successful(await api(tokenB, query)).hermesWorkspaceBotPolicies,
+      ).toEqual(beforeB);
+      expect(
+        (await api(tokenA, mutation, { input })).errors?.length,
+      ).toBeGreaterThan(0);
+      expect(sends).toBe(2);
+    } finally {
+      if (previous) await repository.save(previous);
+      else await repository.delete({ workspaceId: A, scope: 'EMAIL' });
+    }
   });
   it('refuses an existing session immediately after native membership revocation', async () => {
     const membership = memberships.find(

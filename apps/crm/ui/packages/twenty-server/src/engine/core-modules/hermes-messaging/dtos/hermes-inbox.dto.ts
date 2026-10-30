@@ -7,6 +7,7 @@ import {
 } from '@nestjs/graphql';
 import {
   IsIn,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -101,6 +102,10 @@ export class HermesMessagingConnectionDTO {
   @Field() state: string;
   @Field() canSend: boolean;
   @Field() canSync: boolean;
+  @Field() canSendMedia: boolean;
+  @Field() canReceiveMedia: boolean;
+  @Field() canRecordVoice: boolean;
+  @Field() canComposeRichEmail: boolean;
   @Field(() => GraphQLISODateTime) lastCheckedAt: Date;
   @Field(() => String, { nullable: true }) errorCode: string | null;
 }
@@ -122,4 +127,44 @@ export class HermesInboxBotModeDTO {
   @Field(() => UUIDScalarType) conversationId: string;
   @Field() mode: string;
   @Field() status: string;
+}
+
+@InputType('HermesConversationBotPolicyInput')
+export class HermesConversationBotPolicyInputDTO {
+  @Field(() => UUIDScalarType) @IsUUID() conversationId: string;
+}
+@ObjectType('HermesConversationBotPolicy')
+export class HermesConversationBotPolicyDTO {
+  @Field(() => UUIDScalarType) conversationId: string;
+  @Field() localMode: string;
+  @Field() effectiveMode: string;
+  @Field() reason: string;
+  @Field() revision: string;
+  @Field() canDraft: boolean;
+  @Field() canAutoReply: boolean;
+}
+@InputType('HermesSetConversationBotPolicyInput')
+export class HermesSetConversationBotPolicyInputDTO extends HermesConversationBotPolicyInputDTO {
+  @Field() @IsIn(['INHERIT', 'AUTO', 'ASSISTED', 'OFF']) mode:
+    | 'INHERIT'
+    | 'AUTO'
+    | 'ASSISTED'
+    | 'OFF';
+  @Field() @IsString() @MinLength(64) @MaxLength(64) expectedRevision: string;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() delegateAuto?: boolean;
+}
+@ObjectType('HermesWorkspaceBotPolicy')
+export class HermesWorkspaceBotPolicyDTO {
+  @Field() scope: string;
+  @Field() mode: string;
+  @Field() revision: string;
+}
+@InputType('HermesSetWorkspaceBotPolicyInput')
+export class HermesSetWorkspaceBotPolicyInputDTO {
+  @Field() @IsIn(['WORKSPACE', 'WHATSAPP', 'EMAIL']) scope:
+    | 'WORKSPACE'
+    | 'WHATSAPP'
+    | 'EMAIL';
+  @Field() @IsIn(['AUTO', 'ASSISTED', 'OFF']) mode: 'AUTO' | 'ASSISTED' | 'OFF';
+  @Field() @IsString() @MinLength(64) @MaxLength(64) expectedRevision: string;
 }

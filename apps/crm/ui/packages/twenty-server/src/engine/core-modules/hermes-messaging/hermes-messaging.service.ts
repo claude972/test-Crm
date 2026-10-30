@@ -9,6 +9,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 import { DataSource, type EntityManager, IsNull } from 'typeorm';
 import { z } from 'zod';
+import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesInboxMessageEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity';
 import { HermesMessagingAdapterRegistry } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-adapter.registry';
@@ -31,6 +32,9 @@ import {
   type HermesMessagingChannel,
   type HermesMessagingEvent,
   type HermesMessagingBotResult,
+  type HermesBotPolicyMode,
+  type HermesBotPolicyScope,
+  type HermesConversationBotPolicy,
 } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 import { HermesMessagingAccessService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-access.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -107,6 +111,242 @@ export class HermesMessagingService {
     return canonical;
   }
 
+  private async botPolicy(
+    conversation: HermesConversationEntity,
+    manager: Pick<EntityManager, 'getRepository'> = this.dataSource,
+  ): Promise<HermesConversationBotPolicy> {
+    const repository = manager.getRepository(HermesBotPolicyEntity);
+    const workspace = await repository.findOneBy({
+      workspaceId: conversation.workspaceId,
+      scope: 'WORKSPACE',
+    });
+    const channel = await repository.findOneBy({
+      workspaceId: conversation.workspaceId,
+      scope: conversation.channel,
+    });
+    const rank: Record<string, number> = { OFF: 0, ASSISTED: 1, AUTO: 2 };
+    const localMode =
+      conversation.botMode === 'MANUAL' ? 'ASSISTED' : conversation.botMode;
+    const workspaceMode = workspace?.mode ?? 'ASSISTED';
+    const channelMode = channel?.mode ?? workspaceMode;
+    const localPolicy = localMode === 'INHERIT' ? 'AUTO' : localMode;
+    const candidates = [
+      { mode: workspaceMode, reason: 'WORKSPACE_POLICY' },
+      { mode: channelMode, reason: 'CHANNEL_POLICY' },
+      { mode: localPolicy, reason: 'LOCAL_POLICY' },
+    ];
+    const invalid = candidates.some(
+      ({ mode }) => !['OFF', 'ASSISTED', 'AUTO'].includes(mode),
+    );
+    const effective = candidates.reduce((left, right) =>
+      rank[right.mode] < rank[left.mode] ? right : left,
+    );
+    const effectiveMode = invalid
+      ? 'OFF'
+      : (effective.mode as HermesBotPolicyMode);
+    const canDraft = effectiveMode !== 'OFF' && !!this.registry.getBot();
+    return {
+      conversationId: conversation.id,
+      localMode,
+      effectiveMode,
+      reason: invalid ? 'BOT_POLICY_INVALID' : effective.reason,
+      revision: messagingDigest([
+        conversation.workspaceId,
+        conversation.id,
+        conversation.botMode,
+        conversation.botModeUpdatedAt,
+        workspace?.mode,
+        workspace?.updatedAt,
+        channel?.mode,
+        channel?.updatedAt,
+      ]),
+      canDraft,
+      canAutoReply:
+        effectiveMode === 'AUTO' &&
+        !!conversation.botOwnerUserWorkspaceId &&
+        !!conversation.botModeUpdatedAt &&
+        canDraft,
+    };
+  }
+
+  async conversationBotPolicy(
+    actor: HermesMessagingActor,
+    raw: { conversationId: string },
+  ) {
+    await this.access.assertAllowed(actor);
+    const input = this.parse(
+      z.object({ conversationId: z.string().uuid() }).strict(),
+      raw,
+    );
+    const result = await this.botPolicy(
+      await this.conversation(actor.workspaceId, input.conversationId),
+    );
+    await this.access.assertAllowed(actor);
+    return result;
+  }
+
+  private async workspaceBotPoliciesWithManager(
+    workspaceId: string,
+    manager: Pick<EntityManager, 'getRepository'> = this.dataSource,
+  ) {
+    return Promise.all(
+      (['WORKSPACE', 'WHATSAPP', 'EMAIL'] as const).map(async (scope) => {
+        const policy = await manager
+          .getRepository(HermesBotPolicyEntity)
+          .findOneBy({ workspaceId, scope });
+        return {
+          scope,
+          mode:
+            policy?.mode ?? (scope === 'WORKSPACE' ? 'ASSISTED' : 'INHERIT'),
+          revision: messagingDigest([
+            workspaceId,
+            scope,
+            policy?.mode,
+            policy?.updatedAt,
+          ]),
+        };
+      }),
+    );
+  }
+
+  async workspaceBotPolicies(actor: HermesMessagingActor) {
+    await this.access.assertAllowed(actor);
+    const result = await this.workspaceBotPoliciesWithManager(
+      actor.workspaceId,
+    );
+    await this.access.assertAllowed(actor);
+    return result;
+  }
+
+  async setWorkspaceBotPolicy(
+    actor: HermesMessagingActor,
+    raw: {
+      scope: HermesBotPolicyScope;
+      mode: HermesBotPolicyMode;
+      expectedRevision: string;
+    },
+  ) {
+    await this.access.assertAllowed(actor);
+    const input = this.parse(
+      z
+        .object({
+          scope: z.enum(['WORKSPACE', 'WHATSAPP', 'EMAIL']),
+          mode: z.enum(['AUTO', 'ASSISTED', 'OFF']),
+          expectedRevision: z.string().regex(/^[a-f0-9]{64}$/),
+        })
+        .strict(),
+      raw,
+    );
+    return this.transaction(actor.workspaceId, async (manager) => {
+      const policies = await this.workspaceBotPoliciesWithManager(
+        actor.workspaceId,
+        manager,
+      );
+      if (
+        policies.find((policy) => policy.scope === input.scope)?.revision !==
+        input.expectedRevision
+      )
+        throw new ConflictException('BOT_POLICY_STALE');
+      const workspaceMode = policies.find(
+        (policy) => policy.scope === 'WORKSPACE',
+      )!.mode;
+      const rank: Record<string, number> = { OFF: 0, ASSISTED: 1, AUTO: 2 };
+      if (input.scope !== 'WORKSPACE' && rank[input.mode] > rank[workspaceMode])
+        throw new ConflictException('BOT_POLICY_RESTRICTION');
+      const repository = manager.getRepository(HermesBotPolicyEntity);
+      const previous = await repository.findOneBy({
+        workspaceId: actor.workspaceId,
+        scope: input.scope,
+      });
+      const at = new Date(
+        Math.max(Date.now(), (previous?.updatedAt.getTime() ?? 0) + 1),
+      );
+      await repository.save({
+        workspaceId: actor.workspaceId,
+        scope: input.scope,
+        mode: input.mode,
+        updatedAt: at,
+        updatedByUserWorkspaceId: actor.userWorkspaceId,
+      });
+      // A parent edit invalidates delegations; relaxing it must never reactivate an old grant.
+      const criteria =
+        input.scope === 'WORKSPACE'
+          ? { workspaceId: actor.workspaceId }
+          : { workspaceId: actor.workspaceId, channel: input.scope };
+      await manager
+        .getRepository(HermesConversationEntity)
+        .update(criteria, { botOwnerUserWorkspaceId: null });
+      return (
+        await this.workspaceBotPoliciesWithManager(actor.workspaceId, manager)
+      ).find((policy) => policy.scope === input.scope)!;
+    });
+  }
+
+  async setConversationBotPolicy(
+    actor: HermesMessagingActor,
+    raw: {
+      conversationId: string;
+      mode: 'INHERIT' | HermesBotPolicyMode;
+      expectedRevision: string;
+      delegateAuto?: boolean;
+    },
+  ) {
+    await this.access.assertAllowed(actor);
+    const input = this.parse(
+      z
+        .object({
+          conversationId: z.string().uuid(),
+          mode: z.enum(['INHERIT', 'AUTO', 'ASSISTED', 'OFF']),
+          expectedRevision: z.string().regex(/^[a-f0-9]{64}$/),
+          delegateAuto: z.boolean().optional(),
+        })
+        .strict(),
+      raw,
+    );
+    return this.transaction(actor.workspaceId, async (manager) => {
+      const repository = manager.getRepository(HermesConversationEntity);
+      const current = await repository.findOneBy({
+        workspaceId: actor.workspaceId,
+        id: input.conversationId,
+      });
+      if (!current) throw new NotFoundException('CONVERSATION_NOT_FOUND');
+      if (
+        (await this.botPolicy(current, manager)).revision !==
+        input.expectedRevision
+      )
+        throw new ConflictException('BOT_POLICY_STALE');
+      const candidate = { ...current, botMode: input.mode };
+      const result = await this.botPolicy(candidate, manager);
+      if (input.mode !== 'INHERIT' && result.effectiveMode !== input.mode)
+        throw new ConflictException('BOT_POLICY_RESTRICTION');
+      if (result.effectiveMode === 'AUTO' && input.delegateAuto !== true)
+        throw new ConflictException('BOT_DELEGATION_REQUIRED');
+      if (
+        result.effectiveMode === 'AUTO' &&
+        (await manager.getRepository(HermesInboxMessageEntity).countBy({
+          workspaceId: actor.workspaceId,
+          conversationId: current.id,
+          errorCode: 'CONTACT_HANDLE_CHANGED',
+        }))
+      )
+        throw new ConflictException('CONVERSATION_CONTACT_REVIEW_REQUIRED');
+      const at = new Date(
+        Math.max(Date.now(), (current.botModeUpdatedAt?.getTime() ?? 0) + 1),
+      );
+      const update = {
+        botMode: input.mode,
+        botModeUpdatedAt: at,
+        botOwnerUserWorkspaceId:
+          result.effectiveMode === 'AUTO' ? actor.userWorkspaceId : null,
+      };
+      await repository.update(
+        { workspaceId: actor.workspaceId, id: current.id },
+        update,
+      );
+      return this.botPolicy({ ...current, ...update }, manager);
+    });
+  }
+
   async connections(actor: HermesMessagingActor) {
     await this.access.assertAllowed(actor);
     const result = await Promise.all(
@@ -156,7 +396,13 @@ export class HermesMessagingService {
       }),
     );
     await this.access.assertAllowed(actor);
-    return result;
+    return result.map((connection) => ({
+      ...connection,
+      canSendMedia: false,
+      canReceiveMedia: false,
+      canRecordVoice: false,
+      canComposeRichEmail: false,
+    }));
   }
 
   async conversations(
@@ -300,6 +546,9 @@ export class HermesMessagingService {
       actor.workspaceId,
       input.conversationId,
     );
+    const policy = await this.botPolicy(conversation);
+    if (policy.effectiveMode === 'OFF')
+      throw new ConflictException('BOT_POLICY_OFF');
     const message = await this.dataSource
       .getRepository(HermesInboxMessageEntity)
       .findOneBy({
@@ -351,7 +600,23 @@ export class HermesMessagingService {
       };
     }
     await this.access.assertAllowed(actor);
+    const current = await this.botPolicy(
+      await this.conversation(actor.workspaceId, conversation.id),
+    );
+    if (current.effectiveMode === 'OFF' || current.revision !== policy.revision)
+      throw new ConflictException('BOT_POLICY_STALE');
     return result;
+  }
+
+  private async isBotAllowed(
+    conversation: HermesConversationEntity,
+    grant: BotGrant,
+    manager: Pick<EntityManager, 'getRepository'> = this.dataSource,
+  ): Promise<boolean> {
+    return (
+      this.isBotGrant(conversation, grant) &&
+      (await this.botPolicy(conversation, manager)).effectiveMode === 'AUTO'
+    );
   }
 
   private isBotGrant(
@@ -359,7 +624,7 @@ export class HermesMessagingService {
     grant: BotGrant,
   ): boolean {
     return (
-      conversation.botMode === 'AUTO' &&
+      ['AUTO', 'INHERIT'].includes(conversation.botMode) &&
       conversation.botOwnerUserWorkspaceId === grant.ownerUserWorkspaceId &&
       conversation.botModeUpdatedAt?.toISOString() === grant.epoch
     );
@@ -387,13 +652,11 @@ export class HermesMessagingService {
       status = mode === 'MANUAL' ? 'MANUAL' : 'ACTIVE';
     if (
       mode === 'AUTO' &&
-      (await this.dataSource
-        .getRepository(HermesInboxMessageEntity)
-        .countBy({
-          workspaceId: actor.workspaceId,
-          conversationId: conversation.id,
-          errorCode: 'CONTACT_HANDLE_CHANGED',
-        }))
+      (await this.dataSource.getRepository(HermesInboxMessageEntity).countBy({
+        workspaceId: actor.workspaceId,
+        conversationId: conversation.id,
+        errorCode: 'CONTACT_HANDLE_CHANGED',
+      }))
     ) {
       mode = 'MANUAL';
       status = 'UNAVAILABLE';
@@ -423,29 +686,9 @@ export class HermesMessagingService {
           status = 'UNAVAILABLE';
         }
     }
-    if (mode === 'AUTO') {
-      const latest = await this.dataSource
-        .getRepository(HermesInboxMessageEntity)
-        .findOne({
-          where: {
-            workspaceId: actor.workspaceId,
-            conversationId: conversation.id,
-            direction: 'INBOUND',
-            canonicalMessageId: IsNull(),
-          },
-          order: { occurredAt: 'DESC', id: 'DESC' },
-        });
-      const draft = latest
-        ? await this.draftReply(actor, {
-            conversationId: conversation.id,
-            messageId: latest.id,
-          })
-        : { status: 'UNAVAILABLE' };
-      if (draft.status !== 'READY') {
-        mode = 'MANUAL';
-        status =
-          draft.status === 'NOT_CONFIGURED' ? 'NOT_CONFIGURED' : 'UNAVAILABLE';
-      }
+    if (mode === 'AUTO' && !this.registry.getBot()) {
+      mode = 'MANUAL';
+      status = 'NOT_CONFIGURED';
     }
     await this.access.assertAllowed(actor);
     return this.transaction(actor.workspaceId, async (manager) => {
@@ -455,6 +698,14 @@ export class HermesMessagingService {
         id: conversation.id,
       });
       if (!current) throw new NotFoundException('CONVERSATION_NOT_FOUND');
+      if (current.botMode === 'OFF')
+        throw new ConflictException('BOT_POLICY_RESTRICTION');
+      if (
+        input.mode === 'AUTO' &&
+        (await this.botPolicy({ ...current, botMode: 'AUTO' }, manager))
+          .effectiveMode !== 'AUTO'
+      )
+        throw new ConflictException('BOT_POLICY_RESTRICTION');
       if (
         input.mode === 'AUTO' &&
         (current.botModeUpdatedAt?.toISOString() ?? null) !==
@@ -517,7 +768,7 @@ export class HermesMessagingService {
   ): Promise<void> {
     const conversation = await this.conversation(workspaceId, conversationId);
     if (
-      conversation.botMode !== 'AUTO' ||
+      !['AUTO', 'INHERIT'].includes(conversation.botMode) ||
       !conversation.botOwnerUserWorkspaceId ||
       !conversation.botModeUpdatedAt
     )
@@ -542,6 +793,7 @@ export class HermesMessagingService {
         .findOneBy({ workspaceId, clientRequestId })
     )
       return;
+    if (!(await this.isBotAllowed(conversation, grant))) return;
     const membership = await this.dataSource
       .getRepository(UserWorkspaceEntity)
       .findOneBy({
@@ -580,10 +832,10 @@ export class HermesMessagingService {
         return;
       }
       if (
-        !this.isBotGrant(
+        !(await this.isBotAllowed(
           await this.conversation(workspaceId, conversationId),
           grant,
-        )
+        ))
       )
         return;
       if (
@@ -693,7 +945,7 @@ export class HermesMessagingService {
             contactHandle: handle,
             subject: event.subject ?? null,
             lastMessageAt: at,
-            botMode: 'MANUAL',
+            botMode: 'INHERIT',
             botOwnerUserWorkspaceId: null,
             botModeUpdatedAt: null,
           });
@@ -742,7 +994,7 @@ export class HermesMessagingService {
       actor.workspaceId,
       input.conversationId,
     );
-    if (botGrant && !this.isBotGrant(conversation, botGrant))
+    if (botGrant && !(await this.isBotAllowed(conversation, botGrant)))
       throw new ConflictException('BOT_HUMAN_HANDOFF');
     const contactConflict = await this.dataSource
       .getRepository(HermesInboxMessageEntity)
@@ -793,7 +1045,10 @@ export class HermesMessagingService {
           const current = await manager
             .getRepository(HermesConversationEntity)
             .findOneBy({ workspaceId: actor.workspaceId, id: conversation.id });
-          if (!current || !this.isBotGrant(current, botGrant))
+          if (
+            !current ||
+            !(await this.isBotAllowed(current, botGrant, manager))
+          )
             throw new ConflictException('BOT_HUMAN_HANDOFF');
         }
         const repository = manager.getRepository(HermesInboxMessageEntity);
@@ -853,10 +1108,10 @@ export class HermesMessagingService {
       await this.access.assertAllowed(actor);
       if (
         botGrant &&
-        !this.isBotGrant(
+        !(await this.isBotAllowed(
           await this.conversation(actor.workspaceId, conversation.id),
           botGrant,
-        )
+        ))
       )
         throw new ConflictException('BOT_HUMAN_HANDOFF');
     } catch (error) {

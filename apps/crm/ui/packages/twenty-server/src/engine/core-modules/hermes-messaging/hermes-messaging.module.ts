@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesInboxMessageEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity';
 import { HermesMessagingAccessService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-access.service';
@@ -17,6 +18,7 @@ import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-t
     UserRoleModule,
     TypeOrmModule.forFeature([
       HermesConversationEntity,
+      HermesBotPolicyEntity,
       HermesInboxMessageEntity,
       UserWorkspaceEntity,
       RoleTargetEntity,

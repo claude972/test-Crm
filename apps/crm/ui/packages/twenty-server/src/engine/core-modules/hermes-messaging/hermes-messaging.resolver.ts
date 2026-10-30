@@ -17,6 +17,11 @@ import {
   HermesMessagingConnectionDTO,
   HermesInboxSetBotModeInputDTO,
   HermesInboxBotModeDTO,
+  HermesConversationBotPolicyInputDTO,
+  HermesConversationBotPolicyDTO,
+  HermesSetConversationBotPolicyInputDTO,
+  HermesWorkspaceBotPolicyDTO,
+  HermesSetWorkspaceBotPolicyInputDTO,
 } from 'src/engine/core-modules/hermes-messaging/dtos/hermes-inbox.dto';
 import { HermesMessagingService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -130,6 +135,66 @@ export class HermesMessagingResolver {
     @Args('input') input: HermesInboxSetBotModeInputDTO,
   ) {
     return this.messaging.setBotMode(
+      {
+        workspaceId: workspace.id,
+        userId: user.id,
+        userWorkspaceId: membership,
+      },
+      input,
+    );
+  }
+  @Query(() => HermesConversationBotPolicyDTO)
+  hermesConversationBotPolicy(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() membership: string,
+    @Args('input') input: HermesConversationBotPolicyInputDTO,
+  ) {
+    return this.messaging.conversationBotPolicy(
+      {
+        workspaceId: workspace.id,
+        userId: user.id,
+        userWorkspaceId: membership,
+      },
+      input,
+    );
+  }
+  @Mutation(() => HermesConversationBotPolicyDTO)
+  hermesSetConversationBotPolicy(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() membership: string,
+    @Args('input') input: HermesSetConversationBotPolicyInputDTO,
+  ) {
+    return this.messaging.setConversationBotPolicy(
+      {
+        workspaceId: workspace.id,
+        userId: user.id,
+        userWorkspaceId: membership,
+      },
+      input,
+    );
+  }
+  @Query(() => [HermesWorkspaceBotPolicyDTO])
+  hermesWorkspaceBotPolicies(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() membership: string,
+  ) {
+    return this.messaging.workspaceBotPolicies({
+      workspaceId: workspace.id,
+      userId: user.id,
+      userWorkspaceId: membership,
+    });
+  }
+  @Mutation(() => HermesWorkspaceBotPolicyDTO)
+  hermesSetWorkspaceBotPolicy(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() membership: string,
+    @Args('input') input: HermesSetWorkspaceBotPolicyInputDTO,
+  ) {
+    return this.messaging.setWorkspaceBotPolicy(
       {
         workspaceId: workspace.id,
         userId: user.id,
