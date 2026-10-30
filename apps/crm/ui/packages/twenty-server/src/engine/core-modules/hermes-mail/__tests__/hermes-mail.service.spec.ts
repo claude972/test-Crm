@@ -244,6 +244,24 @@ describe('Hermes mailbox bridge', () => {
     );
     expect(f.transport.close).toHaveBeenCalledTimes(1);
   });
+  it('refuses replying to the delegated mailbox itself before opening SMTP', async () => {
+    const f = fixture();
+    await expect(
+      f.service.send({ ...input, contactHandle: 'inbox@example.com' }),
+    ).rejects.toThrow('INVALID_RECIPIENT');
+    expect(f.smtp.getClient).not.toHaveBeenCalled();
+    expect(f.transport.sendMail).not.toHaveBeenCalled();
+  });
+  it('expires a stalled SMTP acknowledgement without retrying or claiming acceptance', async () => {
+    const f = fixture();
+    f.transport.sendMail.mockImplementation(() => new Promise(() => {}));
+    const sent = f.service.send(input);
+    const observed = expect(sent).rejects.toThrow('SEND_OUTCOME_UNCONFIRMED');
+    await jest.advanceTimersByTimeAsync(30001);
+    await observed;
+    expect(f.transport.sendMail).toHaveBeenCalledTimes(1);
+    expect(f.transport.close).toHaveBeenCalled();
+  });
   it('never upgrades a missing acknowledgement to acceptance and never retries', async () => {
     const f = fixture();
     f.transport.sendMail.mockRejectedValue(new Error('DATA ack lost'));

@@ -103,6 +103,33 @@ describe('Hermes native mailbox policy', () => {
     expect(one?.providerMessageId).toBe('imap:INBOX:456:12');
     expect(one?.providerMessageId).toBe(two?.providerMessageId);
   });
+  it('keeps different physical deliveries when a sender reuses Message-ID', async () => {
+    const source = (body: string) =>
+      Buffer.from(
+        'From: person@example.com\r\nMessage-ID: <reused@example.com>\r\n\r\n' +
+          body,
+      );
+    const args = {
+      workspaceId,
+      connectionId: 'mail-a',
+      mailbox: 'INBOX',
+      uidValidity: '456',
+    };
+    const first = await parseHermesMail({
+      ...args,
+      uid: 12,
+      source: source('First'),
+    });
+    const second = await parseHermesMail({
+      ...args,
+      uid: 13,
+      source: source('Changed'),
+    });
+    expect(first?.providerMessageId).not.toBe(second?.providerMessageId);
+    expect(first?.providerConversationId).toBe(second?.providerConversationId);
+    expect(first?.providerMetadata?.rfcMessageId).toBe('<reused@example.com>');
+    expect(second?.text).toBe('Changed');
+  });
   it('does not execute or retain HTML markup', async () => {
     const event = await parse(
       'From: person@example.com\r\nContent-Type: text/html\r\n\r\n<p>Hello</p><img src="https://example.com/tracker">',
