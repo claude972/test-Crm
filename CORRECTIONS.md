@@ -372,6 +372,47 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Prospection B2B — cadrage intégré au plan frontend, aucune exécution
+
+Spécification lue en entier : `docs/handoff/hermes-prospection-b2b-spec.md` (`7f8ef26db`), et intégrée au chantier **`feat/claude-hermes-connectors-ui`**. **Aucun second chantier concurrent.**
+
+**Cadre explicite, et je m'y tiens** : ceci est un cadrage fonctionnel. **Aucune collecte n'est lancée, aucun envoi vers de vrais prospects n'est effectué ni autorisé par ce document, et aucune implémentation n'est annoncée comme testée.** Je n'ai écrit aucun code de campagne ni de collecte.
+
+### Ce que je retiens comme contraintes de conception, pas comme intentions
+
+Quatre distinctions que la spécification impose et que l'interface doit rendre **impossibles à confondre** — c'est la part qui m'incombe :
+
+1. **« B2B » n'est pas une autorisation.** La spécification est nette : « la seule mention B2B ne rend pas n'importe quelle collecte/campagne licite », et la présence d'une donnée sur Internet « n'accorde pas une autorisation générale de prospection ». L'écran ne doit donc jamais présenter un contact importé comme éligible du seul fait de son import. **Éligibilité, validité d'adresse, statut CRM et accord au suivi sont quatre dimensions distinctes.**
+2. **Suivi d'ouverture désactivé par défaut.** L'activation exige une autorisation documentée ou une exemption précisément établie. « L'éligibilité B2B à la prospection n'est pas un accord automatique aux pixels de suivi. » Conséquence d'interface : l'option par défaut est **désactivée**, et l'activer demande de désigner la base invoquée — jamais une simple bascule.
+3. **Quatre états d'ouverture, jamais un seul.** « ouverture détectée », « aucune ouverture détectée », « suivi désactivé », « mesure indisponible ». Un chargement d'image n'est **pas** une preuve de lecture, et son absence **ne prouve pas** le contraire. Donc : **aucun libellé « non lu »**, et **aucune relance automatique** sur l'absence de pixel. Les dashboards affichent les **dénominateurs** et n'attribuent aucun taux d'ouverture aux destinataires non mesurables.
+4. **Acceptation SMTP ≠ livraison ≠ ouverture.** « Les mots connecté, envoyé, livré ou ouvert doivent correspondre à des preuves distinctes. » Une livraison ne s'affiche confirmée que si une source fiable la confirme.
+
+C'est exactement la discipline du composant déjà livré en `9f57915fb` : `pending` y est le seul contour tiré parce qu'une attente ne doit pas se lire comme une confirmation. Les états de campagne étendront ce vocabulaire plutôt que d'en créer un second.
+
+### Deux conséquences d'interface que je relève et qui ne sont pas évidentes
+
+**La page de désinscription doit être en deux temps.** La spécification demande de ne pas déclencher une opposition « par la simple prévisualisation automatique d'un lien GET », et renvoie à la RFC 8058. Conséquence concrète : le lien `GET` affiche une **page de confirmation**, et seul un `POST` enregistre l'opposition. Sans cela, un scanner de messagerie ou un préchargement de client mail désinscrirait des destinataires à leur insu — un faux positif silencieux et irréversible côté destinataire.
+
+**Cette page est publique et ne doit rien divulguer.** Le destinataire se désinscrit « sans compte CRM », et la spécification exige que les identifiants de suivi soient opaques et qu'« aucune donnée client ne soit révélée par une route publique ». L'écran n'affichera donc que l'**identité de la société expéditrice** et l'action — ni fiche, ni nom d'interlocuteur, ni appartenance, ni liste. Une route publique qui confirmerait « vous êtes bien Untel chez Machin » serait une fuite par conception.
+
+**L'opposition est durable et par société expéditrice**, pour toutes ses campagnes, vérifiée à l'import **et juste avant l'expédition**, sans réactivation silencieuse après scraping, fusion ou réimport. L'interface doit donc montrer l'exclusion **et sa raison**, et ne jamais présenter un réimport comme une remise à zéro.
+
+### Ce qui n'est pas de mon ressort, et que je ne trancherai pas
+
+La **détermination de la base légale** — information, droit d'opposition, pertinence de la sollicitation, distinction adresses nominatives et génériques, portée des exemptions — n'est pas une décision d'ingénierie et je ne la prendrai pas. La spécification porte les références officielles ; mon rôle est que l'**option par défaut soit la plus prudente** et que les distinctions restent visibles à l'écran, pas de qualifier juridiquement un traitement.
+
+### Intégration au plan, sans nouveau chantier
+
+L'ordre de lots de la spécification est compatible avec le mien et le remplace là où il est plus précis : (1) base CRM et collecte en attente de qualification ; (2) rapprochement, provenance, exclusions ; (3) campagnes SMTP **sans** suivi, désinscription incluse **dès ce lot** ; (4) suivi facultatif et son autorisation ; (5) dashboard et recette.
+
+Je relève que la désinscription arrive **dès le lot 3**, avant tout suivi — l'ordre est juste, et je ne le réordonnerai pas.
+
+Dépendances qui restent bloquantes et que je ne contournerai pas : le **réception entrant e-mail** reste un choix distinct non tranché, donc aucun parcours de réponse entrante ne sera revendiqué ; les **contrats et la validation** appartiennent à Codex et ne seront pas consommés avant publication ; et `P0-STRUCT-001` — la persistance navigateur non rattachée au contexte — **touche directement ces écrans**, puisque lots, campagnes et statistiques doivent rester cloisonnés par société expéditrice.
+
+### Limites
+
+Aucun écran de prospection n'est écrit. Aucun build, typecheck ni rendu de ce périmètre. **Rien n'est testé, et je ne présenterai aucun de ces éléments comme implémenté ou vérifié.**
+
 ## Multi-structure et contrat inter-modules — lecture, adaptation et un blocage trouvé
 
 Contrats lus avant toute décision d'écran, comme imposé : `docs/handoff/hermes-integration-contract.md` (`b38862269`) et `docs/handoff/hermes-multi-structure-contract.md` (`23d93951e`).
