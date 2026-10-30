@@ -397,15 +397,16 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 - deliverables: prototype statique HTML/CSS autonome proposant3pistes distinctes inspirées Pipedrive,4écrans par piste (dashboard, prospection, messagerie, Réglages société/connexions/bots), responsive390px etdesktop, contenu français, données fictives clairement marquées, aucune API. Noms/icônes/accessibilité cohérents ; un seul centre Réglages, pas d'interrupteur de configuration dans les modules.
 - acceptance: images concrètes et maquettes navigables sans câblage ; captures desktop/mobile, provenance de références, codes/décisions design ; commit/push de la branche et rapport partagé. La validation des maquettes reste utilisateur.
 - verification report: CORRECTIONS.md, section HERMES-V2-MAQUETTES-20261030/Claude ; Root reprend les captures et la revue.
-- dispatch: session à contacter après publication de cette affectation ; publication seule n'est pas un démarrage prouvé.
+- dispatch: prompt envoyé via session 2418, accepté par Claude à 17:48:31 UTC ; fichiers de prototype en cours dans le worktree attribué.
 
 ### Codex — contrats et vérification
 - agent: codex
-- status: in_progress
+- status: ready_for_review
 - branch: feat/codex-hermes-v2-core ; worktree créé /Volumes/Stockage/dev/hermes-crm/v2-codex-contracts (sparse docs uniquement).
 - ownership: docs/handoff/hermes-v2-settings-bots-contract.md et hermes-v2-company-prospection-contract.md ; root possède coordination et vérification des maquettes ; ne pas modifier les fichiers Claude.
 - deliverables: contrats cible explicitement non implémentés, matrice des droits/scopes, vrai OFF par société/canal, sociétés/session/caches/onglets, données de prospection et recette ; chemins/signatures sources prouvés ; pas de fausse API existante.
 - acceptance: isolation A/B/C et arrêt en vol décrits, aucune fuite de secret ni nouveau stockage/câblage réel, revue du prototype exact et images ; pas de test/app/deploy annoncé comme fait sans preuve.
+- implementation revision: 9ed917ead33cef2b739e1b8386281776f11b735f ; contrats publiés, revues Codex réciproques faites, revue Claude en attente.
 - dependency: design validé avant code applicatif. Codex peut préparer les contrats sans modifier les fonctionnalités pendant les maquettes.
 
 ### Garde commune

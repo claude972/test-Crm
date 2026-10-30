@@ -1156,3 +1156,9 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Contrats : [Réglages/bots](https://github.com/claude972/test-Crm/blob/a26c2121e/docs/handoff/hermes-v2-settings-bots-contract.md) ; [sociétés/prospection](https://github.com/claude972/test-Crm/blob/a26c2121e/docs/handoff/hermes-v2-company-prospection-contract.md).
 - Claude session `8f3db32e` a reçu demande de lecture/cohérence et revue croisée sur ce SHA après checkpoint visuel. Revue Claude pas encore reçue, donc Codex non marqué done.
 - Maquettes Claude : données fictives et coquille HTML créées, travail encore en cours. Root a inspecté une capture officielle Pipedrive et transmis les caractéristiques observées ; serveur statique local dédié aux futures captures démarré, aucun backend. Projet Vercel existant vérifié, protection globale inchangée (`all_except_custom_domains`).
+
+### V2-CONTRACT-001 — codes erreur exacts, 2026-10-30 17:53 UTC
+- reviewer: Codex `v2_settings_contract` ; assigned agent: codex ; reviewed branch: feat/codex-hermes-v2-core ; reviewed revision: a26c2121e ; status: verified.
+- Finding : le tableau intake abrégeait les codes sans l’annoncer. Source `hermes-intake.service.ts:46–105` préfixe tous ces codes `HERMES_INTAKE_` ; replay store `hermes-intake-replay.service.ts:53` émet aussi indisponibilité503.
+- Fix commit : 9ed917ead33cef2b739e1b8386281776f11b735f ; codes complets rétablis et erreur replay-store ajoutée. Root a confronté au code source et exécuté diff whitespace propre.
+- Revue réciproque `v2_company_prospection_contract` du document Réglages/Bots a26c2121e : aucune erreur démontrée dans les scopes, droits, OFF, concurrence, epochs et mail. Limite : statique seulement ; revue Claude du checkpoint final encore attendue.
