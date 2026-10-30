@@ -1,8 +1,9 @@
+import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
 import { PROSPECTION_RECEPTION_PATH } from '@/prospection/constants/ProspectionRoutePaths';
 import { HERMES_SHELL_ROUTE_PATHS } from '@/hermes-shell/constants/HermesShellRoutePaths';
 
 export type HermesModuleNavigationItem = {
-  key: 'dashboard' | 'reception';
+  key: 'dashboard' | 'reception' | 'messaging';
   to: string;
   isActive: boolean;
 };
@@ -36,6 +37,17 @@ export const buildHermesModuleNavigationItems = ({
   ];
 
   if (hasWorkspacePermission) {
+    // Same gate as the reception: the inbox operations are restricted server
+    // side to unrestricted workspace administrators, and a link that only ever
+    // leads to a refusal is worse than no link.
+    items.push({
+      key: 'messaging',
+      to: MESSAGING_INBOX_PATH,
+      // startsWith, so an opened conversation carried in the search parameters
+      // keeps the section marked as current.
+      isActive: pathname.startsWith(MESSAGING_INBOX_PATH),
+    });
+
     items.push({
       key: 'reception',
       to: PROSPECTION_RECEPTION_PATH,

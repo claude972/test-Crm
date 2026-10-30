@@ -428,6 +428,13 @@ msgstr ""
 msgid "{0} of {1}"
 msgstr "{0} sur {1}"
 
+#. js-lingui-id: QpXHR8
+#. placeholder {0}: i18n.number(text.length)
+#. placeholder {1}: i18n.number(MESSAGING_INBOX_REPLY_MAX_LENGTH)
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "{0} of {1} characters."
+msgstr "{0} sur {1} caractères."
+
 #. js-lingui-id: aSkIsO
 #. placeholder {0}: i18n.number(selectedRowIds.size)
 #. placeholder {1}: i18n.number(selectableRows.length)
@@ -453,6 +460,12 @@ msgstr "{0} désinscrit(s) de ce sujet"
 #: src/modules/prospection/components/HermesCampaignDraftForm.tsx
 msgid "{0} qualified rows selected, {1} at most. Nothing is sent."
 msgstr "{0} lignes qualifiées sélectionnées, {1} au maximum. Aucun envoi."
+
+#. js-lingui-id: JprfU6
+#. placeholder {0}: i18n.number(state.result.received)
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "{0} received."
+msgstr "{0} reçus."
 
 #. js-lingui-id: 55frRG
 #. placeholder {0}: index + 1
@@ -805,6 +818,11 @@ msgstr "{emoji} par {reactorNames}"
 #: src/pages/settings/admin-panel/SettingsAdminWorkspacesStatus.tsx
 msgid "{failedCount, plural, one {# workspace failed} other {# workspaces failed}}"
 msgstr ""
+
+#. js-lingui-id: yzgIM/
+#: src/modules/client-context/components/ClientContextProvenanceList.tsx
+msgid "{fallbackSourceName}, not attributed"
+msgstr "{fallbackSourceName}, non attribué"
 
 #. js-lingui-id: bPZh8X
 #: src/modules/activities/timeline-activities/rows/main-object/components/EventRowMainObjectUpdated.tsx
@@ -1186,6 +1204,16 @@ msgstr "{size} o"
 #: src/modules/object-record/object-filter-dropdown/utils/getActorSourceFilterDisplayValue.ts
 msgid "{sourceCount} source types"
 msgstr "{sourceCount} types de source"
+
+#. js-lingui-id: P0YkpE
+#: src/modules/client-context/components/ClientContextSourceNote.tsx
+msgid "{sourceName} is not read yet: its contract is not published."
+msgstr "{sourceName} n'est pas encore lu : son contrat n'est pas publié."
+
+#. js-lingui-id: 99Oypu
+#: src/modules/client-context/components/ClientContextSourceNote.tsx
+msgid "{sourceName} is not set up for this workspace."
+msgstr "{sourceName} n'est pas configuré pour cet espace de travail."
 
 #. js-lingui-id: CQxE7h
 #: src/modules/page-layout/widgets/call-recording-transcript/components/CallRecordingAudioPlayer.tsx
@@ -1682,6 +1710,11 @@ msgstr "Un résumé n'a pas pu être généré, car aucune transcription n'est d
 msgid "A summary is not available for this call recording yet."
 msgstr "Aucun résumé n'est encore disponible pour cet enregistrement d'appel."
 
+#. js-lingui-id: sh/Auf
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "A sync is already running."
+msgstr "Une synchronisation est déjà en cours."
+
 #. js-lingui-id: BIeqLF
 #: src/modules/validation-rules/utils/getValidationRuleErrorMessage.ts
 msgid "A text value is missing its closing quote"
@@ -1764,6 +1797,16 @@ msgstr "À propos de cet espace de travail"
 msgid "About your app"
 msgstr "À propos de votre application"
 
+#. js-lingui-id: M5SlPP
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
+msgid "Acceptance unknown"
+msgstr "Acceptation inconnue"
+
+#. js-lingui-id: bzMKg7
+#: src/modules/client-context/components/ClientBookingAttendeeTag.tsx
+msgid "Accepted"
+msgstr "Accepté"
+
 #. js-lingui-id: nJJAYH
 #: src/pages/settings/legal/SettingsLegalDpa.tsx
 msgid "Accepted and signed DPAs for this workspace, with their template version and date."
@@ -1773,6 +1816,16 @@ msgstr "DPAs acceptés et signés pour cet espace de travail, avec leur version 
 #: src/modules/prospection/components/HermesImportBatchForm.tsx
 msgid "Accepted fields: email, companyName, firstName, lastName, jobTitle, website, phone."
 msgstr "Champs acceptés : email, companyName, firstName, lastName, jobTitle, website, phone."
+
+#. js-lingui-id: ZK7TD1
+#: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
+msgid "Accepted, delivery unknown"
+msgstr "Accepté, livraison inconnue"
+
+#. js-lingui-id: QQjuIe
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
+msgid "Accepting collections"
+msgstr "Accepte les collectes"
 
 #. js-lingui-id: F3vVuj
 #: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordContent.tsx
@@ -1919,6 +1972,11 @@ msgstr "Action à approuver"
 #: src/pages/settings/admin-panel/SettingsAdminWorkspaceDetail.tsx
 msgid "Actions"
 msgstr "Actions"
+
+#. js-lingui-id: 7WeX50
+#: src/modules/client-context/components/ClientRecordNotesSection.tsx
+msgid "Actions recorded against this client. Received items only."
+msgstr "Actions enregistrées pour ce client. Uniquement les éléments reçus."
 
 #. js-lingui-id: N4ZcCd
 #: src/modules/settings/roles/role-permissions/object-level-permissions/object-form/components/SettingsRolePermissionsObjectLevelObjectFormObjectLevel.tsx
@@ -3227,6 +3285,7 @@ msgstr "Toutes les entreprises"
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
 #: src/modules/activities/calendar/components/CalendarEventRow.tsx
+#: src/modules/client-context/components/ClientBookingCard.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionCreateCalendarEvent.tsx
 msgid "All day"
 msgstr "Toute la journée"
@@ -3393,6 +3452,11 @@ msgstr "Toutes vos sociétés"
 #: src/modules/settings/roles/role-permissions/object-level-permissions/components/SettingsRolePermissionsObjectLevelObjectPicker.tsx
 msgid "All your custom objects"
 msgstr "Tous vos objets personnalisés"
+
+#. js-lingui-id: vTtMAH
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "All-day flag unknown"
+msgstr "Indicateur « toute la journée » inconnu"
 
 #. js-lingui-id: 2M5OF+
 #: src/modules/settings/roles/role-permissions/permission-flags/hooks/useActionRolePermissionFlagConfig.ts
@@ -3670,6 +3734,11 @@ msgstr "annuel"
 msgid "Annual"
 msgstr "Annuel"
 
+#. js-lingui-id: HWPyUI
+#: src/modules/client-context/components/ClientBookingAttendeeTag.tsx
+msgid "Answer unknown"
+msgstr "Réponse inconnue"
+
 #. js-lingui-id: GqCA/t
 #: src/modules/settings/admin-panel/components/SettingsAdminChatAskQuestionsPart.tsx
 msgid "Answered"
@@ -3680,6 +3749,17 @@ msgstr "Répondu"
 #: src/modules/workflow/workflow-variables/utils/generate/generateClassifyOutputSchema.ts
 msgid "Answers"
 msgstr "Réponses"
+
+#. js-lingui-id: 3tzRDa
+#. placeholder {0}: i18n.number(response.answers.length)
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
+msgid "Answers ({0})"
+msgstr "Réponses ({0})"
+
+#. js-lingui-id: v0qdQr
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
+msgid "Answers unreadable for this response."
+msgstr "Réponses illisibles pour cet envoi."
 
 #. js-lingui-id: 9BhGWn
 #. placeholder {0}: fieldMetadataItem.label
@@ -3780,6 +3860,7 @@ msgstr "Clés API"
 
 #. js-lingui-id: qBZ3ro
 #: src/modules/prospection/components/HermesCallFailureNote.tsx
+#: src/modules/prospection/components/HermesIntakeSection.tsx
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
 msgid "API keys, apps and impersonated sessions are refused."
 msgstr "Clés d'API, apps et sessions impersonnées sont refusées."
@@ -3999,6 +4080,22 @@ msgstr "Appliquer"
 #: src/modules/object-record/record-update-multiple/components/UpdateMultipleRecordsFooter.tsx
 msgid "Apply{progressText}"
 msgstr "Appliquer{progressText}"
+
+#. js-lingui-id: ld173u
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Appointment"
+msgstr "Rendez-vous"
+
+#. js-lingui-id: Yz2rvJ
+#: src/modules/client-context/components/ClientBookingsSection.tsx
+#: src/modules/client-context/components/ClientBookingsSection.tsx
+msgid "Appointments"
+msgstr "Rendez-vous"
+
+#. js-lingui-id: Oyotrq
+#: src/modules/client-context/components/ClientBookingsSection.tsx
+msgid "Appointments received for this client, through the native calendar object. Received items only."
+msgstr "Rendez-vous reçus pour ce client, via l'objet calendrier natif. Uniquement les éléments reçus."
 
 #. js-lingui-id: YLFgbC
 #: src/modules/ai/components/AiChatApprovalReviewDeck.tsx
@@ -4254,6 +4351,11 @@ msgstr "Demander une intervention humaine"
 msgid "Ask, search or make anything..."
 msgstr "Demandez, recherchez ou créez n'importe quoi..."
 
+#. js-lingui-id: 7pYbR6
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Asking for a draft…"
+msgstr "Demande de brouillon…"
+
 #. js-lingui-id: QVL/hg
 #: src/modules/ai/components/AiChatQuestionStatusRenderer.tsx
 msgid "Asking questions..."
@@ -4488,6 +4590,11 @@ msgstr "Pièces jointes"
 msgid "Attendees"
 msgstr "Participants"
 
+#. js-lingui-id: hJqVf+
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "Attendees unreadable for this appointment."
+msgstr "Participants illisibles pour ce rendez-vous."
+
 #. js-lingui-id: cHfbVT
 #: src/modules/prospection/components/CampaignAudiencesTable.tsx
 msgid "Audience"
@@ -4643,9 +4750,15 @@ msgstr "Mise à niveau automatique"
 
 #. js-lingui-id: Dnn2XG
 #: src/modules/ai/components/AiModelPicker.tsx
+#: src/modules/prospection/components/HermesCollectionOriginTag.tsx
 #: src/pages/settings/ai/components/SettingsAiModelsTab.tsx
 msgid "Automatic"
 msgstr "Automatique"
+
+#. js-lingui-id: PLL0Yy
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "Automatic reception"
+msgstr "Réception automatique"
 
 #. js-lingui-id: YRT7ZW
 #: src/modules/settings/accounts/components/SettingsAccountsCalendarChannelDetails.tsx
@@ -4683,6 +4796,11 @@ msgstr "Mettre automatiquement à niveau cette application lorsqu’une nouvelle
 #: src/pages/settings/applications/tabs/SettingsApplicationCommandMenuItemSettingsTab.tsx
 msgid "Availability"
 msgstr "Disponibilité"
+
+#. js-lingui-id: csDS2L
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Available"
+msgstr "Disponible"
 
 #. js-lingui-id: kfcRb0
 #: src/modules/ui/field/display/components/internal/AvatarOrIcon/AvatarOrIcon.tsx
@@ -4725,6 +4843,11 @@ msgstr "Retour"
 msgid "Back to {text}"
 msgstr "Retour à {text}"
 
+#. js-lingui-id: VckarZ
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Back to collections"
+msgstr "Retour aux collectes"
+
 #. js-lingui-id: Dht9W3
 #: src/pages/not-found/NotFound.tsx
 msgid "Back to content"
@@ -4747,8 +4870,8 @@ msgstr "Retour aux paramètres"
 
 #. js-lingui-id: EldJQu
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Back to the reception"
-msgstr "Retour à la réception"
+#~ msgid "Back to the reception"
+#~ msgstr "Retour à la réception"
 
 #. js-lingui-id: i8ZVQU
 #: src/modules/advanced-text-editor/constants/AdvancedTextEditorBlockCatalog.ts
@@ -4808,11 +4931,10 @@ msgstr "De base"
 
 #. js-lingui-id: rsx3xA
 #: src/modules/prospection/components/HermesImportBatchesTable.tsx
-msgid "Batch"
-msgstr "Lot"
+#~ msgid "Batch"
+#~ msgstr "Lot"
 
 #. js-lingui-id: w3Cbnk
-#: src/modules/prospection/components/HermesImportBatchDetail.tsx
 #: src/modules/prospection/components/HermesImportBatchForm.tsx
 msgid "Batch id"
 msgstr "Identifiant du lot"
@@ -4834,8 +4956,8 @@ msgstr "Nom de lot requis."
 
 #. js-lingui-id: Mr0W3W
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Batch not found in this workspace."
-msgstr "Lot introuvable dans ce workspace."
+#~ msgid "Batch not found in this workspace."
+#~ msgstr "Lot introuvable dans ce workspace."
 
 #. js-lingui-id: oAsYfI
 #: src/modules/prospection/components/HermesImportBatchForm.tsx
@@ -4852,6 +4974,11 @@ msgstr "Lot déposé."
 msgid "Batch staged. Replay status unknown."
 msgstr "Lot déposé. Rejeu inconnu."
 
+#. js-lingui-id: pji+5Z
+#: src/modules/prospection/components/HermesImportBatchForm.tsx
+msgid "Batch to deposit"
+msgstr "Lot à déposer"
+
 #. js-lingui-id: ULNNHd
 #. placeholder {0}: i18n.number(count)
 #. placeholder {1}: i18n.number(limit)
@@ -4861,13 +4988,13 @@ msgstr "Lot trop volumineux : {0} octets pour une limite de {1} octets."
 
 #. js-lingui-id: HGqMGy
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Batches"
-msgstr "Lots"
+#~ msgid "Batches"
+#~ msgstr "Lots"
 
 #. js-lingui-id: R/rzJy
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Batches staged for this workspace, with the status the server gave each row."
-msgstr "Lots déposés pour ce workspace, avec le statut attribué par le serveur à chaque ligne."
+#~ msgid "Batches staged for this workspace, with the status the server gave each row."
+#~ msgstr "Lots déposés pour ce workspace, avec le statut attribué par le serveur à chaque ligne."
 
 #. js-lingui-id: /xLNEx
 #: src/modules/activities/emails/components/EmailComposerFields.tsx
@@ -5054,6 +5181,11 @@ msgstr "Corps du message"
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/BodyInput.tsx
 msgid "Body Input"
 msgstr "Saisie du corps"
+
+#. js-lingui-id: c7cAza
+#: src/modules/client-context/components/ClientRecordNoteCard.tsx
+msgid "Body unreadable for this note."
+msgstr "Corps illisible pour cette note."
 
 #. js-lingui-id: KmydK6
 #: src/modules/advanced-text-editor/components/TextBubbleMenu.tsx
@@ -5690,8 +5822,14 @@ msgstr "Annulé"
 msgid "Canceled at"
 msgstr "Annulé le"
 
+#. js-lingui-id: LFSYfu
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "Cancellation unknown"
+msgstr "Annulation inconnue"
+
 #. js-lingui-id: vv7kpg
 #: src/modules/ai/constants/AiChatThreadReasons.ts
+#: src/modules/client-context/components/ClientBookingCard.tsx
 #: src/modules/object-core/agents/components/CoreAgentRunStatus.tsx
 msgid "Cancelled"
 msgstr "Annulé"
@@ -5931,9 +6069,10 @@ msgstr ""
 
 #. js-lingui-id: HdE1If
 #: src/modules/ai/components/AiChatThreadDetailsDropdown.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxChannelTabs.tsx
 #: src/modules/navigation-menu-item/edit/components/NavigationMenuItemTypeTooltip.tsx
 msgid "Channel"
-msgstr ""
+msgstr "Canal"
 
 #. js-lingui-id: CXcvq4
 #: src/modules/ai/components/NavigationDrawerAiChatChannelItem.tsx
@@ -5950,6 +6089,11 @@ msgstr ""
 #: src/modules/metadata-error-handler/hooks/useMetadataErrorHandler.ts
 msgid "channel role"
 msgstr ""
+
+#. js-lingui-id: g97661
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+msgid "Channel unknown"
+msgstr "Canal inconnu"
 
 #. js-lingui-id: lfFsZ4
 #: src/modules/ai/components/NavigationDrawerAiChatChannelsSection.tsx
@@ -6070,13 +6214,24 @@ msgstr "Vérifiez votre boîte de réception pour valider votre nouvelle adresse
 msgid "checkbox"
 msgstr ""
 
+#. js-lingui-id: VSGGki
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Checked"
+msgstr "Vérifié"
+
 #. js-lingui-id: w+pzSf
 #: src/modules/validation-rules/components/SettingsValidationRuleHelperDetails.tsx
 msgid "Checked only when the record this rule belongs to is saved. Editing the related record does not check it again."
 msgstr "Vérifiée uniquement lorsque l'enregistrement auquel cette règle appartient est enregistré. La modification de l'enregistrement associé ne la vérifie pas à nouveau."
 
+#. js-lingui-id: KnEY6F
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Checking the connection…"
+msgstr "Vérification de la connexion…"
+
 #. js-lingui-id: RLe7Vk
 #: src/modules/connectors/components/ConnectorStateTag.tsx
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
 msgid "Checking…"
 msgstr "Vérification…"
 
@@ -6457,6 +6612,11 @@ msgstr "ClickHouse est requis pour les journaux d'audit. Contactez votre adminis
 msgid "ClickHouse Not Configured"
 msgstr "ClickHouse non configuré"
 
+#. js-lingui-id: fwJ/Y3
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Client chronology"
+msgstr "Chronologie du client"
+
 #. js-lingui-id: b9Y4up
 #: src/modules/settings/security/components/sso/SettingsSsoOidcForm.tsx
 #: src/pages/settings/applications/tabs/SettingsApplicationRegistrationOAuthTab.tsx
@@ -6492,6 +6652,7 @@ msgstr "Le presse-papiers nécessite une connexion sécurisée (HTTPS). Veuillez
 #. js-lingui-id: yz7wBu
 #: src/modules/ai/components/AiChatCloseButton.tsx
 #: src/modules/front-components/media-session/components/FrontComponentMediaPermissionModal.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxChannelView.tsx
 #: src/modules/navigation-menu-item/edit/components/NavigationMenuItemAddDropdownContent.tsx
 #: src/modules/object-record/object-sort-dropdown/components/ObjectSortDropdownButton.tsx
 #: src/modules/onboarding/components/OnboardingSkipDialog.tsx
@@ -6578,6 +6739,7 @@ msgstr "code"
 #. js-lingui-id: EWPtMO
 #: src/modules/advanced-text-editor/components/TextBubbleMenu.tsx
 #: src/modules/ai/components/CodeExecutionDisplay.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/code-action/components/WorkflowEditActionCode.tsx
 msgid "Code"
 msgstr "Code"
@@ -6695,6 +6857,11 @@ msgstr "Collecté le"
 msgid "Collected on"
 msgstr "Collecté le"
 
+#. js-lingui-id: q+hNag
+#: src/modules/prospection/components/HermesImportBatchesTable.tsx
+msgid "Collection"
+msgstr "Collecte"
+
 #. js-lingui-id: YK8oVq
 #: src/modules/prospection/components/HermesIssueList.tsx
 msgid "Collection date required."
@@ -6704,6 +6871,42 @@ msgstr "Date de collecte requise."
 #: src/modules/prospection/components/HermesIssueList.tsx
 msgid "Collection date unreadable."
 msgstr "Date de collecte illisible."
+
+#. js-lingui-id: 5fvDgh
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+msgid "Collection id"
+msgstr "Identifiant de collecte"
+
+#. js-lingui-id: NBfSkV
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Collection not found in this workspace."
+msgstr "Collecte introuvable dans cet espace de travail."
+
+#. js-lingui-id: DoJzLz
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Collections"
+msgstr "Collectes"
+
+#. js-lingui-id: 48vE54
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "Collections already received are listed below, whatever path they came in through."
+msgstr "Les collectes déjà reçues sont listées ci-dessous, quel que soit leur chemin d'arrivée."
+
+#. js-lingui-id: vKXNpM
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "Collections are posted to an authenticated entry point, one per structure. This is the normal path; the manual deposit below is kept for a one-off."
+msgstr "Les collectes sont déposées sur un point d'entrée authentifié, un par structure. C'est le chemin normal ; le dépôt manuel ci-dessous est conservé pour un cas isolé."
+
+#. js-lingui-id: Cjpnj6
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Collections held for this workspace, whatever path they came in through, with the status the server gave each row."
+msgstr "Collectes conservées pour cet espace de travail, quel que soit leur chemin d'arrivée, avec l'état que le serveur a donné à chaque ligne."
+
+#. js-lingui-id: rSqc9i
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Collections received"
+msgstr "Collectes reçues"
 
 #. js-lingui-id: jZlrte
 #: src/modules/advanced-text-editor/constants/AdvancedTextEditorBlockCatalog.ts
@@ -6960,6 +7163,11 @@ msgstr "Conditions"
 #: src/pages/settings/layout/SettingsLayoutViewDetail.tsx
 msgid "Conditions applied to records before they appear in this view"
 msgstr "Conditions appliquées aux enregistrements avant leur affichage dans cette vue"
+
+#. js-lingui-id: udiWWI
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "Conference"
+msgstr "Conférence"
 
 #. js-lingui-id: ulTey7
 #: src/modules/workflow/workflow-variables/utils/generate/computeStepOutputSchema.ts
@@ -7313,6 +7521,12 @@ msgstr "Connexion mise à jour avec succès"
 msgid "Connection to the assistant was lost. Reload to see the response."
 msgstr "La connexion à l'assistant a été perdue. Rechargez la page pour voir la réponse."
 
+#. js-lingui-id: wiygne
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Connection unknown"
+msgstr "Connexion inconnue"
+
 #. js-lingui-id: Jkj2bb
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
 msgid "Connectors"
@@ -7476,6 +7690,7 @@ msgstr "Contrôler les types d'entités auxquels ce rôle peut être attribué"
 #. js-lingui-id: YyNOE7
 #: src/modules/ai/components/AiChatInboxConversationPane.tsx
 #: src/modules/ai/components/internal/AiChatContextUsageDetails.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
 #: src/modules/object-core/agents/components/CoreAgentRunDetails.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowConversationFields.tsx
 msgid "Conversation"
@@ -7503,6 +7718,8 @@ msgstr "Titre de la conversation"
 
 #. js-lingui-id: EnJuK0
 #: src/modules/ai/components/MobileHomeAiChatSection.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxChannelView.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
 msgid "Conversations"
 msgstr "Conversations"
 
@@ -7515,6 +7732,11 @@ msgstr ""
 #: src/modules/page-layout/widgets/chat-threads/components/ChatThreadsCardContent.tsx
 msgid "Conversations linked to this record will appear here."
 msgstr "Les conversations associées à cet enregistrement apparaîtront ici."
+
+#. js-lingui-id: wBu1kf
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+msgid "Conversations unavailable."
+msgstr "Conversations indisponibles."
 
 #. js-lingui-id: LMvWS1
 #: src/pages/ai-chat/AiChatInboxPage.tsx
@@ -7759,6 +7981,12 @@ msgstr "Impossible de générer le DPA signé. Veuillez réessayer."
 #: src/modules/front-components/media-session/components/FrontComponentMediaPermissionModal.tsx
 msgid "Could not grant media access. Please try again."
 msgstr "Impossible d’accorder l’accès aux médias. Veuillez réessayer."
+
+#. js-lingui-id: QWLh8T
+#: src/modules/messaging-inbox/components/MessagingInboxLoadMore.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxLoadMore.tsx
+msgid "Could not load more."
+msgstr "Impossible de charger plus."
 
 #. js-lingui-id: Ft89Ck
 #: src/modules/object-core/agents/components/CoreAgentRunsTab.tsx
@@ -9097,6 +9325,11 @@ msgstr "Granularité de la Date X"
 msgid "Date Granularity Y"
 msgstr "Granularité de la Date Y"
 
+#. js-lingui-id: /JO3xr
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Date unknown"
+msgstr "Date inconnue"
+
 #. js-lingui-id: H7OUPr
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownCalendarViewContent.tsx
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownCustomView.tsx
@@ -9191,6 +9424,11 @@ msgstr "Débogage"
 #: src/modules/settings/data-model/fields/forms/address/components/SettingsDataModelFieldAddressForm.tsx
 msgid "Decide which Sub-address fields you want to display"
 msgstr "Décidez quels champs de sous-adresse vous souhaitez afficher"
+
+#. js-lingui-id: ztGxi6
+#: src/modules/client-context/components/ClientBookingAttendeeTag.tsx
+msgid "Declined"
+msgstr "Refusé"
 
 #. js-lingui-id: NdfaZV
 #: src/modules/settings/components/SettingsCounter.tsx
@@ -9731,6 +9969,11 @@ msgstr "Entrée de délivrabilité."
 msgid "Deny"
 msgstr ""
 
+#. js-lingui-id: qrBS+u
+#: src/modules/prospection/components/HermesCollectionOriginTag.tsx
+msgid "Deposited by hand on this screen."
+msgstr "Déposée à la main sur cet écran."
+
 #. js-lingui-id: Ssdrw4
 #: src/modules/settings/ai/components/SettingsAiModelsTable.tsx
 #: src/modules/settings/applications/components/SettingsApplicationVariableLabelRow.tsx
@@ -9838,6 +10081,7 @@ msgstr ""
 #: src/modules/connectors/components/ConnectorDiagnostics.tsx
 #: src/modules/log-console/components/LogConsoleDetailPanel.tsx
 #: src/modules/log-console/constants/LogConsoleSecurityColumns.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxDiagnostic.tsx
 #: src/modules/prospection/components/ProspectionDiagnostic.tsx
 #: src/modules/settings/event-logs/utils/getColumnsForEventLogTable.tsx
 #: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
@@ -9937,6 +10181,11 @@ msgstr "Réponses directes de métadonnées REST"
 #: src/pages/settings/layout/SettingsLayoutViewDetail.tsx
 msgid "Direction"
 msgstr "Direction"
+
+#. js-lingui-id: LaWvKs
+#: src/modules/messaging-inbox/components/MessagingInboxMessageRow.tsx
+msgid "Direction unknown"
+msgstr "Sens inconnu"
 
 #. js-lingui-id: cO9+2L
 #: src/modules/validation-rules/components/SettingsValidationRuleEditForm.tsx
@@ -10293,6 +10542,11 @@ msgstr "Rédiger un e-mail à cette entreprise au sujet de "
 msgid "Draft answer"
 msgstr "Réponse du brouillon"
 
+#. js-lingui-id: WAWSop
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Draft answer unreadable."
+msgstr "Réponse de brouillon illisible."
+
 #. js-lingui-id: D45A2s
 #: src/modules/prospection/components/HermesCampaignDraftForm.tsx
 msgid "Draft created. Nothing was sent."
@@ -10308,10 +10562,25 @@ msgstr "Brouillon d'e-mail"
 msgid "Draft Email"
 msgstr "Brouillon d'e-mail"
 
+#. js-lingui-id: OkdleH
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Draft proposed. Review it, then send."
+msgstr "Brouillon proposé. Relisez, puis envoyez."
+
 #. js-lingui-id: LXKt8k
 #: src/modules/prospection/components/HermesCampaignDraftForm.tsx
 msgid "Draft refused."
 msgstr "Brouillon refusé."
+
+#. js-lingui-id: d8jPrZ
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Draft reply. Not sent."
+msgstr "Brouillon de réponse. Non envoyé."
+
+#. js-lingui-id: gwftIf
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Draft request failed."
+msgstr "Demande de brouillon échouée."
 
 #. js-lingui-id: fdUFex
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowRunStepLogsEmailDetail.tsx
@@ -10327,6 +10596,16 @@ msgstr "E-mail rédigé"
 #: src/modules/ai/constants/ActionToolStatusLabels.ts
 msgid "Drafting email"
 msgstr "Rédaction de l'e-mail"
+
+#. js-lingui-id: guoAv3
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Drafting is not set up."
+msgstr "La génération de brouillon n'est pas configurée."
+
+#. js-lingui-id: y9O/Mx
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Drafting unavailable."
+msgstr "Génération de brouillon indisponible."
 
 #. js-lingui-id: XKUtpI
 #: src/modules/activities/files/components/DropZone.tsx
@@ -10713,6 +10992,11 @@ msgstr "Modifier le nom de votre sous-domaine ou définir un domaine personnalis
 msgid "Editable Profile Fields"
 msgstr "Champs de profil modifiables"
 
+#. js-lingui-id: MRZxAn
+#: src/modules/client-context/components/ClientRecordNoteCard.tsx
+msgid "Edited"
+msgstr "Modifiée le"
+
 #. js-lingui-id: uBAxNB
 #: src/modules/object-record/record-sharing/constants/RecordShareAccessLevelOptions.ts
 #: src/modules/side-panel/pages/page-layout/components/dropdown-content/FieldWidgetLayoutDropdownContent.tsx
@@ -10743,6 +11027,7 @@ msgstr "sinon si"
 
 #. js-lingui-id: O3oNi5
 #: src/modules/auth/sign-in-up/components/internal/SignInUpEmailField.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxChannelTabs.tsx
 #: src/modules/object-record/object-filter-dropdown/constants/ActorSourceFilterOptions.ts
 #: src/modules/object-record/record-field/ui/form-types/components/FormEmailsFieldInput.tsx
 #: src/modules/object-record/record-field/ui/meta-types/input/components/EmailsFieldInput.tsx
@@ -10836,6 +11121,11 @@ msgstr "Éditeur d’Email"
 msgid "Email guests an invitation"
 msgstr "Envoyer une invitation par e-mail aux invités"
 
+#. js-lingui-id: l9IaTU
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Email is not set up."
+msgstr "L'e-mail n'est pas configuré."
+
 #. js-lingui-id: ZsZeV2
 #: src/modules/auth/sign-in-up/hooks/useSignInUp.ts
 msgid "Email is required"
@@ -10880,6 +11170,11 @@ msgstr "Style d'e-mail"
 #: src/modules/settings/applications/components/SettingsApplicationAboutSidebar.tsx
 msgid "Email support"
 msgstr "Assistance par e-mail"
+
+#. js-lingui-id: BPuB8F
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Email sync unavailable."
+msgstr "Synchro e-mail indisponible."
 
 #. js-lingui-id: LLTYL6
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionCreateCalendarEvent.tsx
@@ -11043,6 +11338,11 @@ msgstr "Vide"
 msgid "Empty Array"
 msgstr "Tableau vide"
 
+#. js-lingui-id: gi7DEz
+#: src/modules/client-context/components/ClientRecordNoteCard.tsx
+msgid "Empty body."
+msgstr "Corps vide."
+
 #. js-lingui-id: 8X+jbk
 #: src/modules/activities/emails/components/EmptyInboxPlaceholder.tsx
 msgid "Empty Inbox"
@@ -11148,6 +11448,7 @@ msgstr "URL du point de terminaison"
 #. js-lingui-id: x/6eQ0
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
+#: src/modules/client-context/components/ClientBookingCard.tsx
 msgid "Ends"
 msgstr "Se termine"
 
@@ -11527,6 +11828,11 @@ msgstr "L'élément EntityDescriptor est manquant"
 msgid "entityID is not a valid URL"
 msgstr "entityID n'est pas une URL valide"
 
+#. js-lingui-id: ef6vAZ
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Entries"
+msgstr "Entrées"
+
 #. js-lingui-id: /qwiJU
 #. placeholder {0}: entries.length
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowRunStepLogsEntries.tsx
@@ -11538,6 +11844,22 @@ msgstr "Entrées ({0}, dernière itération uniquement)"
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowRunStepLogsEntries.tsx
 msgid "Entries ({0})"
 msgstr "Entrées ({0})"
+
+#. js-lingui-id: VIwCaD
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Entry"
+msgstr "Entrée"
+
+#. js-lingui-id: sUammW
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "Entry point"
+msgstr "Point d'entrée"
+
+#. js-lingui-id: 7U8383
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
+msgid "Entry point state not published"
+msgstr "État du point d'entrée non publié"
 
 #. js-lingui-id: AVlZoM
 #: src/modules/settings/admin-panel/config-variables/constants/ConfigVariableSourceOptions.ts
@@ -12277,6 +12599,11 @@ msgstr "L'expression n'est pas valide"
 msgid "External Event ID"
 msgstr "ID d'événement externe"
 
+#. js-lingui-id: 6F3V0+
+#: src/modules/client-context/components/ClientContextProvenanceList.tsx
+msgid "External id"
+msgstr "Identifiant externe"
+
 #. js-lingui-id: 07Wl2A
 #: src/modules/settings/billing/constants/SettingsBillingPlanComparisonRows.ts
 msgid "Extra credits"
@@ -12298,6 +12625,7 @@ msgstr "Très intelligent"
 #: src/modules/ai/components/CodeExecutionDisplay.tsx
 #: src/modules/ai/constants/AiChatThreadReasons.ts
 #: src/modules/connectors/components/ConnectorSyncTag.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
 #: src/modules/object-core/agents/components/CoreAgentRunStatus.tsx
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApplicationMonitoringWorkspacesTable.tsx
 #: src/modules/settings/admin-panel/components/SettingsAdminChatToolCallPart.tsx
@@ -13262,6 +13590,11 @@ msgstr "Recherche de {objectLabel}"
 msgid "Finding connected accounts"
 msgstr "Recherche des comptes connectés"
 
+#. js-lingui-id: up0ZSW
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+msgid "Fingerprint"
+msgstr "Empreinte"
+
 #. js-lingui-id: JmZ/+d
 #: src/modules/settings/roles/role-permissions/object-level-permissions/object-form/components/SettingsRolePermissionsObjectLevelObjectForm.tsx
 msgid "Finish"
@@ -13439,6 +13772,11 @@ msgstr "Suit le paramètre par défaut de l'espace de travail pour les agents"
 msgid "Font size"
 msgstr "Taille de la police"
 
+#. js-lingui-id: MV+2/X
+#: src/modules/prospection/components/HermesManualDepositSection.tsx
+msgid "For a collection the entry point did not bring in. What is staged here is reviewed exactly like an automatic collection."
+msgstr "Pour une collecte que le point d'entrée n'a pas apportée. Ce qui est déposé ici est examiné exactement comme une collecte automatique."
+
 #. js-lingui-id: JM8DiQ
 #: src/modules/workflow/workflow-steps/workflow-actions/classify-action/components/WorkflowEditActionClassify.tsx
 msgid "For example: Alex is a software engineer with three years of React experience."
@@ -13475,6 +13813,21 @@ msgstr "Formulaire"
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/BodyInput.tsx
 msgid "Form Data"
 msgstr "Données de formulaire"
+
+#. js-lingui-id: XxcEcw
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Form response"
+msgstr "Réponse de formulaire"
+
+#. js-lingui-id: +0fbJF
+#: src/modules/client-context/components/ClientFormResponsesSection.tsx
+msgid "Form responses"
+msgstr "Réponses de formulaire"
+
+#. js-lingui-id: Badu9V
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Form responses, appointments and recorded actions actually received for this client, newest first."
+msgstr "Réponses de formulaire, rendez-vous et actions enregistrées effectivement reçus pour ce client, du plus récent au plus ancien."
 
 #. js-lingui-id: oiy48l
 #: src/modules/ai/components/AiChatFormStatusRenderer.tsx
@@ -14333,6 +14686,13 @@ msgstr "bonjour, monde"
 msgid "Help center"
 msgstr "Centre d'aide"
 
+#. js-lingui-id: wgdUE+
+#: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
+#: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Hermès collections"
+msgstr "Collectes Hermès"
+
 #. js-lingui-id: D+zLDD
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownHiddenRecordGroupsContent.tsx
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownHiddenRecordGroupsContent.tsx
@@ -15018,6 +15378,11 @@ msgstr "Inclus"
 #: src/pages/settings/enterprise/SettingsEnterprise.tsx
 msgid "Incomplete"
 msgstr "Incomplet"
+
+#. js-lingui-id: T8e6TU
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Incomplete chronology. Sources that did not contribute: {missingSources}."
+msgstr "Chronologie incomplète. Sources qui n'ont rien fourni : {missingSources}."
 
 #. js-lingui-id: aHdZwP
 #: src/modules/settings/billing/components/SettingsBillingSubscriptionInfo.tsx
@@ -16162,6 +16527,11 @@ msgstr "Date de dernière vérification inconnue"
 msgid "Last checked {lastCheckedDate}"
 msgstr "Dernière vérification {lastCheckedDate}"
 
+#. js-lingui-id: NLMZBN
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "Last collection"
+msgstr "Dernière collecte"
+
 #. js-lingui-id: IpCCj8
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceContent.tsx
 #: src/pages/settings/admin-panel/SettingsAdminInstanceStatus.tsx
@@ -16402,6 +16772,11 @@ msgstr "Quitter l'espace de travail"
 #: src/modules/side-panel/pages/email-block-settings/components/EmailBoxSidesInput.tsx
 msgid "Left"
 msgstr "Gauche"
+
+#. js-lingui-id: CHQze+
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
+msgid "Left blank"
+msgstr "Laissée vide"
 
 #. js-lingui-id: Sn1jT8
 #: src/modules/settings/admin-panel/signing-keys/components/SettingsAdminSigningKeysTable.tsx
@@ -16786,6 +17161,7 @@ msgid "Load limit"
 msgstr "Limite de chargement"
 
 #. js-lingui-id: yQ2kGp
+#: src/modules/messaging-inbox/components/MessagingInboxLoadMore.tsx
 #: src/modules/object-record/record-table/record-table-section/components/RecordTableRecordGroupSectionLoadMore.tsx
 #: src/modules/prospection/components/CampaignAudiencesSection.tsx
 #: src/pages/prospection/ProspectionCampaignAudiencePage.tsx
@@ -16932,11 +17308,15 @@ msgstr "Chargement..."
 
 #. js-lingui-id: Pwqkdw
 #: src/modules/ai/utils/getAiChatUsageLabel.ts
+#: src/modules/client-context/components/ClientContextSourceNote.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesMetricValue.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesObjectRecordListSection.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesPipelineSection.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesRecordListSection.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
 #: src/modules/prospection/components/CampaignAudiencesSection.tsx
+#: src/modules/prospection/components/HermesIntakeSection.tsx
 #: src/modules/prospection/components/ProspectionCountValue.tsx
 #: src/modules/settings/billing/components/internal/SettingsBillingLimitSpenderOptionList.tsx
 #: src/pages/prospection/ProspectionCampaignAudiencePage.tsx
@@ -16969,6 +17349,7 @@ msgstr "Paramètres régionaux"
 #. js-lingui-id: wJijgU
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
+#: src/modules/client-context/components/ClientBookingCard.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionCreateCalendarEvent.tsx
 msgid "Location"
 msgstr "Localisation"
@@ -17367,6 +17748,26 @@ msgstr "Manuel"
 msgid "Manual configuration"
 msgstr "Configuration manuelle"
 
+#. js-lingui-id: YKTGsE
+#: src/modules/prospection/components/HermesCollectionOriginTag.tsx
+msgid "Manual JSON"
+msgstr "JSON manuel"
+
+#. js-lingui-id: Tc6kNh
+#: src/modules/prospection/components/HermesManualDepositSection.tsx
+msgid "Manual JSON deposit — second choice"
+msgstr "Dépôt JSON manuel — second choix"
+
+#. js-lingui-id: uLfCC9
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Manual mode. No draft proposed."
+msgstr "Mode manuel. Aucun brouillon proposé."
+
+#. js-lingui-id: JpkDkB
+#: src/modules/messaging-inbox/components/MessagingInboxScreen.tsx
+msgid "Manual refresh only."
+msgstr "Actualisation manuelle uniquement."
+
 #. js-lingui-id: FD1NX6
 #: src/modules/workflow/constants/WorkflowStepDefaultNames.ts
 msgid "Manual trigger"
@@ -17700,8 +18101,15 @@ msgstr "En-tête Message-ID"
 msgid "Messages"
 msgstr "Messages"
 
+#. js-lingui-id: kmV4YP
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "Messages unavailable."
+msgstr "Messages indisponibles."
+
 #. js-lingui-id: vtZ0lQ
 #: src/modules/connectors/constants/EvolutionWhatsappConnector.ts
+#: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
+#: src/pages/messaging/MessagingInboxPage.tsx
 msgid "Messaging"
 msgstr "Messagerie"
 
@@ -18047,6 +18455,11 @@ msgstr "Plus d'options"
 msgid "More reactions"
 msgstr ""
 
+#. js-lingui-id: 3PA8SQ
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "More to sync. Press again."
+msgstr "Encore à synchroniser. Appuyez de nouveau."
+
 #. js-lingui-id: 2MjaQ8
 #: src/modules/page-layout/widgets/components/RecordPageAddWidgetSection.tsx
 msgid "More widgets"
@@ -18388,6 +18801,7 @@ msgid "Network error"
 msgstr "Erreur réseau"
 
 #. js-lingui-id: qqeAJM
+#: src/modules/prospection/components/HermesIntakeSection.tsx
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceCreditGrantsTable.tsx
 #: src/modules/settings/admin-panel/constants/CreditGrantExpiryOptions.ts
 #: src/modules/settings/developers/constants/ExpirationDates.ts
@@ -18580,6 +18994,11 @@ msgstr "Nouvel objet"
 msgid "New Password"
 msgstr "Nouveau mot de passe"
 
+#. js-lingui-id: /kRjAH
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "New reply"
+msgstr "Nouvelle réponse"
+
 #. js-lingui-id: ywJUqq
 #: src/modules/settings/billing/components/internal/ResourceCreditPackagePickerModal.tsx
 msgid "New rollover limit"
@@ -18656,6 +19075,11 @@ msgstr "Nouveau widget"
 #: src/pages/object-core/WorkflowCoreIndexPage.tsx
 msgid "New Workflow"
 msgstr "Nouveau workflow"
+
+#. js-lingui-id: R15T3D
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "Newest first."
+msgstr "Du plus récent au plus ancien."
 
 #. js-lingui-id: horr45
 #: src/pages/settings/communications/SettingsWorkspaceNewUnsubscribeTopic.tsx
@@ -18792,6 +19216,11 @@ msgstr "Aucun accès"
 msgid "No access yet. Ask an administrator."
 msgstr "Aucun accès pour le moment. Demandez à un administrateur."
 
+#. js-lingui-id: J/ju+M
+#: src/modules/client-context/components/ClientRecordNotesSection.tsx
+msgid "No action recorded for this client."
+msgstr "Aucune action enregistrée pour ce client."
+
 #. js-lingui-id: IeiB4r
 #: src/modules/ai/components/AiChatApprovalReviewDeck.tsx
 msgid "No actions to review"
@@ -18864,6 +19293,16 @@ msgstr "Aucune donnée d'utilisation de l'IA enregistrée pour le moment."
 msgid "no answer"
 msgstr "aucune réponse"
 
+#. js-lingui-id: LQDGmR
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
+msgid "No answer in this response."
+msgstr "Aucune réponse dans cet envoi."
+
+#. js-lingui-id: DOUdPD
+#: src/modules/client-context/components/ClientBookingAttendeeTag.tsx
+msgid "No answer yet"
+msgstr "Pas encore de réponse"
+
 #. js-lingui-id: 9mx36q
 #: src/modules/settings/roles/role-assignment/components/SettingsRoleAssignmentTable.tsx
 msgid "No API keys assigned"
@@ -18895,6 +19334,11 @@ msgstr "Aucune application ne correspond à votre recherche"
 msgid "No applications available yet"
 msgstr "Aucune application n'est encore disponible"
 
+#. js-lingui-id: MEz7Bv
+#: src/modules/client-context/components/ClientBookingsSection.tsx
+msgid "No appointment received for this client."
+msgstr "Aucun rendez-vous reçu pour ce client."
+
 #. js-lingui-id: pfRh+M
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApps.tsx
 msgid "No apps found"
@@ -18904,6 +19348,11 @@ msgstr "Aucune application trouvée"
 #: src/modules/side-panel/pages/assign-ai-chat/components/SidePanelAssignAiChatPage.tsx
 msgid "No assignee"
 msgstr "Aucun responsable"
+
+#. js-lingui-id: C+Lqtk
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "No attendee recorded."
+msgstr "Aucun participant enregistré."
 
 #. js-lingui-id: tFxVHz
 #: src/modules/workflow/workflow-steps/filters/components/WorkflowStepFilterFieldSelect.tsx
@@ -18917,8 +19366,8 @@ msgstr "Aucun onglet disponible"
 
 #. js-lingui-id: lIowGj
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "No batch staged yet."
-msgstr "Aucun lot déposé."
+#~ msgid "No batch staged yet."
+#~ msgstr "Aucun lot déposé."
 
 #. js-lingui-id: 8whThc
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceBillingContent.tsx
@@ -18976,6 +19425,11 @@ msgstr ""
 msgid "No chats yet"
 msgstr ""
 
+#. js-lingui-id: PDTKBD
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "No collection received yet."
+msgstr "Aucune collecte reçue pour l'instant."
+
 #. js-lingui-id: U10dF2
 #: src/modules/prospection/components/CampaignAudienceMembersTable.tsx
 #: src/modules/prospection/components/HermesImportRowsTable.tsx
@@ -19011,6 +19465,11 @@ msgstr "Aucun contact dans cette audience."
 #: src/modules/activities/emails/components/CampaignSentPreview.tsx
 msgid "No content"
 msgstr "Aucun contenu"
+
+#. js-lingui-id: 3IgXu1
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+msgid "No conversation on this channel."
+msgstr "Aucune conversation sur ce canal."
 
 #. js-lingui-id: r1vGgi
 #: src/pages/ai-chat/AiChatInboxPage.tsx
@@ -19124,6 +19583,11 @@ msgstr "Aucun enregistrement supprimé correspondant aux critères de filtre n'a
 msgid "No description available for this application"
 msgstr "Aucune description disponible pour cette application"
 
+#. js-lingui-id: wK/FR7
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "No draft came back."
+msgstr "Aucun brouillon renvoyé."
+
 #. js-lingui-id: I1OZSQ
 #: src/modules/prospection/components/CampaignAudienceMembersTable.tsx
 #: src/modules/prospection/components/HermesImportRowsTable.tsx
@@ -19149,6 +19613,11 @@ msgstr "Aucun emoji trouvé"
 #: src/modules/prospection/components/ProspectionSuppressionCell.tsx
 msgid "No entry"
 msgstr "Aucune entrée"
+
+#. js-lingui-id: /zseKa
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
+msgid "No entry point delegated"
+msgstr "Aucun point d'entrée délégué"
 
 #. js-lingui-id: Qkn7jU
 #: src/modules/settings/application-monitoring/components/ApplicationMonitoringIssuesTable.tsx
@@ -19221,6 +19690,12 @@ msgstr "Aucun dossier trouvé pour ce compte"
 msgid "No function ran in this period"
 msgstr ""
 
+#. js-lingui-id: ukguiU
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "No handle given"
+msgstr "Aucun identifiant fourni"
+
 #. js-lingui-id: 9kCSLK
 #: src/modules/settings/data-model/object-details/components/SettingsObjectIndexTable.tsx
 msgid "No indexes match your filters."
@@ -19286,6 +19761,11 @@ msgstr "Aucune limite"
 msgid "No limit matches your search."
 msgstr "Aucune limite ne correspond à votre recherche."
 
+#. js-lingui-id: PZxBIy
+#: src/modules/messaging-inbox/components/MessagingInboxContactLink.tsx
+msgid "No linked contact"
+msgstr "Contact non rattaché"
+
 #. js-lingui-id: nivaRq
 #: src/modules/activities/emails/components/CampaignSentEnvelope.tsx
 msgid "No list"
@@ -19325,6 +19805,11 @@ msgstr "Aucun membre assigné"
 #: src/pages/settings/members/tabs/SettingsWorkspaceMembersTeamTab.tsx
 msgid "No members match your search"
 msgstr "Aucun membre ne correspond à votre recherche"
+
+#. js-lingui-id: 3dSO5v
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "No message in this conversation."
+msgstr "Aucun message dans cette conversation."
 
 #. js-lingui-id: IohPnt
 #: src/modules/settings/admin-panel/components/SettingsAdminChatThreadMessageList.tsx
@@ -19502,6 +19987,11 @@ msgstr "Aucun corps de réponse"
 msgid "No response from server"
 msgstr "Aucune réponse du serveur"
 
+#. js-lingui-id: sDkqeJ
+#: src/modules/client-context/components/ClientFormResponsesSection.tsx
+msgid "No response received for this client."
+msgstr "Aucune réponse reçue pour ce client."
+
 #. js-lingui-id: Ev2r9A
 #: src/modules/activities/emails/recipients/components/EmailRecipientSuggestionsDropdownContent.tsx
 #: src/modules/log-console/components/LogConsoleToolbar.tsx
@@ -19552,8 +20042,13 @@ msgstr "Aucun rôle trouvé"
 
 #. js-lingui-id: SZU4qo
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
-msgid "No row in this batch."
-msgstr "Aucune ligne dans ce lot."
+#~ msgid "No row in this batch."
+#~ msgstr "Aucune ligne dans ce lot."
+
+#. js-lingui-id: qjilWw
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+msgid "No row in this collection."
+msgstr "Aucune ligne dans cette collecte."
 
 #. js-lingui-id: mmm8hk
 #: src/modules/spreadsheet-import/steps/components/ValidationStep/ValidationStep.tsx
@@ -19616,8 +20111,16 @@ msgstr "Aucune parole n’a été détectée dans cet enregistrement."
 msgid "No speech was detected, so there is nothing to summarize."
 msgstr "Aucune parole n'a été détectée, il n'y a donc rien à résumer."
 
+#. js-lingui-id: jmkKa1
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "No structure has an entry point delegated to it. Delegation happens outside this screen."
+msgstr "Aucune structure n'a de point d'entrée délégué. La délégation se fait hors de cet écran."
+
 #. js-lingui-id: eeoVfm
 #: src/modules/activities/emails/components/CampaignSentEnvelope.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
 msgid "No subject"
 msgstr "Sans objet"
 
@@ -19630,6 +20133,16 @@ msgstr "Aucune cible disponible"
 #: src/modules/hermes-shell/dashboard/components/HermesOperationsDashboard.tsx
 msgid "No task yet."
 msgstr "Aucune tâche."
+
+#. js-lingui-id: uyr65a
+#: src/modules/messaging-inbox/components/MessagingInboxMessageRow.tsx
+msgid "No text in this message."
+msgstr "Aucun texte dans ce message."
+
+#. js-lingui-id: Iy09dq
+#: src/modules/messaging-inbox/components/MessagingInboxInstantLabel.tsx
+msgid "No time given"
+msgstr "Aucune date fournie"
 
 #. js-lingui-id: t0t36i
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowRunStepLogsAiAgentDetail.tsx
@@ -19864,16 +20377,42 @@ msgstr "Aucun, envoyer uniquement le message"
 msgid "Norwegian"
 msgstr "Norvégien"
 
+#. js-lingui-id: 4KahAM
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
+msgid "Not accepting collections"
+msgstr "N'accepte pas les collectes"
+
 #. js-lingui-id: v3W9iu
 #: src/modules/spreadsheet-import/steps/components/MatchColumnsStep/MatchColumnsStep.tsx
 msgid "Not all columns matched"
 msgstr "Toutes les colonnes ne sont pas appariées"
 
+#. js-lingui-id: 3t1FcJ
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Not attributed"
+msgstr "Non attribuée"
+
 #. js-lingui-id: dx9bCj
 #: src/modules/hermes-shell/dashboard/components/HermesMetricValue.tsx
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
 #: src/modules/structures/components/StructureMetricValue.tsx
 msgid "Not authorised"
 msgstr "Non autorisé"
+
+#. js-lingui-id: KMrlq0
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Not authorised to draft."
+msgstr "Non autorisé à générer un brouillon."
+
+#. js-lingui-id: mM2fyc
+#: src/modules/messaging-inbox/components/MessagingInboxLoadMore.tsx
+msgid "Not authorised to load more."
+msgstr "Non autorisé à charger plus."
+
+#. js-lingui-id: ppSvpI
+#: src/modules/client-context/components/ClientContextSourceNote.tsx
+msgid "Not authorised to read {sourceName} for this record."
+msgstr "Non autorisé à lire {sourceName} pour cette fiche."
 
 #. js-lingui-id: y4l5m5
 #: src/modules/prospection/components/CampaignAudiencesSection.tsx
@@ -19886,8 +20425,29 @@ msgstr "Lecture des audiences de campagnes non autorisée."
 msgid "Not authorised to read this audience."
 msgstr "Lecture de cette audience non autorisée."
 
+#. js-lingui-id: h9F+OC
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "Not authorised to read this conversation."
+msgstr "Non autorisé à lire cette conversation."
+
+#. js-lingui-id: OfVcDx
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+msgid "Not authorised to read this inbox."
+msgstr "Non autorisé à lire cette boîte."
+
+#. js-lingui-id: iQvinq
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Not authorised to reply."
+msgstr "Non autorisé à répondre."
+
+#. js-lingui-id: YcoLFF
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Not authorised to sync."
+msgstr "Non autorisé à synchroniser."
+
 #. js-lingui-id: KOw3a+
 #: src/modules/prospection/components/HermesCallFailureNote.tsx
+#: src/modules/prospection/components/HermesIntakeSection.tsx
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
 msgid "Not authorised: unrestricted workspace administrators only."
 msgstr "Non autorisé : administrateurs de workspace non restreints uniquement."
@@ -19942,6 +20502,11 @@ msgstr "Adresse non vide"
 msgid "Not Found"
 msgstr "Introuvable"
 
+#. js-lingui-id: Y8oH1M
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "Not given"
+msgstr "Non renseigné"
+
 #. js-lingui-id: JQUXsv
 #: src/modules/settings/billing/components/internal/SettingsBillingPlanComparisonTableRow.tsx
 msgid "Not included"
@@ -19974,6 +20539,7 @@ msgstr "Non épinglé"
 
 #. js-lingui-id: iXlml9
 #: src/modules/activities/calendar/components/CalendarEventCallRecorderAvatar.tsx
+#: src/modules/client-context/components/ClientContextProvenanceList.tsx
 msgid "Not recorded"
 msgstr "Non enregistré"
 
@@ -19981,6 +20547,11 @@ msgstr "Non enregistré"
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
 msgid "Not Recorded"
 msgstr "Non enregistré"
+
+#. js-lingui-id: Z6/avU
+#: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
+msgid "Not reported"
+msgstr "Non renseigné"
 
 #. js-lingui-id: gnnpkq
 #: src/modules/ai/components/AiChatToolCallApprovalStatusRenderer.tsx
@@ -20003,6 +20574,12 @@ msgstr "Non exécuté : l'enregistrement a changé depuis qu'il a été proposé
 #: src/pages/settings/layout/SettingsLayoutViewDetail.tsx
 msgid "Not set"
 msgstr "Non défini"
+
+#. js-lingui-id: RI0vpY
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Not set up"
+msgstr "À configurer"
 
 #. js-lingui-id: 51G4/+
 #: src/modules/activities/calendar/components/CalendarEventNotSharedContent.tsx
@@ -20046,6 +20623,11 @@ msgstr "Non synchronisé"
 msgid "Note"
 msgstr "Note"
 
+#. js-lingui-id: 7HFcW2
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Nothing can be listed until at least one source answers."
+msgstr "Rien ne peut être listé tant qu'aucune source ne répond."
+
 #. js-lingui-id: 543eQ7
 #: src/modules/settings/billing/components/SettingsBillingLimitForm.tsx
 msgid "Nothing counted against this scope yet"
@@ -20060,6 +20642,16 @@ msgstr "Rien n'a encore été envoyé. La campagne retourne dans vos brouillons 
 #: src/modules/prospection/components/HermesCapabilitiesNote.tsx
 msgid "Nothing is sent from here: staging, qualification and drafts only."
 msgstr "Aucun envoi ici : dépôt, qualification et brouillons uniquement."
+
+#. js-lingui-id: CXcAxo
+#: src/modules/client-context/components/ClientContextSourceNote.tsx
+msgid "Nothing is shown here until the data actually reaches this workspace. Opening the application is navigation, not an integration."
+msgstr "Rien n'est affiché ici tant que la donnée n'atteint pas réellement cet espace de travail. Ouvrir l'application est une navigation, pas une intégration."
+
+#. js-lingui-id: 1cReeE
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Nothing received for this client yet."
+msgstr "Rien n'a encore été reçu pour ce client."
 
 #. js-lingui-id: DYCPYF
 #: src/modules/page-layout/widgets/components/StandaloneWidgetPlaceholder.tsx
@@ -20594,6 +21186,11 @@ msgstr "Ouvrez Claude avec le nom du connecteur KovaaLab CRM et l'URL MCP prére
 msgid "Open column menu"
 msgstr ""
 
+#. js-lingui-id: jtbJpG
+#: src/modules/messaging-inbox/components/MessagingInboxContactLink.tsx
+msgid "Open contact"
+msgstr "Ouvrir le contact"
+
 #. js-lingui-id: uIKeEf
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowRunStepAiAgentConversationButton.tsx
 msgid "Open conversation"
@@ -20706,6 +21303,8 @@ msgid "Open selected list item"
 msgstr "Ouvrir l'élément de liste sélectionné"
 
 #. js-lingui-id: Yp+Hi/
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
 #: src/modules/settings/applications/components/SettingsApplicationActionButton.tsx
 msgid "Open settings"
 msgstr "Ouvrir les paramètres"
@@ -20929,6 +21528,11 @@ msgstr "ordonnée"
 msgid "Ordered List"
 msgstr "Liste ordonnée"
 
+#. js-lingui-id: uhBgQi
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "Organiser"
+msgstr "Organisateur"
+
 #. js-lingui-id: ucgZ0o
 #: src/modules/settings/admin-panel/hooks/useSettingsAdminTabs.ts
 #: src/modules/settings/billing/constants/BillingPlanLabels.ts
@@ -20969,6 +21573,17 @@ msgstr "Licence Organisation"
 #: src/pages/settings/enterprise/SettingsEnterprise.tsx
 msgid "Organization license activated successfully"
 msgstr "Licence Organisation activée avec succès"
+
+#. js-lingui-id: FqnRbz
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+#: src/modules/prospection/components/HermesImportBatchesTable.tsx
+msgid "Origin"
+msgstr "Origine"
+
+#. js-lingui-id: Msdhbl
+#: src/modules/prospection/components/HermesCollectionOriginTag.tsx
+msgid "Origin not published"
+msgstr "Origine non publiée"
 
 #. js-lingui-id: m42LZQ
 #~ msgid "Origin not recorded"
@@ -21226,6 +21841,11 @@ msgstr "widget de mise en page"
 msgid "Page layouts"
 msgstr "Mises en page"
 
+#. js-lingui-id: NKg2+h
+#: src/modules/messaging-inbox/components/MessagingInboxLoadMore.tsx
+msgid "Page limit reached. Refresh to start again."
+msgstr "Limite de pages atteinte. Actualisez pour repartir."
+
 #. js-lingui-id: zQF6Kb
 #: src/modules/settings/event-logs/components/EventLogFilters.tsx
 msgid "Page name"
@@ -21272,6 +21892,11 @@ msgstr "Salon de Paris, octobre"
 #: src/modules/structures/components/StructureMetricValue.tsx
 msgid "partial"
 msgstr "partiel"
+
+#. js-lingui-id: eec+rg
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Partial sync."
+msgstr "Synchronisation partielle."
 
 #. js-lingui-id: x6jO53
 #: src/pages/settings/structures/SettingsStructuresDashboard.tsx
@@ -21623,6 +22248,11 @@ msgstr "Choisissez un enregistrement de {0}"
 #: src/modules/side-panel/pages/email-block-settings/components/EmailColorInput.tsx
 msgid "Pick a color"
 msgstr "Choisir une couleur"
+
+#. js-lingui-id: 1pN8Yy
+#: src/modules/messaging-inbox/components/MessagingInboxChannelView.tsx
+msgid "Pick a conversation."
+msgstr "Choisissez une conversation."
 
 #. js-lingui-id: B8mlc2
 #: src/modules/ai/components/AiChatSnoozeMenu.tsx
@@ -22231,6 +22861,11 @@ msgstr "Nom de la propriété"
 msgid "Property value"
 msgstr "Valeur de la propriété"
 
+#. js-lingui-id: fQJe5h
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Propose a draft"
+msgstr "Proposer un brouillon"
+
 #. js-lingui-id: nHD0EI
 #: src/modules/ai/components/AiChatApprovalRecordReview.tsx
 msgid "Proposed value:"
@@ -22239,7 +22874,6 @@ msgstr ""
 #. js-lingui-id: QGW+Uq
 #: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
 #: src/pages/prospection/ProspectionCampaignAudiencePage.tsx
-#: src/pages/prospection/ProspectionImportBatchesPage.tsx
 msgid "Prospection"
 msgstr "Prospection"
 
@@ -22679,12 +23313,26 @@ msgid "Receive an email containing password update link"
 msgstr "Recevoir un email contenant un lien de mise à jour du mot de passe"
 
 #. js-lingui-id: fZ5Vnu
-#~ msgid "Received"
-#~ msgstr "Reçue le"
+#: src/modules/client-context/components/ClientContextProvenanceList.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxMessageRow.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+msgid "Received"
+msgstr "Reçue le"
+
+#. js-lingui-id: zDzqcd
+#: src/modules/client-context/components/ClientContextPanel.tsx
+msgid "Received data only. Opening Forms or the booking application is navigation, not an integration."
+msgstr "Uniquement des données reçues. Ouvrir Forms ou l'application de réservation est une navigation, pas une intégration."
 
 #. js-lingui-id: neLTkl
 #~ msgid "Received lists"
 #~ msgstr "Listes reçues"
+
+#. js-lingui-id: HXOl03
+#: src/modules/prospection/components/HermesCollectionOriginTag.tsx
+msgid "Received through the authenticated entry point."
+msgstr "Reçue par le point d'entrée authentifié."
 
 #. js-lingui-id: CCTop/
 #: src/modules/ai/components/NavigationDrawerAiChatContent.tsx
@@ -22706,8 +23354,8 @@ msgstr "Utilisateurs récents"
 #: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Reception"
-msgstr "Réception"
+#~ msgid "Reception"
+#~ msgstr "Réception"
 
 #. js-lingui-id: I3QpvQ
 #: src/modules/side-panel/pages/send-campaign-test/components/SidePanelSendCampaignTestPage.tsx
@@ -22936,6 +23584,22 @@ msgstr "Niveau des enregistrements"
 msgid "Record:"
 msgstr "Enregistrement:"
 
+#. js-lingui-id: YBh/VC
+#: src/modules/client-context/components/ClientRecordNoteCard.tsx
+msgid "Recorded"
+msgstr "Enregistrée le"
+
+#. js-lingui-id: E8lzSZ
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "Recorded action"
+msgstr "Action enregistrée"
+
+#. js-lingui-id: xVVSFV
+#: src/modules/client-context/components/ClientRecordNotesSection.tsx
+#: src/modules/client-context/components/ClientRecordNotesSection.tsx
+msgid "Recorded actions"
+msgstr "Actions enregistrées"
+
 #. js-lingui-id: 3esxl/
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
 msgid "Recorder Joining"
@@ -23035,6 +23699,8 @@ msgstr "URI de redirection"
 
 #. js-lingui-id: lCF0wC
 #: src/modules/log-console/components/LogConsoleResults.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
 #: src/modules/settings/application-monitoring/components/ApplicationMonitoring.tsx
 #: src/modules/settings/application-monitoring/components/ApplicationMonitoring.tsx
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
@@ -23480,6 +24146,21 @@ msgstr "Remplacer les paramètres des comptes par les préférences de l’appli
 msgid "Replace widget"
 msgstr "Remplacer le widget"
 
+#. js-lingui-id: qqNJs6
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "Replies are off on this channel."
+msgstr "Les réponses sont désactivées sur ce canal."
+
+#. js-lingui-id: 95LP5c
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Replies off"
+msgstr "Réponses désactivées"
+
+#. js-lingui-id: tz8ytR
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Replies unknown"
+msgstr "Réponses inconnues"
+
 #. js-lingui-id: uFEgGd
 #: src/modules/settings/mcp/utils/buildMcpSetupCategories.tsx
 msgid "Replit Agent"
@@ -23498,10 +24179,20 @@ msgstr "Les liens d'installation Replit nécessitent une URL MCP en HTTPS."
 msgid "Reply"
 msgstr "Répondre"
 
+#. js-lingui-id: URTkPz
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "Reply availability unknown."
+msgstr "Disponibilité des réponses inconnue."
+
 #. js-lingui-id: fiPYZo
 #: src/modules/page-layout/widgets/email-thread/components/EmailThreadComposer.tsx
 msgid "Reply..."
 msgstr "Répondre..."
+
+#. js-lingui-id: 8sH/lS
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "Replying opens once the thread can be read."
+msgstr "La réponse s'ouvre dès que le fil est lisible."
 
 #. js-lingui-id: Q3LOVJ
 #: src/modules/settings/applications/components/SettingsApplicationAboutSidebar.tsx
@@ -23532,6 +24223,11 @@ msgstr "Demande {requestNumber} sur {requestCount}"
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/HttpRequestExecutionResult.tsx
 msgid "Request Failed"
 msgstr "Échec de la requête"
+
+#. js-lingui-id: JeQYvS
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Request sent. Outcome unknown."
+msgstr "Requête envoyée. Résultat inconnu."
 
 #. js-lingui-id: Vhxipp
 #: src/modules/settings/billing/constants/UsageLimitUnitLabels.ts
@@ -23710,6 +24406,17 @@ msgstr ""
 msgid "Response"
 msgstr "Réponse"
 
+#. js-lingui-id: +skAxO
+#: src/modules/client-context/components/ClientFormResponsesSection.tsx
+msgid "Responses"
+msgstr "Réponses"
+
+#. js-lingui-id: X2+a7i
+#. placeholder {0}: CLIENT_CONTEXT_FORMS_SOURCE.name
+#: src/modules/client-context/components/ClientFormResponsesSection.tsx
+msgid "Responses received from {0} for this client. Received items only."
+msgstr "Réponses reçues de {0} pour ce client. Uniquement les éléments reçus."
+
 #. js-lingui-id: WHiaOl
 #: src/modules/settings/developers/components/PlaygroundSetupForm.tsx
 #: src/pages/settings/developers/playground/SettingsRestPlayground.tsx
@@ -23827,6 +24534,11 @@ msgstr "Réessayer tous les échecs"
 #: src/modules/side-panel/pages/workflow/step/settings/components/SidePanelWorkflowStepSettingsContent.tsx
 msgid "Retry on failure"
 msgstr "Réessayer en cas d’échec"
+
+#. js-lingui-id: 50NZ7f
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Retry same send"
+msgstr "Réessayer le même envoi"
 
 #. js-lingui-id: F87htB
 #: src/modules/side-panel/pages/search-ai-chats/components/SidePanelAiChatPickerSearchResults.tsx
@@ -24124,10 +24836,20 @@ msgstr "Lignes"
 msgid "Rows are not valid JSON."
 msgstr "Les lignes ne sont pas du JSON valide."
 
+#. js-lingui-id: tPDR65
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Rows received"
+msgstr "Lignes reçues"
+
 #. js-lingui-id: owuwOc
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
-msgid "Rows unreadable: this batch holds an unknown number."
-msgstr "Lignes illisibles : le nombre de lignes de ce lot est inconnu."
+#~ msgid "Rows unreadable: this batch holds an unknown number."
+#~ msgstr "Lignes illisibles : le nombre de lignes de ce lot est inconnu."
+
+#. js-lingui-id: qRt12I
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+msgid "Rows unreadable: this collection holds an unknown number."
+msgstr "Lignes illisibles : cette collecte en contient un nombre inconnu."
 
 #. js-lingui-id: OIWtYf
 #: src/modules/navigation/constants/LogsSwitchPhrases.ts
@@ -25447,6 +26169,7 @@ msgstr "Sélection"
 #. js-lingui-id: JlFcis
 #: src/modules/ai/components/AiChatApprovalEmailReviewDeck.tsx
 #: src/modules/ai/components/internal/AiChatToolCallApprovalEmailCard.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 #: src/modules/page-layout/widgets/email-thread/components/EmailThreadComposer.tsx
 #: src/modules/side-panel/pages/compose-email/components/SidePanelComposeEmailPage.tsx
 msgid "Send"
@@ -25504,6 +26227,11 @@ msgstr "Envoyer des e-mails depuis des comptes connectés"
 msgid "Send emails via connected accounts"
 msgstr "Envoyer des emails via des comptes connectés"
 
+#. js-lingui-id: GSVL0W
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Send failed."
+msgstr "Envoi échoué."
+
 #. js-lingui-id: 6nwEi6
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionCreateCalendarEvent.tsx
@@ -25530,6 +26258,11 @@ msgstr "Envoyer maintenant"
 #: src/modules/activities/emails/utils/buildCampaignSendButtonTitle.ts
 msgid "Send Now"
 msgstr "Envoyer maintenant"
+
+#. js-lingui-id: goycAv
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Send requested. No confirmation yet."
+msgstr "Envoi demandé. Aucune confirmation."
 
 #. js-lingui-id: doZzL7
 #: src/modules/side-panel/pages/send-campaign-test/components/SidePanelSendCampaignTestPage.tsx
@@ -25604,6 +26337,7 @@ msgid "Sending..."
 msgstr "Envoi..."
 
 #. js-lingui-id: h69WC6
+#: src/modules/messaging-inbox/components/MessagingInboxMessageRow.tsx
 #: src/modules/settings/accounts/components/SettingsAccountsMessageAutoCreationCard.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowRunStepLogsEmailDetail.tsx
 msgid "Sent"
@@ -25665,6 +26399,11 @@ msgstr "Accès administrateur au serveur mis à jour."
 #: src/modules/settings/application-monitoring/constants/ApplicationLogSourceLabels.ts
 msgid "Server route"
 msgstr ""
+
+#. js-lingui-id: S5vteC
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "Server to server: the entry point is signed and configured outside this screen. Nothing here sends, tests or reveals its credentials."
+msgstr "De serveur à serveur : le point d'entrée est signé et configuré hors de cet écran. Rien ici n'envoie, ne teste ni ne révèle ses identifiants."
 
 #. js-lingui-id: fHVf32
 #: src/pages/settings/applications/tabs/SettingsApplicationRegistrationConfigTab.tsx
@@ -25802,6 +26541,11 @@ msgstr "Configurez le transfert de l’adresse source vers cette destination."
 #: src/modules/settings/emailing-domains/utils/buildEmailingDomainAiSetupPrompt.ts
 msgid "Set up the following DNS records for {domain} in the Cloudflare account already open in my browser."
 msgstr "Configurez les enregistrements DNS suivants pour {domain} dans le compte Cloudflare déjà ouvert dans mon navigateur."
+
+#. js-lingui-id: BSNvLJ
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Set up, not verified"
+msgstr "Configuré, non vérifié"
 
 #. js-lingui-id: 9HNKkV
 #: src/modules/settings/applications/components/SettingsApplicationDetailVariablesTab.tsx
@@ -26444,8 +27188,18 @@ msgstr "Certains"
 
 #. js-lingui-id: 51WY8q
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Some batches could not be read and are not listed."
-msgstr "Certains lots illisibles ne sont pas affichés."
+#~ msgid "Some batches could not be read and are not listed."
+#~ msgstr "Certains lots illisibles ne sont pas affichés."
+
+#. js-lingui-id: LQ21Tj
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "Some collections could not be read and are not listed."
+msgstr "Certaines collectes n'ont pas pu être lues et ne sont pas listées."
+
+#. js-lingui-id: KrilMN
+#: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
+msgid "Some conversations could not be read and are not listed."
+msgstr "Certaines conversations n'ont pas pu être lues et ne sont pas listées."
 
 #. js-lingui-id: tWcY2h
 #: src/modules/hermes-shell/dashboard/components/HermesRecordListSection.tsx
@@ -26472,6 +27226,11 @@ msgstr "Certaines modifications de la mise en page n'ont pas pu être enregistr�
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowRunStepLogsDetail.tsx
 msgid "Some log data was dropped to fit the size limit ({0} entries, {1} bytes)."
 msgstr "Certaines données de journal ont été supprimées pour respecter la limite de taille ({0} entrées, {1} octets)."
+
+#. js-lingui-id: GtO0Nz
+#: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
+msgid "Some messages could not be read and are not listed."
+msgstr "Certains messages n'ont pas pu être lus et ne sont pas listés."
 
 #. js-lingui-id: G1Hy05
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
@@ -26580,6 +27339,8 @@ msgstr "Tris"
 
 #. js-lingui-id: wdxz7K
 #: src/modules/advanced-text-editor/constants/AdvancedTextEditorBlockCatalog.ts
+#: src/modules/client-context/components/ClientContextProvenanceList.tsx
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
 #: src/modules/log-console/constants/LogConsoleApplicationLogFilterFields.tsx
 #: src/modules/log-console/constants/LogConsoleSources.tsx
 #: src/modules/object-core/agents/components/CoreAgentRunsTab.tsx
@@ -26731,8 +27492,8 @@ msgstr "Étape"
 
 #. js-lingui-id: 9oIVqF
 #: src/modules/prospection/components/HermesImportBatchForm.tsx
-msgid "Stage a batch"
-msgstr "Déposer un lot"
+#~ msgid "Stage a batch"
+#~ msgstr "Déposer un lot"
 
 #. js-lingui-id: ZG7G5S
 #: src/modules/prospection/components/HermesImportBatchForm.tsx
@@ -26741,18 +27502,18 @@ msgstr "Déposer le lot"
 
 #. js-lingui-id: sTOAWp
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
-msgid "Staged"
-msgstr "Déposé le"
+#~ msgid "Staged"
+#~ msgstr "Déposé le"
 
 #. js-lingui-id: VdLVWV
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Staged rows"
-msgstr "Lignes déposées"
+#~ msgid "Staged rows"
+#~ msgstr "Lignes déposées"
 
 #. js-lingui-id: gg8j3R
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
-msgid "Staged rows, with the status the server gave each one."
-msgstr "Lignes déposées, avec le statut attribué par le serveur."
+#~ msgid "Staged rows, with the status the server gave each one."
+#~ msgstr "Lignes déposées, avec le statut attribué par le serveur."
 
 #. js-lingui-id: iv2/iu
 #: src/modules/prospection/components/HermesImportRowStatusTag.tsx
@@ -26771,8 +27532,8 @@ msgstr "Réponse du dépôt"
 
 #. js-lingui-id: b7XCB3
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
-msgid "Staging opens once the reception can be read."
-msgstr "Le dépôt s'ouvre dès que la réception est lisible."
+#~ msgid "Staging opens once the reception can be read."
+#~ msgstr "Le dépôt s'ouvre dès que la réception est lisible."
 
 #. js-lingui-id: TJBHlP
 #: src/modules/applications/utils/getApplicationDisplayName.ts
@@ -26843,6 +27604,7 @@ msgstr "À partir du {scheduledChangeStartDate}"
 #. js-lingui-id: W1KkjZ
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
+#: src/modules/client-context/components/ClientBookingCard.tsx
 msgid "Starts"
 msgstr "Commence"
 
@@ -26864,6 +27626,11 @@ msgstr "Commence à"
 msgid "State"
 msgstr "État"
 
+#. js-lingui-id: 4Ia5oN
+#: src/modules/prospection/components/HermesIntakeStateTag.tsx
+msgid "State unknown"
+msgstr "État inconnu"
+
 #. js-lingui-id: EPFwS4
 #: src/modules/page-layout/widgets/components/RecordPageAddWidgetSection.tsx
 #: src/modules/side-panel/pages/page-layout/components/SidePanelPageLayoutRecordPageWidgetTypeSelect.tsx
@@ -26882,6 +27649,7 @@ msgstr "Statistiques"
 #: src/modules/hermes-shell/dashboard/components/HermesOperationsDashboard.tsx
 #: src/modules/log-console/constants/LogConsoleSources.tsx
 #: src/modules/log-console/constants/LogConsoleWebhookStatusColumn.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
 #: src/modules/object-core/agents/components/CoreAgentRunsTab.tsx
 #: src/modules/prospection/components/HermesImportRowsTable.tsx
 #: src/modules/settings/accounts/components/SettingsConnectedAccountsTableHeader.tsx
@@ -27074,6 +27842,11 @@ msgstr "Client Stripe lié à cet espace de travail"
 msgid "Stripe subscription"
 msgstr "Abonnement Stripe"
 
+#. js-lingui-id: J7iBX5
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "Structure not named"
+msgstr "Structure sans nom"
+
 #. js-lingui-id: 1CalO6
 #: src/modules/side-panel/pages/page-layout/constants/ChartSettingsHeadings.ts
 msgid "Style"
@@ -27194,6 +27967,11 @@ msgstr "Objet : {0} caractères, {1} au maximum."
 #: src/modules/workflow/workflow-steps/workflow-actions/form-action/components/WorkflowFormStepSubmitButton.tsx
 msgid "Submit"
 msgstr "Soumettre"
+
+#. js-lingui-id: ZU3JQG
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
+msgid "Submitted"
+msgstr "Envoyée le"
 
 #. js-lingui-id: EDl9kS
 #: src/modules/information-banner/components/billing/InformationBannerNoBillingSubscription.tsx
@@ -27450,15 +28228,26 @@ msgid "Switched to a production instance."
 msgstr "Basculé vers une instance de production."
 
 #. js-lingui-id: Nu4DdT
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
 #: src/modules/settings/workspace/components/SettingsWorkspaceEmailSyncSection.tsx
 msgid "Sync"
 msgstr "Synchroniser"
+
+#. js-lingui-id: ZEn65g
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Sync answered, result unreadable."
+msgstr "Synchro répondue, résultat illisible."
 
 #. js-lingui-id: NmHVSC
 #: src/pages/settings/applications/components/SettingsClaimApplicationSection.tsx
 #: src/pages/settings/applications/components/SettingsClaimApplicationSection.tsx
 msgid "Sync catalog"
 msgstr "Synchroniser le catalogue"
+
+#. js-lingui-id: 8X1DmD
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Sync email"
+msgstr "Synchroniser l'e-mail"
 
 #. js-lingui-id: btyblj
 #: src/modules/settings/app-preferences/constants/BuiltInAccountApps.ts
@@ -27485,6 +28274,11 @@ msgstr "Synchroniser chaque message"
 msgid "Sync failed"
 msgstr "Échec de la synchronisation"
 
+#. js-lingui-id: UEugrw
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Sync failed."
+msgstr "Synchronisation échouée."
+
 #. js-lingui-id: tVKt7G
 #: src/modules/settings/workspace/components/SettingsWorkspaceEmailSyncSection.tsx
 msgid "Sync Internal Emails"
@@ -27495,10 +28289,20 @@ msgstr "Synchroniser les e-mails internes"
 msgid "Sync lost with mailbox {mailboxHandle}. Please reconnect for updates:"
 msgstr "Synchronisation perdue avec la boîte aux lettres {mailboxHandle}. Veuillez vous reconnecter pour les mises à jour :"
 
+#. js-lingui-id: kUn+CN
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Sync off"
+msgstr "Synchro désactivée"
+
 #. js-lingui-id: U6wmNc
 #: src/modules/settings/app-preferences/components/SettingsConnectedAccountSyncStatus.tsx
 msgid "Sync paused"
 msgstr "Synchronisation en pause"
+
+#. js-lingui-id: AVB1bz
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Sync result unknown."
+msgstr "Résultat de synchro inconnu."
 
 #. js-lingui-id: N2FcBE
 #: src/modules/settings/app-preferences/components/SettingsConnectedAccountSyncStatus.tsx
@@ -27530,6 +28334,11 @@ msgstr "Synchroniser les libellés des objets et les noms des API"
 #: src/modules/settings/app-preferences/components/SettingsAppPreferencesRowDropdownMenu.tsx
 msgid "Syncing will stop and this account's credentials will be removed. Your emails and events will be retained and available after you reconnect."
 msgstr "La synchronisation s'arrêtera et les identifiants de ce compte seront supprimés. Vos e-mails et événements seront conservés et disponibles après votre reconnexion."
+
+#. js-lingui-id: ZDY7Fy
+#: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
+msgid "Syncing…"
+msgstr "Synchronisation…"
 
 #. js-lingui-id: D+NlUC
 #: src/modules/log-console/utils/getLogConsoleRecordChangeActor.ts
@@ -27724,6 +28533,11 @@ msgstr "Indiquez à l'agent ce qu'il doit modifier"
 msgid "Temporary Failure"
 msgstr "Échec temporaire"
 
+#. js-lingui-id: 3WYP3r
+#: src/modules/client-context/components/ClientBookingAttendeeTag.tsx
+msgid "Tentative"
+msgstr "Provisoire"
+
 #. js-lingui-id: h0xgxg
 #: src/modules/settings/applications/components/SettingsApplicationAboutSidebar.tsx
 msgid "Terms / Privacy"
@@ -27831,6 +28645,11 @@ msgstr "Cela représente environ {formattedNewlyEarnedAiActions} actions d'IA. L
 msgid "The address your workspace will send and receive email from (e.g. support@mycompany.com). Outbound sending requires the domain to be verified in Outbound Domains."
 msgstr "L’adresse à partir de laquelle votre espace de travail enverra et recevra des e-mails (par exemple support@mycompany.com). L’envoi sortant nécessite que le domaine soit vérifié dans Outbound Domains."
 
+#. js-lingui-id: lvNhz8
+#: src/modules/messaging-inbox/components/MessagingInboxUnknownNote.tsx
+msgid "The answer did not match the contract."
+msgstr "La réponse ne correspond pas au contrat."
+
 #. js-lingui-id: oVH0Mt
 #: src/pages/settings/admin-panel/SettingsAdminNewAiProvider.tsx
 msgid "The API endpoint for your OpenAI-compatible provider"
@@ -27875,6 +28694,11 @@ msgstr "La campagne a répondu avec un statut inconnu. Ouvrez-la avant toute sui
 #: src/modules/settings/two-factor-authentication/components/TwoFactorAuthenticationRecoveryCodeConfirmationDialog.tsx
 msgid "The code lets {memberName} sign in to this workspace once without their authenticator app. Using it removes their current authenticator and signs them out of their other sessions here. They will be notified by email."
 msgstr "Le code permet à {memberName} de se connecter une fois à cet espace de travail sans son application d'authentification. Son utilisation supprime son authentificateur actuel et le déconnecte de ses autres sessions ici. La personne sera avertie par e-mail."
+
+#. js-lingui-id: +OTZ/O
+#: src/modules/prospection/components/HermesCollectionOriginTag.tsx
+msgid "The collection contract carries no origin yet."
+msgstr "Le contrat de collecte ne porte pas encore d'origine."
 
 #. js-lingui-id: aXzQ65
 #: src/modules/ai/components/AiChatCompactionIndicator.tsx
@@ -27955,6 +28779,11 @@ msgstr "L'accord complet avec les champs renseignés pour votre déploiement."
 #: src/modules/workflow/workflow-trigger/components/WorkflowEditTriggerManual.tsx
 msgid "The icon your workflow trigger will display in the command menu"
 msgstr "L'icône que votre déclencheur de flux de travail affichera dans le menu de commande"
+
+#. js-lingui-id: YFMOfD
+#: src/pages/prospection/ProspectionImportBatchesPage.tsx
+msgid "The manual deposit opens once the collections can be read."
+msgstr "Le dépôt manuel s'ouvre dès que les collectes peuvent être lues."
 
 #. js-lingui-id: OpK2Nq
 #: src/pages/settings/applications/tabs/SettingsApplicationsAvailableTab.tsx
@@ -28071,6 +28900,11 @@ msgstr ""
 #. js-lingui-id: kWy5P+
 #~ msgid "The server answered with a conflict. Check the batch id and its content."
 #~ msgstr "Le serveur a répondu par un conflit. Vérifiez l'identifiant du lot et son contenu."
+
+#. js-lingui-id: MUCB63
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "The server took the reply."
+msgstr "Le serveur a pris la réponse."
 
 #. js-lingui-id: hKKMk0
 #: src/pages/settings/communications/SettingsWorkspaceCommunicationGroupChannelDetail.tsx
@@ -28411,6 +29245,11 @@ msgstr "Cette connexion n’existe pas ou n’est pas disponible pour cette appl
 msgid "This conversation is no longer available."
 msgstr "Cette conversation n'est plus disponible."
 
+#. js-lingui-id: lvVci/
+#: src/modules/messaging-inbox/components/MessagingInboxChannelView.tsx
+msgid "This conversation is not in the loaded pages."
+msgstr "Cette conversation n'est pas dans les pages chargées."
+
 #. js-lingui-id: 4Rs3za
 #: src/modules/object-core/agents/components/CoreAgentTriggerCard.tsx
 msgid "This cron pattern is not valid"
@@ -28612,6 +29451,11 @@ msgstr ""
 msgid "This rule is disabled. Records are not checked against it."
 msgstr "Cette règle est désactivée. Les enregistrements ne sont pas vérifiés par rapport à elle."
 
+#. js-lingui-id: MEzsEf
+#: src/modules/prospection/components/HermesIntakeSection.tsx
+msgid "This screen cannot read the entry point state yet: the query is not published. Nothing is missing from your workspace."
+msgstr "Cet écran ne peut pas encore lire l'état du point d'entrée : la requête n'est pas publiée. Rien ne manque dans votre espace de travail."
+
 #. js-lingui-id: dv4ZSH
 #: src/modules/settings/unsubscribers/components/SettingsUnsubscribePreview.tsx
 msgid "This sender"
@@ -28772,6 +29616,11 @@ msgstr "Heure"
 #: src/modules/settings/experience/components/DateTimeSettingsTimeFormatSelect.tsx
 msgid "Time format"
 msgstr "Format de l'heure"
+
+#. js-lingui-id: U6lmQ3
+#: src/modules/messaging-inbox/components/MessagingInboxInstantLabel.tsx
+msgid "Time unknown"
+msgstr "Date inconnue"
 
 #. js-lingui-id: Mz2JN2
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
@@ -28992,6 +29841,11 @@ msgstr "Tomate"
 #: src/modules/localization/utils/formatDateISOStringToRelativeDate.ts
 msgid "Tomorrow"
 msgstr "Demain"
+
+#. js-lingui-id: PjNU5e
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Too long to send."
+msgstr "Trop long pour être envoyé."
 
 #. js-lingui-id: 1NhzqT
 #: src/modules/activities/calendar/components/CalendarEventComposerFields.tsx
@@ -29599,6 +30453,7 @@ msgstr ""
 #: src/modules/activities/emails/components/CampaignSentEnvelope.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesDateValue.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesMetricValue.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
 #: src/modules/prospection/components/ProspectionCountValue.tsx
 #: src/modules/settings/billing/hooks/useBillingPlanActions.ts
 #: src/modules/settings/billing/hooks/useBillingPlanActions.ts
@@ -29616,6 +30471,11 @@ msgstr "Décochez les e-mails que vous ne souhaitez plus recevoir à l'adresse {
 #: src/pages/settings/applications/components/SettingsApplicationRegistrationGeneralInfo.tsx
 msgid "Unclaimed"
 msgstr "Non réclamé"
+
+#. js-lingui-id: s2j1h7
+#: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
+msgid "Unconfirmed"
+msgstr "Non confirmé"
 
 #. js-lingui-id: EUHN7i
 #: src/modules/settings/admin-panel/config-variables/components/ConfigVariableValueInput.tsx
@@ -29760,8 +30620,11 @@ msgstr "Identifiant universel"
 
 #. js-lingui-id: Ef7StM
 #: src/modules/activities/emails/utils/getEmailIdentityDisplayName.ts
+#: src/modules/client-context/components/ClientContextInstant.tsx
+#: src/modules/client-context/components/ClientContextProvenanceList.tsx
 #: src/modules/page-layout/widgets/hooks/useWidgetPermissions.ts
 #: src/modules/prospection/components/CampaignAudiencesTable.tsx
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
@@ -29942,6 +30805,7 @@ msgstr "Débloquez des fonctionnalités premium comme le SSO, la sécurité au n
 
 #. js-lingui-id: MEIAzV
 #: src/modules/hermes-shell/dashboard/components/HermesRecordListSection.tsx
+#: src/modules/prospection/components/HermesIntakeSection.tsx
 msgid "Unnamed"
 msgstr "Sans nom"
 
@@ -29952,16 +30816,37 @@ msgstr "Sans nom"
 msgid "Unnamed API Key"
 msgstr "Clé API sans nom"
 
+#. js-lingui-id: iEkVgs
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "Unnamed attendee"
+msgstr "Participant sans nom"
+
 #. js-lingui-id: tLAreY
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
 #: src/modules/prospection/components/HermesImportBatchesTable.tsx
-msgid "Unnamed batch"
-msgstr "Lot sans nom"
+#~ msgid "Unnamed batch"
+#~ msgstr "Lot sans nom"
+
+#. js-lingui-id: KOkGY0
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+#: src/modules/prospection/components/HermesImportBatchesTable.tsx
+msgid "Unnamed collection"
+msgstr "Collecte sans nom"
+
+#. js-lingui-id: RICPnf
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
+msgid "Unnamed form"
+msgstr "Formulaire sans nom"
 
 #. js-lingui-id: a3Hy65
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceBillingContent.tsx
 msgid "Unnamed product"
 msgstr "Produit sans nom"
+
+#. js-lingui-id: Dk/nXx
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
+msgid "Unnamed question"
+msgstr "Question sans nom"
 
 #. js-lingui-id: eQMhFX
 #: src/modules/advanced-text-editor/extensions/slash-command/DefaultSlashCommands.ts
@@ -29990,7 +30875,11 @@ msgid "Unpin tab"
 msgstr "Désépingler l'onglet"
 
 #. js-lingui-id: TlHpRw
+#: src/modules/client-context/components/ClientContextInstant.tsx
+#: src/modules/client-context/components/ClientFormResponseCard.tsx
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
+#: src/modules/prospection/components/HermesImportBatchesTable.tsx
+#: src/modules/prospection/components/HermesIntakeSection.tsx
 msgid "Unreadable"
 msgstr "Illisible"
 
@@ -30109,6 +30998,11 @@ msgstr "{labelSingular} sans titre"
 msgid "Untitled agent"
 msgstr "Agent sans titre"
 
+#. js-lingui-id: 6ZhV41
+#: src/modules/client-context/components/ClientBookingCard.tsx
+msgid "Untitled appointment"
+msgstr "Rendez-vous sans titre"
+
 #. js-lingui-id: 5LNK1J
 #: src/modules/prospection/components/CampaignAudiencesTable.tsx
 #: src/pages/prospection/ProspectionCampaignAudiencePage.tsx
@@ -30134,6 +31028,11 @@ msgstr "iFrame sans titre"
 #: src/modules/activities/emails/components/CampaignDetailsFields.tsx
 msgid "Untitled list"
 msgstr "Liste sans titre"
+
+#. js-lingui-id: lOIGw5
+#: src/modules/client-context/components/ClientRecordNoteCard.tsx
+msgid "Untitled note"
+msgstr "Note sans titre"
 
 #. js-lingui-id: NbOWt/
 #: src/modules/command-menu-item/engine-command/record/single-record/components/ExportNoteSingleRecordCommand.tsx
@@ -31723,8 +32622,14 @@ msgstr "WhatsApp"
 
 #. js-lingui-id: 2+ExvJ
 #: src/modules/connectors/constants/EvolutionWhatsappConnector.ts
+#: src/modules/messaging-inbox/components/MessagingInboxChannelTabs.tsx
 msgid "WhatsApp"
 msgstr ""
+
+#. js-lingui-id: 1ZF9KQ
+#: src/modules/client-context/components/ClientContextTimelineSection.tsx
+msgid "When"
+msgstr "Quand"
 
 #. js-lingui-id: 8ssTdk
 #: src/modules/ai/components/AiChatSnoozeMenu.tsx
@@ -31803,6 +32708,11 @@ msgstr "Où"
 #: src/modules/settings/data-model/object-details/components/tabs/ObjectLayout.tsx
 msgid "Where records of this object open"
 msgstr "Où les enregistrements de cet objet s’ouvrent"
+
+#. js-lingui-id: fhTKd5
+#: src/modules/prospection/components/HermesImportBatchDetail.tsx
+msgid "Where this collection came from, and the status the server gave each row."
+msgstr "D'où vient cette collecte, et l'état que le serveur a donné à chaque ligne."
 
 #. js-lingui-id: PAbCsV
 #: src/pages/settings/admin-panel/SettingsAdminNewAiModel.tsx
@@ -32258,6 +33168,11 @@ msgstr "Rédigez une description"
 msgid "Write a description for this agent"
 msgstr "Rédigez une description pour cet agent"
 
+#. js-lingui-id: EGrEzh
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Write a reply."
+msgstr "Rédigez une réponse."
+
 #. js-lingui-id: RLDVWD
 #: src/modules/marketplace/utils/getRecordAccessLabel.ts
 msgid "Write and delete {target}"
@@ -32666,6 +33581,11 @@ msgstr "Vos fonctionnalités premium resteront actives jusqu'au {cancelAtDate}."
 #: src/pages/settings/admin-panel/SettingsAdminNewAiProvider.tsx
 msgid "Your provider API key for authentication"
 msgstr "La clé API de votre fournisseur pour l'authentification"
+
+#. js-lingui-id: F/vGso
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Your reply"
+msgstr "Votre réponse"
 
 #. js-lingui-id: H0ItDq
 #. placeholder {0}: getBeautifiedRenewDate()

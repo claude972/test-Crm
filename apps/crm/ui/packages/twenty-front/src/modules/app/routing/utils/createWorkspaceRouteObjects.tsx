@@ -7,6 +7,7 @@ import {
   SettingsRouteOutlet,
 } from '@/app/components/SettingsRoutes';
 import { type WorkspaceRouteObject } from '@/app/routing/types/WorkspaceRouteObject';
+import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
 import {
   PROSPECTION_CAMPAIGN_AUDIENCE_PATH,
   PROSPECTION_RECEPTION_PATH,
@@ -77,6 +78,14 @@ const ProspectionCampaignAudiencePage = lazy(() =>
   import('~/pages/prospection/ProspectionCampaignAudiencePage').then(
     (module) => ({ default: module.ProspectionCampaignAudiencePage }),
   ),
+);
+
+// One route: the channel tab and the opened conversation are search
+// parameters, so a thread reloads and shares without a route parameter.
+const MessagingInboxPage = lazy(() =>
+  import('~/pages/messaging/MessagingInboxPage').then((module) => ({
+    default: module.MessagingInboxPage,
+  })),
 );
 
 const NotFound = lazy(() =>
@@ -198,6 +207,14 @@ export const createWorkspaceRouteObjects = ({
       element: (
         <LazyRoute>
           <ProspectionCampaignAudiencePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: MESSAGING_INBOX_PATH,
+      element: (
+        <LazyRoute>
+          <MessagingInboxPage />
         </LazyRoute>
       ),
     },
