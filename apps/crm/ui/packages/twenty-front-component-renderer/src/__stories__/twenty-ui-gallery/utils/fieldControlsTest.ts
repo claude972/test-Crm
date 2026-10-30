@@ -4,10 +4,10 @@ import {
   INTERACTION_TIMEOUT,
   TYPING_DELAY,
 } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-export const fieldControlsTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const fieldControlsTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

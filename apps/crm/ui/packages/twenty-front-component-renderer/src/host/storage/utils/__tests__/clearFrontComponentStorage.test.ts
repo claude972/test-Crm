@@ -53,7 +53,7 @@ describe('clearFrontComponentStorage', () => {
       serializedValue: '"system"',
     });
 
-    window.localStorage.setItem('unrelatedKovaaLab CRMKey', 'value');
+    window.localStorage.setItem('unrelatedKovaaLabCRMKey', 'value');
 
     clearFrontComponentStorage({
       namespace: NAMESPACE,
@@ -78,6 +78,6 @@ describe('clearFrontComponentStorage', () => {
         storageType: 'localStorage',
       }),
     ).toEqual({ theme: '"system"' });
-    expect(window.localStorage.getItem('unrelatedKovaaLab CRMKey')).toBe('value');
+    expect(window.localStorage.getItem('unrelatedKovaaLabCRMKey')).toBe('value');
   });
 });

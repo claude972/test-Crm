@@ -4,10 +4,10 @@ import {
   FRONT_COMPONENT_STORY_DEFAULT_ARGS,
   resetFrontComponentStoryMocks,
 } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
-import { type KovaaLab CRMUiGalleryStory as Story } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryStory';
-import { createGalleryStory } from '@/__stories__/kovaa-lab-ui-gallery/utils/createGalleryStory';
-import { dropdownSelectionGroupsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/dropdownSelectionGroupsTest';
-import { dropdownSelectionEventsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/dropdownSelectionEventsTest';
+import { type KovaaLabCRMUiGalleryStory as Story } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryStory';
+import { createGalleryStory } from '@/__stories__/twenty-ui-gallery/utils/createGalleryStory';
+import { dropdownSelectionGroupsTest } from '@/__stories__/twenty-ui-gallery/utils/dropdownSelectionGroupsTest';
+import { dropdownSelectionEventsTest } from '@/__stories__/twenty-ui-gallery/utils/dropdownSelectionEventsTest';
 import { FrontComponentRenderer } from '@/host/components/FrontComponentRenderer';
 
 const meta: Meta<typeof FrontComponentRenderer> = {

@@ -3,7 +3,7 @@ import { THEME_LIGHT } from 'kovaa-lab-ui/theme';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 
 type Canvas = ReturnType<typeof within>;
 
@@ -165,7 +165,7 @@ const openReviewersPopupWhileTargetsPopupStaysClosed = async ({
   return reviewersPopup;
 };
 
-export const overflowingListPopupTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const overflowingListPopupTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

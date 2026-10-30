@@ -3,7 +3,7 @@ import { type ServerResponse } from 'node:http';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { type Plugin } from 'vite';
 
-import { AVATAR_IMAGE_FIXTURE } from '../../src/__stories__/kovaa-lab-ui-gallery/constants/AvatarImageFixture';
+import { AVATAR_IMAGE_FIXTURE } from '../../src/__stories__/twenty-ui-gallery/constants/AvatarImageFixture';
 
 const AVATAR_IMAGE_REQUEST_PATTERN =
   /^\/__kovaa-lab-ui-avatar-image__\/([a-z0-9-]+)\.svg(?:\/(status|release))?$/;

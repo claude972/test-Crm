@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { createNumberedLabels } from '@/__stories__/kovaa-lab-ui-gallery/utils/createNumberedLabels';
+import { createNumberedLabels } from '@/__stories__/twenty-ui-gallery/utils/createNumberedLabels';
 
 const ROW_STYLE: CSSProperties = { blockSize: 24, lineHeight: '24px' };
 

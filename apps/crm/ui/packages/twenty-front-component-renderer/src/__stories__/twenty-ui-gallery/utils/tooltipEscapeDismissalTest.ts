@@ -3,11 +3,11 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 
 const TOOLTIP_CONTENT = 'Download visible records as a CSV file';
 
-export const tooltipEscapeDismissalTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const tooltipEscapeDismissalTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const user = userEvent.setup();

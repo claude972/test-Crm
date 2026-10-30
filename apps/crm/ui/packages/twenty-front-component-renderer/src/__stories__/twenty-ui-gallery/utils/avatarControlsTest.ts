@@ -1,9 +1,9 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { galleryRenderTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/galleryRenderTests';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { galleryRenderTest } from '@/__stories__/twenty-ui-gallery/utils/galleryRenderTests';
 
-export const avatarControlsTest: KovaaLab CRMUiGalleryPlayFunction = async (
+export const avatarControlsTest: KovaaLabCRMUiGalleryPlayFunction = async (
   context,
 ) => {
   await galleryRenderTest(context);

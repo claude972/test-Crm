@@ -1,11 +1,11 @@
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { KOVAALAB_UI_CASCADE_LAYER_NAME } from '@/host/constants/KovaaLab CRMUiCascadeLayerName';
+import { KOVAALAB_UI_CASCADE_LAYER_NAME } from '@/host/constants/TwentyUiCascadeLayerName';
 
 const ANONYMOUS_IMPORT_LAYER_PREFIX = 'anonymous-';
 
-export const getKovaaLab CRMUiCascadeLayerName = (
+export const getKovaaLabCRMUiCascadeLayerName = (
   layerName: string | null,
 ): string => {
   if (!isDefined(layerName)) {
@@ -20,11 +20,11 @@ export const getKovaaLab CRMUiCascadeLayerName = (
     return `${KOVAALAB_UI_CASCADE_LAYER_NAME}.${ANONYMOUS_IMPORT_LAYER_PREFIX}${anonymousLayerIdentifier}`;
   }
 
-  const isKovaaLab CRMUiLayer =
+  const isKovaaLabCRMUiLayer =
     layerName === KOVAALAB_UI_CASCADE_LAYER_NAME ||
     layerName.startsWith(`${KOVAALAB_UI_CASCADE_LAYER_NAME}.`);
 
-  return isKovaaLab CRMUiLayer
+  return isKovaaLabCRMUiLayer
     ? layerName
     : `${KOVAALAB_UI_CASCADE_LAYER_NAME}.${layerName}`;
 };

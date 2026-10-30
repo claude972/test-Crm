@@ -5,10 +5,10 @@ import { Dropdown } from 'kovaa-lab-ui/components/navigation';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
-import { DropdownSelectionGroupsExample } from '@/__stories__/kovaa-lab-ui-gallery/dropdown-selection-groups-example';
-import { DropdownSelectionEventsExample } from '@/__stories__/kovaa-lab-ui-gallery/dropdown-selection-events-example';
-import { DropdownSessionDraft } from '@/__stories__/kovaa-lab-ui-gallery/dropdown-session-draft';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
+import { DropdownSelectionGroupsExample } from '@/__stories__/twenty-ui-gallery/dropdown-selection-groups-example';
+import { DropdownSelectionEventsExample } from '@/__stories__/twenty-ui-gallery/dropdown-selection-events-example';
+import { DropdownSessionDraft } from '@/__stories__/twenty-ui-gallery/dropdown-session-draft';
 
 const ASSIGNEES = ['Ada Lovelace', 'Grace Hopper'];
 
@@ -26,7 +26,7 @@ const DropdownExample = () => {
   );
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Dropdown">
+    <KovaaLabCRMUiGalleryCard title="Dropdown">
       <Dropdown.Root
         type="menu"
         defaultPage="actions"
@@ -120,7 +120,7 @@ const DropdownExample = () => {
       </Text>
       <DropdownSelectionGroupsExample />
       <DropdownSelectionEventsExample />
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

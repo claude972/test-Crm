@@ -5,7 +5,7 @@ import { Dropdown } from 'kovaa-lab-ui/components/navigation';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const CURRENCIES = [
   { code: 'CAD', name: 'Canadian Dollar', symbol: '$' },
@@ -26,7 +26,7 @@ const CurrencyPickerExample = () => {
   const primaryTriggerRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Currency picker">
+    <KovaaLabCRMUiGalleryCard title="Currency picker">
       <CurrencyPicker
         currencies={CURRENCIES}
         data-currency-trigger="primary"
@@ -87,7 +87,7 @@ const CurrencyPickerExample = () => {
         Changes: {primaryChanges}; Reason: {primaryReason}; Trigger:{' '}
         {primaryTriggerTarget}
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

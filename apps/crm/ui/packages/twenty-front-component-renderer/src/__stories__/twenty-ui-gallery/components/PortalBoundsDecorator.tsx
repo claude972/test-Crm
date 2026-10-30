@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { WIDGET_SCROLL_FRAME_LABEL } from '@/__stories__/kovaa-lab-ui-gallery/constants/WidgetScrollFrameLabel';
+import { WIDGET_SCROLL_FRAME_LABEL } from '@/__stories__/twenty-ui-gallery/constants/WidgetScrollFrameLabel';
 
 export const PortalBoundsDecorator: Decorator = (Story) => {
   const [hostActionCount, setHostActionCount] = useState(0);

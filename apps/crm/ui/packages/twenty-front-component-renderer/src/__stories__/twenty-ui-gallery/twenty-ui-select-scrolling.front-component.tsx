@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Select } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
-import { SCROLLING_OPTION_LABELS } from '@/__stories__/kovaa-lab-ui-gallery/constants/ScrollingOptionLabels';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
+import { SCROLLING_OPTION_LABELS } from '@/__stories__/twenty-ui-gallery/constants/ScrollingOptionLabels';
 
 const SELECTED_OPTION_LABEL = 'Option 30';
 
@@ -44,10 +44,10 @@ const ScrollingSelect = ({
 };
 
 const SelectScrollingExample = () => (
-  <KovaaLab CRMUiGalleryCard title="Select scrolling">
+  <KovaaLabCRMUiGalleryCard title="Select scrolling">
     <ScrollingSelect label="Unaligned option" alignItemWithTrigger={false} />
     <ScrollingSelect label="Aligned option" />
-  </KovaaLab CRMUiGalleryCard>
+  </KovaaLabCRMUiGalleryCard>
 );
 
 export default defineFrontComponent({

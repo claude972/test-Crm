@@ -27,7 +27,7 @@ const meta: Meta<typeof FrontComponentRenderer> = {
 export default meta;
 type Story = StoryObj<typeof FrontComponentRenderer>;
 
-export const GlobalResetKeepsHostKovaaLab CRMUiStyles: Story = {
+export const GlobalResetKeepsHostKovaaLabCRMUiStyles: Story = {
   render: () => (
     <>
       <Button>Host button</Button>

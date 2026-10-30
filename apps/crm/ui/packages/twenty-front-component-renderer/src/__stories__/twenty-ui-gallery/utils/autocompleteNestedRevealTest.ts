@@ -4,12 +4,12 @@ import { errorHandler } from '@/__stories__/shared/test-utils/createFrontCompone
 import { expectElementWithinScrollport } from '@/__stories__/shared/test-utils/matchers/expectElementWithinScrollport';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { focusWithoutScrolling } from '@/__stories__/kovaa-lab-ui-gallery/utils/focusWithoutScrolling';
-import { pressKeyUntilOptionHighlightedOrThrow } from '@/__stories__/kovaa-lab-ui-gallery/utils/pressKeyUntilOptionHighlightedOrThrow';
-import { readHostScrollBoundary } from '@/__stories__/kovaa-lab-ui-gallery/utils/readHostScrollBoundary';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { focusWithoutScrolling } from '@/__stories__/twenty-ui-gallery/utils/focusWithoutScrolling';
+import { pressKeyUntilOptionHighlightedOrThrow } from '@/__stories__/twenty-ui-gallery/utils/pressKeyUntilOptionHighlightedOrThrow';
+import { readHostScrollBoundary } from '@/__stories__/twenty-ui-gallery/utils/readHostScrollBoundary';
 
-export const autocompleteNestedRevealTest: KovaaLab CRMUiGalleryPlayFunction =
+export const autocompleteNestedRevealTest: KovaaLabCRMUiGalleryPlayFunction =
   async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expectFrontComponentMounted(canvas);

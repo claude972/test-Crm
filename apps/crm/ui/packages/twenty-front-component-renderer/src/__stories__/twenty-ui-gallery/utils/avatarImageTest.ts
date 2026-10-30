@@ -4,10 +4,10 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { TYPING_DELAY } from '@/__stories__/shared/test-utils/timeouts';
-import { AVATAR_IMAGE_FIXTURE } from '@/__stories__/kovaa-lab-ui-gallery/constants/AvatarImageFixture';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { observeAvatarImageLoads } from '@/__stories__/kovaa-lab-ui-gallery/utils/observeAvatarImageLoads';
-import { expectAssertionToKeepFailing } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectAssertionToKeepFailing';
+import { AVATAR_IMAGE_FIXTURE } from '@/__stories__/twenty-ui-gallery/constants/AvatarImageFixture';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { observeAvatarImageLoads } from '@/__stories__/twenty-ui-gallery/utils/observeAvatarImageLoads';
+import { expectAssertionToKeepFailing } from '@/__stories__/twenty-ui-gallery/utils/expectAssertionToKeepFailing';
 
 const IS_BROWSER_TEST = import.meta.env.MODE === 'test';
 
@@ -37,7 +37,7 @@ const expectLoadedAvatar = async ({
   });
 };
 
-export const avatarImageTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const avatarImageTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

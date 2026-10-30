@@ -3,7 +3,7 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 import { Button, Slider } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const SliderExample = () => {
   const [value, setValue] = useState(40);
@@ -23,7 +23,7 @@ const SliderExample = () => {
   };
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Slider">
+    <KovaaLabCRMUiGalleryCard title="Slider">
       {isVolumeVisible && (
         <div
           data-testid="volume-pointer-parent"
@@ -71,7 +71,7 @@ const SliderExample = () => {
       </Text>
       <Text role="status">Parent presses: {parentPointerDownCount}</Text>
       <Text role="status">Parent actions: {parentActionCount}</Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

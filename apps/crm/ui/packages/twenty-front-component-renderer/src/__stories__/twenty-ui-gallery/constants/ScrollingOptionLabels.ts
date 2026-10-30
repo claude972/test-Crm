@@ -1,4 +1,4 @@
-import { createNumberedLabels } from '@/__stories__/kovaa-lab-ui-gallery/utils/createNumberedLabels';
+import { createNumberedLabels } from '@/__stories__/twenty-ui-gallery/utils/createNumberedLabels';
 
 export const SCROLLING_OPTION_LABELS = createNumberedLabels({
   prefix: 'Option',

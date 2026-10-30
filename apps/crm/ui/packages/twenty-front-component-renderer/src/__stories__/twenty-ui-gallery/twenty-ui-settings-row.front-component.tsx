@@ -3,7 +3,7 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { SettingsRow } from 'kovaa-lab-ui/components/settings';
 import { IconBell } from 'kovaa-lab-ui/icon';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const SettingsRowExample = () => {
   const [notifications, setNotifications] = useState(false);
@@ -15,7 +15,7 @@ const SettingsRowExample = () => {
   const [cancelledEvent, setCancelledEvent] = useState('none');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="SettingsRow">
+    <KovaaLabCRMUiGalleryCard title="SettingsRow">
       <SettingsRow
         id="notifications-control"
         title="Switch control"
@@ -114,7 +114,7 @@ const SettingsRowExample = () => {
       <p aria-label="Cancelled changes">
         {cancelledChanges}/{cancelledEvent}
       </p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

@@ -4,10 +4,10 @@ import { errorHandler } from '@/__stories__/shared/test-utils/createFrontCompone
 import { expectElementWithinScrollport } from '@/__stories__/shared/test-utils/matchers/expectElementWithinScrollport';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { pressKeyUntilOptionHighlightedOrThrow } from '@/__stories__/kovaa-lab-ui-gallery/utils/pressKeyUntilOptionHighlightedOrThrow';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { pressKeyUntilOptionHighlightedOrThrow } from '@/__stories__/twenty-ui-gallery/utils/pressKeyUntilOptionHighlightedOrThrow';
 
-export const autocompleteRevealTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const autocompleteRevealTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

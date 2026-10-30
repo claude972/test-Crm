@@ -5,12 +5,12 @@ import { expectElementWithinScrollport } from '@/__stories__/shared/test-utils/m
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { readScrollportRectangle } from '@/__stories__/shared/test-utils/readScrollportRectangle';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { readHostScrollBoundary } from '@/__stories__/kovaa-lab-ui-gallery/utils/readHostScrollBoundary';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { readHostScrollBoundary } from '@/__stories__/twenty-ui-gallery/utils/readHostScrollBoundary';
 
 const CENTER_TOLERANCE = 1;
 
-export const scrollNestedRevealTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const scrollNestedRevealTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

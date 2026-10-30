@@ -3,7 +3,7 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Slider } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const SliderRangeExample = () => {
   const [value, setValue] = useState<readonly number[]>([20, 80]);
@@ -12,7 +12,7 @@ const SliderRangeExample = () => {
   ]);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Slider range">
+    <KovaaLabCRMUiGalleryCard title="Slider range">
       <Slider.Root
         value={value}
         onValueChange={setValue}
@@ -31,7 +31,7 @@ const SliderRangeExample = () => {
       <Text>
         Range: {value.join(', ')}; Committed range: {committedValue.join(', ')}
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

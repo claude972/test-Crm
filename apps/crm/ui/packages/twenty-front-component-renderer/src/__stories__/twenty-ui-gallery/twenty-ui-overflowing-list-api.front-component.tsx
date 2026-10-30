@@ -1,12 +1,12 @@
 import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 
-import { KovaaLab CRMUiGalleryCard } from '../shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '../shared/front-components/twenty-ui-gallery-card';
 import { OverflowingListApiExample } from './components/OverflowingListApiExample';
 
 const OverflowingListApi = () => (
-  <KovaaLab CRMUiGalleryCard title="Overflowing list API">
+  <KovaaLabCRMUiGalleryCard title="Overflowing list API">
     <OverflowingListApiExample />
-  </KovaaLab CRMUiGalleryCard>
+  </KovaaLabCRMUiGalleryCard>
 );
 
 export default defineFrontComponent({
