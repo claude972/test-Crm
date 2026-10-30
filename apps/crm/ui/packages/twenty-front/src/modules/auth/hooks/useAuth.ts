@@ -31,7 +31,7 @@ import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceSta
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { returnToPathState } from '@/auth/states/returnToPathState';
-import { clearSessionLocalStorageKeys } from '@/auth/utils/clearSessionLocalStorageKeys';
+import { clearAllSessionLocalStorageKeys } from '@/auth/utils/clearAllSessionLocalStorageKeys';
 import { broadcastSignOutToOtherTabs } from '@/auth/utils/crossTabSignOut';
 import { clearSessionGeneration } from '@/auth/utils/clearSessionGeneration';
 import { isValidReturnToPath } from '@/auth/utils/isValidReturnToPath';
@@ -133,7 +133,11 @@ export const useAuth = () => {
     store.set(currentWorkspaceMemberState.atom, null);
     store.set(currentUserWorkspaceState.atom, null);
     clearSessionGeneration();
-    clearSessionLocalStorageKeys();
+    // The metadata store is an IndexedDB cache of the workspace schema, views
+    // and layouts. Clearing only the localStorage session keys left it on the
+    // device after sign-out, readable by the next person using this browser on
+    // this origin, so the full purge runs here instead.
+    clearAllSessionLocalStorageKeys();
     setLastAuthenticateWorkspaceDomain(null);
     window.location.assign(AppPath.SignInUp);
   }, [store, setLastAuthenticateWorkspaceDomain]);

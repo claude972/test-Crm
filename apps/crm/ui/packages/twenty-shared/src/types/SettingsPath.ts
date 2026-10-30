@@ -48,6 +48,7 @@ export enum SettingsPath {
   WorkspaceBlocklist = 'communications/blocklist',
   NewApprovedAccessDomain = 'security/approved-access-domain/new',
   Community = 'community',
+  Structures = 'structures',
   AI = 'ai',
   AiUsageUserDetail = 'ai/usage/user/:userWorkspaceId',
   AiPrompts = 'ai/prompts',

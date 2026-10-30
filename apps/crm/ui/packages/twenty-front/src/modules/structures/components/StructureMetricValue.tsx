@@ -1,9 +1,14 @@
 import { useLingui } from '@lingui/react/macro';
 import { isDefined } from 'kovaa-lab-shared/utils';
-import { Tag, type TagColor, type TagProps } from 'kovaa-lab-ui/primitives/data-display';
+import {
+  Tag,
+  type TagColor,
+  type TagProps,
+} from 'kovaa-lab-ui/primitives/data-display';
 
 import { type HermesStructureMetric } from '@/structures/types/HermesStructureMetric';
 import { type HermesStructureMetricStatus } from '@/structures/types/HermesStructureMetricStatus';
+import { type HermesStructureMetricTotal } from '@/structures/types/HermesStructureMetric';
 
 type StructureMetricValuePresentation = {
   color: TagColor;
@@ -11,9 +16,6 @@ type StructureMetricValuePresentation = {
   borderStyle: NonNullable<TagProps['borderStyle']>;
 };
 
-// PARTIAL is the only dashed outline, for the same reason pending is in the
-// connector vocabulary: a figure that is knowingly incomplete must not read
-// like a settled one, and a shape says so without relying on hue.
 const METRIC_STATUS_PRESENTATION: Record<
   HermesStructureMetricStatus,
   StructureMetricValuePresentation
@@ -25,8 +27,12 @@ const METRIC_STATUS_PRESENTATION: Record<
 };
 
 type StructureMetricValueProps = {
-  metric: HermesStructureMetric;
+  metric: HermesStructureMetric | HermesStructureMetricTotal;
 };
+
+const hasDenominator = (
+  metric: HermesStructureMetric | HermesStructureMetricTotal,
+): metric is HermesStructureMetricTotal => 'totalStructures' in metric;
 
 export const StructureMetricValue = ({ metric }: StructureMetricValueProps) => {
   const { t, i18n } = useLingui();
@@ -34,18 +40,27 @@ export const StructureMetricValue = ({ metric }: StructureMetricValueProps) => {
   const { color, variant, borderStyle } =
     METRIC_STATUS_PRESENTATION[metric.status];
 
-  // A forbidden or unavailable metric carries null and must never be shown as
-  // zero, while an available zero is a real count. Rendering them differently
-  // is the whole point of this component.
+  // A forbidden or unavailable metric carries null and must never render as
+  // zero, while an available zero is a real count.
   const label = !isDefined(metric.value)
     ? metric.status === 'FORBIDDEN'
       ? t`Not visible to you`
       : t`Not measurable`
     : i18n.number(metric.value);
 
+  // A partial figure says so in words and carries how many structures it
+  // covers. Colour and a dashed border alone would leave the incompleteness
+  // invisible to a screen reader and to anyone who cannot distinguish the hue.
+  const partialSuffix =
+    metric.status === 'PARTIAL'
+      ? hasDenominator(metric)
+        ? t`partial, ${metric.contributingStructures} of ${metric.totalStructures} structures`
+        : t`partial`
+      : undefined;
+
   return (
     <Tag color={color} variant={variant} borderStyle={borderStyle}>
-      {label}
+      {isDefined(partialSuffix) ? `${label} — ${partialSuffix}` : label}
     </Tag>
   );
 };

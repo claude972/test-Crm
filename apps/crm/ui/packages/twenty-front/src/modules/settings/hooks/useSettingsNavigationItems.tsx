@@ -16,6 +16,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 import {
   IconAppWindow,
   IconApps,
+  IconBuildingSkyscraper,
   IconAt,
   IconCalendarEvent,
   IconCode,
@@ -168,6 +169,11 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
         //   Icon: IconApps,
         //   isHidden: !permissionFlagMap[PermissionFlagType.API_KEYS_AND_WEBHOOKS],
         // },
+        {
+          label: t`All my companies`,
+          path: SettingsPath.Structures,
+          Icon: IconBuildingSkyscraper,
+        },
         {
           label: t`Apps`,
           path: SettingsPath.Applications,
