@@ -58,6 +58,7 @@ export const HermesIssueList = ({ issues }: HermesIssueListProps) => {
       'privacy-notice-required': t`Privacy notice URL required.`,
       'privacy-notice-not-https': t`Privacy notice URL must use HTTPS.`,
       'privacy-notice-has-credentials': t`Privacy notice URL must carry no credentials.`,
+      'information-method-required': t`Choose how these contacts are informed.`,
       'no-row-selected': t`Select at least one row.`,
       'too-many-rows-selected': t`${i18n.number(count)} rows selected; ${i18n.number(limit)} at most.`,
       'draft-name-required': t`Campaign name required.`,

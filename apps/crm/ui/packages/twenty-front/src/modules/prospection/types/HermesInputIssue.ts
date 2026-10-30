@@ -23,6 +23,7 @@ export type HermesIssueCode =
   | 'privacy-notice-required'
   | 'privacy-notice-not-https'
   | 'privacy-notice-has-credentials'
+  | 'information-method-required'
   | 'no-row-selected'
   | 'too-many-rows-selected'
   | 'draft-name-required'
