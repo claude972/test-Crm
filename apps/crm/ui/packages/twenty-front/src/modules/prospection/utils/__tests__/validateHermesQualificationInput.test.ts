@@ -132,6 +132,26 @@ describe('validateHermesCampaignDraftInput', () => {
     expect(codesOf(issues)).toContain('draft-name-too-long');
   });
 
+  it('accepts a subject at the server bound', () => {
+    const { issues } = validateHermesCampaignDraftInput({
+      ...VALID_DRAFT,
+      subject: 'a'.repeat(200),
+    });
+
+    expect(issues).toEqual([]);
+  });
+
+  // Missed when the name was bounded, and found by the same review.
+  it('refuses a subject one character past the server bound', () => {
+    const { input, issues } = validateHermesCampaignDraftInput({
+      ...VALID_DRAFT,
+      subject: 'a'.repeat(201),
+    });
+
+    expect(input).toBeNull();
+    expect(codesOf(issues)).toContain('draft-subject-too-long');
+  });
+
   it('refuses a draft with no qualified row', () => {
     const { issues } = validateHermesCampaignDraftInput({
       ...VALID_DRAFT,
