@@ -8,6 +8,10 @@ on:
         description: Start the disposable queue worker
         type: boolean
         default: true
+      same-origin-workspaces:
+        description: Enable native same-origin multiworkspace on this isolated V4 preview only
+        type: boolean
+        default: false
       session-minutes:
         description: Absolute preview lifetime from gate start (including preparation)
         type: choice
@@ -132,6 +136,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           P0_PREVIEW_DATABASE_PASSWORD: ${{ secrets.P0_PREVIEW_DATABASE_PASSWORD }}
           P0_PREVIEW_START_WORKER: ${{ github.event_name == 'push' || inputs.start-worker }}
+          P0_PREVIEW_SAME_ORIGIN_WORKSPACES: ${{ github.event_name == 'workflow_dispatch' && inputs.same-origin-workspaces && 'true' || 'false' }}
         run: node scripts/preview-ci-session-p0.mjs run
       - name: Stop temporary processes and remove local control
         if: ${{ always() }}
