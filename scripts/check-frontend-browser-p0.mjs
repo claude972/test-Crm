@@ -10,6 +10,7 @@ assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Browser smoke is for the dispo
 assert.ok([undefined, 'true', 'false'].includes(process.env.P1_HERMES_BROWSER_SMOKE), 'P1_HERMES_BROWSER_SMOKE must be true or false');
 const hermesSmoke = process.env.P1_HERMES_BROWSER_SMOKE === 'true';
 if (hermesSmoke) {
+  assert.equal(process.env.HERMES_B2B_CAMPAIGNS_ENABLED, 'true', 'P1 Hermes reception requires the explicit disposable B2B campaign opt-in');
   const database = new URL(process.env.PG_DATABASE_URL);
   assert.ok(['postgres:', 'postgresql:'].includes(database.protocol));
   assert.equal(database.hostname, '127.0.0.1');
@@ -191,6 +192,130 @@ async function checkHermesDashboard(page, name) {
   hermesEvidence.push({ viewport: name, path: STRUCTURES_PATH, workspaceId: fixture.workspace.id, generatedAt: dashboard.generatedAt, totals: dashboard.totals, active: row.structure.isCurrent });
 }
 
+
+// Contract: Claude 1f60736ed uses /prospection?batch=<id> and accessible Field labels.
+// These checks observe the UI's real metadata calls; they never intercept/mock data.
+async function readReceptionSafety() {
+  const serverRequire = createRequire(path.join(root, 'apps/crm/ui/packages/twenty-server/package.json'));
+  const { Client } = serverRequire('pg');
+  const client = new Client({ connectionString: process.env.PG_DATABASE_URL, connectionTimeoutMillis: 10_000, statement_timeout: 10_000 });
+  try {
+    await client.connect();
+    await client.query('BEGIN READ ONLY');
+    const result = await client.query('SELECT "databaseSchema" FROM core.workspace WHERE id=$1', [hermesFixture.workspace.id]);
+    assert.equal(result.rows.length, 1);
+    const schema = result.rows[0].databaseSchema;
+    assert.match(schema ?? '', /^[a-zA-Z0-9_]+$/);
+    const deliveries = await client.query(`SELECT count(*)::int AS count FROM "${schema}"."campaignDelivery"`);
+    const suppressions = await client.query(`SELECT to_jsonb(s) AS row FROM "${schema}"."messageSuppression" s ORDER BY id LIMIT 1001`);
+    assert.ok(suppressions.rows.length <= 1000, 'P1 Hermes smoke: unexpected suppression fixture size');
+    await client.query('COMMIT');
+    return { deliveries: deliveries.rows[0].count, suppressions: suppressions.rows.map(({ row }) => row) };
+  } finally { await client.end(); }
+}
+
+async function metadataUIResult(page, field, action) {
+  const pending = page.waitForResponse((response) => hasOperation(response, field), { timeout: 60_000 });
+  await action();
+  const response = await pending;
+  assert.equal(response.status(), 200, `P1 Hermes smoke: ${field} HTTP failed`);
+  const body = await response.json();
+  assert.ok(!body.errors?.length, `P1 Hermes smoke: ${field} returned GraphQL errors`);
+  assert.ok(body.data?.[field] && typeof body.data[field] === 'object', `P1 Hermes smoke: ${field} payload missing`);
+  return body.data[field];
+}
+
+async function checkHermesReception(page, name) {
+  const fixture = hermesFixture;
+  const before = await readReceptionSafety();
+  assert.equal(before.deliveries, 0, 'P1 Hermes smoke: disposable workspace already has deliveries');
+  const forbiddenOperations = [];
+  const rejectSending = async (route) => {
+    let payload;
+    try { payload = route.request().postDataJSON(); } catch { return route.continue(); }
+    const queries = [payload].flat().map((operation) => operation?.query ?? '').join('\n');
+    if (/\b(?:send|schedule)[A-Za-z0-9_]*\s*\(/i.test(queries)) {
+      forbiddenOperations.push('campaign-send-or-schedule');
+      return route.abort('blockedbyclient');
+    }
+    return route.continue();
+  };
+  await page.route(`${API_ORIGIN}/**`, rejectSending);
+  try {
+    const initial = await metadataUIResult(page, 'hermesImportBatches', () => page.goto(`${FRONTEND_ORIGIN}/prospection`, { waitUntil: 'domcontentloaded' }));
+    assert.equal(initial.version, 1);
+    assert.ok(Array.isArray(initial.batches));
+    assert.equal(initial.capabilities.nativeCampaignDrafts, true);
+    assert.equal(initial.capabilities.smtpCampaignSending, false);
+    const suffix = `${name}-${randomBytes(4).toString('hex')}`;
+    const email = `p1-reception-${suffix}@example.test`;
+    const batchName = `P1 synthetic reception ${suffix}`;
+    await page.getByLabel('Batch name', { exact: true }).fill(batchName);
+    await page.getByLabel('Batch id', { exact: true }).fill(`p1-${process.env.GITHUB_RUN_ID}-${suffix}`);
+    await page.getByLabel('Source URL', { exact: true }).fill('https://example.test/synthetic-directory');
+    await page.getByLabel('Collected on', { exact: true }).fill('2026-10-29T12:00');
+    await page.getByLabel('Rows', { exact: true }).fill(JSON.stringify([{ email, companyName: `Synthetic ${suffix}`, firstName: 'Synthetic', lastName: 'Browser' }]));
+    const created = await metadataUIResult(page, 'hermesCreateImportBatch', () => page.getByRole('button', { name: 'Stage batch', exact: true }).click());
+    assert.ok(created.batch?.id && created.batch.rows?.length === 1);
+    const batch = created.batch;
+    const staged = batch.rows[0];
+    assert.equal(staged.email, email);
+    assert.equal(staged.status, 'pending');
+    // Click the real table link instead of navigating directly to a fabricated detail.
+    const batchLink = page.getByRole('link').filter({ hasText: batchName });
+    await batchLink.waitFor({ state: 'visible', timeout: 30_000 });
+    await batchLink.click();
+    await page.waitForURL((url) => url.pathname === '/prospection' && url.searchParams.get('batch') === batch.id);
+    await page.getByRole('checkbox', { name: 'Select row', exact: true }).check();
+    const professionalPurpose = 'Synthetic B2B browser verification only; no contact or delivery is authorized.';
+    await page.getByLabel('Professional purpose', { exact: true }).fill(professionalPurpose);
+    await page.getByLabel('Privacy notice URL', { exact: true }).fill('https://example.test/privacy');
+    await page.getByRole('radio', { name: 'Notice given at first contact', exact: true }).check();
+    const reloaded = page.waitForResponse((response) => hasOperation(response, 'hermesImportBatches'), { timeout: 60_000 });
+    const qualified = await metadataUIResult(page, 'hermesQualifyImportRows', () => page.getByRole('button', { name: 'Qualify', exact: true }).click());
+    assert.equal(qualified.batchId, batch.id);
+    assert.equal(qualified.rows?.length, 1);
+    const row = qualified.rows[0];
+    assert.equal(row.id, staged.id);
+    assert.equal(row.status, 'qualified');
+    assert.ok(row.personId);
+    assert.equal(row.qualification.professionalPurpose, professionalPurpose);
+    assert.equal(row.qualification.privacyNoticeUrl, 'https://example.test/privacy');
+    assert.equal(row.qualification.informationMethod, 'first-contact-notice');
+    // Await and verify the actual reload before invoking a draft mutation.
+    const reloadResponse = await reloaded;
+    assert.equal(reloadResponse.status(), 200);
+    const reloadBody = await reloadResponse.json();
+    assert.ok(!reloadBody.errors?.length);
+    assert.equal(reloadBody.data?.hermesImportBatches?.batches.find(({ id }) => id === batch.id)?.rows.find(({ id }) => id === row.id)?.status, 'qualified');
+    await page.getByRole('checkbox', { name: 'Select row', exact: true }).waitFor({ state: 'visible' });
+    // A frontend remount may intentionally reset selection; selecting again is
+    // a real user action, not permission/state bypass.
+    await page.getByRole('checkbox', { name: 'Select row', exact: true }).check();
+    await page.getByLabel('Campaign name', { exact: true }).fill(`Synthetic draft ${suffix}`);
+    await page.getByLabel('Subject', { exact: true }).fill('Synthetic draft only — do not send');
+    const draft = await metadataUIResult(page, 'hermesCreateCampaignDraft', () => page.getByRole('button', { name: 'Create draft', exact: true }).click());
+    assert.equal(draft.status, 'DRAFT');
+    assert.equal(draft.sendingAvailable, false);
+    assert.ok(draft.campaignId && draft.listId);
+    await page.getByText('Draft created. Nothing was sent.', { exact: true }).waitFor({ state: 'visible' });
+    const persisted = await graphql('graphql', 'query P1ReceptionPerson($filter:PersonFilterInput!) { people(filter:$filter,first:2) { edges { node { id emails { primaryEmail } } } } }', { filter: { id: { eq: row.personId } } }, fixture.token);
+    assert.deepEqual(persisted.people.edges.map(({ node }) => node), [{ id: row.personId, emails: { primaryEmail: email } }]);
+    const campaign = await graphql('graphql', 'query P1ReceptionDraft($filter:MessageCampaignFilterInput!) { messageCampaigns(filter:$filter,first:2) { edges { node { id status listId } } } }', { filter: { id: { eq: draft.campaignId } } }, fixture.token);
+    assert.deepEqual(campaign.messageCampaigns.edges.map(({ node }) => node), [{ id: draft.campaignId, status: 'DRAFT', listId: draft.listId }]);
+    const saved = await graphql('metadata', 'query P1ReceptionSaved { hermesImportBatches }', {}, fixture.token);
+    const savedRow = saved.hermesImportBatches.batches.find(({ id }) => id === batch.id)?.rows.find(({ id }) => id === row.id);
+    assert.equal(savedRow?.status, 'qualified');
+    assert.equal(savedRow?.personId, row.personId);
+    assert.deepEqual(await readReceptionSafety(), before, 'P1 Hermes smoke: delivery or suppression register changed');
+    assert.deepEqual(forbiddenOperations, []);
+    assert.equal(await page.getByRole('alert').count(), 0, 'P1 Hermes smoke: reception error displayed');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1), false, `${name}: reception horizontal overflow`);
+    await page.screenshot({ path: path.join(screenshots, `${name}-hermes-reception-draft.png`), fullPage: true });
+    hermesEvidence.push({ viewport: name, path: '/prospection', batchId: batch.id, rowId: row.id, personId: row.personId, campaignId: draft.campaignId, status: draft.status, deliveries: 0, suppressionRegisterUnchanged: true });
+  } finally { await page.unroute(`${API_ORIGIN}/**`, rejectSending); }
+}
+
 try {
   let ready = false;
   for (let attempt = 0; attempt < 45; attempt += 1) {
@@ -230,7 +355,10 @@ try {
       await email.fill('invalid-email');
       assert.equal(await email.inputValue(), 'invalid-email');
       await page.screenshot({ path: path.join(screenshots, `${name}-email.png`), fullPage: true });
-      if (hermesSmoke) await checkHermesDashboard(page, name);
+      if (hermesSmoke) {
+        await checkHermesDashboard(page, name);
+        await checkHermesReception(page, name);
+      }
       assert.deepEqual(errors, [], `${name}: uncaught browser errors`);
       assert.deepEqual(failedAssets, [], `${name}: failed script/style/font assets`);
     } catch (error) {
@@ -243,7 +371,7 @@ try {
   console.info('P0 browser: real client-config, desktop/mobile welcome and email step, assets and overflow verified');
   if (hermesSmoke) {
     writeFileSync(path.join(screenshots, 'hermes-structures.json'), `${JSON.stringify(hermesEvidence, null, 2)}\n`);
-    console.info('P1 Hermes browser: real onboarding/UI sign-in, dashboard response/counts, active structure and desktop/mobile rendering verified');
+    console.info('P1 Hermes browser: real onboarding/UI sign-in, dashboard response/counts, real reception import/qualification/DRAFT, native persistence and zero delivery verified on desktop/mobile');
   }
 } finally {
   await browser?.close().catch(() => {});
