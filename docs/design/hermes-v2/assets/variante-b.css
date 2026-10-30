@@ -12,17 +12,17 @@
 
 .ecran { max-width: 1060px; }
 
-/* ordre : en-tête, affaires, pipeline, indicateurs, synthèse */
-.entete { order: 1; }
-.bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 2; }
-.bloc:has(.pipeline) { order: 3; }
-.indicateurs { order: 4; }
-.bloc-synthese { order: 5; }
+/* Ordre borné au tableau de bord : ailleurs, le titre reste premier. */
+[data-ecran='dashboard'] .entete { order: 1; }
+[data-ecran='dashboard'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 2; }
+[data-ecran='dashboard'] .bloc:has(.pipeline) { order: 3; }
+[data-ecran='dashboard'] .indicateurs { order: 4; }
+[data-ecran='dashboard'] .bloc-synthese { order: 5; }
 
 /* Les affaires deviennent l'objet principal. */
-.bloc:not(:has(.pipeline)):not(.bloc-synthese) { padding: calc(var(--u) * 3); }
-.bloc:not(:has(.pipeline)):not(.bloc-synthese) .bloc-titre { font-size: 17px; }
-.bloc:not(:has(.pipeline)):not(.bloc-synthese) .tableau td { padding: calc(var(--u) * 1.5) var(--u); }
+[data-ecran='dashboard'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) { padding: calc(var(--u) * 3); }
+[data-ecran='dashboard'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) .bloc-titre { font-size: 17px; }
+[data-ecran='dashboard'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) .tableau td { padding: calc(var(--u) * 1.5) var(--u); }
 
 /* La prochaine action prend le pas sur le montant. */
 .prochaine-quoi { font-size: 15px; font-weight: 600; }

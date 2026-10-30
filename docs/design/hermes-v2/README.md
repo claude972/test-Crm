@@ -61,17 +61,26 @@ connexion ni d'interrupteur.
 
 **Deux bots indépendants, et un vrai refus.** Les interrupteurs WhatsApp et
 e-mail sont séparés et propres à chaque société. Surtout, **un bot ne s'allume
-pas parce qu'on le demande** : il exige ses connexions vérifiées. Dans la
-maquette les deux sont indisponibles, pour des raisons différentes — WhatsApp
-manque son canal et le serveur MCP, l'e-mail ne manque que le MCP. L'écran dit
-lequel manque plutôt que de proposer une activation fictive.
+pas parce qu'on le demande** : il exige ses connexions vérifiées.
+
+Les deux sociétés montrent les deux moitiés de la règle :
+
+- **Atelier Fontaine** est un **scénario de démonstration**. Ses vérifications
+  sont *simulées* — l'écran le dit en toutes lettres — pour que le bot WhatsApp
+  parte actif. On peut donc le couper, voir la reprise en main dans un fil, et
+  allumer ou couper le bot e-mail séparément dans la même société.
+- **Verdure & Associés** garde ses prérequis manquants : les deux interrupteurs
+  sont indisponibles, pour des raisons **différentes** — WhatsApp manque son
+  canal et le serveur MCP, l'e-mail manque son envoi SMTP et le MCP. L'écran
+  nomme ce qui manque plutôt que de proposer une activation fictive.
 
 **Couper un bot ne coupe pas le canal.** La réception et les réponses humaines
 restent possibles, et la messagerie le répète là où la question se pose.
 
 **Reprise en main.** Dans un fil, « Reprendre la main » est une action d'arrêt
 immédiate, pas un réglage : elle coupe ici et renvoie aux Réglages pour la
-suite.
+suite. Elle n'apparaît que lorsque le bot du canal est actif — donc sur
+Atelier Fontaine, côté WhatsApp.
 
 **États honnêtes.** « Déclaré, non vérifié » n'est pas « connecté » : seul un
 état daté affirme une connexion. Une valeur non mesurable s'écrit « Non
@@ -89,8 +98,9 @@ Ce qui réagit, pour montrer le parcours :
 - la navigation entre les quatre modules, et la barre basse en mobile ;
 - les onglets WhatsApp / E-mail et le choix d'une conversation ;
 - « Reprendre la main » dans un fil ;
-- les interrupteurs de bots **lorsque leurs prérequis sont réunis** — ce qui
-  n'est le cas d'aucun dans ces données, volontairement.
+- les interrupteurs de bots **sur Atelier Fontaine**, dont les prérequis sont
+  simulés comme réunis ; sur Verdure & Associés ils restent volontairement
+  indisponibles et expliquent pourquoi.
 
 Ce qui ne réagit pas, et porte une infobulle le disant : « Envoyer »,
 « Proposer un brouillon », « Ajouter une société ». Ces boutons existent pour

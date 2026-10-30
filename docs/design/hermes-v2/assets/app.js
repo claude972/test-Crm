@@ -428,12 +428,19 @@
         c.detail,
       ]),
     ));
-    secX.append(el('p', 'bloc-note', 'Aucun identifiant n\u2019est saisi ni affiché. « Déclaré, non vérifié » n\u2019est pas « connecté » : seule une vérification datée l\u2019est.'));
+    secX.append(el('p', 'bloc-note', r.demo
+      ? 'Aucun identifiant n\u2019est saisi ni affiché. Dans cette société de démonstration, les états « vérifié » sont simulés : aucune connexion n\u2019existe.'
+      : 'Aucun identifiant n\u2019est saisi ni affiché. « Déclaré, non vérifié » n\u2019est pas « connecté » : seule une vérification datée l\u2019est.'));
     f.append(secX);
 
     const secB = el('section', 'bloc');
     secB.append(el('h2', 'bloc-titre', `Bots — ${s2.nom}`));
     secB.append(el('p', 'bloc-note', 'Les deux interrupteurs sont indépendants et propres à cette société. Couper un bot ne coupe pas le canal : la réception et vos réponses restent possibles.'));
+    // Dire d'où vient un état « vérifié » : sans cette phrase, une capture de
+    // cette société se lirait comme une connexion réelle.
+    if (r.demo) {
+      secB.append(el('p', 'avis', 'Scénario de démonstration : les vérifications de cette société sont simulées, pour montrer un bot actif, sa coupure et la reprise en main. Aucune connexion n\u2019existe. Verdure & Associés, elle, montre le refus d\u2019activation quand les prérequis manquent.'));
+    }
 
     [['whatsapp', 'Bot WhatsApp'], ['email', 'Bot e-mail']].forEach(([cle, nom]) => {
       const manquants = prerequisBot(r.connexions, cle);
