@@ -11,11 +11,11 @@ concurrency:
 jobs:
   auth-frontend:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     env:
-      FORCE_COLOR: '0'
+      FORCE_COLOR: "0"
       NODE_OPTIONS: --max-old-space-size=6144
-      NX_DAEMON: 'false'
+      NX_DAEMON: "false"
     defaults:
       run:
         working-directory: apps/crm/ui
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Install immutable native workspace dependencies
         run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
       - name: Build native shared, SDK and frontend runtime dependencies
@@ -40,11 +40,14 @@ jobs:
         run: node scripts/local-project.mjs setup
       - name: Compile existing translation catalogues
         run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
+      - name: Verify WYW provider delegation and build profiling behavior
+        working-directory: apps/crm/ui/packages/twenty-shared
+        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-auth-shared-jest --runTestsByPath src/vite/__tests__/createWywProfilingPlugin.test.ts
       - name: Verify native auth, bootstrap races, legacy behavior and explicit language preferences
         id: auth_tests
         working-directory: apps/crm/ui/packages/twenty-front
         run: |
-          node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --silent --reporters=default --cacheDirectory /tmp/hermes-auth-front-jest --json --outputFile "$RUNNER_TEMP/hermes-auth-frontend-tests.json" --runTestsByPath src/modules/auth/components/__tests__/VerifyEmail.test.tsx src/modules/auth/hooks/__tests__/useAuthSameOrigin.test.tsx src/modules/auth/hooks/__tests__/useAuth.test.tsx src/modules/auth/hooks/__tests__/useRedeemSsoExchangeToken.test.ts src/modules/auth/hooks/__tests__/useVerifyLogin.test.ts src/modules/users/hooks/__tests__/useLoadCurrentUserSameOrigin.test.tsx src/modules/auth/utils/__tests__/getLoginTokenWorkspaceIntent.test.ts src/modules/auth/utils/__tests__/resetWorkspaceSessionAndReload.test.ts src/utils/i18n/__tests__/initialI18nActivate.test.ts
+          node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --silent --reporters=default --cacheDirectory /tmp/hermes-auth-front-jest --json --outputFile "$RUNNER_TEMP/hermes-auth-frontend-tests.json" --runTestsByPath src/modules/auth/components/__tests__/VerifyEmail.test.tsx src/modules/auth/hooks/__tests__/useAuthSameOrigin.test.tsx src/modules/auth/hooks/__tests__/useAuth.test.tsx src/modules/auth/hooks/__tests__/useRedeemSsoExchangeToken.test.ts src/modules/auth/hooks/__tests__/useVerifyLogin.test.ts src/modules/users/hooks/__tests__/useLoadCurrentUserSameOrigin.test.tsx src/modules/auth/utils/__tests__/getLoginTokenWorkspaceIntent.test.ts src/modules/auth/utils/__tests__/resetWorkspaceSessionAndReload.test.ts src/utils/i18n/__tests__/initialI18nActivate.test.ts src/modules/settings/data-model/fields/preview/utils/__tests__/getMultiSelectFieldPreviewValue.test.ts
       - name: Typecheck the complete frontend against the native dependency declarations
         id: frontend_types
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
@@ -56,6 +59,11 @@ jobs:
           set -e
           cat "$RUNNER_TEMP/hermes-auth-frontend-types.txt"
           exit "$result"
+      - name: Build the native production frontend with its existing Vite configuration
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.auth_tests.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front build 2>&1 | tee "$RUNNER_TEMP/hermes-auth-frontend-vite-build.txt"
       - name: Compare the exact application baseline with the same installed and built dependencies
         if: ${{ !cancelled() && steps.frontend_types.outcome == 'failure' }}
         working-directory: .
@@ -97,5 +105,6 @@ jobs:
             ${{ runner.temp }}/hermes-auth-frontend-tests.json
             ${{ runner.temp }}/hermes-auth-frontend-types.txt
             ${{ runner.temp }}/hermes-auth-frontend-baseline-types.txt
+            ${{ runner.temp }}/hermes-auth-frontend-vite-build.txt
           if-no-files-found: warn
           retention-days: 7
