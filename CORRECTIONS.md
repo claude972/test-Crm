@@ -372,6 +372,46 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Revue Claude de la preview CRM — lecture seule
+
+- reviewer: claude
+- reviewed: `d1060f44e` (branche `chore/p0-preview-session`, PR #10), `docs/verification/p0-preview-online-codex.md`, `p0-preview-online-proof.json`, `scripts/check-preview-api-p0.mjs`
+- périmètre demandé : rapport, checkpoint, configuration et manifeste. **Aucun fichier modifié. Aucun état global « P0 terminé » déclaré par moi.**
+
+### Calibrage du rapport : je n'ai trouvé aucune sur-affirmation
+
+C'est la conclusion principale et elle mérite d'être dite nettement. Le rapport énonce lui-même ses limites aux bons endroits : Char et Forms ne sont pas déployés par cette preview, l'onboarding et le CRUD ont été vérifiés **par API et non par clics**, aucun test d'installation sur appareil ni mode hors ligne n'est livré, et la livraison **ne clôt pas tout P0**. L'incident du premier déploiement classé production est divulgué plutôt que tu. Le script pousse la rigueur jusqu'à émettre `offline: 'not asserted'` et `authenticatedCrud: 'not asserted'` dans sa propre sortie : déclarer ce qu'on n'affirme pas est exactement le bon réflexe.
+
+### Vérifié par moi, sans aucune tentative de contournement
+
+**La protection Vercel est réellement active.** Requête anonyme, sans identifiant : `/`, `/manifest.json` et `/images/icons/ios/192.png` renvoient tous **HTTP 302** vers le SSO, avec `set-cookie: _vercel_sso_nonce=…; Secure; HttpOnly; SameSite=Lax` et `content-type: text/plain`. L'affirmation « protection conservée » est donc confirmée par un contrôle indépendant. Je n'ai utilisé aucun identifiant et n'ai rien cherché à déduire.
+
+**« Icône 192 joignable » est exact.** J'avais soupçonné une sur-affirmation, la ligne 44 ne testant que l'origine. Vérifié : la ligne suivante exécute `await request(iconUrl.pathname)`, donc l'icône est bien récupérée. Mon soupçon était infondé et je le retire.
+
+### Constat PWA que j'ajoute
+
+Le manifeste est **derrière le SSO** : une requête non authentifiée reçoit un 302 vers une autre origine, avec un `content-type: text/plain`. Or `index.html:13` porte `crossorigin="use-credentials"` sur le lien du manifeste.
+
+Conséquence : **l'installabilité PWA ne peut pas être supposée sur cette URL, et il est plausible qu'elle soit bloquée.** Le navigateur, en récupérant le manifeste, suivrait une redirection vers une origine tierce et recevrait autre chose que du JSON. Le rapport dit déjà qu'aucun test d'installation n'a été fait ; ce que j'ajoute, c'est **la raison pour laquelle on ne peut pas simplement l'essayer ici**, et ce qu'il faudrait : un manifeste et ses icônes joignables sans authentification, ou un déploiement non protégé dédié à ce seul contrôle. Ce n'est pas un défaut du produit, c'est une limite de la méthode de preview.
+
+À noter que le contrôle en ligne passe précisément parce qu'il emploie le CLI authentifié : « joignable pour une session authentifiée » et « joignable pour le fetch de manifeste d'un navigateur » ne sont pas la même propriété.
+
+### Delta entre la preview et mon checkpoint, à consigner
+
+Le bundle déployé est l'artefact de **`c96b7eea6`**. Mes commits postérieurs — `6974f96ca`, `f890514bd`, `ff0d937c2` — **ne sont pas dans cette preview**. Elle ne valide donc pas mon checkpoint courant, et personne ne devrait plus tard le supposer.
+
+Précision de méthode, car je me suis d'abord trompé : `git merge-base --is-ancestor` annonce mon correctif worker `6c7bcd48a` comme absent de l'arbre déployé, ce qui est **trompeur** — Root l'a réintégré sous `bad53ac26`, donc l'objet commit diffère. Le contrôle **par contenu** le montre bien présent (`resolve-renderer-source` dans `build-sandbox-document.ts`), et c'est pourquoi le bundle se construit. L'ancestralité est le mauvais instrument quand un correctif est réappliqué.
+
+Restent donc dans l'arbre déployé, et c'est sans conséquence ici : le `cacheDir` rebrandé et la forme objet de l'alias du renderer — le premier ne déplace qu'un cache de build, le second fonctionne dans le bundle principal, Vite gérant le slash final. Et les défauts Char, qui n'ont aucun effet sur cette preview puisque **Char n'y est pas déployé**, comme leur rapport l'indique.
+
+### Ce que cette preview établit, et ce qu'elle n'établit pas
+
+Établi : le déploiement existe, est en `READY` et en cible preview ; la configuration runtime est same-origin ; le manifeste est servi en `standalone` avec son icône 192 ; et dix étapes d'API réelles passent — inscription, activation, reconnexion, profil relu, étapes facultatives, puis création, lecture, modification, relecture, suppression et vérification d'absence d'une société synthétique.
+
+Non établi, et le rapport ne le prétend pas : le **rendu de l'interface** par des clics dans la preview, l'installabilité PWA, le mode hors ligne, le temps réel — le tunnel ne transporte pas SSE —, et toute assertion portant sur Char ou Forms.
+
+**Je ne déclare aucun état global P0 terminé.** Mon propre `P0-PWA-001` reste ouvert, et les quatre constats Char backend restent en lot séparé, non corrigés.
+
 ## Checkpoint Claude consolidé — `ff0d937c204a1374c91e1395d53481693b5655db`
 
 Branche `fix/claude-frontend-baseline`, PR #9. Web et PWA exclusivement ; aucune application native, aucun Expo/React Native, aucun build natif.
