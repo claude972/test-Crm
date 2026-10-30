@@ -372,6 +372,51 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Mission hermes-redesign-p1 — prise de chantier et audit, agent: claude
+
+- **branche unique de chantier frontend : `feat/claude-hermes-connectors-ui`**, SHA **`af03bb4f2ce21c43e95502b0c71482618e406e75`**
+- worktree : réutilisation de `/Volumes/Stockage/dev/hermes-crm/claude-frontend-baseline`. **Aucune copie complète créée** — un seul chantier, un seul worktree, le disque étant par ailleurs contraint.
+- **Aucune branche concurrente.** `fix/claude-frontend-baseline` reste publiée comme trace du P0 et n'est pas supprimée.
+- **Aucune direction visuelle choisie** : ni palette, ni police, ni composition, ni maquette. La référence du propriétaire est attendue, conformément à `DESIGN.md`. Je ne redemanderai pas une préférence déjà fournie.
+
+### Réconciliation de la base, et pourquoi elle n'était pas triviale
+
+La base commune proposée `0523dad07` portait **39 commits** que je n'avais pas ; ma branche en portait **7** qu'elle n'avait pas, dont **trois réparations P0 absentes d'elle** : la forme d'alias du renderer, les expressions Ruby du gabarit Char, et les valeurs de contrat de `featureFlags.js`. Partir de la base seule les aurait **silencieusement perdues**. Le chantier est donc la base **fusionnée** avec mon travail, pas la base en remplacement.
+
+Un conflit, dans mon propre workflow, additif des deux côtés : Codex y avait ajouté les chemins `twenty-sdk` et `twenty-client-sdk`, moi ceux de Char. Résolu en **union** sur les deux déclencheurs, en conservant son intention et la mienne. Vérifié ensuite que mes deux autres correctifs de workflow survivaient : l'événement dans le groupe de concurrence, et le job de bundle sauté sur `push`.
+
+Contrôlé **par contenu et non par ancestralité** — la leçon de la preview : les six réparations P0 sont présentes dans l'arbre fusionné, et `scripts/check-frontend-p0.cjs` sort en 0 sur les deux paquets CRM et les sources Char.
+
+### Déclaration de propriété, par fichier
+
+- **Possédé, édition autorisée** : `apps/crm/ui/packages/twenty-front/**` et ses tests ; `scripts/check-frontend-p0.cjs` et `.github/workflows/p0-frontend-baseline.yml`.
+- **Extension candidate, non encore éditée** : les **32 fichiers** de `apps/crm/ui/packages/twenty-ui/src/theme`. Les jetons utiles sont `constants/ThemeLight.ts`, `constants/ThemeDark.ts`, `constants/ThemeCommon.ts`, `constants/GrayScaleLight.ts`, `constants/GrayScaleDark.ts`, `constants/MainColorNames.ts`, `theme-light.css`, `theme-dark.css`. **Je déclarerai chaque fichier nommément avant de l'éditer**, et pas avant d'avoir la référence visuelle.
+- **Non possédé, non touché** : DTO et contrats partagés, `twenty-shared`, backend, scripts et workflows de Codex, originaux `test-Crm`.
+
+### Audit de l'existant — lecture seule
+
+Le constat qui oriente tout le reste : **le socle offre déjà la mécanique dont la refonte a besoin**. Le travail est largement de la composition et de la lisibilité, pas de l'infrastructure neuve. Le prompt demande de réutiliser les mécanismes existants ; voici ce qu'ils couvrent réellement.
+
+**Types de vue déjà pris en charge** : `TABLE`, `KANBAN`, `CALENDAR`, `LIST`, `FIELDS`. Donc le **pipeline** d'opportunités et l'**agenda** ne sont pas à créer : `record-board` compte 105 fichiers, `record-table` 331, `record-calendar` 45. Les rendre lisibles et les alimenter est le vrai sujet.
+
+**Système de page-layout et de widgets, substantiel** : `PageLayoutType` couvre `DASHBOARD`, `RECORD_PAGE`, `RECORD_INDEX`, `RECORD_FORM`, `STANDALONE_PAGE`, et 24 types de widgets existent, dont `CALENDAR`, `EMAILS`, `EMAIL_THREAD`, `CHAT_THREADS`, `TIMELINE`, `TASKS`, `NOTES`, `GRAPH`, `RECORD_TABLE`, `FILES`. Conséquence directe : l'**accueil opérationnel** et la **chronologie unifiée** de la fiche client se construisent sur `DASHBOARD` et `RECORD_PAGE` avec ces widgets, plutôt qu'en écrans neufs.
+
+**Défaut d'ergonomie prouvé, et non un choix esthétique : il n'y a pas d'accueil opérationnel.** `useDefaultHomePagePath` renvoie `AppPath.Home` sur mobile, sinon la première vue du premier objet de métadonnées. Autrement dit, après connexion on atterrit sur **une liste d'enregistrements**, choisie par l'ordre des métadonnées. Aucun écran ne présente les suivis et actions du jour. C'est exactement le manque que le propriétaire décrit, et il est structurel.
+
+**Conversations : partiellement présentes, non unifiées.** `activities/emails` compte 119 fichiers et le module `ai` 670, avec une boîte dédiée (`AppPath.AiChatInbox`). Mais il n'existe **aucune liste de fils multicanal** : les e-mails sont des activités rattachées à un enregistrement, et le chat IA vit sur sa propre route. Un fil WhatsApp n'a aujourd'hui nulle part où s'afficher. Ce n'est pas une régression — cela n'a jamais été livré.
+
+**Contacts : fiche générique, pas de fiche contact dédiée.** `Person` est un objet comme un autre ; le rendu passe par `RecordShowPage` puis `RecordShowPageContent`. La chronologie unifiée demandée se construira donc par la composition de widgets sur le `RECORD_PAGE`, sans composant spécifique à inventer.
+
+**Réglages : `SettingsPath.Integrations` est déclaré, non routé, et son entrée de navigation est commentée** par un `TODO: Re-enable when integrations page is ready` (`useSettingsNavigationItems.tsx:164-170`). C'est l'emplacement naturel et déjà réservé pour connecter WhatsApp, la messagerie, Hermès, Forms et les rendez-vous. Le bouton orphelin que j'avais relevé en P0 s'y résorbe de lui-même.
+
+**États, accessibilité, responsive — l'acquis à préserver** : squelettes de chargement, frontières d'erreur à quatre niveaux, `RecordIndexEmptyState` à cinq branches, 35 catalogues i18n et 5 248 clés, attributs `aria-*` dans 500 fichiers du front et 69 de la bibliothèque, barre de navigation mobile dédiée. À l'inverse, deux faiblesses mesurées restent à traiter dans la refonte : **19 des 34 fichiers animés n'ont aucune garde `prefers-reduced-motion`** et il n'existe aucun reset global ; et `ContactLink.tsx:44` ouvre un onglet sans `rel`, seule exception sur 16 occurrences.
+
+### Ce que je ne fais pas à ce stade
+
+Aucune édition de composant, de thème ou de route. Aucun choix de palette, de police ni de maquette. Aucun lot d'implémentation démarré : le prompt fixe l'ordre — cadre et navigation, puis liste et fiche client, puis conversations, pipeline, agenda et formulaires, réglages — et j'attends la référence visuelle avant d'ouvrir le premier. Les connecteurs n'étant pas livrés, tout écran qui en dépendra affichera un état **non configuré** explicite, jamais un faux succès.
+
+**Cet audit n'est pas une refonte**, et je ne le présenterai pas comme telle.
+
 ## Prise en compte du prompt connecteurs Hermès — lecture seule, aucun démarrage
 
 - lu : `docs/handoff/hermes-connectors-claude-prompt.md` à `5968c1a06`, et la mission `hermes-connectors-p1` de `MISSIONS.md` (ligne 189), dont les deux affectations sont `pending`.
