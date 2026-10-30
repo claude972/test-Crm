@@ -124,6 +124,25 @@ jobs:
           cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
           test -s dist/assets/kovaa-lab-client-sdk/dist/core.cjs
           test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
+      - name: Verify disposable migration guards
+        if: ${{ inputs.hermes-checks }}
+        working-directory: .
+        run: node --test scripts/check-hermes-migration-ci.test.mjs
+      - name: Generate and exercise the official Hermes migration on disposable PostgreSQL
+        if: ${{ inputs.hermes-checks && inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+        run: node scripts/check-hermes-migration-ci.mjs --generate --reset-after-generation
+      - name: Publish generated Hermes migration for review
+        if: ${{ always() && inputs.hermes-checks }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-migration-${{ github.sha }}
+          path: hermes-migration-artifacts
+          if-no-files-found: warn
+          retention-days: 7
       - name: Download the exact frontend build for browser verification
         if: ${{ inputs.browser-smoke }}
         uses: actions/download-artifact@v4
