@@ -18,6 +18,7 @@ import { logDebug } from '~/utils/logDebug';
 import { REST_API_BASE_URL } from '@/apollo/constants/RestApiBaseUrl';
 import { type ApolloManager } from '@/apollo/types/ApolloManager';
 import { isSessionSupersededGraphQLError } from '@/apollo/utils/isSessionSupersededGraphQLError';
+import { isMutationOperation } from '@/apollo/utils/isMutationOperation';
 import { isUnauthenticatedGraphQLError } from '@/apollo/utils/isUnauthenticatedGraphQLError';
 import { loggerLink } from '@/apollo/utils/loggerLink';
 import { StreamingRestLink } from '@/apollo/utils/streamingRestLink';
@@ -195,11 +196,16 @@ export class ApolloFactory implements ApolloManager {
           });
       };
 
+      // A superseded session is an answer, not a hiccup. Replaying a read is
+      // harmless, replaying a write is not: the first attempt may already have
+      // written, and the replay would run against the session that superseded
+      // it. Mutations are surfaced to the caller instead.
       const supersededSessionRetryLink = new ErrorLink(
         ({ error, operation, forward }) => {
           if (
             this.isSupersededSessionRejection(error) &&
             !operation.getContext().skipRetry &&
+            !isMutationOperation(operation) &&
             isDefined(getSessionGeneration())
           ) {
             return forward(operation);
