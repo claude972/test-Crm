@@ -28,6 +28,7 @@ const metadataHeader = z
 const providerMetadataSchema = z
   .object({
     rfcMessageId: metadataHeader.optional(),
+    sentCopyState: z.enum(['PENDING', 'UNCONFIRMED', 'SAVED']).optional(),
     mimeSha256: z
       .string()
       .regex(/^[a-f0-9]{64}$/)
