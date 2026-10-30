@@ -24,6 +24,12 @@ const StyledSidebar = styled.nav`
     gap: ${themeCssVariables.spacing[3]};
     overflow-y: visible;
   }
+
+  /* display: flex above would otherwise beat the hidden attribute, leaving a
+     collapsed menu on screen and in the accessibility tree. */
+  &[hidden] {
+    display: none;
+  }
 `;
 
 const StyledSection = styled.div`
@@ -46,13 +52,25 @@ const StyledSectionTitle = styled.h2`
 const isNavigationItemActive = (pathname: string, to: string) =>
   pathname === to || pathname.startsWith(`${to}/`);
 
-export const HermesSidebar = () => {
+type HermesSidebarProps = {
+  // Referenced by the toggle's aria-controls, so the button and the region it
+  // opens are tied together rather than only visually related.
+  id: string;
+  isHidden: boolean;
+  onNavigate?: () => void;
+};
+
+export const HermesSidebar = ({
+  id,
+  isHidden,
+  onNavigate,
+}: HermesSidebarProps) => {
   const { t } = useLingui();
   const { pathname } = useLocation();
   const sections = useHermesNavigationSections();
 
   return (
-    <StyledSidebar aria-label={t`Main navigation`}>
+    <StyledSidebar id={id} hidden={isHidden} aria-label={t`Main navigation`}>
       {sections.map((section) => (
         <StyledSection key={section.key}>
           <StyledSectionTitle>{section.label}</StyledSectionTitle>
@@ -63,6 +81,7 @@ export const HermesSidebar = () => {
               to={item.to}
               Icon={item.Icon}
               isActive={isNavigationItemActive(pathname, item.to)}
+              onNavigate={onNavigate}
             />
           ))}
         </StyledSection>
