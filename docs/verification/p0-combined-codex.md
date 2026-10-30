@@ -19,3 +19,11 @@ Recontrôle SHA-256 depuis le manifeste privé de sauvegarde, après création d
 ## Contrôles de cette préparation
 
 `git diff --check` réussi ; Gitleaks sur les changements staged sans détection. Première CI combinée : https://github.com/claude972/test-Crm/actions/runs/40977970048 **réussie** sur `fe16ff92d` : six jobs verts. Le commit `0f0e6b3fb` ne change ensuite que la documentation. Cette CI couvre Forms, compilation syntaxique Ruby, syntaxe/imports CRM, orchestration sûre, shared runtime/déclarations et checkpoint backend (SDK/e-mails/types/compilation/artefacts). Elle ne couvre pas encore le frontend.
+
+## Contrôle de démarrage isolé — en cours
+
+Commit f7f05f90b : le workflow backend réutilisable accepte désormais une option runtime-smoke, activée seulement dans la vérification combinée. PostgreSQL 16 et Redis 7 sont créés dans le runner GitHub Actions avec base p0_ci et port loopback ; aucun service ou volume local n'est utilisé. La clé d'application est aléatoire et éphémère. Le helper refuse hors GitHub Actions, vérifie les cibles loopback et l'absence de .env privé avant toute opération.
+
+Le contrôle initialise uniquement cette base jetable, exécute les commandes d'instance existantes, lance le serveur compilé puis vérifie healthz et le contrat réel du endpoint client-config. Il arrête le processus ensuite ; aucun compte métier, workspace de production ni e-mail envoyé. Ce contrôle doit passer avant d'être présenté comme preuve de démarrage.
+
+Validation préalable du helper : node --check réussi ; invocation locale effectivement refusée avant toute action de base/service ; git diff --check et Gitleaks staged réussis. CI runtime en cours : https://github.com/claude972/test-Crm/actions/runs/40979175124. La CI verte précédente ne contenait pas ce contrôle et ne prouve donc pas son résultat.
