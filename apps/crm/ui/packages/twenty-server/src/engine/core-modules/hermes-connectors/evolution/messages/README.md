@@ -1,0 +1,36 @@
+# Evolution API v2 text messages
+
+Supported provider contract: Evolution API **2.3.6**, verified against its official tagged source. No live provider account was supplied or contacted. Without a server-owned connection map the adapter returns `NOT_CONFIGURED`, not a fake connected chat.
+
+`EvolutionMessagesAdapter(serializedConnections, options?)` uses the unchanged `HERMES_EVOLUTION_CONNECTIONS` workspace map (`baseUrl`, `instanceName`, `apiKey`). It implements channel WHATSAPP, real readiness probe and send. Before a POST it validates the active workspace connection ID and checks the actual provider state. HTTPS origins, SSRF socket checks, disabled redirects/proxy, bounded body/response/timeouts reuse the existing status adapter and secure agents. Loopback HTTP is for operator-owned test fixtures with an explicit internal-host exception only.
+
+`send({workspaceId,conversationId,providerConnectionId,contactHandle,text,clientRequestId})` posts `{number,text,linkPreview:false}` to `/message/sendText/{instance}` with the server-only `apikey` header. `contactHandle` is a canonical direct phone JID (`<digits>@s.whatsapp.net`). An acknowledgement returns only providerMessageId/acceptedAt; **accepted never means delivered**. A provider LID is accepted only with an explicit matching `remoteJidAlt` phone mapping, never by guessing its digits.
+
+The core MUST reserve its durable clientRequestId before calling send. There is no documented Evolution idempotency parameter: no internal retries. Timeouts, malformed/wrong-recipient acknowledgements and all non2xx responses after POST except auth401/403 throw `code=DELIVERY_UNCERTAIN`. In particular Evolution may send then throw HTTP400 while persisting/emitting webhooks; HTTP400 cannot prove that no message was sent. The core keeps UNCONFIRMED, and must not automatically resubmit the same operation.
+
+## Inbound bridge
+
+Root wires the exported `EvolutionWebhookController` into its messaging module and provides token `EVOLUTION_WEBHOOK_RECEIVER` with an `EvolutionWebhookReceiver(connections, secrets, ingestCallback)`. Endpoint: `POST /webhooks/hermes/evolution`, already under the shared ApiPath.Webhooks prefix. No generic JWT bypass is added.
+
+`HERMES_EVOLUTION_WEBHOOK_SECRETS` is a separate server-only JSON map of configured workspace UUID to a unique cryptographically random32-byte hex token (64 lowercase hex characters). It must never use the Evolution API key, a public workspace ID or a query parameter as webhook authentication. A body `apikey`, `workspaceId`, `server_url` or `destination` does not authorize or select the workspace. A matching header token selects its private configuration and the payload instance must match it.
+
+The actual official provider mechanism is **custom webhook headers**, not a made-up signature: configure the instance's local webhook `headers` with `x-hermes-evolution-token: <private random token>` and events `MESSAGES_UPSERT` and `SEND_MESSAGE`, `byEvents:false`. Evolution sends those header values on each local webhook POST. Its emitted event names are `messages.upsert` and `send.message`. No provider webhook configuration was changed by this delivery. Production TLS is required. The protected Vercel preview also requires a separately authorized ingress mechanism; do not remove Deployment Protection or pretend a provider is receiving events before that is configured.
+
+The receiver authenticates before normalization, bounds the payload, derives direction from key.fromMe, preserves provider message ID and remote thread JID, and converts provider seconds to ISO time. Plain conversation and extendedTextMessage.text are supported. For a LID remote thread it requires the provider's explicit canonical remoteJidAlt for contactHandle and preserves the original LID as providerConversationId. Unsupported events/media/groups/unmapped LIDs are explicitly IGNORED, never fake text/conversations. It does not fabricate delivery/read state from message acceptance.
+
+The callback is `ingest({workspaceId,channel:'WHATSAPP',providerConnectionId,providerMessageId,providerConversationId,direction,contactHandle,text,occurredAt}) -> {conversationId,messageId,replay}`. `providerConnectionId` is `evolution:` plus SHA256 of normalized baseUrl/instanceName. Native messaging-core storage must check workspace active/non-deleted and enforce atomic provider-ledger uniqueness across workers/restarts. No per-process dedupe is presented as durable idempotence. If ingestion fails, HTTP503 is returned for retry, never a false202. Replayed accepted events return the same IDs through that durable callback.
+
+## Validation actually performed
+
+Synthetic Node HTTP provider tests perform real loopback requests for probe/sendText with random fixture keys, never WhatsApp. A real lightweight Nest application tests the HTTP controller on loopback with no DB. Receiver unit tests use an explicitly synthetic ledger callback; they validate bridge IDs/replay contract but do not prove DB durability. The messaging core owner supplies native persistence/idempotency tests. No SMTP, Railway, original DB or external send was used. No production status-adapter file was changed.
+
+Targeted TypeScript check uses the project-compatible strictFunctionTypes=false because the existing shared SSRF agent has pre-existing callback variance under standalone strict=true. No full-repository typecheck was launched concurrently.
+
+## Primary source evidence
+
+- [Official package tag2.3.6](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/package.json).
+- [Router: real POST sendText, status201](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/src/api/routes/sendMessage.router.ts#L50), [number/text DTO](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/src/api/dto/sendMessage.dto.ts#L37), [mounted message routes and API-key guard](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/src/api/routes/index.router.ts#L196).
+- [Official webhook controller: custom headers stored and transmitted, event envelope](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/src/api/integrations/event/webhook/webhook.controller.ts#L71). JWT via jwt_key exists upstream; this implementation uses its simpler supported static custom-header mechanism with a separate strong token, not an invented HMAC signature.
+- [Inbound normalization and emitted message](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/src/api/integrations/channel/whatsapp/whatsapp.baileys.service.ts#L1251), [LID alternate mapping](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/src/api/integrations/channel/whatsapp/whatsapp.baileys.service.ts#L1279), [send then persistence/webhook then broad HTTP400 catch](https://github.com/evolution-foundation/evolution-api/blob/2.3.6/src/api/integrations/channel/whatsapp/whatsapp.baileys.service.ts#L2075).
+
+Validation checkpoint: **65/65 tests, 3 suites PASS** (3.267s), targeted production TypeScript PASS, Gitleaks directory scan PASS. The existing connection status adapter is unchanged. Root still needs to wire the controller/token/registry and run native core persistence/CI against the combined snapshot before claiming end-to-end live messaging.
