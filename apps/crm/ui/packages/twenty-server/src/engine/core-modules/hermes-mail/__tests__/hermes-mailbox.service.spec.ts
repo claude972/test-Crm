@@ -255,6 +255,8 @@ it('creates a Bcc-only mail with an own mailbox canonical contact and no hidden 
     actor,
     expect.objectContaining({ contactHandle: 'me@example.com' }),
     expect.any(Function),
+    false,
+    'e4d16125-1299-4b15-aa57-d193a423b4e6',
   );
   expect(JSON.stringify(f.mail.draftConversation.mock.calls)).not.toContain(
     'hidden@example.org',
@@ -388,10 +390,23 @@ it('persists an empty native draft, replays it, replaces edited content recovera
     expect.any(Function),
     true,
   );
+  Object.assign(f.account, { handleAliases: ['alias@example.net'] });
+  const fourth = await f.service.createDraft(actor, {
+    ...edited,
+    from: 'alias@example.net',
+    draftRevision: third.draftRevision,
+    attachmentIds: ['e4d16125-1299-4b15-aa57-d193a423b4e8'],
+  });
+  expect(fourth.conversationId).toBe(canonical);
+  expect(native.get(Number(third.uid))?.folder).toBe('Trash');
+  expect(
+    (await PostalMime.parse(native.get(Number(fourth.uid))!.raw)).from?.address,
+  ).toBe('alias@example.net');
   const sendRequestId = 'e4d16125-1299-4b15-aa57-d193a423b4e9';
   await f.service.sendNew(actor, {
     ...edited,
-    draftRevision: third.draftRevision,
+    from: 'alias@example.net',
+    draftRevision: fourth.draftRevision,
     clientRequestId: sendRequestId,
   });
   expect(f.mail.replyRich).toHaveBeenCalledWith(

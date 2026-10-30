@@ -375,6 +375,7 @@ export class HermesMailboxService {
           direction: observed.direction,
           observedOnly: true,
           botUnavailableReason: observed.botUnavailableReason,
+          autoReplyBlockedReason: observed.autoReplyBlockedReason,
           state: 'AVAILABLE',
           uid: input.uid,
           uidValidity: input.uidValidity,
@@ -693,6 +694,8 @@ export class HermesMailboxService {
               subject: envelope.subject,
             },
             () => this.alive(client),
+            false,
+            input.clientRequestId,
           );
           if (input.conversationId && input.conversationId !== conversation.id)
             throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
@@ -762,12 +765,7 @@ export class HermesMailboxService {
           const validity = String(client.mailbox && client.mailbox.uidValidity);
           if (!/^\d{1,32}$/.test(validity))
             throw new ConflictException('MAIL_UID_VALIDITY_CHANGED');
-          const messageId =
-            '<hermes-draft-' +
-            draftId +
-            '@' +
-            envelope.from.split('@')[1] +
-            '>';
+          const messageId = '<hermes-draft-' + draftId + '@hermes.invalid>';
           const found = await client.search(
             { header: { 'message-id': messageId } },
             { uid: true },
@@ -785,7 +783,9 @@ export class HermesMailboxService {
             });
             if (
               source.messageId !== messageId ||
-              mailAddress(source.from?.address) !== envelope.from
+              !getSendableEmailHandles(item.account)
+                .map(mailAddress)
+                .includes(mailAddress(source.from?.address))
             )
               throw new ConflictException('MAIL_DRAFT_IDENTITY_CONFLICT');
             latestRevision = mailParsedContentSignature(source);

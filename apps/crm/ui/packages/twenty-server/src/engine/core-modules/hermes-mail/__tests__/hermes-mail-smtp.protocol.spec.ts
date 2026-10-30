@@ -142,9 +142,12 @@ function service(transport: ReturnType<typeof nodemailer.createTransport>) {
         workspaceId,
         providerConnectionId: 'synthetic-mail',
         channel: 'EMAIL',
+        contactHandle: 'to@example.com',
+        providerConversationId: '<root@example.com>',
+        subject: 'Synthetic',
       }),
     } as never,
-    {} as never,
+    { findOne: async () => null } as never,
     { assertAllowed: async () => {} } as never,
     {} as never,
     { getClient: async () => transport } as never,
@@ -242,3 +245,29 @@ it('native SMTP accepts a Bcc-only envelope without putting its hidden recipient
     await fixture.close();
   }
 });
+
+it.each([
+  [true, true],
+  [false, true],
+  [true, false],
+  [false, false],
+])(
+  'MAIL-004 marks actual automated SMTP replies only (automated=%s, rich=%s)',
+  async (automated, rich) => {
+    const fixture = await smtpFixture();
+    try {
+      const { instance, input } = service(fixture.transport);
+      await instance.send({
+        ...input,
+        ...(!rich ? { email: undefined, attachments: undefined } : {}),
+        ...(automated ? { automated: true } : {}),
+      });
+      const parsed = await PostalMime.parse(fixture.captured[0].raw);
+      expect(
+        parsed.headers.find((header) => header.key === 'auto-submitted')?.value,
+      ).toBe(automated ? 'auto-replied' : undefined);
+    } finally {
+      await fixture.close();
+    }
+  },
+);
