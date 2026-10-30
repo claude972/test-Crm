@@ -1,5 +1,4 @@
 /* oxlint-disable no-console */
-import { type Plugin } from 'vite';
 
 const LINARIA_IMPORT_RE = /@linaria/;
 
@@ -18,10 +17,16 @@ type WywProfilingOptions = {
   warmupThresholdMs?: number;
 };
 
-export const createWywProfilingPlugin = (
-  wywPlugin: Plugin,
+type ProfiledPlugin = {
+  name: string;
+  configResolved?: unknown;
+  transform?: unknown;
+};
+
+export const createWywProfilingPlugin = <TPlugin extends ProfiledPlugin>(
+  wywPlugin: TPlugin,
   options?: WywProfilingOptions,
-): Plugin => {
+): Omit<TPlugin, 'enforce'> & { enforce: 'pre' } => {
   const devSlowThresholdMs = options?.devSlowThresholdMs ?? 200;
   const topSlowFilesCount = options?.topSlowFilesCount ?? 10;
   const warmupThresholdMs = options?.warmupThresholdMs ?? 500;
@@ -34,10 +39,9 @@ export const createWywProfilingPlugin = (
   const allTransforms: { id: string; ms: number }[] = [];
   const originalTransform = wywPlugin.transform;
 
-  return {
-    ...wywPlugin,
+  return Object.assign({}, wywPlugin, {
     enforce: 'pre' as const,
-    configResolved(config) {
+    configResolved(config: { command: string; root: string }) {
       isDevMode = config.command === 'serve';
       warmupId = `${config.root}/src/__wyw_warmup__.tsx`;
       if (typeof wywPlugin.configResolved === 'function') {
@@ -135,5 +139,5 @@ export const createWywProfilingPlugin = (
       }
       console.log('[linaria/wyw] ==========================================\n');
     },
-  };
+  });
 };
