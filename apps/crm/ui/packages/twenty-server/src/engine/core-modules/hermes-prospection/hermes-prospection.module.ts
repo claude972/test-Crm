@@ -1,3 +1,4 @@
+import { FeatureFlagModule } from 'src/engine/core-modules/feature-flag/feature-flag.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -14,6 +15,7 @@ import { EmailingModule } from 'src/modules/emailing/emailing.module';
 
 @Module({
   imports: [
+    FeatureFlagModule,
     TypeOrmModule.forFeature([
       HermesImportStateEntity,
       UserWorkspaceEntity,

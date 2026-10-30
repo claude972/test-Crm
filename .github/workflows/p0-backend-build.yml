@@ -169,6 +169,7 @@ jobs:
           PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
           REDIS_URL: redis://127.0.0.1:6379
           P0_BROWSER_SMOKE: ${{ inputs.browser-smoke }}
+          P1_HERMES_BROWSER_SMOKE: ${{ inputs.hermes-checks && 'true' || 'false' }}
         run: node scripts/check-backend-runtime-p0.mjs
       - name: Publish browser evidence
         if: ${{ !cancelled() && inputs.browser-smoke }}
