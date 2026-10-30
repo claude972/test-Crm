@@ -945,3 +945,10 @@ Prompt des connecteurs et mission réconciliés pour supprimer l'ancienne attent
 Demande propriétaire : tous les modules doivent communiquer. Contrat transverse publié dans docs/handoff/hermes-integration-contract.md et référencé dans les deux prompts. Décrit identités CRM communes, correspondances par workspace/connexion, échanges API/événements, données partagées, droits Hermès/MCP, propagation d'état, déduplication, erreurs/reprise et recette composée réelle. Ne prescrit pas un partage direct des bases externes ni une promesse de livraison exactement une fois sans capacité fournisseur.
 
 La source de référence Monday est inchangée. SMTP n'assure pas la réception ; la limite est conservée. Aucun connecteur, événement ou synchronisation n'est présenté comme déjà implémenté par cette livraison documentaire. Claude reçoit la contrainte pour ses vues et contrats partagés ; backend Codex et frontend Claude gardent leurs périmètres distincts.
+
+
+## hermes-connectors-p1 / codex — multi-structure et vue commune autorisée
+
+Le propriétaire demande un cloisonnement par société et deux niveaux de dashboard ; il choisit explicitement le récapitulatif des sociétés autorisées pour chaque utilisateur. Contrat publié dans docs/handoff/hermes-multi-structure-contract.md, deux prompts et contrat intermodules réconciliés. L'identité commune des modules s'applique dans une société ; elle n'autorise pas de fusion ou lecture transversale des données clients.
+
+Lecture du checkpoint P0 : WorkspaceEntity, UserWorkspaceEntity (adhésions par utilisateur/workspace) et réglage IS_MULTIWORKSPACE_ENABLED=false existent. Il faut auditer/réutiliser ces mécanismes ; aucune nouvelle structure technique ou sécurité n'est annoncée comme implémentée. La recette précédente mono-workspace ne valide pas le besoin multi-structure. Recette cible A/B/C, rôles différenciés, révocation, caches, exports/fichiers/recherches et MCP, agrégats filtrés serveur et vues navigateur. Aucun secret ni migration de production impliqué dans ce cadrage documentaire.

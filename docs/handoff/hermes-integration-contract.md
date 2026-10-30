@@ -4,6 +4,10 @@
 
 Tous les modules doivent communiquer et alimenter les mêmes parcours CRM : WhatsApp/Evolution, e-mail, bot Hermès/MCP, Forms et Cal.diy. Cette spécification décrit la cible ; elle ne constitue pas une intégration déjà exécutée. Une succession de liens vers des applications ou des tests de connecteurs isolés ne satisfait pas cette exigence.
 
+## Périmètre multi-structure
+
+Lire aussi hermes-multi-structure-contract.md : chaque société exploitante est cloisonnée et dispose de son dashboard. Chaque utilisateur voit dans la vue commune uniquement le récapitulatif de ses sociétés autorisées, dans la limite de ses droits métier. Les identités communes et parcours décrits ici sont communs aux modules **à l'intérieur d'une société** ; ils ne fusionnent pas implicitement les contacts ou historiques de sociétés différentes. Les connecteurs, jobs et outils MCP propagent ce périmètre. La vue commune produit des agrégats autorisés sans supprimer les frontières d'accès.
+
 ## Identité et responsabilités
 
 Le CRM est la référence pour l'identité du contact, de l'entreprise, de l'opportunité et leur appartenance au workspace. Chaque service conserve la responsabilité de ses objets externes : transport de message, réponse de formulaire, réservation. Les échanges passent par les adaptateurs backend et leurs contrats ; les bases des fournisseurs ne sont pas modifiées directement par un autre module.

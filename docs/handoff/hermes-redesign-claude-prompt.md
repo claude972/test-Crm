@@ -2,6 +2,11 @@
 Réaliser en parallèle des connecteurs une refonte moderne de Hermès CRM, avec une identité propre et des parcours cohérents pour les contacts, conversations, opportunités, formulaires et rendez-vous. Le socle Twenty reste technique ; la livraison doit apporter une amélioration réelle de navigation et d'utilisation, au-delà d'un changement de logo ou de couleur.
 </objectif>
 
+<multi_structure_obligatoire>
+Le propriétaire exige plusieurs sociétés exploitantes cloisonnées, un dashboard par société et un dashboard commun. Décision explicite : chaque utilisateur voit le récapitulatif de ses seules sociétés autorisées, sans accès supplémentaire. Lire et appliquer docs/handoff/hermes-multi-structure-contract.md. Réutiliser le modèle workspace/adhésions après audit ; distinguer sociétés exploitantes et fiches Entreprise des clients. Le serveur applique le périmètre aux données, agrégats, connecteurs, jobs, fichiers, recherches, exports et outils MCP. La refonte Monday comprend le sélecteur « Société / Toutes mes sociétés », les deux dashboards et le contexte visible ; les caches et onglets ne doivent pas mélanger les structures. Le parcours intermodules reste dans sa société. La recette exige A/B/C, adhésions et rôles différents, révocation, filtres forgés, totaux exacts et absence de fuite. Une preview mono-workspace ou un drapeau activé ne valide pas cette capacité.
+</multi_structure_obligatoire>
+
+
 <integration_obligatoire>
 Exigence propriétaire : tous les modules communiquent dans les mêmes parcours clients. Lire et appliquer docs/handoff/hermes-integration-contract.md avant définition des DTO, événements ou écrans. Le CRM porte les identités communes ; WhatsApp/e-mail, Hermès/MCP, Forms et Cal.diy enrichissent les mêmes fiches, conversations, chronologies et opportunités. Toute action et synchronisation reste contrôlée par workspace. Les connecteurs isolés et liens externes seuls ne constituent pas une livraison intégrée. Exécuter la recette composée Forms -> contact -> WhatsApp/Hermès -> réservation Cal.diy -> suivi/e-mail, puis les cas de panne, doublon et accès interdit ; identifier explicitement les services absents et scénarios non exécutés.
 </integration_obligatoire>

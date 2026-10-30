@@ -227,3 +227,14 @@ Le propriétaire demande WhatsApp via Evolution API, e-mail SMTP, réponses par 
 - claude ownership: fiches et vues communes alimentées par ces contrats, actualisation visible, provenance et états de synchronisation ; même chantier frontend que la refonte Monday.
 - acceptance: parcours intégré Forms -> contact -> conversation WhatsApp -> Hermès/MCP -> réservation Cal.diy -> chronologie/agenda/opportunité et e-mail SMTP ; réception e-mail distincte à configurer et valider avant revendication bidirectionnelle. Rejeu, retard, panne, reprise humaine et isolation entre workspaces vérifiés.
 - delivery rule: preuve end-to-end sur services de recette réels et preview utilisateur ; mocks, services indisponibles et scénarios incomplets identifiés. Aucun module n'est déclaré connecté par sa seule configuration ou présence d'un lien.
+
+
+## Exigence transversale — multi-structure cloisonné et dashboards
+- owner decision: plusieurs sociétés exploitantes cloisonnées, dashboard par société et dashboard commun.
+- access policy confirmed: « Chaque utilisateur voit un récapitulatif de ses sociétés autorisées ». Aucun accès global implicite, même depuis un filtre ou une URL ; droits métier appliqués aussi aux indicateurs.
+- contract: docs/handoff/hermes-multi-structure-contract.md ; référencé dans les deux prompts et dans le contrat intermodules.
+- applies to: hermes-connectors-p1 et hermes-redesign-p1 ; référence Monday conservée.
+- codex ownership: audit workspace/adhésions/rôles existants, rattachement structure, contrat d'agrégation et autorisations serveur, connecteurs/événements/jobs/caches et tests d'isolation/révocation.
+- claude ownership: sélecteur société/Toutes mes sociétés, contexte visible, dashboard société et commun ventilé, vues/états, isolation des requêtes et caches navigateur, même chantier frontend.
+- acceptance: recette A/B/C et utilisateurs A, A+B, sans société ; rôles différenciés et révocation ; agrégats exacts, absence de fuite, parcours intermodules cloisonnés, droits sur fichiers/recherche/export/MCP, navigateur desktop/mobile.
+- current limitation: la preview P0 était mono-workspace ; cette capacité n'est pas livrée par la seule présence du modèle Workspace ou de son drapeau. Spécification publiée, implémentation et preuves requises avant validation.
