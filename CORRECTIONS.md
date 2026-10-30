@@ -1322,3 +1322,10 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Demande propriétaire après prototype : « Ok le projet dois être prêt Dans 1h ». GO câblage interprété explicitement, départ20:30UTC et échéance21:30UTC. Base applicative333ba534927e177c90b35eb4157d75d8d767dec4 ; référence maquettef63858813d68be138612114a2b347fd606984557 ; contrats5bb6f2430d09baccb8a60b4d271047c47e239cb7.
 - Publication avant implémentation : trois branches séparées, ownership et critères dans la mission. Aucun code modifié par coordination ; aucune commande CLI Claude effectuée par cet agent, aucune affectation acceptée ni capacité live revendiquée à ce stade.
 - Prochaine action : root vérifie les fichiers distants, fait lire/confirmer les affectations, puis démarre les workers et communique les actions CLI réelles pour journalisation. Aucun nouveau constat de revue ; la revue croisée et la recette sont à faire sur les prochains SHA.
+
+
+### HERMES-V3-INTEGRATION-1H-20261030 — claims confirmés, 2026-10-30 20:31 UTC
+
+- codex/backend a lu MISSIONS/CORRECTIONS distants au5f02072e26bb5169d67770b641e85397356368cc, confirmé ownership module hermes-messaging/migrations/tests et créé feat/codex-hermes-v3-live depuis333ba534927e177c90b35eb4157d75d8d767dec4. APIs additives coordonnées avec root ; comportement v1 préservé et soumis à politique parent. Implémentation in_progress, aucun test ou résultat encore revendiqué.
+- codex/integration a lu la même mission distante et confirmé feat/hermes-v3-live-preview / v3-live-integration depuis333. Ownership workflows/scripts preview et intégration des SHA exacts, aucun apps édité lors de l'audit. Outils GitHub/Vercel authentifiés ; bundle frontend333, workflow run41084109198 disponible selon audit ; ancien runner expiré, Docker inactif. Nouveau runner90min envisagé ; lancement effectif non encore confirmé.
+- Claude reste pending jusqu'à preuve de dispatch/acceptation fournie par root. Aucun appel CLI Claude effectué par coordination ; pas de doublon lancé.

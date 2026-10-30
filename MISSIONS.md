@@ -528,7 +528,7 @@ Les deux branches d'implémentation partent de la même base applicative ci-dess
 
 ### Codex assignment — backend et tests
 - agent: codex
-- status: pending
+- status: in_progress — lecture distante5f02072 et claim confirmés ; worktree créé depuis base333.
 - branch: feat/codex-hermes-v3-live
 - checkout: /Volumes/Stockage/dev/hermes-crm/v3-codex-live
 - owned files: module backend hermes-messaging, migrations nécessaires et tests backend. Aucun module messaging-inbox frontend ni navigation/settings/localisation.
@@ -541,7 +541,7 @@ Les deux branches d'implémentation partent de la même base applicative ci-dess
 
 ### Root — intégration et recette
 - agent: codex (root/integration)
-- status: pending
+- status: in_progress — lecture distante5f02072 et claim intégration confirmés ; audit hébergement et runner en préparation.
 - branch: feat/hermes-v3-live-preview
 - checkout: /Volumes/Stockage/dev/hermes-crm/v3-live-integration
 - owned files: intégration des commits validés et éventuels fichiers partagés attribués explicitement ; coordination MISSIONS.md/CORRECTIONS.md par agent coordination uniquement.
