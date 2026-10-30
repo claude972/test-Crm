@@ -202,3 +202,18 @@ Le propriétaire demande WhatsApp via Evolution API, e-mail SMTP, réponses par 
 - acceptance criteria: scénarios exacts du prompt, build vert, revue croisée par SHA et preview accessible au destinataire dans un navigateur sans session Vercel préalable.
 - dependencies/open questions: service Hermès/MCP et moteur réellement disponibles à identifier ; accès Evolution et SMTP à fournir par gestionnaire de secrets ; canal de réception e-mail à décider si absent (SMTP ne le fournit pas) ; import Cal.diy non publié à reprendre après qualification des résultats de scan. Aucun secret demandé dans le chat ou dans le prompt.
 - current delivery: prompt de mission préparé et publié ; aucune nouvelle intégration applicative implémentée par ce travail de rédaction.
+
+
+## Mission hermes-redesign-p1 — refonte CRM parallèle aux connecteurs
+- owner decision: demande explicite d'une refonte moderne, en parallèle de hermes-connectors-p1 ; remplace la conservation stricte de l'interface prévue dans le premier prompt.
+- agent: claude
+- status: pending
+- implementation branch: même branche frontend feat/claude-hermes-connectors-ui après vérification/revendication, pas de branche concurrente sur les mêmes écrans.
+- common base revision: 0523dad07965bfb1c032729c00863e0940425e3f, sous réserve d'une intégration plus récente annoncée et vérifiée.
+- prompt: docs/handoff/hermes-redesign-claude-prompt.md sur missions/p0-stabilization.
+- owned files: frontend twenty-front et tests ; extension aux tokens de twenty-ui/src/theme et composants partagés nécessaires, à déclarer avant modification. Aucun contrat partagé ni backend modifié sans coordination Codex.
+- deliverables: audit des parcours/composants ; direction fondée sur la référence propriétaire ; refonte progressive navigation/liste/fiche client, conversations, pipeline, agenda/formulaires, réglages ; intégration aux contrats existants, pas de données de connexion inventées.
+- acceptance criteria: DESIGN.md respecté ; amélioration métier vérifiable au-delà du thème ; composants/tokens cohérents ; chargement/vide/erreur/accessibilité et responsive ; build et preview destinataire testés ; captures avant/après et revue Codex par SHA exact.
+- dependency: référence visuelle et préférence de thème demandées au propriétaire. Audit technique et préparation peuvent avancer ; aucune nouvelle direction visuelle ni maquette ne doit être inventée en attendant.
+- parallelism: Codex garde le backend de hermes-connectors-p1 ; Claude coordonne refonte et fonctionnalités dans un seul chantier frontend. Les sous-agents n'éditent que des périmètres disjoints explicitement attribués.
+- report: CORRECTIONS.md, section hermes-redesign-p1 ; aucune refonte implémentée ou validée à cette publication du cadrage.

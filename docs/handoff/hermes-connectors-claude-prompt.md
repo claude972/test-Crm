@@ -9,7 +9,7 @@ Transformer le socle Twenty stabilisé en CRM Hermès utilisable : conversations
 <contexte>
 Dépôt : claude972/test-Crm. Résous les chemins depuis le workspace actif.
 Base commune proposée : 0523dad07965bfb1c032729c00863e0940425e3f, branche chore/p0-preview-session ; vérifie sa disponibilité avant de créer tes branches.
-Le CRM existant est React/Vite/Linaria + NestJS/TypeORM/GraphQL, avec PostgreSQL et Redis. Conserve cette stack et le design existant.
+Le CRM existant est React/Vite/Linaria + NestJS/TypeORM/GraphQL, avec PostgreSQL et Redis. Conserve cette stack. Le propriétaire demande désormais une refonte moderne en parallèle : lire docs/handoff/hermes-redesign-claude-prompt.md ; la direction visuelle attend sa référence, tandis que les contrats et le backend peuvent avancer.
 Le build et une preview CRM avec données de démonstration ont été vérifiés. Les connecteurs demandés ne sont pas encore livrés. La preview P0 est temporaire : vérifier son état, ne pas réutiliser un lien périmé comme preuve.
 Forms existe sous apps/crm/form. Cal.diy est identifié sous apps/crm/calendar dans les sources locales conservées, mais son import n'est pas publié dans la base P0 : lire docs/stabilization/calendar-import-audit.md avant toute reprise. Ne pas recréer ces applications.
 « cal.dly » est interprété comme Cal.diy. Cette hypothèse doit rester explicite.

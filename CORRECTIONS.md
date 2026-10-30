@@ -804,3 +804,10 @@ Limites : PWA en ligne conservée, aucune installation sur appareil ni hors lign
 Skill retenu : prompt-master, copie canonique globale déjà partagée avec Claude par lien. Lecture du dépôt et audit Cal.diy existant ; prompt publié dans docs/handoff/hermes-connectors-claude-prompt.md. Architecture cible reformulée selon décision propriétaire : Evolution API + SMTP/réception distincte + bot Hermès/MCP + Forms + Cal.diy, sans intégration Char dans le produit cible. Aucune migration de framework ni suppression de sources.
 
 Les API/versions et l'existence du service Hermès doivent être inspectées avant implémentation ; aucune capacité ou connexion n'est inventée. SMTP est limité à l'envoi, décision sur la réception explicitement conservée. Les sources Cal.diy locales restent protégées et leur publication conditionnée à l'audit documenté. Aucun identifiant ou jeton de preview incorporé au prompt. Les statuts d'implémentation restent pending ; cette livraison est une spécification, pas une intégration livrée.
+
+
+## hermes-redesign-p1 / codex — cadrage demandé par le propriétaire
+
+Refonte moderne ajoutée en parallèle des connecteurs. Skill frontend-design retenu ; référence visuelle et thème demandés au propriétaire conformément à DESIGN.md, sans imposer une direction. Audit technique/parcours autorisé pendant cette attente, aucune nouvelle interface générée.
+
+Prompt dédié docs/handoff/hermes-redesign-claude-prompt.md ; prompt des connecteurs corrigé pour retirer la conservation stricte de l'interface désormais dépassée. Claude conserve une seule branche frontend pour éviter les éditions concurrentes des mêmes écrans ; propriété des tokens étendue et à déclarer par fichier. Codex conserve le backend. Priorités : navigation et fiches clients, conversations, pipeline, agenda/formulaires et réglages. Aucun build, prototype ou rendu de refonte encore revendiqué.
