@@ -1,63 +1,63 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+import assert from 'node:assert/strict';
+import test from 'node:test';
 import {
   assertDisposableTarget,
   validateMigrationSql,
-} from "./check-hermes-inbox-migration-ci.mjs";
+} from './check-hermes-inbox-migration-ci.mjs';
 
-const checkout = "/synthetic/inbox-ci";
+const checkout = '/synthetic/inbox-ci';
 const valid = () => ({
-  GITHUB_ACTIONS: "true",
-  RUNNER_ENVIRONMENT: "github-hosted",
-  GITHUB_RUN_ID: "123456",
+  GITHUB_ACTIONS: 'true',
+  RUNNER_ENVIRONMENT: 'github-hosted',
+  GITHUB_RUN_ID: '123456',
   GITHUB_WORKSPACE: checkout,
-  PG_DATABASE_URL: "postgres://postgres:123456@127.0.0.1:5432/p0_ci",
-  REDIS_URL: "redis://127.0.0.1:6379",
+  PG_DATABASE_URL: 'postgres://postgres:123456@127.0.0.1:5432/p0_ci',
+  REDIS_URL: 'redis://127.0.0.1:6379',
 });
-const tables = ["hermesConversation", "hermesInboxMessage", "hermesMailCursor"];
+const tables = ['hermesConversation', 'hermesInboxMessage', 'hermesMailCursor'];
 const specifications = [
   [
-    "IDX_HERMES_CONVERSATION_TENANT_ID",
-    "hermesConversation",
+    'IDX_HERMES_CONVERSATION_TENANT_ID',
+    'hermesConversation',
     true,
-    ["workspaceId", "id"],
+    ['workspaceId', 'id'],
   ],
   [
-    "IDX_HERMES_CONVERSATION_PROVIDER",
-    "hermesConversation",
+    'IDX_HERMES_CONVERSATION_PROVIDER',
+    'hermesConversation',
     true,
     [
-      "workspaceId",
-      "channel",
-      "providerConnectionId",
-      "providerConversationId",
+      'workspaceId',
+      'channel',
+      'providerConnectionId',
+      'providerConversationId',
     ],
   ],
   [
-    "IDX_HERMES_CONVERSATION_INBOX",
-    "hermesConversation",
+    'IDX_HERMES_CONVERSATION_INBOX',
+    'hermesConversation',
     false,
-    ["workspaceId", "lastMessageAt", "id"],
+    ['workspaceId', 'lastMessageAt', 'id'],
   ],
   [
-    "IDX_HERMES_MESSAGE_PROVIDER",
-    "hermesInboxMessage",
+    'IDX_HERMES_MESSAGE_PROVIDER',
+    'hermesInboxMessage',
     true,
-    ["workspaceId", "channel", "providerConnectionId", "providerMessageId"],
-    "providerMessageId",
+    ['workspaceId', 'channel', 'providerConnectionId', 'providerMessageId'],
+    'providerMessageId',
   ],
   [
-    "IDX_HERMES_MESSAGE_CLIENT",
-    "hermesInboxMessage",
+    'IDX_HERMES_MESSAGE_CLIENT',
+    'hermesInboxMessage',
     true,
-    ["workspaceId", "clientRequestId"],
-    "clientRequestId",
+    ['workspaceId', 'clientRequestId'],
+    'clientRequestId',
   ],
   [
-    "IDX_HERMES_MESSAGE_INBOX",
-    "hermesInboxMessage",
+    'IDX_HERMES_MESSAGE_INBOX',
+    'hermesInboxMessage',
     false,
-    ["workspaceId", "conversationId", "occurredAt", "id"],
+    ['workspaceId', 'conversationId', 'occurredAt', 'id'],
   ],
 ];
 // Synthetic guard inputs only. Actual migration source/SQL must come from the official CLI.
@@ -68,7 +68,7 @@ const up = [
   ),
   ...specifications.map(
     ([name, table, unique, columns, where]) =>
-      `CREATE ${unique ? "UNIQUE " : ""}INDEX "${name}" ON "core"."${table}" (${columns.map((c) => `"${c}"`).join(", ")})${where ? ` WHERE "${where}" IS NOT NULL` : ""}`,
+      `CREATE ${unique ? 'UNIQUE ' : ''}INDEX "${name}" ON "core"."${table}" (${columns.map((c) => `"${c}"`).join(', ')})${where ? ` WHERE "${where}" IS NOT NULL` : ''}`,
   ),
   ...tables.map(
     (name, index) =>
@@ -78,45 +78,45 @@ const up = [
 ];
 const down = [
   ...up
-    .filter((q) => q.startsWith("ALTER TABLE"))
+    .filter((q) => q.startsWith('ALTER TABLE'))
     .map((q) =>
       q.replace(/ ADD CONSTRAINT "([^"]+)"[\s\S]+$/, ' DROP CONSTRAINT "$1"'),
     ),
   ...specifications.map(([name]) => `DROP INDEX "core"."${name}"`),
   ...[...tables].reverse().map((name) => `DROP TABLE "core"."${name}"`),
 ];
-test("inherits the exact disposable run ID database and Redis guards", () =>
-  assert.equal(assertDisposableTarget(valid(), checkout).pathname, "/p0_ci"));
+test('inherits the exact disposable run ID database and Redis guards', () =>
+  assert.equal(assertDisposableTarget(valid(), checkout).pathname, '/p0_ci'));
 for (const [key, value] of [
-  ["GITHUB_ACTIONS", "false"],
-  ["RUNNER_ENVIRONMENT", "self-hosted"],
-  ["GITHUB_WORKSPACE", "/original"],
-  ["GITHUB_RUN_ID", "other"],
-  ["PG_DATABASE_URL", "postgres://postgres:private@127.0.0.1:5432/p0_ci"],
+  ['GITHUB_ACTIONS', 'false'],
+  ['RUNNER_ENVIRONMENT', 'self-hosted'],
+  ['GITHUB_WORKSPACE', '/original'],
+  ['GITHUB_RUN_ID', 'other'],
+  ['PG_DATABASE_URL', 'postgres://postgres:private@127.0.0.1:5432/p0_ci'],
   [
-    "PG_DATABASE_URL",
-    "postgres://postgres:123456@remote.example.test:5432/p0_ci",
+    'PG_DATABASE_URL',
+    'postgres://postgres:123456@remote.example.test:5432/p0_ci',
   ],
-  ["PG_DATABASE_URL", "postgres://postgres:123456@127.0.0.1:5432/production"],
+  ['PG_DATABASE_URL', 'postgres://postgres:123456@127.0.0.1:5432/production'],
   [
-    "PG_DATABASE_URL",
-    "postgres://postgres:123456@127.0.0.1:5432/p0_ci?host=remote",
+    'PG_DATABASE_URL',
+    'postgres://postgres:123456@127.0.0.1:5432/p0_ci?host=remote',
   ],
-  ["REDIS_URL", "redis://remote.example.test:6379"],
+  ['REDIS_URL', 'redis://remote.example.test:6379'],
 ])
   test(`rejects unsafe ${key} without starting a service`, () =>
     assert.throws(() =>
       assertDisposableTarget({ ...valid(), [key]: value }, checkout),
     ));
-test("allows only the synthetic three-table additive shape and its precise inverse", () =>
+test('allows only the synthetic three-table additive shape and its precise inverse', () =>
   validateMigrationSql(up, down));
 for (const [name, change] of [
-  ["DML", (q) => q.replace("CREATE TABLE", "INSERT INTO")],
-  ["other table", (q) => q.replace("hermesConversation", "workspace")],
-  ["second statement", (q) => q + '; DROP TABLE "core"."workspace"'],
-  ["comment", (q) => q + " -- ignore"],
+  ['DML', (q) => q.replace('CREATE TABLE', 'INSERT INTO')],
+  ['other table', (q) => q.replace('hermesConversation', 'workspace')],
+  ['second statement', (q) => q + '; DROP TABLE "core"."workspace"'],
+  ['comment', (q) => q + ' -- ignore'],
   [
-    "data-copy SELECT",
+    'data-copy SELECT',
     (q) =>
       q.replace(
         '"id" uuid NOT NULL',
@@ -128,7 +128,7 @@ for (const [name, change] of [
     assert.throws(() =>
       validateMigrationSql([change(up[0]), ...up.slice(1)], down),
     ));
-test("rejects FK without tenant composite", () =>
+test('rejects FK without tenant composite', () =>
   assert.throws(() =>
     validateMigrationSql(
       [
@@ -140,21 +140,21 @@ test("rejects FK without tenant composite", () =>
       down,
     ),
   ));
-test("rejects workspace FK without cascade", () =>
+test('rejects workspace FK without cascade', () =>
   assert.throws(() =>
     validateMigrationSql(
-      up.map((q) => q.replace("ON DELETE CASCADE", "ON DELETE NO ACTION")),
+      up.map((q) => q.replace('ON DELETE CASCADE', 'ON DELETE NO ACTION')),
       down,
     ),
   ));
-test("rejects missing index uniqueness", () =>
+test('rejects missing index uniqueness', () =>
   assert.throws(() =>
     validateMigrationSql(
-      up.map((q) => q.replace("CREATE UNIQUE INDEX", "CREATE INDEX")),
+      up.map((q) => q.replace('CREATE UNIQUE INDEX', 'CREATE INDEX')),
       down,
     ),
   ));
-test("rejects changed partial-index eligibility", () =>
+test('rejects changed partial-index eligibility', () =>
   assert.throws(() =>
     validateMigrationSql(
       up.map((q) =>
@@ -166,14 +166,14 @@ test("rejects changed partial-index eligibility", () =>
       down,
     ),
   ));
-test("rejects altered rollback target", () =>
+test('rejects altered rollback target', () =>
   assert.throws(() =>
     validateMigrationSql(up, [
       ...down.slice(0, -1),
       'DROP TABLE "core"."workspace"',
     ]),
   ));
-test("rejects duplicate FK used to replace a workspace boundary", () =>
+test('rejects duplicate FK used to replace a workspace boundary', () =>
   assert.throws(() =>
     validateMigrationSql([...up.slice(0, -1), up.at(-2)], down),
   ));
