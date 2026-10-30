@@ -372,6 +372,35 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Prise en compte du prompt connecteurs Hermès — lecture seule, aucun démarrage
+
+- lu : `docs/handoff/hermes-connectors-claude-prompt.md` à `5968c1a06`, et la mission `hermes-connectors-p1` de `MISSIONS.md` (ligne 189), dont les deux affectations sont `pending`.
+- **Instruction respectée : lecture et prise en compte uniquement.** Aucun développement engagé, aucune intégration démarrée, aucun ancien lot Char repris, aucune branche créée, aucun fichier de code touché. Mon checkpoint reste `ff0d937c2`.
+- **Aucun rapport écrasé** : les cinq sections Claude de ce fichier sont vérifiées intactes sur la pointe, et cette section est ajoutée sans en remplacer aucune.
+
+### Trois faits du prompt vérifiés par moi
+
+1. **Base commune `0523dad07` disponible** — le commit existe et est porté par `origin/chore/p0-preview-session`. Le prompt demandait de vérifier sa disponibilité avant création de branches : c'est fait.
+2. **Cal.diy n'est toujours pas publié** — `apps/crm` ne contient que `bot`, `form`, `ui`. Cela confirme la réserve du prompt et rejoint ce que j'avais établi en P0 : `scripts/customer-tools.mjs:59` mappe le profil `calendar` vers `apps/crm/calendar`, absent, et le script échoue alors explicitement.
+3. **L'audit Cal.diy existe**, contrairement à ce que j'ai d'abord cru : `docs/stabilization/calendar-import-audit.md` est présent sur `chore/p0-preview-session`, `chore/p0-stabilization` et `chore/p0-combined-verification`. Il n'est simplement pas sur cette branche de coordination. Il est donc bien joignable depuis la base commune proposée. **Je ne le signale pas comme lacune** : j'ai vérifié dans les deux sens avant de conclure.
+
+### Les trois points d'attention du propriétaire, enregistrés et non anticipés
+
+- **SMTP est un canal d'envoi seul.** La réception reste une décision distincte — connecteur entrant existant à inspecter, sinon IMAP ou webhook fournisseur. Je ne promettrai aucun e-mail bidirectionnel avant que cette décision soit prise et consignée.
+- **Le service MCP du bot Hermès reste à identifier.** Aucun serveur ni modèle ne sera supposé configuré.
+- **Cal.diy est audité mais non publié.** Rien ne sera recréé, et l'audit sera lu avant toute reprise.
+
+### Continuités avec le travail P0 déjà établi
+
+Plusieurs limites du prompt recoupent exactement ce que cette mission a produit, ce qui mérite d'être relié plutôt que redécouvert :
+
+- **« Aucun remplacement global de noms ou de valeurs de protocole »** est la leçon centrale du P0 : c'est un tel remplacement qui avait rendu `twenty-front` inconstructible, et c'est en distinguant identifiant, valeur de protocole, clé réseau et texte affiché que les réparations ont tenu. Les cas limites sont documentés ci-dessus — `ScrollBridgeProperties.ts` laissé intact, `'Self-hosted KovaaLab Char_payload'` laissé intact, `featureFlags.js` aligné sur le contrat et non sur le nom.
+- **« Ne pas conserver de cache PWA privé sans isolation et purge explicites »** a déjà un constat ouvert et non corrigé : **`P0-PWA-001`**. Le magasin de métadonnées du workspace survit à la déconnexion. Cette contrainte du prompt ne part donc pas de zéro : elle hérite d'un défaut identifié, assorti du périmètre de conception requis — expiration de session, changement de workspace, impersonation, synchronisation multi-onglets.
+- **« Préserver Char dans l'historique et les sources »** est respecté par construction : mon travail P0 sur Char a été une réparation sur place, sans aucune suppression, et les quatre constats backend Char restent en **lot séparé, non corrigés**, comme convenu.
+- **Web et PWA uniquement** : contrainte déjà prise en compte et vérifiée dans ce fichier.
+
+Je n'ouvre aucun périmètre et j'attends l'instruction de démarrage ainsi que la revue croisée de `ff0d937c2`.
+
 ## Revue Claude du correctif d'accès propriétaire — lecture seule
 
 - reviewed: `0523dad07`, mise à jour de `docs/verification/p0-preview-online-codex.md`
