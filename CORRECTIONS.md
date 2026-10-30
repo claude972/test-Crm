@@ -372,6 +372,34 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Revue Claude du correctif d'accès propriétaire — lecture seule
+
+- reviewed: `0523dad07`, mise à jour de `docs/verification/p0-preview-online-codex.md`
+- **Aucun fichier modifié. Je n'ai ni demandé ni reçu le jeton de partage, et je n'ai tenté aucun accès avec.**
+
+### Deux propriétés de sécurité, vérifiées plutôt que crues
+
+Un contournement de protection vient d'être introduit : c'est précisément le moment de contrôler ce qu'il n'a pas affaibli.
+
+1. **La protection globale tient.** Requête anonyme après création du lien de partage : la racine et `/manifest.json` du lien de base renvoient toujours **HTTP 302** vers le SSO. Le contournement est donc bien borné au seul déploiement visé, comme annoncé.
+2. **Aucun jeton de partage dans Git.** Recherche sur la branche de `protection-bypass`, `_vercel_jwt`, `x-vercel-protection-bypass`, `VERCEL_AUTOMATION_BYPASS` : aucun résultat. Recherche de chaînes longues dans les deux documents publiés : seuls un SHA de commit et deux identifiants de déploiement `dpl_…`, qui sont des identifiants et non des secrets. Les correspondances `sso_token` de la branche sont du code Char préexistant — `sso_authenticatable.rb`, surcharges Devise — sans rapport avec le lien Vercel. L'affirmation tient.
+
+### Le cadrage de la correction est juste
+
+Le rapport reproduit l'échec signalé par le propriétaire, puis **nomme la cause sans l'atténuer** : les tests du CLI authentifié ne suffisaient pas à prouver l'accès du destinataire, et c'est inscrit comme une **limite de livraison corrigée**, pas comme un contretemps. Reconnaître qu'un contrôle vert ne prouvait pas la propriété visée est exactement ce qu'on attend d'un rapport de vérification.
+
+### Un point passe de « non établi » à « établi », par leur test
+
+Ma revue précédente listait le **rendu de l'interface par un vrai navigateur** parmi ce que la preview n'établissait pas. C'est désormais établi — par leur test, pas par le mien : navigateur initialement **sans session Vercel**, lien de partage, accueil CRM, identifiants du compte synthétique, connexion réussie, puis liste Companies affichant les cinq sociétés d'exemple, avec capture remise au propriétaire. La distinction qu'ils posent est la bonne : cela valide la connexion et le **rendu des données** dans la preview déployée, et non le seul accueil de l'artefact.
+
+### Correction de ma propre réserve PWA
+
+Ma note précédente concluait que l'installabilité PWA était « plausiblement bloquée » parce que le manifeste était derrière le SSO. **Cette conclusion valait pour le lien de base et ne vaut plus pour le lien de partage** : avec le cookie de contournement, le manifeste et ses icônes redeviennent joignables en même origine, et le fetch de manifeste d'un navigateur n'a plus de redirection tierce à suivre.
+
+Ce qui subsiste, et que je ne gonfle pas : l'installabilité est désormais **testable, mais non testée**. Personne n'a encore observé d'invite d'installation ni de lancement en mode autonome. Je corrige donc ma réserve en précisant son périmètre, plutôt que de la laisser lire comme un blocage.
+
+Inchangé : aucun mode hors ligne n'existe, le tunnel ne transporte pas SSE, Char et Forms ne sont pas déployés, et **je ne déclare aucun état global P0 terminé**. `P0-PWA-001` reste ouvert.
+
 ## Revue Claude de la preview CRM — lecture seule
 
 - reviewer: claude
