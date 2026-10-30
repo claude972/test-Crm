@@ -1162,3 +1162,22 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Finding : le tableau intake abrégeait les codes sans l’annoncer. Source `hermes-intake.service.ts:46–105` préfixe tous ces codes `HERMES_INTAKE_` ; replay store `hermes-intake-replay.service.ts:53` émet aussi indisponibilité503.
 - Fix commit : 9ed917ead33cef2b739e1b8386281776f11b735f ; codes complets rétablis et erreur replay-store ajoutée. Root a confronté au code source et exécuté diff whitespace propre.
 - Revue réciproque `v2_company_prospection_contract` du document Réglages/Bots a26c2121e : aucune erreur démontrée dans les scopes, droits, OFF, concurrence, epochs et mail. Limite : statique seulement ; revue Claude du checkpoint final encore attendue.
+
+### HERMES-V2-MAQUETTES-20261030 — revue prototype et CLI, 2026-10-30 18:03 UTC
+
+- CLI : entre17:51 et18:03UTC, Codex a envoyé à la session8f3 les références Pipedrive réellement inspectées, le checkpoint contrats a26 puis9ed917ead, les demandes de compléments prospection/centre Réglages et les constats ci-dessous. Claude a accusé réception, produit et poussé facc1463f puis5bcd3e0d5 et4a1d93b43. Rapport de source lu, fichiers limités à11 sous docs/design/hermes-v2 ; aucun apps/ changé. Font Geist1.9.0 issue du registre npm réputé, licence SIL OFL incluse, pas d’installation applicative.
+- Root a contrôlé JS avec node --check, diff whitespace, statuts propres et remote SHA. Codex v2_settings_contract a relu intégralement HTML/JS/CSS/README au SHA facc1463f : pas d’API, stockage persistant, envoi réel ou ressource distante ; seuls assets locaux.
+- Preview statique provisoire facc1463f : dpl_5L1aoQPjPukKPjD8V6QvUeb668n2 READY, projet existant prj_0YAVdnCjN7e2zHNAbLzUCw3N4JvF, target null et aliases vides ; origine brute302protégée. Pas livrée au propriétaire, nouveau déploiement final attendu. Aucune API ni ancien tunnel.
+- Baseline applicative333ba5349 : CI combinée41084109198 vérifiée success via API GitHub. Ne vaut pas test de code V2, qui reste documentaire/statique.
+
+#### V2-DESIGN-001 — prise en main inaccessible
+- reviewer: Codex ; assigned agent: claude ; reviewed revision: facc1463f ; status: verified.
+- Tous bots OFF et prérequis MCP manquants empêchaient d’atteindre le bouton annoncé dans README. Fix5bcd3e0d5 : scénario Atelier vérifications explicitement simulées et WhatsApp ON, Verdure reste manquant. Root a cliqué Reprendre la main sur4a1d93b et vu la notice correspondante. Aucune prétention de connexion réelle.
+
+#### V2-DESIGN-002 — ordre du titre
+- reviewer: Codex ; assigned agent: claude ; reviewed revision: facc1463f puis4a1d93b43 ; status: in_progress.
+- Ordres CSS globaux renvoyaient le titre Messagerie après contenu. Fix5bcd3e0d5 vérifié dans CUA sur4a1d93b pour messagerie. Résidu vue commune : titre top301, avis54/cartes106 car règles dashboard toujours actives. Preuve navigateur + relecture statique Codex transmises à Claude ; exclusion du contexte commun demandée.
+
+#### V2-DESIGN-003 — bandeau après reprise humaine
+- reviewer: Codex/root ; assigned agent: claude ; reviewed revision:4a1d93b43 ; status: in_progress.
+- Clic Reprendre la main affiche notice arrêt fil mais bandeau dit encore bot peut proposer. Demande transmise session8f3 pour distinguer état du fil et activation société. Vérification après correctif requise.
