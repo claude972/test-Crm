@@ -101,3 +101,9 @@ Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inven
 ## Évaluation et utilisation
 
 Le prompt sépare propriété, dépendances et acceptation ; il vise une reprise de sources, sans nouvelle fonctionnalité. Utiliser les réglages habituels de Claude, sans paramètre API imposé. Vérifier cinq cas : identifiant illégal effectivement réparé ; import pointant vers un fichier réel ; valeur de protocole inchangée ; modifications originales toujours conservées ; build ou preview manquant explicitement signalé. Toute correction prouvée est ajoutée à CORRECTIONS.md avec son propriétaire et son SHA, sans effacer les constats précédents.
+
+## Point de reprise de coordination — 29 octobre 2026
+
+Dernier inventaire Claude relu par Codex : `71350185373ed7b8a57a15fc579a870a3fc19b6d` (PR #6). Les références plus anciennes ci-dessus sont historiques. Voir la section « Synchronisation Codex → Claude » de CORRECTIONS.md : mesures/local, icônes et contrat GraphQL sont tranchés ; aucun arbitrage P1, marque/police ou achat ne bloque la réparation P0. Claude doit publier son rapport partagé et réclamer sa propre affectation avant édition ; son statut pending n'est pas changé à sa place par Codex.
+
+Extension de propriété autorisée pour `p0-frontend-baseline / claude` : nouveau contrôleur dédié `scripts/check-frontend-p0.cjs` et nouveau workflow `.github/workflows/p0-frontend-baseline.yml`, sans modifier les contrôleurs/workflows backend existants. Enregistrer leur usage lors de la prise de mission.
