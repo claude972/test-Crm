@@ -372,6 +372,44 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## URGENT pour les agents prospection — la capacité d'emailing existe déjà, largement
+
+Publié en priorité parce que trois sous-agents codent « imports/prospection native » : **une grande partie de ce périmètre est déjà construite**. Risque réel de duplication si personne ne le dit maintenant.
+
+Le relais annonçait « native emailing complet dans `src/modules/emailing` ». **Le fond est juste, le chemin était faux**, et la vérification a donné bien plus que le chemin corrigé.
+
+### Ce qui existe déjà, vérifié fichier par fichier
+
+| Capacité | Où elle vit réellement | Volume |
+| --- | --- | --- |
+| Emailing backend | `twenty-server/src/modules/emailing/**` et `twenty-server/src/engine/core-modules/emailing-domain/**` — types, DTO, drivers, services | ~369 fichiers correspondants |
+| **UI de campagnes** | `twenty-front/src/modules/activities/emails/**` — `CampaignComposer`, `CampaignBodyField`, `CampaignDetailsFields`, `CampaignEnvelopeBox`, `CampaignSentEnvelope`, `CampaignSentPreview`, `CampaignVariablePicker`, `CampaignWidgetContainer` | 78 fichiers `Campaign|Unsubscribe` |
+| Mutations d'envoi | `sendMessageCampaign`, `sendMessageCampaignTest`, `cancelMessageCampaign`, `previewMessageCampaignSend` | 4 |
+| Brouillon et variables | `useCampaignBodyState`, `useCampaignDetailsState`, `useCampaignEmailEditorVariables`, `usePersistedCampaignDraft` | 4 hooks |
+| Widgets de campagne | `WidgetType.MESSAGE_CAMPAIGN_BODY`, `MESSAGE_CAMPAIGN_DETAILS` | intégrés au page-layout |
+| Thèmes de désinscription | `modules/settings/unsubscribe-topics/**` — création, mise à jour, suppression, `useUnsubscribeTopics` | 7+ |
+| Liste de désinscrits | `modules/settings/unsubscribers/**` — `SettingsUnsubscribersList`, `SettingsUnsubscribePreview`, `…PreviewSender`, `…PreviewTracking` | 5+ |
+| Blocklist | `modules/settings/accounts/**` — `SettingsAccountsBlocklist{Input,Section,Table,TableRow}` | 4+ |
+
+### Deux exigences de la spec sont déjà satisfaites
+
+**Le suivi est déjà désactivé par défaut.** `twenty-server/src/engine/core-modules/workspace/workspace.entity.ts` déclare `@Column({ default: false })` pour **`isCampaignOpenTrackingEnabled`** (ligne 140) **et** `isCampaignClickTrackingEnabled` (ligne 133). L'exigence « désactivé par défaut en l'absence d'autorisation documentée » est donc **déjà tenue au niveau des données**. Il ne faut **pas** construire un second mécanisme de défaut ; il reste à garantir que l'interface ne le bascule jamais silencieusement et que l'activation exige de désigner la base invoquée.
+
+**Le refus de suivi sans désinscription existe déjà.** Le schéma expose `trackingRefused`, et `SettingsUnsubscribePreviewTracking` présente des options de suivi avec un libellé « conserver ». Le destinataire peut donc refuser la mesure tout en restant abonné — mécanisme plus fin que ce que la spec exigeait au minimum.
+
+### Ce qui reste réellement à faire, et c'est là qu'il faut dépenser l'effort
+
+- **Opposition durable par société expéditrice**, pour toutes ses campagnes, vérifiée à l'import **et juste avant l'expédition**, sans réactivation après scraping, fusion ou réimport. Les briques existantes sont des **thèmes de désinscription** et une **blocklist par compte** : à auditer pour savoir si leur portée est bien la société expéditrice, ce que je n'ai pas établi.
+- **Désinscription en deux temps** : le `GET` affiche une confirmation, seul un `POST` enregistre. Reste à vérifier sur l'implémentation existante, car un lien `GET` actif désinscrirait sur préchargement.
+- **Provenance et éligibilité** : les champs de collecte, justificatifs de réutilisation et éligibilité distincte du statut CRM ne sont pas couverts par ce que j'ai trouvé.
+- **Séparation acceptation SMTP / livraison / ouverture** dans les libellés et les dénominateurs.
+
+### Demande concrète aux agents prospection
+
+Avant d'écrire un composeur, une liste de désinscrits, une blocklist ou un mécanisme de défaut de suivi : **lire les chemins ci-dessus**. Le dédoublonnage d'une UI de campagnes coûterait plus cher que l'ensemble du reste du lot, et la consigne « pas de features dupliquées » est explicite.
+
+Je n'ai modifié **aucun** de ces fichiers. Ce relevé est en lecture seule.
+
 ## Prospection B2B — cadrage intégré au plan frontend, aucune exécution
 
 Spécification lue en entier : `docs/handoff/hermes-prospection-b2b-spec.md` (`7f8ef26db`), et intégrée au chantier **`feat/claude-hermes-connectors-ui`**. **Aucun second chantier concurrent.**
