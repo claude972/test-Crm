@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 
+import { HermesBotPolicySection } from '@/hermes-bot-settings/components/HermesBotPolicySection';
 import { SettingsPageContainer } from '@/settings/components/SettingsPageContainer';
 import { SettingsDiscoveryHeroCard } from '@/settings/components/SettingsDiscoveryHeroCard';
 import { ClickTrackingSwitch } from '@/settings/workspace/components/ClickTrackingSwitch';
@@ -93,6 +94,11 @@ export const SettingsWorkspaceCommunications = () => {
         </Section.Root>
         <SettingsWorkspaceEmailGroupSection />
         <SettingsWorkspaceEmailSyncSection />
+        {/* Who may reply — the company-wide policy and the per-channel one.
+            It lives on this page because it is a workspace communication
+            setting, which also keeps it out of the per-conversation controls
+            in the inbox. */}
+        <HermesBotPolicySection />
         <Section.Root>
           <Section.Header
             title={t`Blocklist`}
