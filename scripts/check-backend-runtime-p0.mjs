@@ -79,6 +79,7 @@ try {
   assert.equal(typeof config.allowRequestsToKovaaLabCRMIcons, 'boolean');
   assert.equal(Object.hasOwn(config, 'allowRequestsToTwentyIcons'), false);
   console.info('P0 runtime: disposable database initialized, server healthy, client-config contract verified');
+  if (process.env.P0_BROWSER_SMOKE === 'true') await import('./check-frontend-browser-p0.mjs');
 } finally {
   server.kill('SIGTERM');
   const killTimer = setTimeout(() => server.kill('SIGKILL'), 5000);

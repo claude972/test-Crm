@@ -11,6 +11,12 @@ on:
       runtime-smoke:
         type: boolean
         default: false
+      browser-smoke:
+        type: boolean
+        default: false
+      frontend-artifact:
+        type: string
+        default: ''
 permissions:
   contents: read
 concurrency:
@@ -46,6 +52,12 @@ jobs:
       run:
         working-directory: apps/crm/ui
     steps:
+      - name: Validate the requested browser checkpoint
+        if: ${{ inputs.browser-smoke }}
+        env:
+          P0_RUNTIME_SMOKE: ${{ inputs.runtime-smoke }}
+          P0_FRONTEND_ARTIFACT: ${{ inputs.frontend-artifact }}
+        run: test "$P0_RUNTIME_SMOKE" = true && test -n "$P0_FRONTEND_ARTIFACT"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -105,10 +117,28 @@ jobs:
           cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
           test -s dist/assets/kovaa-lab-client-sdk/dist/core.cjs
           test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
+      - name: Download the exact frontend build for browser verification
+        if: ${{ inputs.browser-smoke }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.frontend-artifact }}
+          path: apps/crm/ui/packages/twenty-front/build
+      - name: Install Chromium for the disposable browser check
+        if: ${{ inputs.browser-smoke }}
+        run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec playwright install --with-deps chromium
       - name: Verify backend startup and client configuration against disposable services
         if: ${{ inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
         working-directory: .
         env:
           PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
           REDIS_URL: redis://127.0.0.1:6379
+          P0_BROWSER_SMOKE: ${{ inputs.browser-smoke }}
         run: node scripts/check-backend-runtime-p0.mjs
+      - name: Publish browser evidence
+        if: ${{ !cancelled() && inputs.browser-smoke }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-browser-${{ github.sha }}
+          path: p0-browser-artifacts
+          if-no-files-found: warn
+          retention-days: 7
