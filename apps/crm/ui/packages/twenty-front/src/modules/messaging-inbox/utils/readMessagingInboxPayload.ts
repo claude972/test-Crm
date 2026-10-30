@@ -1,5 +1,10 @@
 import { isMessagingInboxChannel } from '@/messaging-inbox/types/MessagingInboxChannel';
 import {
+  isMessagingInboxBotMode,
+  isMessagingInboxPolicyReason,
+  type MessagingInboxBotPolicy,
+} from '@/messaging-inbox/types/MessagingInboxBotPolicy';
+import {
   isMessagingInboxConnectionState,
   type MessagingInboxConnection,
 } from '@/messaging-inbox/types/MessagingInboxConnection';
@@ -238,6 +243,53 @@ export const readMessagingInboxConnections = (
     value: value
       .map((entry) => readMessagingInboxConnection(entry))
       .filter((entry): entry is MessagingInboxConnection => entry !== null),
+  };
+};
+
+// One conversation's bot policy.
+//
+// Modes and reasons travel as Strings, so an unknown value is kept aside
+// rather than dropped: the screen can say it does not recognise a mode, which
+// is honest, instead of showing a mode the server never sent.
+//
+// `canDraft` and `canAutoReply` default to false. They are the server's
+// capability answers, and a capability nobody confirmed is never offered.
+export const readMessagingInboxBotPolicy = (
+  payload: unknown,
+): MessagingInboxPayloadRead<MessagingInboxBotPolicy> => {
+  if (payload === undefined || payload === null) {
+    return { kind: 'unreadable', problem: 'missing' };
+  }
+
+  if (!isJsonObject(payload)) {
+    return { kind: 'unreadable', problem: 'malformed' };
+  }
+
+  const value = payload;
+  const rawLocal = value.localMode;
+  const rawEffective = value.effectiveMode;
+  const rawReason = value.reason;
+
+  return {
+    kind: 'read',
+    value: {
+      conversationId: readString(value.conversationId),
+      localMode: isMessagingInboxBotMode(rawLocal) ? rawLocal : null,
+      unknownLocalMode: isMessagingInboxBotMode(rawLocal)
+        ? null
+        : readString(rawLocal),
+      effectiveMode: isMessagingInboxBotMode(rawEffective) ? rawEffective : null,
+      unknownEffectiveMode: isMessagingInboxBotMode(rawEffective)
+        ? null
+        : readString(rawEffective),
+      reason: isMessagingInboxPolicyReason(rawReason) ? rawReason : null,
+      unknownReason: isMessagingInboxPolicyReason(rawReason)
+        ? null
+        : readString(rawReason),
+      revision: readString(value.revision),
+      canDraft: readBoolean(value.canDraft) ?? false,
+      canAutoReply: readBoolean(value.canAutoReply) ?? false,
+    },
   };
 };
 
