@@ -47,3 +47,7 @@ La CI d'intégration 40979175124 a ajouté un contrôle réel de démarrage avec
 Cause : .swcrc conservait baseUrl ./../../ (racine du workspace), alors que les aliases ./src/* de tsconfig.json sont désormais relatifs au paquet serveur. La sortie SWC sortait donc de dist pour chercher des sources au mauvais endroit. La correction minimale aligne baseUrl sur le paquet (.). Cette même réparation existe déjà dans les originaux locaux ; elle est reprise sans les modifier. Elle ne change aucun schéma, contrat ou option stricte.
 
 Le succès de compilation précédent ne prouvait pas cette résolution runtime. Nouvelle vérification de démarrage requise après intégration ; ce résultat ne doit pas encore être déclaré réussi.
+
+Recontrôle réussi après correction : CI de construction sur la branche backend https://github.com/claude972/test-Crm/actions/runs/40979668149 et CI d'intégration https://github.com/claude972/test-Crm/actions/runs/40979688501 sur e7d1332ba. Cette dernière exécute effectivement le contrôle runtime (étape success, pas skipped) et confirme : base jetable initialisée, serveur healthy, contrat client-config vérifié. Le code serveur/shared/SDK/e-mails est identique entre ed80da15116fd2d1490022cf53564d85bc0abe26 et e7d1332ba48b6a03891f39cafcc5e780a2a3cc4f.
+
+La réparation SWC est donc recontrôlée en exécution. La revue Claude du code ed80da151 reste requise ; le frontend, les scénarios métier et la preview combinée ne sont pas validés par ce seul test. Aucun original ni base persistante utilisé.
