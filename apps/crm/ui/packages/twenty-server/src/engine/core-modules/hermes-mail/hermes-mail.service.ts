@@ -575,6 +575,38 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
           known.conversation.providerConversationId;
         event.contactHandle = known.conversation.contactHandle;
         event.direction = known.direction;
+        if (known.id && known.conversationId) {
+          await assertLive();
+          const attachments = this.media
+            ? (
+                await Promise.all(
+                  (known.attachmentIds ?? []).map((assetId) =>
+                    this.media!.attachment(
+                      actor.workspaceId,
+                      assetId,
+                      known.conversationId,
+                    ),
+                  ),
+                )
+              ).flat()
+            : [];
+          await assertLive();
+          return {
+            conversationId: known.conversationId,
+            messageId: known.id,
+            replay: true,
+            contactHandle: event.contactHandle,
+            direction: event.direction,
+            botUnavailableReason,
+            attachments: attachments.map((attachment, index) => ({
+              ...attachment,
+              index,
+              contentId: null,
+              state: 'READY',
+            })),
+            providerConnectionId: item.binding.connectionId,
+          };
+        }
       }
     }
     const conversationId = messagingId(
@@ -670,6 +702,135 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       attachments,
       providerConnectionId: item.binding.connectionId,
     };
+  }
+
+  // Server-only: this records a native Sent UID only after the existing ledger
+  // already proved SMTP acceptance. A mailbox copy never promotes a status.
+  async recordSentCopy(
+    actor: HermesMessagingActor,
+    input: {
+      messageId: string;
+      conversationId: string;
+      clientRequestId: string;
+      connectionId: string;
+      connectionRevision?: string;
+      accountId: string;
+      accountRevision?: number;
+      action: 'RESERVE' | 'UNCONFIRMED' | 'SAVED';
+      rfcMessageId: string;
+      scope?: {
+        folder: string;
+        uid: string;
+        uidValidity: string;
+        mimeSha256: string;
+      };
+    },
+    assertDeadline: () => void,
+  ) {
+    assertDeadline();
+    const snapshot = await this.connection(actor.workspaceId);
+    if (
+      !snapshot ||
+      snapshot.binding.connectionId !== input.connectionId ||
+      snapshot.revision !== input.connectionRevision ||
+      snapshot.account.id !== input.accountId ||
+      snapshot.account.updatedAt?.getTime() !== input.accountRevision
+    )
+      throw unavailable();
+    return this.messages.manager.transaction(async (manager) => {
+      await manager.query(
+        'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+        [`hermes-messaging:${actor.workspaceId}`],
+      );
+      const guard = async () => {
+        assertDeadline();
+        await this.access.assertAllowed(actor, manager);
+        const fresh = await this.connection(actor.workspaceId, manager);
+        if (
+          !fresh ||
+          fresh.binding.connectionId !== snapshot.binding.connectionId ||
+          fresh.revision !== snapshot.revision ||
+          fresh.account.id !== snapshot.account.id ||
+          fresh.account.updatedAt?.getTime() !==
+            snapshot.account.updatedAt?.getTime()
+        )
+          throw unavailable();
+        assertDeadline();
+      };
+      await guard();
+      const repository = manager.getRepository(HermesInboxMessageEntity);
+      const reserved = await repository.findOneBy({
+        workspaceId: actor.workspaceId,
+        id: input.messageId,
+        conversationId: input.conversationId,
+        providerConnectionId: snapshot.binding.connectionId,
+        channel: 'EMAIL',
+        status: 'ACCEPTED',
+        clientRequestId: input.clientRequestId,
+      });
+      if (!reserved) throw unavailable();
+      const canonical = await repository.findOneBy({
+        workspaceId: actor.workspaceId,
+        id: reserved.canonicalMessageId ?? reserved.id,
+        conversationId: input.conversationId,
+        providerConnectionId: snapshot.binding.connectionId,
+        channel: 'EMAIL',
+        status: 'ACCEPTED',
+      });
+      if (
+        !canonical ||
+        canonical.providerMessageId !== mailProviderId(input.rfcMessageId)
+      )
+        throw unavailable();
+      await guard();
+      if (input.action === 'RESERVE') {
+        if (canonical.providerMetadata?.sentCopyState)
+          return { appendAllowed: false };
+        await repository.update(
+          {
+            workspaceId: actor.workspaceId,
+            id: canonical.id,
+            status: 'ACCEPTED',
+          },
+          {
+            providerMetadata: {
+              ...canonical.providerMetadata,
+              sentCopyState: 'PENDING',
+            },
+          },
+        );
+        await guard();
+        return { appendAllowed: true };
+      }
+      if (input.action === 'SAVED' && !input.scope) throw unavailable();
+      await repository.update(
+        {
+          workspaceId: actor.workspaceId,
+          id: canonical.id,
+          status: 'ACCEPTED',
+        },
+        {
+          providerMetadata: {
+            ...canonical.providerMetadata,
+            sentCopyState:
+              canonical.providerMetadata?.sentCopyState === 'SAVED'
+                ? 'SAVED'
+                : input.action,
+            ...(input.scope
+              ? {
+                  mailbox: input.scope.folder,
+                  uid: Number(input.scope.uid),
+                  uidValidity: input.scope.uidValidity,
+                  rfcMessageId: input.rfcMessageId,
+                  mimeSha256: input.scope.mimeSha256,
+                }
+              : {}),
+          },
+        },
+      );
+      await guard();
+      return { appendAllowed: false };
+    });
   }
 
   async withDraftLock<T>(

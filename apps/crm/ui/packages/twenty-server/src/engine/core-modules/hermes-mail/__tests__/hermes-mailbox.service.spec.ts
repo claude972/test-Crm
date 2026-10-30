@@ -15,6 +15,7 @@ jest.mock(
   () => ({ ImapClientProvider: class {} }),
 );
 import PostalMime from 'postal-mime';
+import MailComposer from 'nodemailer/lib/mail-composer';
 import { HermesMailboxService } from 'src/engine/core-modules/hermes-mail/hermes-mailbox.service';
 const actor = {
   workspaceId: 'f2c96b7b-f314-4561-9b5c-0011cfe03fd0',
@@ -393,3 +394,168 @@ it('persists an empty native draft, replays it, replaces edited content recovera
     }),
   );
 });
+
+it.each([true, false])(
+  'keeps SMTP ACCEPTED after lost Sent APPEND ACK and reload, with no blind reappend (stored=%s)',
+  async (storedBeforeDisconnect) => {
+    const f = fixture();
+    const native = new Map<number, Buffer>();
+    let state: string | null = null,
+      smtpAttempts = 0;
+    const requests = new Set<string>();
+    f.mail.replyRich.mockImplementation(
+      async (_actor?: unknown, value?: { clientRequestId: string }) => {
+        if (!requests.has(value!.clientRequestId)) {
+          requests.add(value!.clientRequestId);
+          smtpAttempts++;
+        }
+        return {
+          id: 'reserved',
+          conversationId: 'canonical',
+          status: 'ACCEPTED',
+        } as never;
+      },
+    );
+    Object.assign(f.mail, {
+      recordSentCopy: jest.fn(
+        async (_actor: unknown, value: { action: string }) => {
+          if (value.action === 'RESERVE') {
+            if (state) return { appendAllowed: false };
+            state = 'PENDING';
+            return { appendAllowed: true };
+          }
+          state = value.action;
+          return { appendAllowed: false };
+        },
+      ),
+    });
+    f.client.list.mockImplementation(async () => [
+      {
+        path: 'Sent',
+        name: 'Sent',
+        flags: new Set<string>(),
+        specialUse: '\\Sent',
+      },
+    ]);
+    f.client.search.mockImplementation(async () => [...native.keys()]);
+    f.client.fetchOne.mockImplementation(async (value, query) => {
+      const uid = Number(value);
+      const raw = native.get(uid);
+      return raw
+        ? ({
+            uid,
+            size: raw.length,
+            ...(query.source ? { source: raw } : {}),
+          } as never)
+        : (false as never);
+    });
+    f.client.append.mockImplementation(async (_path?: string, raw?: Buffer) => {
+      expect(state).toBe('PENDING');
+      if (storedBeforeDisconnect) native.set(50, raw!);
+      throw new Error('ACK_LOST');
+    });
+    f.imap.getClient.mockImplementation(async () => ({ ...f.client }) as never);
+    const input = {
+      from: 'me@example.com',
+      to: ['client@example.org'],
+      subject: 'Accepted',
+      text: 'Hello',
+      clientRequestId: 'e4d16125-1299-4b15-aa57-d193a423b4e9',
+    };
+    expect(await f.service.sendNew(actor, input)).toMatchObject({
+      status: 'ACCEPTED',
+      sentCopy: { state: 'UNCONFIRMED' },
+    });
+    const reloaded = new HermesMailboxService(
+      f.mail as never,
+      f.imap as never,
+      f.access as never,
+    );
+    expect(await reloaded.sendNew(actor, input)).toMatchObject({
+      status: 'ACCEPTED',
+      sentCopy: { state: storedBeforeDisconnect ? 'SAVED' : 'UNCONFIRMED' },
+    });
+    expect(f.client.append).toHaveBeenCalledTimes(1);
+    expect(smtpAttempts).toBe(1);
+  },
+);
+
+it.each([false, true])(
+  'reconciles provider auto-Sent MIME headers only with equivalent accepted envelope and attachments (different PDF=%s)',
+  async (differentPdf) => {
+    const f = fixture();
+    const requestId = 'e4d16125-1299-4b15-aa57-d193a423b4e9';
+    const bytes = Buffer.from('%PDF-1.7 correct');
+    const raw = await new MailComposer({
+      from: 'me@example.com',
+      to: ['client@example.org'],
+      subject: 'Accepted',
+      text: 'Hello',
+      messageId: '<' + requestId + '@example.com>',
+      headers: {
+        Received:
+          'from fixture.invalid by fixture.invalid; Fri, 30 Oct 2026 12:00:00 +0000',
+      },
+      attachments: [
+        {
+          filename: 'fixture.pdf',
+          contentType: 'application/pdf',
+          content: differentPdf ? Buffer.from('%PDF-1.7 different') : bytes,
+        },
+      ],
+    })
+      .compile()
+      .build();
+    f.mail.replyRich.mockResolvedValue({
+      id: 'reserved',
+      conversationId: 'canonical',
+      status: 'ACCEPTED',
+    } as never);
+    f.mail.draftAttachments.mockResolvedValue([
+      {
+        filename: 'fixture.pdf',
+        contentType: 'application/pdf',
+        content: bytes,
+      },
+    ] as never);
+    const record = jest.fn(async () => ({ appendAllowed: true }));
+    Object.assign(f.mail, { recordSentCopy: record });
+    f.client.list.mockResolvedValue([
+      { path: 'Sent', name: 'Sent', flags: new Set(), specialUse: '\\Sent' },
+    ]);
+    f.client.search.mockResolvedValue([40]);
+    let nativeUid = 40,
+      nativeRaw = raw;
+    f.client.fetchOne.mockImplementation(async (_value, query) => ({
+      uid: nativeUid,
+      size: nativeRaw.length,
+      ...(query.source ? { source: nativeRaw } : {}),
+    }));
+    f.client.append.mockImplementation(
+      async (_path?: string, value?: Buffer) => {
+        nativeUid = 50;
+        nativeRaw = value!;
+        return { uid: 50, uidValidity: 123n };
+      },
+    );
+    f.imap.getClient.mockImplementation(async () => ({ ...f.client }) as never);
+    expect(
+      await f.service.sendNew(actor, {
+        from: 'me@example.com',
+        to: ['client@example.org'],
+        bcc: ['hidden@example.org'],
+        subject: 'Accepted',
+        text: 'Hello',
+        clientRequestId: requestId,
+        attachmentIds: ['e4d16125-1299-4b15-aa57-d193a423b4e8'],
+      }),
+    ).toMatchObject({
+      status: 'ACCEPTED',
+      sentCopy: { state: 'SAVED', replay: !differentPdf },
+    });
+    expect(f.client.append).toHaveBeenCalledTimes(differentPdf ? 1 : 0);
+    expect(JSON.stringify(record.mock.calls)).not.toContain(
+      'hidden@example.org',
+    );
+  },
+);
