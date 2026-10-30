@@ -865,3 +865,37 @@ describe('HERMES-V4-MAIL-002 full MIME provenance', () => {
     );
   });
 });
+
+it('HERMES-V4-MAIL-003 observes Sent Bcc-only under the own mailbox contact without exposing private recipients', async () => {
+  const f = fixture();
+  const result = await f.service.observe(
+    actor,
+    { folder: 'Sent', uid: '50', uidValidity: '123' },
+    {
+      headers: [],
+      headerLines: [],
+      attachments: [],
+      from: { name: '', address: 'inbox@example.com' },
+      to: [{ name: '', address: 'inbox@example.com' }],
+      bcc: [{ name: '', address: 'private@example.org' }],
+      messageId: '<private-sent@example.org>',
+      subject: 'Private',
+      text: 'Secret body',
+    },
+  );
+  expect(result).toMatchObject({
+    contactHandle: 'inbox@example.com',
+    direction: 'OUTBOUND',
+    botUnavailableReason: 'MAIL_PRIVATE_OR_SELF_RECIPIENT',
+  });
+  expect(f.inbox.ingest).toHaveBeenCalledWith(
+    expect.objectContaining({
+      contactHandle: 'inbox@example.com',
+      direction: 'OUTBOUND',
+    }),
+    expect.objectContaining({ observedOnly: true, suppressAutomation: true }),
+  );
+  expect(JSON.stringify(f.inbox.ingest.mock.calls)).not.toContain(
+    'private@example.org',
+  );
+});

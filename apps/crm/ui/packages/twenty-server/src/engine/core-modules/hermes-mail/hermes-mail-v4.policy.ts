@@ -123,7 +123,11 @@ export function planMailEnvelope(input: {
     items.flatMap((value) => {
       const address = mailAddress(value);
       if (!address) throw new BadRequestException('MAIL_INVALID_RECIPIENT');
-      if (own.has(address) || dedup.has(address)) return [];
+      if (
+        (!['NEW', 'FORWARD'].includes(input.mode) && own.has(address)) ||
+        dedup.has(address)
+      )
+        return [];
       dedup.add(address);
       return [address];
     });
@@ -153,7 +157,7 @@ export function planMailEnvelope(input: {
   );
   // Never inherit Bcc from received MIME, including when forwarding it.
   const bcc = clean(input.bcc ?? []);
-  if (!to.length || dedup.size > 50)
+  if (!dedup.size || dedup.size > 50)
     throw new BadRequestException('MAIL_INVALID_RECIPIENTS');
   const subject = mailHeader(input.source.subject ?? '');
   const messageId = mailMessageId(input.source.messageId);

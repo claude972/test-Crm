@@ -129,3 +129,15 @@ describe('rich mail security policy', () => {
     ).toBeNull();
   });
 });
+
+it('HERMES-V4-MAIL-003 permits explicit Bcc-only composition without inheriting source Bcc', () => {
+  expect(
+    planMailEnvelope({
+      ...input,
+      mode: 'NEW',
+      to: [],
+      cc: [],
+      bcc: ['private@example.org'],
+    }),
+  ).toMatchObject({ to: [], cc: [], bcc: ['private@example.org'] });
+});
