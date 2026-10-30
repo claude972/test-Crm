@@ -5219,6 +5219,11 @@ msgstr "Bordure"
 msgid "Border color"
 msgstr "Couleur de la bordure"
 
+#. js-lingui-id: l2ldp6
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Bot may reply once to new messages"
+msgstr "Le bot peut répondre une fois aux nouveaux messages"
+
 #. js-lingui-id: njBeMm
 #: src/modules/side-panel/pages/page-layout/utils/getChartAxisNameDisplayOptions.ts
 msgid "Both"
@@ -9544,6 +9549,32 @@ msgstr "Retarder jusqu'à la date"
 #: src/modules/settings/admin-panel/health-status/components/SettingsAdminQueueJobsTable.tsx
 msgid "Delayed"
 msgstr "Retardé"
+
+#. js-lingui-id: 4WWsm3
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Delegation is not set up, so this conversation stays human only."
+msgstr "La délégation n'est pas configurée, cette conversation reste humaine uniquement."
+
+#. js-lingui-id: /sTCnn
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Delegation is unavailable, so this conversation stays human only."
+msgstr "La délégation est indisponible, cette conversation reste humaine uniquement."
+
+#. js-lingui-id: YXc5d1
+#. placeholder {0}: control.state.message
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Delegation unchanged: {0}"
+msgstr "Délégation inchangée : {0}"
+
+#. js-lingui-id: QGWL/S
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Delegation unchanged."
+msgstr "Délégation inchangée."
+
+#. js-lingui-id: VvwObb
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Delegation unknown"
+msgstr "Délégation inconnue"
 
 #. js-lingui-id: HNlEFZ
 #: src/modules/metadata-error-handler/hooks/useMetadataErrorHandler.ts
@@ -14972,6 +15003,11 @@ msgstr "https://example.com/webhook"
 msgid "Human Input"
 msgstr "Saisie humaine"
 
+#. js-lingui-id: XmtDQU
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Human only"
+msgstr "Humain uniquement"
+
 #. js-lingui-id: mkWad2
 #: src/modules/localization/hooks/useLocaleOptions.ts
 msgid "Hungarian"
@@ -16829,6 +16865,11 @@ msgstr "Laisser chaque membre décider"
 #: src/modules/settings/admin-panel/constants/SettingsAdminFeatureFlagMetadata.ts
 msgid "Let people restrict and share individual records."
 msgstr "Permettre aux utilisateurs de restreindre et de partager des enregistrements individuels."
+
+#. js-lingui-id: J7vW3+
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Let the bot reply"
+msgstr "Laisser le bot répondre"
 
 #. js-lingui-id: HRo4g8
 #: src/modules/settings/members/components/MemberTwoFactorAuthenticationRecoverySection.tsx
@@ -20398,6 +20439,11 @@ msgstr "Non attribuée"
 #: src/modules/structures/components/StructureMetricValue.tsx
 msgid "Not authorised"
 msgstr "Non autorisé"
+
+#. js-lingui-id: jd5twm
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Not authorised to change delegation."
+msgstr "Non autorisé à changer la délégation."
 
 #. js-lingui-id: KMrlq0
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
@@ -28445,6 +28491,11 @@ msgstr "Widget de tableau"
 msgid "Table, Kanban, Calendar"
 msgstr "Tableau, Kanban, Calendrier"
 
+#. js-lingui-id: yqwjpd
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Take over"
+msgstr "Reprendre la main"
+
 #. js-lingui-id: DBxdLI
 #: src/pages/settings/applications/components/SettingsClaimApplicationSection.tsx
 msgid "Take ownership of an app you published to npm. Enter its exact package name (or universal identifier) to find it."
@@ -28900,6 +28951,12 @@ msgstr ""
 #. js-lingui-id: kWy5P+
 #~ msgid "The server answered with a conflict. Check the batch id and its content."
 #~ msgstr "Le serveur a répondu par un conflit. Vérifiez l'identifiant du lot et son contenu."
+
+#. js-lingui-id: jb87WL
+#. placeholder {0}: control.state.status
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "The server answered: {0}"
+msgstr "Le serveur a répondu : {0}"
 
 #. js-lingui-id: MUCB63
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx

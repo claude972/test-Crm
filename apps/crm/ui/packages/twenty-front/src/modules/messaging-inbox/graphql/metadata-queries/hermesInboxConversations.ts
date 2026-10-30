@@ -32,6 +32,8 @@ export const HERMES_INBOX_CONVERSATIONS = gql`
         personMatchStatus
         subject
         lastMessageAt
+        botMode
+        botModeUpdatedAt
       }
       nextCursor
     }

@@ -17,12 +17,19 @@ import { type MessagingInboxChannel } from '@/messaging-inbox/types/MessagingInb
 //
 // `subject` exists on the email channel only.
 //
-// botMode / botOwnerUserWorkspaceId / botModeUpdatedAt belong to the bot
-// delegation schema checkpoint, whose runtime is still pending. They are read
-// defensively here so a server that starts sending them is understood without
-// a change, but they are NOT in the query's selection set: asking for a field
-// the deployed schema does not have fails the whole query and would take the
-// inbox down. See hermesInboxConversations.ts.
+// botMode and botModeUpdatedAt are now in the deployed schema and are
+// selected. They were deliberately left out while that part was marked
+// "runtime follow-up pending", because asking for a field the deployed schema
+// does not have fails the whole query and would have taken the inbox down.
+//
+// botMode is a String on the wire, so a value outside MANUAL/AUTO is kept as
+// it came and read as unknown rather than forced into either.
+//
+// botOwnerUserWorkspaceId is published but not selected: the screen has no way
+// to turn an id into a person, and a raw id would say nothing useful.
+//
+// botModeUpdatedAt is the grant epoch. It is shown as the moment the
+// delegation last changed, never as proof that a reply was sent.
 export type MessagingInboxConversation = {
   id: string;
   channel: MessagingInboxChannel | null;

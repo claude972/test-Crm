@@ -5,6 +5,7 @@ import { IconRefresh } from 'kovaa-lab-ui/icon';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import { MessagingInboxBotModeControl } from '@/messaging-inbox/components/MessagingInboxBotModeControl';
 import { MessagingInboxComposer } from '@/messaging-inbox/components/MessagingInboxComposer';
 import { MessagingInboxContactLink } from '@/messaging-inbox/components/MessagingInboxContactLink';
 import { MessagingInboxDiagnostic } from '@/messaging-inbox/components/MessagingInboxDiagnostic';
@@ -12,6 +13,7 @@ import { MessagingInboxLoadMore } from '@/messaging-inbox/components/MessagingIn
 import { MessagingInboxMessageRow } from '@/messaging-inbox/components/MessagingInboxMessageRow';
 import { MessagingInboxNote } from '@/messaging-inbox/components/MessagingInboxNote';
 import { MessagingInboxUnknownNote } from '@/messaging-inbox/components/MessagingInboxUnknownNote';
+import { useMessagingInboxBotMode } from '@/messaging-inbox/hooks/useMessagingInboxBotMode';
 import { useMessagingInboxMessages } from '@/messaging-inbox/hooks/useMessagingInboxMessages';
 import { channelHasSubject } from '@/messaging-inbox/types/MessagingInboxChannel';
 import { type MessagingInboxConnectionRead } from '@/messaging-inbox/types/MessagingInboxConnection';
@@ -107,6 +109,7 @@ export const MessagingInboxThread = ({
   const { t } = useLingui();
 
   const list = useMessagingInboxMessages(conversation.id);
+  const botModeControl = useMessagingInboxBotMode();
 
   const showsSubject =
     conversation.channel !== null && channelHasSubject(conversation.channel);
@@ -226,6 +229,14 @@ export const MessagingInboxThread = ({
           </>
         )}
       </StyledBody>
+
+      {/* Offered independently of canSend: taking a conversation back from the
+          bot must stay possible even on a channel whose replies are off. */}
+      <MessagingInboxBotModeControl
+        conversationId={conversation.id}
+        reportedMode={conversation.botMode}
+        control={botModeControl}
+      />
 
       {list.status === 'read' && canSend === true && (
         <MessagingInboxComposer
