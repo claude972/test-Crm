@@ -50,7 +50,9 @@ const matches = (row: Row, criteria: Row) =>
   Object.entries(criteria).every(([key, value]) =>
     value instanceof FindOperator && value.type === 'isNull'
       ? row[key] === null || row[key] === undefined
-      : row[key] === value,
+      : value instanceof FindOperator && value.type === 'in'
+        ? value.value.includes(row[key])
+        : row[key] === value,
   );
 const setup = (media?: Record<string, unknown>) => {
   const tables = new Map<string, Map<string, Row>>();
@@ -2219,4 +2221,67 @@ describe('server-only ingress snapshot boundary', () => {
     expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
     expect(h.send).not.toHaveBeenCalled();
   });
+});
+
+describe('Editable mail draft conversation keeps a stable identity only before a send reservation', () => {
+  const input = {
+    clientRequestId: randomUUID(),
+    providerConnectionId: 'fixture-verified-mailbox',
+    contactHandle: 'first@example.test',
+    subject: 'First',
+  };
+  const prepare = async () => {
+    const h = setup();
+    h.registry.register({
+      channel: 'EMAIL',
+      probe: async () => ({ status: 'AVAILABLE' }),
+      send: h.send,
+    });
+    const first = await h.service.ensureEmailDraftConversation(actor, input);
+    return { h, first };
+  };
+  it('retargets an unsent draft, clears delegation and preserves OFF', async () => {
+    const { h, first } = await prepare();
+    Object.assign(h.table(HermesConversationEntity.name).get(first.id)!, {
+      botMode: 'OFF',
+      botOwnerUserWorkspaceId: actor.userWorkspaceId,
+    });
+    const second = await h.service.ensureEmailDraftConversation(
+      actor,
+      { ...input, contactHandle: 'new@example.test', subject: 'Edited' },
+      { allowUnsentUpdate: true },
+    );
+    expect(second).toMatchObject({
+      id: first.id,
+      contactHandle: 'new@example.test',
+      subject: 'Edited',
+      botMode: 'OFF',
+      botOwnerUserWorkspaceId: null,
+    });
+    expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
+    expect(h.send).not.toHaveBeenCalled();
+  });
+  it.each(['PENDING', 'ACCEPTED', 'UNCONFIRMED', 'FAILED'])(
+    'freezes all draft edits after %s reservation',
+    async (status) => {
+      const { h, first } = await prepare();
+      h.table(HermesInboxMessageEntity.name).set('reserved', {
+        id: 'reserved',
+        workspaceId: actor.workspaceId,
+        conversationId: first.id,
+        direction: 'OUTBOUND',
+        status,
+      });
+      await expect(
+        h.service.ensureEmailDraftConversation(
+          actor,
+          { ...input, contactHandle: 'new@example.test' },
+          { allowUnsentUpdate: true },
+        ),
+      ).rejects.toThrow('DRAFT_ALREADY_RESERVED');
+      expect(
+        h.table(HermesConversationEntity.name).get(first.id)?.contactHandle,
+      ).toBe(input.contactHandle);
+    },
+  );
 });
