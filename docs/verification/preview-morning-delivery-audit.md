@@ -12,7 +12,7 @@ Audit en lecture seule des scripts preview au snapshot root `650640f227ea7093573
 
 ## Sources et topologie à figer
 
-Le workflow `.github/workflows/p0-preview-session.yml` compile le backend depuis son propre `github.sha` ; il ne construit pas le frontend. Le frontend doit provenir exclusivement de l’artefact `front-bundle-<SHA>` du run combiné choisi, dont `headSha` est vérifié. Ne pas reprendre `front-c96`, `front-bad53` ni un ancien staging.
+Le workflow `.github/workflows/p0-preview-session.yml` compile le backend depuis son propre `github.sha` ; il ne construit pas le frontend. Le frontend doit provenir exclusivement de l’artefact `front-bundle-<SHA>` du run combiné choisi, dont `headSha` est vérifié et STRICTEMENT IDENTIQUE au SHA de la branche session backend. Ne pas prendre aa0d3a03c (documentation seule, sans artefact dédié) ni prétendre une égalité entre sources différentes. Candidat actuel650640f227ea7093573faae723504f9a56244725 : run41013453464 encore pending au contrôle ; le run33ba41012486685 est encore en cours. Aucun SHA final ni hash de bundle encore validé pour le matin. Ne pas reprendre `front-c96`, `front-bad53` ni un ancien staging.
 
 Le staging vide est produit par `preview-prepare.mjs prepare <build> <staging-neuf> <tunnel>`. Le bundle est copié sans fichiers cachés/symlinks ; seul le slot runtime existant est remplacé par `REACT_APP_SERVER_BASE_URL:""`. Le frontend utilise effectivement `window._env_.REACT_APP_SERVER_BASE_URL || window.location.origin`, pas `import.meta.env`. Configuration générée : 22 routes ApiPath + filesystem + fallback SPA. Les routes transportent uniquement une référence `$P0_ORIGIN_SECRET` à l’environnement preview Vercel, jamais sa valeur dans le JSON ou le navigateur.
 
@@ -37,8 +37,11 @@ Depuis un checkout propre de coordination root, remplacer les placeholders publi
 
 ```sh
 gh run view <combined-run> --repo claude972/test-Crm --json headSha,status,conclusion
-# Exiger conclusion=success, épingler les SHA front et backend approuvés.
-gh run download <combined-run> --repo claude972/test-Crm --name front-bundle-<frontend-sha> --dir /absolute/new-front-build
+# Exiger conclusion=success, épingler UN SHA identique frontend et backend.
+gh api repos/claude972/test-Crm/actions/runs/<combined-run>/artifacts --jq ' .artifacts[] | {id,name,size_in_bytes,digest,expired} '
+gh run download <combined-run> --repo claude972/test-Crm --name front-bundle-<same-approved-sha> --dir /absolute/new-front-build
+# Écrire un manifeste local hors du bundle, avant modification du slot runtime :
+(cd /absolute/new-front-build && find . -type f -print0 | sort -z | xargs -0 shasum -a 256) > /absolute/new-front-build.sha256
 # Créer/pousser une branche preview/p0-session-<fresh-id> au SHA backend approuvé,
 # ou dispatch sur cette même révision :
 gh workflow run p0-preview-session.yml --repo claude972/test-Crm --ref <fresh-preview-branch> -f session-minutes=90 -f start-worker=true
@@ -49,7 +52,7 @@ node scripts/preview-prepare.mjs prepare /absolute/new-front-build /absolute/new
 vercel link --cwd /absolute/new-staging --scope brafas-projects --project hermes-crm-p0-preview --yes
 vercel deploy --cwd /absolute/new-staging --scope brafas-projects --target preview --skip-domain --yes
 # Capturer l’ID et inspecter : exiger projectId exact, READY, target preview/null.
-vercel api /v13/deployments/<new-dpl-id> --scope brafas-projects --raw
+vercel api /v13/deployments/<new-dpl-id> --scope brafas-projects --raw | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["id","projectId","target","readyState","url"]}))'
 ```
 
 Ne pas afficher la sortie intégrale d’un endpoint susceptible de contenir protectionBypass/env. Pour l’inspection précédente, capturer dans un fichier privé puis afficher seulement id/projectId/target/readyState/url. Incident antérieur : le premier déploiement d’un projet nouveau avait ciblé production malgré target preview ; le projet existe désormais, mais la vérification reste obligatoire. Ne pas promouvoir ni attribuer d’alias de production.
@@ -61,6 +64,8 @@ node scripts/check-preview-onboarding-p0.mjs --url https://<new-deployment>.verc
 ```
 
 Le helper exige une échéance future <=90min et au moins5min restantes. Ses credentials sont créés exclusivement0600. Vérifier ensuite welcome/login/dashboard/réception en navigateur sans compte Vercel via le partage ci-dessous, et contrôler le temps restant immédiatement avant remise du lien.
+
+Le manifeste final de livraison doit associer explicitement same-approved-sha, combined-run, artifactId/digest GitHub, hash local index.html/manifeste, session-run/attempt, tunnel.expiresAt et deploymentId/origine. Avant publication, vérifier tunnel.sha == same-approved-sha. Aucun digest n’est inventé tant que l’artefact n’existe pas ; le rapport actuel n’en dispose pas.
 
 ## Partage humain limité au déploiement, sans login Vercel
 
