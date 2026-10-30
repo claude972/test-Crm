@@ -372,6 +372,52 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Mission hermes-redesign-p1 — référence Monday validée, claim et plan, agent: claude
+
+- référence consignée : **Monday CRM**, capture validée par le propriétaire, **thème clair de départ**. Navigation latérale lisible, tableaux structurés, statuts colorés, pipeline visuel, tableau de bord opérationnel. Couleurs multiples pour les **statuts et séries métier**, **une seule couleur principale pour les actions**, conformément à DESIGN.md.
+- **Identité Hermès, pas une copie.** Aucun logo, contenu ni actif de marque Monday ne sera reproduit. La référence sert la structure et la lisibilité, pas l'habillage.
+- branche de chantier inchangée : `feat/claude-hermes-connectors-ui`. **Aucune branche frontend concurrente.**
+
+### Le mécanisme de thème : ce que « préserver » implique réellement
+
+Point déterminant, trouvé avant toute édition. `twenty-ui/src/theme/constants/MainColorNames.ts` porte en tête : « Generated from design-tokens by scripts/generateThemeTokens.ts. **Do not edit manually.** Regenerate with `npx nx generateTokens kovaa-lab-ui` ».
+
+Le thème n'est donc **pas** écrit à la main : il est **généré** depuis `twenty-ui/design-tokens/`, qui compte **88 fichiers** — `accent.ts`, `background.ts`, `border.ts`, `font.ts`, et un répertoire `color/` avec une échelle par teinte —, avec un test de pipeline `design-tokens/__tests__/themeTokenPipeline.test.ts`.
+
+Éditer `ThemeLight.ts` directement serait **le même piège que le fichier GraphQL généré en P0** : un correctif écrasé à la régénération suivante. Préserver le mécanisme signifie donc passer par les tokens et régénérer, jamais contourner.
+
+**Conséquence qui réduit beaucoup le travail de palette** : `ThemeColor` expose déjà **25 teintes** — `red`, `ruby`, `crimson`, `tomato`, `orange`, `amber`, `yellow`, `lime`, `grass`, `green`, `jade`, `mint`, `turquoise`, `cyan`, `sky`, `blue`, `iris`, `violet`, `purple`, `plum`, `pink`, `bronze`, `gold`, `brown`, `gray`. Les **statuts colorés** de la référence n'ont donc pas besoin de nouveaux tokens : ils ont besoin d'être **employés**. Et les primitives existent déjà dans `twenty-ui/src/primitives/data-display` : `Tag`, `Badge`, `Chip`.
+
+### Typographie : vérifiée, et volontairement inchangée pour ce lot
+
+Le prompt impose de vérifier la typographie disponible et licenciée **avant** tout changement. Fait : **ni Geist ni Satoshi ne sont déclarés** dans le workspace. Seuls `@fontsource/inter` et `@fontsource/dm-mono` le sont.
+
+Les ajouter supposerait de modifier un manifeste **et le lockfile**, qui appartiennent à Codex. Je **conserve donc Inter pour ce lot**, par décision motivée et consignée, non par omission — et je ne présenterai pas cela comme une conformité à DESIGN.md, qui bannit Inter. L'écart reste ouvert, documenté, et relève d'une coordination avec Codex plus d'une décision du propriétaire sur la licence.
+
+### Déclaration de propriété, par fichier, avant édition
+
+- **Possédé** : `apps/crm/ui/packages/twenty-front/**` et ses tests ; `scripts/check-frontend-p0.cjs` ; `.github/workflows/p0-frontend-baseline.yml`.
+- **Extension déclarée ici, non encore éditée** : `apps/crm/ui/packages/twenty-ui/design-tokens/**` — le **vrai** levier du thème, que ma déclaration précédente avait manqué en ne visant que `src/theme`. Je nommerai les fichiers de tokens touchés avant de les éditer, et toute modification passera par le générateur et son test de pipeline.
+- **Extension déclarée, usage probable en lecture seule** : `twenty-ui/src/primitives/data-display/{Tag,Badge,Chip}` — à réutiliser plutôt qu'à modifier.
+- **Non possédé, non touché** : backend, DTO et contrats partagés, `twenty-shared`, manifestes et **lockfile**, scripts et workflows de Codex, originaux `test-Crm`.
+
+### Plan du lot 1 — cadre, navigation, liste, fiche client
+
+Découpé en incréments relisibles plutôt qu'en une seule grande modification invérifiable. Chaque incrément est construit par la CI avant d'être présenté.
+
+1. **Cadre et navigation latérale.** Hiérarchie et densité lisibles, groupes et libellés explicites, état actif net. Cible : `twenty-front/src/modules/ui/navigation/navigation-drawer/**` (dont `NavigationDrawerItem.tsx`, 450 lignes) et `modules/navigation/components/**`.
+2. **Tableaux structurés.** En-têtes lisibles, alignements cohérents, densité de ligne maîtrisée, séparation de colonnes nette. Cible : `modules/object-record/record-table/**` (331 fichiers).
+3. **Statuts colorés.** Emploi systématique de `Tag` avec les teintes sémantiques existantes sur les champs de type sélection et statut, en liste et en fiche.
+4. **Fiche client.** En-tête clair, regroupement des champs, chronologie mise en avant. Cible : `modules/object-record/record-show/**` et la composition de widgets `RECORD_PAGE`.
+
+Ordre volontaire : la navigation d'abord, parce que c'est le cadre que tout le reste habite, et parce que c'est là que le défaut d'ergonomie est le plus structurel.
+
+### Ce que je ne revendiquerai pas
+
+Je **ne peux pas construire ni vérifier visuellement en local** : l'arbre `node_modules` a été supprimé pour libérer le disque, et la preuve de construction passe par la CI. Donc aucun lot ne sera présenté comme visuellement validé avant une construction CI verte **et** une preview réellement accessible au destinataire. Un audit, un plan ou un changement de tokens ne sont pas une refonte livrée, et je ne les présenterai pas comme tels.
+
+L'**accueil opérationnel** — le défaut structurel que j'ai relevé, où l'on atterrit sur une liste choisie par l'ordre des métadonnées — n'appartient pas à ce lot 1 : le prompt le place avec les parcours métier. Il reste le gain le plus net à venir, et le système de widgets `DASHBOARD` existe déjà pour le porter.
+
 ## Mission hermes-redesign-p1 — prise de chantier et audit, agent: claude
 
 - **branche unique de chantier frontend : `feat/claude-hermes-connectors-ui`**, SHA **`af03bb4f2ce21c43e95502b0c71482618e406e75`**
