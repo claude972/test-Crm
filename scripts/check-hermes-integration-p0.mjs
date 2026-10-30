@@ -104,7 +104,11 @@ export const validateIntegrationEnvironment = (env, root = ROOT) => {
   );
 };
 
-export const buildIntegrationChildEnvironment = (source, appSecret) => {
+export const buildIntegrationChildEnvironment = (
+  source,
+  appSecret,
+  { sameOriginMultiworkspace = false } = {},
+) => {
   const env = {};
   // Runtime paths and CI identity only; cloud tokens and ambient app credentials stay outside Nest.
   for (const key of [
@@ -144,6 +148,9 @@ export const buildIntegrationChildEnvironment = (source, appSecret) => {
     IS_FDW_ENABLED: "false",
     IS_CONFIG_VARIABLES_IN_DB_ENABLED: "false",
     IS_MULTIWORKSPACE_ENABLED: "false",
+    IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED: sameOriginMultiworkspace
+      ? "true"
+      : "false",
   };
 };
 
@@ -165,15 +172,38 @@ export const validateIntegrationSuitePaths = (suites, cwd) => {
   }
 };
 
-export const runIntegration = async () => {
+export const SAME_ORIGIN_SUITE =
+  "test/integration/graphql/suites/hermes-same-origin-workspaces.integration-spec.ts";
+
+export const validateIntegrationMode = (
+  suites,
+  sameOriginMultiworkspace = false,
+) => {
+  if (sameOriginMultiworkspace) {
+    assert.deepEqual(
+      suites,
+      [SAME_ORIGIN_SUITE],
+      "Same-origin mode is limited to the isolated native tenancy suite",
+    );
+  }
+};
+
+export const runIntegration = async ({
+  sameOriginMultiworkspace = false,
+  suites: fixedSuites,
+} = {}) => {
   // The native reset precedes Jest's globalSetup and suite-level assertions.
   validateIntegrationEnvironment(process.env);
   const cwd = path.join(ROOT, SERVER);
-  const suites = process.argv.slice(2);
+  const suites = fixedSuites ? [...fixedSuites] : process.argv.slice(2);
   if (!suites.length) suites.push(DEFAULT_SUITE);
+  validateIntegrationMode(suites, sameOriginMultiworkspace);
   validateIntegrationSuitePaths(suites, cwd);
   const jest = path.resolve(cwd, "../../node_modules/jest/bin/jest.js");
-  const integrationReport = path.join(tmpdir(), `hermes-jest-${process.pid}.json`);
+  const integrationReport = path.join(
+    tmpdir(),
+    `hermes-jest-${process.pid}.json`,
+  );
   for (const file of [
     jest,
     "dist/database/scripts/truncate-db.js",
@@ -187,7 +217,9 @@ export const runIntegration = async () => {
   }
   const appSecret = randomBytes(32).toString("hex");
   process.stdout.write(`::add-mask::${appSecret}\n`);
-  const env = buildIntegrationChildEnvironment(process.env, appSecret);
+  const env = buildIntegrationChildEnvironment(process.env, appSecret, {
+    sameOriginMultiworkspace,
+  });
   const secrets = [
     appSecret,
     process.env.PG_DATABASE_URL,
@@ -237,15 +269,24 @@ export const runIntegration = async () => {
         process.off("SIGTERM", stop);
         kill("SIGKILL");
         let failures = "";
-        if (stage === "selected native integration suites" && exists(integrationReport)) {
+        if (
+          stage === "selected native integration suites" &&
+          exists(integrationReport)
+        ) {
           try {
             const report = JSON.parse(readFileSync(integrationReport, "utf8"));
             failures = report.testResults
               .filter((suite) => suite.status === "failed")
-              .map((suite) => `${path.relative(cwd, suite.name)}\n${suite.message}`)
+              .map(
+                (suite) =>
+                  `${path.relative(cwd, suite.name)}\n${suite.message}`,
+              )
               .join("\n");
-          } catch { failures = "Jest diagnostic report could not be read"; }
-          finally { rmSync(integrationReport, { force: true }); }
+          } catch {
+            failures = "Jest diagnostic report could not be read";
+          } finally {
+            rmSync(integrationReport, { force: true });
+          }
         }
         if (code === 0) resolve();
         else

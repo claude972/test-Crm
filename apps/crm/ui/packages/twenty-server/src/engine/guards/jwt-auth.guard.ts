@@ -1,3 +1,5 @@
+import { assertExpectedWorkspaceContext } from 'src/engine/guards/utils/assert-expected-workspace-context.util';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   type CanActivate,
   type ExecutionContext,
@@ -18,6 +20,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly accessTokenService: AccessTokenService,
     private readonly workspaceStorageCacheService: WorkspaceCacheStorageService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -45,6 +48,11 @@ export class JwtAuthGuard implements CanActivate {
       }
 
       bindDataToRequestObject(data, request, metadataVersion);
+      assertExpectedWorkspaceContext(
+        request,
+        this.kovaaLabConfigService,
+        'http',
+      );
 
       return true;
     } catch (error) {

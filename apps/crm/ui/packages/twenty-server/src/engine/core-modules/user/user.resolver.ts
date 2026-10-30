@@ -1,5 +1,13 @@
+import { type Request } from 'express';
 import { BadRequestException, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+} from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import crypto from 'crypto';
@@ -733,6 +741,7 @@ export class UserResolver {
     workspace: WorkspaceEntity | undefined,
     @AuthAuthenticatedAt() authenticatedAt: Date | undefined,
     @AuthIsUserSession() isUserSession: boolean,
+    @Context() context?: { req: Request },
   ): Promise<AvailableWorkspaces> {
     if (!isUserSession) {
       throw buildUserSessionRequiredError();
@@ -752,6 +761,7 @@ export class UserResolver {
         ),
         now: new Date(),
       }),
+      context ? { request: context.req } : undefined,
     );
   }
 

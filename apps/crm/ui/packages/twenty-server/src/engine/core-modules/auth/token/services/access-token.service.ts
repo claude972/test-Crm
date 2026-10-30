@@ -30,6 +30,7 @@ import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { userValidator } from 'src/engine/core-modules/user/user.validate';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceNotFoundDefaultError } from 'src/engine/core-modules/workspace/workspace.exception';
+import { isPublicAuthenticationGraphqlRequest } from 'src/engine/guards/utils/assert-expected-workspace-context.util';
 import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/standard-objects/workspace-member.workspace-entity';
@@ -204,7 +205,32 @@ export class AccessTokenService {
         );
       }
 
-      return this.validateToken(token);
+      const context = await this.validateToken(token);
+      const sessionToken =
+        this.userSessionCookieService.extractSessionTokenFromRequest(request);
+      if (
+        this.kovaaLabConfigService.get(
+          'IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED',
+        ) &&
+        !this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
+        sessionToken &&
+        context.user &&
+        (context.tokenType === JwtTokenTypeEnum.ACCESS ||
+          context.tokenType === JwtTokenTypeEnum.PLAYGROUND) &&
+        !isPublicAuthenticationGraphqlRequest(request)
+      ) {
+        const cookieContext = await this.validateSessionToken(sessionToken);
+        if (
+          context.user.id !== cookieContext.user?.id ||
+          context.workspace?.id !== cookieContext.workspace?.id ||
+          context.userWorkspaceId !== cookieContext.userWorkspaceId
+        )
+          throw new AuthException(
+            'Bearer and browser session contexts differ',
+            AuthExceptionCode.SESSION_SUPERSEDED,
+          );
+      }
+      return context;
     }
 
     const sessionToken =

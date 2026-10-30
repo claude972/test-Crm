@@ -73,6 +73,8 @@ describe('AuthResolver', () => {
   let workspaceDomainsService: {
     buildWorkspaceURL: jest.Mock;
     getWorkspaceByOriginOrDefaultWorkspace: jest.Mock;
+    getWorkspaceForLoginToken: jest.Mock;
+    isSameOriginMultiWorkspaceEnabled: jest.Mock;
     getWorkspaceUrls: jest.Mock;
   };
   const mock_CaptchaGuard: CanActivate = { canActivate: jest.fn(() => true) };
@@ -124,6 +126,8 @@ describe('AuthResolver', () => {
               .fn()
               .mockResolvedValue(new URL('http://localhost:3001')),
             getWorkspaceByOriginOrDefaultWorkspace: jest.fn(),
+            getWorkspaceForLoginToken: jest.fn(),
+            isSameOriginMultiWorkspaceEnabled: jest.fn().mockReturnValue(false),
             getWorkspaceUrls: jest.fn(),
           },
         },

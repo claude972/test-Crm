@@ -1,3 +1,4 @@
+import { type Request } from 'express';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -675,10 +676,21 @@ export class UserWorkspaceService {
         appToken?: AppTokenEntity;
       }>;
     },
-    user: Pick<UserEntity, 'email' | 'isEmailVerified'>,
+    user: Pick<UserEntity, 'id' | 'email' | 'isEmailVerified'>,
     authProvider: AuthProviderEnum,
     canAutoLoginIntoWorkspaces = true,
+    sessionBinding?: { request: Request; sameOriginSessionHash?: string },
   ) {
+    const sameOriginSessionHash =
+      canAutoLoginIntoWorkspaces &&
+      this.kovaaLabConfigService.get('IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED') &&
+      !this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED')
+        ? (sessionBinding?.sameOriginSessionHash ??
+          (await this.loginTokenService.getSameOriginSessionBinding(
+            sessionBinding?.request,
+            user.id,
+          )))
+        : undefined;
     const shouldHideInvitations =
       this.kovaaLabConfigService.get('IS_EMAIL_VERIFICATION_REQUIRED') &&
       !user.isEmailVerified;
@@ -714,6 +726,7 @@ export class UserWorkspaceService {
                           user.email,
                           workspace.id,
                           authProvider,
+                          { sameOriginSessionHash },
                         )
                       ).token
                     : undefined,

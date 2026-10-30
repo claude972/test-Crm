@@ -33,6 +33,7 @@ import { SamlAuthGuard } from 'src/engine/core-modules/auth/guards/saml-auth.gua
 import { AuthService } from 'src/engine/core-modules/auth/services/auth.service';
 import { OidcRequest } from 'src/engine/core-modules/auth/strategies/oidc.auth.strategy';
 import { SamlRequest } from 'src/engine/core-modules/auth/strategies/saml.auth.strategy';
+import { SsoExchangeTokenService } from 'src/engine/core-modules/auth/token/services/sso-exchange-token.service';
 import { LoginTokenService } from 'src/engine/core-modules/auth/token/services/login-token.service';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
@@ -53,6 +54,7 @@ import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 export class SsoAuthController {
   constructor(
     private readonly loginTokenService: LoginTokenService,
+    private readonly ssoExchangeTokenService: SsoExchangeTokenService,
     private readonly authService: AuthService,
     private readonly guardRedirectService: GuardRedirectService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
@@ -189,10 +191,28 @@ export class SsoAuthController {
           ? ConnectedAccountProvider.SAML
           : ConnectedAccountProvider.OIDC;
 
-      const { loginToken } = await this.generateLoginToken(
+      const { loginToken, ssoExchangeToken } = await this.generateLoginToken(
         req.user,
         currentWorkspace,
         { oidcTokenClaims, connectedAccountProvider },
+      );
+
+      if (ssoExchangeToken)
+        return res.redirect(
+          this.workspaceDomainsService
+            .buildWorkspaceURL({
+              workspace: currentWorkspace,
+              pathname: AppPath.SignInUp,
+              hash: `ssoExchangeToken=${ssoExchangeToken.token}`,
+            })
+            .toString(),
+        );
+      assertIsDefinedOrThrow(
+        loginToken,
+        new AuthException(
+          'Login token is unavailable',
+          AuthExceptionCode.UNAUTHENTICATED,
+        ),
       );
 
       return res.redirect(
@@ -267,6 +287,17 @@ export class SsoAuthController {
         connectedAccountProvider: ssoContext.connectedAccountProvider,
       });
     }
+
+    if (this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled())
+      return {
+        workspace,
+        ssoExchangeToken:
+          await this.ssoExchangeTokenService.generateSsoExchangeToken({
+            userId: user.id,
+            workspaceId: workspace.id,
+            authProvider: AuthProviderEnum.SSO,
+          }),
+      };
 
     return {
       workspace,

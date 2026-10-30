@@ -199,6 +199,10 @@ export class ClientConfigService {
       isMultiWorkspaceEnabled: this.kovaaLabConfigService.get(
         'IS_MULTIWORKSPACE_ENABLED',
       ),
+      isSameOriginMultiWorkspaceEnabled:
+        this.kovaaLabConfigService.get(
+          'IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED',
+        ) && !this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED'),
       isEmailVerificationRequired: this.kovaaLabConfigService.get(
         'IS_EMAIL_VERIFICATION_REQUIRED',
       ),

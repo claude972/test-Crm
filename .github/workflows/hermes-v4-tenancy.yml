@@ -1,0 +1,115 @@
+name: Hermes V4 native tenancy
+on:
+  push:
+    branches: [feat/codex-hermes-v4-tenancy]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hermes-v4-tenancy-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  tenancy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: p0_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+        ports: ["127.0.0.1:5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p0_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7
+        ports: ["127.0.0.1:6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      FORCE_COLOR: "0"
+      NODE_OPTIONS: --max-old-space-size=4096
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install immutable workspace dependencies
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build shared runtime and declarations
+        id: shared_build
+        working-directory: apps/crm/ui/packages/twenty-shared
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/index.cjs
+          test -s dist/application/index.d.ts
+      - name: Build client SDK runtime and declarations
+        id: sdk_build
+        working-directory: apps/crm/ui/packages/twenty-client-sdk
+        env:
+          NODE_ENV: production
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build(); await build({ configFile: 'vite.metadata.config.ts' });"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/core.cjs
+          test -s dist/metadata.mjs
+          test -s dist/core/index.d.ts
+      - name: Build email runtime and declarations without sending mail
+        id: email_build
+        working-directory: apps/crm/ui/packages/twenty-emails
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --outDir dist --rootDir src --composite false --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/index.js
+          test -s dist/index.d.ts
+      - name: Remove committed environment fixtures from the disposable Hermes job
+        working-directory: .
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          git ls-files --error-unmatch apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server >/dev/null
+          git diff --quiet HEAD -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+          rm -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+      - name: Verify native same-origin auth and legacy regressions
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          mapfile -t suites < <(find src/engine/core-modules/auth src/engine/core-modules/user-session/services/__tests__ src/engine/core-modules/domain/workspace-domains src/engine/guards/utils/__tests__ -type f -name '*same-origin*.spec.ts' | sort)
+          suites+=(src/engine/core-modules/auth/token/services/__tests__/sso-exchange-scoped.service.spec.ts src/engine/guards/utils/__tests__/assert-expected-workspace-context.util.spec.ts src/engine/core-modules/domain/workspace-domains/utils/__tests__/is-canonical-frontend-origin.util.spec.ts src/engine/core-modules/auth/auth.resolver.spec.ts)
+          node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath "${suites[@]}"
+      - name: Typecheck backend production sources without starting the server
+        id: backend_types
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: node ../../node_modules/.bin/tsgo -p tsconfig.build.json --noEmit --singleThreaded
+      - name: Compile backend and verify executable artifacts without running them
+        id: backend_build
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+          test -s dist/main.js
+          test -s dist/queue-worker/queue-worker.js
+          mkdir -p dist/assets/kovaa-lab-client-sdk
+          cp ../twenty-client-sdk/package.json dist/assets/kovaa-lab-client-sdk/
+          cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
+          test -s dist/assets/kovaa-lab-client-sdk/dist/core.cjs
+          test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
+      - name: Verify disposable tenancy wrapper guards
+        working-directory: .
+        run: node --test scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-tenancy-ci.test.mjs
+      - name: Verify native A/B creation, login, switch, reload and isolation on disposable PostgreSQL
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+          P0_INTEGRATION_DISPOSABLE: "true"
+        run: node scripts/check-hermes-tenancy-ci.mjs
