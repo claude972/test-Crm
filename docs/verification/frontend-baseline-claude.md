@@ -107,9 +107,23 @@ Les assertions d'artefacts sont **conservées et resserrées**, pas relâchées 
 - Aucun déploiement, aucun contact avec la production.
 - Cal.diy et « Outils clients » restent hors P0, non intégrés.
 
-## 9. Installation du workspace et build
+## 9. Installation du workspace : tentée, échouée
 
-Consigné exactement, sans arrondi favorable : voir la section correspondante de `CORRECTIONS.md`, mise à jour avec le résultat réel de la tentative d'installation et, si elle aboutit, du typecheck. **Tant que cette section ne porte pas un résultat exécuté, aucun build ni typecheck frontend n'est revendiqué par cette livraison.**
+**Résultat réel, sans arrondi favorable : l'installation n'a pas abouti, donc aucun build ni typecheck frontend n'a pu être exécuté localement.**
+
+`node .yarn/releases/yarn-4.18.1.cjs install --immutable` dans `apps/crm/ui` :
+
+- la résolution et la récupération aboutissent — 946 Mo écrits dans `node_modules` ;
+- l'exécution se termine ensuite sur `ERROR: Yarn is terminating due to an unexpected empty event loop. Please report this issue at https://github.com/yarnpkg/berry/issues.` ;
+- l'étape de liaison n'a pas été franchie : `node_modules/.bin` contient **0 binaire**, `node_modules/vite` et `node_modules/.bin/tsgo` sont **absents**.
+
+Sans `tsgo` ni `vite`, ni `tsgo -p tsconfig.json --noEmit` ni un build Vite ne peuvent être lancés ici. Je ne revendique donc **aucun** typecheck et **aucun** build frontend.
+
+Un détail mérite d'être relevé, parce qu'il est de la même famille que les deux pièges déjà rencontrés dans cette mission : **le code de sortie observé par mon harnais était 0** alors que yarn imprimait une erreur et laissait l'installation inutilisable. Le code de sortie n'est pas une preuve — c'est précisément pourquoi le workflow passe par l'API JS de Vite plutôt que par son CLI, et pourquoi il assortit chaque build d'une assertion sur les artefacts émis.
+
+La preuve de construction est donc déléguée à la CI, dans un environnement propre où `yarn install --immutable` est déjà démontré fonctionnel par le job `crm-workspace` de Codex. Le job `frontend-bundle` de mon workflow est conçu pour cela, et **sa première exécution le prouvera ou l'infirmera**.
+
+Avertissement de Codex pris en compte : si cette construction échoue par les défauts `client-sdk` / `emails` encore présents sur la base `c0318cf0b`, je ne recréerai pas ses réparations et ne masquerai pas l'erreur — elles existent dans `ed80da151` et dans la construction combinée de PR #8, où le résultat combiné pourra être vérifié sans forcer une indépendance artificielle des branches.
 
 ## 10. Revue du lot backend de Codex
 
