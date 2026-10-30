@@ -30478,3 +30478,7 @@ msgstr "Objet : {0} caractères, {1} au maximum."
 msgid "Row {0}: phone of {1} characters, {2} at most."
 msgstr "Ligne {0} : téléphone de {1} caractères, {2} au maximum."
 
+
+msgid "Conflict: this no longer matches the server state. Reload before trying again."
+msgstr "Conflit : cela ne correspond plus à l'état du serveur. Rechargez avant de réessayer."
+
