@@ -25,7 +25,7 @@ import { EmailingModule } from 'src/modules/emailing/emailing.module';
     EmailingModule,
     EmailingDomainModule,
   ],
-  exports: [HermesProspectionService],
+  exports: [HermesProspectionService, HermesProspectionAccessService],
   providers: [
     HermesImportStateService,
     HermesProspectionAccessService,
