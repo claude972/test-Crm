@@ -430,3 +430,58 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 - agent: claude ; status: pending pour prochaine mission de maquettes détaillées, aucun nouveau prompt d’exécution envoyé pendant ce cadrage.
 - Répartition cible : Claude frontend/maquettes ; Codex backend/intégrations/tests ; root contrats, revues et preview ; propriété des fichiers/base de code à confirmer avant éditions.
 - Étapes0–8 : audit/capacités ; contrats et maquettes ; sociétés/réglages ; botMCP ; messageries ; réceptions/prospects/scraping ; pipeline ; campagnesSMTP ; recette/revues/preview. Validation visuelle avant câblage maintenue selon demande propriétaire.
+
+
+## Mission: Audit de capacités et maquettes détaillées V3
+
+Mission ID: HERMES-V3-AUDIT-MAQUETTES-20261030
+Coordination branch: missions/p0-stabilization
+Base revision applicative: 333ba534927e177c90b35eb4157d75d8d767dec4
+Corrections: CORRECTIONS.md (repository root)
+
+### Objective et autorisation
+
+« Agis en autonomie » autorise le lancement des phases 0 et 1 du [plan V3](docs/handoff/hermes-v3-plan-mcp-multicanal.md), audit/capacités, contrats et maquettes détaillées. Le GO ne valide aucune maquette non vue. Les phases 2–8 et tout câblage applicatif attendent la validation visuelle utilisateur. Le [prompt V3](docs/handoff/hermes-v3-prompt.xml) remplace les instructions V2 contradictoires ; garder l’historique V2 intact.
+
+### Shared contracts and dependencies
+
+Français et référence Pipedrive acquis, web/PWA uniquement, stack existante. ASSISTED conserve MCP/brouillons et impose le clic humain pour envoyer ; OFF complet bloque aussi MCP. Politique société/canal et exception locale restrictive par conversation WhatsApp ou fil e-mail ; mode effectif et raison visibles. Réglages centralise connexions/secrets/politiques par défaut ; commandes locales du bot autorisées dans les fils.
+
+Capacités présentes/proposées/manquantes/non configurées/non testées distinctes ; aucun endpoint média, outil MCP, connexion, licence campagne ou test fournisseur inventé. Application source 333ba534927e177c90b35eb4157d75d8d767dec4 en lecture seule ; prototype V2 af8ce71e86ebfa03c07ee892bc782cbcdb53a249 et contrats V2 1c6760cfc historiques. Originaux test-Crm, .env/.runtime, DB, sauvegardes et changements locaux préservés. Aucun nouveau service payant, production, campagne/envoi réel à prospect ou application native.
+
+### Claude assignment — V3 maquettes détaillées
+- agent: claude
+- status: pending
+- assigned session: 8f3db32e-4613-45e3-94f3-16e664f3cbfc, propriétaire exclusif ; veilles et autres agents ne dupliquent pas le worker.
+- branch: feat/claude-hermes-v2-ui
+- checkout: /Volumes/Stockage/dev/hermes-crm/v2-claude-maquettes
+- starting revision: af8ce71e86ebfa03c07ee892bc782cbcdb53a249
+- owned files: docs/design/hermes-v3/** uniquement ; aucun apps/, aucun fichier V2 ni contrat Codex.
+- deliverables: maquettes détaillées françaises inspirées Pipedrive : WA médias entrants/sortants et vocaux avec enregistrement/préécoute/annulation, vraie boîte e-mail, modes AUTO/ASSISTED/OFF globaux et locaux, centre Réglages, provenance/qualification prospects multicanale, pipeline et campagne SMTP. Démonstration explicitement fictive sans API.
+- acceptance criteria: navigable desktop et 390px ; états chargement/vide/erreur/non configuré/disabled/succès applicables ; clavier/focus/labels/contraste ; capacités simulées identifiées, zéro réseau fournisseur/secret/envoi ; aperçu des pièces jointes/vocaux et validation humaine de brouillon compréhensibles ; captures réelles et rapport des limites ; commit/push strictement dans l’ownership ; pas de câblage avant validation visuelle.
+- verification report: docs/design/hermes-v3/README.md, puis synthèse publiée par root dans CORRECTIONS.md section HERMES-V3-AUDIT-MAQUETTES-20261030/claude.
+- implementation revision: aucune V3 livrée à la publication.
+- preview: aucune V3 vérifiée ; root publie une preview statique isolée après livraison revue.
+- blockers: dispatch/acceptation à constater ; aucun choix visuel détaillé validé. Si aucune piste V2 choisie n’est établie, documenter l’hypothèse réversible sans prétendre à une approbation.
+
+### Codex assignment — V3 audit et contrats
+- agent: codex
+- status: pending
+- branch: feat/codex-hermes-v2-core
+- checkout: /Volumes/Stockage/dev/hermes-crm/v2-codex-contracts
+- starting revision: 1c6760cfc
+- owned files: docs/handoff/hermes-v3-capabilities-audit.md (sous-agent v3_capabilities) ; docs/handoff/hermes-v3-mcp-messaging-contract.md et docs/handoff/hermes-v3-crm-campaign-contract.md (sous-agent v3_contracts). Aucun chevauchement d’édition ; root ne modifie pas ces livrables.
+- deliverables: audit source/version/docs officielles et Allowed APIs ; contrats explicitement cibles pour médias/messagerie/MCP et modes ; provenance/qualification/déduplication, pipeline natif, lien boîte exacte SMTP/campagne, droits/licence et critères de recette.
+- acceptance criteria: chemins/lignes/signatures et SHA sources prouvés ; distinguer capacités actuelles et proposées ; ASSISTED et OFF complets distincts ; isolation A/B/C, révocation, concurrence/epochs, transitions en vol et absence de retry aveugle ; API médias/version cible non prouvée reste à définir ; aucun changement code/DB/provider ; limites et vérifications documentaires honnêtes.
+- verification report: trois livrables attribués ci-dessus, puis synthèse publiée par root dans CORRECTIONS.md section HERMES-V3-AUDIT-MAQUETTES-20261030/codex.
+- implementation revision: aucune V3 livrée à la publication.
+- preview: sans objet pour contrats ; aucune recette CRM V3 revendiquée.
+- blockers: versions cibles/connexions/licence à établir sans lecture de secrets ni nouvel achat ; dispatch et revendication réels à consigner.
+
+### Root — coordination et vérification
+
+Root possède MISSIONS.md, CORRECTIONS.md, le statut du plan V3 et le prompt V3 sur missions/p0-stabilization. Root vérifie les livraisons exactes par SHA, coordonne exclusivement la session Claude attribuée, capture les images et publie la preview statique. Aucun fichier attribué aux agents n’est modifié concurremment. Chaque agent lit les fichiers distants et confirme son affectation avant de commencer ; publication seule ne démarre ni Claude ni monitor. Toute action CLI réelle est enregistrée dans CORRECTIONS.md avec heure/fuseau, session, résultat et prochaine action.
+
+### Cross-verification
+
+Codex relit les maquettes Claude au SHA publié, Claude relit les contrats Codex au SHA publié. Findings stables, propriétaire, preuve, fix SHA et recheck sont publiés dans CORRECTIONS.md. ready_for_review seulement après livrables/rapport poussés ; done seulement après revue applicable. Maquette statique, build vert et source disponible ne prouvent aucune intégration fournisseur, PWA installable, pipeline persistant ni campagne opérationnelle. Lien de preview et validation visuelle détaillée restent attendus.

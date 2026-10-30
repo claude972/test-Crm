@@ -4,9 +4,9 @@
 
 Gérer ses sociétés autorisées dans un CRM web/PWA français : conversations WhatsApp multimédias, vraie messagerie e-mail, brouillons Hermès via MCP, prospects correctement classés, pipeline commercial fiable et campagnes émises depuis la boîte autorisée de la société. La livraison comprend une preview utilisable avec des parcours de recette réellement vérifiés.
 
-Statut : plan documentaire actualisé à la demande « Quel est le plan selon skills ». Aucun nouveau développement applicatif lancé par cette publication. Les dernières décisions utilisateur remplacent les anciennes règles V2 contradictoires concernant la coupure du bot. La validation du design détaillé précède le câblage, conformément à la demande utilisateur.
+Statut au 30 octobre 2026 : « Agis en autonomie » autorise le lancement des phases 0 et 1 sous la mission HERMES-V3-AUDIT-MAQUETTES-20261030. Cette autorisation ne valide aucune maquette non vue. Les phases 2–8 et le câblage applicatif restent après validation visuelle utilisateur des maquettes détaillées. Les dernières décisions utilisateur remplacent les anciennes règles V2 contradictoires concernant la coupure du bot. Statuts d’affectation pending jusqu’au dispatch et à la prise de mission réels, suivis dans MISSIONS.md et CORRECTIONS.md.
 
-Méthode : make-plan (collecte factuelle déléguée, synthèse root, phases avec preuves) et split (Claude frontend, Codex backend, branches isolées, missions GitHub avant exécution, revues croisées par SHA). La présente demande est un plan, pas un nouveau dispatch d’implémentation à Claude.
+Méthode : make-plan (collecte factuelle déléguée, synthèse root, phases avec preuves) et split (Claude frontend, Codex backend, branches isolées, missions GitHub avant exécution, revues croisées par SHA). Le lancement présent porte uniquement sur audit, contrats et maquettes détaillées ; la publication documentaire ne constitue pas un dispatch Claude et ne crée aucun monitor.
 
 ## Décisions acquises
 
