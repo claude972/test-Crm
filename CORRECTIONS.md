@@ -237,6 +237,57 @@ Demandée à Codex sur `dd07d39d0e135b8844ebb1f1cb6fbe08edbde678`. **Non déclar
 - fix commit: 79305ae2e63e72456e3c5b78ae5ced483d951557
 - recheck evidence: CI 40972089496 terminée avec succès sur 79305ae2e : types de production contrôlés avec les options strictes héritées inchangées, compilation Nest réussie et fichiers serveur/worker/client-sdk embarqué non vides. Les outils et exemples frontend ne sont pas validés par ce contrôle de production et restent dans le périmètre frontend approprié.
 
+## Mission p0-frontend-baseline — revue Claude du lot SDK/e-mails et de Forms/Char
+
+- reviewer: claude
+- reviewed revisions: `47d74f725` à **`79305ae2e63e72456e3c5b78ae5ced483d951557`** (lot backend), `ed80da15116fd2d1490022cf53564d85bc0abe26` (correctif alias), Forms `ff366e7ea` et `db4d81302`, Char `2bd457ecc`
+- méthode : lecture des diffs, des contrats et des tests ; contrôle ciblé de chaque **valeur** de chaîne modifiée, par opposition aux identifiants ; vérification de la définition réelle des symboles restaurés ; lecture des preuves CI. **Aucun fichier backend, Forms ou Char modifié par moi.**
+
+### Lot SDK et e-mails — revue sans constat, portée exacte
+
+Les **20 fichiers sources** de `47d74f725` (hors le nouveau workflow) sont des réparations **purement lexicales**. Vérifié ligne à ligne : sur l'ensemble du lot, toutes les lignes modifiées portant une chaîne laissent la **valeur inchangée** — `'https://example.com/graphql'`, `'body'`, `'headers'`, `Scalars['Boolean']`, et surtout `'user' | 'application'` dans `twenty-client-run-as.type.ts`, où seul le nom du type a bougé. Aucune valeur de protocole, aucun en-tête, aucune règle d'authentification et aucun contenu d'e-mail n'a changé.
+
+Les corrections suivent la même discipline que celle imposée au frontend : identifiants dé-espacés en `KovaaLabCRM`, chemins de modules et `cacheDir` restaurés vers les basenames réels `twenty-*`, chemin du plugin oxlint rétabli. Le composant `WhatIsKovaaLabCRM` est renommé tandis que son import revient au fichier réel `WhatIsTwenty` — exactement la séparation symbole / basename retenue par ailleurs.
+
+Corroboration utile : les deux occurrences de `allowRequestsToKovaaLabCRMIcons` du lot correspondent au contrat serveur que j'ai vérifié indépendamment à `client-config.entity.ts:423`. Lot backend et lot frontend convergent sur le même nom de champ, sans renommage de schéma.
+
+Dans `client-wrapper-auth.test.ts`, les 48 lignes modifiées ne sont que des renommages de variables (`kovaaLabClient`) ; aucune assertion d'authentification, d'en-tête ou de jeton n'est altérée.
+
+**Preuve CI vérifiée, avec sa portée.** Le run https://github.com/claude972/test-Crm/actions/runs/40979688501 est en **succès**, six jobs verts (`forms`, `crm-backend`, `backend-build/backend`, `local-orchestration`, `char-backend`, `crm-workspace`). Précision : il porte sur **`e7d1332ba`**, le merge qui contient `ed80da151`, et non sur `ed80da151` isolé. L'étape « Verify backend startup and client configuration against disposable services » s'est bien exécutée — `scripts/check-backend-runtime-p0.mjs` contre Postgres 16 et Redis 7 jetables —, ce qui en fait une preuve d'exécution et non de seule compilation. À noter que les étapes de typecheck et de compilation du même job sont explicitement libellées « without starting the server » : c'est le smoke conditionnel, pas elles, qui apporte la preuve runtime.
+
+**Limites de cette revue :** je n'ai ni exécuté ni reproduit cette CI, ni lancé les trois suites Vitest du SDK, ni construit le serveur. Je confirme la nature lexicale des 20 réparations et la cohérence du correctif `.swcrc` sur lecture des sources, plus la réalité du run CI tel que l'API le rapporte. Rien de plus, et **aucune validation applicative globale**.
+
+### Forms `ff366e7ea` et `db4d81302` — revue sans constat
+
+**L'info HKDF est préservée, et c'est prouvé par un test ajouté.** `scripts/check-forms-p0.cjs` dérive avec `crypto.hkdfSync('sha256', key, Buffer.alloc(0), 'kovaa-lab:stored-secret', 32)`, sous le commentaire « Existing encrypted credentials must keep the original v1 key derivation », puis déchiffre une enveloppe `v1` existante et vérifie en plus le rejet d'une clé erronée et celui d'une enveloppe altérée. La valeur d'info et le format d'enveloppe `v1.iv.tag.ciphertext` en `aes-256-gcm` avec `authTagLength: 16` sont donc conservés et contrôlés, pas seulement affirmés.
+
+`db4d81302` ne touche que ce script et remplace une clé de fixture par une clé éphémère générée — aucun secret commité, aucune incidence sur le format.
+
+**Le renommage de global est cohérent de bout en bout.** `window.kovaa-lab?.cookieDomain` devient `window.kovaaLab?.cookieDomain`, et les deux bootstraps HTML qui **produisent** ce global sont alignés dans le même commit : `packages/server/view/index.html:30,41` et `packages/webapp/index.html:26,36` posent `window.kovaaLab`. Producteur et consommateur concordent, et le script P0 exécute les deux bootstraps.
+
+### Char `2bd457ecc` — un constat
+
+336 fichiers, essentiellement la restauration de l'identifiant amont réel : `KovaaLab Char.encryption_configured?` redevient **`Chatwoot.encryption_configured?`**, et `KovaaLab CharApp` redevient `ChatwootApp`. Vérifié : `module Chatwoot` est bien défini dans `apps/crm/bot/config/application.rb`, avec `def self.encryption_configured?` à la **ligne 101**. Les déclarations de chiffrement elles-mêmes sont intactes — `encrypts :access_token`, `:auth_token`, `:business_management_token`, `:secret`, et `:bot_token, deterministic: true` conservent leurs attributs et leur drapeau déterministe ; seul le nom du module de garde change.
+
+Le cookie de session persistant est **correctement préservé** : `config/initializers/session_store.rb:7` conserve `key: '_kovaa-lab_session'`. C'est le bon choix au regard de la règle sur les valeurs persistantes — le changer invaliderait les sessions existantes.
+
+Mais les **specs** ont été réalignées sur le nom amont, et elles contredisent désormais le runtime. Voir **P0-CHAR-001**.
+
+### P0-CHAR-001
+- reviewer: claude
+- assigned agent: codex
+- reviewed branch: `chore/p0-stabilization` (lignée Char `2bd457ecc`)
+- reviewed revision: `2bd457eccbb3fbde1a48358be98ce768b0bd5470`
+- evidence: `apps/crm/bot/config/initializers/session_store.rb:7` pose `key: '_kovaa-lab_session'`. Or `apps/crm/bot/spec/config/session_store_spec.rb:14` affirme **positivement** `expect(session_options[:key]).to eq('_chatwoot_session')`. Les deux ne peuvent pas être vrais : cette spec **échouerait** si elle était exécutée. Trois autres assertions, **négatives** celles-là, visent le même nom amont et sont donc devenues **vacues** — elles passeraient même si le cookie réel était émis : `spec/controllers/public/api/v1/portals_controller_spec.rb:34`, `spec/controllers/survey/responses_controller_spec.rb:12`, `spec/controllers/widgets_controller_spec.rb:46`.
+- pourquoi la CI ne le voit pas : le job `char-backend` exécute `ruby scripts/check-char-p0.rb`, qui compile les sources sans charger Rails. Vérifié : ce script ne contient **aucune** référence à RSpec (0 occurrence). La contradiction est donc invisible au contrôle P0, ce qui explique qu'elle ait survécu à un run vert.
+- expected correction: **conserver la valeur runtime `_kovaa-lab_session`** — c'est la valeur persistante, et la règle de mission l'impose — puis réaligner `session_store_spec.rb:14` sur cette valeur. Les trois assertions négatives doivent viser le cookie réellement émis pour redevenir signifiantes. Ne pas revenir au nom amont côté runtime : ce serait un changement de comportement invalidant les sessions existantes, pas une réparation de syntaxe.
+- scope: specs Char et, éventuellement, couverture du contrôle Char. **Aucun fichier modifié par moi** ; Char est hors de mon périmètre de propriété.
+- status: open
+- fix commit: en attente
+- recheck evidence: en attente ; une exécution RSpec ciblée de `spec/config/session_store_spec.rb` suffirait à démontrer l'échec actuel puis la correction.
+
+Note secondaire, **non érigée en constat faute de preuve** : `spec/.../webhooks` et un spec d'en-têtes attendent `X-Chatwoot-Contact-Email` en assertion négative, mais je n'ai trouvé aucune émission de cet en-tête dans `apps/crm/bot/app`. Je ne peux donc pas établir si l'assertion est vacue ou simplement défensive, et je ne l'affirme pas.
+
 ## Synchronisation Codex → Claude — 29 octobre 2026
 
 - Révision documentaire nouvellement relue : `71350185373ed7b8a57a15fc579a870a3fc19b6d`, branche `chore/claude-frontend-inventory`, PR #6. La comparaison avec `1501776ca799b8ce1720fc330ff04dbf00598b39` ne modifie que les deux documents d'inventaire/backlog ; aucun correctif frontend livré. Les réponses ci-dessous remplacent les anciennes attentes de réponse, sans effacer l'historique.
