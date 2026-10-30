@@ -1376,3 +1376,30 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Evidence: création société native bloquée par creation flagfalse (sign-up.service autour ligne422) ; origin-token de sociétéB rejeté (auth resolver autour ligne988) ; hook switchdomain retourne quand flagfalse (autour ligne25). Isolation des données centrale ne prouve pas le parcours UI de création/bascule multi-société sur cet hôte.
 - Expected correction: définir et vérifier le mécanisme natif compatible avec l'hôte de recette et les contrôles d'accès avant d'annoncer ce parcours prêt. Aucun flag contourné ni bouton fictif ajouté. Root a informé le propriétaire de cette limite critique.
 - Fix commit: aucun à ce checkpoint ; recheck: pending, blocage explicitement maintenu.
+
+
+### HERMES-V3-INTEGRATION-1H-20261030 — checkpoint 2026-10-30 21:00 UTC
+
+- Backend31a2aa0a08b8219b5d314983e65e37d8e6f6da9c : remise INHERIT canal avec tombstone monotone,61tests annoncés ; delta relu root. Intégration7af96034b et CI41127466172 en cours. Les résultats précédents restent attachés à leurs SHA, aucun résultat CI final anticipé.
+- Pipelineba01a458 : test corrigé pour absence query plurielle et jeton invité frais ;16étapes API prouvées sur base333 selon root. Résultat CI combiné encore attendu.
+- Frontend Claude : checkpoint hooks05b016492 ; branche actuellec89fbba04 contient quatre traductions françaises supplémentaires. Root et reviewer ont ouvert HOUR-FRONT-001/002 ; Claude reconnaît les fixes20:59:36UTC. HOUR-FRONT-003 identifié surc89fbba04 : lecture V3 et mutation v1 non cohérentes, vrais contrôles V3 encore à raccorder. Aucune livraison finale revendiquée.
+- CLI action — acting agent root/codex ; target Claude8f3db32e-4613-45e3-94f3-16e664f3cbfc ; mission HERMES-V3-INTEGRATION-1H-20261030, branche feat/claude-hermes-v3-live. Root a demandé raccordement réel V3 et compositeur OFF désactivé avant21:05UTC. Deux sous-agents Claude readonly20:37 et20:41 confirmés. Sous-agent Claude settings/workspace en implémentation réellement lancé20:53:24UTC, fichiers disjoints coordonnés ; aucune confusion avec les tâches readonly.
+- Recette base333 : interface native en français après modification profil et reload CUA vérifiée ; cette preuve ne valide pas le frontend final V3. Gel de checkpoint visé21:05UTC pour lancer CI/runtime preview puis recette navigateur finale root. Tous les statuts de livraison restent in_progress, HOUR-TENANT-003 demeure une limite explicite.
+
+#### HOUR-FRONT-001 — résultat helper d'erreur objet affecté à un état string
+- reviewer: root et revue indépendante ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v3-live ; reviewed revision: 05b016492 ; priority: P1 ; status: in_progress.
+- Evidence: dans le catch du hook, le résultat objet du helper est affecté à un état string ; risque de typecheck et de rendu d'erreur incorrect.
+- Expected correction: extraire le message string attendu et vérifier typecheck/affichage de l'erreur. Claude reconnaît20:59:36UTC.
+- Fix commit: aucun vérifié à ce checkpoint ; recheck: pending.
+
+#### HOUR-FRONT-002 — identifiant politique non strictement lié au fil courant
+- reviewer: root et revue indépendante ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v3-live ; reviewed revision: 05b016492 ; priority: P2 ; status: in_progress.
+- Evidence: identité de politique sélectionnée sans liaison stricte au fil courant ; une mutation peut cibler une politique étrangère au fil affiché.
+- Expected correction: lier explicitement politique/fil et empêcher une mutation hors contexte, avec invalidation appropriée lors du changement de fil. Claude reconnaît20:59:36UTC.
+- Fix commit: aucun vérifié à ce checkpoint ; recheck: pending.
+
+#### HOUR-FRONT-003 — composant lit V3 mais modifie v1 sans contrôles V3 complets
+- reviewer: root ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v3-live ; reviewed revision: c89fbba04 ; priority: P1 ; status: in_progress.
+- Evidence: composant consomme la lecture politique V3 mais conserve mutation v1 et ne fournit pas les contrôles OFF/INHERIT/ASSISTED requis. Affichage et commande n'appliquent pas le même contrat.
+- Expected correction: raccorder les vraies mutations V3 avec contrôles et erreurs cohérents ; compositeur OFF désactivé conformément au contrat frontend retenu. Root a demandé le correctif avant gel21:05UTC.
+- Fix commit: aucun vérifié à ce checkpoint ; recheck: pending.

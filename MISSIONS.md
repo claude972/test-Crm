@@ -535,7 +535,7 @@ Les deux branches d'implémentation partent de la même base applicative ci-dess
 - deliverables: modes AUTO/ASSISTED/OFF effectifs côté serveur et isolation ; opérations messagerie/MCP existantes raccordables et contrats compatibles ; migrations minimales si requises avec contrôles de sécurité/accès appropriés. Prioriser réutilisation des services existants.
 - acceptance criteria: tests pertinents droits/sociétés/modes/transitions ; aucun affaiblissement d'autorisation, fuite de secret, envoi réel, migration destructive ou API fictive ; build/typecheck pertinents. Revue croisée de la branche Claude exacte et rapport requis.
 - verification report: CORRECTIONS.md, section HERMES-V3-INTEGRATION-1H-20261030/codex.
-- implementation revision: e9a76066a6aa616896ec2fa35085baac08af24d5 ;59tests/4suites annoncés, deux findings concurrence revus ; intégration native CI encore en échec à20:55UTC.
+- implementation revision: 31a2aa0a08b8219b5d314983e65e37d8e6f6da9c ;61tests annoncés, delta tombstone INHERIT relu root ; intégration7af96034b et CI41127466172 en cours à21:00UTC.
 - preview: attendue sur branche intégration privée.
 - blockers: capacité/fournisseur réellement configuré à établir sans divulgation de credentials ; média incomplet doit rester explicite.
 
