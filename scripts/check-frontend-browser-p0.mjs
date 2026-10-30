@@ -206,6 +206,77 @@ function hasOperation(response, field) {
   } catch { return false; }
 }
 
+
+// Published native query generators: Aggregate<Plural> selects totalCount;
+// FindMany<Plural> selects edges/node. No metadata dashboard substitutes for /dashboard.
+async function checkHermesOperationsDashboard(page, name) {
+  const operations = [
+    ['AggregateCompanies', 'companies', 'Companies'],
+    ['AggregatePeople', 'people', 'People'],
+    ['AggregateOpportunities', 'opportunities', 'Opportunities'],
+    ['AggregateTasks', 'tasks', 'Tasks'],
+    ['FindManyOpportunities', 'opportunities'],
+    ['FindManyTasks', 'tasks'],
+  ];
+  const matchesNativeOperation = (response, operation) => {
+    if (response.url() !== `${APP_API_ORIGIN}/graphql`) return false;
+    try {
+      const request = response.request().postDataJSON();
+      return !Array.isArray(request) &&
+        (request.operationName === operation || new RegExp(`\\bquery\\s+${operation}\\b`).test(request.query ?? '')) &&
+        // The four Volume cards are unfiltered; pipeline stage counts are not.
+        (!operation.startsWith('Aggregate') || !request.variables?.filter);
+    } catch { return false; }
+  };
+  const pending = operations.map(([operation]) => page.waitForResponse(
+    (response) => matchesNativeOperation(response, operation), { timeout: 60_000 },
+  ));
+  // Attach all rejection handlers before navigation, so one timeout cannot leave
+  // another response wait as an unhandled rejection.
+  const responses = Promise.all(pending);
+  const [, received] = await Promise.all([
+    page.goto(`${FRONTEND_ORIGIN}/dashboard`, { waitUntil: 'domcontentloaded' }),
+    responses,
+  ]);
+  const counts = {};
+  for (const [index, response] of received.entries()) {
+    const [operation, field, label] = operations[index];
+    let body;
+    try { body = await response.json(); } catch {
+      failGraphql(graphqlDiagnostic('graphql', `query ${operation}`, response.status(), undefined, 'invalid-json'));
+    }
+    if (response.status() !== 200 || body?.errors?.length) {
+      failGraphql(graphqlDiagnostic('graphql', `query ${operation}`, response.status(), body, response.status() === 200 ? 'graphql' : 'http'));
+    }
+    if (label) {
+      const count = body.data?.[field]?.totalCount;
+      assert.ok(Number.isSafeInteger(count) && count >= 0, `P1 dashboard: ${operation} count unavailable`);
+      counts[field] = { label, value: count };
+    } else {
+      assert.ok(Array.isArray(body.data?.[field]?.edges), `P1 dashboard: ${operation} records unavailable`);
+    }
+  }
+  const main = page.getByRole('main');
+  assert.equal(await main.count(), 1, 'P1 dashboard: expected one main landmark');
+  await page.getByRole('heading', { level: 1, name: 'Dashboard', exact: true }).waitFor({ state: 'visible' });
+  const navigation = page.getByRole('navigation', { name: 'Main navigation', exact: true });
+  await navigation.waitFor({ state: 'visible' });
+  assert.equal(await navigation.getByRole('link', { name: 'Dashboard', exact: true }).getAttribute('aria-current'), 'page');
+  await main.getByText('Loading…', { exact: true }).first().waitFor({ state: 'hidden', timeout: 30_000 });
+  for (const { label, value } of Object.values(counts)) {
+    const card = main.getByText(label, { exact: true }).first().locator('..');
+    await card.getByText(new Intl.NumberFormat('en-US').format(value), { exact: true }).waitFor({ state: 'visible' });
+  }
+  assert.ok(counts.companies.value >= 1, 'P1 dashboard: persisted fixture company is not counted');
+  for (const unavailable of ['Unavailable', 'Not authorised', 'To configure']) {
+    assert.equal(await main.getByText(unavailable, { exact: true }).count(), 0, `P1 dashboard: ${unavailable} state`);
+  }
+  assert.equal(await page.getByRole('alert').count(), 0, 'P1 dashboard: alert displayed');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1), false, `${name}: dashboard horizontal overflow`);
+  await page.screenshot({ path: path.join(screenshots, `${name}-hermes-dashboard.png`), fullPage: true });
+  hermesEvidence.push({ viewport: name, path: '/dashboard', nativeOperations: operations.map(([operation]) => operation), counts });
+}
+
 async function checkHermesDashboard(page, name) {
   const fixture = hermesFixture;
   await page.getByPlaceholder('Email', { exact: true }).fill(fixture.email);
@@ -219,6 +290,8 @@ async function checkHermesDashboard(page, name) {
   assert.equal(authResponse.status(), 200, 'P1 Hermes smoke: browser auth HTTP failed');
   assert.ok(!(await authResponse.json()).errors?.length, 'P1 Hermes smoke: browser auth rejected');
   await password.waitFor({ state: 'hidden', timeout: 60_000 });
+
+  await checkHermesOperationsDashboard(page, name);
 
   const queried = page.waitForResponse((response) => hasOperation(response, 'hermesStructureDashboard'), { timeout: 60_000 });
   await page.goto(`${FRONTEND_ORIGIN}${STRUCTURES_PATH}`, { waitUntil: 'domcontentloaded' });
