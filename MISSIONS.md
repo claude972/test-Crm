@@ -180,3 +180,25 @@ Mission ID: p0-combined-verification
 - preview verified: https://hermes-crm-p0-preview-mjgvbtc3d-brafas-projects.vercel.app ; API expire 29 octobre 2026 à 22:55:40 America/Martinique.
 - acceptance evidence: CI combinée 40986681086 verte ; API/config/PWA assets et onboarding/CRUD synthétique en ligne vérifiés, sources originales intactes.
 - remaining review/limits: revue ciblée Claude de cette livraison demandée ; session temporaire, SSE/hors ligne/installation appareil non validés ; ce statut ne clôt pas les autres lots P0.
+
+
+## Décision propriétaire — connecteurs Hermès à la place de Char
+
+Le propriétaire demande WhatsApp via Evolution API, e-mail SMTP, réponses par un bot Hermès utilisant MCP, remontées de Forms et intégration Cal.diy (« cal.dly » interprété selon l'application déjà auditée). Char/Chatwoot sort de l'architecture cible ; ses sources et travaux historiques sont préservés. Les affectations Char précédentes restent un historique, pas une instruction de poursuivre son intégration dans le produit cible.
+
+## Mission hermes-connectors-p1 — contrat et parcours intégrés
+- common base revision: 0523dad07965bfb1c032729c00863e0940425e3f, à vérifier avant création des worktrees.
+- prompt: docs/handoff/hermes-connectors-claude-prompt.md sur missions/p0-stabilization.
+- agent: claude
+- status: pending
+- proposed implementation branch: feat/claude-hermes-connectors-ui ; ne pas dupliquer une branche ou affectation existante.
+- owned files: frontend dans apps/crm/ui/packages/twenty-front et tests associés ; contrat partagé à convenir avant édition.
+- deliverables: réglages des connexions, conversations WA/e-mail, contrôle du bot/reprise humaine, données Forms et rendez-vous dans les fiches clients ; états accessibles et responsive.
+- agent: codex
+- status: pending
+- proposed implementation branch: feat/codex-hermes-connectors-api ; ne pas dupliquer une branche ou affectation existante.
+- owned files: modules serveur/worker de apps/crm/ui/packages/twenty-server, adaptateurs, autorisations et stockage nécessaires ; reprise Cal.diy après audit ; CI/infrastructure de recette isolée.
+- deliverables: contrat événements et connecteurs fonctionnels vérifiés, isolation workspace, déduplication, observabilité des erreurs/reprises et transports de recette.
+- acceptance criteria: scénarios exacts du prompt, build vert, revue croisée par SHA et preview accessible au destinataire dans un navigateur sans session Vercel préalable.
+- dependencies/open questions: service Hermès/MCP et moteur réellement disponibles à identifier ; accès Evolution et SMTP à fournir par gestionnaire de secrets ; canal de réception e-mail à décider si absent (SMTP ne le fournit pas) ; import Cal.diy non publié à reprendre après qualification des résultats de scan. Aucun secret demandé dans le chat ou dans le prompt.
+- current delivery: prompt de mission préparé et publié ; aucune nouvelle intégration applicative implémentée par ce travail de rédaction.

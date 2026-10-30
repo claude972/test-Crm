@@ -797,3 +797,10 @@ Limites : PWA en ligne conservée, aucune installation sur appareil ni hors lign
 - status: verified.
 - fix: lien de partage créé par API officielle, limité au seul déploiement et à l'expiration de la session (22:55:40 Martinique) ; protection globale conservée. Jeton hors Git, lien remis uniquement au propriétaire.
 - recheck evidence: nouvelle ouverture sans connexion Vercel -> accueil CRM ; saisie du compte de démonstration -> connexion réussie et liste Companies visible avec cinq sociétés d'exemple. Capture locale remise au propriétaire. Rapport 0523dad07 sur chore/p0-preview-session ; aucune correction applicative ou secret de compte Vercel publié.
+
+
+## hermes-connectors-p1 / codex — préparation du prompt
+
+Skill retenu : prompt-master, copie canonique globale déjà partagée avec Claude par lien. Lecture du dépôt et audit Cal.diy existant ; prompt publié dans docs/handoff/hermes-connectors-claude-prompt.md. Architecture cible reformulée selon décision propriétaire : Evolution API + SMTP/réception distincte + bot Hermès/MCP + Forms + Cal.diy, sans intégration Char dans le produit cible. Aucune migration de framework ni suppression de sources.
+
+Les API/versions et l'existence du service Hermès doivent être inspectées avant implémentation ; aucune capacité ou connexion n'est inventée. SMTP est limité à l'envoi, décision sur la réception explicitement conservée. Les sources Cal.diy locales restent protégées et leur publication conditionnée à l'audit documenté. Aucun identifiant ou jeton de preview incorporé au prompt. Les statuts d'implémentation restent pending ; cette livraison est une spécification, pas une intégration livrée.
