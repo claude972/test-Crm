@@ -37,7 +37,10 @@ const password = randomBytes(24).toString('base64url');
 const CURRENT = 'query { currentUser { id currentWorkspace { id } } }';
 type Result = {
   data?: Record<string, any>;
-  errors?: { message: string; extensions?: { code?: string } }[];
+  errors?: {
+    message: string;
+    extensions?: { code?: string; subCode?: string };
+  }[];
 };
 const ok = (body: Result) => {
   // Never dump bodies containing native login/session credentials into CI output.
@@ -97,12 +100,12 @@ describe('same-origin native multiworkspace with real PostgreSQL and cookie sess
         )
       ).body,
     ).selectWorkspaceOnSameOrigin.loginToken.token as string;
-  const records = async (expected: string) =>
+  const records = async (expected: string, recordId = sourceRecord) =>
     ok(
       (
         await call(
           'query($filter:CompanyFilterInput!){companies(filter:$filter,first:2){edges{node{id}}}}',
-          { filter: { id: { eq: sourceRecord } } },
+          { filter: { id: { eq: recordId } } },
           expected,
           '/graphql',
         )
@@ -277,14 +280,21 @@ describe('same-origin native multiworkspace with real PostgreSQL and cookie sess
       B,
     );
     expect(await records(B)).toEqual([]);
+    const attemptedRecordId = randomUUID();
     const forged = await call(
       'mutation($data:CompanyCreateInput!){createCompany(data:$data){id}}',
-      { data: { id: randomUUID(), name: 'Stale A form' } },
+      { data: { id: attemptedRecordId, name: 'Stale A form' } },
       A,
       '/graphql',
       bearerA,
     );
-    expect(forged.body.errors?.length).toBeGreaterThan(0);
+    expect(forged.body.errors?.map((error) => error.extensions)).toContainEqual(
+      expect.objectContaining({
+        code: 'UNAUTHENTICATED',
+        subCode: 'SESSION_SUPERSEDED',
+      }),
+    );
+    expect(await records(B!, attemptedRecordId)).toEqual([]);
     expect(
       (
         await call(
@@ -321,7 +331,19 @@ describe('same-origin native multiworkspace with real PostgreSQL and cookie sess
     ).toBe(403);
     const lateA = await select(B!, A);
     const otherA = await select(B!, A);
+    // A genuine signed ACCESS token is still the wrong credential purpose for LOGIN.
+    for (const invalidLogin of [bearerA, 'invalid-native-login-fixture']) {
+      const refused = await call(
+        'mutation($loginToken:String!,$origin:String!){getAuthTokensFromLoginToken(loginToken:$loginToken,origin:$origin){tokens{refreshToken{token}}}}',
+        { loginToken: invalidLogin, origin },
+      );
+      expect(refused.body.errors?.length).toBeGreaterThan(0);
+      expect(
+        ok((await call(CURRENT)).body).currentUser.currentWorkspace.id,
+      ).toBe(B);
+    }
     await exchange(otherA);
+    expect(await records(A, attemptedRecordId)).toEqual([]);
     expect(
       (await records(A)).map((edge: { node: { id: string } }) => edge.node.id),
     ).toEqual([sourceRecord]);
