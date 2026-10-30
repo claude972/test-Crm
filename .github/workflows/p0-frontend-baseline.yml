@@ -147,6 +147,8 @@ jobs:
           src/modules/hermes-shell/utils/__tests__/buildHermesModuleNavigationItems.test.ts
           src/modules/messaging-inbox/utils/__tests__/readMessagingInboxPayload.test.ts
           src/modules/client-context/utils/__tests__/buildClientContextEntries.test.ts
+          src/modules/client-context/utils/__tests__/buildClientContextSourceCount.test.ts
+          src/modules/client-context/utils/__tests__/readClientContextSourceName.test.ts
           src/modules/client-context/utils/__tests__/readClientBookingAttendeeResponse.test.ts
           src/modules/prospection/utils/__tests__/readHermesCollectionProvenance.test.ts
           src/modules/auth/utils/__tests__/purgeSessionStorage.test.ts
