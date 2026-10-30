@@ -2468,6 +2468,46 @@ export class ConfigVariables {
   HERMES_EVOLUTION_CONNECTIONS = '{}';
 
   @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only workspace Evolution webhook secrets; no configured incoming WhatsApp events when empty.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_EVOLUTION_WEBHOOK_SECRETS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only authenticated Hermes intake connection mappings and delegated workspace operators.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_INTAKE_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only workspace mailbox mappings to explicitly delegated native encrypted connected accounts.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_MAIL_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only workspace Hermes MCP endpoint and permitted response tool configuration.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_MCP_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,
     description: 'AWS region',
     type: ConfigVariableType.STRING,
