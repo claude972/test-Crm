@@ -29,3 +29,11 @@ Commandes exécutées : Jest `--runInBand --runTestsByPath <spec>` (28 cas verts
 Root corrige la validation des destinataires dans `78657e047` (cherry-pick local `061e238d9`). Les lignes de lot sont des adresses e-mail nues validées avant tout enrichissement/envoi ; CRLF refusé ; le parcours unitaire vérifie exactement une adresse parsée par chaîne. Aucun fichier production modifié par l'agent de tests.
 
 Recontrôle ciblé complet exécuté sur ces sources stables : **1 suite, 29 tests réussis, zéro échec**, durée 3,394 s. La régression multi-adresse est désormais refusée avant connexion SMTP et les 28 cas précédents restent verts. La commande conserve `--runInBand --runTestsByPath` et la configuration temporaire décrite ci-dessus ; aucun typecheck global, installation, envoi externe ou service cloud. Ce résultat valide le transport vers la fixture loopback et les gardes couvertes, avec les limites cryptographie/TLS/fournisseur/livraison explicitées.
+
+## Budget explicite des tests réseau — charge combinée
+
+Root a ensuite exécuté un ensemble combiné : **70/71 tests réussis**, seul le test SMTP DATA dépassant le défaut Jest de 5 secondes pendant la contention disque/cache froid. Ce résultat est rapporté tel quel ; il ne s'agissait pas d'un échec de protocole démontré et le passage séparé en 3,394 s ne prouvait pas sa robustesse sous cette charge.
+
+Le spec fixe désormais un timeout explicite de **30 secondes** pour ses cas avec fixture socket. Le nettoyage ferme pool/sockets puis attend la fermeture du serveur avec une borne indépendante de **5 secondes** ; dépasser cette borne fait échouer le test. Les délais du transport de production, la fixture et les assertions de reçu/contenu/rejet restent inchangés : aucun échec réseau n'est converti en succès.
+
+Recontrôle après suppression des seuls caches Jest/SWC créés par ce lot : **29/29 réussis en 4,109 s**. Il s'agit d'un cache de transformation de test froid, pas d'une purge du cache disque système. Aucun recontrôle du groupe combiné de 71 n'a été exécuté par cet agent ; root garde cette preuve d'intégration. Prettier ciblé et diff check réussis.

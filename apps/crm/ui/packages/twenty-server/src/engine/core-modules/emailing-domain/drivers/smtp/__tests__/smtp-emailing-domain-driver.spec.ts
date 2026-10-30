@@ -15,6 +15,9 @@ const WORKSPACE_ID = '0cd3fa15-c8df-4e88-9660-d559a464d395';
 const OTHER_WORKSPACE_ID = '29d1892b-d56e-47c5-a80b-484f028cce2d';
 const DOMAIN = 'sender.example.test';
 
+// Cold filesystem contention must not turn a real socket check into a 5s race.
+jest.setTimeout(30_000);
+
 type RecordedMessage = { recipients: string[]; content: string };
 
 describe('SmtpEmailingDomainDriver with a loopback SMTP protocol fixture', () => {
@@ -151,7 +154,17 @@ describe('SmtpEmailingDomainDriver with a loopback SMTP protocol fixture', () =>
   afterEach(async () => {
     driver.close();
     for (const socket of sockets) socket.destroy();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error('SMTP fixture cleanup exceeded 5 seconds')),
+        5000,
+      );
+      server.close((error) => {
+        clearTimeout(timeout);
+        if (error) reject(error);
+        else resolve();
+      });
+    });
   });
 
   it.each([
