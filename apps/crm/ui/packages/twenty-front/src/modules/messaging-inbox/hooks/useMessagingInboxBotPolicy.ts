@@ -82,9 +82,18 @@ export const useMessagingInboxBotPolicy = (
       data?.hermesConversationBotPolicy,
     );
 
-    return payload.kind === 'read'
-      ? { kind: 'reported', policy: payload.value }
-      : { kind: 'unknown' };
+    if (payload.kind !== 'read') {
+      return { kind: 'unknown' };
+    }
+
+    // A policy is published only when it names this exact thread. An absent
+    // or different id is not this conversation's policy, and showing it would
+    // describe one thread with another's rules.
+    if (payload.value.conversationId !== conversationId) {
+      return { kind: 'unknown' };
+    }
+
+    return { kind: 'reported', policy: payload.value };
   }, [conversationId, data, error, loading]);
 
   const setMode = useCallback(
@@ -92,14 +101,14 @@ export const useMessagingInboxBotPolicy = (
       // Without a revision there is nothing to compare, and a write that
       // cannot be refused for staleness is a write that can overwrite someone
       // else's decision.
-      // The policy must be the one of the thread on screen. A revision read
-      // for another conversation would be compared against the wrong record.
+      // The policy must name this exact thread. A revision read for another
+      // conversation, or a policy with no id at all, would be compared
+      // against the wrong record.
       if (
         conversationId === null ||
         read.kind !== 'reported' ||
         read.policy.revision === null ||
-        (read.policy.conversationId !== null &&
-          read.policy.conversationId !== conversationId)
+        read.policy.conversationId !== conversationId
       ) {
         setWriteState({ kind: 'refused', message: null });
 
@@ -120,16 +129,31 @@ export const useMessagingInboxBotPolicy = (
           },
         },
       })
-        .then(() => {
-          setWriteState({ kind: 'idle' });
+        .then((answer) => {
+          const applied = readMessagingInboxBotPolicy(
+            answer.data?.hermesSetConversationBotPolicy,
+          );
+
+          // An answer that does not name this thread is not a success for it.
+          // Refetching is the only honest next step: the screen asks again
+          // rather than claiming a change it cannot attribute.
+          setWriteState(
+            applied.kind === 'read' &&
+              applied.value.conversationId === conversationId
+              ? { kind: 'idle' }
+              : { kind: 'refused', message: null },
+          );
 
           return refetch();
         })
-        .catch((failure: unknown) => {
-          setWriteState({
-            kind: 'failed',
-            message: readMessagingInboxCallFailure(failure),
-          });
+        .catch((error: unknown) => {
+          const failure = readMessagingInboxCallFailure(error);
+
+          setWriteState(
+            failure.kind === 'denied'
+              ? { kind: 'refused', message: failure.message }
+              : { kind: 'failed', message: failure.message },
+          );
         });
     },
     [conversationId, read, refetch, setPolicyMutation],
