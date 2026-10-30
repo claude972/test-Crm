@@ -1,3 +1,4 @@
+import { type EntityManager } from 'typeorm';
 import { HermesConnectionsService } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
 import { centralIntake } from 'src/engine/core-modules/hermes-prospection/intake/hermes-central-intake';
 import {
@@ -55,7 +56,7 @@ export class HermesIntakeService {
         HttpStatus.PAYLOAD_TOO_LARGE,
       );
     let connections: Record<string, HermesIntakeConnection>;
-    let assertCurrent: () => Promise<void> = async () => undefined;
+    let assertCurrent: (manager?:EntityManager) => Promise<void> = async () => undefined;
     try {
       if (this.central) {
         const snapshot = await centralIntake(this.central, connectionId);
@@ -124,7 +125,7 @@ export class HermesIntakeService {
         userWorkspaceId: connection.operatorUserWorkspaceId,
       },
       input,
-      { connectionId },
+      { connectionId,...(this.central?{assertLive:assertCurrent}:{}) },
     );
     return {
       batchId: result.batch.id,

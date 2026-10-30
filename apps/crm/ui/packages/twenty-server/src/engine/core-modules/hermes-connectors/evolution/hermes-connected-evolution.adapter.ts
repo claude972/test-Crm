@@ -1,3 +1,4 @@
+import { type EntityManager } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 
 import {
@@ -30,7 +31,7 @@ export class HermesConnectedEvolutionAdapter {
     connection: HermesResolvedConnection;
     serialized: string;
     nativeConnection: EvolutionConnection;
-    assertCurrent: () => Promise<void>;
+    assertCurrent: (manager?: EntityManager) => Promise<void>;
     adapter: EvolutionMessagesAdapter;
   }> {
     const connection = await this.connections.resolve(workspaceId, 'EVOLUTION');
@@ -42,7 +43,8 @@ export class HermesConnectedEvolutionAdapter {
       },
     });
     const nativeConnection = parseEvolutionConnections(serialized)[workspaceId];
-    const assertCurrent = () => this.assertCurrent(workspaceId, connection);
+    const assertCurrent = (manager?: EntityManager) =>
+      this.assertCurrent(workspaceId, connection, manager);
     return {
       connection,
       serialized,
@@ -52,8 +54,16 @@ export class HermesConnectedEvolutionAdapter {
     };
   }
 
-  async assertCurrent(workspaceId: string, previous: HermesResolvedConnection) {
-    const current = await this.connections.resolve(workspaceId, 'EVOLUTION');
+  async assertCurrent(
+    workspaceId: string,
+    previous: HermesResolvedConnection,
+    manager?: EntityManager,
+  ) {
+    const current = await this.connections.resolve(
+      workspaceId,
+      'EVOLUTION',
+      manager,
+    );
     if (
       !current ||
       current.connectionId !== previous.connectionId ||

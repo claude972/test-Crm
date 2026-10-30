@@ -1,3 +1,4 @@
+import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
 import { HermesConnectionsService } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
 import { centralIntake } from 'src/engine/core-modules/hermes-prospection/intake/hermes-central-intake';
 import {
@@ -72,11 +73,15 @@ export class HermesEventService {
       throw new BadRequestException('HERMES_EVENT_PAYLOAD_INVALID');
     let connections: Record<string, HermesIntakeConnection>;
     let assertCurrent: () => Promise<void> = async () => undefined;
+    let assertRevisionViaQuery:
+      | ((query: WorkspaceTransactionScope['executeRawQuery']) => Promise<void>)
+      | undefined;
     try {
       if (this.central) {
         const snapshot = await centralIntake(this.central, connectionId);
         connections = snapshot.connections;
         assertCurrent = snapshot.assertCurrent;
+        assertRevisionViaQuery = snapshot.assertRevisionViaQuery;
       } else {
         connections = parseHermesIntakeConnections(
           this.config.get('HERMES_INTAKE_CONNECTIONS'),
@@ -131,7 +136,13 @@ export class HermesEventService {
     };
     await this.access.assertAllowed(actor);
     await assertCurrent();
-    return this.record(actor, connectionId, event, assertCurrent);
+    return this.record(
+      actor,
+      connectionId,
+      event,
+      assertCurrent,
+      assertRevisionViaQuery,
+    );
   }
 
   private async record(
@@ -139,6 +150,9 @@ export class HermesEventService {
     connectionId: string,
     event: HermesBridgeEvent,
     assertCurrent: () => Promise<void> = async () => undefined,
+    assertRevisionViaQuery?: (
+      query: WorkspaceTransactionScope['executeRawQuery'],
+    ) => Promise<void>,
   ) {
     const workspace = await this.workspaces.findOneBy({
       id: actor.workspaceId,
@@ -155,8 +169,14 @@ export class HermesEventService {
             'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
             [`hermes-events:${actor.workspaceId}`],
           );
+          const assertLive = () =>
+            assertRevisionViaQuery
+              ? assertRevisionViaQuery(
+                  transaction.executeRawQuery.bind(transaction),
+                )
+              : assertCurrent();
           await this.access.assertAllowed(actor);
-          await assertCurrent();
+          await assertLive();
           const blocked = await this.suppressions.findApplicableSuppressions({
             workspaceId: actor.workspaceId,
             emailAddresses: [event.contact.email],
@@ -340,7 +360,8 @@ export class HermesEventService {
               throw new ConflictException(
                 'HERMES_EVENT_REPLAY_REQUIRES_REVIEW',
               );
-            await assertCurrent();
+            await this.access.assertAllowed(actor);
+            await assertLive();
             return {
               personId: person.id,
               noteId,
@@ -494,7 +515,8 @@ export class HermesEventService {
               });
             }
           }
-          await assertCurrent();
+          await this.access.assertAllowed(actor);
+          await assertLive();
           return {
             personId: personId,
             noteId,

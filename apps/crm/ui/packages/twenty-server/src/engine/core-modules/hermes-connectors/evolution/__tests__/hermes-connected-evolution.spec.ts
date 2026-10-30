@@ -73,18 +73,16 @@ describe('live central Evolution binding', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.mocked(axios.get).mockResolvedValue(open);
-    jest
-      .mocked(axios.post)
-      .mockResolvedValue({
-        status: 201,
-        data: {
-          key: {
-            id: 'provider-id',
-            remoteJid: input.contactHandle,
-            fromMe: true,
-          },
+    jest.mocked(axios.post).mockResolvedValue({
+      status: 201,
+      data: {
+        key: {
+          id: 'provider-id',
+          remoteJid: input.contactHandle,
+          fromMe: true,
         },
-      });
+      },
+    });
   });
   it('reloads credentials between calls and maps the authoritative connection ID', async () => {
     const f = fixture();
@@ -189,6 +187,7 @@ describe('live central Evolution binding', () => {
         workspaceId,
         providerConnectionId: connectionId,
       }),
+      expect.objectContaining({ assertLive: expect.any(Function) }),
     );
     await expect(
       receiver.receive('a'.repeat(64), {}, undefined),

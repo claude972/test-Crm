@@ -8,6 +8,18 @@ jest.mock(
   'src/engine/core-modules/hermes-connections/hermes-connections.service',
   () => ({ HermesConnectionsService: class {} }),
 );
+jest.mock(
+  'src/engine/core-modules/hermes-prospection/hermes-prospection.service',
+  () => ({ HermesProspectionService: class {} }),
+);
+jest.mock(
+  'src/engine/core-modules/hermes-prospection/intake/hermes-intake-replay.service',
+  () => ({ HermesIntakeReplayService: class {} }),
+);
+jest.mock(
+  'src/engine/core-modules/twenty-config/twenty-config.service',
+  () => ({ KovaaLabCRMConfigService: class {} }),
+);
 const workspaceId = randomUUID();
 const connectionId = randomUUID();
 const userId = randomUUID();
@@ -86,7 +98,7 @@ describe('authoritative central signed intake', () => {
     expect(f.prospection.createBatch).toHaveBeenCalledWith(
       { workspaceId, userId, userWorkspaceId },
       expect.anything(),
-      { connectionId },
+      { connectionId, assertLive: expect.any(Function) },
     );
     expect(f.config.get).not.toHaveBeenCalled();
   });

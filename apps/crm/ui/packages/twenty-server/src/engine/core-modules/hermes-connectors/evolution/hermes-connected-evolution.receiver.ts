@@ -50,12 +50,15 @@ export class HermesConnectedEvolutionReceiver {
       JSON.stringify({ [connection.workspaceId]: secret }),
       async (event) => {
         await snapshot.assertCurrent();
-        return this.inbox.ingest(event);
+        return this.inbox.ingest(event, { assertLive: snapshot.assertCurrent });
       },
       async (input) => {
         const bytes = await this.evolution.receiveMedia(input);
         await snapshot.assertCurrent();
-        return this.media.receive({ ...input, ...bytes });
+        return this.media.receive(
+          { ...input, ...bytes },
+          { assertLive: snapshot.assertCurrent },
+        );
       },
       { connectionId, assertCurrent: snapshot.assertCurrent },
     );

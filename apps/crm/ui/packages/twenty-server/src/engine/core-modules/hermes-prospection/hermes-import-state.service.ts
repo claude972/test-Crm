@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
+import { Repository, type EntityManager } from 'typeorm';
 
 import { HermesImportStateEntity } from 'src/engine/core-modules/hermes-prospection/entities/hermes-import-state.entity';
 import { HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
@@ -33,7 +33,10 @@ export class HermesImportStateService {
 
   async mutate<T>(
     actor: HermesProspectionActor,
-    operation: (state: HermesProspectionState) => Promise<T>,
+    operation: (
+      state: HermesProspectionState,
+      manager: EntityManager,
+    ) => Promise<T>,
   ): Promise<T> {
     await this.access.assertAllowed(actor);
 
@@ -53,7 +56,7 @@ export class HermesImportStateService {
         where: { workspaceId: actor.workspaceId },
         lock: { mode: 'pessimistic_write' },
       });
-      await this.access.assertAllowed(actor);
+      await this.access.assertAllowed(actor, manager);
       if (
         record.state.version !== 1 ||
         !Array.isArray(record.state.batches) ||
@@ -61,7 +64,7 @@ export class HermesImportStateService {
       ) {
         throw new ConflictException('IMPORT_STATE_VERSION_UNSUPPORTED');
       }
-      const result = await operation(record.state);
+      const result = await operation(record.state, manager);
 
       if (
         Buffer.byteLength(JSON.stringify(record.state), 'utf8') >

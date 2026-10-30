@@ -1,3 +1,4 @@
+import { type EntityManager } from 'typeorm';
 import { ConflictException } from '@nestjs/common';
 
 import {
@@ -15,12 +16,12 @@ export const centralIntakeRecord = (
   parseHermesIntakeConnections(
     JSON.stringify({
       [resolved.connectionId]: {
+        ...resolved.settings,
         workspaceId: resolved.workspaceId,
         operatorUserId: resolved.userId,
         operatorUserWorkspaceId: resolved.userWorkspaceId,
         secret: resolved.secrets.secret,
         enabled: true,
-        ...resolved.settings,
       },
     }),
   );
@@ -30,11 +31,15 @@ export async function centralIntake(
   connectionId: string,
 ): Promise<{
   connections: Record<string, HermesIntakeConnection>;
-  assertCurrent: () => Promise<void>;
+  assertCurrent: (manager?: EntityManager) => Promise<void>;
 }> {
   const snapshot = await reader.resolveByConnectionId(connectionId, 'INTAKE');
-  const assertCurrent = async () => {
-    const current = await reader.resolveByConnectionId(connectionId, 'INTAKE');
+  const assertCurrent = async (manager?: EntityManager) => {
+    const current = await reader.resolveByConnectionId(
+      connectionId,
+      'INTAKE',
+      manager,
+    );
     if (
       !snapshot ||
       !current ||
@@ -46,5 +51,15 @@ export async function centralIntake(
   return {
     connections: snapshot ? centralIntakeRecord(snapshot) : {},
     assertCurrent,
+    assertRevisionViaQuery: async (query) => {
+      if (!snapshot)
+        throw new ConflictException('HERMES_INTAKE_CONNECTION_CHANGED');
+      await reader.assertRevisionViaQuery(
+        snapshot.workspaceId,
+        'INTAKE',
+        snapshot,
+        query,
+      );
+    },
   };
 }
