@@ -1,3 +1,4 @@
+import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
 import { FileModule } from 'src/engine/core-modules/file/file.module';
 import { JwtModule } from 'src/engine/core-modules/jwt/jwt.module';
 import { HermesMediaService } from 'src/engine/core-modules/hermes-media/hermes-media.service';
@@ -22,6 +23,7 @@ import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-t
 @Module({
   imports: [
     UserRoleModule,
+    TokenModule,
     FileModule,
     JwtModule,
     TypeOrmModule.forFeature([
