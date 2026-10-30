@@ -1148,3 +1148,11 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Précision transmise : initialiser uniquement le nouveau worktree sparse encore sans index, puis commits explicites `docs/design/hermes-v2/**`. Aucune modification des anciens checkouts.
 - Deux sous-agents Codex actifs : `v2_settings_contract` et `v2_company_prospection_contract`, propriété documentaire disjointe dans `v2-codex-contracts`. Aucun code applicatif ni connexion externe autorisé à cette étape.
 - Prochaine preuve attendue : prototype statique Claude, contrats techniques vérifiés, captures desktop/mobile et revue sur SHA.
+
+### HERMES-V2-MAQUETTES-20261030 — Codex prêt pour revue, 2026-10-30 17:52 UTC
+
+- Branche `feat/codex-hermes-v2-core`, SHA `a26c2121e` : deux contrats proposés (514 lignes), aucun code applicatif. Propriété disjointe respectée, commit explicite et push vérifiés.
+- Source inspectée `333ba534927e177c90b35eb4157d75d8d767dec4`. Root a relu les deux documents, vérifié directement MANUAL/draft, AUTO/dernier entrant, ingestion/replay, capacité bridge SMTP false, génération session et gardes campagne native. `git diff --check` propre. Les descriptions distinguent présent, proposé et non vérifié. Aucun test runtime, DB, fournisseur ou build revendiqué pour ce lot documentaire.
+- Contrats : [Réglages/bots](https://github.com/claude972/test-Crm/blob/a26c2121e/docs/handoff/hermes-v2-settings-bots-contract.md) ; [sociétés/prospection](https://github.com/claude972/test-Crm/blob/a26c2121e/docs/handoff/hermes-v2-company-prospection-contract.md).
+- Claude session `8f3db32e` a reçu demande de lecture/cohérence et revue croisée sur ce SHA après checkpoint visuel. Revue Claude pas encore reçue, donc Codex non marqué done.
+- Maquettes Claude : données fictives et coquille HTML créées, travail encore en cours. Root a inspecté une capture officielle Pipedrive et transmis les caractéristiques observées ; serveur statique local dédié aux futures captures démarré, aucun backend. Projet Vercel existant vérifié, protection globale inchangée (`all_except_custom_domains`).
