@@ -1,3 +1,6 @@
+import { getSessionGeneration } from '@/auth/utils/getSessionGeneration';
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
 import { isAppEffectRedirectEnabledState } from '@/auth/states/isAppEffectRedirectEnabledState';
 import { useAuth } from '@/auth/hooks/useAuth';
@@ -10,6 +13,9 @@ import { useToast } from 'kovaa-lab-ui/components/feedback';
 import { useNavigateApp } from '~/hooks/useNavigateApp';
 
 export const useVerifyLogin = () => {
+  const isSameOriginMultiWorkspaceEnabled = useAtomStateValue(
+    isSameOriginMultiWorkspaceEnabledState,
+  );
   const { enqueueToast } = useToast();
   const navigate = useNavigateApp();
   const setIsAppEffectRedirectEnabled = useSetAtomState(
@@ -19,6 +25,7 @@ export const useVerifyLogin = () => {
   const { t } = useLingui();
 
   const verifyLoginToken = async (loginToken: string) => {
+    const requestSessionGeneration = getSessionGeneration();
     // Keeps PageChangeEffect from consuming returnToPath mid token swap
     setIsAppEffectRedirectEnabled(false);
     try {
@@ -32,7 +39,11 @@ export const useVerifyLogin = () => {
       if (!isGraphqlErrorOfType(error, 'SESSION_SUPERSEDED'))
         navigate(AppPath.SignInUp);
     } finally {
-      setIsAppEffectRedirectEnabled(true);
+      if (
+        !isSameOriginMultiWorkspaceEnabled ||
+        requestSessionGeneration === getSessionGeneration()
+      )
+        setIsAppEffectRedirectEnabled(true);
     }
   };
 

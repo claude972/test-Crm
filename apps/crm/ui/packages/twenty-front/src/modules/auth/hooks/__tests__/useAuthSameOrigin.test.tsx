@@ -1,3 +1,4 @@
+import { isAppEffectRedirectEnabledState } from '@/auth/states/isAppEffectRedirectEnabledState';
 import { act, renderHook } from '@testing-library/react';
 import { Provider } from 'jotai';
 import { MemoryRouter } from 'react-router-dom';
@@ -310,5 +311,35 @@ describe('same-origin native authentication and workspace transition', () => {
     });
     expect(mockNativeLogin).not.toHaveBeenCalled();
     expect(getSessionGeneration()).toBe(generation);
+  });
+  it('does not release the newer B navigation lock when an earlier A bootstrap finishes late', async () => {
+    let finish!: (value: unknown) => void;
+    mockLoadCurrentUser.mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const { result } = render();
+    let pending!: Promise<void>;
+    await act(async () => {
+      pending = result.current.getAuthTokensFromLoginToken(loginFor(A));
+      await Promise.resolve();
+    });
+    rotateSessionGeneration();
+    jotaiStore.set(currentWorkspaceState.atom, { id: B } as never);
+    jotaiStore.set(isAppEffectRedirectEnabledState.atom, false);
+    finish({ user: { id: 'synthetic-user' } });
+    await expect(pending).rejects.toMatchObject({
+      errors: [
+        expect.objectContaining({
+          extensions: expect.objectContaining({
+            subCode: 'SESSION_SUPERSEDED',
+          }),
+        }),
+      ],
+    });
+    expect(jotaiStore.get(isAppEffectRedirectEnabledState.atom)).toBe(false);
+    expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(B);
+    expect(mockClient.clearStore).not.toHaveBeenCalled();
   });
 });

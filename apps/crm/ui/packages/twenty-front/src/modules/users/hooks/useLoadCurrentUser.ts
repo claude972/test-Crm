@@ -1,6 +1,12 @@
 import { useStore } from 'jotai';
-import { resetWorkspaceSessionAndReload } from '@/auth/utils/resetWorkspaceSessionAndReload';
-import { authSessionSupersededError } from '@/auth/utils/assertAuthSessionUnchanged';
+import {
+  resetWorkspaceSessionAndReload,
+  purgeWorkspaceSessionCache,
+} from '@/auth/utils/resetWorkspaceSessionAndReload';
+import {
+  authSessionSupersededError,
+  assertAuthSessionUnchanged,
+} from '@/auth/utils/assertAuthSessionUnchanged';
 import { getSessionGeneration } from '@/auth/utils/getSessionGeneration';
 import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
@@ -75,6 +81,7 @@ export const useLoadCurrentUser = () => {
           context: {
             expectedWorkspaceId: options.expectedWorkspaceId ?? null,
             skipRetry: true,
+            queryDeduplication: false,
           },
         }),
       });
@@ -114,6 +121,9 @@ export const useLoadCurrentUser = () => {
           });
           return { user, workspaceMember: null, workspace: null };
         }
+        if (user.currentWorkspace && !previousWorkspaceId)
+          await purgeWorkspaceSessionCache({ client, sessionGeneration });
+        assertAuthSessionUnchanged(sessionGeneration);
         client.writeQuery({
           query: GetCurrentUserDocument,
           data: currentUserResult.data,

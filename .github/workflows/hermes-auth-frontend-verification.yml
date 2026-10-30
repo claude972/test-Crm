@@ -56,6 +56,38 @@ jobs:
           set -e
           cat "$RUNNER_TEMP/hermes-auth-frontend-types.txt"
           exit "$result"
+      - name: Compare the exact application baseline with the same installed and built dependencies
+        if: ${{ !cancelled() && steps.frontend_types.outcome == 'failure' }}
+        working-directory: .
+        run: |
+          set -eu
+          export HERMES_AUTH_BASELINE_ROOT="$RUNNER_TEMP/hermes-auth-frontend-base"
+          git fetch --no-tags --depth=1 origin baece3a46a6286a933cfc99b22a53ac50c34e498
+          git worktree add --detach "$HERMES_AUTH_BASELINE_ROOT" baece3a46a6286a933cfc99b22a53ac50c34e498
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const current = process.env.GITHUB_WORKSPACE;
+          const baseline = process.env.HERMES_AUTH_BASELINE_ROOT;
+          const workspace = 'apps/crm/ui';
+          fs.symlinkSync(path.join(current, workspace, 'node_modules'), path.join(baseline, workspace, 'node_modules'), 'dir');
+          for (const name of fs.readdirSync(path.join(current, workspace, 'packages'))) {
+            for (const derived of ['node_modules', 'dist']) {
+              const source = path.join(current, workspace, 'packages', name, derived);
+              const target = path.join(baseline, workspace, 'packages', name, derived);
+              if (fs.existsSync(source) && !fs.existsSync(target)) fs.symlinkSync(source, target, 'dir');
+            }
+          }
+          const catalogues = 'apps/crm/ui/packages/twenty-front/src/locales/generated';
+          fs.cpSync(path.join(current, catalogues), path.join(baseline, catalogues), { recursive: true });
+          NODE
+          (cd "$HERMES_AUTH_BASELINE_ROOT" && node scripts/local-project.mjs setup)
+          set +e
+          (cd "$HERMES_AUTH_BASELINE_ROOT/apps/crm/ui/packages/twenty-front" && node "$GITHUB_WORKSPACE/apps/crm/ui/node_modules/.bin/tsgo" -p tsconfig.json --noEmit --singleThreaded) > "$RUNNER_TEMP/hermes-auth-frontend-baseline-types.txt" 2>&1
+          baseline_result=$?
+          set -e
+          cat "$RUNNER_TEMP/hermes-auth-frontend-baseline-types.txt"
+          printf 'Exact baece baseline typecheck exit: %s (the feature typecheck remains a required failed check)\n' "$baseline_result"
       - name: Preserve exact unit and typecheck evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -64,5 +96,6 @@ jobs:
           path: |
             ${{ runner.temp }}/hermes-auth-frontend-tests.json
             ${{ runner.temp }}/hermes-auth-frontend-types.txt
+            ${{ runner.temp }}/hermes-auth-frontend-baseline-types.txt
           if-no-files-found: warn
           retention-days: 7

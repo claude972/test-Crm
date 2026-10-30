@@ -11,6 +11,21 @@ import { assertAuthSessionUnchanged } from '@/auth/utils/assertAuthSessionUnchan
 import { purgeSessionStorage } from '@/auth/utils/purgeSessionStorage';
 import { assignLocation } from '~/utils/assignLocation';
 
+export const purgeWorkspaceSessionCache = async ({
+  client,
+  sessionGeneration,
+}: {
+  client: Pick<ApolloClient, 'clearStore'>;
+  sessionGeneration: string | null;
+}): Promise<void> => {
+  assertAuthSessionUnchanged(sessionGeneration);
+  await client.clearStore();
+  assertAuthSessionUnchanged(sessionGeneration);
+  const purgeOutcome = await purgeSessionStorage();
+  assertAuthSessionUnchanged(sessionGeneration);
+  if (purgeOutcome !== 'cleared') throw new Error(t`Authentication failed`);
+};
+
 export const resetWorkspaceSessionAndReload = async ({
   client,
   store,
@@ -20,12 +35,8 @@ export const resetWorkspaceSessionAndReload = async ({
   store: ReturnType<typeof createStore>;
   sessionGeneration: string | null;
 }): Promise<void> => {
+  await purgeWorkspaceSessionCache({ client, sessionGeneration });
   assertAuthSessionUnchanged(sessionGeneration);
-  await client.clearStore();
-  assertAuthSessionUnchanged(sessionGeneration);
-  const purgeOutcome = await purgeSessionStorage();
-  assertAuthSessionUnchanged(sessionGeneration);
-  if (purgeOutcome !== 'cleared') throw new Error(t`Authentication failed`);
   store.set(currentUserState.atom, null);
   store.set(currentWorkspaceState.atom, null);
   store.set(currentWorkspaceMemberState.atom, null);
