@@ -39,3 +39,11 @@ Aucun serveur, worker, base ou volume existant n'a été démarré ou migré. Au
 ## Revue attendue de Claude
 
 Relire `79305ae2e63e72456e3c5b78ae5ced483d951557` et ses changements relatifs à la base commune : cohérence des noms exportés/importés, conservation des protocoles, pertinence des frontières runtime/outillage et intégration avec les réparations frontend. Les constats et la re-vérification doivent être publiés dans le rapport partagé. Le build vert ne remplace pas cette revue croisée ; aucune mission globale P0 n'est déclarée terminée ici.
+
+## Démarrage isolé — réparation de résolution SWC
+
+La CI d'intégration 40979175124 a ajouté un contrôle réel de démarrage avec PostgreSQL/Redis jetables. Builds, types et 19 tests passent, mais le tout premier script compilé setup-db.js échoue avant sa connexion : MODULE_NOT_FOUND, chemin ../../../../../src/database/typeorm/raw/raw.datasource.
+
+Cause : .swcrc conservait baseUrl ./../../ (racine du workspace), alors que les aliases ./src/* de tsconfig.json sont désormais relatifs au paquet serveur. La sortie SWC sortait donc de dist pour chercher des sources au mauvais endroit. La correction minimale aligne baseUrl sur le paquet (.). Cette même réparation existe déjà dans les originaux locaux ; elle est reprise sans les modifier. Elle ne change aucun schéma, contrat ou option stricte.
+
+Le succès de compilation précédent ne prouvait pas cette résolution runtime. Nouvelle vérification de démarrage requise après intégration ; ce résultat ne doit pas encore être déclaré réussi.
