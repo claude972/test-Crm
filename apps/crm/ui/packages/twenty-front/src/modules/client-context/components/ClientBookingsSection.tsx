@@ -24,9 +24,9 @@ type ClientBookingsSectionProps = {
   state: ClientContextSourceState<ClientBooking>;
 };
 
-// Appointments actually received for this client record. As with the form
-// responses above, nothing here links to the booking application: a link is
-// navigation, not an integration.
+// Appointments actually received for this client record, through the native
+// CalendarEvent object. Nothing here calls or links to a booking application:
+// a link is navigation, not an integration.
 export const ClientBookingsSection = ({
   state,
 }: ClientBookingsSectionProps) => {
@@ -44,7 +44,7 @@ export const ClientBookingsSection = ({
     <Section.Root>
       <Section.Header
         title={t`Appointments`}
-        description={t`Appointments received from ${CLIENT_CONTEXT_BOOKINGS_SOURCE.name} for this client. Received items only.`}
+        description={t`Appointments received for this client, through the native calendar object. Received items only.`}
       />
       <ProspectionCounters counters={counters} />
 

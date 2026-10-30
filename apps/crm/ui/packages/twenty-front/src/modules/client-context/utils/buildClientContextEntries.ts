@@ -1,4 +1,3 @@
-import { parseConnectorCheckedAt } from '@/connectors/utils/parseConnectorCheckedAt';
 import { type ClientBooking } from '@/client-context/types/ClientBooking';
 import {
   type ClientContextEntry,
@@ -6,13 +5,19 @@ import {
 } from '@/client-context/types/ClientContextEntry';
 import { type ClientContextSourceState } from '@/client-context/types/ClientContextSourceState';
 import { type ClientFormResponse } from '@/client-context/types/ClientFormResponse';
+import { type ClientRecordNote } from '@/client-context/types/ClientRecordNote';
+import { parseConnectorCheckedAt } from '@/connectors/utils/parseConnectorCheckedAt';
 import { type ProspectionCount } from '@/prospection/types/ProspectionCount';
 import {
   exactProspectionCount,
   unavailableProspectionCount,
 } from '@/prospection/utils/buildProspectionCount';
 
-// The chronology of one client record, merged from the sources that answered.
+// The chronology of one client record, merged from the sources that answered:
+// Forms responses, appointments from the native CalendarEvent object, and
+// recorded actions from the native Note object. Messages are the integration
+// contract's fourth kind and belong to the messaging surface, so they are
+// deliberately absent rather than faked here.
 //
 // The four-state counter vocabulary is reused from the prospection module
 // rather than copied: a figure is exact, computed over part of the sources,
@@ -24,13 +29,14 @@ export type ClientContextChronology = {
   entries: ClientContextEntry[];
   entryCount: ProspectionCount;
   // Sources that contributed nothing, so the gap stays attributable instead of
-  // reading as an empty record.
+  // reading as a quiet client.
   unreadSourceKinds: ClientContextEntryKind[];
 };
 
 type BuildClientContextEntriesArgs = {
   formResponses: ClientContextSourceState<ClientFormResponse>;
   bookings: ClientContextSourceState<ClientBooking>;
+  notes: ClientContextSourceState<ClientRecordNote>;
 };
 
 const toFormResponseEntry = (
@@ -57,6 +63,19 @@ const toBookingEntry = (booking: ClientBooking): ClientContextEntry => ({
   syncReason: booking.syncReason,
 });
 
+const toNoteEntry = (note: ClientRecordNote): ClientContextEntry => ({
+  kind: 'note',
+  key: `note:${note.id}`,
+  // createdAt, not updatedAt: the chronology places an action when it
+  // happened, and a later edit does not move it.
+  occurredAt: note.createdAt,
+  id: note.id,
+  title: note.title,
+  provenance: note.provenance,
+  syncStatus: note.syncStatus,
+  syncReason: note.syncReason,
+});
+
 // An instant, or nothing. A timestamp that cannot be read is not ordered
 // against the ones that can: it joins the undated group, because placing it at
 // a guessed moment would put it in a position the source never stated.
@@ -66,24 +85,30 @@ const readSortableTime = (occurredAt: string | null): number | null => {
   return parsed.kind === 'at' ? parsed.date.getTime() : null;
 };
 
+const SOURCE_COUNT = 3;
+
 export const buildClientContextEntries = ({
   formResponses,
   bookings,
+  notes,
 }: BuildClientContextEntriesArgs): ClientContextChronology => {
   const readFormResponses =
     formResponses.kind === 'read' ? formResponses.entries : null;
   const readBookings = bookings.kind === 'read' ? bookings.entries : null;
+  const readNotes = notes.kind === 'read' ? notes.entries : null;
 
   const unreadSourceKinds: ClientContextEntryKind[] = [
     ...(readFormResponses === null
       ? (['form-response'] as ClientContextEntryKind[])
       : []),
     ...(readBookings === null ? (['booking'] as ClientContextEntryKind[]) : []),
+    ...(readNotes === null ? (['note'] as ClientContextEntryKind[]) : []),
   ];
 
   const entries = [
     ...(readFormResponses ?? []).map(toFormResponseEntry),
     ...(readBookings ?? []).map(toBookingEntry),
+    ...(readNotes ?? []).map(toNoteEntry),
   ].sort((left, right) => {
     const leftTime = readSortableTime(left.occurredAt);
     const rightTime = readSortableTime(right.occurredAt);
@@ -108,7 +133,7 @@ export const buildClientContextEntries = ({
 
   // No source answered: the number of entries is unknown, and an unavailable
   // count carries no value at all rather than a zero.
-  if (unreadSourceKinds.length === 2) {
+  if (unreadSourceKinds.length === SOURCE_COUNT) {
     return {
       entries,
       entryCount: unavailableProspectionCount(),

@@ -42,6 +42,7 @@ export const ClientContextRecordSection = ({
       <ClientContextPanel
         formResponses={sources.formResponses}
         bookings={sources.bookings}
+        notes={sources.notes}
       />
     </StyledSection>
   );
