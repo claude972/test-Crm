@@ -183,11 +183,16 @@ export const MessagingInboxComposer = ({
   // A proposal already in hand is dropped when the bot is stopped. Without
   // this, going OFF then back to assisted would resurrect an old draft the
   // policy had invalidated. The human's own text is never touched.
+  //
+  // The draft state is a dependency because an answer computed before the
+  // stop can still land after this effect has run: without it the late
+  // proposal would survive. The guard makes that re-run terminate, since
+  // dismissing moves the state to idle.
   useEffect(() => {
-    if (isBotStopped) {
+    if (isBotStopped && draftState.kind !== 'idle') {
       dismissDraft();
     }
-  }, [dismissDraft, isBotStopped]);
+  }, [dismissDraft, draftState.kind, isBotStopped]);
 
   const isRefused = state.kind === 'failed' && state.failure.kind === 'denied';
 
