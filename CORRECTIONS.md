@@ -1128,3 +1128,8 @@ Trois sous-agents lances sur des perimetres de fichiers disjoints : coquille et 
 | HERMES-V2-DESIGN-01 | claude | open | Design rejeté ; demander référence, proposer maquettes et attendre validation avant câblage. Fallback EN prouvé, mélange runtime à diagnostiquer ; langue cible à confirmer |
 
 Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux documents et des maquettes reste requise avant code applicatif ; aucune commande CLI Claude n'a été envoyée pour exécuter cette V2.
+
+
+### HERMES-V2 — préférences confirmées par le propriétaire
+- Référence visuelle : Pipedrive. Langue par défaut : français. Ces deux choix sont acquis et ne doivent plus être redemandés.
+- Plan et prompt mis à jour ; maquettes détaillées encore à valider avant câblage. Aucun nouveau développement, branche applicative, connexion externe ou déploiement lancé par cette mise à jour documentaire.

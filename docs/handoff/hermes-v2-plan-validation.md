@@ -11,8 +11,8 @@ Base de code auditée : `333ba534927e177c90b35eb4157d75d8d767dec4`, branche `fea
 ## Décisions et points à valider
 
 - Une **société exploitante = workspace**. Une fiche Company représente une entreprise cliente/prospecte, jamais une nouvelle société exploitante.
-- Le design actuel est rejeté ; l'ancienne sélection Monday n'est plus une validation. Demander une nouvelle référence visuelle avant de dessiner une direction.
-- Langue proposée : français par défaut, anglais optionnel sur choix explicite. La phrase « application en anglais » doit être confirmée : constat à corriger ou langue souhaitée. Ne pas considérer cette hypothèse comme déjà approuvée.
+- Référence visuelle confirmée par le propriétaire : **Pipedrive**. Le design actuel est rejeté ; l'ancienne sélection Monday n'est plus une validation. Étudier les références Pipedrive réelles avant de proposer les maquettes ; ne pas copier sa marque ni supposer ses capacités produit.
+- Langue confirmée par le propriétaire : **français par défaut**, sur tous les parcours. L'anglais ne doit pas réapparaître par simple détection du navigateur ; préserver seulement un choix de langue explicite lorsque l'option existe.
 - Un seul accès Réglages dans la navigation. Les actions métier restent dans leurs modules ; les connexions, politiques et interrupteurs sont exclusivement dans Réglages.
 - Un bot coupé ne coupe pas le canal : réception et réponses humaines restent possibles.
 - Une reprise humaine immédiate peut rester une action de sécurité dans un fil, sans réactivation automatique depuis le module. Toute configuration de délégation et ses exceptions est centralisée.
@@ -68,7 +68,7 @@ Index des sources principales à la base auditée :
 
 **Contribution à l'objectif :** permettre au propriétaire de choisir le produit qu'il verra avant d'investir dans une nouvelle interface.
 
-- Recueillir la référence visuelle demandée. Aucune nouvelle direction graphique n'est tenue pour acquise.
+- Référence reçue : Pipedrive. Préparer les pistes à partir de références visuelles réelles de ce produit, sans redemander ce choix. Les maquettes précises restent à valider.
 - Préparer trois pistes comparables, avec visuels consultables sur téléphone : dashboard d'une société/vue commune, espace Prospection et centre Réglages. Montrer aussi le parcours de messagerie et les interrupteurs des bots.
 - Après choix d'une piste, détailler les écrans desktop et mobile : ajout/sélection de société, dashboard, prospection, messagerie, réglages société, connexions et bots. Présenter les états vide, chargement, erreur, non configuré, désactivé et connecté vérifié.
 - Références : `DESIGN.md`, `modules/hermes-shell/`, `modules/messaging-inbox/`, `modules/client-context/`, `pages/prospection/`. Les composants existants sont un socle technique, pas une obligation de conserver leur apparence rejetée.
@@ -153,7 +153,7 @@ Parcours V1 proposé à valider :
 
 - Implémenter uniquement les maquettes approuvées, en réutilisant les composants/patrons existants et les contrats validés ; pas de nouvelle direction improvisée en cours de câblage.
 - Appliquer la langue validée à accueil, connexion, menus, réglages, messages système, erreurs, états vides, dates et nombres. Respecter un choix de langue explicite existant ; vérifier connexion/reload/changement de société et non seulement les catalogues PO.
-- Si FR est validé : tester un compte neuf avec navigateur anglais, un ancien défaut anglais et un choix anglais réellement explicite. Définir une seule source de préférence et une règle de migration des anciennes valeurs automatiques ; ne pas modifier seulement le fallback en laissant la détection navigateur réimposer EN.
+- Français confirmé : tester un compte neuf avec navigateur anglais, un ancien défaut anglais et un choix anglais réellement explicite. Définir une seule source de préférence et une règle de migration des anciennes valeurs automatiques ; ne pas modifier seulement le fallback en laissant la détection navigateur réimposer EN.
 - Références : `src/utils/i18n/initialI18nActivate.ts:11`, `dynamicActivate.ts:8`, `lingui.config.ts`, catalogues et usages `useLingui`/`Trans` existants. La traduction est explicitement dans cette mission ; extraction et compilation nécessaires, sans modifications de catalogues hors périmètre.
 - Supprimer les anciennes entrées de réglages en doublon et les textes techniques inutiles dans les parcours métier ; conserver des diagnostics utiles accessibles aux administrateurs.
 - Vérification : conformité aux images validées ; 390px/desktop, headers multi-sociétés lisibles, clavier/focus/labels, contraste, états chargement/erreur/vide/succès ; aucun formulaire secret dans un module.
@@ -173,7 +173,7 @@ Parcours V1 proposé à valider :
 ## Organisation, validations et hors périmètre
 
 - **Maintenant :** plan et prompt publiés pour revue, audit lecture seule ; aucune mission de codage lancée.
-- **Validation 1 :** périmètre, langue et organisation des Réglages ; référence visuelle pour les maquettes.
+- **Validation 1 :** périmètre et organisation des Réglages ; les décisions langue française et référence Pipedrive sont déjà confirmées, ne pas les redemander.
 - **Validation 2 :** choix puis validation des maquettes détaillées et autorisation explicite d'implémenter.
 - **Après seulement :** affectations revendiquées Claude/Codex, worktrees isolés et contrats partagés publiés avant édition. Commits/push réguliers et revue croisée ; préserver le checkout original et ses sauvegardes.
 - Aucun délai de réalisation ferme avant ces choix et la vérification des accès. Aucun nouveau service payant, aucune production, aucun envoi à de vrais prospects, aucune application native.

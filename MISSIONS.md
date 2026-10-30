@@ -375,3 +375,8 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 - Deux sous-agents Codex ont fait de la collecte factuelle en lecture seule ; aucune modification applicative, connexion externe, migration ou preview lancée pour cette demande.
 - Le prompt est publié pour validation, **pas envoyé comme ordre d'implémenter** à Claude. Une publication de mission ne prouve pas le démarrage d'un agent.
 - Le compte-rendu source et les critères détaillés sont dans le plan ; les nouveaux contrats restent à définir, ils ne sont pas présentés comme API déjà existantes.
+
+
+### HERMES-V2 — préférences confirmées par le propriétaire
+- Référence visuelle : Pipedrive. Langue par défaut : français. Ces deux choix sont acquis et ne doivent plus être redemandés.
+- Plan et prompt mis à jour ; maquettes détaillées encore à valider avant câblage. Aucun nouveau développement, branche applicative, connexion externe ou déploiement lancé par cette mise à jour documentaire.
