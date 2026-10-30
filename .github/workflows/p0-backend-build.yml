@@ -140,7 +140,7 @@ jobs:
       - name: Verify disposable migration guards
         if: ${{ inputs.hermes-checks }}
         working-directory: .
-        run: node --test scripts/check-hermes-migration-ci.test.mjs scripts/check-hermes-integration-p0.test.mjs
+        run: node --test scripts/check-hermes-migration-ci.test.mjs scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-swc-isolation.test.mjs
       - name: Generate or verify the registered Hermes migration on disposable PostgreSQL
         if: ${{ inputs.hermes-checks && inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
         working-directory: .

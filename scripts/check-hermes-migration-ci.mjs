@@ -83,11 +83,13 @@ export function validateMigrationSql(up, down) {
   }
 }
 
-function loadSource(requireFromServer, filename, imports) {
+export function loadSource(requireFromServer, filename, imports) {
   const swc = requireFromServer('@swc/core');
   const source = readFileSync(filename, 'utf8');
   const { code } = swc.transformSync(source, {
     filename,
+    swcrc: false,
+    configFile: false,
     jsc: {
       target: 'es2022',
       parser: { syntax: 'typescript', decorators: true },
@@ -505,6 +507,38 @@ export async function main() {
         'Generator may only append its own registration',
       );
     }
+    const relativeMigration = path.relative(root, migrationPath);
+    const relativeManifest = path.relative(root, manifestPath);
+    for (const filename of [relativeMigration, relativeManifest]) {
+      const destination = path.join(artifactDirectory, filename);
+      mkdirSync(path.dirname(destination), { recursive: true });
+      writeFileSync(destination, readFileSync(path.join(root, filename)));
+    }
+    if (mode === '--generate') {
+      const git = (args, statuses = [0]) => {
+        const result = spawnSync('git', args, {
+          cwd: root,
+          env,
+          encoding: 'utf8',
+          timeout: 10_000,
+        });
+        assert.ok(
+          statuses.includes(result.status),
+          'Unable to produce reviewable migration patch',
+        );
+        return result.stdout;
+      };
+      writeFileSync(
+        path.join(artifactDirectory, 'migration.patch'),
+        git(['diff', '--', relativeManifest]) +
+          git(
+            ['diff', '--no-index', '--', '/dev/null', relativeMigration],
+            [1],
+          ),
+      );
+    }
+    report.stage = 'official-source-generated';
+    saveReport();
     const generated = loadSource(requireFromServer, migrationPath, {
       typeorm: requireFromServer('typeorm'),
       'src/engine/core-modules/upgrade/decorators/registered-instance-command.decorator':
@@ -529,36 +563,8 @@ export async function main() {
       path.join(artifactDirectory, 'generated-sql.json'),
       `${JSON.stringify({ up, down }, null, 2)}\n`,
     );
-    const relativeMigration = path.relative(root, migrationPath);
-    const relativeManifest = path.relative(root, manifestPath);
-    for (const filename of [relativeMigration, relativeManifest]) {
-      const destination = path.join(artifactDirectory, filename);
-      mkdirSync(path.dirname(destination), { recursive: true });
-      writeFileSync(destination, readFileSync(path.join(root, filename)));
-    }
     validateMigrationSql(up, down);
     if (mode === '--generate') {
-      const git = (args, statuses = [0]) => {
-        const result = spawnSync('git', args, {
-          cwd: root,
-          env,
-          encoding: 'utf8',
-          timeout: 10_000,
-        });
-        assert.ok(
-          statuses.includes(result.status),
-          'Unable to produce reviewable migration patch',
-        );
-        return result.stdout;
-      };
-      writeFileSync(
-        path.join(artifactDirectory, 'migration.patch'),
-        git(['diff', '--', relativeManifest]) +
-          git(
-            ['diff', '--no-index', '--', '/dev/null', relativeMigration],
-            [1],
-          ),
-      );
       for (const query of up) await client.query(query);
     }
     report.integration = await checkImportTransactions(
