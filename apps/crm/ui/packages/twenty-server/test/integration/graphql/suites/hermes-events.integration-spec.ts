@@ -249,9 +249,8 @@ describe('Hermes Forms/Cal — native signed HTTP and PostgreSQL', () => {
       'HERMES_INTAKE_CONNECTIONS',
       serialized,
     );
-    assert.equal(
-      config.get('HERMES_INTAKE_CONNECTIONS'),
-      serialized,
+    assert.ok(
+      config.get('HERMES_INTAKE_CONNECTIONS') === serialized,
       'Native env-only config fixture must be active',
     );
   }, 180_000);
@@ -354,8 +353,8 @@ describe('Hermes Forms/Cal — native signed HTTP and PostgreSQL', () => {
         (endpoint: { connectionId: string }) => endpoint.connectionId,
       ),
     ).toEqual([connectionA]);
-    expect(JSON.stringify(status.body)).not.toContain(secretA);
-    expect(JSON.stringify(status.body)).not.toContain(secretB);
+    expect(JSON.stringify(status.body).includes(secretA)).toBe(false);
+    expect(JSON.stringify(status.body).includes(secretB)).toBe(false);
     expect(a.marketingConsentGranted).toBe(false);
   });
 
