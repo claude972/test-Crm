@@ -759,3 +759,13 @@ Incident Vercel déclaré : premier déploiement du nouveau projet classé produ
 Revues helpers : sous-agents preview_hosting/backend_review, puis root sur leurs SHA exacts. Correctif de sauvegarde atomique 357856370 relu ; reprise privée du smoke relue par backend_review. Claude reçoit le lien et le rapport pour revue ciblée, aucune validation globale du dépôt ne lui est attribuée par avance.
 
 Limites : PWA en ligne conservée, aucune installation sur appareil ni hors ligne validée ; SSE indisponible via Quick Tunnel. Char/Forms ne sont pas déployés dans ce lien CRM ; constats Char et confidentialité/cache toujours ouverts, ainsi que consolidation Git. Originaux vérifiés 55 696 empreintes identiques et une absence attendue préservée. Ne pas marquer tout P0 terminé sur cette livraison.
+
+
+### P0-PREVIEW-ACCESS-001 — accès destinataire reproduit et corrigé
+- reviewer: codex, sur signalement propriétaire.
+- reviewed revision: d1060f44e, preview dpl_C3sUicextthEnH2vofmGQVhLzR5r.
+- evidence: ouverture directe du lien de livraison dans un navigateur sans session Vercel -> page Login Vercel ; les contrôles CLI authentifiés ne prouvaient pas l'accès propriétaire.
+- assigned agent: codex.
+- status: verified.
+- fix: lien de partage créé par API officielle, limité au seul déploiement et à l'expiration de la session (22:55:40 Martinique) ; protection globale conservée. Jeton hors Git, lien remis uniquement au propriétaire.
+- recheck evidence: nouvelle ouverture sans connexion Vercel -> accueil CRM ; saisie du compte de démonstration -> connexion réussie et liste Companies visible avec cinq sociétés d'exemple. Capture locale remise au propriétaire. Rapport 0523dad07 sur chore/p0-preview-session ; aucune correction applicative ou secret de compte Vercel publié.
