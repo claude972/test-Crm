@@ -188,8 +188,8 @@ async function checkImportTransactions(requireFromServer, database) {
   );
   try {
     await dataSource.query(
-      'INSERT INTO "core"."workspace" ("id", "displayName", "activationStatus") VALUES ($1, $3, \'PENDING_CREATION\'), ($2, $3, \'PENDING_CREATION\')',
-      [workspaceA, workspaceB, 'Disposable Hermes CI fixture'],
+      'INSERT INTO "core"."workspace" ("id", "displayName", "activationStatus", "subdomain") VALUES ($1, $3, \'PENDING_CREATION\', $4), ($2, $3, \'PENDING_CREATION\', $5)',
+      [workspaceA, workspaceB, 'Disposable Hermes CI fixture', `hermes-ci-${workspaceA}`, `hermes-ci-${workspaceB}`],
     );
     const defaultRow = await dataSource.query(
       `INSERT INTO ${table} ("workspaceId") VALUES ($1) RETURNING "state"`,
