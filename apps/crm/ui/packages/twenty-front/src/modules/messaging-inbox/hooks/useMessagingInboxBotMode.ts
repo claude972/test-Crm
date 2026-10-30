@@ -33,7 +33,7 @@ export const useMessagingInboxBotMode = (): MessagingInboxBotModeControl => {
   const [setBotModeMutation] = useMutation<
     { hermesInboxSetBotMode: unknown },
     { input: { conversationId: string; mode: 'MANUAL' | 'AUTO' } }
-  >(HERMES_INBOX_SET_BOT_MODE);
+  >(HERMES_INBOX_SET_BOT_MODE, { context: { skipRetry: true } });
 
   const [state, setState] = useState<MessagingInboxBotModeState>({
     kind: 'idle',
