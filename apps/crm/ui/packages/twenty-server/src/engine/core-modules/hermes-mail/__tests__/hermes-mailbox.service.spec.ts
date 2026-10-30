@@ -16,6 +16,7 @@ jest.mock(
 );
 import PostalMime from 'postal-mime';
 import MailComposer from 'nodemailer/lib/mail-composer';
+import { messagingId } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.policy';
 import { HermesMailboxService } from 'src/engine/core-modules/hermes-mail/hermes-mailbox.service';
 const actor = {
   workspaceId: 'f2c96b7b-f314-4561-9b5c-0011cfe03fd0',
@@ -272,6 +273,13 @@ it('creates a Bcc-only mail with an own mailbox canonical contact and no hidden 
 it('persists an empty native draft, replays it, replaces edited content recoverably, and keeps attachment scope and send request separate', async () => {
   const f = fixture();
   const draftId = 'e4d16125-1299-4b15-aa57-d193a423b4e6';
+  const canonical = messagingId(
+    actor.workspaceId,
+    'EMAIL',
+    'mail',
+    `draft:${draftId}`,
+  );
+  f.mail.draftConversation.mockResolvedValue({ id: canonical });
   let nextUid = 50;
   let selectedFolder = 'Drafts';
   const native = new Map<number, { folder: string; raw: Buffer }>();
@@ -328,7 +336,7 @@ it('persists an empty native draft, replays it, replaces edited content recovera
   expect(first).toMatchObject({
     state: 'SAVED',
     draftId,
-    conversationId: 'canonical',
+    conversationId: canonical,
     uidValidity: '123',
   });
   const replay = await f.service.createDraft(actor, empty);
@@ -346,7 +354,7 @@ it('persists an empty native draft, replays it, replaces edited content recovera
     draftRevision: first.draftRevision,
   };
   const second = await f.service.createDraft(actor, edited);
-  expect(second).toMatchObject({ state: 'SAVED', conversationId: 'canonical' });
+  expect(second).toMatchObject({ state: 'SAVED', conversationId: canonical });
   expect(second.uid).not.toBe(first.uid);
   expect(native.get(Number(first.uid))?.folder).toBe('Trash');
   await expect(f.service.createDraft(actor, edited)).rejects.toThrow(
@@ -367,7 +375,7 @@ it('persists an empty native draft, replays it, replaces edited content recovera
   const parsed = await PostalMime.parse(native.get(Number(third.uid))!.raw);
   expect(parsed.to?.[0].address).toBe('new@example.org');
   expect(parsed.attachments).toHaveLength(1);
-  expect(f.mail.draftAttachments).toHaveBeenLastCalledWith(actor, 'canonical', [
+  expect(f.mail.draftAttachments).toHaveBeenLastCalledWith(actor, canonical, [
     'e4d16125-1299-4b15-aa57-d193a423b4e8',
   ]);
   expect(f.mail.replyRich).not.toHaveBeenCalled();
@@ -389,7 +397,7 @@ it('persists an empty native draft, replays it, replaces edited content recovera
   expect(f.mail.replyRich).toHaveBeenCalledWith(
     actor,
     expect.objectContaining({
-      conversationId: 'canonical',
+      conversationId: canonical,
       clientRequestId: sendRequestId,
     }),
   );
@@ -559,3 +567,18 @@ it.each([false, true])(
     );
   },
 );
+
+it('rejects a foreign draft canonical scope before any draft conversation or native write', async () => {
+  const f = fixture();
+  await expect(
+    f.service.createDraft(actor, {
+      draftId: 'e4d16125-1299-4b15-aa57-d193a423b4e6',
+      conversationId: 'e4d16125-1299-4b15-aa57-d193a423b4e8',
+      from: 'me@example.com',
+      subject: '',
+      text: '',
+    }),
+  ).rejects.toThrow('MAIL_CONVERSATION_MISMATCH');
+  expect(f.mail.draftConversation).not.toHaveBeenCalled();
+  expect(f.client.append).not.toHaveBeenCalled();
+});
