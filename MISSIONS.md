@@ -419,3 +419,14 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 - verification report: docs/handoff/hermes-v2-maquettes-recette.md et CORRECTIONS.md section finale18:12UTC ; captures et JSON de preuves identifiés.
 - preview: déploiement privé dpl_4NHEh9JihfYcRaNwtR1rj5FxLVZ8, lien complet uniquement chat ; maquettes et aucune API. Expiration31oct2026 14:07:35Martinique.
 - status meaning: done concerne exclusivement production/revue des maquettes et contrats. Câblage applicatif non commencé ; aucune validation implicite du design. Attendre choix A/B/C puis maquettes détaillées validées avant implementation.
+
+## HERMES-V3-PLAN-MCP-MULTICANAL — actualisation du cadrage
+
+- Demande : « Quel est le plan selon skills ». Livrable : docs/handoff/hermes-v3-plan-mcp-multicanal.md, référence prioritaire pour la prochaine mission. Aucun nouveau code applicatif ni dispatch Claude d’implémentation par cette publication.
+- Décisions nouvelles : désactiver réponses automatiques → ASSISTED, MCP/brouillons conservés et émission humaine ; OFF complet distinct. Contrôles locaux conversation WA/fil e-mail autorisés ; connexions/secrets/politiques par défaut au centre Réglages. WA médias entrants ET sortants et enregistrement vocal. E-mail de type vraie boîte. Classement Form/WA/mail/scraping, pipeline et campagnes depuis vraie boîte SMTP à vérifier.
+- Historique : ancien prompt hermes-v2-prompt.xml et contratsV2 sont à actualiser selon ce plan avant tout nouvel ordre. Leurs règles OFF bloquant MCP ne s’appliquent qu’à OFF complet, jamais à la désactivation ordinaire des réponses auto.
+- Sources : application333ba534927e177c90b35eb4157d75d8d767dec4 ; maquettesaf8ce71e et contrats1c6760cfc distincts ; original et sauvegardes préservés.
+- agent: codex ; status: done pour collecte/synthèse documentaire uniquement ; sous-agents plan_mcp_media_facts et plan_crm_campaign_facts ont fourni fichiers/lignes/API/patrons/gaps en lecture seule. Implémentation ultérieure pending.
+- agent: claude ; status: pending pour prochaine mission de maquettes détaillées, aucun nouveau prompt d’exécution envoyé pendant ce cadrage.
+- Répartition cible : Claude frontend/maquettes ; Codex backend/intégrations/tests ; root contrats, revues et preview ; propriété des fichiers/base de code à confirmer avant éditions.
+- Étapes0–8 : audit/capacités ; contrats et maquettes ; sociétés/réglages ; botMCP ; messageries ; réceptions/prospects/scraping ; pipeline ; campagnesSMTP ; recette/revues/preview. Validation visuelle avant câblage maintenue selon demande propriétaire.

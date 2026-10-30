@@ -1,4 +1,6 @@
-# Hermès V2 — plan soumis à validation
+# Hermès V2 — plan historique
+
+> **Actualisation prioritaire :** lire [le plan V3 MCP multicanal](hermes-v3-plan-mcp-multicanal.md). Les règles V2 qui assimilent désactivation des réponses automatiques et arrêt complet du MCP sont remplacées : désactivation ordinaire = ASSISTED, brouillons permis. Les commandes locales du bot sont désormais demandées dans les conversations. Ce document conserve l’historique et ne doit pas être exécuté seul.
 
 ## Objectif principal
 
