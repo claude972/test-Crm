@@ -1,7 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
+import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
+import { IsNull, Repository } from 'typeorm';
 
 import { type HermesProspectionActor } from 'src/engine/core-modules/hermes-prospection/types/hermes-prospection.types';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -22,6 +23,13 @@ export class HermesProspectionAccessService {
         id: actor.userWorkspaceId,
         workspaceId: actor.workspaceId,
         userId: actor.userId,
+        deletedAt: IsNull(),
+        user: { id: actor.userId, disabled: false, deletedAt: IsNull() },
+        workspace: {
+          id: actor.workspaceId,
+          activationStatus: WorkspaceActivationStatus.ACTIVE,
+          deletedAt: IsNull(),
+        },
       },
     });
 

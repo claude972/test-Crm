@@ -249,12 +249,8 @@ export class HermesProspectionService {
             )
             .findOne({ where: { id: campaignId } });
 
-          if (existing) {
-            if (existing.status !== MessageCampaignStatus.DRAFT) {
-              throw new ConflictException('CAMPAIGN_ALREADY_ADVANCED');
-            }
-
-            return;
+          if (existing && existing.status !== MessageCampaignStatus.DRAFT) {
+            throw new ConflictException('CAMPAIGN_ALREADY_ADVANCED');
           }
           const personIds = [
             ...new Set(
@@ -273,6 +269,7 @@ export class HermesProspectionService {
                 !people.some(
                   (person) =>
                     person.id === row.personId &&
+                    !person.deletedAt &&
                     person.emails?.primaryEmail?.trim().toLowerCase() ===
                       row.email,
                 ),
@@ -282,6 +279,48 @@ export class HermesProspectionService {
               'RECIPIENT_PRIMARY_EMAIL_CHANGED_OR_UNAVAILABLE',
             );
           }
+          if (existing) {
+            if (existing.listId !== listId) {
+              throw new BadRequestException(
+                'CAMPAIGN_AUDIENCE_CHANGED_OR_UNAVAILABLE',
+              );
+            }
+            const list = await transaction
+              .getRepository<MessageListWorkspaceEntity>(
+                'messageList',
+                permissions,
+              )
+              .findOne({ where: { id: listId } });
+            const members = await transaction
+              .getRepository<MessageListMemberWorkspaceEntity>(
+                'messageListMember',
+                permissions,
+              )
+              .find({ where: { listId }, take: personIds.length + 1 });
+            const memberPersonIds = new Set(
+              members.map((member) => member.personId),
+            );
+
+            if (
+              !list ||
+              list.deletedAt ||
+              members.some((member) => member.deletedAt) ||
+              members.length !== personIds.length ||
+              memberPersonIds.size !== personIds.length ||
+              personIds.some((personId) => !memberPersonIds.has(personId))
+            ) {
+              throw new BadRequestException(
+                'CAMPAIGN_AUDIENCE_CHANGED_OR_UNAVAILABLE',
+              );
+            }
+          }
+          await this.applySuppressions(actor.workspaceId, rows);
+          if (rows.some((row) => row.status !== 'qualified')) {
+            throw new BadRequestException(
+              'RECIPIENTS_MUST_BE_QUALIFIED_AND_NOT_SUPPRESSED',
+            );
+          }
+          if (existing) return;
           await transaction
             .getRepository<MessageListWorkspaceEntity>(
               'messageList',

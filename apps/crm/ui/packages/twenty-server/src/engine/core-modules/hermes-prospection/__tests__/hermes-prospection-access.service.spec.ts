@@ -1,5 +1,7 @@
 import { ForbiddenException } from '@nestjs/common';
 
+import { IsNull } from 'typeorm';
+
 import { HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
 
 jest.mock(
@@ -54,6 +56,13 @@ describe('Hermes unrestricted workspace-admin boundary', () => {
         id: actor.userWorkspaceId,
         workspaceId: actor.workspaceId,
         userId: actor.userId,
+        deletedAt: IsNull(),
+        user: { id: actor.userId, disabled: false, deletedAt: IsNull() },
+        workspace: {
+          id: actor.workspaceId,
+          activationStatus: 'ACTIVE',
+          deletedAt: IsNull(),
+        },
       },
     });
     expect(roleTargets.findOne.mock.calls[0][0].where).toEqual({

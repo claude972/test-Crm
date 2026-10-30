@@ -1,5 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+import { v5 } from 'uuid';
+
 import { HermesProspectionService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.service';
 import { type HermesProspectionState } from 'src/engine/core-modules/hermes-prospection/types/hermes-prospection.types';
 import {
@@ -248,14 +250,12 @@ describe('Hermes suppression and qualification bridge', () => {
     };
     const repository = {
       findOne: jest.fn().mockResolvedValue(null),
-      find: jest
-        .fn()
-        .mockResolvedValue([
-          {
-            id: 'native-person',
-            emails: { primaryEmail: 'new-unqualified@example.test' },
-          },
-        ]),
+      find: jest.fn().mockResolvedValue([
+        {
+          id: 'native-person',
+          emails: { primaryEmail: 'new-unqualified@example.test' },
+        },
+      ]),
       insert: jest.fn(),
     };
 
@@ -271,4 +271,129 @@ describe('Hermes suppression and qualification bridge', () => {
     ).rejects.toThrow('RECIPIENT_PRIMARY_EMAIL_CHANGED_OR_UNAVAILABLE');
     expect(repository.insert).not.toHaveBeenCalled();
   });
+  it.each([
+    'legitimate',
+    'different-list-id',
+    'replaced-member',
+    'duplicate-member',
+    'missing-member',
+    'archived-list',
+    'archived-person',
+    'opposition-during-revalidation',
+  ])(
+    'replays a draft only while its native audience remains eligible: %s',
+    async (scenario) => {
+      const { service, orm, suppressions } = setup();
+      const { batch } = await service.createBatch(actor, input);
+      const row = batch.rows[0];
+
+      row.status = 'qualified';
+      row.personId = 'native-person';
+      row.qualification = {
+        ...qualification,
+        qualifiedAt: '2026-10-29T12:00:00Z',
+        qualifiedByUserId: actor.userId,
+      };
+      const request = {
+        name: 'Synthetic draft',
+        subject: 'Synthetic subject',
+        rowIds: [row.id],
+      };
+      const campaignId = v5(
+        JSON.stringify({
+          workspaceId: actor.workspaceId,
+          name: request.name,
+          subject: request.subject,
+          rowIds: [row.id],
+        }),
+        v5.URL,
+      );
+      const listId = v5('list', campaignId);
+      const campaigns = {
+        findOne: jest
+          .fn()
+          .mockResolvedValue({
+            id: campaignId,
+            listId:
+              scenario === 'different-list-id' ? 'unrelated-list' : listId,
+            status: 'DRAFT',
+          }),
+        insert: jest.fn(),
+      };
+      const people = {
+        find: jest
+          .fn()
+          .mockResolvedValue([
+            {
+              id: row.personId,
+              emails: { primaryEmail: row.email },
+              deletedAt: scenario === 'archived-person' ? new Date() : null,
+            },
+          ]),
+        insert: jest.fn(),
+      };
+      const lists = {
+        findOne: jest
+          .fn()
+          .mockResolvedValue({
+            id: listId,
+            deletedAt: scenario === 'archived-list' ? new Date() : null,
+          }),
+        insert: jest.fn(),
+      };
+      const members = {
+        find: jest
+          .fn()
+          .mockResolvedValue(
+            scenario === 'missing-member'
+              ? []
+              : scenario === 'duplicate-member'
+                ? [{ personId: row.personId }, { personId: row.personId }]
+                : [
+                    {
+                      personId:
+                        scenario === 'replaced-member'
+                          ? 'unexpected-person'
+                          : row.personId,
+                    },
+                  ],
+          ),
+        insert: jest.fn(),
+      };
+
+      orm.runInWorkspaceTransaction.mockImplementation(async (operation) =>
+        operation({
+          getRepository: (name: string) => {
+            if (name === 'person') return people;
+            if (name === 'messageCampaign') return campaigns;
+            if (name === 'messageList') return lists;
+            if (name === 'messageListMember') return members;
+            throw new Error('Unexpected repository');
+          },
+        }),
+      );
+      if (scenario === 'opposition-during-revalidation') {
+        suppressions.findApplicableSuppressions
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
+            { emailAddress: row.email, reason: 'UNSUBSCRIBE' },
+          ]);
+      }
+      if (scenario === 'legitimate') {
+        const first = await service.createCampaignDraft(actor, request);
+        const second = await service.createCampaignDraft(actor, request);
+
+        expect(first).toEqual(second);
+        expect(first).toMatchObject({ campaignId, listId, status: 'DRAFT' });
+        expect(people.find).toHaveBeenCalledTimes(2);
+        expect(members.find).toHaveBeenCalledTimes(2);
+      } else {
+        await expect(
+          service.createCampaignDraft(actor, request),
+        ).rejects.toBeInstanceOf(BadRequestException);
+      }
+      for (const repository of [campaigns, people, lists, members])
+        expect(repository.insert).not.toHaveBeenCalled();
+    },
+  );
 });
