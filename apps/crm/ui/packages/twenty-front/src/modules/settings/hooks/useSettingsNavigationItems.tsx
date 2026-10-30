@@ -93,6 +93,15 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
           path: SettingsPath.Experience,
           Icon: IconColorSwatch,
         },
+        // Under User, not Workspace: this is what THIS person is allowed to
+        // see, not an administration screen. It carries no isHidden because
+        // every user is meant to reach it, and the server decides what the
+        // page actually shows them.
+        {
+          label: t`Your authorised companies`,
+          path: SettingsPath.Structures,
+          Icon: IconBuildingSkyscraper,
+        },
         {
           label: isAppPreferencesEnabled ? t`App preferences` : t`Accounts`,
           path: SettingsPath.Accounts,
@@ -171,14 +180,12 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
         //   isHidden: !permissionFlagMap[PermissionFlagType.API_KEYS_AND_WEBHOOKS],
         // },
         {
-          label: t`Your authorised companies`,
-          path: SettingsPath.Structures,
-          Icon: IconBuildingSkyscraper,
-        },
-        {
           label: t`Integrations`,
           path: SettingsPath.Integrations,
           Icon: IconPlug,
+          // Its route sits behind the WORKSPACE permission, so without this the
+          // link would be offered to everyone and lead to a refusal.
+          isHidden: !permissionFlagMap[PermissionFlagType.WORKSPACE],
         },
         {
           label: t`Apps`,

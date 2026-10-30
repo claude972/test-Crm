@@ -43,17 +43,28 @@ export const useHermesRecordCount = ({
   }
 
   const rawCount = data?.id?.[AggregateOperations.COUNT];
-  const count =
+
+  // Number('') and Number('   ') are both 0, so passing a blank string through
+  // Number would have drawn an empty answer as a real count of zero. It is
+  // parsed only when it actually carries something.
+  const parsedCount =
     typeof rawCount === 'number'
       ? rawCount
-      : typeof rawCount === 'string'
+      : typeof rawCount === 'string' && rawCount.trim() !== ''
         ? Number(rawCount)
         : undefined;
 
-  // A missing or unparseable count is unknown, never zero.
-  if (!isDefined(count) || !Number.isFinite(count)) {
+  // A count is a non-negative integer. A negative, a fraction, NaN or an
+  // infinity is not a count this screen can state, and rendering any of them
+  // as zero would invent a fact. Number.isInteger already rejects NaN and
+  // Infinity.
+  if (
+    !isDefined(parsedCount) ||
+    !Number.isInteger(parsedCount) ||
+    parsedCount < 0
+  ) {
     return { status: 'unavailable', value: null };
   }
 
-  return { status: 'available', value: count };
+  return { status: 'available', value: parsedCount };
 };
