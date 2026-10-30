@@ -30464,3 +30464,7 @@ msgstr "Nom de campagne : {0} caractères, {1} au maximum."
 msgid "Choose how these contacts are informed."
 msgstr "Choisissez comment ces contacts sont informés."
 
+
+msgid "Not summed"
+msgstr "Non totalisé"
+
