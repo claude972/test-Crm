@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { previewWorkspaceModeEnvironment } from './preview-workspace-mode-p0.mjs';
 
 assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Only run against disposable GitHub Actions services');
 const database = new URL(process.env.PG_DATABASE_URL);
@@ -30,6 +31,7 @@ const maxMinutes = Number(process.env.P0_PREVIEW_MAX_MINUTES ?? 60);
 assert.ok(Number.isFinite(maxMinutes) && maxMinutes > 0 && maxMinutes <= 90, 'Duration must be >0 and <=90 minutes');
 assert.ok([undefined, 'true', 'false'].includes(process.env.P0_PREVIEW_START_WORKER), 'Worker option must be true or false');
 const withWorker = process.env.P0_PREVIEW_START_WORKER === 'true';
+const workspaceModeEnvironment = previewWorkspaceModeEnvironment(process.env);
 const startedAt = Date.now();
 const expiry = process.env.P0_PREVIEW_EXPIRES_AT;
 if (expiry !== undefined) assert.match(expiry, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/, 'Expiry must be an absolute UTC ISO timestamp');
@@ -45,6 +47,7 @@ const secrets = [appSecret, database.password, redis.password]
 const redact = (value) => secrets.reduce((text, secret) => text.replaceAll(secret, '[redacted]'), String(value));
 const env = {
   ...process.env,
+  ...workspaceModeEnvironment,
   NODE_ENV: 'production', NODE_HOST: '127.0.0.1', NODE_PORT: '3000',
   APP_SECRET: appSecret,
   REDIS_CACHE_PREFIX: `p0-preview-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT ?? '1'}`,
@@ -137,6 +140,10 @@ async function readiness(server, worker) {
         const config = await response.json();
         assert.equal(typeof config.allowRequestsToKovaaLabCRMIcons, 'boolean');
         assert.equal(Object.hasOwn(config, 'allowRequestsToTwentyIcons'), false);
+        if (workspaceModeEnvironment.IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED === 'true') {
+          assert.equal(config.isSameOriginMultiWorkspaceEnabled, true);
+          assert.equal(config.isMultiWorkspaceEnabled, false);
+        }
         return;
       }
     } catch { /* Retry while Nest starts and its dependencies connect. */ }
