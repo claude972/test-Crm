@@ -59,7 +59,11 @@ const PERIOD_START = '2050-01-01T00:00:00.000Z';
 const PERIOD_END = '2050-02-01T00:00:00.000Z';
 const INSIDE = new Date('2050-01-15T12:00:00.000Z');
 
-type PublicError = { message: string; extensions?: { code?: string } };
+type PublicError = {
+  message: string;
+  path?: (string | number)[];
+  extensions?: { code?: string };
+};
 type ApiResult<TData> = { data?: TData; errors?: PublicError[] };
 type FixtureUser = { user: UserEntity; token: string };
 
@@ -83,14 +87,37 @@ const api = async <TData>(
     .set('Authorization', `Bearer ${token}`)
     .send({ query, variables });
   if (response.status !== 200)
-    throw new Error('Unexpected metadata HTTP status');
+    throw new Error(`Unexpected metadata HTTP status ${response.status}`);
   return response.body as ApiResult<TData>;
 };
 
 const successful = <TData>(result: ApiResult<TData>): TData => {
   // Do not dump response bodies: authentication fixture tokens must stay out of CI logs.
-  if (result.errors?.length || !result.data)
-    throw new Error('Metadata fixture operation failed');
+  if (result.errors?.length || !result.data) {
+    const diagnostics = result.errors?.map(({ message, path, extensions }) => ({
+      code: extensions?.code?.replace(/[^A-Z0-9_]/gi, '').slice(0, 80),
+      path: path?.map((part) =>
+        typeof part === 'number'
+          ? part
+          : part.replace(/[^a-z0-9_]/gi, '').slice(0, 80),
+      ),
+      message: message
+        .replace(
+          /eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,
+          '[redacted-token]',
+        )
+        .replace(/Bearer\s+\S+/gi, '[redacted-authorization]')
+        .replace(
+          /(?:password|secret|token|authorization)\s*[:=]\s*\S+/gi,
+          '[redacted-credential]',
+        )
+        .replace(/[\r\n]+/g, ' ')
+        .slice(0, 240),
+    }));
+    throw new Error(
+      `Metadata fixture operation failed: ${JSON.stringify(diagnostics ?? [])}`,
+    );
+  }
   return result.data;
 };
 
@@ -309,22 +336,36 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
     );
 
     const customApplicationId = randomUUID();
-    const c = await workspaceRepository.save({
-      id: C,
-      displayName: C_NAME,
-      subdomain: `hermes-ci-${fixtureSuffix}`,
-      inviteHash: randomUUID(),
-      activationStatus: WorkspaceActivationStatus.PENDING_CREATION,
-      workspaceCustomApplicationId: customApplicationId,
-      workspaceDiscoverability: WorkspaceDiscoverability.MEMBERS_AND_INVITEES,
-      isPasswordAuthEnabled: true,
-      isTwoFactorAuthenticationEnforced: false,
-    });
-    await getAppProviderByClassName<ApplicationService>(
-      'ApplicationService',
-    ).createWorkspaceCustomApplication({
-      workspaceId: C,
-      applicationId: customApplicationId,
+    const c = await coreDataSource.transaction(async (manager) => {
+      const queryRunner = manager.queryRunner;
+      assert.ok(
+        queryRunner,
+        'Native workspace creation requires one transaction',
+      );
+      const pendingWorkspace = await manager
+        .getRepository<WorkspaceEntity>('WorkspaceEntity')
+        .save({
+          id: C,
+          displayName: C_NAME,
+          subdomain: `hermes-ci-${fixtureSuffix}`,
+          inviteHash: randomUUID(),
+          activationStatus: WorkspaceActivationStatus.PENDING_CREATION,
+          workspaceCustomApplicationId: customApplicationId,
+          workspaceDiscoverability:
+            WorkspaceDiscoverability.MEMBERS_AND_INVITEES,
+          isPasswordAuthEnabled: true,
+          isTwoFactorAuthenticationEnforced: false,
+        });
+      await getAppProviderByClassName<ApplicationService>(
+        'ApplicationService',
+      ).createWorkspaceCustomApplication(
+        {
+          workspaceId: C,
+          applicationId: customApplicationId,
+        },
+        queryRunner,
+      );
+      return pendingWorkspace;
     });
     await userWorkspaceService.create({
       userId: user3.id,
