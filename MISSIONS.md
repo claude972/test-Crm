@@ -110,7 +110,7 @@ Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inven
 
 ## Codex assignment — p0-frontend-baseline
 - agent: codex
-- status: in_progress
+- status: ready_for_review
 - branch: fix/codex-backend-build
 - deliverables: vérifier les dépendances backend et la construction sur la base commune, relire les réparations Claude et corriger les défauts backend/infrastructure prouvés.
 - owned files: scripts/, CI, packages backend/shared/client-sdk/emails nécessaires à la construction ; types partagés uniquement après coordination ; aucun fichier frontend détenu par Claude pendant son implémentation.
@@ -118,7 +118,7 @@ Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inven
 - verification report: CORRECTIONS.md, section p0-frontend-baseline / codex
 - implementation revision: ed80da151 (réparation SWC runtime), PR #7 ; base c0318cf0b33134c4c292affe395009a6bd3b4662. Le code antérieur 79305ae2e reste le checkpoint de compilation vérifié.
 - preview: dépend de la disponibilité du résultat combiné ; aucune vérifiée.
-- blockers: nouvelle vérification du démarrage isolé après P0-RUNTIME-001 et fix ed80da151 ; CI de compilation 40972089496 verte sur l’ancien checkpoint 79305ae2e. Revue Claude du nouveau SHA et frontend combiné toujours attendus ; aucune preview intégrée.
+- blockers: P0-RUNTIME-001 vérifié ; CI backend 40979668149 et démarrage isolé dans CI 40979688501 verts, code ed80da151. Rapport partagé publié. Revue Claude du nouveau SHA et frontend combiné toujours attendus ; aucune preview intégrée.
 
 ## Évaluation et utilisation
 
