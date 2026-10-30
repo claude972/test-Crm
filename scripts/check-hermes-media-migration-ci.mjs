@@ -562,9 +562,11 @@ export async function main() {
         name.endsWith("-add-hermes-media.ts"),
       );
     const generating = find().length === 0;
+    const nativeCandidateUp = schemaDiff(server);
+    const nativeCandidateDown = report.nativeMetadataComparisons.at(-1).down;
     writeFileSync(
       path.join(artifactDirectory, "native-feature-diff-before-generator.json"),
-      JSON.stringify(schemaDiff(server), null, 2) + "\n",
+      JSON.stringify(nativeCandidateUp, null, 2) + "\n",
     );
     if (generating)
       run([
@@ -608,11 +610,36 @@ export async function main() {
         beforeManifest,
         "Only native generator registration is permitted",
       );
-    const loaded = loadSource(requireFromServer, migrationPath, {
-      typeorm: requireFromServer("typeorm"),
-      "src/engine/core-modules/upgrade/decorators/registered-instance-command.decorator":
-        { RegisteredInstanceCommand: () => (target) => target },
-    });
+    const loaded = generating
+      ? loadSource(requireFromServer, migrationPath, {
+          typeorm: requireFromServer("typeorm"),
+          "src/engine/core-modules/upgrade/decorators/registered-instance-command.decorator":
+            { RegisteredInstanceCommand: () => (target) => target },
+        })
+      : requireFromServer(
+          path.join(
+            server,
+            "dist/database/commands/upgrade-version-command/2-52",
+            filename.replace(/\.ts$/, ".js"),
+          ),
+        );
+    if (!generating) {
+      const { getRegisteredInstanceCommandMetadata } = requireFromServer(
+        path.join(
+          server,
+          "dist/engine/core-modules/upgrade/decorators/registered-instance-command.decorator.js",
+        ),
+      );
+      assert.deepEqual(
+        getRegisteredInstanceCommandMetadata(loaded[className]),
+        { version: "2.52.0", timestamp: generatedTimestamp, type: "fast" },
+      );
+      report.committedCommand = {
+        compiled: true,
+        nativeRegistration: true,
+        timestamp: generatedTimestamp,
+      };
+    }
     const instance = new loaded[className](),
       up = [],
       down = [];
@@ -637,6 +664,17 @@ export async function main() {
       source,
     );
     validateMediaSql(up, down);
+    assert.deepEqual(
+      up,
+      nativeCandidateUp,
+      "Committed/generated command up SQL must equal the fresh native metadata candidate",
+    );
+    assert.deepEqual(
+      down,
+      nativeCandidateDown,
+      "Committed/generated command down SQL must equal the fresh native metadata candidate",
+    );
+    report.nativeCandidateMatchesCommand = true;
     const relativeMigration = path.relative(root, migrationPath),
       relativeManifest = path.relative(root, manifestPath);
     for (const relative of [relativeMigration, relativeManifest]) {
@@ -663,7 +701,9 @@ export async function main() {
           ),
       );
     }
-    for (const sql of up) await client.query(sql);
+    await instance.up({
+      query: (sql, parameters) => client.query(sql, parameters),
+    });
     const featureDiff = schemaDiff(server);
     assert.deepEqual(
       featureDiff,
@@ -671,7 +711,9 @@ export async function main() {
       "Feature metadata must exactly match generated SQL",
     );
     report.postgres = await postgresAssertions(client, Pool, database.href);
-    for (const sql of down) await client.query(sql);
+    await instance.down({
+      query: (sql, parameters) => client.query(sql, parameters),
+    });
     assert.equal(
       (
         await client.query(
@@ -685,7 +727,9 @@ export async function main() {
       [],
       "Down must restore the prepared baseline metadata fixture, including old message columns",
     );
-    for (const sql of up) await client.query(sql);
+    await instance.up({
+      query: (sql, parameters) => client.query(sql, parameters),
+    });
     assert.deepEqual(
       schemaDiff(server),
       [],
