@@ -3,6 +3,9 @@ import { readHermesCollectionProvenance } from '@/prospection/utils/readHermesCo
 
 const buildBatch = (batch: Partial<HermesImportBatch>): HermesImportBatch => ({
   id: 'batch-1',
+  originKind: null,
+  originConnectionId: null,
+  originReceivedAt: null,
   externalBatchId: 'trade-show-2026-10',
   fingerprint: 'abcdef',
   name: 'Paris trade show',
@@ -19,9 +22,9 @@ const buildBatch = (batch: Partial<HermesImportBatch>): HermesImportBatch => ({
 describe('readHermesCollectionProvenance', () => {
   it('carries the provenance fields the published contract does declare', () => {
     expect(readHermesCollectionProvenance(buildBatch({}))).toEqual({
-      originKind: null,
-      originConnectionId: null,
-      originReceivedAt: null,
+      origin: null,
+      intakeConnectionId: null,
+      intakeReceivedAt: null,
       sourceUrl: 'https://example.org/directory',
       externalBatchId: 'trade-show-2026-10',
       fingerprint: 'abcdef',

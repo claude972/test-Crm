@@ -1,5 +1,3 @@
-import { isNonEmptyString } from '@sniptt/guards';
-
 import { type ClientContextProvenance } from '@/client-context/types/ClientContextProvenance';
 
 // The name to show for where an item came from: the server's own label when it
@@ -13,8 +11,4 @@ import { type ClientContextProvenance } from '@/client-context/types/ClientConte
 export const readClientContextSourceName = (
   provenance: ClientContextProvenance,
 ): string | null =>
-  isNonEmptyString(provenance.sourceLabel)
-    ? provenance.sourceLabel
-    : isNonEmptyString(provenance.sourceId)
-      ? provenance.sourceId
-      : null;
+  provenance.sourceLabel?.trim() || provenance.sourceId?.trim() || null;
