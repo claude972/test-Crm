@@ -734,6 +734,14 @@ const SettingsAdminWorkspaceChatThread = lazy(() =>
   ),
 );
 
+const SettingsStructuresDashboard = lazy(() =>
+  import('~/pages/settings/structures/SettingsStructuresDashboard').then(
+    (module) => ({
+      default: module.SettingsStructuresDashboard,
+    }),
+  ),
+);
+
 const SettingsCommunity = lazy(() =>
   import('~/pages/settings/community/SettingsCommunity').then((module) => ({
     default: module.SettingsCommunity,
@@ -1304,6 +1312,10 @@ const createSettingsRouteElements = ({
       }
     >
       <Route path={SettingsPath.Community} element={<SettingsCommunity />} />
+      <Route
+        path={SettingsPath.Structures}
+        element={<SettingsStructuresDashboard />}
+      />
     </Route>
   </>
 );

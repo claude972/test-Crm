@@ -1,4 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
+import { isNonEmptyString } from '@sniptt/guards';
 import {
   IconAlertTriangle,
   IconCheck,
@@ -63,14 +64,16 @@ const CONNECTOR_SYNC_PRESENTATION: Record<
 
 type ConnectorSyncTagProps = {
   status: ConnectorSyncStatus;
-  // A displayable reason from the provider. Provider text is untrusted, so it
-  // is rendered as a label and never as markup or an instruction.
-  message?: string;
+  // An optional reason from the provider, appended to the status. It never
+  // replaces the status, and an empty or blank string is ignored rather than
+  // rendering an empty badge. Provider text is untrusted, so it is shown as a
+  // label and never as markup or an instruction.
+  reason?: string;
 };
 
 export const ConnectorSyncTag = ({
   status,
-  message,
+  reason,
 }: ConnectorSyncTagProps) => {
   const { t } = useLingui();
 
@@ -92,7 +95,9 @@ export const ConnectorSyncTag = ({
       borderStyle={borderStyle}
       startIcon={<Icon />}
     >
-      {message ?? labels[status]}
+      {isNonEmptyString(reason?.trim())
+        ? `${labels[status]} — ${reason.trim()}`
+        : labels[status]}
     </Tag>
   );
 };
