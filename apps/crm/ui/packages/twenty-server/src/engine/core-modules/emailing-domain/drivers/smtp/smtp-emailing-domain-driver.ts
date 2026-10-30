@@ -76,7 +76,10 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
     try {
       await this.getTransport(input).verify();
     } catch {
-      return { status: EmailingDomainStatus.TEMPORARY_FAILURE, verificationRecords: [] };
+      return {
+        status: EmailingDomainStatus.TEMPORARY_FAILURE,
+        verificationRecords: [],
+      };
     }
 
     // Sender authorization comes from the server operator's workspace allowlist.
@@ -94,18 +97,29 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
     input: EmailingDomainSendEmailRequest,
   ): Promise<EmailingDomainSendEmailResult> {
     this.assertSender(input);
-    const email = this.unsubscribeContentService.addTo(input, this.unsubscribeBaseUrl);
+    this.assertCallerHeaders(input.headers);
+    const email = this.unsubscribeContentService.addTo(
+      input,
+      this.unsubscribeBaseUrl,
+    );
 
+    return this.sendPreparedEmail({ ...input, ...email });
+  }
+
+  private async sendPreparedEmail(
+    email: EmailingDomainSendEmailRequest,
+  ): Promise<EmailingDomainSendEmailResult> {
     if (
       [...(email.headers ?? [])].some(
-        ({ name, value }) => !/^[A-Za-z0-9-]+$/.test(name) || /[\r\n]/.test(value),
+        ({ name, value }) =>
+          !/^[A-Za-z0-9-]+$/.test(name) || /[\r\n]/.test(value),
       )
     ) {
       throw this.configurationError();
     }
 
     try {
-      const result = await this.getTransport(input).sendMail({
+      const result = await this.getTransport(email).sendMail({
         from: email.from,
         to: email.to,
         cc: email.cc,
@@ -115,12 +129,19 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
         text: email.text,
         html: email.html,
         attachments: email.attachments,
-        headers: email.headers?.map(({ name, value }) => ({ key: name, value })),
+        headers: email.headers?.map(({ name, value }) => ({
+          key: name,
+          value,
+        })),
         disableFileAccess: true,
         disableUrlAccess: true,
       });
 
-      if (typeof result.messageId !== 'string' || !result.messageId) {
+      if (
+        typeof result.messageId !== 'string' ||
+        !result.messageId ||
+        !result.accepted?.length
+      ) {
         throw new Error('Missing transport receipt');
       }
 
@@ -129,9 +150,9 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
         headerMessageId: result.messageId,
         // This legacy field records SMTP acceptance, never a delivery event.
         deliveredRecipients: {
-          to: email.to.filter((address) => result.accepted?.includes(address)),
-          cc: (email.cc ?? []).filter((address) => result.accepted?.includes(address)),
-          bcc: (email.bcc ?? []).filter((address) => result.accepted?.includes(address)),
+          to: this.acceptedRecipients(email.to, result.accepted),
+          cc: this.acceptedRecipients(email.cc ?? [], result.accepted),
+          bcc: this.acceptedRecipients(email.bcc ?? [], result.accepted),
         },
       };
     } catch {
@@ -153,11 +174,17 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
       throw this.configurationError();
     }
 
+    for (const recipient of input.recipients)
+      this.assertCallerHeaders(recipient.headers);
+    const batch = this.unsubscribeContentService.addToBatch(
+      input,
+      this.unsubscribeBaseUrl,
+    );
     const entries: EmailingDomainSendEmailBatchResult['entries'] = [];
 
-    for (const [recipientIndex, recipient] of input.recipients.entries()) {
+    for (const [recipientIndex, recipient] of batch.recipients.entries()) {
       try {
-        const sent = await this.sendEmail({
+        const sent = await this.sendPreparedEmail({
           workspaceId: input.workspaceId,
           domain: input.domain,
           emailingDomain: input.emailingDomain,
@@ -165,20 +192,34 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
           from: input.from,
           replyTo: input.replyTo,
           to: [recipient.email],
-          subject: applyReplacementTags(input.template.subject, recipient.replacements),
-          text: applyReplacementTags(input.template.text, recipient.replacements),
-          html: input.template.html
-            ? applyReplacementTags(input.template.html, recipient.replacements)
+          subject: applyReplacementTags(
+            batch.template.subject,
+            recipient.replacements,
+          ),
+          text: applyReplacementTags(
+            batch.template.text,
+            recipient.replacements,
+          ),
+          html: batch.template.html
+            ? applyReplacementTags(batch.template.html, recipient.replacements)
             : undefined,
           headers: recipient.headers,
           unsubscribeTopicId: input.unsubscribeTopicId,
         });
 
-        entries.push({ recipientIndex, messageId: sent.messageId,
-          headerMessageId: sent.headerMessageId, errorMessage: null });
+        entries.push({
+          recipientIndex,
+          messageId: sent.messageId,
+          headerMessageId: sent.headerMessageId,
+          errorMessage: null,
+        });
       } catch {
-        entries.push({ recipientIndex, messageId: null,
-          headerMessageId: null, errorMessage: 'SMTP outcome unconfirmed; reconcile before retrying' });
+        entries.push({
+          recipientIndex,
+          messageId: null,
+          headerMessageId: null,
+          errorMessage: 'SMTP outcome unconfirmed; reconcile before retrying',
+        });
       }
     }
 
@@ -190,22 +231,71 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
     this.transports.clear();
   }
 
-  private assertSender(input: EmailingDomainSendEmailRequest | EmailingDomainSendEmailBatchRequest): void {
+  private assertCallerHeaders(
+    headers: EmailingDomainSendEmailRequest['headers'],
+  ): void {
+    if (
+      (headers ?? []).some(({ name }) =>
+        /^list-unsubscribe(?:-post)?$/i.test(name),
+      )
+    ) {
+      throw this.configurationError();
+    }
+  }
+
+  private acceptedRecipients(
+    recipients: string[],
+    accepted: unknown,
+  ): string[] {
+    if (!Array.isArray(accepted)) return [];
+
+    const acceptedAddresses = new Set<string>();
+
+    for (const value of accepted) {
+      const address =
+        typeof value === 'string'
+          ? value
+          : value &&
+              typeof value === 'object' &&
+              'address' in value &&
+              typeof value.address === 'string'
+            ? value.address
+            : '';
+
+      for (const parsed of parseEmailAddressList(address)) {
+        if (parsed.address) acceptedAddresses.add(parsed.address);
+      }
+    }
+
+    return recipients.filter((recipient) =>
+      parseEmailAddressList(recipient).some((parsed) =>
+        Boolean(parsed.address && acceptedAddresses.has(parsed.address)),
+      ),
+    );
+  }
+
+  private assertSender(
+    input: EmailingDomainSendEmailRequest | EmailingDomainSendEmailBatchRequest,
+  ): void {
     this.getConnection(input);
     const addresses = parseEmailAddressList(input.from);
 
     if (
       input.emailingDomain.workspaceId !== input.workspaceId ||
-      input.emailingDomain.domain.toLowerCase() !== input.domain.toLowerCase() ||
+      input.emailingDomain.domain.toLowerCase() !==
+        input.domain.toLowerCase() ||
       addresses.length !== 1 ||
-      addresses[0].address?.split('@').pop()?.toLowerCase() !== input.domain.toLowerCase() ||
+      addresses[0].address?.split('@').pop()?.toLowerCase() !==
+        input.domain.toLowerCase() ||
       /[\r\n]/.test(input.from)
     ) {
       throw this.configurationError();
     }
   }
 
-  private getConnection(input: EmailingDomainResourceInput): HermesSmtpConnection {
+  private getConnection(
+    input: EmailingDomainResourceInput,
+  ): HermesSmtpConnection {
     const connection = this.connections[input.workspaceId];
 
     if (!connection?.senderDomains.includes(input.domain.toLowerCase())) {

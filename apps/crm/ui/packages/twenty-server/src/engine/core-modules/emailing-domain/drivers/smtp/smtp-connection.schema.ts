@@ -11,7 +11,11 @@ const senderDomainSchema = z
 
 const connectionSchema = z
   .object({
-    host: z.string().min(1).max(253).regex(/^[a-zA-Z0-9.:[\]-]+$/),
+    host: z
+      .string()
+      .min(1)
+      .max(253)
+      .regex(/^[a-zA-Z0-9.:[\]-]+$/),
     port: z.number().int().min(1).max(65535),
     security: z.enum(['tls', 'starttls', 'plaintext-loopback']),
     username: z.string().min(1).max(1000).optional(),
