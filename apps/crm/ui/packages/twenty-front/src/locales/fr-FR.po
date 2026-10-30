@@ -33743,3 +33743,42 @@ msgstr "Les réglages de la société arrêtent le bot sur ce canal. Les répons
 
 msgid "The company settings keep the bot assisted: it may draft, and you send."
 msgstr "Les réglages de la société gardent le bot assisté : il propose, vous envoyez."
+
+msgid "Bot replies on its own"
+msgstr "Le bot répond seul"
+
+msgid "Bot drafts, you send"
+msgstr "Le bot propose, vous envoyez"
+
+msgid "Bot stopped"
+msgstr "Bot arrêté"
+
+msgid "Bot mode unknown"
+msgstr "Mode du bot inconnu"
+
+msgid "No drafts on this conversation"
+msgstr "Aucun brouillon sur cette conversation"
+
+msgid "Follow the company"
+msgstr "Suivre la société"
+
+msgid "Drafts only"
+msgstr "Brouillons seulement"
+
+msgid "Stop the bot"
+msgstr "Arrêter le bot"
+
+msgid "The bot policy could not be read, so it cannot be changed here. Replying by hand still works."
+msgstr "La politique du bot n’a pas pu être lue, elle ne peut donc pas être modifiée ici. Répondre à la main reste possible."
+
+msgid "Change refused: {0}"
+msgstr "Changement refusé : {0}"
+
+msgid "Change refused."
+msgstr "Changement refusé."
+
+msgid "Policy unchanged: {0}"
+msgstr "Politique inchangée : {0}"
+
+msgid "Policy unchanged."
+msgstr "Politique inchangée."
