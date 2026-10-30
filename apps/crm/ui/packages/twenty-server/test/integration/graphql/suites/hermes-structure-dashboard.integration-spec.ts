@@ -57,7 +57,8 @@ const C_NAME = `Hermes forbidden C ${fixtureSuffix}`;
 // A future, explicit fixture period excludes pre-existing seed rows and asynchronous seed jobs.
 const PERIOD_START = '2050-01-01T00:00:00.000Z';
 const PERIOD_END = '2050-02-01T00:00:00.000Z';
-const INSIDE = new Date('2050-01-15T12:00:00.000Z');
+// ISO values cross the globalSetup/test VM boundary without Date identity checks.
+const INSIDE = '2050-01-15T12:00:00.000Z';
 
 type PublicError = {
   message: string;
@@ -199,7 +200,7 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
             ...label,
             createdAt:
               workspaceId === A && objectName === 'company' && index === 0
-                ? new Date(PERIOD_START)
+                ? PERIOD_START
                 : INSIDE,
             position: index + 1,
           });
@@ -213,9 +214,13 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
           { shouldSkipEventEmission: true },
         );
         const extra = [
-          { id: randomUUID(), createdAt: new Date('2049-12-31T23:59:59.999Z') },
-          { id: randomUUID(), createdAt: new Date(PERIOD_END) },
-          { id: randomUUID(), createdAt: INSIDE, deletedAt: new Date() },
+          { id: randomUUID(), createdAt: '2049-12-31T23:59:59.999Z' },
+          { id: randomUUID(), createdAt: PERIOD_END },
+          {
+            id: randomUUID(),
+            createdAt: INSIDE,
+            deletedAt: new Date().toISOString(),
+          },
         ];
         byObject.get('company')?.push(...extra.map((row) => row.id));
         for (const row of extra)
