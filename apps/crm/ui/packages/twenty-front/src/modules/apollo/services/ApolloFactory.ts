@@ -18,6 +18,7 @@ import { logDebug } from '~/utils/logDebug';
 import { REST_API_BASE_URL } from '@/apollo/constants/RestApiBaseUrl';
 import { type ApolloManager } from '@/apollo/types/ApolloManager';
 import { isSessionSupersededGraphQLError } from '@/apollo/utils/isSessionSupersededGraphQLError';
+import { buildExpectedWorkspaceHeaders } from '@/apollo/utils/buildExpectedWorkspaceHeaders';
 import { isMutationOperation } from '@/apollo/utils/isMutationOperation';
 import { isSupersededSessionServerError } from '@/apollo/utils/isSupersededSessionServerError';
 import { isUnauthenticatedGraphQLError } from '@/apollo/utils/isUnauthenticatedGraphQLError';
@@ -99,7 +100,8 @@ export class ApolloFactory implements ApolloManager {
         credentials: 'include',
       });
 
-      const authLink = setContext(async (_, { headers }) => {
+      const authLink = setContext(async (_, context) => {
+        const { headers } = context;
         const locale = this.currentWorkspaceMember?.locale ?? i18n.locale;
 
         return {
@@ -107,6 +109,7 @@ export class ApolloFactory implements ApolloManager {
           headers: {
             ...headers,
             ...optionHeaders,
+            ...buildExpectedWorkspaceHeaders(context.expectedWorkspaceId),
             'x-locale': locale,
             ...(isDefined(this.appVersion) && {
               'X-App-Version': this.appVersion,
