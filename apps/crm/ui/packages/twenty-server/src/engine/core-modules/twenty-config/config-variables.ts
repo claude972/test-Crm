@@ -2447,6 +2447,17 @@ export class ConfigVariables {
   EMAILING_SMTP_CONNECTIONS = '{}';
 
   @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description:
+      'Server-only JSON map of workspace IDs to Evolution API baseUrl, instanceName and apiKey. Empty means no configured Evolution connection.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_EVOLUTION_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,
     description: 'AWS region',
     type: ConfigVariableType.STRING,
