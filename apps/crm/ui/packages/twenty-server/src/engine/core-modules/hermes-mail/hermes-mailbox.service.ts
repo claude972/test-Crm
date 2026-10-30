@@ -47,6 +47,11 @@ export class HermesMailboxService {
     }
   >();
 
+  private alive(client: ImapFlow) {
+    if (this.expiredClients.has(client))
+      throw new ServiceUnavailableException('MAIL_TIMEOUT');
+  }
+
   private async current(actor: HermesMessagingActor, client: ImapFlow) {
     if (this.expiredClients.has(client))
       throw new ServiceUnavailableException('MAIL_TIMEOUT');
@@ -314,7 +319,8 @@ export class HermesMailboxService {
       { uid: true, size: true },
       { uid: true },
     );
-    if (!summary) throw new NotFoundException('MAIL_MESSAGE_NOT_FOUND');
+    if (!summary || summary.uid !== Number(input.uid))
+      throw new NotFoundException('MAIL_MESSAGE_NOT_FOUND');
     if (
       typeof summary.size !== 'number' ||
       summary.size > MAIL_MAX_SOURCE_BYTES
@@ -325,7 +331,12 @@ export class HermesMailboxService {
       { uid: true, source: { maxLength: MAIL_MAX_SOURCE_BYTES } },
       { uid: true },
     );
-    if (!message || !message.source || message.source.length !== summary.size)
+    if (
+      !message ||
+      message.uid !== Number(input.uid) ||
+      !message.source ||
+      message.source.length !== summary.size
+    )
       throw new ConflictException('MAIL_MESSAGE_CHANGED');
     return PostalMime.parse(message.source, {
       maxNestingDepth: 30,
@@ -338,7 +349,13 @@ export class HermesMailboxService {
       this.locked(client, actor, input, async () => {
         const parsed = await this.source(client, input);
         await this.current(actor, client);
-        const observed = await this.mail.observe(actor, input, parsed);
+        const observed = await this.mail.observe(
+          actor,
+          input,
+          parsed,
+          true,
+          () => this.alive(client),
+        );
         return {
           conversationId: observed.conversationId,
           messageId: observed.messageId,
@@ -374,7 +391,23 @@ export class HermesMailboxService {
       throw new BadRequestException('MAIL_EMPTY_UPDATE');
     return this.session(actor, (client) =>
       this.locked(client, actor, input, async () => {
-        await this.source(client, input);
+        if (input.destination) {
+          this.folder(input.destination);
+          const existing = (await client.list()).some(
+            (folder) =>
+              folder.path === input.destination &&
+              !folder.flags.has('\\Noselect'),
+          );
+          if (!existing)
+            throw new NotFoundException('MAIL_DESTINATION_NOT_FOUND');
+        }
+        const message = await client.fetchOne(
+          String(input.uid),
+          { uid: true },
+          { uid: true },
+        );
+        if (!message || message.uid !== Number(input.uid))
+          throw new NotFoundException('MAIL_MESSAGE_NOT_FOUND');
         await this.current(actor, client);
         if (input.seen !== undefined) {
           const changed = input.seen
@@ -387,14 +420,6 @@ export class HermesMailboxService {
           if (!changed) throw new ConflictException('MAIL_UPDATE_FAILED');
         }
         if (input.destination) {
-          this.folder(input.destination);
-          const existing = (await client.list()).some(
-            (folder) =>
-              folder.path === input.destination &&
-              !folder.flags.has('\\Noselect'),
-          );
-          if (!existing)
-            throw new NotFoundException('MAIL_DESTINATION_NOT_FOUND');
           await this.current(actor, client);
           if (
             !(await client.messageMove(String(input.uid), input.destination, {
@@ -421,7 +446,13 @@ export class HermesMailboxService {
           ownAddresses: getSendableEmailHandles(item.account),
         });
         await this.current(actor, client);
-        const observed = await this.mail.observe(actor, input, source);
+        const observed = await this.mail.observe(
+          actor,
+          input,
+          source,
+          true,
+          () => this.alive(client),
+        );
         const conversationId =
           input.mode === 'FORWARD'
             ? (
@@ -557,7 +588,13 @@ export class HermesMailboxService {
           ownAddresses: getSendableEmailHandles(item.account),
         });
         await this.current(actor, client);
-        const observed = await this.mail.observe(actor, input, source);
+        const observed = await this.mail.observe(
+          actor,
+          input,
+          source,
+          true,
+          () => this.alive(client),
+        );
         const conversationId =
           input.mode === 'FORWARD'
             ? (

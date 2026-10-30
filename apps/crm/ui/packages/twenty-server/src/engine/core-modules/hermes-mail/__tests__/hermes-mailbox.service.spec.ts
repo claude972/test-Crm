@@ -190,9 +190,28 @@ describe('native mailbox APIs', () => {
   it('refuses moving to a nonexistent destination', async () => {
     const f = fixture();
     await expect(
-      f.service.update(actor, { ...scope, destination: 'missing' }),
+      f.service.update(actor, { ...scope, destination: 'missing', seen: true }),
     ).rejects.toThrow('MAIL_DESTINATION_NOT_FOUND');
     expect(f.client.messageMove).not.toHaveBeenCalled();
+    expect(f.client.messageFlagsAdd).not.toHaveBeenCalled();
+  });
+  it('can move a large email without fetching or parsing its MIME body', async () => {
+    const f = fixture();
+    f.client.fetchOne.mockResolvedValue({
+      uid: 12,
+      size: 100 * 1024 * 1024,
+    } as never);
+    expect(
+      await f.service.update(actor, { ...scope, destination: 'Drafts' }),
+    ).toEqual({ state: 'UPDATED' });
+    expect(f.client.fetchOne).toHaveBeenCalledWith(
+      '12',
+      { uid: true },
+      { uid: true },
+    );
+    expect(f.client.messageMove).toHaveBeenCalledWith('12', 'Drafts', {
+      uid: true,
+    });
   });
   it('aborts writes resumed after the timeout has closed the session', async () => {
     jest.useFakeTimers();
