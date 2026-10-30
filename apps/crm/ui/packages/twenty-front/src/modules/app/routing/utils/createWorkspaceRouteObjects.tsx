@@ -8,8 +8,8 @@ import {
 } from '@/app/components/SettingsRoutes';
 import { type WorkspaceRouteObject } from '@/app/routing/types/WorkspaceRouteObject';
 import {
-  PROSPECTION_LIST_QUALIFICATION_PATH,
-  PROSPECTION_RECEIVED_LISTS_PATH,
+  PROSPECTION_CAMPAIGN_AUDIENCE_PATH,
+  PROSPECTION_RECEPTION_PATH,
 } from '@/prospection/constants/ProspectionRoutePaths';
 import { RecordIndexSkeletonLoader } from '@/object-record/record-index/components/RecordIndexSkeletonLoader';
 
@@ -67,15 +67,15 @@ const MobileHomePage = lazy(() =>
   })),
 );
 
-const ProspectionReceivedListsPage = lazy(() =>
-  import('~/pages/prospection/ProspectionReceivedListsPage').then((module) => ({
-    default: module.ProspectionReceivedListsPage,
+const ProspectionImportBatchesPage = lazy(() =>
+  import('~/pages/prospection/ProspectionImportBatchesPage').then((module) => ({
+    default: module.ProspectionImportBatchesPage,
   })),
 );
 
-const ProspectionListQualificationPage = lazy(() =>
-  import('~/pages/prospection/ProspectionListQualificationPage').then(
-    (module) => ({ default: module.ProspectionListQualificationPage }),
+const ProspectionCampaignAudiencePage = lazy(() =>
+  import('~/pages/prospection/ProspectionCampaignAudiencePage').then(
+    (module) => ({ default: module.ProspectionCampaignAudiencePage }),
   ),
 );
 
@@ -186,18 +186,18 @@ export const createWorkspaceRouteObjects = ({
       ),
     },
     {
-      path: PROSPECTION_RECEIVED_LISTS_PATH,
+      path: PROSPECTION_RECEPTION_PATH,
       element: (
         <LazyRoute>
-          <ProspectionReceivedListsPage />
+          <ProspectionImportBatchesPage />
         </LazyRoute>
       ),
     },
     {
-      path: PROSPECTION_LIST_QUALIFICATION_PATH,
+      path: PROSPECTION_CAMPAIGN_AUDIENCE_PATH,
       element: (
         <LazyRoute>
-          <ProspectionListQualificationPage />
+          <ProspectionCampaignAudiencePage />
         </LazyRoute>
       ),
     },

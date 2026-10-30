@@ -4,12 +4,12 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import {
-  PROSPECTION_LISTS_MEMBERS_SCAN_LIMIT,
-  PROSPECTION_RECEIVED_LISTS_PAGE_SIZE,
+  PROSPECTION_AUDIENCE_MEMBERS_SCAN_LIMIT,
+  PROSPECTION_CAMPAIGN_AUDIENCES_PAGE_SIZE,
 } from '@/prospection/constants/ProspectionLimits';
 import { type ProspectionCount } from '@/prospection/types/ProspectionCount';
-import { type ReceivedList } from '@/prospection/types/ReceivedList';
-import { type ReceivedListMember } from '@/prospection/types/ReceivedListMember';
+import { type CampaignAudience } from '@/prospection/types/CampaignAudience';
+import { type CampaignAudienceMember } from '@/prospection/types/CampaignAudienceMember';
 import {
   buildCoveredProspectionCount,
   exactProspectionCount,
@@ -17,15 +17,17 @@ import {
   unavailableProspectionCount,
 } from '@/prospection/utils/buildProspectionCount';
 
-export type ReceivedListRow = {
-  list: ReceivedList;
+export type CampaignAudienceRow = {
+  list: CampaignAudience;
   contactCount: ProspectionCount;
 };
 
-// The lists received in this workspace, newest first, with a contact count
-// per list. The counts come from one extra page of memberships rather than
-// one query per row, so they are exact only while that page covers them.
-export const useReceivedLists = () => {
+// The campaign audience lists of this workspace, newest first, with a contact
+// count per audience. These lists are already-qualified campaign audiences;
+// incoming batches live in the Hermes reception, not here. The counts come from
+// one extra page of memberships rather than one query per row, so they are
+// exact only while that page covers them.
+export const useCampaignAudiences = () => {
   const {
     records: lists,
     totalCount: listTotalCount,
@@ -33,7 +35,7 @@ export const useReceivedLists = () => {
     error: listsError,
     hasNextPage: hasMoreLists,
     fetchMoreRecords: fetchMoreLists,
-  } = useFindManyRecords<ReceivedList>({
+  } = useFindManyRecords<CampaignAudience>({
     objectNameSingular: CoreObjectNameSingular.MessageList,
     orderBy: [{ createdAt: 'DescNullsLast' }],
     recordGqlFields: {
@@ -42,7 +44,7 @@ export const useReceivedLists = () => {
       description: true,
       createdAt: true,
     },
-    limit: PROSPECTION_RECEIVED_LISTS_PAGE_SIZE,
+    limit: PROSPECTION_CAMPAIGN_AUDIENCES_PAGE_SIZE,
   });
 
   const listIds = lists.map(({ id }) => id);
@@ -52,11 +54,11 @@ export const useReceivedLists = () => {
     totalCount: memberTotalCount,
     loading: membersLoading,
     error: membersError,
-  } = useFindManyRecords<ReceivedListMember>({
+  } = useFindManyRecords<CampaignAudienceMember>({
     objectNameSingular: CoreObjectNameSingular.MessageListMember,
     filter: { listId: { in: listIds } },
     recordGqlFields: { id: true, listId: true },
-    limit: PROSPECTION_LISTS_MEMBERS_SCAN_LIMIT,
+    limit: PROSPECTION_AUDIENCE_MEMBERS_SCAN_LIMIT,
     skip: listIds.length === 0,
   });
 
@@ -87,7 +89,7 @@ export const useReceivedLists = () => {
             total: memberTotalCount,
           });
 
-  const rows: ReceivedListRow[] = lists.map((list) => ({
+  const rows: CampaignAudienceRow[] = lists.map((list) => ({
     list,
     contactCount: buildContactCount(countByListId.get(list.id) ?? 0),
   }));

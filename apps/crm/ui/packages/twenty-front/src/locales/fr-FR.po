@@ -29954,3 +29954,490 @@ msgstr "Sans nom"
 msgid "Counts and records read from this workspace."
 msgstr "Chiffres et données de cet espace de travail."
 
+
+msgid "Prospection"
+msgstr "Prospection"
+
+msgid "Batches"
+msgstr "Lots"
+
+msgid "Staged rows"
+msgstr "Lignes déposées"
+
+msgid "Batches staged for this workspace, with the status the server gave each row."
+msgstr "Lots déposés pour ce workspace, avec le statut attribué par le serveur à chaque ligne."
+
+msgid "Staging opens once the reception can be read."
+msgstr "Le dépôt s'ouvre dès que la réception est lisible."
+
+msgid "Back to the reception"
+msgstr "Retour à la réception"
+
+msgid "Batch not found in this workspace."
+msgstr "Lot introuvable dans ce workspace."
+
+msgid "Some batches could not be read and are not listed."
+msgstr "Certains lots illisibles ne sont pas affichés."
+
+msgid "No batch staged yet."
+msgstr "Aucun lot déposé."
+
+msgid "Nothing is sent from here: staging, qualification and drafts only."
+msgstr "Aucun envoi ici : dépôt, qualification et brouillons uniquement."
+
+msgid "Sending stays outside this screen."
+msgstr "L'envoi reste hors de cet écran."
+
+msgid "Campaign sending unavailable."
+msgstr "Envoi de campagne indisponible."
+
+msgid "Sending capability unknown."
+msgstr "Capacité d'envoi inconnue."
+
+msgid "Tracking off by default."
+msgstr "Pistage désactivé par défaut."
+
+msgid "Tracking on by default."
+msgstr "Pistage activé par défaut."
+
+msgid "Tracking default unknown."
+msgstr "Valeur par défaut du pistage inconnue."
+
+msgid "Batch"
+msgstr "Lot"
+
+msgid "Rows"
+msgstr "Lignes"
+
+msgid "Qualified"
+msgstr "Qualifiée"
+
+msgid "Collected"
+msgstr "Collecté le"
+
+msgid "Unnamed batch"
+msgstr "Lot sans nom"
+
+msgid "Unreadable"
+msgstr "Illisible"
+
+msgid "Staged rows, with the status the server gave each one."
+msgstr "Lignes déposées, avec le statut attribué par le serveur."
+
+msgid "Batch id"
+msgstr "Identifiant du lot"
+
+msgid "Staged"
+msgstr "Déposé le"
+
+msgid "Row statuses"
+msgstr "Statuts des lignes"
+
+msgid "{0} rows could not be read and are not listed."
+msgstr "{0} lignes illisibles ne sont pas affichées."
+
+msgid "{0} of {1} selectable rows picked."
+msgstr "{0} lignes sélectionnées sur {1} sélectionnables."
+
+msgid "Select all"
+msgstr "Tout sélectionner"
+
+msgid "Some rows carry a status outside the contract. They are shown as unknown and cannot be acted on."
+msgstr "Certaines lignes portent un statut hors contrat. Elles sont affichées comme inconnues et aucune action n'est possible."
+
+msgid "A conflict row came in under a batch id already used with different content."
+msgstr "Une ligne en conflit est arrivée sous un identifiant de lot déjà utilisé avec un contenu différent."
+
+msgid "Rows unreadable: this batch holds an unknown number."
+msgstr "Lignes illisibles : le nombre de lignes de ce lot est inconnu."
+
+msgid "No row in this batch."
+msgstr "Aucune ligne dans ce lot."
+
+msgid "Invalid"
+msgstr "Invalide"
+
+msgid "Suppressed"
+msgstr "Supprimée"
+
+msgid "Conflict"
+msgstr "Conflit"
+
+msgid "Unknown status"
+msgstr "Statut inconnu"
+
+msgid "Staged, not qualified yet."
+msgstr "Déposée, pas encore qualifiée."
+
+msgid "Email, company or website rejected. The row is kept with its error."
+msgstr "Email, société ou site rejeté. La ligne est conservée avec son erreur."
+
+msgid "Already present in this batch."
+msgstr "Déjà présente dans ce lot."
+
+msgid "Blocked by the workspace suppression register. Never lifted here."
+msgstr "Bloquée par le registre des suppressions du workspace. Jamais levée ici."
+
+msgid "Company and contact created or reused."
+msgstr "Société et contact créés ou réutilisés."
+
+msgid "Same batch id, different content."
+msgstr "Même identifiant de lot, contenu différent."
+
+msgid "Status outside the contract."
+msgstr "Statut hors contrat."
+
+msgid "Pick"
+msgstr "Choix"
+
+msgid "Errors"
+msgstr "Erreurs"
+
+msgid "Suppressed: not selectable"
+msgstr "Supprimée : non sélectionnable"
+
+msgid "Unknown status: not selectable"
+msgstr "Statut inconnu : non sélectionnable"
+
+msgid "Errors unreadable"
+msgstr "Erreurs illisibles"
+
+msgid "Stage a batch"
+msgstr "Déposer un lot"
+
+msgid "JSON rows, {0} per batch at most. A row that fails validation is still staged, with its error."
+msgstr "Lignes JSON, {0} par lot au maximum. Une ligne invalide est tout de même déposée, avec son erreur."
+
+msgid "Batch name"
+msgstr "Nom du lot"
+
+msgid "Paris trade show, October"
+msgstr "Salon de Paris, octobre"
+
+msgid "your-own-reference"
+msgstr "votre-reference"
+
+msgid "The same id with the same content stages nothing twice."
+msgstr "Le même identifiant avec le même contenu ne dépose rien deux fois."
+
+msgid "Source URL"
+msgstr "URL source"
+
+msgid "http or https, without credentials."
+msgstr "http ou https, sans identifiants."
+
+msgid "Collected on"
+msgstr "Collecté le"
+
+msgid "Sent as {0}"
+msgstr "Envoyé comme {0}"
+
+msgid "Sent as an ISO 8601 instant."
+msgstr "Envoyé comme instant ISO 8601."
+
+msgid "Accepted fields: email, companyName, firstName, lastName, jobTitle, website, phone."
+msgstr "Champs acceptés : email, companyName, firstName, lastName, jobTitle, website, phone."
+
+msgid "Or load a JSON file"
+msgstr "Ou charger un fichier JSON"
+
+msgid "{0} rows read."
+msgstr "{0} lignes lues."
+
+msgid "Retention bound reached: {0} batches are kept per workspace."
+msgstr "Limite de conservation atteinte : {0} lots conservés par workspace."
+
+msgid "Stage batch"
+msgstr "Déposer le lot"
+
+msgid "Staging answer"
+msgstr "Réponse du dépôt"
+
+msgid "Batch refused."
+msgstr "Lot refusé."
+
+msgid "Already staged: same batch id and same content."
+msgstr "Déjà déposé : même identifiant et même contenu."
+
+msgid "Batch staged."
+msgstr "Lot déposé."
+
+msgid "Batch staged. Replay status unknown."
+msgstr "Lot déposé. Rejeu inconnu."
+
+msgid "The staged batch could not be read back."
+msgstr "Le lot déposé n'a pas pu être relu."
+
+msgid "Batch id required."
+msgstr "Identifiant de lot requis."
+
+msgid "Batch name required."
+msgstr "Nom de lot requis."
+
+msgid "Source URL required."
+msgstr "URL source requise."
+
+msgid "Source URL must be http or https."
+msgstr "L'URL source doit être en http ou https."
+
+msgid "Source URL must carry no credentials."
+msgstr "L'URL source ne doit porter aucun identifiant."
+
+msgid "Collection date required."
+msgstr "Date de collecte requise."
+
+msgid "Collection date unreadable."
+msgstr "Date de collecte illisible."
+
+msgid "Paste at least one row."
+msgstr "Collez au moins une ligne."
+
+msgid "Rows are not valid JSON."
+msgstr "Les lignes ne sont pas du JSON valide."
+
+msgid "Expected a JSON array of rows, or an object with a rows array."
+msgstr "Tableau JSON de lignes attendu, ou objet contenant un tableau rows."
+
+msgid "{0} rows pasted; {1} per batch at most."
+msgstr "{0} lignes collées ; {1} par lot au maximum."
+
+msgid "Row {0}: expected an object."
+msgstr "Ligne {0} : objet attendu."
+
+msgid "Row {0}: email required."
+msgstr "Ligne {0} : email requis."
+
+msgid "Row {0}: company name required."
+msgstr "Ligne {0} : nom de société requis."
+
+msgid "Row {0}: {1} must be text."
+msgstr "Ligne {0} : {1} doit être du texte."
+
+msgid "Row {0}: field {1} is not accepted."
+msgstr "Ligne {0} : le champ {1} n'est pas accepté."
+
+msgid "Batch too large: {0} bytes for a {1} byte limit."
+msgstr "Lot trop volumineux : {0} octets pour une limite de {1} octets."
+
+msgid "Qualify the selected rows"
+msgstr "Qualifier les lignes sélectionnées"
+
+msgid "{0} rows selected, {1} at most."
+msgstr "{0} lignes sélectionnées, {1} au maximum."
+
+msgid "Professional purpose"
+msgstr "Motif professionnel"
+
+msgid "Why these companies are being contacted."
+msgstr "Pourquoi ces sociétés sont contactées."
+
+msgid "{0} characters, {1} to {2}."
+msgstr "{0} caractères, de {1} à {2}."
+
+msgid "Privacy notice URL"
+msgstr "URL d'information"
+
+msgid "HTTPS only."
+msgstr "HTTPS uniquement."
+
+msgid "Information method"
+msgstr "Méthode d'information"
+
+msgid "Contacts already informed"
+msgstr "Contacts déjà informés"
+
+msgid "Notice given at first contact"
+msgstr "Information au premier contact"
+
+msgid "Qualify"
+msgstr "Qualifier"
+
+msgid "Purpose: {0} characters, {1} needed."
+msgstr "Motif : {0} caractères, {1} requis."
+
+msgid "Purpose: {0} characters, {1} at most."
+msgstr "Motif : {0} caractères, {1} au maximum."
+
+msgid "Privacy notice URL required."
+msgstr "URL d'information requise."
+
+msgid "Privacy notice URL must use HTTPS."
+msgstr "L'URL d'information doit être en HTTPS."
+
+msgid "Select at least one row."
+msgstr "Sélectionnez au moins une ligne."
+
+msgid "{0} rows selected; {1} at most."
+msgstr "{0} lignes sélectionnées ; {1} au maximum."
+
+msgid "{0} rows answered."
+msgstr "{0} lignes renvoyées."
+
+msgid "{0} rows need review: see their error in the table."
+msgstr "{0} lignes à revoir : leur erreur figure dans le tableau."
+
+msgid "Qualification answer"
+msgstr "Réponse de la qualification"
+
+msgid "Qualification refused."
+msgstr "Qualification refusée."
+
+msgid "Qualification answered without readable rows."
+msgstr "La qualification a répondu sans lignes lisibles."
+
+msgid "Draft a campaign"
+msgstr "Brouillon de campagne"
+
+msgid "{0} qualified rows selected, {1} at most. Nothing is sent."
+msgstr "{0} lignes qualifiées sélectionnées, {1} au maximum. Aucun envoi."
+
+msgid "Campaign name"
+msgstr "Nom de la campagne"
+
+msgid "October outreach"
+msgstr "Prospection d'octobre"
+
+msgid "Subject line"
+msgstr "Ligne d'objet"
+
+msgid "Create draft"
+msgstr "Créer le brouillon"
+
+msgid "Campaign name required."
+msgstr "Nom de campagne requis."
+
+msgid "Subject required."
+msgstr "Objet requis."
+
+msgid "Select at least one qualified row."
+msgstr "Sélectionnez au moins une ligne qualifiée."
+
+msgid "Draft created. Nothing was sent."
+msgstr "Brouillon créé. Rien n'a été envoyé."
+
+msgid "The campaign answered with an unknown status. Open it before doing anything with it."
+msgstr "La campagne a répondu avec un statut inconnu. Ouvrez-la avant toute suite."
+
+msgid "Sending unavailable"
+msgstr "Envoi indisponible"
+
+msgid "Sending flag unknown"
+msgstr "Indicateur d'envoi inconnu"
+
+msgid "A draft is not a finished campaign: its content and any first-contact notice are still to be written in the campaign editor."
+msgstr "Un brouillon n'est pas une campagne finie : son contenu et l'éventuelle information de premier contact restent à écrire dans l'éditeur de campagne."
+
+msgid "Draft answer"
+msgstr "Réponse du brouillon"
+
+msgid "Draft refused."
+msgstr "Brouillon refusé."
+
+msgid "Campaign drafts unavailable in this workspace."
+msgstr "Brouillons de campagne indisponibles dans ce workspace."
+
+msgid "Campaign draft capability unknown."
+msgstr "Capacité de brouillon de campagne inconnue."
+
+msgid "Campaign drafts need the campaign feature turned on."
+msgstr "Les brouillons de campagne exigent la fonctionnalité campagne activée."
+
+msgid "Not authorised: unrestricted workspace administrators only."
+msgstr "Non autorisé : administrateurs de workspace non restreints uniquement."
+
+msgid "API keys, apps and impersonated sessions are refused."
+msgstr "Clés d'API, apps et sessions impersonnées sont refusées."
+
+msgid "Same batch id with different content. Use another batch id, or restore the original content."
+msgstr "Même identifiant de lot, contenu différent. Changez l'identifiant ou rétablissez le contenu d'origine."
+
+msgid "no answer"
+msgstr "aucune réponse"
+
+msgid "unexpected answer"
+msgstr "réponse inattendue"
+
+msgid "version not supported by this screen"
+msgstr "version non prise en charge par cet écran"
+
+msgid "unexpected shape"
+msgstr "forme inattendue"
+
+msgid "{0}: unknown ({1})."
+msgstr "{0} : inconnu ({1})."
+
+msgid "Campaign audiences"
+msgstr "Audiences de campagnes"
+
+msgid "Audience lists already qualified for campaigns. Read-only here."
+msgstr "Listes d'audience déjà qualifiées pour les campagnes. Lecture seule ici."
+
+msgid "Audiences"
+msgstr "Audiences"
+
+msgid "Audience"
+msgstr "Audience"
+
+msgid "Untitled audience"
+msgstr "Audience sans nom"
+
+msgid "No campaign audience yet."
+msgstr "Aucune audience de campagne."
+
+msgid "Not authorised to read campaign audiences."
+msgstr "Lecture des audiences de campagnes non autorisée."
+
+msgid "Campaign audience"
+msgstr "Audience de campagne"
+
+msgid "Already qualified for campaigns. No import origin recorded."
+msgstr "Déjà qualifiée pour les campagnes. Aucune origine d'import enregistrée."
+
+msgid "Not authorised to read this audience."
+msgstr "Lecture de cette audience non autorisée."
+
+msgid "Audience not found."
+msgstr "Audience introuvable."
+
+msgid "No contact in this audience."
+msgstr "Aucun contact dans cette audience."
+
+msgid "Suppression register"
+msgstr "Registre des suppressions"
+
+msgid "Suppression register unavailable."
+msgstr "Registre des suppressions indisponible."
+
+msgid "Suppression register partly read."
+msgstr "Registre des suppressions partiellement lu."
+
+msgid "No entry"
+msgstr "Aucune entrée"
+
+msgid "Unsubscribed from every topic"
+msgstr "Désinscrit de tous les thèmes"
+
+msgid "Unsubscribed from one topic"
+msgstr "Désinscrit d'un thème"
+
+msgid "Every topic."
+msgstr "Tous les thèmes."
+
+msgid "Limited to one topic."
+msgstr "Limité à un thème."
+
+msgid "Bounced"
+msgstr "Échec de remise"
+
+msgid "Tracking refused"
+msgstr "Pistage refusé"
+
+msgid "Opens and clicks only. Not a refusal to be contacted."
+msgstr "Ouvertures et clics seulement. Pas un refus d'être contacté."
+
+msgid "Delivery entry."
+msgstr "Entrée de délivrabilité."
+
+msgid "Unknown entry"
+msgstr "Entrée inconnue"
+
