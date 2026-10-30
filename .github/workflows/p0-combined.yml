@@ -1,0 +1,24 @@
+name: P0 combined checkpoints
+on:
+  push:
+    branches: [chore/p0-combined-verification]
+    paths:
+      - '.github/workflows/**'
+      - 'apps/**'
+      - 'scripts/**'
+      - 'infra/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Makefile'
+      - 'docker-compose.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p0-combined-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  source-integrity:
+    uses: ./.github/workflows/p0-integrity.yml
+  backend-build:
+    uses: ./.github/workflows/p0-backend-build.yml

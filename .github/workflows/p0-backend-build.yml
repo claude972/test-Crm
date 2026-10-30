@@ -6,6 +6,7 @@ on:
       - '.github/workflows/p0-backend-build.yml'
       - 'apps/crm/ui/**'
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 concurrency:
