@@ -346,3 +346,32 @@ Le propriétaire demande poursuite autonome jusqu'au lien de test, avec sous-age
 - Défaut d’accessibilité confirmé : les deux radios étaient nommées Informationmethod viaField.Root ; la CI9ce échoue sur ce vrai problème après dashboard/structures/staging passés. CorrectifClaude8a9abe74b intégrérootb3eca2bc1, assertions conservées. Root a poursuivi la recette manuelle par texteDOM sans prétendre l’accessibilité valide.
 - Mission frontendClaude actuelle : menuHermès/dashboard replié initialement sur mobile, bouton accessible ouvrir/fermer, liens conservés, desktop inchangé ; branding propre au shellHermès sans rebaptiser le framework. La capture390px montre que la navigation actuelle occupe presque le premier écran. Root coordonne le helperCI avecpreview_hosting après publication du composant.
 - Après intégration/revue : nouvelle CI desktop/mobile, puis source gelée. Pour remise12h, session fraîche90min préparée vers15:00UTC pour gate15:15UTC/11:15Martinique, mêmeSHA frontend/backend et nouveau partageprivé réellement testé. Rien de sensible dansGit et aucune production modifiée.
+
+
+## HERMES-V2-CADRAGE-20261030 — plan et prompt, aucune implémentation
+
+Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnées avec dashboard et connexions propres, compléter Prospection, proposer des maquettes avant câblage car le design actuel est rejeté, clarifier la langue, centraliser tous les réglages et ajouter de vrais interrupteurs des bots WhatsApp/e-mail par société. Cette instruction remplace les anciennes autorisations de poursuite autonome pour cette V2 : **audit, plan et prompt uniquement maintenant**.
+
+- livrables de cadrage : docs/handoff/hermes-v2-plan-validation.md et docs/handoff/hermes-v2-prompt.xml ; skills make-plan et prompt-generator appliqués, split pour la répartition future.
+- base commune auditée :333ba534927e177c90b35eb4157d75d8d767dec4 sur feat/codex-hermes-integration ; aucun branchement applicatif commencé pour cette V2.
+- validations : périmètre/plan, langue (FR proposé, formulation anglaise à confirmer), référence visuelle, choix puis validation des maquettes et autorisation claire d'implémenter. Le design actuel/Monday n'est plus approuvé.
+- source de vérité : centre Réglages unique, société active explicite ; vue commune de lecture seulement, jamais une cible de secrets/écritures.
+
+### Affectation future Claude
+- agent: claude
+- status: pending
+- branch: feat/claude-hermes-v2-ui — nom réservé, branche/worktree non créés.
+- ownership: maquettes après validation du cadrage et référence ; puis frontend/tokens/localisation, uniquement après accord visuel et autorisation de coder. Frontend packages/twenty-front et composants UI dédiés.
+- deliverables: trois pistes visuelles, maquettes desktop/mobile, parcours société/prospection/messagerie et centre Réglages ; aucun réglage dispersé dans les modules ; états honnêtes et langue validée.
+
+### Affectation future Codex
+- agent: codex
+- status: pending
+- branch: feat/codex-hermes-v2-core — nom réservé, branche/worktree non créés.
+- ownership: contrats partagés, création/switch sécurisé de société, données/API, connexions chiffrées, politiques bots société/canal, prospection et CI/migrations ; packages/twenty-server, contrats twenty-shared et intégration à coordonner.
+- deliverables: réutiliser auth/CRM/campagnes natifs ; vrai OFF bloquant MCP et auto sans couper réception/humain ; isolation A/B/C, révocation, onglets et métriques vérifiées.
+
+### Statut réel de transmission et vérification
+- Deux sous-agents Codex ont fait de la collecte factuelle en lecture seule ; aucune modification applicative, connexion externe, migration ou preview lancée pour cette demande.
+- Le prompt est publié pour validation, **pas envoyé comme ordre d'implémenter** à Claude. Une publication de mission ne prouve pas le démarrage d'un agent.
+- Le compte-rendu source et les critères détaillés sont dans le plan ; les nouveaux contrats restent à définir, ils ne sont pas présentés comme API déjà existantes.

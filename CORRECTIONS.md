@@ -1111,3 +1111,20 @@ Tests ecrits mais NON executes : jest ne peut pas tourner dans ce worktree, il n
 Carte connecteurs construite sur le contrat publie hermesEvolutionConnection, sans argument, avec les cinq statuts exacts. PROVIDER_REPORTED_OPEN n'est jamais presente comme une connexion etablie ni comme une capacite d'envoi : bordure pointillee et libelle nommant la source de la declaration, afin que la distinction survive a une lecture sans couleur. Aucune cle, URL ni instance affichee. checkedAt nul est rendu comme jamais verifie, pas comme une ligne saine. SettingsPath.Integrations existait dans l'enum partage mais n'etait ni route ni implemente : la page est desormais routee.
 
 Trois sous-agents lances sur des perimetres de fichiers disjoints : coquille et tableau de bord Monday sous modules/hermes-shell et pages/hermes, reception et qualification B2B sous modules/prospection et pages/prospection, connecteurs sous modules/connectors et pages/settings/integrations. Aucun n'a le droit d'ecrire dans le routage, la navigation, twenty-shared ni les fichiers generes : ils me remontent le cablage et je l'applique moi-meme.
+
+
+## HERMES-V2-CADRAGE-20261030 — audit source, en attente de validation
+
+- reviewer: codex, avec sous-agents de collecte plan_tenancy_settings et plan_prospection_design.
+- reviewed branch/revision: feat/codex-hermes-integration /333ba534927e177c90b35eb4157d75d8d767dec4.
+- scope: lecture des instructions, contrats et sources ; aucun nouveau test runtime ni accès fournisseur. Les références précises et limites de confiance sont consignées dans docs/handoff/hermes-v2-plan-validation.md.
+- checks: XML du prompt parsé, huit sections requises présentes ; documents de planification uniquement. Aucun correctif fonctionnel ni succès de recette V2 déclaré.
+
+| ID | Agent responsable après autorisation | État | Preuve et correction attendue |
+|---|---|---|---|
+| HERMES-V2-TENANT-01 | codex | open | Dashboard actuel lecture seule ; vérifier et intégrer création/auth/switch natifs, sans faux changement de contexte CRUD ; recette cookies/caches/deux onglets/révocation |
+| HERMES-V2-CONFIG-01 | codex + claude pour UI | open | Connexions env-only et réglages dispersés ; MANUAL par conversation n'empêche pas les suggestions MCP ; vrai OFF société/canal et centre Réglages unique requis |
+| HERMES-V2-PROSP-01 | codex + claude pour UI | open | Hermès crée des DRAFT, smtpCampaignSending:false ; compléter le parcours commercial en réutilisant l'envoi natif et prévoir capacité au-delà des limites JSONB |
+| HERMES-V2-DESIGN-01 | claude | open | Design rejeté ; demander référence, proposer maquettes et attendre validation avant câblage. Fallback EN prouvé, mélange runtime à diagnostiquer ; langue cible à confirmer |
+
+Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux documents et des maquettes reste requise avant code applicatif ; aucune commande CLI Claude n'a été envoyée pour exécuter cette V2.
