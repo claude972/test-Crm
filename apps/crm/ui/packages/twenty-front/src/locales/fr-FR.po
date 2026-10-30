@@ -29832,3 +29832,76 @@ msgstr "Opportunités"
 msgid "Tasks"
 msgstr "Tâches"
 
+
+msgid "Contacts"
+msgstr "Contacts"
+
+msgid "Received"
+msgstr "Reçue le"
+
+msgid "Reception"
+msgstr "Réception"
+
+msgid "Received lists"
+msgstr "Listes reçues"
+
+msgid "Qualification"
+msgstr "Qualification"
+
+msgid "Contact"
+msgstr "Contact"
+
+msgid "Opt-out"
+msgstr "Opposition"
+
+msgid "With an email"
+msgstr "Avec un e-mail"
+
+msgid "Without a company"
+msgstr "Sans société"
+
+msgid "Opted out"
+msgstr "Opposé"
+
+msgid "No opt-out"
+msgstr "Pas d'opposition"
+
+msgid "No name"
+msgstr "Sans nom"
+
+msgid "No email"
+msgstr "Sans e-mail"
+
+msgid "No company"
+msgstr "Sans société"
+
+msgid "Unknown company"
+msgstr "Société inconnue"
+
+msgid "Origin not recorded"
+msgstr "Provenance non enregistrée"
+
+msgid "Opt-outs unavailable."
+msgstr "Oppositions indisponibles."
+
+msgid "Opt-outs partly checked."
+msgstr "Oppositions partiellement vérifiées."
+
+msgid "No list received yet."
+msgstr "Aucune liste reçue."
+
+msgid "No contact in this list."
+msgstr "Aucun contact dans cette liste."
+
+msgid "List not found."
+msgstr "Liste introuvable."
+
+msgid "To set up."
+msgstr "À configurer."
+
+msgid "partial"
+msgstr "partiel"
+
+msgid "{0}/{1} checked"
+msgstr "{0}/{1} vérifiés"
+
