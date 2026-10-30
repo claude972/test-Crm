@@ -183,6 +183,38 @@ describe('readMessagingInboxConnections', () => {
     );
   });
 
+  it('treats every media capability as unavailable when the server omits it', () => {
+    const read = readMessagingInboxConnections([
+      { channel: 'WHATSAPP', state: 'AVAILABLE', canSend: true },
+    ]);
+
+    // A server that does not publish these fields yet must not be read as
+    // offering them. Absent is unavailable, never available by default.
+    expect(read.kind === 'read' && read.value[0].canSendMedia).toBe(false);
+    expect(read.kind === 'read' && read.value[0].canReceiveMedia).toBe(false);
+    expect(read.kind === 'read' && read.value[0].canRecordVoice).toBe(false);
+    expect(read.kind === 'read' && read.value[0].canComposeRichEmail).toBe(false);
+  });
+
+  it('reads media capabilities independently of the state and of canSend', () => {
+    const read = readMessagingInboxConnections([
+      {
+        channel: 'WHATSAPP',
+        state: 'NOT_CONFIGURED',
+        canSend: false,
+        canSendMedia: true,
+        canReceiveMedia: true,
+        canRecordVoice: true,
+        canComposeRichEmail: true,
+      },
+    ]);
+
+    expect(read.kind === 'read' && read.value[0].canSendMedia).toBe(true);
+    expect(read.kind === 'read' && read.value[0].canReceiveMedia).toBe(true);
+    expect(read.kind === 'read' && read.value[0].canRecordVoice).toBe(true);
+    expect(read.kind === 'read' && read.value[0].canComposeRichEmail).toBe(true);
+  });
+
   it('defaults canSync to false and leaves canSend unknown', () => {
     const read = readMessagingInboxConnections([
       { channel: 'EMAIL', state: 'AVAILABLE' },

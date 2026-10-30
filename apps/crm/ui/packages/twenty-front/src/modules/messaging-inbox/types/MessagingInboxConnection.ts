@@ -36,6 +36,13 @@ export type MessagingInboxConnection = {
   unknownState: string | null;
   canSend: boolean | null;
   canSync: boolean;
+  // Media, voice and rich email are capabilities the server computes from a
+  // real configuration. They default to false here: a capability nobody
+  // confirmed is a capability the screen must not offer.
+  canSendMedia: boolean;
+  canReceiveMedia: boolean;
+  canRecordVoice: boolean;
+  canComposeRichEmail: boolean;
   lastCheckedAt: string | null;
   errorCode: string | null;
 };
