@@ -1,6 +1,7 @@
 import { useAuth } from '@/auth/hooks/useAuth';
 
 import { purgeSessionStorage } from '@/auth/utils/purgeSessionStorage';
+import { assignLocation } from '~/utils/assignLocation';
 import { logError } from '~/utils/logError';
 
 import { MockedProvider } from '@apollo/client/testing/react';
@@ -25,6 +26,7 @@ import {
 import { returnToPathState } from '@/auth/states/returnToPathState';
 import { renderHook } from '@testing-library/react';
 import { getDefaultStore } from 'jotai';
+import { AppPath } from 'kovaa-lab-shared/types';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 import { ToastProvider } from 'kovaa-lab-ui/components/feedback';
 
@@ -75,26 +77,18 @@ jest.mock('@/domain-manager/hooks/useLastAuthenticatedWorkspaceDomain', () => ({
 jest.mock('@/auth/utils/purgeSessionStorage', () => ({
   purgeSessionStorage: jest.fn(),
 }));
+jest.mock('~/utils/assignLocation');
 jest.mock('~/utils/logError');
 
 const mockedPurgeSessionStorage = jest.mocked(purgeSessionStorage);
+const mockedAssignLocation = jest.mocked(assignLocation);
 const mockedLogError = jest.mocked(logError);
 
-// jsdom refuses a real navigation, so assign is replaced outright. Recording
-// into a shared array is what lets the ordering be asserted rather than
-// assumed: the whole point of the fix is that the purge finishes first.
+// window.location is non-configurable in jsdom, so the navigation is observed
+// at its own module boundary instead. Recording into a shared array is what
+// lets the ordering be asserted rather than assumed: the whole point of the
+// fix is that the purge finishes first.
 const navigationOrder: string[] = [];
-const assignSpy = jest.fn(() => {
-  navigationOrder.push('navigate');
-});
-
-beforeAll(() => {
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    value: { ...window.location, assign: assignSpy },
-    writable: true,
-  });
-});
 
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <MockedProvider mocks={Object.values(mocks)}>
@@ -120,6 +114,9 @@ describe('useAuth', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     navigationOrder.length = 0;
+    mockedAssignLocation.mockImplementation(() => {
+      navigationOrder.push('navigate');
+    });
     mockedPurgeSessionStorage.mockResolvedValue('cleared');
     getDefaultStore().set(returnToPathState.atom, '');
   });
@@ -267,7 +264,7 @@ describe('useAuth', () => {
 
     // Leaving must never be blocked by a stuck database, and the unconfirmed
     // wipe must not pass silently either.
-    expect(assignSpy).toHaveBeenCalled();
+    expect(mockedAssignLocation).toHaveBeenCalledWith(AppPath.SignInUp);
     expect(mockedLogError).toHaveBeenCalled();
   });
 
@@ -281,7 +278,7 @@ describe('useAuth', () => {
     });
 
     expect(mockedLogError).toHaveBeenCalled();
-    expect(assignSpy).toHaveBeenCalled();
+    expect(mockedAssignLocation).toHaveBeenCalledWith(AppPath.SignInUp);
   });
 
   it('should handle credential sign-up', async () => {

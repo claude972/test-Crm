@@ -65,6 +65,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SOURCE_LOCALE } from 'kovaa-lab-shared/translations';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { doNotTranslate } from 'kovaa-lab-shared/i18n';
+import { assignLocation } from '~/utils/assignLocation';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
 import { useStore } from 'jotai';
@@ -152,7 +153,7 @@ export const useAuth = () => {
       );
     }
 
-    window.location.assign(AppPath.SignInUp);
+    assignLocation(AppPath.SignInUp);
   }, [store, setLastAuthenticateWorkspaceDomain]);
 
   const navigateAfterMultiWorkspaceSignInUp = useCallback(
