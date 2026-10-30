@@ -28,6 +28,7 @@ import { maintenanceModeState } from '@/client-config/states/maintenanceModeStat
 import { isMicrosoftCalendarEnabledState } from '@/client-config/states/isMicrosoftCalendarEnabledState';
 import { isMicrosoftMessagingEnabledState } from '@/client-config/states/isMicrosoftMessagingEnabledState';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { isOnboardingAiChatEnabledState } from '@/client-config/states/isOnboardingAiChatEnabledState';
 import { labPublicFeatureFlagsState } from '@/client-config/states/labPublicFeatureFlagsState';
 import { sentryConfigState } from '@/client-config/states/sentryConfigState';
@@ -65,6 +66,9 @@ export const useClientConfig = (): UseClientConfigResult => {
   );
   const setIsMultiWorkspaceEnabled = useSetAtomState(
     isMultiWorkspaceEnabledState,
+  );
+  const setIsSameOriginMultiWorkspaceEnabled = useSetAtomState(
+    isSameOriginMultiWorkspaceEnabledState,
   );
   const setIsEmailVerificationRequired = useSetAtomState(
     isEmailVerificationRequiredState,
@@ -191,6 +195,10 @@ export const useClientConfig = (): UseClientConfigResult => {
         setIsAnalyticsEnabled(clientConfig.analyticsEnabled);
         setIsDeveloperDefaultSignInPrefilled(clientConfig.signInPrefilled);
         setIsMultiWorkspaceEnabled(clientConfig.isMultiWorkspaceEnabled);
+        setIsSameOriginMultiWorkspaceEnabled(
+          clientConfig.isSameOriginMultiWorkspaceEnabled === true &&
+            !clientConfig.isMultiWorkspaceEnabled,
+        );
         setIsEmailVerificationRequired(
           clientConfig.isEmailVerificationRequired,
         );
@@ -245,7 +253,9 @@ export const useClientConfig = (): UseClientConfigResult => {
         setIsEmailingDomainInDemoMode(
           clientConfig?.isEmailingDomainInDemoMode ?? false,
         );
-        setAllowRequestsToKovaaLabCRMIcons(clientConfig?.allowRequestsToKovaaLabCRMIcons);
+        setAllowRequestsToKovaaLabCRMIcons(
+          clientConfig?.allowRequestsToKovaaLabCRMIcons,
+        );
         setIsCloudflareIntegrationEnabled(
           clientConfig?.isCloudflareIntegrationEnabled,
         );
@@ -300,6 +310,7 @@ export const useClientConfig = (): UseClientConfigResult => {
       setIsEmailVerificationRequired,
       setIsImapSmtpCaldavEnabled,
       setIsMultiWorkspaceEnabled,
+      setIsSameOriginMultiWorkspaceEnabled,
       setIsEmailingDomainInDemoMode,
       setIsClickHouseConfigured,
       setIsCloudflareIntegrationEnabled,

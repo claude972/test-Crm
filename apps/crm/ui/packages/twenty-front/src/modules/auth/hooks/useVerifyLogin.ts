@@ -1,3 +1,4 @@
+import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
 import { isAppEffectRedirectEnabledState } from '@/auth/states/isAppEffectRedirectEnabledState';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { getToastOptionsFromError } from '@/error-handler/utils/getToastOptionsFromError';
@@ -28,7 +29,8 @@ export const useVerifyLogin = () => {
           ? getToastOptionsFromError({ error })
           : { status: 'error', children: t`Authentication failed` },
       );
-      navigate(AppPath.SignInUp);
+      if (!isGraphqlErrorOfType(error, 'SESSION_SUPERSEDED'))
+        navigate(AppPath.SignInUp);
     } finally {
       setIsAppEffectRedirectEnabled(true);
     }

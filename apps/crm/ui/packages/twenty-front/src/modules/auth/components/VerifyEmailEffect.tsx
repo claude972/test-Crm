@@ -1,3 +1,4 @@
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { verifyEmailRedirectPathState } from '@/auth/states/verifyEmailRedirectPathState';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { useVerifyLogin } from '@/auth/hooks/useVerifyLogin';
@@ -48,6 +49,9 @@ export const VerifyEmailEffect = ({ onError }: VerifyEmailEffectProps) => {
   const { verifyLoginToken } = useVerifyLogin();
   const { isOnAWorkspace } = useIsCurrentLocationOnAWorkspace();
   const clientConfigApiStatus = useAtomStateValue(clientConfigApiStatusState);
+  const isSameOriginMultiWorkspaceEnabled = useAtomStateValue(
+    isSameOriginMultiWorkspaceEnabledState,
+  );
 
   const { t } = useLingui();
   useEffect(() => {
@@ -68,7 +72,7 @@ export const VerifyEmailEffect = ({ onError }: VerifyEmailEffectProps) => {
       } satisfies ToastOptions;
 
       try {
-        if (!isOnAWorkspace) {
+        if (!isOnAWorkspace || isSameOriginMultiWorkspaceEnabled) {
           await verifyEmailAndGetWorkspaceAgnosticToken(
             emailVerificationToken,
             email,

@@ -1,0 +1,68 @@
+name: Hermes native auth frontend verification
+on:
+  push:
+    branches: [feat/codex-hermes-v4-auth-frontend]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hermes-auth-frontend-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  auth-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      FORCE_COLOR: '0'
+      NODE_OPTIONS: --max-old-space-size=6144
+      NX_DAEMON: 'false'
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install immutable native workspace dependencies
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build native shared, SDK and frontend runtime dependencies
+        id: dependencies
+        run: |
+          node .yarn/releases/yarn-4.18.1.cjs nx run-many --target=build --projects=kovaa-lab-shared,kovaa-lab-ui,kovaa-lab-front-component-renderer --parallel=1 --skip-nx-cache
+          test -s packages/twenty-shared/dist/index.cjs
+          test -d packages/twenty-client-sdk/dist
+          test -d packages/twenty-sdk/dist
+          test -d packages/twenty-ui/dist
+          test -d packages/twenty-front-component-renderer/dist
+      - name: Generate isolated frontend configuration
+        working-directory: .
+        run: node scripts/local-project.mjs setup
+      - name: Compile existing translation catalogues
+        run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
+      - name: Verify native auth, bootstrap races, legacy behavior and explicit language preferences
+        id: auth_tests
+        working-directory: apps/crm/ui/packages/twenty-front
+        run: |
+          node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --silent --reporters=default --cacheDirectory /tmp/hermes-auth-front-jest --json --outputFile "$RUNNER_TEMP/hermes-auth-frontend-tests.json" --runTestsByPath src/modules/auth/components/__tests__/VerifyEmail.test.tsx src/modules/auth/hooks/__tests__/useAuthSameOrigin.test.tsx src/modules/auth/hooks/__tests__/useAuth.test.tsx src/modules/auth/hooks/__tests__/useRedeemSsoExchangeToken.test.ts src/modules/auth/hooks/__tests__/useVerifyLogin.test.ts src/modules/users/hooks/__tests__/useLoadCurrentUserSameOrigin.test.tsx src/modules/auth/utils/__tests__/getLoginTokenWorkspaceIntent.test.ts src/modules/auth/utils/__tests__/resetWorkspaceSessionAndReload.test.ts src/utils/i18n/__tests__/initialI18nActivate.test.ts
+      - name: Typecheck the complete frontend against the native dependency declarations
+        id: frontend_types
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        working-directory: apps/crm/ui/packages/twenty-front
+        run: |
+          set +e
+          node ../../node_modules/.bin/tsgo -p tsconfig.json --noEmit --singleThreaded > "$RUNNER_TEMP/hermes-auth-frontend-types.txt" 2>&1
+          result=$?
+          set -e
+          cat "$RUNNER_TEMP/hermes-auth-frontend-types.txt"
+          exit "$result"
+      - name: Preserve exact unit and typecheck evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-auth-frontend-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/hermes-auth-frontend-tests.json
+            ${{ runner.temp }}/hermes-auth-frontend-types.txt
+          if-no-files-found: warn
+          retention-days: 7

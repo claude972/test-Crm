@@ -1,3 +1,8 @@
+import { useStore } from 'jotai';
+import { resetWorkspaceSessionAndReload } from '@/auth/utils/resetWorkspaceSessionAndReload';
+import { authSessionSupersededError } from '@/auth/utils/assertAuthSessionUnchanged';
+import { getSessionGeneration } from '@/auth/utils/getSessionGeneration';
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceState';
@@ -24,7 +29,16 @@ import { dynamicActivate } from '~/utils/i18n/dynamicActivate';
 import { type ColorScheme } from '@/ui/theme/types/ColorScheme';
 import { type UiScale } from '@/ui/theme/types/UiScale';
 
+export type LoadCurrentUserOptions = {
+  expectedWorkspaceId?: string;
+  commitState?: boolean;
+};
+
 export const useLoadCurrentUser = () => {
+  const store = useStore();
+  const isSameOriginMultiWorkspaceEnabled = useAtomStateValue(
+    isSameOriginMultiWorkspaceEnabledState,
+  );
   const setCurrentUser = useSetAtomState(currentUserState);
   const setAvailableWorkspaces = useSetAtomState(availableWorkspacesState);
   const setCurrentWorkspaceMember = useSetAtomState(
@@ -47,112 +61,160 @@ export const useLoadCurrentUser = () => {
 
   const client = useApolloClient();
 
-  const loadCurrentUser = useCallback(async () => {
-    const currentUserResult = await client.query({
-      query: GetCurrentUserDocument,
-      fetchPolicy: 'network-only',
-    });
-
-    if (isDefined(currentUserResult.error)) {
-      throw new Error(currentUserResult.error.message);
-    }
-
-    const user = currentUserResult.data?.currentUser;
-
-    if (!isDefined(user)) {
-      throw new Error(t`No current user result`);
-    }
-
-    let workspaceMember = null;
-
-    setCurrentUser(user);
-
-    if (isDefined(user.workspaceMembers)) {
-      setCurrentWorkspaceMembers(user.workspaceMembers);
-    }
-
-    if (isDefined(user.availableWorkspaces)) {
-      setAvailableWorkspaces(user.availableWorkspaces);
-    }
-
-    if (isDefined(user.currentUserWorkspace)) {
-      setCurrentUserWorkspace({
-        permissionFlags: user.currentUserWorkspace.permissionFlags ?? [],
-        twoFactorAuthenticationMethodSummary:
-          user.currentUserWorkspace.twoFactorAuthenticationMethodSummary ?? [],
-        objectsPermissions:
-          (user.currentUserWorkspace
-            .objectsPermissions as CurrentUserWorkspaceObjectPermissions[]) ??
-          [],
-        isImpersonating: user.currentUserWorkspace.isImpersonating ?? false,
+  const loadCurrentUser = useCallback(
+    async (options: LoadCurrentUserOptions = {}) => {
+      const sessionGeneration = getSessionGeneration();
+      const previousWorkspaceId = store.get(currentWorkspaceState.atom)?.id;
+      const previousUserId = store.get(currentUserState.atom)?.id;
+      const currentUserResult = await client.query({
+        query: GetCurrentUserDocument,
+        fetchPolicy: isSameOriginMultiWorkspaceEnabled
+          ? 'no-cache'
+          : 'network-only',
+        ...(isSameOriginMultiWorkspaceEnabled && {
+          context: {
+            expectedWorkspaceId: options.expectedWorkspaceId ?? null,
+            skipRetry: true,
+          },
+        }),
       });
-    }
 
-    if (isDefined(user.workspaceMember)) {
-      workspaceMember = {
-        ...user.workspaceMember,
-        colorScheme: user.workspaceMember?.colorScheme as ColorScheme,
-        uiScale: user.workspaceMember?.uiScale as UiScale,
-        openRecordIn: toOpenRecordInPreference(
-          user.workspaceMember?.openRecordIn,
-        ),
-        locale: user.workspaceMember?.locale ?? SOURCE_LOCALE,
-      };
+      if (isDefined(currentUserResult.error)) {
+        if (isSameOriginMultiWorkspaceEnabled) throw currentUserResult.error;
+        throw new Error(currentUserResult.error.message);
+      }
 
-      setCurrentWorkspaceMember(workspaceMember);
+      const user = currentUserResult.data?.currentUser;
 
-      initializeFormatPreferences(workspaceMember);
-      dynamicActivate(
-        (workspaceMember.locale as keyof typeof APP_LOCALES) ?? SOURCE_LOCALE,
-      );
-    }
+      if (!isDefined(user)) {
+        throw new Error(t`No current user result`);
+      }
 
-    const workspace = isDefined(user.currentWorkspace)
-      ? {
-          ...user.currentWorkspace,
-          workspaceCustomApplication:
-            user.currentWorkspace.workspaceCustomApplication ?? null,
+      if (isSameOriginMultiWorkspaceEnabled) {
+        if (
+          sessionGeneration !== getSessionGeneration() ||
+          (options.expectedWorkspaceId !== undefined &&
+            user.currentWorkspace?.id.toLowerCase() !==
+              options.expectedWorkspaceId.toLowerCase())
+        ) {
+          throw authSessionSupersededError();
         }
-      : null;
+        if (options.commitState === false)
+          return { user, workspaceMember: null, workspace: null };
+        if (
+          user.currentWorkspace &&
+          ((previousWorkspaceId &&
+            previousWorkspaceId !== user.currentWorkspace.id) ||
+            (previousUserId && previousUserId !== user.id))
+        ) {
+          await resetWorkspaceSessionAndReload({
+            client,
+            store,
+            sessionGeneration,
+          });
+          return { user, workspaceMember: null, workspace: null };
+        }
+        client.writeQuery({
+          query: GetCurrentUserDocument,
+          data: currentUserResult.data,
+        });
+      }
 
-    setCurrentWorkspace(workspace);
+      let workspaceMember = null;
 
-    if (isDefined(workspace)) {
-      setWorkspaceAuthBypassProviders({
-        google: authProviders.google && workspace.isGoogleAuthBypassEnabled,
-        microsoft:
-          authProviders.microsoft && workspace.isMicrosoftAuthBypassEnabled,
-        password:
-          authProviders.password && workspace.isPasswordAuthBypassEnabled,
-      });
-    }
+      setCurrentUser(user);
 
-    if (isDefined(workspace) && isOnAWorkspace) {
-      setLastAuthenticateWorkspaceDomain({
-        workspaceId: workspace.id,
-        workspaceUrl: getWorkspaceUrl(workspace.workspaceUrls),
-      });
-    }
+      if (isDefined(user.workspaceMembers)) {
+        setCurrentWorkspaceMembers(user.workspaceMembers);
+      }
 
-    return {
-      user,
-      workspaceMember,
-      workspace,
-    };
-  }, [
-    client,
-    setCurrentUser,
-    setCurrentWorkspace,
-    isOnAWorkspace,
-    setCurrentWorkspaceMembers,
-    setAvailableWorkspaces,
-    setCurrentUserWorkspace,
-    setCurrentWorkspaceMember,
-    initializeFormatPreferences,
-    setLastAuthenticateWorkspaceDomain,
-    authProviders,
-    setWorkspaceAuthBypassProviders,
-  ]);
+      if (isDefined(user.availableWorkspaces)) {
+        setAvailableWorkspaces(user.availableWorkspaces);
+      }
+
+      if (isDefined(user.currentUserWorkspace)) {
+        setCurrentUserWorkspace({
+          permissionFlags: user.currentUserWorkspace.permissionFlags ?? [],
+          twoFactorAuthenticationMethodSummary:
+            user.currentUserWorkspace.twoFactorAuthenticationMethodSummary ??
+            [],
+          objectsPermissions:
+            (user.currentUserWorkspace
+              .objectsPermissions as CurrentUserWorkspaceObjectPermissions[]) ??
+            [],
+          isImpersonating: user.currentUserWorkspace.isImpersonating ?? false,
+        });
+      }
+
+      if (isDefined(user.workspaceMember)) {
+        workspaceMember = {
+          ...user.workspaceMember,
+          colorScheme: user.workspaceMember?.colorScheme as ColorScheme,
+          uiScale: user.workspaceMember?.uiScale as UiScale,
+          openRecordIn: toOpenRecordInPreference(
+            user.workspaceMember?.openRecordIn,
+          ),
+          locale: user.workspaceMember?.locale ?? SOURCE_LOCALE,
+        };
+
+        setCurrentWorkspaceMember(workspaceMember);
+
+        initializeFormatPreferences(workspaceMember);
+        dynamicActivate(
+          (workspaceMember.locale as keyof typeof APP_LOCALES) ?? SOURCE_LOCALE,
+        );
+      }
+
+      const workspace = isDefined(user.currentWorkspace)
+        ? {
+            ...user.currentWorkspace,
+            workspaceCustomApplication:
+              user.currentWorkspace.workspaceCustomApplication ?? null,
+          }
+        : null;
+
+      setCurrentWorkspace(workspace);
+
+      if (isDefined(workspace)) {
+        setWorkspaceAuthBypassProviders({
+          google: authProviders.google && workspace.isGoogleAuthBypassEnabled,
+          microsoft:
+            authProviders.microsoft && workspace.isMicrosoftAuthBypassEnabled,
+          password:
+            authProviders.password && workspace.isPasswordAuthBypassEnabled,
+        });
+      }
+
+      if (isDefined(workspace) && isOnAWorkspace) {
+        setLastAuthenticateWorkspaceDomain({
+          workspaceId: workspace.id,
+          workspaceUrl: getWorkspaceUrl(workspace.workspaceUrls),
+        });
+      }
+
+      return {
+        user,
+        workspaceMember,
+        workspace,
+      };
+    },
+    [
+      client,
+      store,
+      isSameOriginMultiWorkspaceEnabled,
+      setCurrentUser,
+      setCurrentWorkspace,
+      isOnAWorkspace,
+      setCurrentWorkspaceMembers,
+      setAvailableWorkspaces,
+      setCurrentUserWorkspace,
+      setCurrentWorkspaceMember,
+      initializeFormatPreferences,
+      setLastAuthenticateWorkspaceDomain,
+      authProviders,
+      setWorkspaceAuthBypassProviders,
+    ],
+  );
 
   return {
     loadCurrentUser,
