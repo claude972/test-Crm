@@ -1,0 +1,133 @@
+name: P0 isolated temporary preview
+on:
+  push:
+    branches: ['preview/p0-session-*']
+  workflow_dispatch:
+    inputs:
+      start-worker:
+        description: Start the disposable queue worker
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: p0-isolated-preview-session
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: p0_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.P0_PREVIEW_DATABASE_PASSWORD }}
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p0_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7
+        ports:
+          - 127.0.0.1:6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      FORCE_COLOR: '0'
+      NODE_OPTIONS: --max-old-space-size=4096
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install immutable workspace dependencies
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build shared runtime and declarations
+        id: shared_build
+        working-directory: apps/crm/ui/packages/twenty-shared
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/index.cjs
+          test -s dist/application/index.d.ts
+      - name: Build client SDK runtime and declarations
+        id: sdk_build
+        working-directory: apps/crm/ui/packages/twenty-client-sdk
+        env:
+          NODE_ENV: production
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build(); await build({ configFile: 'vite.metadata.config.ts' });"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/core.cjs
+          test -s dist/metadata.mjs
+          test -s dist/core/index.d.ts
+      - name: Verify generated client authentication and upload behavior
+        id: sdk_tests
+        working-directory: apps/crm/ui/packages/twenty-client-sdk
+        run: node ../../node_modules/vitest/vitest.mjs run src/generate/__tests__/client-wrapper-auth.test.ts src/generate/__tests__/client-wrapper-upload-file.test.ts src/generate/__tests__/stub-generated-client-drift.test.ts --maxWorkers=2
+      - name: Build email runtime and declarations without sending mail
+        id: email_build
+        working-directory: apps/crm/ui/packages/twenty-emails
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --outDir dist --rootDir src --composite false --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/index.js
+          test -s dist/index.d.ts
+      - name: Typecheck backend production sources without starting the server
+        id: backend_types
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: node ../../node_modules/.bin/tsgo -p tsconfig.build.json --noEmit --singleThreaded
+      - name: Compile backend and verify executable artifacts without running them
+        id: backend_build
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+          test -s dist/main.js
+          test -s dist/queue-worker/queue-worker.js
+          mkdir -p dist/assets/kovaa-lab-client-sdk
+          cp ../twenty-client-sdk/package.json dist/assets/kovaa-lab-client-sdk/
+          cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
+          test -s dist/assets/kovaa-lab-client-sdk/dist/core.cjs
+          test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
+      - name: Install the pinned Quick Tunnel client
+        working-directory: .
+        run: |
+          curl --fail --location --silent --show-error https://github.com/cloudflare/cloudflared/releases/download/2026.10.6/cloudflared-linux-amd64 --output "$RUNNER_TEMP/cloudflared"
+          printf '%s  %s\n' '1d356dac769d0dbf62ebe588c4034824bbff98d5790c2f844cc99e0e2f57462d' "$RUNNER_TEMP/cloudflared" | sha256sum --check --status
+          chmod 700 "$RUNNER_TEMP/cloudflared"
+      - name: Start protected loopback gate and temporary tunnel
+        working-directory: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          P0_ORIGIN_SECRET: ${{ secrets.P0_PREVIEW_ORIGIN_SECRET }}
+        run: node scripts/preview-ci-session-p0.mjs start
+      - name: Publish public tunnel metadata before waiting for control
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-preview-tunnel-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/p0-preview-session/public/tunnel.json
+          if-no-files-found: error
+          retention-days: 1
+      - name: Supervise disposable backend and poll the public control
+        working-directory: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          P0_PREVIEW_DATABASE_PASSWORD: ${{ secrets.P0_PREVIEW_DATABASE_PASSWORD }}
+          P0_PREVIEW_START_WORKER: ${{ github.event_name == 'push' || inputs.start-worker }}
+        run: node scripts/preview-ci-session-p0.mjs run
+      - name: Stop temporary processes and remove local control
+        if: ${{ always() }}
+        working-directory: .
+        run: node scripts/preview-ci-session-p0.mjs cleanup
