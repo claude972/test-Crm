@@ -648,6 +648,13 @@ export class HermesMessagingService {
       actor.workspaceId,
       input.conversationId,
     );
+    if (
+      conversation.botMode === 'OFF' ||
+      (input.mode === 'AUTO' &&
+        (await this.botPolicy({ ...conversation, botMode: 'AUTO' }))
+          .effectiveMode !== 'AUTO')
+    )
+      throw new ConflictException('BOT_POLICY_RESTRICTION');
     let mode = input.mode,
       status = mode === 'MANUAL' ? 'MANUAL' : 'ACTIVE';
     if (
