@@ -30,3 +30,15 @@ GitHub run [41133172403](https://github.com/claude972/test-Crm/actions/runs/4113
 5. Provider runtime/ingress/voice conversion remains unconfigured and not tested live. canReceiveMedia/canRecordVoice remain false pending real capability evidence; canSendMedia requires exact live version+open connection; rich-email readiness belongs to C. No test provider is presented as WhatsApp delivery proof.
 
 Exact API signatures and source links: `docs/handoff/hermes-v4-media-contract.md`. Coordination agent should preserve these limits in root CORRECTIONS.md and keep B in_progress until the gates pass.
+
+## HERMES-V4-MEDIA-001 — transaction manager propagation (root review)
+
+Reviewer root/C; reviewed checkpoint `bef781c86` (runtime media source identical to `e1ca825b9`). Status: `fixed_pending_review`; independent root recheck remains required.
+
+Evidence: `HermesMediaService.bind(manager)` passed the manager to `scoped`, but `scoped` called `conversation` without it. `conversation` used both `access.assertAllowed(actor)` and the default DataSource repository. A deterministic pre-fix regression supplying a reserved manager and denying another DataSource checkout failed with `SECOND_POOL_CONNECTION_REQUIRED_INSIDE_LEDGER_TRANSACTION` before the asset update. This proves an extra checkout in a transaction, not a completed real PostgreSQL pool exhaustion experiment.
+
+Correction: propagate the optional EntityManager through authorization, conversation lookup and asset lookup; reuse the DataSource only outside a caller-owned transaction. Recheck authorization after the awaited asset query and before exposing/binding the asset. Cancellation outside a transaction uses the explicit default path.
+
+Focused checks: the original regression changes from red to green; a gated asset lookup revokes membership before continuation and proves zero writes; eight mocked reserved transaction managers complete without a DataSource checkout. Broader media/messaging/Evolution regressions and the exact final-source production CI are reported to coordination after completion. The generator workflow at `bef781c86` remains a separate metadata/SQL checkpoint, with its eight historical baseline deltas reported in the artifact; this fix changes no entity metadata.
+
+Manager-fix validation (2026-10-30): all three focused manager tests pass. Broad local run:160passed/162tests, with two500ms Evolution text fixture timeouts under concurrent local load; the unchanged failing Evolution suite rechecked alone and passed31/31 in2.38s. No Evolution source/test timeout was changed to obtain that result. Final GitHub production compilation and isolated protocol/migration checks remain required. The first fixture-preparation CI (`41136004030`, `bef781c86`) exposed the remaining semantically equivalent JSONB default comparison after native synchronization; its historical drift artifact remains retained and that failure is not a media migration pass.

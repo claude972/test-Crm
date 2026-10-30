@@ -45,9 +45,13 @@ export class HermesMediaService {
     private readonly nativeStorage: FileStorageService,
   ) {}
 
-  private async conversation(actor: HermesMessagingActor, id: string) {
-    await this.access.assertAllowed(actor);
-    const conversation = await this.dataSource
+  private async conversation(
+    actor: HermesMessagingActor,
+    id: string,
+    manager?: EntityManager,
+  ) {
+    await this.access.assertAllowed(actor, manager);
+    const conversation = await (manager ?? this.dataSource)
       .getRepository(HermesConversationEntity)
       .findOneBy({ workspaceId: actor.workspaceId, id });
     if (!conversation) throw new NotFoundException('CONVERSATION_NOT_FOUND');
@@ -59,12 +63,16 @@ export class HermesMediaService {
   async scoped(
     actor: HermesMessagingActor,
     raw: HermesMediaScopeInput,
-    manager: Pick<EntityManager, 'getRepository'> = this.dataSource,
+    manager?: EntityManager,
     allowRevoked = false,
   ) {
     const input = parseMedia(mediaScopeSchema, raw);
-    const conversation = await this.conversation(actor, input.conversationId);
-    const asset = await manager
+    const conversation = await this.conversation(
+      actor,
+      input.conversationId,
+      manager,
+    );
+    const asset = await (manager ?? this.dataSource)
       .getRepository(HermesMediaAssetEntity)
       .findOneBy({
         id: input.assetId,
@@ -72,6 +80,7 @@ export class HermesMediaService {
         conversationId: conversation.id,
         providerConnectionId: conversation.providerConnectionId,
       });
+    await this.access.assertAllowed(actor, manager);
     if (
       !asset ||
       (asset.status === 'REVOKED' && !allowRevoked) ||
@@ -179,7 +188,7 @@ export class HermesMediaService {
   }
 
   async cancel(actor: HermesMessagingActor, input: HermesMediaScopeInput) {
-    const asset = await this.scoped(actor, input, this.dataSource, true);
+    const asset = await this.scoped(actor, input, undefined, true);
     if (asset.status === 'REVOKED') {
       const file = await this.dataSource.getRepository(FileEntity).findOneBy({
         id: asset.fileId,
