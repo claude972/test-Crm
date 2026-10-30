@@ -706,6 +706,112 @@ describe('persistent messaging service contract', () => {
         ?.botOwnerUserWorkspaceId,
     ).toBeNull();
   });
+  it('resets a channel to inherited policy with a durable revision, no implicit AUTO and no neighboring grant invalidation', async () => {
+    const { service, registry, table, send } = setup();
+    registry.registerBot({ draftReply: readyBot() });
+    const incoming = await service.ingest(event);
+    await setParent(service, 'WHATSAPP', 'AUTO');
+    await setLocal(service, incoming.conversationId, 'AUTO', true);
+    const neighborId = randomUUID();
+    table(HermesConversationEntity.name).set(neighborId, {
+      id: neighborId,
+      workspaceId: A,
+      channel: 'EMAIL',
+      botMode: 'AUTO',
+      botOwnerUserWorkspaceId: actor.userWorkspaceId,
+      botModeUpdatedAt: new Date(),
+    });
+    const neighborBefore = await service.conversationBotPolicy(actor, {
+      conversationId: neighborId,
+    });
+    const before = (await service.workspaceBotPolicies(actor)).find(
+      (policy) => policy.scope === 'WHATSAPP',
+    )!;
+    const reset = await service.setWorkspaceBotPolicy(actor, {
+      scope: 'WHATSAPP',
+      mode: 'INHERIT',
+      expectedRevision: before.revision,
+    });
+    expect(reset.mode).toBe('INHERIT');
+    expect(reset.revision).not.toBe(before.revision);
+    expect(table(HermesBotPolicyEntity.name).get(`${A}:WHATSAPP`)?.mode).toBe(
+      'INHERIT',
+    );
+    expect(
+      table(HermesConversationEntity.name).get(incoming.conversationId)
+        ?.botOwnerUserWorkspaceId,
+    ).toBeNull();
+    expect(
+      table(HermesConversationEntity.name).get(neighborId)
+        ?.botOwnerUserWorkspaceId,
+    ).toBe(actor.userWorkspaceId);
+    expect(
+      await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).toMatchObject({ effectiveMode: 'AUTO', canAutoReply: false });
+    await expect(
+      service.setWorkspaceBotPolicy(actor, {
+        scope: 'WHATSAPP',
+        mode: 'OFF',
+        expectedRevision: before.revision,
+      }),
+    ).rejects.toThrow('BOT_POLICY_STALE');
+    await service.ingest({
+      ...event,
+      providerMessageId: 'reset-no-auto',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    expect(send).not.toHaveBeenCalled();
+    const second = await service.setWorkspaceBotPolicy(actor, {
+      scope: 'WHATSAPP',
+      mode: 'INHERIT',
+      expectedRevision: reset.revision,
+    });
+    expect(second.revision).not.toBe(reset.revision);
+    await expect(
+      service.setWorkspaceBotPolicy(actor, {
+        scope: 'WHATSAPP',
+        mode: 'OFF',
+        expectedRevision: reset.revision,
+      }),
+    ).rejects.toThrow('BOT_POLICY_STALE');
+    expect(
+      (
+        await service.conversationBotPolicy(actor, {
+          conversationId: neighborId,
+        })
+      ).revision,
+    ).toBe(neighborBefore.revision);
+  });
+
+  it('rejects workspace INHERIT and preserves restrictive workspace policy on channel reset', async () => {
+    const { service } = setup();
+    const incoming = await service.ingest(event);
+    await setParent(service, 'WHATSAPP', 'OFF');
+    await setParent(service, 'WORKSPACE', 'ASSISTED');
+    const policies = await service.workspaceBotPolicies(actor);
+    await expect(
+      service.setWorkspaceBotPolicy(actor, {
+        scope: 'WORKSPACE',
+        mode: 'INHERIT',
+        expectedRevision: policies[0].revision,
+      }),
+    ).rejects.toThrow('INVALID_MESSAGING_INPUT');
+    const reset = await service.setWorkspaceBotPolicy(actor, {
+      scope: 'WHATSAPP',
+      mode: 'INHERIT',
+      expectedRevision: policies.find((policy) => policy.scope === 'WHATSAPP')!
+        .revision,
+    });
+    expect(reset.mode).toBe('INHERIT');
+    expect(
+      await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).toMatchObject({ effectiveMode: 'ASSISTED', canAutoReply: false });
+  });
+
   it('replays the provider identity without duplication and rejects changed content', async () => {
     const { service, table } = setup();
     const first = await service.ingest(event);

@@ -85,6 +85,7 @@ export type HermesMessagingBotAdapter = {
 };
 
 export type HermesBotPolicyMode = 'AUTO' | 'ASSISTED' | 'OFF';
+export type HermesBotPolicyOverrideMode = HermesBotPolicyMode | 'INHERIT';
 export type HermesBotPolicyScope = 'WORKSPACE' | HermesMessagingChannel;
 export type HermesBotMode = 'MANUAL' | HermesBotPolicyMode | 'INHERIT';
 export type HermesConversationBotPolicy = {

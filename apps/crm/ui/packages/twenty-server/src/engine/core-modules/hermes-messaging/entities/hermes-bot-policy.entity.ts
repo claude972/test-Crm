@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import {
-  type HermesBotPolicyMode,
+  type HermesBotPolicyOverrideMode,
   type HermesBotPolicyScope,
 } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 
@@ -19,7 +19,7 @@ export class HermesBotPolicyEntity {
   @ManyToOne(() => WorkspaceEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'workspaceId' })
   workspace: Relation<WorkspaceEntity>;
-  @Column({ type: 'varchar', length: 16 }) mode: HermesBotPolicyMode;
+  @Column({ type: 'varchar', length: 16 }) mode: HermesBotPolicyOverrideMode;
   @Column({ type: 'timestamptz' }) updatedAt: Date;
   @Column('uuid') updatedByUserWorkspaceId: string;
 }
