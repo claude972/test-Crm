@@ -1,6 +1,6 @@
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 import { isWorkspaceCustomApplication } from '@/applications/utils/isWorkspaceCustomApplication';
 import { getCustomApplicationDescription } from '@/applications/utils/getCustomApplicationDescription';
 import { getStandardApplicationDescription } from '@/applications/utils/getStandardApplicationDescription';
@@ -16,7 +16,7 @@ export const useResolvedApplicationDescription = (
 ): string => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
 
-  if (isKovaaLab CRMStandardApplication(application)) {
+  if (isKovaaLabCRMStandardApplication(application)) {
     return getStandardApplicationDescription();
   }
 

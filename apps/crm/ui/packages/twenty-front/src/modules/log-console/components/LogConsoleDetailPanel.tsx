@@ -17,7 +17,7 @@ import { Card } from 'kovaa-lab-ui/primitives/surfaces';
 import { OverflowingTextWithTooltip } from 'kovaa-lab-ui/primitives/typography';
 import { themeCssVariables, useTheme } from 'kovaa-lab-ui/theme';
 
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { TimeFormat } from '@/localization/constants/TimeFormat';
 import { useDateTimeFormat } from '@/localization/hooks/useDateTimeFormat';
 import { LogConsoleFieldsCard } from '@/log-console/components/LogConsoleFieldsCard';
@@ -121,8 +121,8 @@ export const LogConsoleDetailPanel = () => {
   const objectMetadataItemsByIdMap = useAtomStateValue(
     objectMetadataItemsByIdMapSelector,
   );
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
   const [entryWithExpandedMessage, setEntryWithExpandedMessage] =
     useState<EventLogRecord>();
@@ -147,7 +147,7 @@ export const LogConsoleDetailPanel = () => {
       ? getObjectRecordIdentifier({
           objectMetadataItem,
           record: recordSnapshot,
-          allowRequestsToKovaaLab CRMIcons,
+          allowRequestsToKovaaLabCRMIcons,
         })
       : undefined;
 

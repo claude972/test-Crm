@@ -52,7 +52,7 @@ export type ClientConfig = {
   signInPrefilled: boolean;
   support: Support;
   isTwoFactorAuthenticationEnabled: boolean;
-  allowRequestsToKovaaLab CRMIcons: boolean;
+  allowRequestsToKovaaLabCRMIcons: boolean;
   maintenance?: ClientConfigMaintenanceMode;
   enterpriseInstanceType?: EnterpriseInstanceType;
 };

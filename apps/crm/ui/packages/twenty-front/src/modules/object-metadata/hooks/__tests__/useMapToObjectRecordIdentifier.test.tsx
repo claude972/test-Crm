@@ -13,7 +13,7 @@ describe('useMapToObjectRecordIdentifier', () => {
       () => {
         const { mapToObjectRecordIdentifier } = useMapToObjectRecordIdentifier({
           objectNameSingular: 'person',
-          allowRequestsToKovaaLab CRMIcons: true,
+          allowRequestsToKovaaLabCRMIcons: true,
         });
 
         return mapToObjectRecordIdentifier({

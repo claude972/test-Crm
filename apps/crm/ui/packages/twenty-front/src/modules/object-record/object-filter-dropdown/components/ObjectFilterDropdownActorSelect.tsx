@@ -57,7 +57,7 @@ export const ObjectFilterDropdownActorSelect = ({
       selectedIds: selectedRecordIds,
       objectNameSingular: CoreObjectNameSingular.WorkspaceMember,
       limit: 10,
-      allowRequestsToKovaaLab CRMIcons: false,
+      allowRequestsToKovaaLabCRMIcons: false,
     });
 
   const currentWorkspaceMemberSelectableItem: SelectableItem = {

@@ -1,6 +1,6 @@
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
-import { KOVAALAB_CLI_CREATE_APP_COMMANDS } from '@/settings/developers/constants/KovaaLab CRMCliCreateAppCommands';
-import { KOVAALAB_CLI_LOGIN_COMMAND } from '@/settings/developers/constants/KovaaLab CRMCliLoginCommand';
+import { KOVAALAB_CLI_CREATE_APP_COMMANDS } from '@/settings/developers/constants/TwentyCliCreateAppCommands';
+import { KOVAALAB_CLI_LOGIN_COMMAND } from '@/settings/developers/constants/TwentyCliLoginCommand';
 import { getDocumentationUrl } from '@/support/utils/getDocumentationUrl';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { styled } from '@linaria/react';

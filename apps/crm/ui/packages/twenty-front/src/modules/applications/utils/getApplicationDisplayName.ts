@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 import { isWorkspaceCustomApplication } from '@/applications/utils/isWorkspaceCustomApplication';
 
 type ApplicationLike = {
@@ -20,7 +20,7 @@ export const getApplicationDisplayName = ({
   application: ApplicationLike;
   currentWorkspace: WorkspaceLike | null | undefined;
 }): string => {
-  if (isKovaaLab CRMStandardApplication(application)) {
+  if (isKovaaLabCRMStandardApplication(application)) {
     return t`Standard`;
   }
 

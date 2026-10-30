@@ -97,7 +97,7 @@ const EventRelationFieldDiffValuesWithFetch = ({
       return getObjectRecordIdentifier({
         objectMetadataItem: relationTargetObjectMetadataItem,
         record: relatedRecord,
-        allowRequestsToKovaaLab CRMIcons: false,
+        allowRequestsToKovaaLabCRMIcons: false,
       }).name;
     }
 

@@ -14,12 +14,12 @@ import { render, screen } from '@testing-library/react';
 import { createStore } from 'jotai';
 import { type ReactNode } from 'react';
 import { type IconComponent } from 'kovaa-lab-ui/icon';
-import type * as KovaaLab CRMIcons from 'kovaa-lab-ui/icon';
+import type * as KovaaLabCRMIcons from 'kovaa-lab-ui/icon';
 
 const mockNavigatePageLayoutSidePanel = jest.fn();
 
 jest.mock('kovaa-lab-ui/icon', () => ({
-  ...jest.requireActual<typeof KovaaLab CRMIcons>('kovaa-lab-ui/icon'),
+  ...jest.requireActual<typeof KovaaLabCRMIcons>('kovaa-lab-ui/icon'),
   IconListDetails: () => <svg role="img" aria-label="Fields group icon" />,
   IconListSearch: () => <svg role="img" aria-label="Field icon" />,
 }));

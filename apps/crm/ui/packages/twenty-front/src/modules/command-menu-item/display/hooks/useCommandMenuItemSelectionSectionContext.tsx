@@ -5,7 +5,7 @@ import {
   isNonEmptyString,
 } from 'kovaa-lab-shared/utils';
 
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { CommandMenuContext } from '@/command-menu-item/contexts/CommandMenuContext';
 import { CommandMenuItemSelectionRecordStack } from '@/command-menu-item/display/components/CommandMenuItemSelectionRecordStack';
 import { type CommandMenuItemSectionContext } from '@/command-menu-item/types/CommandMenuItemSectionContext';
@@ -32,8 +32,8 @@ export const useCommandMenuItemSelectionSectionContext = ():
     PreComputedChipGeneratorsContext,
   );
 
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
 
   const contextStoreTargetedRecordsRule = useAtomComponentStateValue(
@@ -77,7 +77,7 @@ export const useCommandMenuItemSelectionSectionContext = ():
       ? getObjectRecordIdentifier({
           objectMetadataItem,
           record: firstRecord,
-          allowRequestsToKovaaLab CRMIcons,
+          allowRequestsToKovaaLabCRMIcons,
         }).name
       : undefined;
 

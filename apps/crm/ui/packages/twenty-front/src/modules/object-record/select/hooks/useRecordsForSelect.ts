@@ -21,7 +21,7 @@ export const useRecordsForSelect = ({
   limit,
   excludedRecordIds = [],
   objectNameSingular,
-  allowRequestsToKovaaLab CRMIcons,
+  allowRequestsToKovaaLabCRMIcons,
   filter,
 }: {
   searchFilterText: string;
@@ -30,12 +30,12 @@ export const useRecordsForSelect = ({
   limit?: number;
   excludedRecordIds?: string[];
   objectNameSingular: string;
-  allowRequestsToKovaaLab CRMIcons: boolean;
+  allowRequestsToKovaaLabCRMIcons: boolean;
   filter?: RecordGqlOperationFilter;
 }) => {
   const { mapToObjectRecordIdentifier } = useMapToObjectRecordIdentifier({
     objectNameSingular,
-    allowRequestsToKovaaLab CRMIcons,
+    allowRequestsToKovaaLabCRMIcons,
   });
 
   const filters = [

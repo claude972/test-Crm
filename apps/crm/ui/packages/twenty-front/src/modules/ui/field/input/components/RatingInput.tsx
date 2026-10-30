@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useClearField } from '@/object-record/record-field/ui/hooks/useClearField';
 import { RATING_VALUES } from 'kovaa-lab-shared/constants';
 import { type FieldRatingValue } from 'kovaa-lab-shared/types';
-import { IconKovaaLab CRMStarFilled } from 'kovaa-lab-ui/icon';
+import { IconTwentyStarFilled } from 'kovaa-lab-ui/icon';
 import { useTheme, themeCssVariables } from 'kovaa-lab-ui/theme';
 
 const StyledContainer = styled.div`
@@ -77,7 +77,7 @@ export const RatingInput = ({
             onMouseEnter={readonly ? undefined : () => setHoveredValue(value)}
             onMouseLeave={readonly ? undefined : () => setHoveredValue(null)}
           >
-            <IconKovaaLab CRMStarFilled size={iconSizeMd} />
+            <IconTwentyStarFilled size={iconSizeMd} />
           </StyledRatingIconContainer>
         );
       })}

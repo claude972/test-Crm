@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { PreComputedChipGeneratorsContext } from '@/object-metadata/contexts/PreComputedChipGeneratorsContext';
 import { objectMetadataItemsSelector } from '@/object-metadata/states/objectMetadataItemsSelector';
@@ -10,16 +10,16 @@ export const PreComputedChipGeneratorsProvider = ({
   children,
 }: React.PropsWithChildren) => {
   const objectMetadataItems = useAtomStateValue(objectMetadataItemsSelector);
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
   const { chipGeneratorPerObjectPerField, identifierChipGeneratorPerObject } =
     useMemo(() => {
       return getRecordChipGenerators(
         objectMetadataItems,
-        allowRequestsToKovaaLab CRMIcons,
+        allowRequestsToKovaaLabCRMIcons,
       );
-    }, [allowRequestsToKovaaLab CRMIcons, objectMetadataItems]);
+    }, [allowRequestsToKovaaLabCRMIcons, objectMetadataItems]);
 
   return (
     <>

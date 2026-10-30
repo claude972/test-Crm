@@ -3,7 +3,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { useTheme } from 'kovaa-lab-ui/theme';
 
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { getLogConsoleRecordLabel } from '@/log-console/utils/getLogConsoleRecordLabel';
 import { ObjectMetadataIcon } from '@/object-metadata/components/ObjectMetadataIcon';
 import { objectMetadataItemsByIdMapSelector } from '@/object-metadata/states/objectMetadataItemsByIdMapSelector';
@@ -24,8 +24,8 @@ export const LogConsoleRecordCell = ({ entry }: LogConsoleRecordCellProps) => {
   const objectMetadataItemsByIdMap = useAtomStateValue(
     objectMetadataItemsByIdMapSelector,
   );
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
 
   const objectMetadataItem = objectMetadataItemsByIdMap.get(
@@ -37,7 +37,7 @@ export const LogConsoleRecordCell = ({ entry }: LogConsoleRecordCellProps) => {
     const recordIdentifier = getObjectRecordIdentifier({
       objectMetadataItem,
       record: recordSnapshot,
-      allowRequestsToKovaaLab CRMIcons,
+      allowRequestsToKovaaLabCRMIcons,
     });
 
     return (

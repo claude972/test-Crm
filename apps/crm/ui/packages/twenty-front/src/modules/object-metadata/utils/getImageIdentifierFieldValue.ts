@@ -8,7 +8,7 @@ import { getLinkFaviconUrl, isDefined } from 'kovaa-lab-shared/utils';
 export const getImageIdentifierFieldValue = (
   record: ObjectRecord,
   imageIdentifierFieldMetadataItem: FieldMetadataItem | undefined,
-  allowRequestsToKovaaLab CRMIcons?: boolean,
+  allowRequestsToKovaaLabCRMIcons?: boolean,
 ): string | null => {
   if (!isDefined(imageIdentifierFieldMetadataItem?.name)) {
     return null;
@@ -27,7 +27,7 @@ export const getImageIdentifierFieldValue = (
       return isNonEmptyString(url) ? url : null;
     }
     case FieldMetadataType.LINKS: {
-      if (allowRequestsToKovaaLab CRMIcons !== true) {
+      if (allowRequestsToKovaaLabCRMIcons !== true) {
         return null;
       }
 
