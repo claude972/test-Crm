@@ -134,9 +134,19 @@ type InboundMessageContent =
         to: string[]; cc: string[]; bcc: string[] | null };
       subject: string; text: string; sanitizedHtml: string | null; attachmentIds: string[] };
 type InboundMessage = {
-  id: string; workspaceId: string; conversationId: string; channel: Channel;
+  id: string; workspaceId: string; conversationId: string; channel: Channel; direction: 'RECEIVED';
   receivedAt: string; content: InboundMessageContent; mediaAssets: MediaAsset[];
 };
+type MessageDeliveryLedger = {
+  clientRequestId: string; updatedAt: string; reasonCode: string | null;
+  status: 'PENDING' | 'TRANSPORT_ACCEPTED' | 'DELIVERED_ATTESTED' | 'FAILED' | 'UNCONFIRMED';
+};
+type SentMessage = {
+  id: string; workspaceId: string; conversationId: string; channel: Channel; direction: 'SENT';
+  createdAt: string; content: OutboundMessageContent; mediaAssets: MediaAsset[];
+  ledger: MessageDeliveryLedger;
+};
+type ConversationMessage = InboundMessage | SentMessage;
 type DraftSuggestion = {
   id: string; conversationId: string; sourceMessageId: string;
   state: 'GENERATING' | 'READY' | 'UNAVAILABLE' | 'INVALIDATED';
@@ -156,6 +166,8 @@ type DisplayError = { code: string; message: string; retryable: boolean; request
 
 `OutboundMessageContent` décrit uniquement la composition sortante proposée. Pour l'affichage d'un message reçu, l'expéditeur externe vient de l'enveloppe de réception authentifiée et de sa provenance : son adresse est informative et ne constitue jamais une identité autorisée d'émission. Cette enveloppe `InboundMessageContent.EMAIL` reste séparée du `sender` sortant ; aucune délégation de la boîte de l'expéditeur externe n'est exigée pour lire le message. `envelope.mailboxId` désigne la boîte locale de réception accessible, jamais la boîte de l'expéditeur externe. Les adresses to/cc sont filtrées serveur ; Bcc n'est retourné que si connu et autorisé, sinon `null`, sans révéler de destinataire caché. `mediaId` et `attachmentIds` référencent les `MediaAsset` autorisés de `InboundMessage.mediaAssets`, dans le même workspace/fil ; leurs métadonnées ne valent pas accès aux octets, soumis à `hermesMediaReadAccess`. Le HTML reçu est assaini côté serveur avant rendu.
 
+`SentMessage` est le message sortant persisté, pas une preuve de livraison : `createdAt` date sa création et `direction:SENT` son sens. Son contenu et ses assets sont la version validée/persistée serveur, filtrée selon droits, avec les mêmes contrôles d'accès média. Le ledger distingue attente avant réservation réseau (`PENDING`), acceptation transport (`TRANSPORT_ACCEPTED`), livraison attestée par événement authentifié corrélé (`DELIVERED_ATTESTED`), échec établi (`FAILED`) et issue incertaine (`UNCONFIRMED`). Une copie Sent, un echo ou un accusé SMTP ne suffisent pas à attester la livraison. La réservation durable avant réseau passe en UNCONFIRMED tant qu'aucune issue n'est prouvée. Timeout/crash après remise possible reste UNCONFIRMED, sans retry aveugle ni nouvelle émission par actualisation. Le `clientRequestId` est opaque et scoped au workspace/fil ; sa lecture ne donne aucun droit de réémettre. Lecture/poll/réconciliation du statut exige les droits vivants du message et le contexte courant ; une réponse tardive d'un autre contexte est rejetée. Ces formes de lecture/envoi/ledger sont uniquement proposées et ne modifient aucun DTO v1.
+
 L'identité `sender` est une sélection cible validée serveur : boîte exacte déléguée et adresse principale, ou alias exact explicitement autorisé (`aliasId` non nul), avec revision courante. Ni le domaine seul ni un From libre ne suffisent ; brouillon et envoi recontrôlent boîte/alias/connexion et permissions, puis l'envoi recontrôle au dernier départ évitable. Cette forme ne décrit pas une API d'identités actuellement disponible. Le contenu e-mail et les destinataires sont filtrés selon droits ; Bcc n'est jamais exposé à un lecteur sans autorisation d'accès aux données sortantes. Le HTML passé par le client à la composition n'est pas du `sanitizedHtml` de confiance : serveur valide/assainit avant persistance/rendu. Les objets média publics ne contiennent ni clé stockage, URL fournisseur, credential, chemin local, payload base64 ou identifiant d'instance.
 
 | Interaction proposée, indisponible | Entrée / résultat cible |
@@ -165,8 +177,8 @@ L'identité `sender` est une sélection cible validée serveur : boîte exacte d
 | `hermesSetConversationBotPolicy` | conversationId/localMode + contexte/revision/key → politique effective ; commande locale |
 | `hermesCreateMediaUpload` puis `hermesFinalizeMediaUpload` | fil, kind, MIME/taille déclarés → autorisation courte scoped ; finalisation après contrôle des octets réels |
 | `hermesMediaReadAccess` | mediaId, usage aperçu/téléchargement → accès court après contrôle vivant ; révocation et cache privés |
-| Lectures inbox/mail, versions V3 cibles à définir | contexte/fil, ou mailbox/folder/thread accessibles + cursor/limit → page de messages reçus `InboundMessage`, métadonnées et assets autorisés ; proposition de résultat versionné, pas réponse disponible des lectures v1 |
-| `hermesInboxSendContentV3` | fil + OutboundMessageContent + contexte/revision/clientRequestId + draftId optionnel → message/état ledger |
+| Lectures inbox/mail, versions V3 cibles à définir | contexte/fil, ou mailbox/folder/thread accessibles + cursor/limit → page bidirectionnelle `ConversationMessage` (`InboundMessage` ou `SentMessage` avec ledger), métadonnées et assets autorisés ; statut ciblé par messageId sous les mêmes contrôles ; proposition de résultat versionné, pas réponse disponible des lectures v1 |
+| `hermesInboxSendContentV3` | fil + OutboundMessageContent + contexte/revision/clientRequestId + draftId optionnel → `SentMessage`, incluant son `MessageDeliveryLedger` durable ; zéro nouveau départ lors d'une lecture du statut |
 | `hermesMailFolders`, `hermesMailThreads`, `hermesSaveMailDraft` | mailbox/folder/thread scoped et pagination ; brouillon humain durable versionné, zéro émission |
 
 Ce sont des noms de travail. Ne pas les appeler depuis les maquettes. Versionner le schéma/DTO avant raccordement ; ne pas étendre silencieusement le reply texte v1 avec des pièces jointes ignorées.
