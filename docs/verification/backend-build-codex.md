@@ -51,3 +51,11 @@ Le succès de compilation précédent ne prouvait pas cette résolution runtime.
 Recontrôle réussi après correction : CI de construction sur la branche backend https://github.com/claude972/test-Crm/actions/runs/40979668149 et CI d'intégration https://github.com/claude972/test-Crm/actions/runs/40979688501 sur e7d1332ba. Cette dernière exécute effectivement le contrôle runtime (étape success, pas skipped) et confirme : base jetable initialisée, serveur healthy, contrat client-config vérifié. Le code serveur/shared/SDK/e-mails est identique entre ed80da15116fd2d1490022cf53564d85bc0abe26 et e7d1332ba48b6a03891f39cafcc5e780a2a3cc4f.
 
 La réparation SWC est donc recontrôlée en exécution. La revue Claude du code ed80da151 reste requise ; le frontend, les scénarios métier et la preview combinée ne sont pas validés par ce seul test. Aucun original ni base persistante utilisé.
+
+## SDK général — P0-SDK-002
+
+La construction combinée 40982737440 dépasse les anciens défauts client-sdk puis échoue sur le SDK général, export KovaaLab CRMRecord dans src/sdk/define/index.ts:154. Reproduction indépendante avant correction : 232 sources SDK, quatre diagnostics sur deux fichiers, plus SyntaxError dans le bandeau JavaScript émis par vite.config.node.ts (alias privés à tiret).
+
+Réparation ciblée : type KovaaLabCRMRecord et chemin réel twenty-record.type ; trois identifiants privés du shim ESM rendus valides. Les trois fichiers réparés convergent avec les originaux locaux. Les trois constantes FRONT_COMPONENT_*_KEY et le marqueur de réponse restent byte-identiques à la branche publiée : leurs modifications locales camelCase sont volontairement écartées. Aucun changement de protocole, catalogue ou fonctionnalités.
+
+Protection contre régression : contrôle node --check des sorties Node ESM/CJS intégré au target SDK build, et SDK ajouté au contrôleur de syntaxe/imports backend. Après correction, contrôle isolé SDK : 232 sources, 467 imports internes, zéro échec ; bandeau généré accepté par node --check. Le contrôleur CRM complet ne peut pas être exécuté dans le checkout backend sparse (tsconfig serveur non matérialisé) ; il sera exécuté sur le checkout complet d'intégration et dans la CI. Aucun succès de bundle/typecheck SDK général ou navigateur encore revendiqué.
