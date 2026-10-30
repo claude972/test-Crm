@@ -22,3 +22,5 @@ jobs:
     uses: ./.github/workflows/p0-integrity.yml
   backend-build:
     uses: ./.github/workflows/p0-backend-build.yml
+    with:
+      runtime-smoke: true

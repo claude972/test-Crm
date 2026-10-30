@@ -7,6 +7,10 @@ on:
       - 'apps/crm/ui/**'
   workflow_dispatch:
   workflow_call:
+    inputs:
+      runtime-smoke:
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -16,6 +20,25 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      postgres:
+        image: ${{ inputs.runtime-smoke && 'postgres:16' || '' }}
+        env:
+          POSTGRES_DB: p0_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p0_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: ${{ inputs.runtime-smoke && 'redis:7' || '' }}
+        ports:
+          - 127.0.0.1:6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     env:
       FORCE_COLOR: '0'
       NODE_OPTIONS: --max-old-space-size=4096
@@ -82,3 +105,10 @@ jobs:
           cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
           test -s dist/assets/kovaa-lab-client-sdk/dist/core.cjs
           test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
+      - name: Verify backend startup and client configuration against disposable services
+        if: ${{ inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+        run: node scripts/check-backend-runtime-p0.mjs
