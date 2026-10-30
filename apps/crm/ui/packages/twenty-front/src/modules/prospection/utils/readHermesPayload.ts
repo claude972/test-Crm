@@ -84,6 +84,33 @@ export const readHermesImportRow = (value: unknown): HermesImportRow | null => {
   };
 };
 
+// origin arrives as {kind:'MANUAL'} or {kind:'SIGNED_INTAKE',connectionId,
+// receivedAt}. Absent means the batch predates the discriminator: unknown, and
+// never read as manual.
+const readOrigin = (
+  value: unknown,
+): {
+  originKind: string | null;
+  originConnectionId: string | null;
+  originReceivedAt: string | null;
+} => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return {
+      originKind: null,
+      originConnectionId: null,
+      originReceivedAt: null,
+    };
+  }
+
+  const origin = value as Record<string, unknown>;
+
+  return {
+    originKind: readString(origin.kind),
+    originConnectionId: readString(origin.connectionId),
+    originReceivedAt: readString(origin.receivedAt),
+  };
+};
+
 export const readHermesImportBatch = (
   value: unknown,
 ): HermesImportBatch | null => {
@@ -112,6 +139,7 @@ export const readHermesImportBatch = (
     collectedAt: readString(value.collectedAt),
     createdAt: readString(value.createdAt),
     createdByUserId: readString(value.createdByUserId),
+    ...readOrigin(value.origin),
     rows: readRows.filter((row): row is HermesImportRow => row !== null),
     areRowsReadable,
     unreadableRowCount: readRows.filter((row) => row === null).length,

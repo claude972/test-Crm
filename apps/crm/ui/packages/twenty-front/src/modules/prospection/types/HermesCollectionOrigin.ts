@@ -9,6 +9,19 @@
 // is not evidence that a given collection came through it.
 export const HERMES_COLLECTION_ORIGINS = ['automatic', 'manual-json'] as const;
 
+// The two kinds the server now publishes on the batch, mapped explicitly. A
+// kind outside these two leaves the origin null and reads as "not published":
+// the mapping is a table, never a transform, so a third kind cannot be
+// silently rendered as one of these.
+export const readHermesCollectionOriginKind = (
+  kind: string | null,
+): HermesCollectionOrigin | null =>
+  kind === 'SIGNED_INTAKE'
+    ? 'automatic'
+    : kind === 'MANUAL'
+      ? 'manual-json'
+      : null;
+
 export type HermesCollectionOrigin =
   (typeof HERMES_COLLECTION_ORIGINS)[number];
 
@@ -22,8 +35,15 @@ export const isHermesCollectionOrigin = (
 // the published batch contract and is already read defensively upstream, so
 // null here always means "the payload did not carry a usable value".
 export type HermesCollectionProvenance = {
-  // Null whenever no origin discriminator was published. See above.
+  // Null whenever the batch carried no origin, which is the case for every
+  // collection staged before the server started recording one. Absent is
+  // UNKNOWN, never 'manual-json'.
   origin: HermesCollectionOrigin | null;
+  // Only a SIGNED_INTAKE batch carries these. receivedAt is the server's own
+  // marker for when the entry point took it — never derived from collectedAt,
+  // which the caller supplies.
+  intakeConnectionId: string | null;
+  intakeReceivedAt: string | null;
   sourceUrl: string | null;
   externalBatchId: string | null;
   fingerprint: string | null;

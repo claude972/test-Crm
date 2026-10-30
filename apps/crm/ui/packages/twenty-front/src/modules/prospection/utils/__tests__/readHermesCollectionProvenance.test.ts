@@ -19,7 +19,9 @@ const buildBatch = (batch: Partial<HermesImportBatch>): HermesImportBatch => ({
 describe('readHermesCollectionProvenance', () => {
   it('carries the provenance fields the published contract does declare', () => {
     expect(readHermesCollectionProvenance(buildBatch({}))).toEqual({
-      origin: null,
+      originKind: null,
+      originConnectionId: null,
+      originReceivedAt: null,
       sourceUrl: 'https://example.org/directory',
       externalBatchId: 'trade-show-2026-10',
       fingerprint: 'abcdef',
@@ -31,8 +33,41 @@ describe('readHermesCollectionProvenance', () => {
 
   // The defect this guards against: calling a collection "manual" because the
   // manual form exists, or "automatic" because no actor was recorded. The
-  // published contract tells the two apart nowhere, so the origin stays
-  // unknown whatever the other fields say.
+  // The origin is published now, but it is still never INFERRED: not from
+  // the actor, not from a source URL, and not from any caller-supplied name.
+  it('reads a signed intake as an automatic collection', () => {
+    expect(
+      readHermesCollectionProvenance(
+        buildBatch({
+          originKind: 'SIGNED_INTAKE',
+          originConnectionId: 'connection-1',
+          originReceivedAt: '2026-10-30T09:00:00.000Z',
+        }),
+      ).origin,
+    ).toBe('automatic');
+  });
+
+  it('reads a manual deposit as such', () => {
+    expect(
+      readHermesCollectionProvenance(buildBatch({ originKind: 'MANUAL' }))
+        .origin,
+    ).toBe('manual-json');
+  });
+
+  // A batch staged before the server recorded an origin carries none. Absent
+  // is unknown, and reading it as manual would blame an operator for a
+  // collection nobody can attribute.
+  it('leaves an absent origin unknown rather than manual', () => {
+    expect(readHermesCollectionProvenance(buildBatch({})).origin).toBeNull();
+  });
+
+  it('refuses a kind outside the two published ones', () => {
+    expect(
+      readHermesCollectionProvenance(buildBatch({ originKind: 'WEBHOOK' }))
+        .origin,
+    ).toBeNull();
+  });
+
   it('never infers an origin from the other provenance fields', () => {
     expect(
       readHermesCollectionProvenance(buildBatch({ createdByUserId: null }))
