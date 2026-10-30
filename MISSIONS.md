@@ -380,3 +380,34 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 ### HERMES-V2 — préférences confirmées par le propriétaire
 - Référence visuelle : Pipedrive. Langue par défaut : français. Ces deux choix sont acquis et ne doivent plus être redemandés.
 - Plan et prompt mis à jour ; maquettes détaillées encore à valider avant câblage. Aucun nouveau développement, branche applicative, connexion externe ou déploiement lancé par cette mise à jour documentaire.
+
+
+## HERMES-V2-MAQUETTES-20261030 — exécution du prompt autorisée
+
+- owner authorization: « Ok agis en autonomie lance le prompt ». Plan approuvé ; Pipedrive et français acquis. Étape actuelle : produire des maquettes et contrats, PAS câbler l'application avant choix visuel.
+- common base:333ba534927e177c90b35eb4157d75d8d767dec4. Original test-Crm, sauvegardes et branches précédentes préservés.
+- shared brief: docs/handoff/hermes-v2-prompt.xml et hermes-v2-plan-validation.md sur cette branche ; sources visuelles officielles Pipedrive : https://support.pipedrive.com/fr/article/activites et https://www.pipedrive.com/fr/features/sales-dashboard.
+
+### Claude — propriétaire exclusif du design
+- agent: claude
+- status: pending
+- assigned session:8f3db32e-4613-45e3-94f3-16e664f3cbfc ; ne pas lancer de doublon depuis une autre veille.
+- branch: feat/claude-hermes-v2-ui ; worktree créé /Volumes/Stockage/dev/hermes-crm/v2-claude-maquettes (sparse docs uniquement).
+- ownership: docs/design/hermes-v2/** uniquement ; aucune modification apps/, production, backend, compte ou connexion.
+- deliverables: prototype statique HTML/CSS autonome proposant3pistes distinctes inspirées Pipedrive,4écrans par piste (dashboard, prospection, messagerie, Réglages société/connexions/bots), responsive390px etdesktop, contenu français, données fictives clairement marquées, aucune API. Noms/icônes/accessibilité cohérents ; un seul centre Réglages, pas d'interrupteur de configuration dans les modules.
+- acceptance: images concrètes et maquettes navigables sans câblage ; captures desktop/mobile, provenance de références, codes/décisions design ; commit/push de la branche et rapport partagé. La validation des maquettes reste utilisateur.
+- verification report: CORRECTIONS.md, section HERMES-V2-MAQUETTES-20261030/Claude ; Root reprend les captures et la revue.
+- dispatch: session à contacter après publication de cette affectation ; publication seule n'est pas un démarrage prouvé.
+
+### Codex — contrats et vérification
+- agent: codex
+- status: pending
+- branch: feat/codex-hermes-v2-core ; worktree créé /Volumes/Stockage/dev/hermes-crm/v2-codex-contracts (sparse docs uniquement).
+- ownership: docs/handoff/hermes-v2-settings-bots-contract.md et hermes-v2-company-prospection-contract.md ; root possède coordination et vérification des maquettes ; ne pas modifier les fichiers Claude.
+- deliverables: contrats cible explicitement non implémentés, matrice des droits/scopes, vrai OFF par société/canal, sociétés/session/caches/onglets, données de prospection et recette ; chemins/signatures sources prouvés ; pas de fausse API existante.
+- acceptance: isolation A/B/C et arrêt en vol décrits, aucune fuite de secret ni nouveau stockage/câblage réel, revue du prototype exact et images ; pas de test/app/deploy annoncé comme fait sans preuve.
+- dependency: design validé avant code applicatif. Codex peut préparer les contrats sans modifier les fonctionnalités pendant les maquettes.
+
+### Garde commune
+- Les veilles lisent cette mission et n'en créent pas une copie. Pas de modification produit sous couvert d'autonomie avant validation visuelle. Maquettes = démonstration explicite, jamais faux fournisseur connecté.
+- Aucun service payant nouveau, aucune production, aucun envoi réel ; preview statique de design permise sur projet existant, séparée d'une preview CRM fonctionnelle et sans secrets.

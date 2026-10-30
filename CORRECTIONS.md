@@ -1133,3 +1133,11 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 ### HERMES-V2 — préférences confirmées par le propriétaire
 - Référence visuelle : Pipedrive. Langue par défaut : français. Ces deux choix sont acquis et ne doivent plus être redemandés.
 - Plan et prompt mis à jour ; maquettes détaillées encore à valider avant câblage. Aucun nouveau développement, branche applicative, connexion externe ou déploiement lancé par cette mise à jour documentaire.
+
+
+## HERMES-V2-MAQUETTES-20261030 — lancement
+
+- Acting agent: Codex/root. User autorise exécution autonome du prompt ; phase maquettes/contrats seulement, pas de câblage avant choix.
+- CLI discovery: aide Claude et inventaire consultés ; session8f3db32e existe, idle/done, ancien checkout non modifié. Session interactive2418 joignable. Aucune instruction nouvelle envoyée avant publication de la mission.
+- Worktrees docs-only créés depuis333ba5349 : feat/claude-hermes-v2-ui et feat/codex-hermes-v2-core ; ne pas changer les anciens checkouts. Deux veilles test-Crm détectées, non interrompues ; propriétaire design explicitement réservé à8f3 pour éviter duplication.
+- Références primaires Pipedrive activités/dashboard consultées. Aucun accès fournisseur, compte, secret ou DB consulté. Prochaine action : dispatch réel à la session réservée, puis observation de l'acceptation et des artefacts.

@@ -4,7 +4,7 @@
 
 Un utilisateur gère ses sociétés autorisées dans un CRM web/PWA : chaque société possède ses données, son dashboard, ses réglages et ses connexions WhatsApp/e-mail ; une vue commune ne réunit que ses sociétés autorisées. Il travaille dans une prospection complète et trouve tout le paramétrage dans un unique centre Réglages, avec un design choisi sur maquettes avant développement.
 
-**Statut : cadrage uniquement. Aucun développement, nouvelle maquette, migration ou déploiement autorisé par ce document.** La demande actuelle suspend la poursuite autonome de l'implémentation de cette V2. Les validations du plan puis des maquettes doivent précéder l'implémentation.
+**Statut : plan approuvé pour exécution autonome par le propriétaire (« Ok agis en autonomie lance le prompt »). Phase active : maquettes statiques et contrats techniques. Aucun câblage applicatif, migration ou connexion réelle avant validation des maquettes.**
 
 Base de code auditée : `333ba534927e177c90b35eb4157d75d8d767dec4`, branche `feat/codex-hermes-integration`. La preview précédente utilisait79830 ; aucun accès fournisseur ni nouveau test runtime n'est déduit du présent audit en lecture seule.
 
@@ -172,8 +172,8 @@ Parcours V1 proposé à valider :
 
 ## Organisation, validations et hors périmètre
 
-- **Maintenant :** plan et prompt publiés pour revue, audit lecture seule ; aucune mission de codage lancée.
-- **Validation 1 :** périmètre et organisation des Réglages ; les décisions langue française et référence Pipedrive sont déjà confirmées, ne pas les redemander.
+- **Maintenant :** mission maquettes et contrats lancée ; références Pipedrive et français confirmées. Aucune fonctionnalité applicative V2 câblée avant choix des maquettes.
+- **Validation 1 acquise :** lancement du plan autorisé ; langue française et référence Pipedrive confirmées. Ne pas les redemander.
 - **Validation 2 :** choix puis validation des maquettes détaillées et autorisation explicite d'implémenter.
 - **Après seulement :** affectations revendiquées Claude/Codex, worktrees isolés et contrats partagés publiés avant édition. Commits/push réguliers et revue croisée ; préserver le checkout original et ses sauvegardes.
 - Aucun délai de réalisation ferme avant ces choix et la vérification des accès. Aucun nouveau service payant, aucune production, aucun envoi à de vrais prospects, aucune application native.

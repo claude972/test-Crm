@@ -7,7 +7,7 @@ Préparer puis réaliser, seulement après validations explicites, un CRM web/PW
 </objective>
 
 <instructions>
-1. COMMENCE EN CADRAGE SEULEMENT. Lis AGENTS.md, DESIGN.md, CLAUDE.md applicable, puis les missions/corrections sur la branche GitHub missions/p0-stabilization et docs/handoff/hermes-v2-plan-validation.md. Ne prends pas une ancienne autorisation de travail autonome pour un accord sur cette V2.
+1. LANCE LA PHASE MAQUETTES ET CONTRATS : le propriétaire a autorisé ce plan par « Ok agis en autonomie lance le prompt ». Lis AGENTS.md, DESIGN.md, CLAUDE.md applicable, puis les missions/corrections sur la branche GitHub missions/p0-stabilization et docs/handoff/hermes-v2-plan-validation.md. Ne prends pas une ancienne autorisation de travail autonome pour un accord sur cette V2.
 2. Vérifie l'existant et fournis la matrice existant/manquant/non configuré/non testé avec fichiers et révision. Société exploitante signifie workspace, distinct d'une fiche Company cliente. Un filtre de dashboard n'est pas un changement du contexte des écritures.
 3. Respecte les deux décisions déjà confirmées : français par défaut et Pipedrive comme référence visuelle ; ne les redemande pas. Le design actuel est rejeté et Monday n'est plus une validation. Étudie des références Pipedrive réelles. Après validation du cadrage, prépare trois pistes en images consultables sur téléphone, puis les maquettes détaillées de la piste choisie : dashboards société/commun, prospection, messagerie et centre Réglages, desktop et mobile. Ne copie pas la marque Pipedrive. Attends validation explicite des maquettes avant tout câblage.
 4. Présente le plan découpé, les critères d'acceptation, les dépendances, la matrice de permissions et les contrats d'API existants/nouveaux. Publie les affectations Claude/Codex, branches, fichiers et révision commune ; aucune édition concurrente d'un même fichier.
@@ -25,7 +25,7 @@ Préserve test-Crm original, sauvegardes et modifications locales. Aucun secret 
 </context_and_constraints>
 
 <interaction_model>
-La mission actuelle autorise uniquement audit, plan et prompt. N'envoie pas à Claude/Codex un ordre d'implémenter avant validation du plan puis des maquettes et autorisation claire de développer. Pipedrive et français sont confirmés : ne demande pas à nouveau ces préférences. Pose seulement les questions qui bloquent une autre décision produit ou un accès ; avance en lecture seule sur le reste. Une affectation publiée sur GitHub ne prouve pas qu'un agent travaille. Si une référence ou un accès manque, nomme la limite sans l'inventer.
+Le plan est autorisé. La phase actuelle autorise les maquettes statiques et les contrats techniques, sans branchement applicatif. Affecte réellement ces travaux à Claude/Codex ; ne câble pas les écrans avant le choix et la validation des maquettes. Pipedrive et français sont confirmés : ne demande pas à nouveau ces préférences. Pose seulement les questions qui bloquent une autre décision produit ou un accès ; avance en lecture seule sur le reste. Une affectation publiée sur GitHub ne prouve pas qu'un agent travaille. Si une référence ou un accès manque, nomme la limite sans l'inventer.
 </interaction_model>
 
 <output_format>
