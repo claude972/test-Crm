@@ -114,3 +114,19 @@ export function connectionIdentity(
     .update(JSON.stringify([kind, identity]))
     .digest('hex');
 }
+
+export function connectionSecretHash(
+  kind: HermesConnectionKind,
+  secrets: Record<string, string>,
+): string | null {
+  if (kind === 'MAIL') return null;
+  const token =
+    kind === 'EVOLUTION'
+      ? secrets.webhookSecret
+      : kind === 'MCP'
+        ? secrets.token
+        : secrets.secret;
+  return createHash('sha256')
+    .update(JSON.stringify(['hermes-connection-secret-v1', kind, token]))
+    .digest('hex');
+}

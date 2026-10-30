@@ -1,5 +1,10 @@
 import { ForbiddenException } from '@nestjs/common';
-import { type DataSource, type EntityManager } from 'typeorm';
+import {
+  type DataSource,
+  type EntityManager,
+  FindOperator,
+  type FindOptionsWhere,
+} from 'typeorm';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
@@ -53,6 +58,24 @@ function fixture() {
               row[key as keyof HermesConnectionEntity] === value,
           ),
         ) ?? null,
+    ),
+    existsBy: jest.fn(
+      async (
+        where:
+          | FindOptionsWhere<HermesConnectionEntity>
+          | FindOptionsWhere<HermesConnectionEntity>[],
+      ) => {
+        const alternatives = Array.isArray(where) ? where : [where];
+        return rows.some((row) =>
+          alternatives.some((scope) =>
+            Object.entries(scope).every(([key, value]) =>
+              value instanceof FindOperator
+                ? row[key as keyof HermesConnectionEntity] !== value.value
+                : row[key as keyof HermesConnectionEntity] === value,
+            ),
+          ),
+        );
+      },
     ),
     create: jest.fn((row: HermesConnectionEntity) => row),
     save: jest.fn(async (row: HermesConnectionEntity) => {
@@ -776,6 +799,109 @@ describe('encrypted workspace connections', () => {
     expect(
       JSON.stringify(await f.service.resolve(workspaceId, 'MAIL')),
     ).not.toContain('mailCredentialDigest');
+  });
+
+  it('isolates uniqueness checks from another workspace corrupt ciphertext but rejects its reserved hash', async () => {
+    const f = fixture();
+    await f.service.save(actor, evolution);
+    const corrupt = 'enc:v2:missing-key:invalid-payload' as EncryptedString;
+    f.rows[0].configuration = corrupt;
+    const decrypt = jest.spyOn(f.encryption, 'decryptVersionedOrThrow');
+    const other = {
+      ...actor,
+      workspaceId: '00000000-0000-4000-8000-000000000001',
+      userWorkspaceId: '00000000-0000-4000-8000-000000000002',
+    };
+    const different = {
+      ...evolution,
+      settings: { ...evolution.settings, instanceName: 'different' },
+      secrets: { ...evolution.secrets, webhookSecret: 'b'.repeat(64) },
+    };
+    expect(await f.service.save(other, different)).toMatchObject({
+      revision: 1,
+      state: 'CONFIGURED_UNVERIFIED',
+    });
+    expect(
+      decrypt.mock.calls.some(([ciphertext]) => ciphertext === corrupt),
+    ).toBe(false);
+    await expect(
+      f.service.save(
+        { ...other, workspaceId: '00000000-0000-4000-8000-000000000003' },
+        { ...different, secrets: evolution.secrets },
+      ),
+    ).rejects.toThrow('CONNECTION_IDENTITY_ALREADY_BOUND');
+    expect(
+      decrypt.mock.calls.some(([ciphertext]) => ciphertext === corrupt),
+    ).toBe(false);
+    expect(JSON.stringify(await f.service.list(other))).not.toContain(
+      'secretHash',
+    );
+    expect(
+      JSON.stringify(await f.service.resolve(other.workspaceId, 'EVOLUTION')),
+    ).not.toContain('secretHash');
+  });
+
+  it('revalidates decrypted native configuration and required actor fields without performing DNS', async () => {
+    const f = fixture();
+    await f.service.save(actor, evolution);
+    const original = f.rows[0].configuration!;
+    const payload = JSON.parse(
+      f.encryption.decryptVersionedOrThrow(original, { workspaceId }),
+    );
+    const write = (value: unknown) => {
+      f.rows[0].configuration = f.encryption.encryptVersioned(
+        JSON.stringify(value) as PlaintextString,
+        { workspaceId },
+      );
+    };
+    jest.mocked(resolveAndValidateHostname).mockClear();
+    write({
+      ...payload,
+      secrets: { ...payload.secrets, apiKey: 'invalid\nheader' },
+    });
+    await expect(f.service.resolve(workspaceId, 'EVOLUTION')).rejects.toThrow(
+      'CONNECTION_CONFIGURATION_UNAVAILABLE',
+    );
+    const { userId: _missing, ...withoutActor } = payload;
+    write(withoutActor);
+    await expect(f.service.resolve(workspaceId, 'EVOLUTION')).rejects.toThrow(
+      'CONNECTION_CONFIGURATION_UNAVAILABLE',
+    );
+    write({
+      ...payload,
+      settings: { ...payload.settings, baseUrl: 'http://127.0.0.1:9000' },
+    });
+    await expect(f.service.resolve(workspaceId, 'EVOLUTION')).rejects.toThrow(
+      'CONNECTION_CONFIGURATION_UNAVAILABLE',
+    );
+    f.rows[0].configuration = original;
+    expect(await f.service.resolve(workspaceId, 'EVOLUTION')).toMatchObject({
+      revision: 1,
+    });
+    expect(resolveAndValidateHostname).not.toHaveBeenCalled();
+  });
+
+  it('rejects a secret fingerprint that no longer matches the decrypted native token', async () => {
+    const f = fixture();
+    await f.service.save(actor, {
+      kind: 'INTAKE',
+      expectedRevision: 0,
+      settings: { allowedSources: ['SCRAPING'], maxRequestsPerMinute: 10 },
+      secrets: { secret: 'a'.repeat(64) },
+    });
+    const payload = JSON.parse(
+      f.encryption.decryptVersionedOrThrow(f.rows[0].configuration!, {
+        workspaceId,
+      }),
+    );
+    payload.secrets.secret = 'b'.repeat(64);
+    f.rows[0].configuration = f.encryption.encryptVersioned(
+      JSON.stringify(payload) as PlaintextString,
+      { workspaceId },
+    );
+    await expect(f.service.resolve(workspaceId, 'INTAKE')).rejects.toThrow(
+      'CONNECTION_CONFIGURATION_UNAVAILABLE',
+    );
   });
 
   it('validates bounded intake secrets and never assumes configured implies verified', async () => {
