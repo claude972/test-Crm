@@ -29905,3 +29905,52 @@ msgstr "partiel"
 msgid "{0}/{1} checked"
 msgstr "{0}/{1} vérifiés"
 
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Authorised companies"
+msgstr "Sociétés autorisées"
+
+msgid "Main navigation"
+msgstr "Navigation principale"
+
+msgid "Volume"
+msgstr "Volume"
+
+msgid "Pipeline"
+msgstr "Pipeline"
+
+msgid "Stage"
+msgstr "Étape"
+
+msgid "Close date"
+msgstr "Date de clôture"
+
+msgid "Due date"
+msgstr "Échéance"
+
+msgid "Opportunities by close date"
+msgstr "Opportunités par date de clôture"
+
+msgid "Tasks by due date"
+msgstr "Tâches par échéance"
+
+msgid "No opportunity yet."
+msgstr "Aucune opportunité."
+
+msgid "No task yet."
+msgstr "Aucune tâche."
+
+msgid "Not authorised."
+msgstr "Non autorisé."
+
+msgid "To configure."
+msgstr "À configurer."
+
+msgid "Unnamed"
+msgstr "Sans nom"
+
+msgid "Counts and records read from this workspace."
+msgstr "Chiffres et données de cet espace de travail."
+

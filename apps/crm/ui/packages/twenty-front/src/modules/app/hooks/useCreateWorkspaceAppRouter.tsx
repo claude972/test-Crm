@@ -10,6 +10,7 @@ import { createWorkspaceRouteObjects } from '@/app/routing/utils/createWorkspace
 import { getWorkspaceRouteObjectsForSurface } from '@/app/routing/utils/getWorkspaceRouteObjectsForSurface';
 import { VerifyEmail } from '@/auth/components/VerifyEmail';
 import { AppRouteErrorFallback } from '@/error-handler/components/AppRouteErrorFallback';
+import { HERMES_SHELL_ROUTE_PATHS } from '@/hermes-shell/constants/HermesShellRoutePaths';
 import { MinimalMetadataGate } from '@/metadata-store/components/MinimalMetadataGate';
 import { OnboardingActivationOutlet } from '@/onboarding/components/OnboardingActivationOutlet';
 import { OnboardingPageLoader } from '@/onboarding/components/OnboardingPageLoader';
@@ -98,6 +99,16 @@ type CreateWorkspaceAppRouterArgs = {
   isAdminPageEnabled?: boolean;
 };
 
+// Mounted as a SIBLING of DefaultLayout, not inside it: the Hermes shell
+// carries its own sidebar and header, and nesting it under DefaultLayout would
+// put two navigation drawers on the same screen. Only this one route uses the
+// shell; every other route keeps the existing drawer untouched.
+const HermesOperationsDashboardPage = lazy(() =>
+  import('~/pages/hermes/HermesOperationsDashboardPage').then((module) => ({
+    default: module.HermesOperationsDashboardPage,
+  })),
+);
+
 const createWorkspaceAppRouter = ({
   isAdminPageEnabled,
 }: CreateWorkspaceAppRouterArgs) => {
@@ -119,6 +130,14 @@ const createWorkspaceAppRouter = ({
             {
               element: <MinimalMetadataGate />,
               children: [
+                {
+                  path: HERMES_SHELL_ROUTE_PATHS.operationsDashboard,
+                  element: (
+                    <LazyRoute>
+                      <HermesOperationsDashboardPage />
+                    </LazyRoute>
+                  ),
+                },
                 {
                   element: <DefaultLayout />,
                   children: [
