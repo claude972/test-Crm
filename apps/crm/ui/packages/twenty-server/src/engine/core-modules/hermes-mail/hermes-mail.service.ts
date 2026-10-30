@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ConflictException,
   Inject,
   Optional,
   type OnModuleInit,
@@ -10,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Cron } from '@nestjs/schedule';
 import { createHash, randomUUID } from 'node:crypto';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
-import { type EntityManager, IsNull, Raw, Repository } from 'typeorm';
+import { type EntityManager, In, IsNull, Not, Raw, Repository } from 'typeorm';
 
 import PostalMime, { type Email } from 'postal-mime';
 import { getSendableEmailHandles } from 'kovaa-lab-shared/utils';
@@ -598,6 +599,8 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
             contactHandle: event.contactHandle,
             direction: event.direction,
             botUnavailableReason,
+            autoReplyBlockedReason:
+              event.providerMetadata?.mailAutoResponseBlockReason ?? null,
             attachments: attachments.map((attachment, index) => ({
               ...attachment,
               index,
@@ -689,7 +692,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       },
       {
         suppressAutomation:
-          suppressAutomation || event.direction === 'OUTBOUND',
+          suppressAutomation ||
+          event.direction === 'OUTBOUND' ||
+          !!event.providerMetadata?.mailAutoResponseBlockReason,
         observedOnly: suppressAutomation || event.direction === 'OUTBOUND',
         assertLive,
       },
@@ -698,6 +703,8 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       ...saved,
       contactHandle: event.contactHandle,
       botUnavailableReason,
+      autoReplyBlockedReason:
+        event.providerMetadata?.mailAutoResponseBlockReason ?? null,
       direction: event.direction,
       attachments,
       providerConnectionId: item.binding.connectionId,
@@ -863,6 +870,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     input: { clientRequestId: string; contactHandle: string; subject: string },
     assertDeadline: () => void = () => {},
     allowUnsentUpdate = false,
+    sendRequestId?: string,
   ) {
     await this.access.assertAllowed(actor);
     const item = await this.connection(actor.workspaceId);
@@ -881,6 +889,29 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
         throw new ServiceUnavailableException('MAIL_CONNECTION_CHANGED');
       assertDeadline();
     };
+    if (sendRequestId) {
+      const reserved = await this.messages.findOne({
+        where: {
+          workspaceId: actor.workspaceId,
+          channel: 'EMAIL',
+          providerConnectionId: item.binding.connectionId,
+          conversationId: messagingId(
+            actor.workspaceId,
+            'EMAIL',
+            item.binding.connectionId,
+            `draft:${input.clientRequestId}`,
+          ),
+          direction: 'OUTBOUND',
+          status: In(['PENDING', 'ACCEPTED', 'UNCONFIRMED', 'FAILED']),
+          clientRequestId: Not(IsNull()),
+        },
+      });
+      if (
+        reserved?.clientRequestId &&
+        reserved.clientRequestId !== sendRequestId
+      )
+        throw new ConflictException('MAIL_DRAFT_ALREADY_RESERVED');
+    }
     return this.inbox.ensureEmailDraftConversation(
       actor,
       {
@@ -1026,6 +1057,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       const result = await Promise.race([
         transport.sendMail({
           from: sender,
+          ...(input.automated === true
+            ? { headers: { 'Auto-Submitted': 'auto-replied' } }
+            : {}),
           to: envelope.to,
           cc: envelope.cc,
           bcc: envelope.bcc,
@@ -1131,6 +1165,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
         throw unavailable();
       const pending = transport.sendMail({
         from: sender,
+        ...(input.automated === true
+          ? { headers: { 'Auto-Submitted': 'auto-replied' } }
+          : {}),
         to: recipient,
         text: input.text,
         subject: ('Re: ' + (conversation.subject ?? ''))

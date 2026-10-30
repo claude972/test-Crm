@@ -164,7 +164,7 @@ export function planMailEnvelope(
     throw new BadRequestException('MAIL_INVALID_RECIPIENTS');
   const subject = mailHeader(input.source.subject ?? '');
   const messageId = mailMessageId(input.source.messageId);
-  const references = [
+  const referenceIds = [
     ...new Set(
       [
         ...(input.source.references?.match(/<[^<>\s]+>/g) ?? []),
@@ -173,7 +173,11 @@ export function planMailEnvelope(
         .map(mailMessageId)
         .filter((item): item is string => item !== null),
     ),
-  ].slice(-30);
+  ];
+  const references =
+    referenceIds.length > 20
+      ? [referenceIds[0], ...referenceIds.slice(-19)]
+      : referenceIds;
   return {
     from,
     to,

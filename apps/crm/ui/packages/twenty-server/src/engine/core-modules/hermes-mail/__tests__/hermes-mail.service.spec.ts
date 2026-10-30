@@ -128,6 +128,7 @@ function fixture(reader?: unknown, media?: unknown) {
   };
   const smtp = { getClient: jest.fn(async () => transport) };
   const inbox = {
+    ensureEmailDraftConversation: jest.fn(async () => ({ id: conversationId })),
     ingest: jest.fn(async (_event: unknown, _options?: unknown) => ({
       conversationId,
       messageId: 'fixture-message',
@@ -1085,3 +1086,76 @@ it('reads a proven native Sent MIME copy through its accepted canonical receipt 
     conversationId,
   );
 });
+
+it('freezes a stable draft against new send request ids after uncertainty while allowing the exact ledger request to replay', async () => {
+  const f = fixture();
+  const originalRequest = 'e4d16125-1299-4b15-aa57-d193a423b4e9';
+  f.messages.findOne.mockResolvedValue({
+    clientRequestId: originalRequest,
+    status: 'UNCONFIRMED',
+  } as never);
+  const draft = {
+    clientRequestId: 'e4d16125-1299-4b15-aa57-d193a423b4e6',
+    contactHandle: 'client@example.com',
+    subject: 'Draft',
+  };
+  await expect(
+    f.service.draftConversation(actor, draft, () => {}, false, originalRequest),
+  ).resolves.toMatchObject({ id: conversationId });
+  f.inbox.ensureEmailDraftConversation.mockClear();
+  await expect(
+    f.service.draftConversation(
+      actor,
+      draft,
+      () => {},
+      false,
+      'e4d16125-1299-4b15-aa57-d193a423b4e8',
+    ),
+  ).rejects.toThrow('MAIL_DRAFT_ALREADY_RESERVED');
+  expect(f.inbox.ensureEmailDraftConversation).not.toHaveBeenCalled();
+  expect(f.transport.sendMail).not.toHaveBeenCalled();
+});
+
+it.each([
+  ['Auto-Submitted: auto-replied; owner-email="loop@example.com"', true],
+  ['Auto-Submitted: auto-generated', true],
+  ['Auto-Submitted: no; owner-email="human@example.com"', false],
+  ['Return-Path: <>', true],
+  ['Precedence: bulk', true],
+  ['List-Id: fixture.example.org', true],
+  [
+    'Content-Type: multipart/report; report-type=delivery-status; boundary="report"',
+    true,
+  ],
+  ['', false],
+])(
+  'MAIL-004 blocks automatic responses from native MIME without dropping human-visible mail (%s)',
+  async (header, blocked) => {
+    const f = fixture();
+    const source = Buffer.from(
+      'From: client@example.com\r\nMessage-ID: <loop-fixture@example.com>\r\n' +
+        (header ? header + '\r\n' : '') +
+        '\r\nHello',
+    );
+    f.client.fetchAll.mockImplementation(async (_range, query) =>
+      query.source
+        ? [{ uid: 12, source }]
+        : ([
+            {
+              uid: 12,
+              size: source.length,
+              envelope: { from: [{ address: 'client@example.com' }] },
+            },
+          ] as never),
+    );
+    expect(await f.service.sync(actor)).toMatchObject({ received: 1 });
+    expect(f.inbox.ingest).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        suppressAutomation: blocked,
+        observedOnly: false,
+      }),
+    );
+    expect(f.transport.sendMail).not.toHaveBeenCalled();
+  },
+);

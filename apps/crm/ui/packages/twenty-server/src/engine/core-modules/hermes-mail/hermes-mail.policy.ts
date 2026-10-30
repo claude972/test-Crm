@@ -85,6 +85,60 @@ export const mailProviderId = (value: string) =>
     ? value
     : 'mail-sha256:' + createHash('sha256').update(value).digest('hex');
 
+// RFC3834 §§2/3.1.7: do not start an automatic conversation with another
+// responder. Ambiguous/duplicate Auto-Submitted fields fail closed for AUTO;
+// human reading, drafting and replying remain separate authorized actions.
+export function mailAutoResponseBlockReason(
+  email: Awaited<ReturnType<typeof PostalMime.parse>>,
+):
+  | 'AUTO_SUBMITTED'
+  | 'NULL_RETURN_PATH'
+  | 'BULK_OR_LIST'
+  | 'DELIVERY_STATUS'
+  | null {
+  const values = (key: string) =>
+    email.headers
+      .filter((header) => header.key.toLowerCase() === key)
+      .map((header) => header.value);
+  const cfws = (value: string) => {
+    let result = value;
+    for (let depth = 0; depth < 10 && /\([^()]*\)/.test(result); depth++)
+      result = result.replace(/\([^()]*\)/g, ' ');
+    return result.trim();
+  };
+  const submitted = values('auto-submitted');
+  // Parameter values may be RFC2045 tokens or quoted strings, including a
+  // quoted semicolon; recognized no with valid optional parameters is human.
+  const human =
+    /^no(?:\s*;\s*[!#$%&'*+.^_`|~0-9A-Za-z-]+\s*=\s*(?:[!#$%&'*+.^_`|~0-9A-Za-z-]+|"(?:[^"\\\r\n]|\\[\x20-\x7e])*"))*\s*$/i;
+  if (
+    submitted.length > 1 ||
+    submitted.some((value) => !human.test(cfws(value)))
+  )
+    return 'AUTO_SUBMITTED';
+  if (values('return-path').some((value) => /^<\s*>$/.test(cfws(value))))
+    return 'NULL_RETURN_PATH';
+  if (
+    values('list-id').length ||
+    values('precedence').some((value) =>
+      /(?:^|[\s,;])(bulk|list|junk)(?:$|[\s,;])/i.test(value),
+    )
+  )
+    return 'BULK_OR_LIST';
+  if (
+    values('content-type').some(
+      (value) =>
+        /^message\/(delivery-status|disposition-notification)\b/i.test(value) ||
+        (/^multipart\/report\b/i.test(value) &&
+          /report-type\s*=\s*"?(delivery-status|disposition-notification)\b/i.test(
+            value,
+          )),
+    )
+  )
+    return 'DELIVERY_STATUS';
+  return null;
+}
+
 export async function parseHermesMail(input: {
   source: Buffer;
   parsed?: Awaited<ReturnType<typeof PostalMime.parse>>;
@@ -150,6 +204,9 @@ export async function parseHermesMail(input: {
       : new Date().toISOString(),
     subject: (parsed.subject ?? '').replace(/[\r\n\x00]/g, ' ').slice(0, 200),
     providerMetadata: {
+      ...(mailAutoResponseBlockReason(parsed)
+        ? { mailAutoResponseBlockReason: mailAutoResponseBlockReason(parsed)! }
+        : {}),
       ...(input.mimeSha256 || input.source.length
         ? {
             mimeSha256:

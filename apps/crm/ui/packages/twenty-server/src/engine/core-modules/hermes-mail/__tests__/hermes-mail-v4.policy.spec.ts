@@ -141,3 +141,19 @@ it('HERMES-V4-MAIL-003 permits explicit Bcc-only composition without inheriting 
     }),
   ).toMatchObject({ to: [], cc: [], bcc: ['private@example.org'] });
 });
+
+it('keeps the thread root and latest references inside the existing ledger 20-reference bound', () => {
+  const result = planMailEnvelope({
+    ...input,
+    source: {
+      ...source,
+      references: Array.from(
+        { length: 35 },
+        (_, index) => `<ref-${index}@example.org>`,
+      ).join(' '),
+    },
+  });
+  expect(result.references).toHaveLength(20);
+  expect(result.references[0]).toBe('<ref-0@example.org>');
+  expect(result.references[19]).toBe('<last@example.org>');
+});
