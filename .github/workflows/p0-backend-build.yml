@@ -178,6 +178,7 @@ jobs:
           REDIS_URL: redis://127.0.0.1:6379
           P0_BROWSER_SMOKE: ${{ inputs.browser-smoke }}
           P1_HERMES_BROWSER_SMOKE: ${{ inputs.hermes-checks && 'true' || 'false' }}
+          HERMES_B2B_CAMPAIGNS_ENABLED: ${{ inputs.hermes-checks && inputs.browser-smoke && 'true' || 'false' }}
         run: node scripts/check-backend-runtime-p0.mjs
       - name: Verify registered Hermes APIs against fresh native fixtures
         if: ${{ inputs.hermes-integration && inputs.hermes-checks && hashFiles('apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-import-state.ts') != '' }}
