@@ -10,7 +10,7 @@ Accès Vercel CLI vérifié ; aucun projet CRM P0 existant identifié dans l'éq
 
 ## Résultats
 
-En attente de la CI d'intégration et de la livraison frontend. Ce document ne constitue pas une validation globale, fonctionnelle ou visuelle.
+En attente de la livraison frontend. Ce document ne constitue pas une validation globale, fonctionnelle ou visuelle.
 
 ## Conservation des originaux
 
@@ -18,4 +18,4 @@ Recontrôle SHA-256 depuis le manifeste privé de sauvegarde, après création d
 
 ## Contrôles de cette préparation
 
-`git diff --check` réussi ; Gitleaks sur les changements staged sans détection. Première CI combinée : https://github.com/claude972/test-Crm/actions/runs/40977970048 (résultat en attente au moment de cette note).
+`git diff --check` réussi ; Gitleaks sur les changements staged sans détection. Première CI combinée : https://github.com/claude972/test-Crm/actions/runs/40977970048 **réussie** sur `fe16ff92d` : six jobs verts. Le commit `0f0e6b3fb` ne change ensuite que la documentation. Cette CI couvre Forms, compilation syntaxique Ruby, syntaxe/imports CRM, orchestration sûre, shared runtime/déclarations et checkpoint backend (SDK/e-mails/types/compilation/artefacts). Elle ne couvre pas encore le frontend.
