@@ -263,3 +263,20 @@ Le propriétaire demande WhatsApp via Evolution API, e-mail SMTP, réponses par 
 - recette: lot avec doublon/erreur/contact existant/opposition, rejeu idempotent ; campagne sur comptes de test ; opposition en cours et après réimport respectée ; envoi sans suivi ; suivi autorisé/retrait ; panne/reprise sans doublon ; A/B/C et droits ; navigateur desktop/mobile.
 - dependencies: schéma de sortie/transport Hermès à auditer ; connexion SMTP et destinataires de recette autorisés ; réception e-mail distincte ; justification et information de prospection/tracking ; juridiction France/UE prise comme hypothèse de cadrage à vérifier selon la cible réelle.
 - limitation: spécification publiée, aucun scraping ou envoi réel lancé ; suivi des clics et séquences automatiques hors premier lot.
+
+
+## Exécution de nuit autorisée — recette 30 octobre 2026 à 06:00 Martinique
+
+Le propriétaire demande poursuite autonome jusqu'au lien de test, avec sous-agents Codex et Claude ; il sera indisponible. Conserver les limites d'accès/production et ne pas solliciter de décisions routinières. Aucun succès à06h n'est inventé si des accès externes manquent.
+
+### Codex — intégration nuit
+- agent: codex
+- status: in_progress
+- branch: feat/codex-hermes-integration, worktree p1-hermes-integration ; base0523dad07965bfb1c032729c00863e0940425e3f.
+- ownership: intégration core-engine.module.ts, connexions/adaptateurs complémentaires non revendiqués, CI combinée et recette ; ne pas modifier les modules des sous-agents pendant leur travail.
+- concrete contract: docs/handoff/hermes-structure-dashboard-api.md, structure=workspace existant, deux queries /metadata et agrégats autorisés. Code du sous-agent en cours, pas déjà livré.
+- delegated backend_review: branche feat/p0-structure-dashboard-backend, module workspace/structure-dashboard et tests ; liste de sociétés + compteurs par société/ensemble, règles de lignes/rôles, IDs forgés/révocation.
+- delegated prospection_api: nouveau worktree/branche à confirmer dans son rapport ; imports Hermès/qualification/provenance en réutilisant les campagnes et oppositions existantes, pas de duplication de leur modèle.
+- delegated preview_hosting: branche chore/p0-morning-preview, extension session60/90min ; aucun service payant créé. Preview fraîche à préparer vers05:00–05:15, ancien lien P0 expirant22:55.
+- blockers to audit: Evolution/Hermès/MCP et SMTP réels non configurés pour ce checkout ; pas d'accès inventé ni d'envoi réel. Services Railway existants non reliés à ce dépôt, aucune DB réutilisée.
+- delivery: build, tests d'accès/données, refonte réellement visible et lien destinataire testé ; à06h rapport honnête sur réalisé/non configuré/non testé et expiration.

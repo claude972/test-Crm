@@ -1047,3 +1047,10 @@ Lecture du checkpoint P0 : WorkspaceEntity, UserWorkspaceEntity (adhésions par 
 Audience B2B confirmée par réponse propriétaire. Spécification docs/handoff/hermes-prospection-b2b-spec.md, prompts et mission publiés : base CRM réutilisée, lots Hermès à qualifier, provenance/rapprochement, campagnes SMTP, suivi facultatif, opposition durable et dashboards cloisonnés. La donnée publique n'est pas une autorisation automatique ; l'accord au suivi ne se confond pas avec la possibilité de prospecter en B2B. Recommandations CNIL 2026 consultées et référencées dans la spécification, ainsi que RFC 8058 et documentation Apple pour les limites de mesure.
 
 États d'envoi/livraison/ouverture distincts ; envoi sans suivi prévu dès le premier lot, désinscription et liste d'exclusion présentes dès le lancement des campagnes. Rejeu ou nouvelle collecte ne réactivent pas les oppositions. Les marqueurs d'ouverture ne sont pas une preuve de lecture humaine ; aucune relance automatique fondée sur une absence de signal. Aucun envoi, collecte ou modèle de données nouveau exécuté par ce cadrage ; affectations d'implémentation pending.
+
+
+## Exécution de nuit — contrats concrets et délégation lancée
+
+Sous-agents Codex backend_review/prospection_api/preview_hosting réellement démarrés. Le contrat structures/dashboard est publié depuis l'audit des modèles existants ; code en cours, types de consommation explicites pour Claude. Le module emailing natif possède déjà campagnes/listes/oppositions et contrôleurs de désinscription ; priorité à sa réutilisation. Le transport de campagne natif ne comporte pas encore de driver SMTP vérifié. Les services externes indisponibles restent non configurés.
+
+Hébergement : Railway authentifié mais facturable, aucun déploiement nouveau autorisé dans ce périmètre ; aucun lien de version prouvé avec les projets existants, aucune donnée/variable privée consultée. Extension matinale9c5cd9c61 permet90min bornées, à intégrer et vérifier. Heartbeat de cette conversation créé pour la poursuite et le contrôle06h à la demande du propriétaire ; rester silencieux sur états inchangés, arrêter après compte rendu06h.
