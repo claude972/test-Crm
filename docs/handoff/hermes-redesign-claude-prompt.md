@@ -2,6 +2,11 @@
 Réaliser en parallèle des connecteurs une refonte moderne de Hermès CRM, avec une identité propre et des parcours cohérents pour les contacts, conversations, opportunités, formulaires et rendez-vous. Le socle Twenty reste technique ; la livraison doit apporter une amélioration réelle de navigation et d'utilisation, au-delà d'un changement de logo ou de couleur.
 </objectif>
 
+<prospection_b2b>
+Nouvelle demande confirmée B2B uniquement : base clients CRM complète, réception des collectes/scraping Hermès avec qualification et provenance, campagnes SMTP personnalisables, suivi d'ouverture facultatif et désinscription durable. Lire docs/handoff/hermes-prospection-b2b-spec.md. Les collectes reçues ne déclenchent ni campagne ni éligibilité automatique ; une opposition survit aux imports. SMTP accepté, livraison et signal d'ouverture sont distincts ; aucune ouverture détectée ne signifie pas non lu. Le suivi exige ses conditions propres, distinctes de l'éligibilité B2B. Même cloisonnement par société, dashboards autorisés et référence Monday. Ce cadrage n'autorise pas d'envoi à de vrais prospects.
+</prospection_b2b>
+
+
 <multi_structure_obligatoire>
 Le propriétaire exige plusieurs sociétés exploitantes cloisonnées, un dashboard par société et un dashboard commun. Décision explicite : chaque utilisateur voit le récapitulatif de ses seules sociétés autorisées, sans accès supplémentaire. Lire et appliquer docs/handoff/hermes-multi-structure-contract.md. Réutiliser le modèle workspace/adhésions après audit ; distinguer sociétés exploitantes et fiches Entreprise des clients. Le serveur applique le périmètre aux données, agrégats, connecteurs, jobs, fichiers, recherches, exports et outils MCP. La refonte Monday comprend le sélecteur « Société / Toutes mes sociétés », les deux dashboards et le contexte visible ; les caches et onglets ne doivent pas mélanger les structures. Le parcours intermodules reste dans sa société. La recette exige A/B/C, adhésions et rôles différents, révocation, filtres forgés, totaux exacts et absence de fuite. Une preview mono-workspace ou un drapeau activé ne valide pas cette capacité.
 </multi_structure_obligatoire>

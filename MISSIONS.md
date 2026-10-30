@@ -238,3 +238,28 @@ Le propriétaire demande WhatsApp via Evolution API, e-mail SMTP, réponses par 
 - claude ownership: sélecteur société/Toutes mes sociétés, contexte visible, dashboard société et commun ventilé, vues/états, isolation des requêtes et caches navigateur, même chantier frontend.
 - acceptance: recette A/B/C et utilisateurs A, A+B, sans société ; rôles différenciés et révocation ; agrégats exacts, absence de fuite, parcours intermodules cloisonnés, droits sur fichiers/recherche/export/MCP, navigateur desktop/mobile.
 - current limitation: la preview P0 était mono-workspace ; cette capacité n'est pas livrée par la seule présence du modèle Workspace ou de son drapeau. Spécification publiée, implémentation et preuves requises avant validation.
+
+
+## Mission hermes-prospection-b2b-p1 — base clients, collectes et campagnes
+- owner decision: base clients complète, réception du scraping Hermès, campagnes e-mail avec marqueur d'ouverture facultatif et désinscription ; audience confirmée « professionnels uniquement (B2B) ».
+- specification: docs/handoff/hermes-prospection-b2b-spec.md ; référencée dans les prompts connecteurs et refonte.
+- common requirements: sociétés cloisonnées, dashboards société/commun autorisés, Monday, web/PWA, modules interconnectés.
+
+### Affectation Codex
+- agent: codex
+- status: pending
+- branch: feat/codex-hermes-connectors-api après vérification/revendication, ou branche annoncée compatible sans édition concurrente.
+- ownership: contrats de réception des lots et qualification, modèles CRM/provenance/exclusions, éligibilité B2B, queue/transport SMTP, désinscription et événements de suivi autorisés, agrégats et contrôle d'accès.
+- deliverables: réutiliser le carnet CRM existant ; préserver les oppositions après réimport ; distinguer acceptation SMTP/livraison/ouverture ; endpoints publics limités et sécurisés ; tests d'isolation et de reprise.
+
+### Affectation Claude
+- agent: claude
+- status: pending
+- branch: même chantier frontend que refonte/connecteurs ; aucun deuxième écran concurrent.
+- ownership: base clients et fiche, réception/qualification des collectes, assistant de campagne, suivi/exclusions/désinscriptions, dashboards et états accessibles Monday.
+- deliverables: aperçu et mapping de lot, erreurs/doublons, audience/exclusions, modèle et aperçu e-mail, planification/pause, états de suivi prudents et preuve navigateur.
+
+### Acceptation commune
+- recette: lot avec doublon/erreur/contact existant/opposition, rejeu idempotent ; campagne sur comptes de test ; opposition en cours et après réimport respectée ; envoi sans suivi ; suivi autorisé/retrait ; panne/reprise sans doublon ; A/B/C et droits ; navigateur desktop/mobile.
+- dependencies: schéma de sortie/transport Hermès à auditer ; connexion SMTP et destinataires de recette autorisés ; réception e-mail distincte ; justification et information de prospection/tracking ; juridiction France/UE prise comme hypothèse de cadrage à vérifier selon la cible réelle.
+- limitation: spécification publiée, aucun scraping ou envoi réel lancé ; suivi des clics et séquences automatiques hors premier lot.
