@@ -55,3 +55,19 @@ it('keeps unknown raw MIME/envelope payloads out of provider metadata', () => {
     }).success,
   ).toBe(false);
 });
+
+it('allows only bounded native Sent-copy outcomes, with no client proof or envelope secret fields', () => {
+  for (const sentCopyState of ['PENDING', 'UNCONFIRMED', 'SAVED'])
+    expect(
+      messagingEventSchema.safeParse({
+        ...event,
+        providerMetadata: { sentCopyState },
+      }).success,
+    ).toBe(true);
+  expect(
+    messagingEventSchema.safeParse({
+      ...event,
+      providerMetadata: { sentCopyState: 'ACCEPTED' },
+    }).success,
+  ).toBe(false);
+});
