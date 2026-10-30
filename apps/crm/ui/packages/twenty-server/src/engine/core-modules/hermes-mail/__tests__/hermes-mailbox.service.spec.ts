@@ -710,3 +710,35 @@ it('MAIL-005 keeps Seen updates available without MOVE and recognizes a natively
   ).resolves.toEqual({ state: 'UPDATED' });
   expect(rev2.client.messageMove).toHaveBeenCalledTimes(1);
 });
+
+it('MAIL006 rechecks actor access when Sent-copy errors would otherwise return a stale accepted message after role revocation', async () => {
+  const f = fixture();
+  let connections = 0;
+  const accepted = {
+    id: 'accepted',
+    conversationId: 'canonical',
+    providerConnectionId: 'mail',
+    status: 'ACCEPTED',
+    text: 'Private outbound body',
+  };
+  f.mail.replyRich.mockResolvedValue(accepted as never);
+  f.imap.getClient.mockImplementation(async () => {
+    if (++connections === 2)
+      f.access.assertAllowed.mockRejectedValue(new Error('REVOKED') as never);
+    return { ...f.client } as never;
+  });
+  const sent = f.service.sendNew(actor, {
+    from: 'me@example.com',
+    to: ['client@example.org'],
+    subject: 'Private',
+    text: 'Private outbound body',
+    clientRequestId: 'e4d16125-1299-4b15-aa57-d193a423b4e9',
+  });
+  // The revocation propagates instead of resolving to the accepted message:
+  // no caller ever receives the private body once access is gone.
+  await expect(sent).rejects.toThrow('REVOKED');
+  await expect(sent).rejects.toBeInstanceOf(Error);
+  // The acceptance stays acquired: nothing is re-sent and nothing is appended.
+  expect(f.mail.replyRich).toHaveBeenCalledTimes(1);
+  expect(f.client.append).not.toHaveBeenCalled();
+});

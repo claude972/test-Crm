@@ -638,6 +638,15 @@ export class HermesMailboxService {
           reason: 'MAIL_SENT_COPY_UNCONFIRMED',
         },
       };
+    } finally {
+      // MAIL006: the copy awaited provider I/O after acceptance, so the actor
+      // is re-authorized here, once the wait is over. A revocation observed
+      // during the copy propagates from this finally instead of being
+      // swallowed by the catch above, so the already accepted message is
+      // never handed back to an actor who lost access. Nothing is replayed
+      // and no ledger record is rewritten: the acceptance stays acquired and
+      // an uncertain copy stays uncertain.
+      await this.access.assertAllowed(actor);
     }
   }
 
