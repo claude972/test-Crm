@@ -1,0 +1,196 @@
+{
+  "deploymentId": "dpl_Fm1v7W9LCNvTTDDmBBVCp9n2bEs7",
+  "sourceSha": "f63858813d68be138612114a2b347fd606984557",
+  "projectId": "prj_0YAVdnCjN7e2zHNAbLzUCw3N4JvF",
+  "readyState": "READY",
+  "target": null,
+  "alias": [],
+  "bareHTTP": 302,
+  "anonymousShareHTTP": 200,
+  "ttlSeconds": 86400,
+  "createdAt": 1793390321457,
+  "expiresUnixSeconds": 1793476721,
+  "expiresUTC": "2026-10-31T19:58:41+00:00",
+  "expiresMartinique": "2026-10-31T15:58:41-04:00",
+  "rawHTMLByteIdenticalClaimed": false,
+  "projectProtectionUnchanged": true,
+  "projectProtection": {
+    "deploymentType": "all_except_custom_domains"
+  },
+  "projectFramework": null,
+  "previousDeploymentDeleted": false,
+  "files": [
+    {
+      "path": "app.html",
+      "http": 200,
+      "sourceSHA256": "e9cfa295513de5f40a5c682305351a9b5e8bd8ac252647f5aa0aa6fcc3b002cd",
+      "responseSHA256": "90e49d9f763d24d11ae7946e07e68ec7e46b7f49659059581042c194e441a6d3",
+      "validation": "source bytes plus exact Vercel feedback suffix",
+      "bytes": 964
+    },
+    {
+      "path": "assets/app-crm.js",
+      "http": 200,
+      "sourceSHA256": "da1222ae7323aab072f3790ba80302db8f79c62cb6d4cb0fdaee5fe7085e5310",
+      "responseSHA256": "da1222ae7323aab072f3790ba80302db8f79c62cb6d4cb0fdaee5fe7085e5310",
+      "validation": "byte identical",
+      "bytes": 31310
+    },
+    {
+      "path": "assets/app.js",
+      "http": 200,
+      "sourceSHA256": "9b13a49e17b7d77d35ae4419a5adba5d9dd5f509317176840da4282eb2f6506f",
+      "responseSHA256": "9b13a49e17b7d77d35ae4419a5adba5d9dd5f509317176840da4282eb2f6506f",
+      "validation": "byte identical",
+      "bytes": 56225
+    },
+    {
+      "path": "assets/base.css",
+      "http": 200,
+      "sourceSHA256": "7373055a8513ae79762422a19a86db623212c330cc26e4d5736eafcd98dc3f78",
+      "responseSHA256": "7373055a8513ae79762422a19a86db623212c330cc26e4d5736eafcd98dc3f78",
+      "validation": "byte identical",
+      "bytes": 13513
+    },
+    {
+      "path": "assets/crm.css",
+      "http": 200,
+      "sourceSHA256": "3d40a50938de4cd7e015e8d473bf5157e28ae14b617dfac161408879a1bba1bb",
+      "responseSHA256": "3d40a50938de4cd7e015e8d473bf5157e28ae14b617dfac161408879a1bba1bb",
+      "validation": "byte identical",
+      "bytes": 6950
+    },
+    {
+      "path": "assets/donnees-crm.js",
+      "http": 200,
+      "sourceSHA256": "445cac4bd120dc6ec0aeb271683c839aad1ab8ea13aea0e913bf1641112eee09",
+      "responseSHA256": "445cac4bd120dc6ec0aeb271683c839aad1ab8ea13aea0e913bf1641112eee09",
+      "validation": "byte identical",
+      "bytes": 12717
+    },
+    {
+      "path": "assets/donnees.js",
+      "http": 200,
+      "sourceSHA256": "d8de0678bc63067b5eea61ca674340dadd33c1e56ed1878569d670018fce1c57",
+      "responseSHA256": "d8de0678bc63067b5eea61ca674340dadd33c1e56ed1878569d670018fce1c57",
+      "validation": "byte identical",
+      "bytes": 17659
+    },
+    {
+      "path": "assets/medias/LICENSE-MDN-CC0.txt",
+      "http": 200,
+      "sourceSHA256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673",
+      "responseSHA256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673",
+      "validation": "byte identical",
+      "bytes": 6555
+    },
+    {
+      "path": "assets/medias/demo-video-flower.mp4",
+      "http": 200,
+      "sourceSHA256": "0cd83d944a6ca7822b4a8306cecc60a36e859b041f6702c6a1ad9ead78924451",
+      "responseSHA256": "0cd83d944a6ca7822b4a8306cecc60a36e859b041f6702c6a1ad9ead78924451",
+      "validation": "byte identical",
+      "bytes": 1128375
+    },
+    {
+      "path": "assets/medias/photo-plan-pose.svg",
+      "http": 200,
+      "sourceSHA256": "be41d36cd9ff988869bf2aa881c872298b74feef7008ae9686eece1bbaf4e77d",
+      "responseSHA256": "be41d36cd9ff988869bf2aa881c872298b74feef7008ae9686eece1bbaf4e77d",
+      "validation": "byte identical",
+      "bytes": 1504
+    },
+    {
+      "path": "assets/medias/photo-vitrine.svg",
+      "http": 200,
+      "sourceSHA256": "fbd92d3d8f3036f88a95b5433b6ae38d331273d51fa89b4a098d74cfde2610a5",
+      "responseSHA256": "fbd92d3d8f3036f88a95b5433b6ae38d331273d51fa89b4a098d74cfde2610a5",
+      "validation": "byte identical",
+      "bytes": 1488
+    },
+    {
+      "path": "assets/medias/vocal-cliente.m4a",
+      "http": 200,
+      "sourceSHA256": "ab8ed57382ea247978e31c66d0b28298bc55a696e11d3c467ae2f17c558161a1",
+      "responseSHA256": "ab8ed57382ea247978e31c66d0b28298bc55a696e11d3c467ae2f17c558161a1",
+      "validation": "byte identical",
+      "bytes": 28239
+    },
+    {
+      "path": "assets/medias/vocal-reponse.m4a",
+      "http": 200,
+      "sourceSHA256": "028616a5431007e25a98ced20f2584f15d1d15db29d206118008e3ad5cc6e476",
+      "responseSHA256": "028616a5431007e25a98ced20f2584f15d1d15db29d206118008e3ad5cc6e476",
+      "validation": "byte identical",
+      "bytes": 27568
+    },
+    {
+      "path": "assets/messagerie.css",
+      "http": 200,
+      "sourceSHA256": "488e8a31e8be048f571df83f5a9d3447458cb0d0feba1ef4d74a10255d8507de",
+      "responseSHA256": "488e8a31e8be048f571df83f5a9d3447458cb0d0feba1ef4d74a10255d8507de",
+      "validation": "byte identical",
+      "bytes": 13987
+    },
+    {
+      "path": "assets/polices/Geist-LICENSE.txt",
+      "http": 200,
+      "sourceSHA256": "930853ee1daa68554d9e35c8a9175affb74f699fad9a5da6ee5ebe76379d9137",
+      "responseSHA256": "930853ee1daa68554d9e35c8a9175affb74f699fad9a5da6ee5ebe76379d9137",
+      "validation": "byte identical",
+      "bytes": 4368
+    },
+    {
+      "path": "assets/polices/Geist-Variable.woff2",
+      "http": 200,
+      "sourceSHA256": "5c5588027e59e74e205b9d6c7fd877b261091cee367f6bb3a8d505da14cae512",
+      "responseSHA256": "5c5588027e59e74e205b9d6c7fd877b261091cee367f6bb3a8d505da14cae512",
+      "validation": "byte identical",
+      "bytes": 69576
+    },
+    {
+      "path": "index.html",
+      "http": 200,
+      "sourceSHA256": "ac9d083088cab285ed2f1c27325388c0853ff41b28e4ead1499f5dcbb69f9842",
+      "responseSHA256": "d9071f15e4859a80c648eefbe159504640fd87569dcfa886f3cc5620e4d9d6d9",
+      "validation": "source bytes plus exact Vercel feedback suffix",
+      "bytes": 12125
+    },
+    {
+      "path": "source-manifest.json",
+      "http": 200,
+      "sourceSHA256": "bf3fa3e068eb336e223c65ff3ec187ff5b801cfca5685df9591ac1b61bcbf3a5",
+      "responseSHA256": "bf3fa3e068eb336e223c65ff3ec187ff5b801cfca5685df9591ac1b61bcbf3a5",
+      "validation": "byte identical",
+      "bytes": 3043
+    }
+  ],
+  "scope": "Static prototype only. No API, provider, CRM persistence or PWA-install validation.",
+  "captures": [
+    {
+      "path": "/Volumes/Stockage/dev/hermes-crm/artifacts/hermes-v3-maquettes/whatsapp-desktop.png",
+      "bytes": 73754,
+      "sha256": "a7fc3d73a901da915cf2372060521c5b2f47260faba0bbf1cc60d950b606662b"
+    },
+    {
+      "path": "/Volumes/Stockage/dev/hermes-crm/artifacts/hermes-v3-maquettes/email-desktop.png",
+      "bytes": 82800,
+      "sha256": "c3f8f8765d24c0a302328a7640e7a7a5d65b846587ed23a46c0ca814369f27f2"
+    },
+    {
+      "path": "/Volumes/Stockage/dev/hermes-crm/artifacts/hermes-v3-maquettes/email-mobile.png",
+      "bytes": 41676,
+      "sha256": "0eab87b44e81c49fe78f682bd90192f969ebc4f544d3ed1cdfb7839d7ab3984c"
+    },
+    {
+      "path": "/Volumes/Stockage/dev/hermes-crm/artifacts/hermes-v3-maquettes/pipeline-desktop.png",
+      "bytes": 90636,
+      "sha256": "39e2a74d8794dd30e3378b4255a5baf8f72dd66796d93ff3deac515cbe4fa7e7"
+    },
+    {
+      "path": "/Volumes/Stockage/dev/hermes-crm/artifacts/hermes-v3-maquettes/whatsapp-mobile.png",
+      "bytes": 40828,
+      "sha256": "972a470afea2f970551e33666bc8eeffa73e7cdec038a405b8a0c3108eaa0962"
+    }
+  ]
+}

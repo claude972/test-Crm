@@ -451,7 +451,7 @@ Capacités présentes/proposées/manquantes/non configurées/non testées distin
 
 ### Claude assignment — V3 maquettes détaillées
 - agent: claude
-- status: in_progress — START phase 1 accepté à19:10:27UTC ; maquettes détaillées en production.
+- status: done — production et revue technique des maquettes statiques de phase 1 terminées ; validation visuelle utilisateur encore attendue.
 - assigned session: 8f3db32e-4613-45e3-94f3-16e664f3cbfc, propriétaire exclusif ; veilles et autres agents ne dupliquent pas le worker.
 - branch: feat/claude-hermes-v2-ui
 - checkout: /Volumes/Stockage/dev/hermes-crm/v2-claude-maquettes
@@ -460,14 +460,14 @@ Capacités présentes/proposées/manquantes/non configurées/non testées distin
 - deliverables: maquettes détaillées françaises inspirées Pipedrive : WA médias entrants/sortants et vocaux avec enregistrement/préécoute/annulation, vraie boîte e-mail, modes AUTO/ASSISTED/OFF globaux et locaux, centre Réglages, provenance/qualification prospects multicanale, pipeline et campagne SMTP. Démonstration explicitement fictive sans API.
 - acceptance criteria: navigable desktop et 390px ; états chargement/vide/erreur/non configuré/disabled/succès applicables ; clavier/focus/labels/contraste ; capacités simulées identifiées, zéro réseau fournisseur/secret/envoi ; aperçu des pièces jointes/vocaux et validation humaine de brouillon compréhensibles ; captures réelles et rapport des limites ; commit/push strictement dans l’ownership ; pas de câblage avant validation visuelle.
 - verification report: docs/design/hermes-v3/README.md, puis synthèse publiée par root dans CORRECTIONS.md section HERMES-V3-AUDIT-MAQUETTES-20261030/claude.
-- implementation revision: f3aa01dbd4214780d68eec533c927412dd87128b, checkpoint18fichiers docs/design/hermes-v3 uniquement ; corrections en cours, V3-DESIGN-007 à009 ouverts, pas de GO déploiement ni livraison finale.
-- preview: aucune V3 vérifiée ; root publie une preview statique isolée après livraison revue.
+- implementation revision: f63858813d68be138612114a2b347fd606984557, frontend final poussé ; delta de deux fichiers CSS relu et recheck local desktop/mobile sans débordement. V3-DESIGN-001 à011 corrigés et revus dans le périmètre prototype. Déploiement statique exact dpl_Fm1v7W9LCNvTTDDmBBVCp9n2bEs7 vérifié par HTTP et navigateur via lien privé sans connexion Vercel ; preuve finale de maquette disponible.
+- preview: dpl_Fm1v7W9LCNvTTDDmBBVCp9n2bEs7, source f638588, partage anonyme HTTP 200 et CUA vérifiés ; URL privée hors Git, expiration 31 octobre 2026 à 15:58:41 Martinique / 19:58:41 UTC. Maquettes statiques seulement.
 - dispatch: root a envoyé le prompt en deux étapes via CLI session2418 vers Claude8f3 ; transcript19:08UTC confirme lecture mission80a40e6/prompt/plan/audit, préparation seule jusqu’au START ; START phase 1 accepté à19:10:27UTC, outils médias observés à19:11:11 et19:11:42UTC.
 - blockers: aucun choix visuel détaillé validé. Si aucune piste V2 choisie n’est établie, documenter l’hypothèse réversible sans prétendre à une approbation.
 
 ### Codex assignment — V3 audit et contrats
 - agent: codex
-- status: ready_for_review — audit et contrats publiés ; revue Claude des contrats encore attendue.
+- status: done — audit et contrats proposés livrés et revus dans le périmètre documentaire ; dernière correction sortante relue root, sans revendication de revue Claude du SHA final.
 - branch: feat/codex-hermes-v2-core
 - checkout: /Volumes/Stockage/dev/hermes-crm/v2-codex-contracts
 - starting revision: 1c6760cfc
@@ -475,7 +475,7 @@ Capacités présentes/proposées/manquantes/non configurées/non testées distin
 - deliverables: audit source/version/docs officielles et Allowed APIs ; contrats explicitement cibles pour médias/messagerie/MCP et modes ; provenance/qualification/déduplication, pipeline natif, lien boîte exacte SMTP/campagne, droits/licence et critères de recette.
 - acceptance criteria: chemins/lignes/signatures et SHA sources prouvés ; distinguer capacités actuelles et proposées ; ASSISTED et OFF complets distincts ; isolation A/B/C, révocation, concurrence/epochs, transitions en vol et absence de retry aveugle ; API médias/version cible non prouvée reste à définir ; aucun changement code/DB/provider ; limites et vérifications documentaires honnêtes.
 - verification report: trois livrables attribués ci-dessus, puis synthèse publiée par root dans CORRECTIONS.md section HERMES-V3-AUDIT-MAQUETTES-20261030/codex.
-- implementation revision: 8c4460fd874ec8d2ab17ffcdd757c7cc98dcca2f, contrats phase 1 publiés après revue indépendante v3_contracts_review et lecture root ; audit phase 0 parent095582346e227d627437560c66445e9a9211bcb9. Revue Claude encore attendue, pas done.
+- implementation revision: 5bb6f2430d09baccb8a60b4d271047c47e239cb7, huit constats et réception clos par Claude sur 954b565 ; dernier delta SentMessage/lecture bidirectionnelle/ledger corrigé et relu root. Pas de relecture Claude de 5bb6f243 revendiquée. Audit phase 0 publié au 095582346e227d627437560c66445e9a9211bcb9. Phases 0/1 techniquement terminées ; validation visuelle avant câblage.
 - preview: sans objet pour contrats ; aucune recette CRM V3 revendiquée.
 - blockers: connexions et version effective runtime non vérifiées ; conditions licence/feature/identité mailbox à confirmer en recette, sans lecture de secrets ni nouvel achat. Phase 0 validée documentairement, aucun live validé.
 
@@ -486,3 +486,7 @@ Root possède MISSIONS.md, CORRECTIONS.md, le statut du plan V3 et le prompt V3 
 ### Cross-verification
 
 Codex relit les maquettes Claude au SHA publié, Claude relit les contrats Codex au SHA publié. Findings stables, propriétaire, preuve, fix SHA et recheck sont publiés dans CORRECTIONS.md. ready_for_review seulement après livrables/rapport poussés ; done seulement après revue applicable. Maquette statique, build vert et source disponible ne prouvent aucune intégration fournisseur, PWA installable, pipeline persistant ni campagne opérationnelle. Lien de preview et validation visuelle détaillée restent attendus.
+
+### Livraison technique des phases 0 et 1
+
+Rapport : [hermes-v3-phase1-recette.md](docs/handoff/hermes-v3-phase1-recette.md) ; [preuve HTTP et captures sans clé de partage](docs/handoff/hermes-v3-phase1-public-proof.json). Les statuts done se limitent à cette livraison documentaire/statique revue ; aucune validation utilisateur implicite, API raccordée, persistance CRM, fournisseur réel ou installation PWA. Claude reste au gel sans câblage ; phases 2–8 après validation visuelle explicite.
