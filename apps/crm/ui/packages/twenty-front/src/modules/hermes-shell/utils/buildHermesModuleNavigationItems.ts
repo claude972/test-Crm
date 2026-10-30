@@ -1,0 +1,49 @@
+import { PROSPECTION_RECEPTION_PATH } from '@/prospection/constants/ProspectionRoutePaths';
+import { HERMES_SHELL_ROUTE_PATHS } from '@/hermes-shell/constants/HermesShellRoutePaths';
+
+export type HermesModuleNavigationItem = {
+  key: 'dashboard' | 'reception';
+  to: string;
+  isActive: boolean;
+};
+
+type BuildHermesModuleNavigationItemsParams = {
+  hasWorkspacePermission: boolean;
+  pathname: string;
+};
+
+// Which Hermes modules the existing drawer offers, kept out of the component
+// so the rule can be tested without providers.
+//
+// Dashboard is unconditional on purpose. It lives outside this drawer, under
+// its own shell, so it is the only way back to the Hermes space from a record
+// page — gating it would leave someone with no route but a typed URL. It
+// grants nothing: the page reports what the session may already read.
+//
+// Reception is gated, because its operations are restricted server side to
+// unrestricted workspace administrators and everyone else is refused. A link
+// that only ever leads to a refusal is worse than no link.
+export const buildHermesModuleNavigationItems = ({
+  hasWorkspacePermission,
+  pathname,
+}: BuildHermesModuleNavigationItemsParams): HermesModuleNavigationItem[] => {
+  const items: HermesModuleNavigationItem[] = [
+    {
+      key: 'dashboard',
+      to: HERMES_SHELL_ROUTE_PATHS.operationsDashboard,
+      isActive: pathname === HERMES_SHELL_ROUTE_PATHS.operationsDashboard,
+    },
+  ];
+
+  if (hasWorkspacePermission) {
+    items.push({
+      key: 'reception',
+      to: PROSPECTION_RECEPTION_PATH,
+      // startsWith, so a batch opened through the search parameter and the
+      // campaign-audience pages keep the section marked as current.
+      isActive: pathname.startsWith(PROSPECTION_RECEPTION_PATH),
+    });
+  }
+
+  return items;
+};
