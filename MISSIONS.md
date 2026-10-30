@@ -610,7 +610,7 @@ Le stockage système disponible (environ28Go) accueille les nouveaux worktrees /
 
 ### Lot D — connexions chiffrées, après A/B
 - agent: codex (connections)
-- status: pending
+- status: in_progress — claim distant a368/16c89 confirmé ; worktree créé depuisbaece, audit stockage/service natifs avant implémentation.
 - branch: feat/codex-hermes-v4-connections
 - checkout: /private/tmp/hermes-v4-connections
 - owned files: service central de connexions CRUD chiffrées MCP/Evolution/IMAP/SMTP et tests attribués après audit/convergence A/B ; aucun démarrage d'implémentation concurrente non coordonné.

@@ -1428,3 +1428,10 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - HOUR-I18N-001 : status verified dans le périmètre DOM/runtime de cette preview ; correctif5f3c5794, frontendbaece. Six nouveaux libellés français corrects observés CUA root et catalogues FR/EN compilés contrôlés indépendamment. Capture PNG de page politique non produite : timeout CUA puis kernel reset, ne pas la déclarer faite.
 - CUA root : connexion française et13éléments de réglages observés ; OFF persisté après reload true. Requête de restauration ASSISTED envoyée ; ultime vérification bloquée par latence machine, ne pas présumer état restauré. Captures client-affaire final/qualification/dashboard présentes dans artifacts selon root.
 - Preuves API finales16parcours métier et16politiques documentées sur backend18cdd. Ces résultats ne couvrent pas les futurs lots V4, médias complets, fournisseurs non configurés ou parcours tenant encore en construction. V3 stable accessible en preview n'est pas le projet complet achevé.
+
+
+### HERMES-V4-PARCOURS-COMPLET-20261030 — claim lot D connexions
+
+- agent: codex/connections (ancien agent coordination) ; lecture distante missiona368 et journal16c89 confirmée. Worktree /private/tmp/hermes-v4-connections, branche feat/codex-hermes-v4-connections, basebaece3a46a6286a933cfc99b22a53ac50c34e498. Claim publié avant code.
+- Ownership : nouveau module hermes-connections, configurations chiffrées workspace Evolution/SMTP/IMAP/MCP/intake, CRUD admin et tests ; aucun fichier A/B/C. Entity/migration seulement après coordination officielle2.52. Générateur B/migration41135004579 en cours : ne pas lancer générateur concurrent ni modifier manifest à la main.
+- Inspection et protocole lecteur partagé à coordonner B/C/Claude par root avant câblage ; aucun deuxième store dans leurs modules. SecretEncryptionService natif, gardes/SSRF/TLS existants à réutiliser. Pas full tsgo local machine saturée, tests ciblés/cloud ; aucune nouvelle capacité fournisseur live annoncée.
