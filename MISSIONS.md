@@ -280,3 +280,12 @@ Le propriétaire demande poursuite autonome jusqu'au lien de test, avec sous-age
 - delegated preview_hosting: branche chore/p0-morning-preview, extension session60/90min ; aucun service payant créé. Preview fraîche à préparer vers05:00–05:15, ancien lien P0 expirant22:55.
 - blockers to audit: Evolution/Hermès/MCP et SMTP réels non configurés pour ce checkout ; pas d'accès inventé ni d'envoi réel. Services Railway existants non reliés à ce dépôt, aucune DB réutilisée.
 - delivery: build, tests d'accès/données, refonte réellement visible et lien destinataire testé ; à06h rapport honnête sur réalisé/non configuré/non testé et expiration.
+
+### Checkpoint Codex — 2026-10-30 03:28 UTC
+- Branche publiée : feat/codex-hermes-integration, API câblées au schéma metadata dans bd69fca85 ; CI combinée [40997073360](https://github.com/claude972/test-Crm/actions/runs/40997073360) en cours, pas encore validée.
+- Dashboard multi-structure : 16 tests unitaires réussis côté sous-agent. Imports B2B/qualification/oppositions/brouillons natifs : 26 tests réussis. SMTP réel Nodemailer sur serveur TCP loopback : 29 tests réussis côté sous-agent après correction des adresses multiples avant tout envoi. Aucun e-mail externe.
+- Rejeu intégré des 71 tests : 70 réussis et 1 dépassement du timeout socket de 5s sur disque externe/cache froid ; contrôle en cours, ne pas annoncer cette exécution verte. Typecheck local complet interrompu après 26min sans résultat ; CI fait foi.
+- Migration HermesImportState officielle 2.52 et recette PostgreSQL isolée en préparation ; le simple ajout du module ne constitue pas une migration appliquée.
+- Contrat prospection concret : docs/handoff/hermes-prospection-backend-contract.md ; réception, qualification et brouillon DRAFT seulement, aucun envoi réel ni tracking activé.
+- Claude réel 8f3db32e actif ; HEAD frontend705177d46 contient des briques de statut/contrats/cache, pas encore de refonte Monday visible. Revue et poursuite demandées, ne pas marquer frontend prêt.
+- Préparation du matin : session GitHub Actions90min et nouvelle Vercel preview vers05h locale. Ancienne session P0 expirée. Le test final doit vérifier le lien de partage depuis un navigateur et l’authentification CRM.
