@@ -260,8 +260,29 @@ async function checkHermesOperationsDashboard(page, name) {
   assert.equal(await main.count(), 1, 'P1 dashboard: expected one main landmark');
   await page.getByRole('heading', { level: 1, name: 'Dashboard', exact: true }).waitFor({ state: 'visible' });
   const navigation = page.getByRole('navigation', { name: 'Main navigation', exact: true });
+  // Contract 0b86152a7: a phone starts with the menu hidden, while desktop
+  // keeps the existing visible navigation. Verify the real accessible toggle.
+  let mobileNavigationToggle;
+  if (name === 'mobile') {
+    mobileNavigationToggle = page.getByRole('button', { name: 'Main navigation', exact: true });
+    await mobileNavigationToggle.waitFor({ state: 'visible' });
+    assert.equal(await mobileNavigationToggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(await mobileNavigationToggle.getAttribute('aria-controls'), 'hermes-main-navigation');
+    const region = page.locator('#hermes-main-navigation');
+    assert.equal(await region.count(), 1, 'P1 dashboard: controlled navigation region missing');
+    await region.waitFor({ state: 'hidden' });
+    assert.equal(await navigation.count(), 0, 'P1 dashboard: collapsed menu remains accessible');
+    await mobileNavigationToggle.click();
+    assert.equal(await mobileNavigationToggle.getAttribute('aria-expanded'), 'true');
+  }
   await navigation.waitFor({ state: 'visible' });
   assert.equal(await navigation.getByRole('link', { name: 'Dashboard', exact: true }).getAttribute('aria-current'), 'page');
+  if (mobileNavigationToggle) {
+    await mobileNavigationToggle.click();
+    await page.locator('#hermes-main-navigation').waitFor({ state: 'hidden' });
+    assert.equal(await mobileNavigationToggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(await navigation.count(), 0, 'P1 dashboard: closed menu remains accessible');
+  }
   await main.getByText('Loading…', { exact: true }).first().waitFor({ state: 'hidden', timeout: 30_000 });
   for (const { label, value } of Object.values(counts)) {
     const card = main.getByText(label, { exact: true }).first().locator('..');
