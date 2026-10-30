@@ -2285,3 +2285,79 @@ describe('Editable mail draft conversation keeps a stable identity only before a
     },
   );
 });
+
+it('MAIL-004 suppresses email auto responders before MCP while preserving human drafts and marking only real delegated sends automated', async () => {
+  const h = setup();
+  let receipts = 0;
+  h.send.mockImplementation(async () => ({
+    providerMessageId: `email-sent-${++receipts}`,
+    acceptedAt: new Date().toISOString(),
+  }));
+  h.registry.register({
+    channel: 'EMAIL',
+    probe: async () => ({ status: 'AVAILABLE' }),
+    send: h.send,
+  });
+  const draftReply = jest
+    .fn()
+    .mockResolvedValue({
+      mode: 'DRAFT',
+      status: 'READY',
+      provider: 'HERMES_MCP',
+      text: 'Suggestion',
+    });
+  h.registry.registerBot({ draftReply });
+  const email = {
+    ...event,
+    channel: 'EMAIL' as const,
+    kind: 'EMAIL' as const,
+    attachmentIds: [],
+    contactHandle: 'client@example.com',
+    providerMessageId: 'normal-initial',
+  };
+  const first = await h.service.ingest(email);
+  const policy = await h.service.conversationBotPolicy(actor, {
+    conversationId: first.conversationId,
+  });
+  await h.service.setConversationBotPolicy(actor, {
+    conversationId: first.conversationId,
+    mode: 'AUTO',
+    delegateAuto: true,
+    expectedRevision: policy.revision,
+  });
+  const automatic = await h.service.ingest({
+    ...email,
+    providerMessageId: 'autoresponder',
+    occurredAt: new Date().toISOString(),
+    providerMetadata: { mailAutoResponseBlockReason: 'AUTO_SUBMITTED' },
+  });
+  expect(draftReply).not.toHaveBeenCalled();
+  expect(h.send).not.toHaveBeenCalled();
+  await expect(
+    h.service.draftReply(actor, {
+      conversationId: first.conversationId,
+      messageId: automatic.messageId,
+    }),
+  ).resolves.toMatchObject({ status: 'READY' });
+  await h.service.ingest({
+    ...email,
+    providerMessageId: 'normal-human-message',
+    occurredAt: new Date().toISOString(),
+  });
+  expect(h.send).toHaveBeenCalledTimes(1);
+  expect(h.send.mock.calls[0][0]).toMatchObject({ automated: true });
+  await h.service.reply(actor, {
+    conversationId: first.conversationId,
+    clientRequestId: randomUUID(),
+    text: 'Human approved reply',
+  });
+  expect(h.send.mock.calls[1][0]).not.toHaveProperty('automated');
+  await expect(
+    h.service.reply(actor, {
+      conversationId: first.conversationId,
+      clientRequestId: randomUUID(),
+      text: 'Forged',
+      automated: true,
+    } as never),
+  ).rejects.toThrow('INVALID_MESSAGING_INPUT');
+});
