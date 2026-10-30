@@ -171,7 +171,7 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
         //   isHidden: !permissionFlagMap[PermissionFlagType.API_KEYS_AND_WEBHOOKS],
         // },
         {
-          label: t`All my companies`,
+          label: t`Your authorised companies`,
           path: SettingsPath.Structures,
           Icon: IconBuildingSkyscraper,
         },

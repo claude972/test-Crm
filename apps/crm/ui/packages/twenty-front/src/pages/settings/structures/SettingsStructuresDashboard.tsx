@@ -74,44 +74,37 @@ export const SettingsStructuresDashboard = () => {
 
   return (
     <SettingsPageLayout
-      title={t`All my companies`}
+      title={t`Your authorised companies`}
       links={[
         { children: t`Workspace` },
-        { children: t`All my companies`, href: getSettingsPath(SettingsPath.Structures) },
+        {
+          children: t`Your authorised companies`,
+          href: getSettingsPath(SettingsPath.Structures),
+        },
       ]}
     >
       <SettingsPageContainer>
-        {/* No safe same-origin session exchange exists yet, so this page is a
-            read-only overview and never changes the active company. Saying so
-            here is the difference between a filter and a fake switch. */}
+        {/* Read-only on purpose: opening a company means signing in to it, so
+            this page must not look like a company switcher. */}
         <StyledNote>
-          <Trans>
-            A read-only overview. Your active company does not change here, and
-            opening a company signs you in to it first.
-          </Trans>
+          <Trans>Read-only. Open a company to work in it.</Trans>
         </StyledNote>
 
         {loading && (
           <StyledNote>
-            <Trans>Loading your companies…</Trans>
+            <Trans>Loading…</Trans>
           </StyledNote>
         )}
 
         {isDefined(error) && (
           <StyledNote role="alert">
-            <Trans>
-              These figures could not be loaded. Nothing is shown as zero: the
-              result is unknown, not empty.
-            </Trans>
+            <Trans>Some data is unavailable.</Trans>
           </StyledNote>
         )}
 
         {isDefined(dashboard) && dashboard.structures.length === 0 && (
           <StyledNote>
-            <Trans>
-              No company is open to you yet. Ask an administrator for access —
-              no overall figures are shown by default.
-            </Trans>
+            <Trans>No access yet. Ask an administrator.</Trans>
           </StyledNote>
         )}
 
@@ -119,10 +112,7 @@ export const SettingsStructuresDashboard = () => {
           <>
             {dashboard.partial && (
               <StyledNote>
-                <Trans>
-                  Some figures are missing, so the totals below cover only the
-                  companies that answered.
-                </Trans>
+                <Trans>Partial totals: some companies did not answer.</Trans>
               </StyledNote>
             )}
 
@@ -144,15 +134,12 @@ export const SettingsStructuresDashboard = () => {
               <Section.Root key={row.structure.workspaceId}>
                 <StyledStructureName>
                   {row.structure.isCurrent
-                    ? t`${row.structure.displayName} — active company`
+                    ? t`${row.structure.displayName} — current`
                     : row.structure.displayName}
                 </StyledStructureName>
                 {row.structure.requiresAuthentication && (
                   <StyledNote>
-                    <Trans>
-                      Sign in to this company to see its figures: your current
-                      session is not enough.
-                    </Trans>
+                    <Trans>Sign in to this company to see its data.</Trans>
                   </StyledNote>
                 )}
                 <StyledGrid>
