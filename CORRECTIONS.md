@@ -1340,3 +1340,23 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - CLI action — acting agent root/codex ; target session Claude8f3db32e-4613-45e3-94f3-16e664f3cbfc, CLI session2418 ; mission HERMES-V3-INTEGRATION-1H-20261030, branche feat/claude-hermes-v3-live. Inventaire idle20:31 ; prompt de préparation accepté20:31. Mission distante/API et indications raisons string envoyées20:32 ; absence fournisseur et diagnostics communiqués ensuite. Aucun raw transcript publié.
 - CLI diagnostic20:34 : alertes checkout causées par core.sparseCheckout docs hérité ; Claude reconnaît le diagnostic et élargit son worktree exclusif à20:35:21UTC. Le traitement du prompt n'est pas une preuve de lecture/claim de la mission distante ; statut frontend reste pending jusqu'à confirmation. Aucune modification du checkout original ni doublon Claude annoncé.
 - Prochaine action : obtenir SHA/backend et frontend poussés avec rapports, lire résultats CI exacts, intégrer puis vérifier preview privée et parcours essentiels sans envoi réel. Revue croisée encore à faire ; aucune capacité média/pipeline persistante ni auth fournisseur validée par ce journal.
+
+
+### HERMES-V3-INTEGRATION-1H-20261030 — checkpoint 2026-10-30 20:40 UTC
+
+- CLI action — acting agent root/codex ; target Claude8f3db32e-4613-45e3-94f3-16e664f3cbfc, mission HERMES-V3-INTEGRATION-1H-20261030, branche feat/claude-hermes-v3-live. Acceptation du prompt observée20:31 ;49fichiers source disponibles après correction sparse20:35. Message20:37:09 confirme lecture du module v1 ; sous-agent Claude readonly lancé20:37:28 selon observation root. Confirmation explicite de lecture/claim mission distante toujours non prouvée, frontend demeure pending dans la coordination. Aucun transcript brut publié.
+- Backend : checkpoint2e21cf03b puis3c3bbc7d260e2b297dffa27cd29792fc27a7dafd poussés sur feat/codex-hermes-v3-live. Auteur annonce44/44tests unitaires et format11fichiers réussis ; tests natifs GraphQL/PostgreSQL CI encore attendus. Types et migration générés offline par outils officiels SQL-memory, sans migration DB originale/live. AUTO/ASSISTED/OFF+INHERIT et compatibilité v1 annoncés ; revue active avec findings ci-dessous, pas done.
+- Intégration : source36a81ecda combine backend/pipeline selon agent ; CI41125053158 en attente. Runner base333 run41123900143 en ligne, mais prérecette non encore exécutée à ce checkpoint. Déploiement isolé READYdpl_7K71d9432qgjXEx45gRB319aLzBq ; contrôle technique publié séparément auac866e769, origines uniquement, aucun credential/lien privé. Ce déploiement base333 ne prouve pas le résultat combiné V3. Expiration runner2026-10-30T22:06:40.613Z selon hébergement.
+- Statuts backend et intégration restent in_progress. Attendre fixes/rechecks, tests PostgreSQL CI et recette réelle de preview finale avant prétendre readiness.
+
+#### HOUR-BACK-001 — autorisation à revérifier après attente du verrou
+- reviewer: root et hour_pipeline_review ; assigned agent: codex/backend ; reviewed branch: feat/codex-hermes-v3-live ; reviewed revision: 3c3bbc7d260e2b297dffa27cd29792fc27a7dafd ; priority: P2 ; status: in_progress.
+- Evidence: les deux setters V3 vérifient l'accès avant d'attendre le verrou ; une révocation intervenant pendant l'attente permet encore une écriture.
+- Expected correction: vérification manager-aware dans la transaction après acquisition du verrou et test déterministe avec gate prouvant rejet après révocation. Backend a accepté le fix, ETA8–10min vers20:41UTC.
+- Fix commit: aucun livré à ce checkpoint ; recheck: pending.
+
+#### HOUR-BACK-002 — grant v1 AUTO restauré après cycle parent OFF→AUTO en vol
+- reviewer: codex/backend ; assigned agent: codex/backend ; reviewed branch: feat/codex-hermes-v3-live ; reviewed revision: 3c3bbc7d260e2b297dffa27cd29792fc27a7dafd ; status: in_progress.
+- Evidence: probe v1 AUTO en vol ne capture pas la révision parent ; un passage OFF puis AUTO du parent peut rétablir un grant devenu périmé.
+- Expected correction: capturer et contrôler la révision parent sur le chemin v1, rejeter la délégation périmée et tester le cycle concurrent. Fix en cours annoncé par backend.
+- Fix commit: aucun livré à ce checkpoint ; recheck: pending.
