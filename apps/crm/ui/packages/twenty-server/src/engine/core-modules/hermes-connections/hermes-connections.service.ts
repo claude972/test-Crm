@@ -5,7 +5,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { DataSource, type EntityManager, IsNull } from 'typeorm';
 import { z } from 'zod';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
@@ -15,6 +15,7 @@ import { type HermesMessagingActor } from 'src/engine/core-modules/hermes-messag
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { resolveAndValidateHostname } from 'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util';
+import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
@@ -51,6 +52,7 @@ type StoredConfiguration = HermesConnectionConfiguration & {
   kind: HermesConnectionKind;
   userId: string;
   userWorkspaceId: string;
+  mailCredentialDigest?: string;
 };
 export type HermesResolvedConnection = HermesConnectionConfiguration & {
   workspaceId: string;
@@ -241,7 +243,42 @@ export class HermesConnectionsService {
       account.authFailedAt
     )
       throw new BadRequestException('MAIL_ACCOUNT_UNAVAILABLE');
-    return { ...settings, handle: account.handle.trim().toLowerCase() };
+    try {
+      const native = new ConnectedAccountTokenEncryptionService(
+        this.encryption,
+      );
+      const protocols = (['IMAP', 'SMTP'] as const).map((protocol) => {
+        const encrypted = account.connectionParameters?.[protocol];
+        if (!encrypted) throw new Error();
+        const plaintext = native.decryptProtocolPassword({
+          protocolParams: encrypted,
+          workspaceId: actor.workspaceId,
+        });
+        return [
+          protocol,
+          plaintext.host,
+          plaintext.port,
+          plaintext.connectionSecurity,
+          plaintext.username ?? null,
+          plaintext.password,
+        ];
+      });
+      return {
+        settings: { ...settings, handle: account.handle.trim().toLowerCase() },
+        credentialDigest: createHash('sha256')
+          .update(
+            JSON.stringify([
+              account.provider,
+              account.handle.trim().toLowerCase(),
+              account.userWorkspaceId,
+              ...protocols,
+            ]),
+          )
+          .digest('hex'),
+      };
+    } catch {
+      throw new ServiceUnavailableException('MAIL_ACCOUNT_UNAVAILABLE');
+    }
   }
 
   async save(
@@ -271,23 +308,31 @@ export class HermesConnectionsService {
           secrets: input.secrets ?? previous?.secrets ?? {},
         },
       );
-      if (input.kind === 'MAIL')
-        configuration = {
-          ...configuration,
-          settings: await this.mailbox(actor, configuration.settings, manager),
-        };
+      let mailCredentialDigest: string | undefined;
+      if (input.kind === 'MAIL') {
+        const native = await this.mailbox(
+          actor,
+          configuration.settings,
+          manager,
+        );
+        configuration = { ...configuration, settings: native.settings };
+        mailCredentialDigest = native.credentialDigest;
+      }
       const identityHash = connectionIdentity(
         input.kind,
         configuration.settings,
       );
       if (
         previous &&
-        row?.identityHash !== identityHash &&
+        (row?.identityHash !== identityHash ||
+          previous.userWorkspaceId !== actor.userWorkspaceId) &&
         input.secrets === undefined &&
         Object.keys(previous.secrets).length
       )
         throw new BadRequestException(
-          'CONNECTION_NEW_IDENTITY_REQUIRES_SECRETS',
+          previous.userWorkspaceId !== actor.userWorkspaceId
+            ? 'NEW_OWNER_REQUIRES_SECRETS'
+            : 'CONNECTION_NEW_IDENTITY_REQUIRES_SECRETS',
         );
       if (input.kind === 'MCP' || input.kind === 'EVOLUTION') {
         const endpoint = String(
@@ -331,6 +376,7 @@ export class HermesConnectionsService {
       await this.access.assertAllowed(actor, manager);
       const stored: StoredConfiguration = {
         ...configuration,
+        ...(mailCredentialDigest ? { mailCredentialDigest } : {}),
         workspaceId: actor.workspaceId,
         kind: input.kind,
         userId: actor.userId,
@@ -341,7 +387,9 @@ export class HermesConnectionsService {
         workspaceId: actor.workspaceId,
         kind: input.kind,
         connectionId:
-          row?.enabled && row.identityHash === identityHash
+          row?.enabled &&
+          row.identityHash === identityHash &&
+          row.updatedByUserWorkspaceId === actor.userWorkspaceId
             ? row.connectionId
             : randomUUID(),
         revision: (row?.revision ?? 0) + 1,
@@ -441,6 +489,11 @@ export class HermesConnectionsService {
     kind: HermesConnectionKind,
     manager?: EntityManager,
   ): Promise<HermesResolvedConnection | null> {
+    if (manager)
+      await manager.query(
+        'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+        [`hermes-messaging:${workspaceId}`],
+      );
     const row = await (manager ?? this.source)
       .getRepository(HermesConnectionEntity)
       .findOneBy({ workspaceId, kind });
@@ -461,8 +514,10 @@ export class HermesConnectionsService {
         },
         manager ?? this.source.manager,
       );
-      if (connectionIdentity(kind, current) !== row.identityHash)
+      if (connectionIdentity(kind, current.settings) !== row.identityHash)
         throw new ServiceUnavailableException('MAIL_IDENTITY_CHANGED');
+      if (configuration.mailCredentialDigest !== current.credentialDigest)
+        throw new ServiceUnavailableException('MAIL_ACCOUNT_CHANGED');
     }
     const fresh = await (manager ?? this.source)
       .getRepository(HermesConnectionEntity)
@@ -475,7 +530,11 @@ export class HermesConnectionsService {
     )
       throw new ConflictException('CONNECTION_REVISION_CONFLICT');
     return {
-      ...configuration,
+      workspaceId: configuration.workspaceId,
+      userId: configuration.userId,
+      userWorkspaceId: configuration.userWorkspaceId,
+      settings: configuration.settings,
+      secrets: configuration.secrets,
       connectionId: row.connectionId,
       revision: row.revision,
     };
