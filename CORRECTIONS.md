@@ -372,6 +372,53 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Multi-structure et contrat inter-modules — lecture, adaptation et un blocage trouvé
+
+Contrats lus avant toute décision d'écran, comme imposé : `docs/handoff/hermes-integration-contract.md` (`b38862269`) et `docs/handoff/hermes-multi-structure-contract.md` (`23d93951e`).
+
+**Retenu et non supposé** : ces documents décrivent une **cible**, pas une API livrée. Le contrat est explicite — « Codex doit publier les types, exemples et règles d'erreur réellement compatibles avec le serveur **avant** consommation par Claude ». **Je ne code donc contre aucun DTO**, et je ne consommerai aucun type avant publication et coordination.
+
+Décision propriétaire enregistrée sans interprétation : **chaque utilisateur voit le récapitulatif de ses sociétés autorisées**. La vue commune n'est pas réservée à la direction, et elle **n'élève aucun droit**. Distinction tenue : **société exploitante** (structure, à rattacher au workspace) contre **fiche Company** du carnet clients — ajouter des fiches Company ne constitue pas une architecture multi-structure.
+
+### P0-STRUCT-001 — la persistance navigateur n'est pas rattachée au contexte
+
+- reviewer: claude
+- assigned agent: claude, **non corrigé** — voir pourquoi plus bas
+- evidence, lue avant toute construction :
+  1. `modules/metadata-store/storage/metadataStoreStorage.ts` appelle `createIndexedDbBackedJotaiStorage<MetadataStoreItem>('metadata-store')` — un **nom littéral unique**, sans aucun discriminant de société ou de workspace.
+  2. Dans la fabrique `createIndexedDbBackedJotaiStorage.ts` : le store est `'keyval'` (ligne 8) et le canal inter-onglets est `` `kovaa-lab-front-${cacheName}-sync` `` (ligne 39), soit `kovaa-lab-front-metadata-store-sync`. **Global lui aussi.**
+  3. Les clés de persistance des états sont nues : `key: 'currentWorkspaceState'` et `key: 'metadataStoreState'`.
+  4. Aucune purge d'exécution au changement de contexte : `clearMetadataStoreStorage` et `resetJotaiStore` n'apparaissent, hors tests, que dans leur propre définition.
+- effet, au regard de l'exigence : le contrat demande que « les clés de persistance navigateur soient correctement rattachées au contexte » et qu'« un changement de structure, une révocation ou une déconnexion ne réaffiche pas les données privées de la structure précédente », en « prenant en compte les onglets concurrents ». Or **changer de société laisserait le schéma, les vues et les layouts de la précédente dans le même store, sous les mêmes clés**, et **deux onglets ouverts sur deux sociétés différentes s'écriraient mutuellement** par un canal partagé.
+- c'est l'**escalade directe de `P0-PWA-001`** : ce que j'y signalais comme une fuite à la déconnexion devient, en multi-structure, un défaut de cloisonnement.
+- **pourquoi je ne le corrige pas dans ce lot** : la correction n'est pas un préfixe de clé. Elle exige de décider la correspondance structure/workspace — que le contrat laisse explicitement à documenter —, puis de traiter déconnexion, expiration, révocation en cours de session, changement de contexte et onglets concurrents comme un tout. Un préfixe posé avant cette décision donnerait l'illusion du cloisonnement, ce que le contrat interdit nommément.
+- expected correction: rattacher le cache, le store et le canal inter-onglets au contexte de structure retenu, avec un point de purge unique réellement appelé, puis éprouver les onglets concurrents et la révocation en session.
+- status: open, reported by claude
+
+### Ce que l'existant offre, et ce qu'il ne prouve pas
+
+Le contrat demande d'inspecter l'isolation existante avant d'introduire une entité. Fait : un composant `MultiWorkspaceDropdown` existe déjà dans le tiroir de navigation, avec ses sous-composants de liste d'espaces. Conformément au contrat, **je ne présente pas son existence comme une livraison** : il reste à vérifier qu'il ne liste que les sociétés autorisées, qu'un changement de contexte refait les vérifications d'accès, et qu'il ne réutilise rien de la société précédente. Le réglage `IS_MULTIWORKSPACE_ENABLED` à `false` et la preview P0 mono-workspace **ne satisfont pas** le critère, et je ne le prétendrai pas.
+
+### Adaptation du lot 1
+
+Réévaluation honnête de la navigation, après lecture des composants : le tiroir est **déjà mûr** — sections, titres de section, groupes, sous-items, sections repliables, états actif, replié et non-lu. Le restyler serait précisément le « juste logo/couleur » que le propriétaire rejette. Le vrai manque y est l'**architecture d'information** : sélecteur de société et contexte permanent, accueil opérationnel, conversations, agenda. Le sélecteur et le contexte relèvent désormais du multi-structure et viennent avant le reste, mais ils dépendent du périmètre autorisé calculé par le serveur — donc d'une publication de Codex.
+
+J'ai donc livré d'abord la part de ce lot qui ne dépend d'aucun backend et que les deux contrats rendent nécessaire partout.
+
+### Livré — `9f57915fb4d1df6f6cbcc88125848d6894c740f3`
+
+Vocabulaire commun de **provenance et d'état de synchronisation** : `modules/connectors/types/ConnectorSyncStatus.ts` et `modules/connectors/components/ConnectorSyncTag.tsx`, 107 lignes, dans `twenty-front` que je possède.
+
+Cinq états — `not-configured`, `pending`, `confirmed`, `failed`, `unavailable`. **`pending` est le seul contour tiré** : une confirmation fournisseur et une donnée locale qui l'attend ne doivent jamais se lire pareil, et faire porter cette différence par une **forme** plutôt que par la seule teinte la rend lisible sans vision des couleurs. `not-configured` est un état distinct, donc un connecteur non configuré **ne peut pas s'afficher comme connecté** — ce que les deux contrats interdisent.
+
+Construit sur l'existant : la primitive `Tag` offrait déjà `solid`/`soft`/`outline`/`ghost` et un contour tiré, et le thème expose déjà 25 teintes. Les statuts colorés de la référence Monday demandaient donc d'**employer** le système, pas d'en inventer un.
+
+**Un piège évité par vérification préalable** : mon premier jet importait `IconCloudOff`, `IconPlugConnectedX` et `IconProgress`, qui **n'existent pas** dans `kovaa-lab-ui/icon`. Les icônes retenues sont contrôlées présentes, et le choix suit la règle 5 du dictionnaire d'icônes — prendre une icône existante plutôt qu'ajouter un paquet. `TagColor`, `TagProps` et `IconComponent` sont importés comme types exportés, de sorte que la table de présentation est **typée** au lieu de s'élargir en `string`.
+
+### Limites
+
+Aucun build, aucun typecheck, aucun rendu : le workspace local n'a plus de `node_modules` et la preuve passe par la CI. Le contrôleur de parsing passe sur les deux paquets CRM et Char. **Ce composant n'est pas une refonte livrée**, et je ne le présenterai pas comme telle. Rien n'est consommé des contrats avant publication par Codex.
+
 ## Mission hermes-redesign-p1 — référence Monday validée, claim et plan, agent: claude
 
 - référence consignée : **Monday CRM**, capture validée par le propriétaire, **thème clair de départ**. Navigation latérale lisible, tableaux structurés, statuts colorés, pipeline visuel, tableau de bord opérationnel. Couleurs multiples pour les **statuts et séries métier**, **une seule couleur principale pour les actions**, conformément à DESIGN.md.
