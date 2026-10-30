@@ -140,7 +140,7 @@ jobs:
       - name: Verify disposable migration guards
         if: ${{ inputs.hermes-checks }}
         working-directory: .
-        run: node --test scripts/check-hermes-migration-ci.test.mjs scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-swc-isolation.test.mjs
+        run: node --test scripts/check-hermes-migration-ci.test.mjs scripts/check-hermes-inbox-migration-ci.test.mjs scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-swc-isolation.test.mjs
       - name: Generate or verify the registered Hermes migration on disposable PostgreSQL
         if: ${{ inputs.hermes-checks && inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
         working-directory: .
@@ -159,6 +159,29 @@ jobs:
         with:
           name: hermes-migration-${{ github.sha }}
           path: hermes-migration-artifacts
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Generate or verify the registered Hermes inbox migration on disposable PostgreSQL
+        if: ${{ inputs.hermes-checks && inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+        run: |
+          test -f apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity.ts
+          test -f apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity.ts
+          test -f apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-mail/hermes-mail-cursor.entity.ts
+          if compgen -G 'apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-inbox.ts' > /dev/null; then
+            node scripts/check-hermes-inbox-migration-ci.mjs --verify-existing --reset-after-check
+          else
+            node scripts/check-hermes-inbox-migration-ci.mjs --generate --reset-after-generation
+          fi
+      - name: Publish generated Hermes inbox migration for review
+        if: ${{ always() && inputs.hermes-checks }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-inbox-migration-${{ github.sha }}
+          path: hermes-inbox-migration-artifacts
           if-no-files-found: warn
           retention-days: 7
       - name: Download the exact frontend build for browser verification
