@@ -12,12 +12,14 @@ import MailComposer from 'nodemailer/lib/mail-composer';
 import { getSendableEmailHandles } from 'kovaa-lab-shared/utils';
 
 import { HermesMessagingPersonService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-person.service';
+import { mailAddress } from 'src/engine/core-modules/hermes-mail/hermes-mail.policy';
 import { HermesMailService } from 'src/engine/core-modules/hermes-mail/hermes-mail.service';
 import {
   type HermesMailComposeInput,
   type HermesMailMessageInput,
   type HermesMailNewDraftInput,
   type HermesMailPageInput,
+  type HermesMailPage,
   type HermesMailUpdateInput,
 } from 'src/engine/core-modules/hermes-mail/hermes-mail-v4.dto';
 import {
@@ -198,11 +200,14 @@ export class HermesMailboxService {
     }
   }
 
-  async page(actor: HermesMessagingActor, input: HermesMailPageInput) {
+  async page(
+    actor: HermesMessagingActor,
+    input: HermesMailPageInput,
+  ): Promise<HermesMailPage> {
     const limit = input.limit ?? 25;
     if (!Number.isSafeInteger(limit) || limit < 1 || limit > 50)
       throw new BadRequestException('MAIL_INVALID_LIMIT');
-    return this.session(actor, (client) =>
+    return this.session<HermesMailPage>(actor, (client) =>
       this.locked(client, actor, input, async () => {
         if (!client.mailbox)
           throw new NotFoundException('MAIL_FOLDER_NOT_FOUND');
@@ -260,10 +265,23 @@ export class HermesMailboxService {
             .map((message) => ({
               uid: String(message.uid),
               subject: message.envelope?.subject ?? '',
-              from: message.envelope?.from ?? [],
-              to: message.envelope?.to ?? [],
-              cc: message.envelope?.cc ?? [],
-              occurredAt: message.internalDate,
+              from: (message.envelope?.from ?? []).map((address) => ({
+                address: mailAddress(address.address),
+                name: address.name ?? null,
+              })),
+              to: (message.envelope?.to ?? []).map((address) => ({
+                address: mailAddress(address.address),
+                name: address.name ?? null,
+              })),
+              cc: (message.envelope?.cc ?? []).map((address) => ({
+                address: mailAddress(address.address),
+                name: address.name ?? null,
+              })),
+              occurredAt:
+                message.internalDate instanceof Date &&
+                Number.isFinite(message.internalDate.getTime())
+                  ? message.internalDate.toISOString()
+                  : null,
               seen: message.flags?.has('\\Seen') ?? null,
               size: message.size ?? null,
             })),
