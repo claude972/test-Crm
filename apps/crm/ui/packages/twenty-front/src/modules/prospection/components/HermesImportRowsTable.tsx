@@ -6,6 +6,9 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesImportRowStatusTag } from '@/prospection/components/HermesImportRowStatusTag';
 import { type HermesImportRow } from '@/prospection/types/HermesImportBatch';
+import {
+  isHermesRowSelectable,
+} from '@/prospection/utils/hermesRowSelection';
 import { Table } from '@/ui/layout/table/components/Table';
 import { TableBody } from '@/ui/layout/table/components/TableBody';
 import { TableCell } from '@/ui/layout/table/components/TableCell';
@@ -55,18 +58,6 @@ type HermesImportRowsTableProps = {
 // suppressions, so the interface offers no way to act on one. A row whose
 // status is outside the contract is not selectable either: an operation on an
 // unknown state would be a guess.
-// Only the two statuses the server actually acts on. It ignores invalid,
-// duplicate and conflict rows on qualification, so offering them for selection
-// promised work that would never happen; suppressed is blocked and a null
-// status is outside the contract.
-export const isHermesRowSelectable = (row: HermesImportRow): boolean =>
-  row.status === 'pending' || row.status === 'qualified';
-
-// Qualification acts on staged rows only. A qualified row stays selectable
-// because it is what a campaign draft is built from.
-export const isHermesRowQualifiable = (row: HermesImportRow): boolean =>
-  row.status === 'pending';
-
 export const HermesImportRowsTable = ({
   rows,
   selectedRowIds,
