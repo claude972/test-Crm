@@ -10,16 +10,22 @@ Le vrai `UnsubscribeContentService` enrichit les messages. Seule la signature du
 
 Jest ciblé utilise les dépendances existantes en lecture seule de `test-Crm/apps/crm/ui/node_modules`, la transformation `@swc/jest` avec plugin Lingui absolu et une configuration/cache sous `/private/tmp`. Le mapper `src/` vise les sources stables root `p1-hermes-integration`, identiques aux commits désignés. Aucun package ajouté, installation ou typecheck global concurrent.
 
-## Couverture et résultats à ce checkpoint
+## Couverture
 
 28 cas réussis sur `ee4ebf4d2` : isolation workspace/domaine/expéditeur, expéditeurs multiples et CRLF, configuration dangereuse et messages sans secret, origine de désinscription, injection d'en-têtes, DATA réel avec destinataire/sujet/footer/en-têtes one-click, acceptation partielle distincte de livraison, erreurs SMTP génériques non annoncées retryables, refus marketing multi-destinataire, destinataire avec nom affiché, refus des overrides List-Unsubscribe/List-Unsubscribe-Post, lots avec enveloppes distinctes et personnalisation/token propre, footer unique/tags réservés résolus, échec individuel conservant le reçu d'un autre destinataire, limites de taille 0/101.
 
 Les deux régressions initialement signalées (correspondance nom affiché/adresse d'enveloppe et en-têtes List-Unsubscribe concurrents) sont corrigées par root dans `ee4ebf4d2` et couvertes par les tests. Le premier passage avait aussi révélé deux défauts de fixture/assertion, corrigés : DATA pipeliné sans destinataire accepté doit être refusé ; les en-têtes SMTP peuvent être repliés selon RFC. Aucun correctif production n'a été réclamé pour ces deux points de test.
 
-## Régression supplémentaire prouvée
+## Régression supplémentaire prouvée puis corrigée
 
 Sur `ee4ebf4d2`, un 29e cas échoue : une ligne de lot dont `recipient.email = 'alice@example.test, bob@example.test'` est acceptée. `sendEmailBatch` signe le token sur cette chaîne et appelle la préparation privée sans revalider un unique destinataire d'enveloppe ; Nodemailer interprète la liste et le lot retourne des reçus de succès. Le contrat marketing d'un token pour une personne n'est alors pas respecté.
 
-Correction demandée à root, sans édition production par ce lot : valider toutes les lignes du lot avant enrichissement/envoi afin d'exiger exactement une adresse valide par ligne, sans CRLF. Le test exige `CONFIGURATION_ERROR` et zéro connexion SMTP pour cette entrée. Ce checkpoint ne doit pas être décrit comme entièrement vert tant que cette régression reste ouverte.
+Correction demandée à root, sans édition production par ce lot : valider toutes les lignes du lot avant enrichissement/envoi afin d'exiger exactement une adresse valide par ligne, sans CRLF. Le test exige `CONFIGURATION_ERROR` et zéro connexion SMTP pour cette entrée.
 
 Commandes exécutées : Jest `--runInBand --runTestsByPath <spec>` (28 cas verts avant ajout du 29e), puis test ciblé `-t 'batch row containing multiple'` (échec reproduit). Prettier du seul nouveau spec et `git diff --check` réussis. L'acceptation SMTP mesurée n'est pas une livraison, une ouverture, un test TLS/STARTTLS ni une preuve de connexion au SMTP du propriétaire.
+
+## Résultat final après correction root
+
+Root corrige la validation des destinataires dans `78657e047` (cherry-pick local `061e238d9`). Les lignes de lot sont des adresses e-mail nues validées avant tout enrichissement/envoi ; CRLF refusé ; le parcours unitaire vérifie exactement une adresse parsée par chaîne. Aucun fichier production modifié par l'agent de tests.
+
+Recontrôle ciblé complet exécuté sur ces sources stables : **1 suite, 29 tests réussis, zéro échec**, durée 3,394 s. La régression multi-adresse est désormais refusée avant connexion SMTP et les 28 cas précédents restent verts. La commande conserve `--runInBand --runTestsByPath` et la configuration temporaire décrite ci-dessus ; aucun typecheck global, installation, envoi externe ou service cloud. Ce résultat valide le transport vers la fixture loopback et les gardes couvertes, avec les limites cryptographie/TLS/fournisseur/livraison explicitées.
