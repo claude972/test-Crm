@@ -91,7 +91,11 @@ Le workflow expose `workflow_call` et le nom de l'artefact en sortie, pour que l
 Deux corrections apportées au workflow après revue de Codex, toutes deux justifiées :
 
 1. Il ne construisait que `kovaa-lab-shared`. Le front dépend aussi de `kovaa-lab-ui` et `kovaa-lab-front-component-renderer`, et **les trois** résolvent par `exports` vers `dist` — vérifié dans leurs manifestes. Les trois sont désormais construits, chacun avec une assertion d'émission.
-2. Le CLI Vite a déjà été observé dans ce dépôt sortant en 0 **sans rien émettre** (P0-BUILD-001). Le build du front passe donc par l'**API JS**, dont la promesse rejette en cas d'échec.
+2. Le build du front passe par l'**API JS** de Vite, dont la promesse rejette en cas d'échec — comportement transparent, indépendamment de celui du CLI.
+
+   **Correction demandée par Codex et acceptée : j'avais sur-affirmé.** J'écrivais que « le CLI Vite a été observé sortant en 0 sans rien émettre », en invoquant P0-BUILD-001. Ce n'est pas ce que ce constat établit : il établit une **assertion d'artefact en échec** et une **étape de déclarations manquante**, et les logs ne disent pas laquelle des assertions `test -s` a échoué. J'avais transformé son diagnostic en une généralisation plus forte que la preuve. Le choix de l'API reste justifié par sa transparence propre, pas par cette généralisation.
+
+   Reste un fait distinct et réellement observé par moi, qui n'est pas concerné par cette correction : l'installation Yarn locale a rendu un **code de sortie 0 en laissant `node_modules` inutilisable** (§ 9). Celui-là est de première main.
 
 Les assertions d'artefacts sont **conservées et resserrées**, pas relâchées : `index.html` non vide portant l'élément racine, et au moins un chunk émis de plus de 1 ko. Les deux ont été vérifiées contre les sources avant d'être affirmées (`vite.config.ts:224` fixe `outDir: 'build'`, `index.html:89` porte le `div#root`).
 
@@ -119,9 +123,22 @@ Les assertions d'artefacts sont **conservées et resserrées**, pas relâchées 
 
 Sans `tsgo` ni `vite`, ni `tsgo -p tsconfig.json --noEmit` ni un build Vite ne peuvent être lancés ici. Je ne revendique donc **aucun** typecheck et **aucun** build frontend.
 
-Un détail mérite d'être relevé, parce qu'il est de la même famille que les deux pièges déjà rencontrés dans cette mission : **le code de sortie observé par mon harnais était 0** alors que yarn imprimait une erreur et laissait l'installation inutilisable. Le code de sortie n'est pas une preuve — c'est précisément pourquoi le workflow passe par l'API JS de Vite plutôt que par son CLI, et pourquoi il assortit chaque build d'une assertion sur les artefacts émis.
+Un détail mérite d'être relevé : **le code de sortie observé par mon harnais était 0** alors que yarn imprimait une erreur et laissait l'installation inutilisable. Un code de sortie n'est pas une preuve d'effet — observation de première main, et la raison pour laquelle le workflow assortit chaque build d'une assertion sur les artefacts réellement émis.
 
-La preuve de construction est donc déléguée à la CI, dans un environnement propre où `yarn install --immutable` est déjà démontré fonctionnel par le job `crm-workspace` de Codex. Le job `frontend-bundle` de mon workflow est conçu pour cela, et **sa première exécution le prouvera ou l'infirmera**.
+### Résultat CI, exécuté
+
+| Job | Résultat |
+| --- | --- |
+| `frontend-sources` | **réussi en 26 s** — https://github.com/claude972/test-Crm/actions/runs/40981738957 |
+| `frontend-bundle` | **échoué en 5 min 16** |
+
+Le job de garde est donc **vérifié en environnement propre**, et pas seulement par ma mesure locale.
+
+L'échec du bundle est **attendu et laissé tel quel**, cause identifiée dans le log : Nx construit `kovaa-lab-shared` ✅, `kovaa-lab-shared:build:individual` ✅, `kovaa-lab-ui` ✅, `kovaa-lab-ui:build:individual` ✅, puis `kovaa-lab-front-component-renderer:build` échoue sur **`kovaa-lab-client-sdk:build`**. Ce paquet appartient au backend et porte encore, sur la base `c0318cf0b`, les défauts réparés dans `ed80da151`.
+
+Je **ne recrée pas** ces réparations et je **ne masque pas** l'erreur, conformément à la consigne de Codex. Ce n'est pas un défaut frontend : c'est une **dépendance inter-branches**, et la construction combinée de PR #8, qui contient déjà le correctif backend, est le bon endroit pour en obtenir la preuve. Le job reste rouge et documenté plutôt que contourné.
+
+La preuve de construction du bundle est donc déléguée à la vérification combinée, dans un environnement propre où `yarn install --immutable` est déjà démontré fonctionnel par le job `crm-workspace` de Codex. Le job `frontend-bundle` de mon workflow est conçu pour cela, et **sa première exécution le prouvera ou l'infirmera**.
 
 Avertissement de Codex pris en compte : si cette construction échoue par les défauts `client-sdk` / `emails` encore présents sur la base `c0318cf0b`, je ne recréerai pas ses réparations et ne masquerai pas l'erreur — elles existent dans `ed80da151` et dans la construction combinée de PR #8, où le résultat combiné pourra être vérifié sans forcer une indépendance artificielle des branches.
 

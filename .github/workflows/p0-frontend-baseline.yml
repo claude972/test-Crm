@@ -13,8 +13,17 @@ on:
       - 'apps/crm/ui/packages/twenty-front-component-renderer/**'
       - 'apps/crm/ui/packages/twenty-ui/**'
       - 'apps/crm/ui/packages/twenty-shared/**'
+  # Same paths filter as push, so a documentation-only commit does not start a
+  # fresh build and cancel a running one over identical application code.
   pull_request:
     branches: [chore/p0-stabilization, main]
+    paths:
+      - '.github/workflows/p0-frontend-baseline.yml'
+      - 'scripts/check-frontend-p0.cjs'
+      - 'apps/crm/ui/packages/twenty-front/**'
+      - 'apps/crm/ui/packages/twenty-front-component-renderer/**'
+      - 'apps/crm/ui/packages/twenty-ui/**'
+      - 'apps/crm/ui/packages/twenty-shared/**'
   # Exposed so Codex's combined verification can call this without duplicating it.
   workflow_call:
     outputs:
@@ -48,10 +57,14 @@ jobs:
           HERMES_CHECK_MODULES: ${{ runner.temp }}/frontend-p0
         run: node scripts/check-frontend-p0.cjs
 
-  # Produces the artifact Codex's combined verification consumes. Heavier and,
-  # unlike the gate above, not yet proven in CI: see
-  # docs/verification/frontend-baseline-claude.md for exactly what was and was
-  # not verified locally.
+  # Produces the artifact Codex's combined verification consumes.
+  #
+  # Known to fail on base c0318cf0b, and deliberately left failing rather than
+  # masked: Nx pulls kovaa-lab-client-sdk into the renderer's build, and that
+  # package still carries the defects repaired in ed80da151. Those repairs are
+  # Codex's and are not recreated here. The combined build in PR #8 holds them,
+  # so the real bundle proof belongs there. Run 40981738957 shows shared and ui
+  # building green and the chain stopping at kovaa-lab-client-sdk:build.
   frontend-bundle:
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -90,9 +103,11 @@ jobs:
         run: node scripts/local-project.mjs setup
       - name: Compile translation catalogues
         run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
-      # The Vite CLI has already been observed exiting 0 without emitting
-      # anything in this repository (P0-BUILD-001), so the build goes through
-      # the JS API, whose promise rejects on failure.
+      # Driven through the JS API rather than the CLI because the promise
+      # rejects on failure, which is transparent regardless of how the CLI
+      # behaves. Not justified by P0-BUILD-001: that finding established a
+      # failing artifact assertion and a missing declarations step, not that
+      # the CLI emitted nothing.
       - name: Build the front bundle
         working-directory: apps/crm/ui/packages/twenty-front
         env:
