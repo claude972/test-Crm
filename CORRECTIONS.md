@@ -296,3 +296,25 @@ CI de branche backend https://github.com/claude972/test-Crm/actions/runs/4097966
 P0-RUNTIME-001 corrigé et recontrôlé : setup-db et commandes d'instance existantes réussis sur la base p0_ci jetable ; serveur lancé, healthz répond et client-config contient allowRequestsToKovaaLabCRMIcons booléen, sans ancien champ allowRequestsToTwentyIcons. Aucun workspace métier/compte de production ou e-mail envoyé. Processus et services du job arrêtés.
 
 Diff vérifié vide entre ed80da15116fd2d1490022cf53564d85bc0abe26 et e7d1332ba pour serveur/shared/SDK/e-mails : c'est bien le code backend de PR #7 qui a été exécuté. Rapport backend actualisé ; revue Claude du nouveau SHA encore requise, frontend et preview combinée en attente. Cette preuve de démarrage n'est pas un E2E métier.
+
+## Mission p0-frontend-baseline — revue Codex du checkpoint CRM dd07d39d0
+
+- reviewer: codex
+- reviewed branch: fix/claude-frontend-baseline, PR #9
+- reviewed revision: dd07d39d0e135b8844ebb1f1cb6fbe08edbde678, checkpoint explicitement désigné par Claude dans son rapport partagé. Les changements depuis 4fe7f40c5 ne sont que le rapport documentaire ; même code applicatif/contrôleur/workflow.
+- Périmètre : réparations CRM/renderer et infra dédiée, pas encore le frontend Char. Relecture des règles de remplacement et chemins, contrats/configuration, diff de sources, marqueurs du bridge, contrôleur et workflow ; rapport Claude et limites relus.
+- Conservation/reprise : comparaison indépendante des 225 blobs Git réparés avec les fichiers correspondants du checkout original en lecture seule : 225 identiques, zéro différent, zéro manquant. Le diff ne reprend ni catalogues, ni outils intégrés, ni source backend. Les constantes de bridge Scroll/InputSelection/AcknowledgedNativeEdit restent préservées ; les consommateurs utilisent les constantes. La clé MCP à tiret est citée, sa valeur n'est pas renommée.
+- Contrats : noms IconTwentyStar/IconTwentyStarFilled conformes aux exports de la bibliothèque ; basenames Twenty* existants conservés ; états/types/consommateurs suivent allowRequestsToKovaaLabCRMIcons exposé par le serveur. La modification manuelle d'un seul identifiant du fichier GraphQL est identifiée comme telle, sans fausse revendication de régénération.
+- Vérification : git diff --check réussi sur base..checkpoint ; Gitleaks sur les quatre commits applicatifs/CI jusqu'à 4fe7f40c5, 77 ko, aucune détection. Source gate CI 40980443158 réussi sur le même code/contrôleur applicatif (avant ajustement du workflow). Parsing/imports ne constituent pas un typecheck ou un test métier.
+- Résultat de revue statique : aucun autre défaut applicatif de renommage identifié dans ce périmètre ; checkpoint accepté pour intégration isolée et contrôle combiné. Cela ne valide pas encore le build frontend, le navigateur, les types, les stories, Char ou P0 global.
+
+### P0-FRONT-BUILD-001
+- reviewer: codex
+- assigned agent: claude
+- reviewed branch: fix/claude-frontend-baseline
+- reviewed revision: 2671be330d7cf496671386f82014c4e8a4cf4f29
+- evidence: CI https://github.com/claude972/test-Crm/actions/runs/40980443158 : source gate vert, bundle en échec ; wyw-in-js ne trouve pas kovaa-lab-ui/dist/theme.cjs. Le workflow ne construisait que shared alors que les exports UI/renderer pointent vers dist.
+- expected correction: construire effectivement les dépendances réelles dans l'ordre et conserver les assertions d'artefacts avant publication du bundle ; vérifier dans l'intégration incluant le client-sdk backend réparé.
+- status: fixed_pending_review
+- fix commit: 4fe7f40c5b77d5197e2108d4022fd77f473fb24b, présent dans dd07d39d0 ; chaîne Nx et API Vite frontend ajoutées par Claude.
+- recheck evidence: revue de la configuration effectuée ; résultat du build combiné encore attendu, aucune correction déclarée vérifiée sur la seule présence du nouveau workflow. Les commits docs de PR déclenchent aussi des runs et annulent des builds précédents : filtre paths conseillé à Claude.
