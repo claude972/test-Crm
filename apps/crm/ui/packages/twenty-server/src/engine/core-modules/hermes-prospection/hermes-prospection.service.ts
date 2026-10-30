@@ -202,8 +202,6 @@ export class HermesProspectionService {
     input: HermesCreateCampaignDraftInput,
   ) {
     return this.states.mutate(actor, async (state) => {
-      if (state.campaignIds.length >= HERMES_IMPORT_LIMITS.campaigns)
-        throw new ConflictException('CAMPAIGN_LIMIT_REACHED');
       const rows = state.batches
         .flatMap((batch) => batch.rows)
         .filter((row) => input.rowIds.includes(row.id));
@@ -233,6 +231,13 @@ export class HermesProspectionService {
       );
       const listId = v5('list', campaignId);
 
+      if (
+        !state.campaignIds.includes(campaignId) &&
+        state.campaignIds.length >= HERMES_IMPORT_LIMITS.campaigns
+      ) {
+        throw new ConflictException('CAMPAIGN_LIMIT_REACHED');
+      }
+
       await this.orm.executeInWorkspaceContext(async () => {
         const permissions = buildEmailingRolePermissionConfig(roleId);
 
@@ -244,7 +249,13 @@ export class HermesProspectionService {
             )
             .findOne({ where: { id: campaignId } });
 
-          if (existing) return;
+          if (existing) {
+            if (existing.status !== MessageCampaignStatus.DRAFT) {
+              throw new ConflictException('CAMPAIGN_ALREADY_ADVANCED');
+            }
+
+            return;
+          }
           const personIds = [
             ...new Set(
               rows
