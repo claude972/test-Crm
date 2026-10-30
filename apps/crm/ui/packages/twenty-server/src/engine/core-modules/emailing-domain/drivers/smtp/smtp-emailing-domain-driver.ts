@@ -1,4 +1,5 @@
 import { createTransport } from 'nodemailer';
+import { z } from 'zod';
 import { parseEmailAddressList } from 'kovaa-lab-shared/utils';
 
 import {
@@ -98,6 +99,21 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
   ): Promise<EmailingDomainSendEmailResult> {
     this.assertSender(input);
     this.assertCallerHeaders(input.headers);
+    for (const recipient of [
+      ...input.to,
+      ...(input.cc ?? []),
+      ...(input.bcc ?? []),
+    ]) {
+      const parsed = parseEmailAddressList(recipient);
+
+      if (
+        /[\r\n]/.test(recipient) ||
+        parsed.length !== 1 ||
+        !z.string().email().safeParse(parsed[0]?.address).success
+      ) {
+        throw this.configurationError();
+      }
+    }
     const email = this.unsubscribeContentService.addTo(
       input,
       this.unsubscribeBaseUrl,
@@ -174,8 +190,16 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
       throw this.configurationError();
     }
 
-    for (const recipient of input.recipients)
+    // Validate the whole batch before signing per-person tokens or opening SMTP.
+    for (const recipient of input.recipients) {
+      if (
+        /[\r\n]/.test(recipient.email) ||
+        !z.string().email().safeParse(recipient.email).success
+      ) {
+        throw this.configurationError();
+      }
       this.assertCallerHeaders(recipient.headers);
+    }
     const batch = this.unsubscribeContentService.addToBatch(
       input,
       this.unsubscribeBaseUrl,
