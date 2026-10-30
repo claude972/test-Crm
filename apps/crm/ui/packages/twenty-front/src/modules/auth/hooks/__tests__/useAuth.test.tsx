@@ -1,5 +1,8 @@
 import { useAuth } from '@/auth/hooks/useAuth';
 
+import { purgeSessionStorage } from '@/auth/utils/purgeSessionStorage';
+import { logError } from '~/utils/logError';
+
 import { MockedProvider } from '@apollo/client/testing/react';
 import { type ReactNode, act } from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -69,6 +72,30 @@ jest.mock('@/domain-manager/hooks/useLastAuthenticatedWorkspaceDomain', () => ({
   })),
 }));
 
+jest.mock('@/auth/utils/purgeSessionStorage', () => ({
+  purgeSessionStorage: jest.fn(),
+}));
+jest.mock('~/utils/logError');
+
+const mockedPurgeSessionStorage = jest.mocked(purgeSessionStorage);
+const mockedLogError = jest.mocked(logError);
+
+// jsdom refuses a real navigation, so assign is replaced outright. Recording
+// into a shared array is what lets the ordering be asserted rather than
+// assumed: the whole point of the fix is that the purge finishes first.
+const navigationOrder: string[] = [];
+const assignSpy = jest.fn(() => {
+  navigationOrder.push('navigate');
+});
+
+beforeAll(() => {
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: { ...window.location, assign: assignSpy },
+    writable: true,
+  });
+});
+
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <MockedProvider mocks={Object.values(mocks)}>
     <MemoryRouter>
@@ -92,6 +119,8 @@ const renderHooks = () => {
 describe('useAuth', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    navigationOrder.length = 0;
+    mockedPurgeSessionStorage.mockResolvedValue('cleared');
     getDefaultStore().set(returnToPathState.atom, '');
   });
 
@@ -206,6 +235,53 @@ describe('useAuth', () => {
     expect(sessionStorage.length).toBe(0);
     expect(getDefaultStore().get(currentWorkspaceState.atom)).toBeNull();
     expect(getDefaultStore().get(currentUserState.atom)).toBeNull();
+  });
+
+  it('finishes the storage purge before navigating away', async () => {
+    mockedPurgeSessionStorage.mockImplementation(async () => {
+      // A microtask boundary, so a fire-and-forget call would let the
+      // navigation overtake the purge and the assertion below would catch it.
+      await Promise.resolve();
+      navigationOrder.push('purge');
+
+      return 'cleared';
+    });
+
+    const { result } = renderHooks();
+
+    await act(async () => {
+      await result.current.signOut();
+    });
+
+    expect(navigationOrder).toEqual(['purge', 'navigate']);
+  });
+
+  it('still signs the user out, and says so, when the purge cannot be confirmed', async () => {
+    mockedPurgeSessionStorage.mockResolvedValue('not-confirmed');
+
+    const { result } = renderHooks();
+
+    await act(async () => {
+      await result.current.signOut();
+    });
+
+    // Leaving must never be blocked by a stuck database, and the unconfirmed
+    // wipe must not pass silently either.
+    expect(assignSpy).toHaveBeenCalled();
+    expect(mockedLogError).toHaveBeenCalled();
+  });
+
+  it('reports a failed purge rather than treating it as a success', async () => {
+    mockedPurgeSessionStorage.mockResolvedValue('failed');
+
+    const { result } = renderHooks();
+
+    await act(async () => {
+      await result.current.signOut();
+    });
+
+    expect(mockedLogError).toHaveBeenCalled();
+    expect(assignSpy).toHaveBeenCalled();
   });
 
   it('should handle credential sign-up', async () => {

@@ -24,14 +24,26 @@ export const purgeSessionStorage =
     clearSessionLocalStorageKeys();
     safeRemoveLocalStorageItems(getMetadataStoreKeys());
 
-    const timeout = new Promise<SessionStoragePurgeOutcome>((resolve) =>
-      setTimeout(() => resolve('not-confirmed'), PURGE_TIMEOUT_IN_MS),
-    );
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const timeout = new Promise<SessionStoragePurgeOutcome>((resolve) => {
+      timeoutId = setTimeout(
+        () => resolve('not-confirmed'),
+        PURGE_TIMEOUT_IN_MS,
+      );
+    });
 
     const purge = clearMetadataStoreStorage().then(
       (isCleared): SessionStoragePurgeOutcome =>
         isCleared ? 'cleared' : 'failed',
     );
 
-    return await Promise.race([purge, timeout]);
+    try {
+      return await Promise.race([purge, timeout]);
+    } finally {
+      // Cleared on every path, including the timeout's own win: a pending
+      // timer would otherwise keep the event loop busy after sign-out and,
+      // under a fake-timer test, leak into the next case.
+      clearTimeout(timeoutId);
+    }
   };

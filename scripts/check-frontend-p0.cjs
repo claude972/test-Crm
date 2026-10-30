@@ -38,7 +38,7 @@ const SPACED_BRAND_IN_IDENTIFIER = /(?:[A-Za-z0-9_$]KovaaLab CRM|KovaaLab CRM[A-
 const listSources = (packageName) =>
   execFileSync(
     'git',
-    ['ls-files', '-z', `apps/crm/ui/packages/${packageName}`],
+    ['ls-files', '-z', '--cached', '--others', '--exclude-standard', `apps/crm/ui/packages/${packageName}`],
     { cwd: root, maxBuffer: 64 * 1024 * 1024 },
   )
     .toString()
