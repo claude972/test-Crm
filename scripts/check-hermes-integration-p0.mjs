@@ -146,16 +146,14 @@ export const buildIntegrationChildEnvironment = (source, appSecret) => {
   };
 };
 
-export const runIntegration = async () => {
-  // The native reset precedes Jest's globalSetup and suite-level assertions.
-  validateIntegrationEnvironment(process.env);
-  const cwd = path.join(ROOT, SERVER);
-  const suites = process.argv.slice(2);
-  if (!suites.length) suites.push(DEFAULT_SUITE);
+export const validateIntegrationSuitePaths = (suites, cwd) => {
+  const inboxSuite =
+    "src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.integration-spec.ts";
   for (const suite of suites) {
-    assert.match(
-      suite,
-      /^test\/integration\/graphql\/suites\/hermes-[a-z0-9-]+\.integration-spec\.ts$/,
+    assert.ok(
+      /^test\/integration\/graphql\/suites\/hermes-[a-z0-9-]+\.integration-spec\.ts$/.test(
+        suite,
+      ) || suite === inboxSuite,
       "Only explicit Hermes integration suites",
     );
     assert.equal(
@@ -164,6 +162,15 @@ export const runIntegration = async () => {
       "Suite symlinks are forbidden",
     );
   }
+};
+
+export const runIntegration = async () => {
+  // The native reset precedes Jest's globalSetup and suite-level assertions.
+  validateIntegrationEnvironment(process.env);
+  const cwd = path.join(ROOT, SERVER);
+  const suites = process.argv.slice(2);
+  if (!suites.length) suites.push(DEFAULT_SUITE);
+  validateIntegrationSuitePaths(suites, cwd);
   const jest = path.resolve(cwd, "../../node_modules/jest/bin/jest.js");
   for (const file of [
     jest,

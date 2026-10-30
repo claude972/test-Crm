@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   buildIntegrationChildEnvironment,
   validateIntegrationEnvironment,
+  validateIntegrationSuitePaths,
 } from "./check-hermes-integration-p0.mjs";
 
 const root = mkdtempSync(path.join(os.tmpdir(), "hermes-integration-guards-"));
@@ -140,4 +141,33 @@ test("credential validation errors do not contain the rejected secret", () => {
       (error) => !error.message.includes(secret),
     );
   }
+});
+
+test("allows the exact native inbox suite and existing Hermes suites before reset", () => {
+  const server = path.join(root, "suite-validation");
+  const dashboard =
+    "test/integration/graphql/suites/hermes-structure-dashboard.integration-spec.ts";
+  const inbox =
+    "src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.integration-spec.ts";
+  for (const suite of [dashboard, inbox]) {
+    const file = path.join(server, suite);
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, "// Syntax fixture only; not executed.");
+  }
+  assert.doesNotThrow(() =>
+    validateIntegrationSuitePaths([dashboard, inbox], server),
+  );
+  for (const suite of [
+    "../outside.integration-spec.ts",
+    "/tmp/outside.integration-spec.ts",
+    "src/engine/core-modules/other/__tests__/hermes-messaging.integration-spec.ts",
+    "src/engine/core-modules/hermes-messaging/__tests__/other.integration-spec.ts",
+    inbox + "/../other.ts",
+    "--runInBand",
+  ]) {
+    assert.throws(() => validateIntegrationSuitePaths([suite], server));
+  }
+  rmSync(path.join(server, inbox));
+  symlinkSync(path.join(server, dashboard), path.join(server, inbox));
+  assert.throws(() => validateIntegrationSuitePaths([inbox], server));
 });

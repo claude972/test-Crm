@@ -210,14 +210,15 @@ jobs:
           P1_HERMES_BROWSER_SMOKE: ${{ inputs.hermes-checks && 'true' || 'false' }}
           HERMES_B2B_CAMPAIGNS_ENABLED: ${{ inputs.hermes-checks && inputs.browser-smoke && 'true' || 'false' }}
         run: node scripts/check-backend-runtime-p0.mjs
-      - name: Verify registered Hermes APIs against fresh native fixtures
-        if: ${{ inputs.hermes-integration && inputs.hermes-checks && hashFiles('apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-import-state.ts') != '' }}
+      - name: Verify registered Hermes APIs and inbox against fresh native fixtures
+        # Generation writes TS after build; run inbox only after the registered command is compiled.
+        if: ${{ inputs.hermes-integration && inputs.hermes-checks && hashFiles('apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-import-state.ts') != '' && hashFiles('apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-inbox.ts') != '' && hashFiles('apps/crm/ui/packages/twenty-server/dist/database/commands/upgrade-version-command/2-52/*-add-hermes-inbox.js') != '' }}
         working-directory: .
         env:
           PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
           REDIS_URL: redis://127.0.0.1:6379
           P0_INTEGRATION_DISPOSABLE: 'true'
-        run: node scripts/check-hermes-integration-p0.mjs test/integration/graphql/suites/hermes-structure-dashboard.integration-spec.ts test/integration/graphql/suites/hermes-prospection.integration-spec.ts
+        run: node scripts/check-hermes-integration-p0.mjs test/integration/graphql/suites/hermes-structure-dashboard.integration-spec.ts test/integration/graphql/suites/hermes-prospection.integration-spec.ts src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.integration-spec.ts
       - name: Publish browser evidence
         if: ${{ !cancelled() && inputs.browser-smoke }}
         uses: actions/upload-artifact@v4
