@@ -88,6 +88,7 @@ export const mailProviderId = (value: string) =>
 export async function parseHermesMail(input: {
   source: Buffer;
   parsed?: Awaited<ReturnType<typeof PostalMime.parse>>;
+  mimeSha256?: string;
   workspaceId: string;
   connectionId: string;
   mailbox: string;
@@ -149,6 +150,13 @@ export async function parseHermesMail(input: {
       : new Date().toISOString(),
     subject: (parsed.subject ?? '').replace(/[\r\n\x00]/g, ' ').slice(0, 200),
     providerMetadata: {
+      ...(input.mimeSha256 || input.source.length
+        ? {
+            mimeSha256:
+              input.mimeSha256 ??
+              createHash('sha256').update(input.source).digest('hex'),
+          }
+        : {}),
       ...(mailMessageId(parsed.messageId)
         ? { rfcMessageId: mailMessageId(parsed.messageId)! }
         : {}),

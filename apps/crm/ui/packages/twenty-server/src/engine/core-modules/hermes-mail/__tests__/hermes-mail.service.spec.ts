@@ -15,6 +15,11 @@ jest.mock(
   () => ({ SmtpClientProvider: class {} }),
 );
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
+jest.mock(
+  'src/engine/core-modules/hermes-messaging/hermes-messaging-person.service',
+  () => ({ HermesMessagingPersonService: class {} }),
+);
+import { HermesMailboxService } from 'src/engine/core-modules/hermes-mail/hermes-mailbox.service';
 import { HermesMailService } from 'src/engine/core-modules/hermes-mail/hermes-mail.service';
 
 const workspaceId = 'b9c2e7ad-67ed-42be-b687-1a410e60b5ba';
@@ -70,7 +75,9 @@ function fixture(reader?: unknown, media?: unknown) {
     })),
   };
   const messages = {
-    findOne: jest.fn(async () => ({ providerMessageId: '<last@example.com>' })),
+    findOne: jest.fn(async (_options?: unknown) => ({
+      providerMessageId: '<last@example.com>',
+    })),
   };
   const access = {
     assertAllowed: jest.fn(
@@ -94,7 +101,9 @@ function fixture(reader?: unknown, media?: unknown) {
         : [
             {
               uid: 12,
-              size: 500,
+              size: Buffer.byteLength(
+                'From: client@example.com\r\nMessage-ID: <mail@example.com>\r\n\r\nHello',
+              ),
               envelope: { from: [{ address: 'client@example.com' }] },
             },
           ],
@@ -119,7 +128,7 @@ function fixture(reader?: unknown, media?: unknown) {
   };
   const smtp = { getClient: jest.fn(async () => transport) };
   const inbox = {
-    ingest: jest.fn(async (_event: unknown) => ({
+    ingest: jest.fn(async (_event: unknown, _options?: unknown) => ({
       conversationId,
       messageId: 'fixture-message',
       replay: false,
@@ -155,6 +164,7 @@ function fixture(reader?: unknown, media?: unknown) {
     service,
     account,
     accounts,
+    messages,
     cursors,
     access,
     client,
@@ -661,4 +671,197 @@ it('propagates the ingress manager through the central reader, account and membe
     expect.any(Object),
     expect.objectContaining({ assertLive: expect.any(Function) }),
   );
+});
+
+describe('HERMES-V4-MAIL-002 full MIME provenance', () => {
+  it('keeps two physical deliveries with the same RFC id/text/participants and different attachment bytes', async () => {
+    let uid = 12,
+      bodyUid = 12,
+      part = 0;
+    const media = {
+      receive: jest.fn(async () => ({
+        assetId: '54f909f6-0591-48ca-b4ad-7c89a77ea33' + String(++part),
+      })),
+    };
+    const f = fixture(undefined, media);
+    type Stored = {
+      workspaceId: string;
+      channel: string;
+      providerConnectionId: string;
+      providerMessageId: string;
+      direction: string;
+      text: string;
+      contactHandle: string;
+      providerConversationId: string;
+      providerMetadata: Record<string, unknown>;
+      attachmentIds: string[];
+    };
+    const stored: Stored[] = [];
+    const mime = () =>
+      Buffer.from(
+        'From: client@example.com\r\nTo: inbox@example.com\r\nMessage-ID: <reused@example.com>\r\nContent-Type: multipart/mixed; boundary="fixture"\r\n\r\n--fixture\r\nContent-Type: text/plain\r\n\r\nSame text\r\n--fixture\r\nContent-Type: application/pdf\r\nContent-Disposition: attachment; filename="fixture.pdf"\r\nContent-Transfer-Encoding: base64\r\n\r\n' +
+          Buffer.from('%PDF-1.7\nPart ' + bodyUid).toString('base64') +
+          '\r\n--fixture--\r\n',
+      );
+    f.client.search.mockImplementation(async () => [uid]);
+    f.client.fetchAll.mockImplementation(async (_range, query) =>
+      query.source
+        ? ([{ uid, source: mime() }] as never)
+        : ([
+            {
+              uid,
+              size: mime().length,
+              envelope: { from: [{ address: 'client@example.com' }] },
+            },
+          ] as never),
+    );
+    f.messages.findOne.mockImplementation(async (options) => {
+      const where = (options as { where: Record<string, unknown> }).where;
+      const raw = where.providerMetadata as
+        | {
+            getSql?: (alias: string) => string;
+            objectLiteralParameters?: Record<string, unknown>;
+          }
+        | undefined;
+      const params = raw?.objectLiteralParameters ?? {};
+      const sql = raw?.getSql?.('metadata') ?? '';
+      const found = stored.find(
+        (row) =>
+          Object.entries(where).every(
+            ([key, value]) =>
+              key === 'providerMetadata' || row[key as keyof Stored] === value,
+          ) &&
+          (!params.mailRfcId ||
+            row.providerMetadata.rfcMessageId === params.mailRfcId) &&
+          (!params.mailMimeSha256 ||
+            row.providerMetadata.mimeSha256 === params.mailMimeSha256) &&
+          (!sql.includes('IS NULL') || !row.providerMetadata.mimeSha256),
+      );
+      return found
+        ? ({
+            ...found,
+            conversation: {
+              contactHandle: found.contactHandle,
+              providerConversationId: found.providerConversationId,
+            },
+          } as never)
+        : (null as never);
+    });
+    f.inbox.ingest.mockImplementation(async (raw) => {
+      stored.push(raw as Stored);
+      return {
+        conversationId,
+        messageId: 'fixture-message-' + stored.length,
+        replay: false,
+      };
+    });
+    expect(await f.service.sync(actor)).toMatchObject({ received: 1 });
+    uid = 13;
+    bodyUid = 13;
+    expect(await f.service.sync(actor)).toMatchObject({
+      received: 1,
+      replayed: 0,
+    });
+    expect(stored).toHaveLength(2);
+    expect(stored[0].providerMetadata.mimeSha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(stored[0].providerMetadata.mimeSha256).not.toBe(
+      stored[1].providerMetadata.mimeSha256,
+    );
+    expect(stored[0].text).toBe(stored[1].text);
+    expect(stored[0].providerMetadata.rfcMessageId).toBe(
+      stored[1].providerMetadata.rfcMessageId,
+    );
+    expect(stored[0].providerMessageId).not.toBe(stored[1].providerMessageId);
+    expect(stored[0].attachmentIds).not.toEqual(stored[1].attachmentIds);
+    expect(f.inbox.ingest.mock.calls[1][1]).toEqual(
+      expect.objectContaining({ suppressAutomation: true, observedOnly: true }),
+    );
+    uid = 14;
+    expect(await f.service.sync(actor)).toMatchObject({
+      received: 0,
+      replayed: 1,
+    });
+    expect(stored).toHaveLength(2);
+    // Native MOVE changes physical UIDs while preserving the complete MIME.
+    const move = jest.fn(async (_oldUid: string, destination: string) => {
+      uid = destination === 'Archive' ? 20 : 30;
+      return { uidValidity: 123n, uidMap: new Map([[Number(_oldUid), uid]]) };
+    });
+    f.imap.getClient.mockImplementation(
+      async () =>
+        ({
+          ...f.client,
+          list: async () =>
+            ['INBOX', 'Archive'].map((path) => ({ path, flags: new Set() })),
+          messageMove: move,
+        }) as never,
+    );
+    const mailbox = new HermesMailboxService(
+      f.service,
+      f.imap as never,
+      f.access as never,
+    );
+    await mailbox.update(actor, {
+      folder: 'INBOX',
+      uid: '14',
+      uidValidity: '123',
+      destination: 'Archive',
+    });
+    await mailbox.update(actor, {
+      folder: 'Archive',
+      uid: '20',
+      uidValidity: '123',
+      destination: 'INBOX',
+    });
+    expect(await f.service.sync(actor)).toMatchObject({
+      received: 0,
+      replayed: 1,
+    });
+    expect(move).toHaveBeenCalledTimes(2);
+    expect(stored).toHaveLength(2);
+    delete stored[1].providerMetadata.mimeSha256;
+    uid = 15;
+    expect(await f.service.sync(actor)).toMatchObject({
+      received: 1,
+      replayed: 0,
+    });
+    expect(stored).toHaveLength(3);
+    expect(f.inbox.ingest.mock.calls[2][1]).toEqual(
+      expect.objectContaining({ suppressAutomation: true, observedOnly: true }),
+    );
+  });
+  it('imports the first native baseline as observed without running automation', async () => {
+    const f = fixture();
+    f.cursors.findOneBy.mockResolvedValue(null as never);
+    expect(await f.service.sync(actor)).toMatchObject({ received: 1 });
+    expect(f.inbox.ingest).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ suppressAutomation: true, observedOnly: true }),
+    );
+    expect(f.transport.sendMail).not.toHaveBeenCalled();
+  });
+  it('retains authenticated IMAP arrival time through observation instead of trusting a forged Date header', async () => {
+    const f = fixture();
+    const source = Buffer.from(
+      'From: client@example.com\r\nDate: Fri, 30 Oct 2037 12:00:00 +0000\r\nMessage-ID: <arrival-proof@example.com>\r\n\r\nHello',
+    );
+    const internalDate = new Date('2026-10-30T12:00:00.000Z');
+    f.client.fetchAll.mockImplementation(async (_range, query) =>
+      query.source
+        ? ([{ uid: 12, source, internalDate }] as never)
+        : ([
+            {
+              uid: 12,
+              size: source.length,
+              internalDate,
+              envelope: { from: [{ address: 'client@example.com' }] },
+            },
+          ] as never),
+    );
+    expect(await f.service.sync(actor)).toMatchObject({ received: 1 });
+    expect(f.inbox.ingest).toHaveBeenCalledWith(
+      expect.objectContaining({ occurredAt: '2026-10-30T12:00:00.000Z' }),
+      expect.any(Object),
+    );
+  });
 });
