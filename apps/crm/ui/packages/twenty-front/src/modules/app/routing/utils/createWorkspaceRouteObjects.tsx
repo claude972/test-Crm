@@ -9,6 +9,12 @@ import {
 import { type WorkspaceRouteObject } from '@/app/routing/types/WorkspaceRouteObject';
 import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
 import {
+  HERMES_ADMIN_RUNTIME_PATH,
+  HERMES_CAMPAIGN_RUNTIME_PATH,
+  HERMES_MAILBOX_RUNTIME_PATH,
+  HERMES_WA_RUNTIME_PATH,
+} from '@/hermes-shell/constants/HermesRuntimeRoutePaths';
+import {
   PROSPECTION_CAMPAIGN_AUDIENCE_PATH,
   PROSPECTION_RECEPTION_PATH,
 } from '@/prospection/constants/ProspectionRoutePaths';
@@ -82,6 +88,30 @@ const ProspectionCampaignAudiencePage = lazy(() =>
 
 // One route: the channel tab and the opened conversation are search
 // parameters, so a thread reloads and shares without a route parameter.
+const HermesWaRuntimePage = lazy(() =>
+  import('~/pages/hermes/HermesWaRuntimePage').then((module) => ({
+    default: module.HermesWaRuntimePage,
+  })),
+);
+
+const HermesMailboxRuntimePage = lazy(() =>
+  import('~/pages/hermes/HermesMailboxRuntimePage').then((module) => ({
+    default: module.HermesMailboxRuntimePage,
+  })),
+);
+
+const HermesAdminRuntimePage = lazy(() =>
+  import('~/pages/hermes/HermesAdminRuntimePage').then((module) => ({
+    default: module.HermesAdminRuntimePage,
+  })),
+);
+
+const HermesCampaignRuntimePage = lazy(() =>
+  import('~/pages/hermes/HermesCampaignRuntimePage').then((module) => ({
+    default: module.HermesCampaignRuntimePage,
+  })),
+);
+
 const MessagingInboxPage = lazy(() =>
   import('~/pages/messaging/MessagingInboxPage').then((module) => ({
     default: module.MessagingInboxPage,
@@ -215,6 +245,38 @@ export const createWorkspaceRouteObjects = ({
       element: (
         <LazyRoute>
           <MessagingInboxPage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: HERMES_WA_RUNTIME_PATH,
+      element: (
+        <LazyRoute>
+          <HermesWaRuntimePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: HERMES_MAILBOX_RUNTIME_PATH,
+      element: (
+        <LazyRoute>
+          <HermesMailboxRuntimePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: HERMES_ADMIN_RUNTIME_PATH,
+      element: (
+        <LazyRoute>
+          <HermesAdminRuntimePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: HERMES_CAMPAIGN_RUNTIME_PATH,
+      element: (
+        <LazyRoute>
+          <HermesCampaignRuntimePage />
         </LazyRoute>
       ),
     },
