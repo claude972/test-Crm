@@ -1,6 +1,6 @@
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 import { isWorkspaceCustomApplication } from '@/applications/utils/isWorkspaceCustomApplication';
 import { useTheme } from 'kovaa-lab-ui/theme';
 import { isDefined } from 'kovaa-lab-shared/utils';
@@ -27,7 +27,7 @@ export const useApplicationAvatarColors = (
     return undefined;
   }
 
-  if (isKovaaLab CRMStandardApplication(application)) {
+  if (isKovaaLabCRMStandardApplication(application)) {
     return {
       backgroundColor: theme.color.blue3,
       borderColor: theme.color.blue4,

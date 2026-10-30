@@ -1,12 +1,12 @@
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { type KovaaLab CRMUiGalleryStory } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryStory';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryStory } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryStory';
 import { getBuiltStoryComponentPathForRender } from '@/__stories__/utils/getBuiltStoryComponentPathForRender';
 
 type CreateGalleryStoryOptions = {
   frontComponentBundleName: string;
   runtime: 'react' | 'preact';
-  play?: KovaaLab CRMUiGalleryPlayFunction;
-  decorators?: KovaaLab CRMUiGalleryStory['decorators'];
+  play?: KovaaLabCRMUiGalleryPlayFunction;
+  decorators?: KovaaLabCRMUiGalleryStory['decorators'];
 };
 
 export const createGalleryStory = ({
@@ -14,7 +14,7 @@ export const createGalleryStory = ({
   runtime,
   play,
   decorators,
-}: CreateGalleryStoryOptions): KovaaLab CRMUiGalleryStory => ({
+}: CreateGalleryStoryOptions): KovaaLabCRMUiGalleryStory => ({
   args: {
     componentUrl: getBuiltStoryComponentPathForRender(
       `${frontComponentBundleName}.front-component`,

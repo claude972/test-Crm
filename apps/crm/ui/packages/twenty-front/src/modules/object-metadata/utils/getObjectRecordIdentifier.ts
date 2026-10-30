@@ -12,7 +12,7 @@ import { getLinkToShowPage } from './getLinkToShowPage';
 export const getObjectRecordIdentifier = ({
   objectMetadataItem,
   record,
-  allowRequestsToKovaaLab CRMIcons,
+  allowRequestsToKovaaLabCRMIcons,
 }: {
   objectMetadataItem: Pick<
     EnrichedObjectMetadataItem,
@@ -22,7 +22,7 @@ export const getObjectRecordIdentifier = ({
     | 'imageIdentifierFieldMetadataId'
   >;
   record: ObjectRecord;
-  allowRequestsToKovaaLab CRMIcons: boolean;
+  allowRequestsToKovaaLabCRMIcons: boolean;
 }): ObjectRecordIdentifier => {
   const labelIdentifierFieldMetadataItem =
     getLabelIdentifierFieldMetadataItem(objectMetadataItem);
@@ -41,7 +41,7 @@ export const getObjectRecordIdentifier = ({
     objectMetadataItem.nameSingular,
     record,
     imageIdentifierFieldMetadata,
-    allowRequestsToKovaaLab CRMIcons,
+    allowRequestsToKovaaLabCRMIcons,
   );
 
   const linkToShowPage = getLinkToShowPage(

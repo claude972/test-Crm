@@ -24,7 +24,7 @@ export const RecordTableWidgetRelationPickerDropdownContent = ({
     searchFilterText: searchFilter,
     selectedIds: [],
     objectNameSingular,
-    allowRequestsToKovaaLab CRMIcons: true,
+    allowRequestsToKovaaLabCRMIcons: true,
     filter: recordsFilter,
   });
 

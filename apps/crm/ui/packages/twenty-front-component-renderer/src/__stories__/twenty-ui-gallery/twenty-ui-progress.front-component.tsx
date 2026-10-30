@@ -11,7 +11,7 @@ import {
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const ProgressExample = () => {
   const [progress, setProgress] = useState<number | null>(25);
@@ -25,7 +25,7 @@ const ProgressExample = () => {
   };
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Progress parts, ranges and native roots">
+    <KovaaLabCRMUiGalleryCard title="Progress parts, ranges and native roots">
       <ProgressBar
         min={range.min}
         max={range.max}
@@ -127,7 +127,7 @@ const ProgressExample = () => {
       <Button onClick={() => setProgress(150)}>Complete import</Button>
       <Button onClick={() => setProgress(30)}>Reset import</Button>
       <output aria-label="Progress pointer entries">{pointerEntries}</output>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

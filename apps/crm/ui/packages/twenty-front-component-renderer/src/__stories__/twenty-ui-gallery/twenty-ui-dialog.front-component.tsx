@@ -4,7 +4,7 @@ import { openCommandConfirmationModal } from 'kovaa-lab-sdk/front-component';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const DialogExample = () => {
   const [status, setStatus] = useState('idle');
@@ -20,7 +20,7 @@ const DialogExample = () => {
   };
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Host dialog">
+    <KovaaLabCRMUiGalleryCard title="Host dialog">
       <Text>Front components request dialogs through the SDK host API.</Text>
       <Button
         onClick={handleRequestConfirmation}
@@ -29,7 +29,7 @@ const DialogExample = () => {
         Update account
       </Button>
       <Text role="status">Confirmation: {status}</Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

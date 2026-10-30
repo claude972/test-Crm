@@ -3,8 +3,8 @@ import { expect, waitFor, within } from 'storybook/test';
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { MOUNT_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { createGalleryRenderTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/createGalleryRenderTest';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { createGalleryRenderTest } from '@/__stories__/twenty-ui-gallery/utils/createGalleryRenderTest';
 
 export const galleryRenderTest = createGalleryRenderTest({
   expectedFailedComponents: [],
@@ -12,7 +12,7 @@ export const galleryRenderTest = createGalleryRenderTest({
 
 // Monaco cannot load scripts inside the sandbox worker, so the wrapper mounts
 // but the editor's onMount never fires.
-export const codeEditorTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const codeEditorTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);
@@ -28,7 +28,7 @@ export const codeEditorTest: KovaaLab CRMUiGalleryPlayFunction = async ({
   expect(codeEditor).toHaveAttribute('data-monaco-mount-state', 'pending');
 };
 
-export const displayHelpersTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const displayHelpersTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

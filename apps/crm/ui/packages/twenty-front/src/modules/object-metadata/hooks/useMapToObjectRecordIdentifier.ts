@@ -4,10 +4,10 @@ import { type ObjectRecord } from '@/object-record/types/ObjectRecord';
 
 export const useMapToObjectRecordIdentifier = ({
   objectNameSingular,
-  allowRequestsToKovaaLab CRMIcons,
+  allowRequestsToKovaaLabCRMIcons,
 }: {
   objectNameSingular: string;
-  allowRequestsToKovaaLab CRMIcons: boolean;
+  allowRequestsToKovaaLabCRMIcons: boolean;
 }) => {
   const { objectMetadataItem } = useObjectMetadataItem({
     objectNameSingular,
@@ -17,7 +17,7 @@ export const useMapToObjectRecordIdentifier = ({
     return getObjectRecordIdentifier({
       objectMetadataItem,
       record,
-      allowRequestsToKovaaLab CRMIcons,
+      allowRequestsToKovaaLabCRMIcons,
     });
   };
 

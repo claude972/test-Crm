@@ -1,10 +1,10 @@
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { expectAssertionToKeepFailing } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectAssertionToKeepFailing';
-import { expectSliderGalleryMounted } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectSliderGalleryMounted';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { expectAssertionToKeepFailing } from '@/__stories__/twenty-ui-gallery/utils/expectAssertionToKeepFailing';
+import { expectSliderGalleryMounted } from '@/__stories__/twenty-ui-gallery/utils/expectSliderGalleryMounted';
 import { expect } from 'storybook/test';
 
-export const sliderHiddenEdgeThumbTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const sliderHiddenEdgeThumbTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const slider = await expectSliderGalleryMounted(canvasElement);

@@ -1,0 +1,121 @@
+name: P0 frontend baseline
+
+# Owned by Claude per MISSIONS.md / p0-frontend-baseline. Deliberately separate
+# from p0-integrity.yml, which stays Codex's backend checkpoint: a frontend
+# failure must not turn that one red, and vice versa.
+on:
+  push:
+    branches: [fix/claude-frontend-baseline]
+    paths:
+      - '.github/workflows/p0-frontend-baseline.yml'
+      - 'scripts/check-frontend-p0.cjs'
+      - 'apps/crm/ui/packages/twenty-front/**'
+      - 'apps/crm/ui/packages/twenty-front-component-renderer/**'
+      - 'apps/crm/ui/packages/twenty-ui/**'
+      - 'apps/crm/ui/packages/twenty-shared/**'
+  pull_request:
+    branches: [chore/p0-stabilization, main]
+  # Exposed so Codex's combined verification can call this without duplicating it.
+  workflow_call:
+    outputs:
+      bundle-artifact:
+        description: Name of the uploaded front bundle artifact, when the build step produced one.
+        value: ${{ jobs.frontend-bundle.outputs.artifact }}
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # The gate. Deterministic, needs no workspace install, and is the check that
+  # would have caught the defect this mission repairs.
+  frontend-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install isolated verification tools
+        run: npm install --prefix "$RUNNER_TEMP/frontend-p0" --ignore-scripts --no-audit --no-fund typescript@5.9.2
+      - name: Check frontend syntax, internal imports and asset existence
+        env:
+          HERMES_CHECK_MODULES: ${{ runner.temp }}/frontend-p0
+        run: node scripts/check-frontend-p0.cjs
+
+  # Produces the artifact Codex's combined verification consumes. Heavier and,
+  # unlike the gate above, not yet proven in CI: see
+  # docs/verification/frontend-baseline-claude.md for exactly what was and was
+  # not verified locally.
+  frontend-bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs: frontend-sources
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    outputs:
+      artifact: ${{ steps.publish.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install CRM dependencies from the committed immutable lockfile
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      # kovaa-lab-front depends on shared, ui and the renderer, and all three
+      # resolve through "exports" into dist. Building only shared would leave
+      # the front importing directories that do not exist yet.
+      - name: Build the workspace packages the front resolves through dist
+        env:
+          FORCE_COLOR: '0'
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          for package in kovaa-lab-shared kovaa-lab-ui kovaa-lab-front-component-renderer; do
+            node .yarn/releases/yarn-4.18.1.cjs nx build "$package" --skip-nx-cache
+          done
+      - name: Verify each dependency emitted something
+        run: |
+          for package in twenty-shared twenty-ui twenty-front-component-renderer; do
+            test -d "packages/$package/dist"
+            test -n "$(find "packages/$package/dist" -type f -size +1k -print -quit)"
+          done
+      - name: Generate an isolated front configuration
+        working-directory: .
+        run: node scripts/local-project.mjs setup
+      - name: Compile translation catalogues
+        run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
+      # The Vite CLI has already been observed exiting 0 without emitting
+      # anything in this repository (P0-BUILD-001), so the build goes through
+      # the JS API, whose promise rejects on failure.
+      - name: Build the front bundle
+        working-directory: apps/crm/ui/packages/twenty-front
+        env:
+          NODE_ENV: production
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          node --env-file=../../.runtime/front.env --input-type=module \
+            -e 'const { build } = await import("vite"); await build();'
+      # These assertions exist because a zero exit code is not evidence. They
+      # are not to be relaxed to obtain a green run.
+      - name: Verify the emitted bundle is not empty
+        working-directory: apps/crm/ui/packages/twenty-front
+        run: |
+          test -s build/index.html
+          test -n "$(find build/assets -name '*.js' -size +1k -print -quit)"
+          grep -q '<div id="root"></div>' build/index.html
+      - name: Publish the bundle
+        id: publish
+        working-directory: apps/crm/ui/packages/twenty-front
+        run: echo "artifact=front-bundle-${{ github.sha }}" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: front-bundle-${{ github.sha }}
+          path: apps/crm/ui/packages/twenty-front/build
+          if-no-files-found: error
+          retention-days: 7

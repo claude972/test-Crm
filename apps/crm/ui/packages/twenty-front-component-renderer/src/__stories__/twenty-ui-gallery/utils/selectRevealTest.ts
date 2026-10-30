@@ -5,9 +5,9 @@ import { expectElementWithinScrollport } from '@/__stories__/shared/test-utils/m
 import { expectFocusedElementWithinScrollport } from '@/__stories__/shared/test-utils/matchers/expectFocusedElementWithinScrollport';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { findScrollContainerOrThrow } from '@/__stories__/kovaa-lab-ui-gallery/utils/findScrollContainerOrThrow';
-import { openSelectListbox } from '@/__stories__/kovaa-lab-ui-gallery/utils/openSelectListbox';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { findScrollContainerOrThrow } from '@/__stories__/twenty-ui-gallery/utils/findScrollContainerOrThrow';
+import { openSelectListbox } from '@/__stories__/twenty-ui-gallery/utils/openSelectListbox';
 
 const KEYBOARD_STEPS = [
   { key: '{End}', optionName: 'Option 40' },
@@ -17,7 +17,7 @@ const KEYBOARD_STEPS = [
   { key: '{ArrowDown}', optionName: 'Option 02' },
 ];
 
-export const selectRevealTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const selectRevealTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

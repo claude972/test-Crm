@@ -4,7 +4,7 @@ import { Toast } from 'kovaa-lab-ui/components/feedback';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const ToastCountdownExample = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,7 +14,7 @@ const ToastCountdownExample = () => {
   const [progress, setProgress] = useState<number>();
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Toast countdown">
+    <KovaaLabCRMUiGalleryCard title="Toast countdown">
       <Button
         onClick={() => {
           setContentUpdateCount(0);
@@ -57,7 +57,7 @@ const ToastCountdownExample = () => {
         Finish progress
       </Button>
       <Text>Closed notifications: {closeCount}</Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

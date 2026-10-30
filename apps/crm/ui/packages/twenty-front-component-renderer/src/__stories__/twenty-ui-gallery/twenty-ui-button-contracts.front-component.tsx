@@ -1,4 +1,4 @@
-import { ButtonContractsExample } from '@/__stories__/kovaa-lab-ui-gallery/button-contracts-example';
+import { ButtonContractsExample } from '@/__stories__/twenty-ui-gallery/button-contracts-example';
 import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import 'kovaa-lab-ui/style.css';
 import { ThemeProvider } from 'kovaa-lab-ui/theme';

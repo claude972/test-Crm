@@ -1,7 +1,7 @@
 import { useRefetchOnApplicationRegistrationChange } from '@/applications/hooks/useRefetchOnApplicationRegistrationChange';
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
-import { KOVAALAB_CLI_CREATE_APP_COMMANDS } from '@/settings/developers/constants/KovaaLab CRMCliCreateAppCommands';
-import { KOVAALAB_CLI_LOGIN_COMMAND } from '@/settings/developers/constants/KovaaLab CRMCliLoginCommand';
+import { KOVAALAB_CLI_CREATE_APP_COMMANDS } from '@/settings/developers/constants/TwentyCliCreateAppCommands';
+import { KOVAALAB_CLI_LOGIN_COMMAND } from '@/settings/developers/constants/TwentyCliLoginCommand';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { getDocumentationUrl } from '@/support/utils/getDocumentationUrl';
 import { Table } from '@/ui/layout/table/components/Table';

@@ -3,7 +3,7 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { ImageInput } from 'kovaa-lab-ui/components/input';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const IMAGE_SOURCE =
   'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="royalblue"/%3E%3C/svg%3E';
@@ -58,7 +58,7 @@ const ImageInputExample = () => {
   };
 
   return (
-    <KovaaLab CRMUiGalleryCard title="ImageInput">
+    <KovaaLabCRMUiGalleryCard title="ImageInput">
       <ImageInput
         accept="image/png, image/jpeg"
         render={<div role="group" aria-label="Profile image" />}
@@ -119,7 +119,7 @@ const ImageInputExample = () => {
         Uploads: {uploads}; Removals: {removals}; Aborts: {aborts}
       </output>
       <output aria-label="Selected image">{selectedFile}</output>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

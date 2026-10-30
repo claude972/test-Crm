@@ -1,37 +1,37 @@
-import { badgeTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/badgeTest';
-import { currencyPickerTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/currencyPickerTest';
-import { dropdownTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/dropdownTest';
-import { phoneCountryPickerTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/phoneCountryPickerTest';
-import { phoneCountryPickerTriggerTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/phoneCountryPickerTriggerTest';
-import { breadcrumbTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/breadcrumbTest';
-import { imageInputTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/imageInputTest';
-import { overflowingListApiTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/overflowingListApiTest';
-import { overflowingListEventIsolationTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/overflowingListEventIsolationTest';
-import { overflowingListGeometryTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/overflowingListGeometryTest';
-import { overflowingListPopupTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/overflowingListPopupTest';
-import { jsonTreeTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/jsonTreeTest';
-import { inlineBannerTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/inlineBannerTest';
-import { themeTokenTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/themeTokenTest';
-import { tintedIconTileTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/tintedIconTileTest';
-import { animatedIconCrossfadeTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/animatedIconCrossfadeTest';
-import { progressTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/progressTest';
-import { inputTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/inputTest';
-import { numberStepperTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/numberStepperTest';
-import { numberStepperSelectionTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/numberStepperSelectionTest';
-import { numberFieldTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/numberFieldTest';
-import { settingsRowTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/settingsRowTest';
-import { layoutTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/layoutTest';
-import { listItemTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/listItemTest';
-import { resizeHandlePanelTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/resizeHandlePanelTest';
-import { pickerListItemsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/pickerListItemsTest';
-import { iconButtonElevatedTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/iconButtonElevatedTest';
-import { buttonContractsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/buttonContractsTest';
-import { buttonControlsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/buttonControlsTest';
-import { navigationControlsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/navigationControlsTest';
-import { responsiveHooksTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/responsiveHooksTest';
-import { RESPONSIVE_HOOKS_WIDGET_SIZING } from '@/__stories__/kovaa-lab-ui-gallery/constants/RESPONSIVE_HOOKS_WIDGET_SIZING';
-import { dialogTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/dialogTest';
-import { toastCountdownTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/toastCountdownTest';
+import { badgeTest } from '@/__stories__/twenty-ui-gallery/utils/badgeTest';
+import { currencyPickerTest } from '@/__stories__/twenty-ui-gallery/utils/currencyPickerTest';
+import { dropdownTest } from '@/__stories__/twenty-ui-gallery/utils/dropdownTest';
+import { phoneCountryPickerTest } from '@/__stories__/twenty-ui-gallery/utils/phoneCountryPickerTest';
+import { phoneCountryPickerTriggerTest } from '@/__stories__/twenty-ui-gallery/utils/phoneCountryPickerTriggerTest';
+import { breadcrumbTest } from '@/__stories__/twenty-ui-gallery/utils/breadcrumbTest';
+import { imageInputTest } from '@/__stories__/twenty-ui-gallery/utils/imageInputTest';
+import { overflowingListApiTest } from '@/__stories__/twenty-ui-gallery/utils/overflowingListApiTest';
+import { overflowingListEventIsolationTest } from '@/__stories__/twenty-ui-gallery/utils/overflowingListEventIsolationTest';
+import { overflowingListGeometryTest } from '@/__stories__/twenty-ui-gallery/utils/overflowingListGeometryTest';
+import { overflowingListPopupTest } from '@/__stories__/twenty-ui-gallery/utils/overflowingListPopupTest';
+import { jsonTreeTest } from '@/__stories__/twenty-ui-gallery/utils/jsonTreeTest';
+import { inlineBannerTest } from '@/__stories__/twenty-ui-gallery/utils/inlineBannerTest';
+import { themeTokenTest } from '@/__stories__/twenty-ui-gallery/utils/themeTokenTest';
+import { tintedIconTileTest } from '@/__stories__/twenty-ui-gallery/utils/tintedIconTileTest';
+import { animatedIconCrossfadeTest } from '@/__stories__/twenty-ui-gallery/utils/animatedIconCrossfadeTest';
+import { progressTest } from '@/__stories__/twenty-ui-gallery/utils/progressTest';
+import { inputTest } from '@/__stories__/twenty-ui-gallery/utils/inputTest';
+import { numberStepperTest } from '@/__stories__/twenty-ui-gallery/utils/numberStepperTest';
+import { numberStepperSelectionTest } from '@/__stories__/twenty-ui-gallery/utils/numberStepperSelectionTest';
+import { numberFieldTest } from '@/__stories__/twenty-ui-gallery/utils/numberFieldTest';
+import { settingsRowTest } from '@/__stories__/twenty-ui-gallery/utils/settingsRowTest';
+import { layoutTest } from '@/__stories__/twenty-ui-gallery/utils/layoutTest';
+import { listItemTest } from '@/__stories__/twenty-ui-gallery/utils/listItemTest';
+import { resizeHandlePanelTest } from '@/__stories__/twenty-ui-gallery/utils/resizeHandlePanelTest';
+import { pickerListItemsTest } from '@/__stories__/twenty-ui-gallery/utils/pickerListItemsTest';
+import { iconButtonElevatedTest } from '@/__stories__/twenty-ui-gallery/utils/iconButtonElevatedTest';
+import { buttonContractsTest } from '@/__stories__/twenty-ui-gallery/utils/buttonContractsTest';
+import { buttonControlsTest } from '@/__stories__/twenty-ui-gallery/utils/buttonControlsTest';
+import { navigationControlsTest } from '@/__stories__/twenty-ui-gallery/utils/navigationControlsTest';
+import { responsiveHooksTest } from '@/__stories__/twenty-ui-gallery/utils/responsiveHooksTest';
+import { RESPONSIVE_HOOKS_WIDGET_SIZING } from '@/__stories__/twenty-ui-gallery/constants/RESPONSIVE_HOOKS_WIDGET_SIZING';
+import { dialogTest } from '@/__stories__/twenty-ui-gallery/utils/dialogTest';
+import { toastCountdownTest } from '@/__stories__/twenty-ui-gallery/utils/toastCountdownTest';
 import { type Meta } from '@storybook/react-vite';
 import { expect, waitFor, within } from 'storybook/test';
 
@@ -41,42 +41,42 @@ import {
   resetFrontComponentStoryMocks,
 } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { MOUNT_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { type KovaaLab CRMUiGalleryStory as Story } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryStory';
-import { statusControlsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/statusControlsTest';
-import { tagControlsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/tagControlsTest';
-import { PortalBoundsDecorator } from '@/__stories__/kovaa-lab-ui-gallery/components/PortalBoundsDecorator';
-import { OverflowingListInstancesDecorator } from '@/__stories__/kovaa-lab-ui-gallery/components/OverflowingListInstancesDecorator';
-import { portalBoundsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/portalBoundsTest';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryStory as Story } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryStory';
+import { statusControlsTest } from '@/__stories__/twenty-ui-gallery/utils/statusControlsTest';
+import { tagControlsTest } from '@/__stories__/twenty-ui-gallery/utils/tagControlsTest';
+import { PortalBoundsDecorator } from '@/__stories__/twenty-ui-gallery/components/PortalBoundsDecorator';
+import { OverflowingListInstancesDecorator } from '@/__stories__/twenty-ui-gallery/components/OverflowingListInstancesDecorator';
+import { portalBoundsTest } from '@/__stories__/twenty-ui-gallery/utils/portalBoundsTest';
 
-import { createGalleryStory } from '@/__stories__/kovaa-lab-ui-gallery/utils/createGalleryStory';
-import { typographyTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/typographyTest';
+import { createGalleryStory } from '@/__stories__/twenty-ui-gallery/utils/createGalleryStory';
+import { typographyTest } from '@/__stories__/twenty-ui-gallery/utils/typographyTest';
 import {
   codeEditorTest,
   displayHelpersTest,
   galleryRenderTest,
-} from '@/__stories__/kovaa-lab-ui-gallery/utils/galleryRenderTests';
-import { popoverTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/popoverTest';
-import { selectTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/selectTest';
-import { switchTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/switchTest';
-import { tabsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/tabsTest';
+} from '@/__stories__/twenty-ui-gallery/utils/galleryRenderTests';
+import { popoverTest } from '@/__stories__/twenty-ui-gallery/utils/popoverTest';
+import { selectTest } from '@/__stories__/twenty-ui-gallery/utils/selectTest';
+import { switchTest } from '@/__stories__/twenty-ui-gallery/utils/switchTest';
+import { tabsTest } from '@/__stories__/twenty-ui-gallery/utils/tabsTest';
 import { FrontComponentRenderer } from '@/host/components/FrontComponentRenderer';
-import { tooltipEscapeDismissalTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/tooltipEscapeDismissalTest';
-import { radioCardTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/radioCardTest';
-import { checkboxTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/checkboxTest';
-import { fieldControlsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/fieldControlsTest';
-import { radioGroupTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/radioGroupTest';
-import { segmentedControlTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/segmentedControlTest';
-import { sliderRangeTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/sliderRangeTest';
-import { sliderTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/sliderTest';
-import { sliderHiddenEdgeThumbTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/sliderHiddenEdgeThumbTest';
-import { toastTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/toastTest';
-import { avatarImageTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/avatarImageTest';
-import { avatarControlsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/avatarControlsTest';
-import { commandBlockTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/commandBlockTest';
-import { calloutTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/calloutTest';
-import { chipControlsTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/chipControlsTest';
-import { cardCompositionTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/cardCompositionTest';
+import { tooltipEscapeDismissalTest } from '@/__stories__/twenty-ui-gallery/utils/tooltipEscapeDismissalTest';
+import { radioCardTest } from '@/__stories__/twenty-ui-gallery/utils/radioCardTest';
+import { checkboxTest } from '@/__stories__/twenty-ui-gallery/utils/checkboxTest';
+import { fieldControlsTest } from '@/__stories__/twenty-ui-gallery/utils/fieldControlsTest';
+import { radioGroupTest } from '@/__stories__/twenty-ui-gallery/utils/radioGroupTest';
+import { segmentedControlTest } from '@/__stories__/twenty-ui-gallery/utils/segmentedControlTest';
+import { sliderRangeTest } from '@/__stories__/twenty-ui-gallery/utils/sliderRangeTest';
+import { sliderTest } from '@/__stories__/twenty-ui-gallery/utils/sliderTest';
+import { sliderHiddenEdgeThumbTest } from '@/__stories__/twenty-ui-gallery/utils/sliderHiddenEdgeThumbTest';
+import { toastTest } from '@/__stories__/twenty-ui-gallery/utils/toastTest';
+import { avatarImageTest } from '@/__stories__/twenty-ui-gallery/utils/avatarImageTest';
+import { avatarControlsTest } from '@/__stories__/twenty-ui-gallery/utils/avatarControlsTest';
+import { commandBlockTest } from '@/__stories__/twenty-ui-gallery/utils/commandBlockTest';
+import { calloutTest } from '@/__stories__/twenty-ui-gallery/utils/calloutTest';
+import { chipControlsTest } from '@/__stories__/twenty-ui-gallery/utils/chipControlsTest';
+import { cardCompositionTest } from '@/__stories__/twenty-ui-gallery/utils/cardCompositionTest';
 
 const meta: Meta<typeof FrontComponentRenderer> = {
   title: 'FrontComponent/KovaaLab CRM UI Gallery',
@@ -805,7 +805,7 @@ const createMountOnlyPlay =
   }: {
     testId: string;
     expectedCount?: number;
-  }): KovaaLab CRMUiGalleryPlayFunction =>
+  }): KovaaLabCRMUiGalleryPlayFunction =>
   async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

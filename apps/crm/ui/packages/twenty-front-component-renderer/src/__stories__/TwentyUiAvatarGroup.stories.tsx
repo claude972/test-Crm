@@ -4,9 +4,9 @@ import {
   FRONT_COMPONENT_STORY_DEFAULT_ARGS,
   resetFrontComponentStoryMocks,
 } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
-import { type KovaaLab CRMUiGalleryStory as Story } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryStory';
-import { avatarGroupTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/avatarGroupTest';
-import { createGalleryStory } from '@/__stories__/kovaa-lab-ui-gallery/utils/createGalleryStory';
+import { type KovaaLabCRMUiGalleryStory as Story } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryStory';
+import { avatarGroupTest } from '@/__stories__/twenty-ui-gallery/utils/avatarGroupTest';
+import { createGalleryStory } from '@/__stories__/twenty-ui-gallery/utils/createGalleryStory';
 import { FrontComponentRenderer } from '@/host/components/FrontComponentRenderer';
 
 const meta: Meta<typeof FrontComponentRenderer> = {

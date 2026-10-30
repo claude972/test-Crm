@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
-import { wrapCssInKovaaLab CRMUiCascadeLayer } from '@/host/utils/wrapCssInKovaaLab CRMUiCascadeLayer';
+import { wrapCssInKovaaLabCRMUiCascadeLayer } from '@/host/utils/wrapCssInTwentyUiCascadeLayer';
 
 type RemoteStyleRendererProps = {
   cssText?: string;
@@ -29,7 +29,7 @@ export const RemoteStyleRenderer = ({
 
   useEffect(() => {
     if (isDefined(styleRef.current) && isDefined(cssText)) {
-      styleRef.current.textContent = wrapCssInKovaaLab CRMUiCascadeLayer(cssText);
+      styleRef.current.textContent = wrapCssInKovaaLabCRMUiCascadeLayer(cssText);
     }
   }, [cssText]);
 

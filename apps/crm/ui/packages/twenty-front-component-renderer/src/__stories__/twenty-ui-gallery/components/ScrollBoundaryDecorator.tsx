@@ -1,6 +1,6 @@
 import { type Decorator } from '@storybook/react-vite';
 
-import { WIDGET_SCROLL_FRAME_LABEL } from '@/__stories__/kovaa-lab-ui-gallery/constants/WidgetScrollFrameLabel';
+import { WIDGET_SCROLL_FRAME_LABEL } from '@/__stories__/twenty-ui-gallery/constants/WidgetScrollFrameLabel';
 
 export const ScrollBoundaryDecorator: Decorator = (Story) => (
   <div

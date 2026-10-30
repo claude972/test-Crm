@@ -1,9 +1,9 @@
 import { expect, waitFor, within } from 'storybook/test';
 
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { loaderTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/loaderTest';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { loaderTest } from '@/__stories__/twenty-ui-gallery/utils/loaderTest';
 
-export const bannerTest: KovaaLab CRMUiGalleryPlayFunction = async (context) => {
+export const bannerTest: KovaaLabCRMUiGalleryPlayFunction = async (context) => {
   await loaderTest(context);
   const canvas = within(context.canvasElement);
   const banner = canvas.getByRole('status', { name: 'Banner result' });

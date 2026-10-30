@@ -24,7 +24,7 @@ const ROW_STYLE = {
   alignItems: 'center' as const,
 };
 
-const KovaaLab CRMUiComponent = () => {
+const KovaaLabCRMUiComponent = () => {
   const [count, setCount] = useState(0);
 
   return (
@@ -83,5 +83,5 @@ export default defineFrontComponent({
   universalIdentifier: 'test-20ui0-0000-0000-0000-000000000010',
   name: 'kovaa-lab-ui-component',
   description: 'A front component using KovaaLab CRM UI remote components',
-  component: KovaaLab CRMUiComponent,
+  component: KovaaLabCRMUiComponent,
 });

@@ -1,10 +1,10 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { collapsibleTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/collapsibleTest';
-import { resizeHandleTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/resizeHandleTest';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { collapsibleTest } from '@/__stories__/twenty-ui-gallery/utils/collapsibleTest';
+import { resizeHandleTest } from '@/__stories__/twenty-ui-gallery/utils/resizeHandleTest';
 
-export const layoutTest: KovaaLab CRMUiGalleryPlayFunction = async (context) => {
+export const layoutTest: KovaaLabCRMUiGalleryPlayFunction = async (context) => {
   await collapsibleTest(context);
   await resizeHandleTest(context);
   const canvas = within(context.canvasElement);

@@ -1,7 +1,7 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { describe, expect, it } from 'vitest';
 
-import { wrapCssInKovaaLab CRMUiCascadeLayer } from '../wrapCssInKovaaLab CRMUiCascadeLayer';
+import { wrapCssInKovaaLabCRMUiCascadeLayer } from '../wrapCssInTwentyUiCascadeLayer';
 
 const getCssRules = (cssText: string): CSSRule[] => {
   const detachedDocument = document.implementation.createHTMLDocument('');
@@ -30,10 +30,10 @@ const getLayerBlockRules = (cssText: string): CSSLayerBlockRule[] =>
       cssRule instanceof CSSLayerBlockRule,
   );
 
-describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
+describe('wrapCssInKovaaLabCRMUiCascadeLayer', () => {
   it('puts ordinary CSS rules in the kovaa-lab-ui layer', () => {
     const [layerBlock] = getLayerBlockRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer('button{padding:0;background:none}'),
+      wrapCssInKovaaLabCRMUiCascadeLayer('button{padding:0;background:none}'),
     );
 
     expect(layerBlock.name).toBe('kovaa-lab-ui');
@@ -45,7 +45,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('preserves bundled kovaa-lab-ui blocks and wraps the rules around them', () => {
     const layerBlocks = getLayerBlockRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '.monaco-editor{outline-width:0}@layer kovaa-lab-ui{._root_x1_1{display:flex}}button{padding:0}',
       ),
     );
@@ -66,7 +66,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('nests other layer blocks and conditional rules inside kovaa-lab-ui', () => {
     const [layerBlock] = getLayerBlockRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@layer theme{.title{color:red}}@media print{@layer kovaa-lab-ui{.title{color:blue}}}',
       ),
     );
@@ -85,7 +85,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('keeps namespace declarations at the top level', () => {
     const cssRules = getCssRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@namespace svg "http://www.w3.org/2000/svg";svg|circle{fill:red}',
       ),
     );
@@ -101,7 +101,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('preserves import conditions and rewrites minified imports with comments', () => {
     const importRules = getImportRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@import/* theme */"theme.css"/* tokens */layer(base) supports(selector(:focus-visible)) screen and (min-width:1px);@import"reset.css";.title{color:red}',
       ),
     );
@@ -120,7 +120,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('keeps leading layer order statements before imports', () => {
     const cssRules = getCssRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@layer base,theme;@import"theme.css"layer(theme);@import"base.css"layer(base);@layer theme{.title{color:red}}',
       ),
     );
@@ -139,7 +139,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('preserves existing kovaa-lab-ui import layers and order declarations', () => {
     const cssRules = getCssRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@layer kovaa-lab-ui,kovaa-lab-ui.theme;@import"base.css"layer(kovaa-lab-ui);@import"theme.css"layer(kovaa-lab-ui.theme);',
       ),
     );
@@ -154,7 +154,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('preserves existing kovaa-lab-ui sublayer blocks', () => {
     const cssRules = getCssRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@layer kovaa-lab-ui.base;@import"base.css"layer(kovaa-lab-ui.base);@layer kovaa-lab-ui.base{.title{color:red}}',
       ),
     );
@@ -172,7 +172,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('keeps escaped layer identifiers consistent between statements and imports', () => {
     const cssRules = getCssRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         String.raw`@layer fo\.o;@import "theme.css" layer(fo\.o);@layer fo\.o{.title{color:red}}`,
       ),
     );
@@ -192,12 +192,12 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
   it('gives repeated anonymous imports distinct layers across stylesheets', () => {
     const importRules = [
       ...getImportRules(
-        wrapCssInKovaaLab CRMUiCascadeLayer(
+        wrapCssInKovaaLabCRMUiCascadeLayer(
           '@import"theme.css"layer;@import"theme.css"layer;',
         ),
       ),
       ...getImportRules(
-        wrapCssInKovaaLab CRMUiCascadeLayer('@import"theme.css"layer;'),
+        wrapCssInKovaaLabCRMUiCascadeLayer('@import"theme.css"layer;'),
       ),
     ];
     const layerNames = importRules.map((importRule) => importRule.layerName);
@@ -211,7 +211,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('keeps anonymous imports separate from named layers with the same prefix', () => {
     const [anonymousImport, namedImport] = getImportRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@import"base.css"layer;@import"theme.css"layer(anonymous-1);',
       ),
     );
@@ -228,7 +228,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
   ])('preserves escaped and delimited URLs in %s', (cssText) => {
     const [originalImport] = getImportRules(cssText);
     const [layeredImport] = getImportRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(cssText),
+      wrapCssInKovaaLabCRMUiCascadeLayer(cssText),
     );
 
     expect(layeredImport.href).toBe(originalImport.href);
@@ -237,7 +237,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('parses braces in strings and comments without splitting layer blocks', () => {
     const layerBlocks = getLayerBlockRules(
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         '@layer kovaa-lab-ui{.icon::before{content:"}"}/* } */}.title{color:red}',
       ),
     );
@@ -255,10 +255,10 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
 
   it('handles unterminated import tokens and comments', () => {
     expect(() =>
-      wrapCssInKovaaLab CRMUiCascadeLayer(`@import ${'url()'.repeat(10000)}`),
+      wrapCssInKovaaLabCRMUiCascadeLayer(`@import ${'url()'.repeat(10000)}`),
     ).not.toThrow();
     expect(() =>
-      wrapCssInKovaaLab CRMUiCascadeLayer(
+      wrapCssInKovaaLabCRMUiCascadeLayer(
         `@import "theme.css" ${'/*a'.repeat(100000)}`,
       ),
     ).not.toThrow();
@@ -273,7 +273,7 @@ describe('wrapCssInKovaaLab CRMUiCascadeLayer', () => {
     const baseUrl = `data:text/css,${encodeURIComponent(`#${element.id}{color:red}`)}`;
     const themeUrl = `data:text/css,${encodeURIComponent(`#${element.id}{color:blue}`)}`;
 
-    styleElement.textContent = wrapCssInKovaaLab CRMUiCascadeLayer(
+    styleElement.textContent = wrapCssInKovaaLabCRMUiCascadeLayer(
       `@layer base,theme;@import "${themeUrl}" layer(theme);@import "${baseUrl}" layer(base);`,
     );
 

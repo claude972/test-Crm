@@ -1,11 +1,11 @@
 import { isNonEmptyString } from '@sniptt/guards';
 
-import { getKovaaLab CRMUiCascadeLayerName } from '@/host/utils/getKovaaLab CRMUiCascadeLayerName';
+import { getKovaaLabCRMUiCascadeLayerName } from '@/host/utils/getTwentyUiCascadeLayerName';
 
-export const getCssImportRuleInKovaaLab CRMUiCascadeLayer = (
+export const getCssImportRuleInKovaaLabCRMUiCascadeLayer = (
   cssRule: CSSImportRule,
 ): string => {
-  const layerName = getKovaaLab CRMUiCascadeLayerName(cssRule.layerName);
+  const layerName = getKovaaLabCRMUiCascadeLayerName(cssRule.layerName);
   const supportsClause = isNonEmptyString(cssRule.supportsText)
     ? ` supports(${cssRule.supportsText})`
     : '';

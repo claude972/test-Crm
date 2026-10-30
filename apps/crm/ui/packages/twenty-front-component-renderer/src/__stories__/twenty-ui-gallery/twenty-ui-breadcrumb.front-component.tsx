@@ -4,7 +4,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { Breadcrumb } from 'kovaa-lab-ui/primitives/navigation';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const BreadcrumbExample = () => {
   const [activations, setActivations] = useState(0);
@@ -13,7 +13,7 @@ const BreadcrumbExample = () => {
   const [nativeTarget, setNativeTarget] = useState('');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Breadcrumb">
+    <KovaaLabCRMUiGalleryCard title="Breadcrumb">
       <Breadcrumb
         aria-label="Account breadcrumb"
         onClick={() => setActivations((count) => count + 1)}
@@ -85,7 +85,7 @@ const BreadcrumbExample = () => {
         Activations: {activations}; Composed activations: {composedActivations};
         Native activations: {nativeActivations}; Native target: {nativeTarget}
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

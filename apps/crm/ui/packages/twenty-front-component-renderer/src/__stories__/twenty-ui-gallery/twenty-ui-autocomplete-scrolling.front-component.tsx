@@ -4,9 +4,9 @@ import { Autocomplete } from 'kovaa-lab-ui/primitives/input';
 import { DirectionProvider } from 'kovaa-lab-ui/primitives/layout';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
-import { LONG_INPUT_VALUES } from '@/__stories__/kovaa-lab-ui-gallery/constants/LongInputValues';
-import { SCROLLING_OPTION_LABELS } from '@/__stories__/kovaa-lab-ui-gallery/constants/ScrollingOptionLabels';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
+import { LONG_INPUT_VALUES } from '@/__stories__/twenty-ui-gallery/constants/LongInputValues';
+import { SCROLLING_OPTION_LABELS } from '@/__stories__/twenty-ui-gallery/constants/ScrollingOptionLabels';
 
 const LONG_INPUT_STYLE = { inlineSize: 160 };
 
@@ -20,7 +20,7 @@ const AutocompleteScrollingExample = () => {
   const [inlineQuery, setInlineQuery] = useState('');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Autocomplete scrolling">
+    <KovaaLabCRMUiGalleryCard title="Autocomplete scrolling">
       <Autocomplete.Root items={SCROLLING_OPTION_LABELS} autoHighlight={false}>
         <Autocomplete.Input aria-label="Portal option search" />
         <Autocomplete.Portal>
@@ -75,7 +75,7 @@ const AutocompleteScrollingExample = () => {
           </Autocomplete.Root>
         </div>
       </DirectionProvider>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

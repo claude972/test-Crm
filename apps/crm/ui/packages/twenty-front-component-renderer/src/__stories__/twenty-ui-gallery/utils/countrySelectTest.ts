@@ -4,7 +4,7 @@ import { errorHandler } from '@/__stories__/shared/test-utils/createFrontCompone
 import { createWaitForFrontComponentInteraction } from '@/__stories__/shared/test-utils/createWaitForFrontComponentInteraction';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { waitForSandboxRoundTrip } from '@/__stories__/shared/test-utils/waitForSandboxRoundTrip';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 
 type Canvas = ReturnType<typeof within>;
 
@@ -85,7 +85,7 @@ const selectCountry = async ({
   });
 };
 
-export const countrySelectTest: KovaaLab CRMUiGalleryPlayFunction = async (
+export const countrySelectTest: KovaaLabCRMUiGalleryPlayFunction = async (
   context,
 ) => {
   const canvas = within(context.canvasElement);

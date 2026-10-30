@@ -2,7 +2,7 @@ import { AppChip } from '@/applications/components/AppChip';
 import { CurrentApplicationContext } from '@/applications/contexts/CurrentApplicationContext';
 import { useRefetchOnApplicationOperation } from '@/applications/hooks/useRefetchOnApplicationOperation';
 import { useResolvedApplicationDescription } from '@/applications/hooks/useResolvedApplicationDescription';
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 import { isWorkspaceCustomApplication } from '@/applications/utils/isWorkspaceCustomApplication';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { useUpgradeApplication } from '@/marketplace/hooks/useUpgradeApplication';
@@ -128,7 +128,7 @@ export const SettingsApplicationDetails = () => {
     detail?.sourceType === ApplicationRegistrationSourceType.NPM;
 
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
-  const isStandardApplication = isKovaaLab CRMStandardApplication(application);
+  const isStandardApplication = isKovaaLabCRMStandardApplication(application);
   const isCustomApplication = isWorkspaceCustomApplication(
     application,
     currentWorkspace,

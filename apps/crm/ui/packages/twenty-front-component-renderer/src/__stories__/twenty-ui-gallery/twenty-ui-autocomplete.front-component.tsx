@@ -4,7 +4,7 @@ import { Autocomplete, Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 import { ThemeProvider } from 'kovaa-lab-ui/theme';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const FRUITS = ['Apple', 'Banana', 'Cherry', 'かき'];
 
@@ -19,7 +19,7 @@ const AutocompleteExample = () => {
     useState(true);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Autocomplete">
+    <KovaaLabCRMUiGalleryCard title="Autocomplete">
       <ThemeProvider colorScheme="light" applyToRoot={false}>
         <form
           aria-label="Fruit search"
@@ -99,7 +99,7 @@ const AutocompleteExample = () => {
           </Autocomplete.Empty>
         </Autocomplete.Root>
       </ThemeProvider>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

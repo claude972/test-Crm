@@ -5,7 +5,7 @@ import { AvatarGroup } from 'kovaa-lab-ui/components/data-display';
 import { Avatar } from 'kovaa-lab-ui/primitives/data-display';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 import { StatefulGroupAvatar } from './stateful-group-avatar';
 
 const AVATAR_NAMES = ['Ada', 'Bea', 'Cam', 'Dee', 'Eli', 'Fay', 'Gia', 'Hal'];
@@ -22,7 +22,7 @@ const AvatarGroupExample = () => {
   const [linkActivations, setLinkActivations] = useState(0);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="AvatarGroup overflow and composition">
+    <KovaaLabCRMUiGalleryCard title="AvatarGroup overflow and composition">
       <AvatarGroup
         role="group"
         aria-label="Supplied avatars"
@@ -112,7 +112,7 @@ const AvatarGroupExample = () => {
         {buttonActivations}
       </output>
       <output aria-label="Composed link activations">{linkActivations}</output>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

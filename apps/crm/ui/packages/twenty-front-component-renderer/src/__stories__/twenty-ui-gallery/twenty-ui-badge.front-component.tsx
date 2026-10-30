@@ -5,7 +5,7 @@ import { IconStar } from 'kovaa-lab-ui/icon';
 import { Badge } from 'kovaa-lab-ui/primitives/data-display';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const BadgeExample = () => {
   const [count, setCount] = useState(3);
@@ -15,7 +15,7 @@ const BadgeExample = () => {
   const [linkActivations, setLinkActivations] = useState(0);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Badge content, appearance and native roots">
+    <KovaaLabCRMUiGalleryCard title="Badge content, appearance and native roots">
       <div
         style={{
           display: 'flex',
@@ -141,7 +141,7 @@ const BadgeExample = () => {
         </output>
         <output aria-label="Badge link activations">{linkActivations}</output>
       </div>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

@@ -1,4 +1,4 @@
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 import { isWorkspaceCustomApplication } from '@/applications/utils/isWorkspaceCustomApplication';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
@@ -20,7 +20,7 @@ export const isThirdPartyApplication = ({
 }): boolean => {
   return (
     isDefined(application) &&
-    !isKovaaLab CRMStandardApplication(application) &&
+    !isKovaaLabCRMStandardApplication(application) &&
     !isWorkspaceCustomApplication(application, currentWorkspace)
   );
 };

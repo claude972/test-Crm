@@ -9,12 +9,12 @@ export const recordStoreIdentifiersFamilySelector = createAtomFamilySelector<
   ObjectRecordIdentifier[],
   {
     recordIds: string[];
-    allowRequestsToKovaaLab CRMIcons: boolean;
+    allowRequestsToKovaaLabCRMIcons: boolean;
   }
 >({
   key: 'recordStoreIdentifiersFamilySelector',
   get:
-    ({ recordIds, allowRequestsToKovaaLab CRMIcons }) =>
+    ({ recordIds, allowRequestsToKovaaLabCRMIcons }) =>
     ({ get }) => {
       const objectMetadataItems = get(objectMetadataItemsSelector);
 
@@ -36,7 +36,7 @@ export const recordStoreIdentifiersFamilySelector = createAtomFamilySelector<
           return getObjectRecordIdentifier({
             objectMetadataItem: objectMetadataItem,
             record: recordFromStore,
-            allowRequestsToKovaaLab CRMIcons,
+            allowRequestsToKovaaLabCRMIcons,
           });
         })
         .filter(isDefined);

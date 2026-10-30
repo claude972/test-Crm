@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 import { type SettingsFieldType } from '@/settings/data-model/types/SettingsFieldType';
 import { getSettingsFieldTypeConfig } from '@/settings/data-model/utils/getSettingsFieldTypeConfig';
-import { type IconComponent, IconKovaaLab CRMStar } from 'kovaa-lab-ui/icon';
+import { type IconComponent, IconTwentyStar } from 'kovaa-lab-ui/icon';
 import { useTheme, themeCssVariables } from 'kovaa-lab-ui/theme';
 
 type SettingsObjectFieldDataTypeProps = {
@@ -71,7 +71,7 @@ export const SettingsObjectFieldDataType = ({
   const { i18n } = useLingui();
   const fieldTypeConfig = getSettingsFieldTypeConfig(value);
   const Icon: IconComponent =
-    IconFromProps ?? fieldTypeConfig?.Icon ?? IconKovaaLab CRMStar;
+    IconFromProps ?? fieldTypeConfig?.Icon ?? IconTwentyStar;
   const label =
     labelFromProps ??
     (isDefined(fieldTypeConfig) ? i18n._(fieldTypeConfig.label) : undefined);
