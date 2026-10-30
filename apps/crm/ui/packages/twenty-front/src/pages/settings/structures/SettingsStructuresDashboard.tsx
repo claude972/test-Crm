@@ -1,46 +1,25 @@
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
-import { t } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
 import { Trans } from '@lingui/react/macro';
 import { Section } from 'kovaa-lab-ui/components/layout';
-import { MOBILE_VIEWPORT, themeCssVariables } from 'kovaa-lab-ui/theme';
+import { Tag } from 'kovaa-lab-ui/primitives/data-display';
+import { OverflowingTextWithTooltip } from 'kovaa-lab-ui/primitives/typography';
+import { themeCssVariables } from 'kovaa-lab-ui/theme';
 import { SettingsPath } from 'kovaa-lab-shared/types';
 import { getSettingsPath, isDefined } from 'kovaa-lab-shared/utils';
 
+import { SettingsEmptyPlaceholder } from '@/settings/components/SettingsEmptyPlaceholder';
 import { SettingsPageContainer } from '@/settings/components/SettingsPageContainer';
 import { SettingsPageLayout } from '@/settings/components/layout/SettingsPageLayout';
 import { StructureMetricValue } from '@/structures/components/StructureMetricValue';
 import { HERMES_STRUCTURE_DASHBOARD } from '@/structures/graphql/metadata-queries/hermesStructureDashboard';
 import { type HermesStructureDashboard } from '@/structures/types/HermesStructureDashboard';
-
-const StyledGrid = styled.div`
-  display: grid;
-  gap: ${themeCssVariables.spacing[2]};
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-
-  @media (max-width: ${MOBILE_VIEWPORT}px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const StyledCard = styled.div`
-  border: 1px solid ${themeCssVariables.border.color.medium};
-  border-radius: ${themeCssVariables.border.radius.md};
-  display: grid;
-  gap: ${themeCssVariables.spacing[1]};
-  padding: ${themeCssVariables.spacing[3]};
-`;
-
-const StyledMetricKey = styled.span`
-  color: ${themeCssVariables.font.color.tertiary};
-  font-size: ${themeCssVariables.font.size.sm};
-`;
-
-const StyledStructureName = styled.h3`
-  font-size: ${themeCssVariables.font.size.md};
-  font-weight: ${themeCssVariables.font.weight.medium};
-  margin: 0;
-`;
+import { Table } from '@/ui/layout/table/components/Table';
+import { TableBody } from '@/ui/layout/table/components/TableBody';
+import { TableCell } from '@/ui/layout/table/components/TableCell';
+import { TableHeader } from '@/ui/layout/table/components/TableHeader';
+import { TableRow } from '@/ui/layout/table/components/TableRow';
 
 const StyledNote = styled.p`
   color: ${themeCssVariables.font.color.tertiary};
@@ -48,18 +27,16 @@ const StyledNote = styled.p`
   margin: 0;
 `;
 
-// Metric keys the contract defines for this first batch. Counts only: the
-// contract is explicit that no amount or currency is summed here.
-const METRIC_LABELS: Record<string, string> = {
-  companies: t`Companies`,
-  people: t`People`,
-  opportunities: t`Opportunities`,
-  tasks: t`Tasks`,
-};
-
-const getMetricLabel = (key: string): string => METRIC_LABELS[key] ?? key;
+const StyledCompanyCell = styled.div`
+  align-items: center;
+  display: flex;
+  gap: ${themeCssVariables.spacing[2]};
+  min-width: 0;
+`;
 
 export const SettingsStructuresDashboard = () => {
+  const { t } = useLingui();
+
   const { data, loading, error } = useQuery<{
     hermesStructureDashboard: HermesStructureDashboard;
   }>(HERMES_STRUCTURE_DASHBOARD, {
@@ -71,6 +48,24 @@ export const SettingsStructuresDashboard = () => {
   });
 
   const dashboard = data?.hermesStructureDashboard;
+
+  // Counts only: the contract is explicit that no amount or currency is summed
+  // here.
+  const METRIC_LABELS: Record<string, string> = {
+    companies: t`Companies`,
+    people: t`People`,
+    opportunities: t`Opportunities`,
+    tasks: t`Tasks`,
+  };
+
+  // The columns follow the server's own ordering of the totals, so a metric
+  // added to the contract appears without a frontend change, and a row that is
+  // missing one still lines up with the header.
+  const metricKeys = dashboard?.totals.map((total) => total.key) ?? [];
+
+  const gridTemplateColumns = `minmax(0, 1.5fr) ${metricKeys
+    .map(() => 'minmax(0, 1fr)')
+    .join(' ')}`;
 
   return (
     <SettingsPageLayout
@@ -103,58 +98,104 @@ export const SettingsStructuresDashboard = () => {
         )}
 
         {isDefined(dashboard) && dashboard.structures.length === 0 && (
-          <StyledNote>
-            <Trans>No access yet. Ask an administrator.</Trans>
-          </StyledNote>
+          <SettingsEmptyPlaceholder>
+            {t`No access yet. Ask an administrator.`}
+          </SettingsEmptyPlaceholder>
         )}
 
         {isDefined(dashboard) && dashboard.structures.length > 0 && (
-          <>
+          <Section.Root>
+            <Section.Header title={t`Across your companies`} />
+
             {dashboard.partial && (
               <StyledNote>
                 <Trans>Partial totals: some companies did not answer.</Trans>
               </StyledNote>
             )}
 
-            <Section.Root>
-              <Section.Header title={t`Across your companies`} />
-              <StyledGrid>
-                {dashboard.totals.map((total) => (
-                  <StyledCard key={total.key}>
-                    <StyledMetricKey>
-                      {getMetricLabel(total.key)}
-                    </StyledMetricKey>
-                    <StructureMetricValue metric={total} />
-                  </StyledCard>
+            <Table>
+              <TableRow gridTemplateColumns={gridTemplateColumns}>
+                <TableHeader>{t`Company`}</TableHeader>
+                {metricKeys.map((key) => (
+                  <TableHeader key={key} align="right">
+                    {METRIC_LABELS[key] ?? key}
+                  </TableHeader>
                 ))}
-              </StyledGrid>
-            </Section.Root>
+              </TableRow>
 
-            {dashboard.structures.map((row) => (
-              <Section.Root key={row.structure.workspaceId}>
-                <StyledStructureName>
-                  {row.structure.isCurrent
-                    ? t`${row.structure.displayName} — current`
-                    : row.structure.displayName}
-                </StyledStructureName>
-                {row.structure.requiresAuthentication && (
-                  <StyledNote>
-                    <Trans>Sign in to this company to see its data.</Trans>
-                  </StyledNote>
-                )}
-                <StyledGrid>
-                  {row.metrics.map((metric) => (
-                    <StyledCard key={metric.key}>
-                      <StyledMetricKey>
-                        {getMetricLabel(metric.key)}
-                      </StyledMetricKey>
-                      <StructureMetricValue metric={metric} />
-                    </StyledCard>
+              <TableBody>
+                {/* The totals ride in the same grid as the rows beneath them,
+                    so a figure and its sum sit in one column rather than in
+                    two separately styled blocks. */}
+                <TableRow gridTemplateColumns={gridTemplateColumns}>
+                  <TableCell color={themeCssVariables.font.color.secondary}>
+                    {t`All your companies`}
+                  </TableCell>
+                  {dashboard.totals.map((total) => (
+                    <TableCell key={total.key} align="right">
+                      <StructureMetricValue metric={total} />
+                    </TableCell>
                   ))}
-                </StyledGrid>
-              </Section.Root>
-            ))}
-          </>
+                </TableRow>
+
+                {dashboard.structures.map((row) => {
+                  const metricByKey = new Map(
+                    row.metrics.map((metric) => [metric.key, metric]),
+                  );
+
+                  return (
+                    <TableRow
+                      key={row.structure.workspaceId}
+                      gridTemplateColumns={gridTemplateColumns}
+                    >
+                      <TableCell
+                        color={themeCssVariables.font.color.primary}
+                        overflow="hidden"
+                      >
+                        <StyledCompanyCell>
+                          <OverflowingTextWithTooltip
+                            text={row.structure.displayName}
+                          />
+                          {row.structure.isCurrent && (
+                            <Tag color="blue" variant="soft" weight="medium">
+                              {t`Current`}
+                            </Tag>
+                          )}
+                          {row.structure.requiresAuthentication && (
+                            <Tag
+                              color="gray"
+                              variant="outline"
+                              borderStyle="dashed"
+                            >
+                              {t`Sign in required`}
+                            </Tag>
+                          )}
+                        </StyledCompanyCell>
+                      </TableCell>
+
+                      {metricKeys.map((key) => {
+                        const metric = metricByKey.get(key);
+
+                        return (
+                          <TableCell key={key} align="right">
+                            {isDefined(metric) ? (
+                              <StructureMetricValue metric={metric} />
+                            ) : (
+                              // The server did not report this metric for this
+                              // company. An empty cell would read as a zero.
+                              <Tag color="gray" variant="soft">
+                                {t`Unavailable`}
+                              </Tag>
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Section.Root>
         )}
       </SettingsPageContainer>
     </SettingsPageLayout>
