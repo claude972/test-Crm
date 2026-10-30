@@ -19,6 +19,7 @@ import { REST_API_BASE_URL } from '@/apollo/constants/RestApiBaseUrl';
 import { type ApolloManager } from '@/apollo/types/ApolloManager';
 import { isSessionSupersededGraphQLError } from '@/apollo/utils/isSessionSupersededGraphQLError';
 import { buildExpectedWorkspaceHeaders } from '@/apollo/utils/buildExpectedWorkspaceHeaders';
+import { resolveExpectedWorkspaceId } from '@/apollo/utils/resolveExpectedWorkspaceId';
 import { isMutationOperation } from '@/apollo/utils/isMutationOperation';
 import { isSupersededSessionServerError } from '@/apollo/utils/isSupersededSessionServerError';
 import { isUnauthenticatedGraphQLError } from '@/apollo/utils/isUnauthenticatedGraphQLError';
@@ -53,6 +54,9 @@ export interface Options {
   extraLinks?: ApolloLink[];
   isDebugMode?: boolean;
   appVersion?: string;
+  // The workspace this client is built for. Captured once, never updated:
+  // switching workspace must build a new client rather than retarget this one.
+  expectedWorkspaceId?: string | null;
 }
 
 export class ApolloFactory implements ApolloManager {
@@ -78,11 +82,17 @@ export class ApolloFactory implements ApolloManager {
       extraLinks,
       isDebugMode,
       appVersion,
+      expectedWorkspaceId,
     } = opts;
 
     this.currentWorkspaceMember = currentWorkspaceMember;
     this.currentWorkspace = currentWorkspace;
     this.appVersion = appVersion;
+
+    // A local const, deliberately not a field: updateCurrentWorkspace must not
+    // be able to retarget a client that was already built.
+    const instanceWorkspaceId =
+      expectedWorkspaceId ?? currentWorkspace?.id ?? null;
 
     const buildApolloLink = (): ApolloLink => {
       const uploadLink = new UploadHttpLink({
@@ -98,6 +108,21 @@ export class ApolloFactory implements ApolloManager {
       const restLink = new RestLink({
         uri: REST_API_BASE_URL,
         credentials: 'include',
+      });
+
+      // Synchronous and first in the chain: the workspace is fixed before any
+      // await, so a late callback from the previous client still carries the
+      // workspace it was built for and the server rejects it.
+      const expectedWorkspaceLink = new ApolloLink((operation, forward) => {
+        operation.setContext((context: Record<string, unknown>) => ({
+          ...context,
+          expectedWorkspaceId: resolveExpectedWorkspaceId(
+            context.expectedWorkspaceId,
+            instanceWorkspaceId,
+          ),
+        }));
+
+        return forward(operation);
       });
 
       const authLink = setContext(async (_, context) => {
@@ -303,6 +328,7 @@ export class ApolloFactory implements ApolloManager {
 
       // Cast because third-party links (apollo-link-rest, apollo-upload-client) reference their own ApolloLink type.
       const links = [
+        expectedWorkspaceLink,
         supersededSessionRetryLink,
         errorLink,
         authLink,
