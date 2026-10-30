@@ -20,7 +20,7 @@ Insert after the backend compile step (repository-root working directory):
   env:
     PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
     REDIS_URL: redis://127.0.0.1:6379
-  run: node scripts/check-hermes-migration-ci.mjs --generate
+  run: node scripts/check-hermes-migration-ci.mjs --generate --reset-after-generation
 - name: Publish generated Hermes migration for review
   if: ${{ always() && inputs.runtime-smoke }}
   uses: actions/upload-artifact@v4
@@ -30,6 +30,8 @@ Insert after the backend compile step (repository-root working directory):
     if-no-files-found: error
     retention-days: 7
 ```
+
+**The shown generation command resets the disposable database after successful validation.** It first verifies that all fixture workspaces were removed, closes its connections, connects to the same loopback service’s `postgres` administrative catalog using the same run-ID credential, verifies ownership of the fixed `p0_ci` database, and drops/recreates only `p0_ci`. This allows the following native runtime smoke to initialize a genuinely empty database. The generated migration is not in the already compiled manifest; that following baseline smoke does not prove Hermes activation. After artifact application/rebuild, `--verify-existing` provides that execution proof on another fresh database. Omit `--reset-after-generation` when using a dedicated generation-only job; it then leaves the validated disposable schema in place.
 
 The script runs the established `dist/database/scripts/setup-db.js` and `run-instance-commands --force --include-slow`, then the official command:
 

@@ -312,6 +312,16 @@ async function checkImportTransactions(requireFromServer, database) {
 export async function main() {
   const mode = process.argv[2] ?? '--generate';
   assert.ok(['--generate', '--verify-existing'].includes(mode));
+  const resetAfterGeneration = process.argv[3] === '--reset-after-generation';
+  assert.ok(
+    process.argv.length <= 4 &&
+      (process.argv.length < 4 || resetAfterGeneration),
+    'Unknown arguments',
+  );
+  assert.ok(
+    !resetAfterGeneration || mode === '--generate',
+    'Reset is only available in generation mode',
+  );
   const database = assertDisposableTarget(process.env);
   for (const directory of [root, path.join(root, 'apps/crm/ui'), server]) {
     const privateFiles = readdirSync(directory).filter(
@@ -392,6 +402,7 @@ export async function main() {
     connectionTimeoutMillis: 10_000,
     statement_timeout: 30_000,
   });
+  let mainConnectionEnded = false;
   try {
     await client.connect();
     assert.equal(
@@ -572,6 +583,45 @@ export async function main() {
       ]),
       (error) => error.code === '23503',
     );
+    if (resetAfterGeneration) {
+      assert.equal(
+        (
+          await client.query(
+            'SELECT count(*)::int AS count FROM "core"."workspace"',
+          )
+        ).rows[0].count,
+        0,
+        'All synthetic workspaces must be removed before reset',
+      );
+      await client.end();
+      mainConnectionEnded = true;
+      // The only administrative target is the disposable service's postgres
+      // catalog; SQL identifiers below are fixed, never user controlled.
+      assertDisposableTarget(process.env);
+      const adminUrl = new URL(database.href);
+      adminUrl.pathname = '/postgres';
+      const admin = new Client({
+        connectionString: adminUrl.href,
+        connectionTimeoutMillis: 10_000,
+        statement_timeout: 30_000,
+      });
+      try {
+        await admin.connect();
+        assert.equal(
+          (await admin.query('SELECT current_database() AS name')).rows[0].name,
+          'postgres',
+        );
+        const target = await admin.query(
+          "SELECT pg_get_userbyid(datdba) = current_user AS owned FROM pg_database WHERE datname = 'p0_ci'",
+        );
+        assert.equal(target.rows[0]?.owned, true);
+        await admin.query('DROP DATABASE "p0_ci" WITH (FORCE)');
+        await admin.query('CREATE DATABASE "p0_ci" OWNER "postgres"');
+        report.disposableDatabaseReset = true;
+      } finally {
+        await admin.end();
+      }
+    }
     report.status = 'passed';
     report.migration = relativeMigration;
     report.generatedTimestamp = timestamp;
@@ -585,7 +635,7 @@ export async function main() {
     throw new Error(report.error);
   } finally {
     saveReport();
-    await client.end();
+    if (!mainConnectionEnded) await client.end();
   }
 }
 
