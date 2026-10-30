@@ -57,12 +57,24 @@ type ReceiptSource = 'FORM' | 'WHATSAPP' | 'EMAIL' | 'SCRAPING';
 type ReceiptClassification = 'TO_QUALIFY' | 'COMMERCIAL_REQUEST' | 'CUSTOMER_REPLY'
   | 'TECHNICAL' | 'SPAM' | 'REVIEW_REQUIRED';
 type QualificationStatus = 'PENDING' | 'QUALIFIED' | 'REJECTED' | 'REVIEW_REQUIRED';
+type ReceiptProvenance =
+  | { kind: 'MESSAGE'; messageId: string; conversationId: string }
+  | { kind: 'FORM'; formId: string; submissionId: string }
+  | { kind: 'IMPORT_BATCH'; batchId: string; rowId: string | null };
+type ReceiptQualificationAudit = {
+  id: string; revision: string; actorUserWorkspaceId: string; occurredAt: string;
+  classification: ReceiptClassification; qualificationStatus: QualificationStatus;
+  reasonCode: string | null;
+};
 type ReceptionReceipt = {
   id: string; workspaceId: string; source: ReceiptSource; connectionId: string;
-  externalEventId: string; receivedAt: string; classification: ReceiptClassification;
+  externalEventId: string; receivedAt: string; provenance: ReceiptProvenance[];
+  classification: ReceiptClassification;
   qualificationStatus: QualificationStatus; personId: string | null;
   companyId: string | null; opportunityId: string | null;
   ownerUserWorkspaceId: string | null; revision: string; reasonCode: string | null;
+  qualifiedByUserWorkspaceId: string | null; qualifiedAt: string | null;
+  qualificationAudit: ReceiptQualificationAudit[];
 };
 type CampaignSenderIdentity = {
   id: string; workspaceId: string; mailboxId: string; transportBindingId: string;
@@ -72,14 +84,21 @@ type CampaignSenderIdentity = {
 type Capability = { allowed: boolean; reasonCode: string | null };
 type CampaignCapabilities = {
   preview: Capability; testSynthetic: Capability; schedule: Capability; send: Capability;
+  cancel: Capability;
   identityRevision: string | null; checkedAt: string;
 };
 type ObservedMetric = {
   value: number | null; available: boolean; observedAt: string | null;
   evidence: 'SMTP_ACCEPTED' | 'PROVIDER_DELIVERED' | 'REPLY_OBSERVED'
-    | 'OPEN_OBSERVED' | 'CLICK_OBSERVED';
+    | 'OPEN_OBSERVED' | 'CLICK_OBSERVED' | 'FAILED' | 'UNCONFIRMED';
 };
 ```
+
+La provenance est non vide : WHATSAPP/EMAIL porte un lien MESSAGE vers le message et sa conversation, FORM un lien FORM vers la soumission, SCRAPING un lien IMPORT_BATCH vers le lot et, si connue, sa ligne. Les liens supplémentaires attestés sont conservés, sans copier les corps privés. Tous les IDs liés, y compris acteurs/owner et Person/Company/Opportunity, sont résolus et contrôlés serveur dans le même workspace ; un lien message/conversation doit aussi correspondre au même fil. Aucun ID libre d'une autre société ne peut être attaché ou révélé.
+
+`qualificationAudit` est append-only : chaque classement/décision de qualification conserve état résultant, raison, revision, acteur autorisé et vivant au moment de la mutation et date serveur, y compris rejet, révision ou remise en revue. `qualifiedByUserWorkspaceId`/`qualifiedAt` sont renseignés ensemble pour la qualification courante `QUALIFIED` ; ils sont tous deux `null` dans les autres états, dont la décision/acteur/date restent dans l'audit. Une révocation ultérieure de l'acteur n'invalide ni ne supprime cet historique. Une requalification crée un événement, sans écraser l'historique. L'audit est filtré selon droits et ne confond pas date de réception et date de qualification.
+
+`ObservedMetric` distingue preuve d'acceptation SMTP, livraison attestée, réponse reçue/corrélée, échec établi (`FAILED`) et issue incertaine (`UNCONFIRMED`). `available:false` impose `value:null`, jamais zéro ; un zéro disponible exige une mesure. Une valeur incertaine compte les remises sans issue confirmée, pas des livraisons ni des échecs prouvés ; timeout seul ne vaut pas FAILED. `observedAt` date l'observation et les preuves sont corrélées côté serveur au même workspace/campagne/destinataire, sans exposition du payload privé.
 
 `VERIFIED` doit être accompagné côté serveur de preuve de délégation/identité et fraîcheur ; une valeur de formulaire ne le fixe pas. Les alias ne sont retournés qu'aux rôles autorisés. Les identités de transport sont des IDs opaques, jamais host/login/password. Les données brutes et totaux sont filtrés serveur avant pagination pour ne pas révéler des fiches étrangères/interdites.
 
@@ -125,7 +144,7 @@ Toujours conserver session/permission WORKSPACE, feature `IS_MESSAGE_CAMPAIGN_EN
 | DRAFT/preview | `previewMessageCampaignAudience` et `previewMessageCampaignSend` conservent zéro émission ; sauvegarde n'envoie pas |
 | Test | `sendMessageCampaignTest` émet réellement ; restriction serveur à une allowlist de destinations synthétiques de recette, jamais prospects réels ; aucun envoi dans cette phase documentaire |
 | Programmer/envoyer | `sendMessageCampaign({campaignId,scheduledAt?})` sous tous guards ; date/fuseau et revue explicites ; dernière exclusion/identité revérifiée au départ |
-| Annuler | `cancelMessageCampaign` déprogramme ou annule les lignes encore évitables ; ne rappelle pas SMTP déjà accepté/en vol |
+| Annuler | `CampaignCapabilities.cancel` expose droit/état courant et motif de refus ; `cancelMessageCampaign` recontrôle ces conditions serveur et déprogramme ou annule les lignes encore évitables ; une ligne déjà envoyée/remise au transport est irrévocable, aucun rappel SMTP accepté/en vol |
 | Résultats | accepté SMTP, livré attesté, échec, incertain, réponse, ouverture/clic observés distincts ; inconnu ≠ zéro |
 
 Opposition durable par société et portée native/topic, jamais effacée par réimport/changement d'owner/suppression d'un lot. Recontrôle avant remise au driver, y compris opposition après aperçu ou programmation. Tracking OFF ne génère ni pixel ni lien de suivi ; refus tracking distinct d'opposition marketing. Bounce/plainte entrants nécessitent provenance authentifiée avant effet. Pas de prospection WhatsApp massive.
@@ -139,6 +158,7 @@ Matrice ultérieure, **non exécutée dans cette livraison** :
 | Scénario | Résultat exigé |
 |---|---|
 | Même demande formulaire puis WA/mail, writers simultanés | un contact sûr réutilisé ; ambiguïté en revue ; provenance de chaque reçu intacte |
+| Provenance message/fil, formulaire/soumission et lot/ligne ; qualification puis remise en revue | liens typés même workspace et fil vérifiés ; qualifiedBy/At cohérents, historique append-only de chaque décision ; lien étranger refusé |
 | Client répond, notification ou spam reçu | classement correct, aucune Opportunity/campagne automatique |
 | Lot signé rejoué, altéré, nonce expiré, replay store indisponible | rejets sûrs ; lot identique réaccepté avec nouveau nonce = mêmes IDs ; zéro doublon |
 | Réimport d'un opposé | opposition conservée et exclusion durable, pas de réabonnement |
@@ -147,8 +167,9 @@ Matrice ultérieure, **non exécutée dans cette livraison** :
 | From non autorisé dans le bon domaine | refus serveur avant transport ; alias explicitement délégué seulement accepté |
 | DRAFT, aperçu, test hors allowlist | zéro émission pour DRAFT/aperçu ; test non synthétique refusé serveur |
 | SMTP synthétique autorisé + réponse | session/identité exacte attestées, acceptation séparée livraison, réponse au bon fil |
-| Opposition/révocation après scheduling, annulation en vol | tous départs évitables bloqués, limite d'annulation honnête |
-| Reçu SMTP perdu, restart worker | incertain sans second envoi ; état/statistique non falsifié |
+| Annulation permise/interdite, campagne programmée puis transport déjà parti | capacité cancel et motif cohérents ; refus serveur hors droits/état, seuls départs évitables bloqués ; envoyé irrévocable |
+| Opposition/révocation après scheduling | tous départs évitables bloqués, aucune reprise automatique |
+| Accepté SMTP, livraison attestée, échec établi, reçu SMTP perdu puis restart | métriques SMTP_ACCEPTED/PROVIDER_DELIVERED/FAILED/UNCONFIRMED distinctes ; réponse reçue non assimilée à livré ; inconnu sans faux zéro, incertain sans second envoi |
 | Tracking OFF et état non configuré | aucun pixel/lien ; motif clair, aucune capacité live simulée |
 
 Contrôles réellement effectués : règles/mission distante/plan/audit acceptés lus, contrats V2 et sources ciblées au SHA333 confrontés, signatures et valeurs natives relues ; contrôle documentaire whitespace. Aucun build, test applicatif/runtime, DB, provider, secret/configuration, média ou campagne réelle, ni preview CRM V3. Publication/revue croisée exact SHA par root restent nécessaires. Les maquettes portent des données fictives sans API ; configuration externe, mailbox exacte et persistance pipeline restent non vérifiées. Validation visuelle détaillée avant phases 2–8/câblage.

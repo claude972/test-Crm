@@ -78,6 +78,8 @@ Une ancienne exception devenue trop permissive est conservée pour audit mais ne
 | ASSISTED | oui sous capacités | oui, sélection/révision humaine | jamais | clic humain distinct obligatoire |
 | OFF complet | aucun appel | suggestions invalidées, aucun nouveau draft MCP | jamais | oui |
 
+La proposition V2 `hermesStopConversationBot` est supersédée par `hermesSetConversationBotPolicy` : l'action « désactiver les réponses automatiques » sélectionne `ASSISTED`, tandis que « OFF complet » sélectionne `OFF` explicitement. Aucun endpoint d'arrêt V2 n'est déclaré existant ni ajouté par ce contrat.
+
 Compatibilité proposée : lire MANUAL comme ASSISTED ; l'API v1 continue à accepter MANUAL/AUTO pendant migration versionnée. Aucun OFF n'est injecté dans un enum v1. Valeur inconnue ou politique manquante après migration : refus des actions bot, état explicite à résoudre, jamais AUTO par défaut. Les messages humains et leur brouillon manuel ne sont pas supprimés par OFF ; une suggestion MCP invalidée ne peut pas être envoyée via son ancien token.
 
 ### Arrêt en vol et absence de rejeu
@@ -100,7 +102,7 @@ type Capability = { allowed: boolean; reasonCode: string | null };
 type EffectiveBotPolicy = {
   workspaceId: string; channel: Channel; conversationId: string;
   companyMode: BotMode; localMode: LocalBotMode; effectiveMode: BotMode;
-  reasonCode: 'INHERITED' | 'LOCAL_RESTRICTION' | 'COMPANY_RESTRICTION';
+  reasonCode: 'INHERITED' | 'LOCAL_SET' | 'LOCAL_RESTRICTION' | 'COMPANY_RESTRICTION';
   policyRevision: string; localRevision: string; delegationEpoch: string | null;
   draft: Capability; humanSend: Capability; autoSend: Capability;
 };
@@ -108,16 +110,20 @@ type MediaKind = 'IMAGE' | 'VIDEO' | 'VOICE' | 'FILE';
 type MediaState = 'PENDING_FETCH' | 'UPLOADING' | 'PROCESSING' | 'READY'
   | 'FAILED' | 'QUARANTINED' | 'EXPIRED';
 type MediaAsset = {
-  id: string; workspaceId: string; kind: MediaKind;
+  id: string; workspaceId: string; kind: MediaKind; createdAt: string;
   name: string | null; mimeType: string; byteSize: number;
   durationMs: number | null; width: number | null; height: number | null;
   state: MediaState; errorCode: string | null;
-  previewAllowed: boolean; downloadAllowed: boolean;
+  previewAllowed: boolean; downloadAllowed: boolean; accessExpiresAt: string | null;
 };
-type MessageContent =
+type MailSenderIdentity = {
+  mailboxId: string; fromAddress: string; aliasId: string | null; identityRevision: string;
+};
+type OutboundMessageContent =
   | { kind: 'TEXT'; text: string }
   | { kind: 'WHATSAPP_MEDIA'; mediaId: string; caption: string | null }
-  | { kind: 'EMAIL'; subject: string; text: string; sanitizedHtml: string | null;
+  | { kind: 'EMAIL'; sender: MailSenderIdentity;
+      subject: string; text: string; sanitizedHtml: string | null;
       to: string[]; cc: string[]; bcc: string[]; attachmentIds: string[];
       replyKind: 'NEW' | 'REPLY' | 'REPLY_ALL' | 'FORWARD'; replyToMessageId: string | null };
 type DraftSuggestion = {
@@ -126,11 +132,20 @@ type DraftSuggestion = {
   text: string | null; policyRevision: string; expiresAt: string | null;
 };
 type MailFolderRole = 'INBOX' | 'SENT' | 'DRAFTS' | 'ARCHIVE' | 'TRASH' | 'CUSTOM';
-type MailFolder = { id: string; mailboxId: string; role: MailFolderRole; label: string };
+type MailFolder = {
+  id: string; mailboxId: string; role: MailFolderRole; label: string;
+  totalCount?: number | null; unreadCount?: number | null;
+};
 type DisplayError = { code: string; message: string; retryable: boolean; requestId: string };
 ```
 
-Le contenu e-mail et les destinataires sont filtrés selon droits ; Bcc n'est jamais exposé à un lecteur sans autorisation d'accès aux données sortantes. Le HTML passé par le client à la composition n'est pas du `sanitizedHtml` de confiance : serveur valide/assainit avant persistance/rendu. Les objets média publics ne contiennent ni clé stockage, URL fournisseur, credential, chemin local, payload base64 ou identifiant d'instance.
+`reasonCode` vaut `INHERITED` pour INHERIT, `LOCAL_SET` pour un choix local égal à la politique société/canal, `LOCAL_RESTRICTION` pour un choix local plus restrictif et `COMPANY_RESTRICTION` pour une ancienne exception devenue trop permissive et plafonnée.
+
+`MediaAsset.createdAt` date la création de l'asset durable. `accessExpiresAt` décrit seulement l'expiration de l'accès temporaire courant, ou `null` sans accès émis ; il ne date pas la rétention de l'asset. L'expiration de cet accès ne met pas l'asset en état `EXPIRED` et ne modifie pas son identité. Rafraîchir via `hermesMediaReadAccess` exige un nouveau contrôle vivant workspace/fil/asset et droits ; un accès révoqué ou un asset indisponible ne sont pas renouvelés par simple possession de l'ancien accès. Les compteurs MailFolder sont optionnels et valent `null` ou sont absents si inconnus/non accessibles ; afficher « inconnu », jamais convertir en zéro. Un zéro exige une mesure autorisée.
+
+`OutboundMessageContent` décrit uniquement la composition sortante proposée. Pour l'affichage d'un message reçu, l'expéditeur externe vient de l'enveloppe de réception authentifiée et de sa provenance : son adresse est informative et ne constitue jamais une identité autorisée d'émission. Cette enveloppe entrante reste séparée du `sender` sortant ; aucune délégation de la boîte de l'expéditeur externe n'est exigée pour lire le message.
+
+L'identité `sender` est une sélection cible validée serveur : boîte exacte déléguée et adresse principale, ou alias exact explicitement autorisé (`aliasId` non nul), avec revision courante. Ni le domaine seul ni un From libre ne suffisent ; brouillon et envoi recontrôlent boîte/alias/connexion et permissions, puis l'envoi recontrôle au dernier départ évitable. Cette forme ne décrit pas une API d'identités actuellement disponible. Le contenu e-mail et les destinataires sont filtrés selon droits ; Bcc n'est jamais exposé à un lecteur sans autorisation d'accès aux données sortantes. Le HTML passé par le client à la composition n'est pas du `sanitizedHtml` de confiance : serveur valide/assainit avant persistance/rendu. Les objets média publics ne contiennent ni clé stockage, URL fournisseur, credential, chemin local, payload base64 ou identifiant d'instance.
 
 | Interaction proposée, indisponible | Entrée / résultat cible |
 |---|---|
@@ -139,7 +154,7 @@ Le contenu e-mail et les destinataires sont filtrés selon droits ; Bcc n'est ja
 | `hermesSetConversationBotPolicy` | conversationId/localMode + contexte/revision/key → politique effective ; commande locale |
 | `hermesCreateMediaUpload` puis `hermesFinalizeMediaUpload` | fil, kind, MIME/taille déclarés → autorisation courte scoped ; finalisation après contrôle des octets réels |
 | `hermesMediaReadAccess` | mediaId, usage aperçu/téléchargement → accès court après contrôle vivant ; révocation et cache privés |
-| `hermesInboxSendContentV3` | fil + contenu typé + contexte/revision/clientRequestId + draftId optionnel → message/état ledger |
+| `hermesInboxSendContentV3` | fil + OutboundMessageContent + contexte/revision/clientRequestId + draftId optionnel → message/état ledger |
 | `hermesMailFolders`, `hermesMailThreads`, `hermesSaveMailDraft` | mailbox/folder/thread scoped et pagination ; brouillon humain durable versionné, zéro émission |
 
 Ce sont des noms de travail. Ne pas les appeler depuis les maquettes. Versionner le schéma/DTO avant raccordement ; ne pas étendre silencieusement le reply texte v1 avec des pièces jointes ignorées.
@@ -186,15 +201,21 @@ Matrice de recette ultérieure, **aucune ligne exécutée pour ce document** :
 
 | Scénario | Résultat exigé |
 |---|---|
+| Choix local égal au parent, plus restrictif, INHERIT ou ancienne exception plafonnée | mode et raison respectivement LOCAL_SET/LOCAL_RESTRICTION/INHERITED/COMPANY_RESTRICTION cohérents ; aucune activation implicite |
+| Désactiver les réponses automatiques puis OFF complet | commande V3 ASSISTED conserve le draft MCP ; OFF distinct l'invalide, aucun appel d'arrêt V2 supposé |
 | Société AUTO, fil ASSISTED ; demande MCP puis clic humain | draft autorisé, zéro auto ; un seul message sur clic explicite |
 | Société ASSISTED, essai local AUTO ; société OFF, essai local ASSISTED | refus serveur, mode effectif inchangé et raison visible |
 | OFF complet pendant génération | aucun nouvel appel ; retour tardif invalidé ; réception/humain disponibles |
 | AUTO→ASSISTED juste avant départ, deux workers | barrière bloque tout départ encore évitable ; aucune promesse de rappel du POST déjà parti |
 | réactivation AUTO et replay anciens entrants/callbacks | aucun ancien départ ni génération sur backlog ; nouvelle epoch exigée |
 | révocation opérateur/connexion ou ancien onglet A après switch B | draft/upload/lecture/send refusés avant effet, aucune fuite croisée |
+| Accès média expiré, puis renouvellement autorisé/interdit | asset/createdAt inchangés ; nouvel accès court uniquement après recontrôle vivant ; aucun renouvellement hors droits |
+| Dossier sans compteurs connus, puis total/unread mesurés à zéro | inconnu explicite puis zéro attesté ; aucun total étranger révélé |
 | image/vidéo/vocal entrant et sortant | affichage/lecture puis refresh cohérents ; asset privé A inaccessible depuis B |
 | micro refusé, annulation préécoute, fichier interdit/trop grand | erreurs actionnables ; zéro upload/envoi après annulation |
 | timeout après remise média ; webhook echo concurrent | un seul effet et canonical stable ; incertain sans retry aveugle |
+| E-mail entrant d’un expéditeur externe puis composition sortante | expéditeur reçu affiché selon provenance/droits, sans délégation requise ; adresse reçue jamais utilisable comme autorisation d’émission |
+| E-mail avec boîte/From/alias non autorisés, revision révoquée | refus serveur avant émission, même dans le bon domaine ; seule identité exacte déléguée admise |
 | e-mail HTML/CID/attachment, Reply All, Forward, Sent/Drafts | rendu sûr, bons destinataires/fils/dossiers après refresh, zéro pixel distant implicite |
 
 Vérifications de cette livraison : lectures règles/mission/plan/contrats V2/audit final et sources ciblées au SHA annoncé ; confrontation des signatures et snippets, contrôle documentaire whitespace. Aucun code applicatif, migration, build/test runtime, DB, secret, provider, navigateur métier ou envoi. Les maquettes restent simulées ; la publication et la revue par SHA sont coordonnées par root. Capacités externes/version installée/limites médias restent non vérifiées ; gate visuelle avant câblage maintenue.
