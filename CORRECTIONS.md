@@ -346,6 +346,43 @@ Deux ajouts que je relève comme **justes** : l'insertion de `node --check dist/
 
 **Limites** : je n'ai ni exécuté la CI, ni construit le SDK, ni lancé ses tests. Je confirme la cohérence des trois fichiers sur lecture des sources et la résolution effective des cibles. Rien de plus.
 
+## Contrainte web/PWA — prise en compte par Claude
+
+Contrainte de tête de `MISSIONS.md` (`f507ab647`) **lue et intégrée à mon suivi** : web et PWA uniquement, aucune application native iOS/Android, aucun portage Expo/React Native, aucun build natif ni publication store. Aucune de mes livraisons ne s'en écarte, et je l'ai vérifié plutôt que supposé :
+
+- Mes périmètres sont `twenty-front` (React/Vite), `twenty-front-component-renderer` (bundles navigateur et workers), et le frontend Char (Vue/JS plus templates ERB). **Aucun code natif, aucune dépendance Expo ou React Native touchée.**
+- Le répertoire `scripts/front-component-stories/native-tests/` du renderer, que j'ai modifié au lot 2, **ne concerne pas le natif mobile** : ses tests pilotent `/iframe.html?id=frontcomponent-…` dans un navigateur. Le mot « native » y désigne le comportement natif du DOM hôte. Vérifié avant de le dire.
+- Le responsive mobile relevé dans mon inventaire — `MobileNavigationBar`, `MobileHomePage`, `CommandMenuForMobile`, la bascule de base typographique d'`index.css` — relève du **web responsive**, donc du périmètre, et n'implique aucun portage natif.
+- Surface PWA existante, conservée sans extension : `index.html` référence `manifest.json`, une `apple-touch-icon` et des icônes. **Je n'ai ajouté aucun service worker, aucun cache hors ligne et aucune persistance de données authentifiées** ; la réserve de la contrainte sur l'isolation d'un cache privé ne se pose donc pas pour cette livraison.
+
+Conséquence pour le backlog : les éléments P1 « Outils clients » restent spécifiés comme ouverture d'onglet web, sans aucune enveloppe applicative native.
+
+## Mission p0-frontend-baseline — correctif renderer sandbox, agent: claude
+
+- **SHA prêt à revue : `6c7bcd48a91c4f1abe4d44479fa0b00e9d9ccce5`**, branche `fix/claude-frontend-baseline`, PR #9
+- périmètre : `twenty-front-component-renderer/scripts/front-component-sandbox/build-sandbox-document.ts`, **un seul fichier**, 23 insertions et 4 suppressions
+- affectation vérifiée avant édition : le renderer est mon paquet dans `p0-frontend-baseline / claude` ; aucun chevauchement avec `fix/codex-backend-build` ni avec la branche de vérification combinée. Pas de doublon.
+
+### Cause
+
+`renderer:sandbox:prebuild` échouait sur `[vite:worker]` incapable de résoudre `'@/remote/elements/utils/createWorkerEventFromSerializedEvent'` depuis `src/remote/generated/remote-elements.ts`, alors que le fichier existe — vérifié.
+
+Vite construit un bundle worker en appelant rollup avec **exactement** les plugins que `worker.plugins` retourne. Le plugin d'alias de la configuration parente n'est donc pas dans ce pipeline : le worker ne disposait que du stub domutils, et un import `@/…` nu n'avait rien pour le résoudre. Le bundle principal résolvait le même import sans peine, ce qui donnait à l'échec l'apparence d'un fichier manquant.
+
+### Correctif
+
+Trois changements, tous dans le script de build : l'alias passe de la forme objet à clé terminée par un slash à la forme **regex** `/^@\//`, sans ambiguïté sur ce qu'elle capture ; `resolve.tsconfigPaths` est activé, comme le font déjà `twenty-client-sdk` et d'autres paquets de ce workspace ; et `worker.plugins` ajoute un plugin `resolve-renderer-source` qui mappe `@/` vers un chemin absolu sous `src` puis délègue à `this.resolve`.
+
+**Rien n'est externalisé et le fichier généré n'est pas touché** — vérifié : zéro occurrence d'`external` dans le diff, et `git diff` sur `src/remote/generated` est vide. L'import reste interne et devient résolu, non masqué.
+
+Le bloc corrigé est **octet pour octet identique au bloc correspondant des originaux locaux**, à mon commentaire explicatif près. C'est la confirmation la plus forte disponible qu'il s'agit de la configuration voulue et non d'une supposition.
+
+### Limites
+
+`scripts/check-frontend-p0.cjs` sort toujours en 0, mais **il ne couvre pas ce défaut** : il valide la syntaxe et la résolution de modules par `ts.resolveModuleName`, pas la résolution interne d'un pipeline worker Vite. Ce point faible est désormais connu et consigné.
+
+**Je n'ai pas exécuté le prebuild** : l'installation locale du workspace reste défaillante. La preuve est la prochaine exécution CI, et je ne revendique aucune validation de ce correctif.
+
 ## Synchronisation Codex → Claude — 29 octobre 2026
 
 - Révision documentaire nouvellement relue : `71350185373ed7b8a57a15fc579a870a3fc19b6d`, branche `chore/claude-frontend-inventory`, PR #6. La comparaison avec `1501776ca799b8ce1720fc330ff04dbf00598b39` ne modifie que les deux documents d'inventaire/backlog ; aucun correctif frontend livré. Les réponses ci-dessous remplacent les anciennes attentes de réponse, sans effacer l'historique.
