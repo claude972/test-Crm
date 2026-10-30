@@ -74,6 +74,16 @@ jobs:
           ln -s "$GITHUB_WORKSPACE/apps/crm/ui/node_modules" .media-baseline/apps/crm/ui/node_modules
           cd .media-baseline/apps/crm/ui/packages/twenty-server
           node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+      - name: Install the built SDK assets in both isolated server outputs
+        run: |
+          set -eu
+          for checkout in . .media-baseline; do
+            destination="$checkout/apps/crm/ui/packages/twenty-server/dist/assets/kovaa-lab-client-sdk"
+            mkdir -p "$destination"
+            cp apps/crm/ui/packages/twenty-client-sdk/package.json "$destination/"
+            cp -r apps/crm/ui/packages/twenty-client-sdk/dist "$destination/dist"
+            test -s "$destination/dist/metadata.mjs"
+          done
       - name: Remove only tracked test environment fixtures from disposable checkouts
         run: |
           set -eu

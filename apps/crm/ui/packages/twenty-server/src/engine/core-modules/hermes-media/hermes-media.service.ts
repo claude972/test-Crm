@@ -26,6 +26,7 @@ import { type HermesMessagingActor } from 'src/engine/core-modules/hermes-messag
 import { HermesMediaAssetEntity } from './hermes-media.entity';
 import {
   HERMES_MEDIA_FORMATS,
+  mediaMimeMatches,
   mediaScopeSchema,
   parseMedia,
   prepareMediaSchema,
@@ -150,7 +151,7 @@ export class HermesMediaService {
     if (
       !file ||
       !file.contentSha256 ||
-      file.mimeType !== asset.mimeType ||
+      !mediaMimeMatches(asset.kind, asset.mimeType, file.mimeType) ||
       file.size !== asset.size ||
       !(HERMES_MEDIA_FORMATS[asset.kind].mimes as readonly string[]).includes(
         file.mimeType,
@@ -162,23 +163,29 @@ export class HermesMediaService {
       .getRepository(HermesMediaAssetEntity)
       .update(
         { id: asset.id, workspaceId: actor.workspaceId, status: 'PENDING' },
-        { status: 'READY', contentSha256: file!.contentSha256 },
+        {
+          status: 'READY',
+          contentSha256: file!.contentSha256,
+          mimeType: file!.mimeType,
+        },
       );
     if (!updated.affected)
       throw new ConflictException('MEDIA_UPLOAD_CANCELLED');
-    return this.publicAsset({ ...asset, status: 'READY' });
+    return this.publicAsset({
+      ...asset,
+      status: 'READY',
+      mimeType: file!.mimeType,
+    });
   }
 
   async cancel(actor: HermesMessagingActor, input: HermesMediaScopeInput) {
     const asset = await this.scoped(actor, input, this.dataSource, true);
     if (asset.status === 'REVOKED') {
-      const file = await this.dataSource
-        .getRepository(FileEntity)
-        .findOneBy({
-          id: asset.fileId,
-          workspaceId: actor.workspaceId,
-          deletedAt: IsNull(),
-        });
+      const file = await this.dataSource.getRepository(FileEntity).findOneBy({
+        id: asset.fileId,
+        workspaceId: actor.workspaceId,
+        deletedAt: IsNull(),
+      });
       if (file)
         await this.nativeStorage.deleteByFileId({
           workspaceId: actor.workspaceId,
@@ -367,6 +374,7 @@ export class HermesMediaService {
     providerConnectionId: string;
     providerMessageId: string;
     kind: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'FILE';
+    filename?: string;
     mimeType: string;
     bytes: Buffer;
   }) {
@@ -408,7 +416,7 @@ export class HermesMediaService {
           existing.conversationId !== input.conversationId ||
           existing.providerConnectionId !== input.providerConnectionId ||
           existing.kind !== input.kind ||
-          existing.mimeType !== input.mimeType ||
+          !mediaMimeMatches(input.kind, input.mimeType, existing.mimeType) ||
           existing.size !== input.bytes.length ||
           existing.contentSha256 !== contentSha256 ||
           existing.status !== 'ATTACHED'
@@ -427,6 +435,7 @@ export class HermesMediaService {
           'audio/mpeg': 'mp3',
           'audio/mp4': 'm4a',
           'audio/webm': 'webm',
+          'video/webm': 'webm',
           'application/pdf': 'pdf',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
             'docx',
@@ -436,7 +445,14 @@ export class HermesMediaService {
             'pptx',
         } as Record<string, string>
       )[input.mimeType];
-      const filename = `media.${ext}`;
+      const filename = input.filename ?? `media.${ext}`;
+      parseMedia(prepareMediaSchema, {
+        conversationId: input.conversationId,
+        kind: input.kind,
+        filename,
+        mimeType: input.mimeType,
+        size: input.bytes.length,
+      });
       const target = await this.uploads.createFileUpload({
         workspaceId: input.workspaceId,
         filename,
@@ -460,8 +476,9 @@ export class HermesMediaService {
       });
       if (
         !file ||
-        file.mimeType !== input.mimeType ||
-        file.size !== input.bytes.length
+        !mediaMimeMatches(input.kind, input.mimeType, file.mimeType) ||
+        file.size !== input.bytes.length ||
+        file.contentSha256 !== contentSha256
       )
         throw new BadRequestException('MEDIA_CONTENT_MISMATCH');
       await assets.save({
@@ -473,7 +490,7 @@ export class HermesMediaService {
         ownerUserWorkspaceId: null,
         kind: input.kind,
         filename,
-        mimeType: input.mimeType,
+        mimeType: file.mimeType,
         size: input.bytes.length,
         status: 'ATTACHED',
         messageId: null,
