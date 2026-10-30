@@ -443,10 +443,18 @@ export const useAuth = () => {
     async (email: string, password: string, captchaToken?: string) => {
       if (isSameOriginMultiWorkspaceEnabled) {
         const requestSessionGeneration = getSessionGeneration();
+        const handleSignInError = (error: unknown): never => {
+          assertAuthSessionUnchanged(requestSessionGeneration);
+          if (isGraphqlErrorOfType(error, 'EMAIL_NOT_VERIFIED')) {
+            setSearchParams({ email });
+            setSignInUpStep(SignInUpStep.EmailVerification);
+          }
+          throw error;
+        };
         const result = await signIn({
           variables: { email, password, captchaToken },
-        });
-        if (isDefined(result.error)) throw result.error;
+        }).catch(handleSignInError);
+        if (isDefined(result.error)) handleSignInError(result.error);
         if (!result.data?.signIn) throw new Error(t`Authentication failed`);
         assertAuthSessionUnchanged(requestSessionGeneration);
         markSessionActive();
