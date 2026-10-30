@@ -590,6 +590,20 @@ describe('persistent messaging service contract', () => {
       }),
     ).rejects.toThrow('BOT_POLICY_OFF');
   });
+  it('rejects legacy AUTO under parent OFF before probing the transport', async () => {
+    const { service, registry } = setup();
+    const incoming = await service.ingest(event);
+    const probe = jest.fn().mockResolvedValue({ status: 'AVAILABLE' });
+    registry.get('WHATSAPP')!.probe = probe;
+    await setParent(service, 'WORKSPACE', 'OFF');
+    await expect(
+      service.setBotMode(actor, {
+        conversationId: incoming.conversationId,
+        mode: 'AUTO',
+      }),
+    ).rejects.toThrow('BOT_POLICY_RESTRICTION');
+    expect(probe).not.toHaveBeenCalled();
+  });
   it('replays the provider identity without duplication and rejects changed content', async () => {
     const { service, table } = setup();
     const first = await service.ingest(event);
