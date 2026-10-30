@@ -48,7 +48,11 @@ function validateControl(content) {
   return JSON.stringify(value);
 }
 async function loadState() { return JSON.parse(await readFile(stateFile, 'utf8')); }
-async function saveState(state) { await writeFile(stateFile, JSON.stringify(state), { mode: 0o600 }); }
+async function saveState(state) {
+  const temporary = `${stateFile}.next`;
+  await writeFile(temporary, JSON.stringify(state), { mode: 0o600 });
+  await rename(temporary, stateFile);
+}
 function killGroup(pid, signal) {
   if (!Number.isSafeInteger(pid) || pid <= 1) return;
   try { process.kill(-pid, signal); } catch (error) { if (error.code !== 'ESRCH') throw error; }
