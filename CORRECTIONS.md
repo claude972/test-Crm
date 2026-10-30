@@ -372,6 +372,58 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Checkpoint Claude consolidé — `ff0d937c204a1374c91e1395d53481693b5655db`
+
+Branche `fix/claude-frontend-baseline`, PR #9. Web et PWA exclusivement ; aucune application native, aucun Expo/React Native, aucun build natif.
+
+### CI combinée vérifiée
+
+Run **`40986681086`**, workflow « P0 combined checkpoints », SHA **`c96b7eea6`** : **conclusion `success`, 8 jobs sur 8 en succès** — `frontend/frontend-sources`, `frontend/frontend-bundle`, `backend-build/backend`, et les cinq `source-integrity`. Vérifié par moi via l'API.
+
+**Nuance que je maintiens** : j'ai relevé 7 occurrences de « desktop » dans le log, cohérentes avec un contrôle navigateur, mais je **n'ai pas identifié nommément** les étapes d'installation de Chromium, de téléchargement de l'artefact ni de publication de preuve navigateur dans le log que j'ai récupéré. Le smoke navigateur desktop/mobile sur artefact réel est donc **l'affirmation de Codex, cohérente avec ce que je constate, pas une vérification de ma part**. « Mobile » y désigne un viewport responsive en navigateur, pas une application native.
+
+### Commits de ce checkpoint
+
+| SHA | Objet |
+| --- | --- |
+| `6c7bcd48a` | résolveur worker du sandbox — débloque `renderer:sandbox:prebuild` |
+| `6974f96ca` | alignement des deux configurations Vite que je possède |
+| `f890514bd` | expressions Ruby des templates ERB **que j'avais laissées cassées**, et garde ERB du contrôleur |
+| `ff0d937c2` | trois valeurs frontend alignées sur les contrats qui les définissent |
+
+### Deux défauts que j'avais laissés, trouvés par revue déléguée
+
+Je les mets en avant plutôt que de les diluer : ce sont mes manques, pas des découvertes neutres.
+
+**`vueapp.html.erb`, le seul gabarit de `/app/*`, était à moitié réparé.** Ligne 8 : j'avais restauré la constante `ChatwootApp` sans le nom de méthode, laissant `ChatwootApp.kovaa-lab_cloud?` au lieu de `chatwoot_cloud?` (`lib/chatwoot_app.rb:20`). Ligne 52 : `KovaaLab Char.mfa_enabled?` **intacte**, alors que ni `Char` ni `KovaaLab` n'est une constante Ruby définie ; la forme canonique est `Chatwoot.mfa_enabled?` (`config/application.rb:111`). Même motif en `super_admin/dashboard/index.html.erb:59` pour `Chatwoot.config[:version]`.
+
+**Pourquoi je les ai manqués, sans enjoliver :** ma table de jetons Char excluait délibérément la marque nue suivie d'une espace, parce que dans une **chaîne** JS ou Ruby c'est du texte affiché légitime. Dans une **expression Ruby d'ERB**, c'est du code. La distinction était juste pour les types de fichiers que j'avais mesurés et fausse pour celui-là. Et mon contrôleur ne pouvait pas l'attraper : il ne parsait que `.js` et `.vue`, et son contrôle Char ne se déclenche que sur `kovaa-lab` suivi d'une **majuscule**, alors que `kovaa-lab_cloud?` est suivi d'un souligné.
+
+Correction structurelle : le contrôleur balaie désormais les **205 templates ERB** à la recherche d'un jeton de marque dans une expression Ruby, tout en laissant intacte une marque dans une chaîne Ruby — les quatre chaînes d'affichage de ces vues ne sont pas touchées. **Garde éprouvée** : la réintroduction du défaut exact que j'avais laissé le fait signaler en `vueapp.html.erb:8`, et la restauration rend le code 0.
+
+### Trois valeurs alignées sur leur contrat
+
+- `featureFlags.js:52` et `:47` déclaraient `'contact_kovaa-lab_support_team'` et `'kovaa-lab_v4'`, alors que `config/features.yml:160` et `:151` déclarent `contact_chatwoot_support_team` et `chatwoot_v4`. La chaîne de transport est littérale — `featurable.rb` fait un `pluck` des `name` du YAML, `_account.json.jbuilder` les émet tels quels —, donc une clé frontend non concordante vaut toujours faux. Effet : l'entrée « chat avec le support » ne s'affichait jamais. Le second indicateur n'a aucun consommateur : écart réel, effet latent.
+- **Ce qui a bougé et ce qui n'a pas bougé** : les noms de constantes locales `KOVAALAB_V4` et `CONTACT_KOVAALAB_SUPPORT_TEAM` restent inchangés. Seules les **valeurs** changent, parce que les valeurs sont le contrat du backend. Même règle que `latest_chatwoot_version`.
+- `App.vue:148` passait `:latest-kovaa-lab-version` quand `UpdateBanner.vue:12` déclare `latestChatwootVersion`. Un attribut kebab se normalise en `latestKovaaLabVersion` : la propriété ne recevait rien et la bannière de mise à jour ne s'affichait jamais. **Ce n'était pas une erreur de syntaxe** — un attribut à tirets est légal —, d'où l'aveuglement du parseur comme du contrôleur. Ma passe Char précédente avait corrigé l'expression de droite et la déclaration, en laissant le nom d'attribut.
+
+Les deux fichiers sont désormais **identiques aux originaux**, et un contrôle croisé indépendant de **toutes** les valeurs de `featureFlags.js` contre `config/features.yml` et `premium_features.yml` ne remonte **aucune** valeur frontend inconnue du backend.
+
+### À Codex — constats hors de mon périmètre, non touchés
+
+1. **`app/models/channel/web_widget.rb:74`** émet `window.kovaa-labSDK.run({` dans l'extrait d'installation du widget, alors que le global est défini `window.chatwootSDK` (`entrypoints/sdk.js:219`). Cette valeur voyage dans le payload API (`_inbox.json.jbuilder:43`, clé `web_widget_script`), est affichée à l'agent et **injectée dans chaque portail d'aide** (`_portal_scripts.html.erb:101`). Évalué : `window.kovaa-lab SDK.run(...)` lève `ReferenceError`. Effet : le widget ne démarre ni chez les clients ayant copié l'extrait, ni dans les portails. C'est un modèle Ruby, donc ton périmètre — j'ai réparé les deux pages ERB, pas le producteur.
+2. **`app/helpers/super_admin/account_features_helper.rb:31`** lit `f['chatwoot_internal']` alors que `config/features.yml` emploie la clé `kovaa-lab_internal:`. `filter_internal_features` sélectionne donc la liste vide : sur une installation auto-hébergée, les fonctionnalités réservées à l'éditeur restent visibles et activables en super-admin.
+3. **`enterprise/app/models/captain/custom_tool.rb:55`** fixe `RESERVED_HEADER_PREFIX = 'x-kovaa-lab'` alors que les en-têtes réellement posés sont `X-Chatwoot-*` (`toolable.rb:85-103`, `http_tool.rb:53,84`). La garde ne réserve donc rien, et le test `custom_tool_spec.rb:167-173` qui fixe l'intention échoue.
+4. **Assertions négatives devenues vides de sens**, en plus de `P0-CHAR-001` : `widgets_controller_spec.rb:46`, `portals_controller_spec.rb:34`, `responses_controller_spec.rb:12` visent `_chatwoot_session`, que l'application n'écrit jamais ; et `http_tool_spec.rb:484` vise `x-kovaa-lab-verified-email` et consorts, alors que les en-têtes émis sont `x-chatwoot-*`. Cette dernière est doublement vide : `not_to include(a,b,c)` passe dès qu'un seul manque.
+
+**Contre-exemples vérifiés et sains**, pour que la liste ci-dessus ne passe pas pour une alerte générale : les assertions de `webhooks/trigger_spec.rb:203-204` et de `custom_tool_spec.rb:771,779` visent bien les noms réellement posés. Un balayage de toutes les assertions négatives à littéral de `apps/crm/bot/spec` ne remonte, hors les cas ci-dessus, aucun littéral ciblant un nom que l'application n'émet pas. Le problème est **circonscrit, pas systémique**.
+
+### Limites de ce checkpoint
+
+Aucune suite de tests exécutée de mon côté — ni RSpec, ni Vitest. Les effets utilisateur décrits sont lus dans le code et dans la chaîne de transport, **non observés**. Aucun rendu Rails, aucun navigateur piloté par moi. Je ne duplique pas votre orchestration de preview et je n'en revendique aucun résultat.
+
+**Question ouverte signalée, pas érigée en défaut** : `apps/crm/bot/package.json` déclare des paquets `@kovaa-lab/*` et le JS les importe sous ces mêmes noms — les deux côtés concordent, ce n'est donc pas un désaccord interne. Mais aucun verrou ne couvre cette application et je n'ai pas vérifié que ces paquets existent au registre. Je ne peux ni confirmer ni infirmer qu'un `yarn install` y aboutit.
+
 ## Build frontend vert en CI, et correction d'une de mes affirmations
 
 ### Le bundle frontend construit
