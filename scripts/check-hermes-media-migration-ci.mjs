@@ -2,13 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { randomBytes, randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
@@ -49,7 +43,7 @@ export function validateMediaSql(up, down) {
   );
   assert.equal(
     up.filter((sql) =>
-      /^ALTER TABLE "core"\."hermesInboxMessage" ADD "mediaAssetId" uuid$/.test(
+      /^ALTER TABLE "core"\."hermesInboxMessage" ADD "attachmentIds" uuid array NOT NULL DEFAULT '{}'$/.test(
         sql,
       ),
     ).length,
@@ -86,7 +80,7 @@ export function validateMediaSql(up, down) {
       ),
     );
     assert.ok(
-      /^(CREATE TABLE "core"\."hermesMediaAsset" |CREATE (UNIQUE )?INDEX "IDX_HERMES_MEDIA_(SCOPE|FILE)" ON "core"\."hermesMediaAsset" |ALTER TABLE "core"\."hermesMediaAsset" (ADD|DROP) CONSTRAINT |ALTER TABLE "core"\."hermesInboxMessage" (ADD|DROP COLUMN) "(kind|mediaAssetId)"|DROP INDEX "core"\."IDX_HERMES_MEDIA_(SCOPE|FILE)"|DROP TABLE "core"\."hermesMediaAsset")/.test(
+      /^(CREATE TABLE "core"\."hermesMediaAsset" |CREATE (UNIQUE )?INDEX "IDX_HERMES_MEDIA_(SCOPE|FILE)" ON "core"\."hermesMediaAsset" |ALTER TABLE "core"\."hermesMediaAsset" (ADD|DROP) CONSTRAINT |ALTER TABLE "core"\."hermesInboxMessage" (ADD|DROP COLUMN) "(kind|attachmentIds)"|DROP INDEX "core"\."IDX_HERMES_MEDIA_(SCOPE|FILE)"|DROP TABLE "core"\."hermesMediaAsset")/.test(
         sql,
       ),
       "Only the media table, its indexes/FKs and two message columns may change",
@@ -140,7 +134,7 @@ async function postgresAssertions(client, Pool, url) {
     assert.equal(
       (
         await client.query(
-          'SELECT "kind","mediaAssetId" FROM "core"."hermesInboxMessage" WHERE "id"=$1',
+          'SELECT "kind","attachmentIds" FROM "core"."hermesInboxMessage" WHERE "id"=$1',
           [requestId],
         )
       ).rows[0].kind,

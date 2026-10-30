@@ -64,7 +64,7 @@ export class HermesInboxMessageEntity {
     | 'VIDEO'
     | 'AUDIO'
     | 'EMAIL';
-  @Column({ type: 'uuid', nullable: true }) mediaAssetId: string | null;
+  @Column({ type: 'uuid', array: true, default: '{}' }) attachmentIds: string[];
   @Column({ type: 'varchar', length: 64 }) contentDigest: string;
   @Column({ type: 'timestamptz' }) occurredAt: Date;
   @Column({ type: 'varchar', length: 64, nullable: true }) errorCode:

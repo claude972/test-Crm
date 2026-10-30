@@ -37,6 +37,20 @@ Reads use a native FILE token with a 60-second lifetime, bound to the asset, wor
 
 The internal service offers `cloneForConversation(actor,{sourceConversationId,sourceAssetId,targetConversationId})` for future mail forwarding: it reads through the source scope, verifies the target scope and uploads a new native asset. Cross-thread raw asset ID reuse is not supported. The mail backend owns MIME assembly; generic FILE support alone is not a rich mailbox implementation.
 
+## Mail backend extension (server-only)
+
+`HermesEmailEnvelope`, `HermesEmailReplyInput` and `HermesMessagingAttachment` are exported from `hermes-messaging/types/hermes-messaging.types.ts`.
+
+`messaging.replyEmail(actor,{conversationId,clientRequestId,envelope,attachmentIds})` requires an EMAIL conversation. The envelope is `{from,to:string[],cc:string[],bcc:string[],subject,text,html?,inReplyTo?,references?:string[],inlineAttachments?:{assetId,cid}[]}`. Addresses are plain validated mailbox addresses, no header injection; at most50 combined recipients. The mail service owns authoritative mailbox/verified alias selection, recipient planning, private envelope/HTML/provenance and MIME assembly. Core reserves the same durable request ledger and all assets atomically before SMTP, checks current access again, and passes `send({...base,email:envelope,attachments:[{assetId,kind,mimeType,filename,bytes}]})` solely to the server adapter. Rich send requires probe AVAILABLE with canComposeRichEmail=true. A changed envelope or asset set cannot reuse the original clientRequestId. Bcc/HTML never appear in the inbox GraphQL DTO.
+
+At most10 assets and25MiB total; every ID must be owned/READY in the exact workspace/conversation/connection. One failure rolls back all binds. Inline asset IDs must be a subset of attachmentIds with unique cids matching `[A-Za-z0-9._-]{1,120}`. No CID URL grants file access.
+
+`messaging.ingest({...baseEvent,kind:'EMAIL',attachmentIds})` supports inbound email with multiple assets and empty text, while each asset is first stored using `media.receive({workspaceId,conversationId,providerConnectionId,providerMessageId:'provider-message:part-id',kind,mimeType,bytes}) -> {assetId}`. The distinct part key makes native asset ingestion durable/idempotent. `filename?:string` preserves an inbound mail attachment name after validation. For mailbox reading/backfill, C MUST call the server-only `ingest(event,{suppressAutomation:true,observedOnly:true})`: this never triggers MCP/AUTO and persists status OBSERVED, even for an observed Sent folder entry. The options are not accepted inside event bodies or webhook/client inputs. A later authenticated real send receipt may promote OBSERVED to ACCEPTED; a later observation never demotes accepted evidence. Core uses message `attachmentIds: uuid[]`, never raw provider URLs. Plain email text can still reach MCP under the existing policy; attachments and raw HTML are not supplied to MCP.
+
+`messaging.ensureEmailDraftConversation(actor,{clientRequestId,providerConnectionId,contactHandle,subject})` creates a deterministic MANUAL EMAIL conversation with no fake message. C must derive and validate the active mailbox connection ID before calling it. It returns the native conversation and `providerConversationId=draft:<clientRequestId>`; C retains that canonical key for its draft/UID/Sent/reply associations. Reusing the initialization request with a different destination/subject conflicts. Last activity remains monotone for later historical imports and provider echoes.
+
+MediaRecorder MIME parameters should be removed before prepare. WebM audio is a container: if native magic-byte detection reports video/webm for audio/webm input, finalize retains the authoritative video/webm MIME with kind AUDIO. It never rewrites bytes or labels an unrecognized container as audio.
+
 ## Evolution 2.3.6
 
 Primary source pinned to official tag commit `3454bec79f514995df9a5ea36a3554ab35cf1c82`:

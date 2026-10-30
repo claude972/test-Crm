@@ -17,7 +17,14 @@ export const HERMES_MEDIA_FORMATS = {
     max: 20 * 1024 * 1024,
   },
   AUDIO: {
-    mimes: ['audio/ogg', 'audio/opus', 'audio/mpeg', 'audio/mp4', 'audio/webm'],
+    mimes: [
+      'audio/ogg',
+      'audio/opus',
+      'audio/mpeg',
+      'audio/mp4',
+      'audio/webm',
+      'video/webm',
+    ],
     max: 16 * 1024 * 1024,
   },
 } as const;
@@ -56,3 +63,13 @@ export const parseMedia = <T>(schema: z.ZodType<T>, value: unknown): T => {
   if (!parsed.success) throw new BadRequestException('INVALID_MEDIA_INPUT');
   return parsed.data;
 };
+
+// file-type identifies a WebM container as video/webm even for audio-only
+// MediaRecorder output. Keep its authoritative detected MIME; never relabel bytes.
+export const mediaMimeMatches = (
+  kind: string,
+  declared: string,
+  detected: string,
+): boolean =>
+  declared === detected ||
+  (kind === 'AUDIO' && declared === 'audio/webm' && detected === 'video/webm');
