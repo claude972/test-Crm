@@ -560,9 +560,11 @@ Diff vérifié vide entre ed80da15116fd2d1490022cf53564d85bc0abe26 et e7d1332ba 
 - reviewed revision: 2671be330d7cf496671386f82014c4e8a4cf4f29
 - evidence: CI https://github.com/claude972/test-Crm/actions/runs/40980443158 : source gate vert, bundle en échec ; wyw-in-js ne trouve pas kovaa-lab-ui/dist/theme.cjs. Le workflow ne construisait que shared alors que les exports UI/renderer pointent vers dist.
 - expected correction: construire effectivement les dépendances réelles dans l'ordre et conserver les assertions d'artefacts avant publication du bundle ; vérifier dans l'intégration incluant le client-sdk backend réparé.
-- status: fixed_pending_review
+- status: verified
 - fix commit: 4fe7f40c5b77d5197e2108d4022fd77f473fb24b, présent dans dd07d39d0 ; chaîne Nx et API Vite frontend ajoutées par Claude.
 - recheck evidence: revue de la configuration effectuée ; résultat du build combiné encore attendu, aucune correction déclarée vérifiée sur la seule présence du nouveau workflow. Les commits docs de PR déclenchent aussi des runs et annulent des builds précédents : filtre paths conseillé à Claude.
+
+Recontrôle final Codex : [CI 40986681086](https://github.com/claude972/test-Crm/actions/runs/40986681086) réussie au SHA c96b7eea6 : build frontend réel, types/build backend, initialisation DB jetable, healthz/client-config et navigateur desktop/mobile réussis. Les captures et le bundle exact ont été téléchargés ; contrôle navigateur limité au parcours accueil/formulaire, pas encore aux opérations CRM authentifiées.
 
 ### Construction combinée lancée — Codex
 
@@ -594,9 +596,11 @@ Les groupes des workflows réutilisés sont isolés dans 8b8a1c211 : p0-integrit
 - reviewed revision: 8b8a1c211b9b68d19c27e08030ace076b514b1a8
 - evidence: CI https://github.com/claude972/test-Crm/actions/runs/40982737440 : tous les contrôles de sources passent, mais la chaîne renderer échoue sur kovaa-lab-sdk:build, src/sdk/define/index.ts:154 (export type KovaaLab CRMRecord et chemin de fichier inexistant). Parsing indépendant de 232 sources SDK : quatre diagnostics sur deux fichiers. Analyse du bandeau esmNodeGlobalsBanner avec node --check : SyntaxError sur __kovaa-labCreateRequire.
 - expected correction: réparer les deux déclarations/types et leur chemin réel twenty-record.type ; réparer les identifiants privés du bandeau généré ; préserver les trois constantes FRONT_COMPONENT_*_KEY et le marqueur de réponse, dont les valeurs locales camelCase ne sont pas reprises.
-- status: fixed_pending_review
+- status: verified
 - fix commit: 39cda1cb700f0e1296ac4c7c3e1cf740a8ddd22f sur fix/codex-backend-build ; trois réparations ciblées, vérification Node des sorties ESM/CJS ajoutée au target SDK et couverture du contrôleur backend étendue au SDK.
 - recheck evidence: échecs source/bandeau reproduits avant correction ; construction combinée et revue Claude requises après correction. Aucun succès navigateur revendiqué.
+
+Recontrôle final Codex : [CI 40986681086](https://github.com/claude972/test-Crm/actions/runs/40986681086) réussie au SHA c96b7eea6 : build frontend réel, types/build backend, initialisation DB jetable, healthz/client-config et navigateur desktop/mobile réussis. Les captures et le bundle exact ont été téléchargés ; contrôle navigateur limité au parcours accueil/formulaire, pas encore aux opérations CRM authentifiées.
 
 ### Recontrôle statique SDK et nouvelle intégration — Codex
 
@@ -615,8 +619,8 @@ Le 29 octobre 2026, le propriétaire confirme la poursuite autonome avec cible e
 - reviewed revision: 52874fe5d70492fad8681aeef0d3fd0fac81cf59
 - evidence: CI https://github.com/claude972/test-Crm/actions/runs/40984295114 : sources/backend/shared verts ; chaîne SDK dépassée, échec renderer:sandbox:prebuild. Le worker ne résout pas @/remote/elements/utils/createWorkerEventFromSerializedEvent depuis remote-elements.ts ; le fichier cible existe. Configuration du build sandbox avec configFile:false et alias @/ à examiner, sans externaliser l'import ni modifier le fichier généré pour cacher l'erreur.
 - expected correction: rétablir la résolution interne dans le build worker/sandbox, publier le correctif ciblé et le SHA de revue, puis retester le build combiné et le navigateur.
-- status: in_progress
-- fix commit: en préparation par Claude, notification directe et diagnostic reçus.
+- status: verified
+- fix commit: 6c7bcd48a, intégré comme bad53ac26 dans le checkpoint c96b7eea6.
 - recheck evidence: aucune réussite de bundle/navigateur revendiquée.
 
 Accusé de réception réel de Claude : contrainte web/PWA enregistrée dans sa session ; il poursuit le diagnostic worker dans son paquet. La règle est aussi ajoutée au AGENTS.md de la branche d'intégration pour les futures reprises. Aucun projet natif lancé.
@@ -633,3 +637,16 @@ Le correctif worker Claude `6c7bcd48a`, intégré comme `bad53ac26`, a donc dép
 Projet Vercel **hermes-crm-p0-preview**, isolé et sans déploiement production, créé dans l'équipe existante. Deux secrets jetables neufs configurés pour la seule session de preview ; aucune valeur publiée, aucun secret existant chargé. API/PG/Redis réels jetables et workflow borné en préparation. Pas encore d'URL testable : le frontend statique seul ne sera pas présenté comme CRM opérationnel.
 
 Préservation : création d'un nouveau checkout complet interrompue par manque d'espace ; cette création Git échouée a été retirée par Git et le chemin était absent avant reprise. Recréation **sparse** de notre seule branche de preview ; original test-Crm et sauvegardes inchangés. Les sous-agents réduisent également leurs propres checkouts terminés, sans supprimer leurs commits ni toucher aux autres worktrees.
+
+Recontrôle final Codex : [CI 40986681086](https://github.com/claude972/test-Crm/actions/runs/40986681086) réussie au SHA c96b7eea6 : build frontend réel, types/build backend, initialisation DB jetable, healthz/client-config et navigateur desktop/mobile réussis. Les captures et le bundle exact ont été téléchargés ; contrôle navigateur limité au parcours accueil/formulaire, pas encore aux opérations CRM authentifiées.
+
+
+## p0-combined-verification / codex — construction et navigateur verts
+
+Checkpoint **c96b7eea6cf316c0e1841f13b203e7731aaef4f1**, [CI 40986681086](https://github.com/claude972/test-Crm/actions/runs/40986681086) : tous les jobs réussissent. Artefact frontend exact téléchargé, backend typé/compilé, tests client SDK réussis, démarrage Nest avec PG/Redis jetables et contrôle réel du navigateur desktop/mobile. Capture mobile examinée : accueil et action Continue with Email visibles sans débordement horizontal. Aucun test CRUD/authentification complète ni installation PWA sur appareil n'est déduit de ce succès.
+
+Revue Claude du SDK 39cda1cb7 sans constat publiée dans ce document ; elle complète l'audit indépendant Codex et la preuve de build exécutée. Rapports historiques conservés.
+
+Preview : scripts intégrés et revus, workflow **357856370** sur preview/p0-session-20261029, [session 40988179084](https://github.com/claude972/test-Crm/actions/runs/40988179084) en construction. Durée backend limitée à 60 minutes à partir de la création du tunnel, pas à partir de la livraison utilisateur ; aucune URL testable revendiquée avant vérification publique. Nouveau contrôle en ligne santé/config/manifeste livré dans d1d9df119 sur chore/p0-preview-session, sans relancer le build de session.
+
+Nouvel audit final de préservation : **55 696 / 55 696 SHA-256 identiques**, zéro différence, zéro disparition inattendue ; **1 / 1 absence initiale** toujours absente. Lecture seule, originaux et sauvegardes inchangés.
