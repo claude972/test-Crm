@@ -32,4 +32,14 @@ Les écritures natives de qualification/brouillon utilisent leurs propres `runIn
 
 Les sources prospection exactes de f9d0db96c ont été matérialisées sous `/private/tmp/hermes-prospection-review-f9d0db96c` par git show et utilisées par un mapper Jest dédié. Ainsi la reproduction ne dépend pas des éditions concurrentes root. Dépendances existantes en lecture seule, @swc/jest et cache temporaires ; aucun package installé, DB/service local ou cloud lancé.
 
-Nouveau spec : `apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-review.spec.ts`. Exécution ciblée : **12 tests, 4 passent, 8 échecs de régression attendus** sur le snapshot initial (5 accès invalides +3 replays), résultat non déclaré vert. Les repositories et transactions y sont des doubles explicites, pas une preuve TypeORM/SQL/native complète. Prettier du seul spec et git diff --check exécutés. Le recontrôle du SHA corrigé reste à effectuer quand l'agent propriétaire le publie.
+Nouveau spec : `apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-review.spec.ts`. Exécution ciblée initiale : **12 tests, 4 passent, 8 échecs de régression attendus** sur f9d0db96c (5 accès invalides +3 replays), résultat non déclaré vert. Les repositories et transactions y sont des doubles explicites, pas une preuve TypeORM/SQL/native complète. Prettier du seul spec et git diff --check exécutés.
+
+## Recontrôle indépendant — correctif cb97f6e7c
+
+Révision corrigée relue : `cb97f6e7c276efccf157febf27b722e33cb14800`. Sources extraites par git show dans un nouveau snapshot temporaire `/private/tmp/hermes-prospection-review-cb97f6e7c`, avec mapper/cache Jest dédiés ; aucune dépendance aux éditions en cours du worktree de l'auteur.
+
+Le nouveau spec est strictement inchangé : blob Git `53495fe6a9bdbfbd2f599029a3d7269ba59d1014` identique dans mon commit initial `6b24ad870` et dans cb97f6e7c. Résultat indépendant : **12/12 tests réussis**, une suite, zéro échec, durée **4,486 s**. `git diff --check cb97f6e7c^ cb97f6e7c` réussi.
+
+La relecture confirme les filtres relationnels user actif/non supprimé et workspace ACTIVE/non supprimé, tout en conservant membership/rôle DB. Un DRAFT existant repasse désormais les vérifications de personne active/adresse primaire, listId attendu, liste active et membres exacts (lecture bornée à n+1), puis une relecture des oppositions avant le retour. Le replay légitime conserve ses IDs et ne réinsère rien. Les deux constats P1/P2 sont donc **corrigés et recontrôlés au niveau unitaire** sur ce SHA ; aucun nouveau défaut identifié dans ce périmètre de correction.
+
+Limites inchangées : aucune DB, mutation SQL, session HTTP réelle, course concurrente, transaction inter-connexions ou émission d'e-mail exécutée dans ce recontrôle. Les 46/122 autres cas rapportés par l'auteur n'ont pas été rejoués par cet agent ; leur preuve de CI groupée reste à root.
