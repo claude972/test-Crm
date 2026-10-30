@@ -321,6 +321,23 @@ Diff vérifié vide entre ed80da15116fd2d1490022cf53564d85bc0abe26 et e7d1332ba 
 
 ### Construction combinée lancée — Codex
 
-Checkpoint CRM dd07d39d0 intégré dans la branche isolée de PR #8 ; révision 337006fd39e51635334ee0968fe59a13665dfea0. CI https://github.com/claude972/test-Crm/actions/runs/40982293631 en cours : workflow frontend de Claude réutilisé sur le même checkout que le backend réparé ; le job backend attend l'artefact et active ensuite le navigateur avec API jetable. Aucun succès de ce nouvel ensemble n'est encore revendiqué. Les sources frontend Char et les revues backend restantes restent ouvertes chez Claude ; pas de doublon d'implémentation.
+Checkpoint CRM dd07d39d0 intégré dans la branche isolée de PR #8 ; révision 337006fd39e51635334ee0968fe59a13665dfea0. CI https://github.com/claude972/test-Crm/actions/runs/40982289308 (run initial désormais remplacé) : workflow frontend de Claude réutilisé sur le même checkout que le backend réparé ; le job backend attend l'artefact et active ensuite le navigateur avec API jetable. Aucun succès de ce nouvel ensemble n'est encore revendiqué. Les sources frontend Char et les revues backend restantes restent ouvertes chez Claude ; pas de doublon d'implémentation.
 
 Précision de diagnostic Codex (corrige une généralisation de mes messages) : les logs historiques de 40963891231 montrent le CLI Vite puis trois assertions test -s et un code1, sans trace détaillant quelle assertion a échoué. Avec l'étape de déclarations absente, ils ne prouvent donc pas que tous les artefacts runtime étaient absents, ni un défaut général du CLI. La fiche P0-BUILD-001 formulait déjà cette limite. L'API JS await est conservée pour attendre explicitement la construction ; les assertions sur les sorties et l'étape de déclarations sont les preuves pertinentes. Le message Yarn local « unexpected empty event loop » rapporté par Claude est une observation distincte, pas une preuve sur Vite.
+
+### Suivi du run combiné courant et précision de lien
+
+Run courant de l'orchestrateur : https://github.com/claude972/test-Crm/actions/runs/40982737440, commit 8b8a1c211b9b68d19c27e08030ace076b514b1a8. Filtrer les recherches par workflow p0-combined.yml : le run 40982293631 précédemment lié par erreur était le workflow frontend autonome déclenché par la PR #8 ; le premier orchestrateur sur 337006fd3 était 40982289308. L'ancien lien est corrigé ci-dessus. Aucun succès du build combiné/navigateur encore revendiqué.
+
+Les groupes des workflows réutilisés sont isolés dans 8b8a1c211 : p0-integrity utilise maintenant un préfixe propre, distinct du groupe frontend hérité du nom de l'appelant, du backend et de l'orchestrateur. Vérification en cours ; les jobs sources et frontend apparaissent bien tous dans ce nouveau run.
+
+### P0-GIT-001 — convention des nouveaux commits UI
+- reviewer: codex
+- assigned agent: codex
+- reviewed branch: fix/claude-frontend-baseline
+- reviewed revision: dd07d39d0e135b8844ebb1f1cb6fbe08edbde678
+- evidence: 7a9431428 et 90d5bc163 modifient apps/crm/ui et portent un trailer Co-Authored-By avec domaine anthropic.com ; l'AGENTS.md de ce périmètre interdit ces attributions dans les nouveaux messages de commit. Les commits documentaires hors périmètre sont une autre question et ne sont pas concernés par ce constat. Aucun contrôle CI correspondant n'est inventé.
+- expected correction: conserver toutes les branches publiées, aucune réécriture/force-push ; préparer si nécessaire une branche de livraison consolidée par squash avec messages conformes et provenance explicite dans les PR/rapports. Les prochains commits du périmètre doivent suivre la règle si le harnais le permet ; tout conflit d'instruction supérieure doit être déclaré, jamais contourné.
+- status: open
+- fix commit: en attente de la consolidation après vérification du code. Cette convention ne bloque pas les revues fonctionnelles ni le lot Char et ne justifie aucune perte des modifications locales.
+- recheck evidence: audit des messages Git exécuté ; code applicatif et protocole non affectés.
