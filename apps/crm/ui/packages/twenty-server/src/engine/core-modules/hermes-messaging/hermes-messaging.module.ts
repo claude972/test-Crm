@@ -1,3 +1,4 @@
+import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
 import { FileModule } from 'src/engine/core-modules/file/file.module';
 import { JwtModule } from 'src/engine/core-modules/jwt/jwt.module';
@@ -24,6 +25,7 @@ import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-t
   imports: [
     UserRoleModule,
     TokenModule,
+    WorkspaceCacheStorageModule,
     FileModule,
     JwtModule,
     TypeOrmModule.forFeature([
