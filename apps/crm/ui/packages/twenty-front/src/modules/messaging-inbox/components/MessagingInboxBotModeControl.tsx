@@ -7,6 +7,7 @@ import { Tag } from 'kovaa-lab-ui/primitives/data-display';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { type MessagingInboxBotModeControl as BotModeControl } from '@/messaging-inbox/hooks/useMessagingInboxBotMode';
+import { useMessagingInboxBotPolicy } from '@/messaging-inbox/hooks/useMessagingInboxBotPolicy';
 import { MessagingInboxNote } from '@/messaging-inbox/components/MessagingInboxNote';
 
 const StyledRow = styled.div`
@@ -30,6 +31,20 @@ export const MessagingInboxBotModeControl = ({
   control,
 }: MessagingInboxBotModeControlProps) => {
   const { t } = useLingui();
+
+  // The V3 policy, when the deployment publishes it. It is authoritative over
+  // the per-conversation mode below, because it already accounts for the
+  // company and channel policies. A deployment without it keeps the v1
+  // rendering untouched rather than losing the control.
+  const policy = useMessagingInboxBotPolicy(conversationId);
+
+  const effective =
+    policy.read.kind === 'reported' ? policy.read.policy.effectiveMode : null;
+
+  // Offering an automatic reply that the policy will refuse is a button that
+  // lies. The company or channel policy caps this conversation, so the
+  // decision belongs in Settings, not here.
+  const autoIsCapped = effective === 'OFF' || effective === 'ASSISTED';
 
   // The server's answer wins when there is one; otherwise the conversation's
   // own field. Neither is the button that was pressed.
@@ -88,7 +103,7 @@ export const MessagingInboxBotModeControl = ({
           </Button>
         )}
 
-        {!isAuto && (
+        {!isAuto && !autoIsCapped && (
           <Button
             variant="outline"
             size="sm"
@@ -119,6 +134,16 @@ export const MessagingInboxBotModeControl = ({
                 : t`The server answered: ${control.state.status}`}
           </MessagingInboxNote>
         )}
+
+      {/* Why the automatic reply is not on offer. Said once, in product
+          words, instead of leaving a missing button unexplained. */}
+      {autoIsCapped && (
+        <MessagingInboxNote role="status">
+          {effective === 'OFF'
+            ? t`The company settings stop the bot on this channel. Replies stay human.`
+            : t`The company settings keep the bot assisted: it may draft, and you send.`}
+        </MessagingInboxNote>
+      )}
 
       {control.state.kind === 'denied' && (
         <MessagingInboxNote role="alert">
