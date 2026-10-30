@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermès CRM — routes de la maquette V3</title>
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/crm.css">
+<style>
+  .lanceur { max-width: 980px; margin: 0 auto; padding: calc(var(--u) * 3) calc(var(--u) * 2); display: flex; flex-direction: column; gap: calc(var(--u) * 2); }
+  .routes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+  .routes li { border-bottom: 1px solid var(--bord); }
+  .routes li:last-child { border-bottom: 0; }
+  .route { display: flex; flex-wrap: wrap; gap: var(--u); align-items: baseline; justify-content: space-between; padding: calc(var(--u) * 1.5) 0; color: inherit; text-decoration: none; }
+  .route:hover .route-nom { color: var(--accent-fort); text-decoration: underline; }
+  .route-nom { font-weight: 500; }
+  .route-quoi { flex: 1 1 100%; color: var(--texte-3); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="bandeau-maquette">
+  <strong>MAQUETTE</strong>
+  <span>Données fictives · aucune connexion ni envoi réel · aucune API, aucun micro</span>
+</div>
+
+<div class="lanceur">
+  <header class="entete">
+    <div>
+      <h1 class="titre">Maquette détaillée V3</h1>
+      <p class="sous-titre">Prototype statique. Chaque route s’ouvre directement dans l’état décrit, sans interaction préalable.</p>
+    </div>
+  </header>
+
+  <p class="note note-cadre">
+    Cette maquette démontre une interface. Elle ne prouve ni connexion à un fournisseur, ni réception WhatsApp réelle,
+    ni persistance de pipeline, ni campagne opérationnelle. Les commandes marquées « simulé » n’ont aucune API derrière elles.
+  </p>
+
+  <section class="bloc">
+    <header class="bloc-entete">
+      <h2 class="bloc-titre">Atelier Fontaine</h2>
+      <p class="bloc-sous">Menuiserie sur mesure · WhatsApp en « Automatique », e-mail en « Assisté »</p>
+    </header>
+    <ul class="routes">
+      <li><a class="route" href="app.html?ecran=dashboard&amp;societe=atelier"><span class="route-nom">Tableau de bord</span><span class="route-quoi">Pipeline par étape native, indicateurs dont un non mesurable, affaires et provenance</span></a></li>
+      <li><a class="route" href="app.html?ecran=commune&amp;societe=atelier"><span class="route-nom">Mes sociétés — lecture seule</span><span class="route-quoi">Récapitulatif des sociétés autorisées, sans droit d’écriture</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea"><span class="route-nom">WhatsApp — fil avec médias</span><span class="route-quoi">Image entrante et sortante, vocal jouable, média indisponible, bot automatique hérité</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea&amp;scenario=brouillon"><span class="route-nom">WhatsApp — brouillon Hermès</span><span class="route-quoi">Brouillon proposé, insertion dans la réponse, envoi réservé au clic humain</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea&amp;scenario=bascule"><span class="route-nom">WhatsApp — bascule AUTO vers ASSISTED</span><span class="route-quoi">Passage en « Assisté » : plus aucun départ seul, brouillon conservé, anciens messages non repris</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-ines"><span class="route-nom">WhatsApp — conversation en « Assisté »</span><span class="route-quoi">Conversation restreinte sous une société en « Automatique », message au résultat incertain</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-marc"><span class="route-nom">WhatsApp — conversation en « Arrêt complet »</span><span class="route-quoi">Brouillon bloqué, réponse humaine toujours possible</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-paul&amp;scenario=bascule"><span class="route-nom">WhatsApp — réglage plafonné par la société</span><span class="route-quoi">Réglage de conversation devenu plus large que la société : conservé dans l’historique, sans effet</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea&amp;scenario=enregistrement"><span class="route-nom">WhatsApp — vocal en enregistrement</span><span class="route-quoi">Enregistrement simulé, arrêt et annulation, aucun micro ouvert</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea&amp;scenario=preecoute"><span class="route-nom">WhatsApp — vocal en préécoute</span><span class="route-quoi">Préécoute jouable avant envoi, annulation possible</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea&amp;scenario=micro-refuse"><span class="route-nom">WhatsApp — micro refusé</span><span class="route-quoi">Permission refusée, message actionnable, reste du fil disponible</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea&amp;scenario=media"><span class="route-nom">WhatsApp — média avant envoi</span><span class="route-quoi">Aperçu du média, envoi comme action humaine distincte</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=atelier&amp;fil=wa-lea&amp;scenario=media-refus"><span class="route-nom">WhatsApp — média refusé</span><span class="route-quoi">MEDIA_TOO_LARGE, limite annoncée comme non vérifiée</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=inbox&amp;fil=ml-devis"><span class="route-nom">Boîte e-mail — fil complet</span><span class="route-quoi">Objet, destinataires, Cc, Cci, citation repliée, pièces jointes, répondre et transférer</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=inbox&amp;fil=ml-pose"><span class="route-nom">Boîte e-mail — brouillon Hermès</span><span class="route-quoi">Brouillon MCP en ASSISTED sur un fil e-mail</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=inbox&amp;fil=ml-devis&amp;scenario=repondre"><span class="route-nom">Boîte e-mail — répondre</span><span class="route-quoi">Éditeur avec À, Cc, objet et message, destinataire déduit de l’expéditeur</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=inbox&amp;fil=ml-devis&amp;scenario=reponse-tous"><span class="route-nom">Boîte e-mail — répondre à tous</span><span class="route-quoi">Les autres participants passent en Cc, vos propres adresses et les doublons sont retirés</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=inbox&amp;fil=ml-devis&amp;scenario=transfert"><span class="route-nom">Boîte e-mail — transférer</span><span class="route-quoi">Nouvelle émission sans destinataire, pièces jointes reprises et retirables</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=inbox&amp;fil=ml-notif"><span class="route-nom">Boîte e-mail — bot à l’arrêt sur un fil</span><span class="route-quoi">Notification technique : brouillon interdit, lecture et réponse humaine conservées</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=drafts"><span class="route-nom">Boîte e-mail — brouillons</span><span class="route-quoi">Brouillon humain versionné, jamais émis</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=atelier&amp;dossier=sent"><span class="route-nom">Boîte e-mail — envoyés</span><span class="route-quoi">Copie Sent, qui n’est pas une preuve de livraison</span></a></li>
+      <li><a class="route" href="app.html?ecran=receptions&amp;societe=atelier"><span class="route-nom">Réceptions et qualification</span><span class="route-quoi">Provenance par source, six classements, revue requise, opposition marketing</span></a></li>
+      <li><a class="route" href="app.html?ecran=pipeline&amp;societe=atelier"><span class="route-nom">Pipeline — board</span><span class="route-quoi">Affaires par étape native, provenance liée, changement d’étape simulé, issue à définir</span></a></li>
+      <li><a class="route" href="app.html?ecran=campagne&amp;societe=atelier"><span class="route-nom">Campagne SMTP</span><span class="route-quoi">Identité de boîte exacte, capacités serveur, audience, parcours et résultats honnêtes</span></a></li>
+      <li><a class="route" href="app.html?ecran=reglages&amp;societe=atelier&amp;onglet=societe"><span class="route-nom">Réglages — société et membres</span><span class="route-quoi">Société exploitante distincte d’une fiche Company cliente</span></a></li>
+      <li><a class="route" href="app.html?ecran=reglages&amp;societe=atelier&amp;onglet=connexions"><span class="route-nom">Réglages — connexions</span><span class="route-quoi">Centre unique : Evolution, IMAP, SMTP, MCP, collectes, HeyForm, Cal.diy</span></a></li>
+      <li><a class="route" href="app.html?ecran=reglages&amp;societe=atelier&amp;onglet=politiques"><span class="route-nom">Réglages — politiques du bot</span><span class="route-quoi">Politique par canal et table d’héritage restrictif</span></a></li>
+    </ul>
+  </section>
+
+  <section class="bloc">
+    <header class="bloc-entete">
+      <h2 class="bloc-titre">Verdure &amp; Associés</h2>
+      <p class="bloc-sous">Paysagiste · WhatsApp en « Arrêt complet », connexion WhatsApp en erreur</p>
+    </header>
+    <ul class="routes">
+      <li><a class="route" href="app.html?ecran=dashboard&amp;societe=verdure"><span class="route-nom">Tableau de bord</span><span class="route-quoi">Cloisonnement : d’autres affaires, d’autres chiffres, les mêmes étapes natives</span></a></li>
+      <li><a class="route" href="app.html?ecran=wa&amp;societe=verdure&amp;fil=wa-sofia"><span class="route-nom">WhatsApp — vidéo et médias en défaut</span><span class="route-quoi">Vidéo jouable, média en traitement, lien expiré, bot à l’arrêt hérité et connexion en erreur</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=verdure&amp;dossier=inbox"><span class="route-nom">Boîte e-mail</span><span class="route-quoi">Autre boîte, autres dossiers, aucun contenu partagé avec l’autre société</span></a></li>
+      <li><a class="route" href="app.html?ecran=mail&amp;societe=verdure&amp;dossier=drafts"><span class="route-nom">Boîte e-mail — dossier vide</span><span class="route-quoi">État vide explicite</span></a></li>
+      <li><a class="route" href="app.html?ecran=campagne&amp;societe=verdure"><span class="route-nom">Campagne — aucune</span><span class="route-quoi">État vide : les campagnes et identités sont cloisonnées</span></a></li>
+      <li><a class="route" href="app.html?ecran=reglages&amp;societe=verdure&amp;onglet=connexions"><span class="route-nom">Réglages — connexions en défaut</span><span class="route-quoi">Connexion en erreur, connexion désactivée, MCP et Cal.diy non configurés</span></a></li>
+      <li><a class="route" href="app.html?ecran=reglages&amp;societe=verdure&amp;onglet=politiques"><span class="route-nom">Réglages — politique OFF</span><span class="route-quoi">Une société à l’arrêt complet ne peut pas être rallumée depuis une conversation</span></a></li>
+    </ul>
+  </section>
+
+  <p class="note">
+    Les deux sociétés partagent le même membre actif avec des rôles différents : administratrice chez Atelier Fontaine,
+    lecture seule chez Verdure &amp; Associés. Aucun réglage de l’une n’agit sur l’autre.
+  </p>
+</div>
+</body>
+</html>

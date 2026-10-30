@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Illustration : plan coté d'une vitrine, hauteur 2600, largeur 4200">
+  <rect width="800" height="600" fill="#F2F0EA"/>
+  <g stroke="#DAD6CB" stroke-width="1">
+    <path d="M40 0V600M120 0V600M200 0V600M280 0V600M360 0V600M440 0V600M520 0V600M600 0V600M680 0V600M760 0V600"/>
+    <path d="M0 40H800M0 120H800M0 200H800M0 280H800M0 360H800M0 440H800M0 520H800"/>
+  </g>
+  <g fill="none" stroke="#2F2A24" stroke-width="3">
+    <rect x="140" y="140" width="520" height="300"/>
+    <rect x="164" y="164" width="472" height="252"/>
+    <path d="M400 164V416M164 300H636"/>
+  </g>
+  <g fill="none" stroke="#8A5A33" stroke-width="2">
+    <rect x="188" y="188" width="188" height="88"/>
+    <rect x="424" y="188" width="188" height="88"/>
+    <rect x="188" y="324" width="188" height="68"/>
+    <rect x="424" y="324" width="188" height="68"/>
+  </g>
+  <g stroke="#6E6A61" stroke-width="1.5">
+    <path d="M140 484H660M140 476V492M660 476V492"/>
+    <path d="M96 140V440M88 140H104M88 440H104"/>
+  </g>
+  <g font-family="Helvetica, sans-serif" font-size="19" fill="#2F2A24">
+    <text x="372" y="474">4200</text>
+    <text x="54" y="296">2600</text>
+    <text x="140" y="124">Vitrine — élévation</text>
+  </g>
+  <g font-family="Helvetica, sans-serif" font-size="15" fill="#6E6A61">
+    <text x="188" y="534">Chêne massif · finition huilée</text>
+    <text x="188" y="558">Pose prévue le 12 novembre</text>
+  </g>
+</svg>

@@ -1,0 +1,240 @@
+/* Hermès V3 — tableau de bord, pipeline, réceptions, campagne, réglages. */
+
+/* ---------- pipeline résumé ---------- */
+
+.etapes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--u);
+}
+
+.etape {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: calc(var(--u) * 1.5);
+  border: 1px solid var(--bord);
+  border-top: 3px solid var(--bord-fort);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.etape:nth-child(4) { border-top-color: var(--accent-bord); }
+.etape:nth-child(5) { border-top-color: var(--accent); }
+
+.etape-cible { border-top-style: dashed; border-top-color: var(--bord-fort); background: var(--surface-2); }
+
+.etape-nom { color: var(--texte-2); font-size: 13px; }
+.etape-valeur { font-size: 22px; font-weight: 700; }
+.etape-montant { color: var(--texte-3); font-size: 12px; }
+
+.indicateurs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--u);
+}
+
+.indicateur {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: calc(var(--u) * 1.5);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.indicateur-label { color: var(--texte-2); font-size: 13px; }
+.indicateur-valeur { font-size: 22px; font-weight: 700; }
+.indicateur-detail { color: var(--texte-3); font-size: 12px; }
+.indicateur-vide .indicateur-valeur { color: var(--texte-3); font-size: 15px; font-weight: 500; }
+
+.action-nom { display: block; }
+.action-date { display: block; color: var(--texte-3); font-size: 12px; }
+.action-retard { color: var(--alerte); font-weight: 500; }
+
+.puce-etape-puce { border-color: var(--accent-bord); background: var(--accent-doux); color: var(--accent-fort); }
+
+/* ---------- board ---------- */
+
+.board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(230px, 1fr);
+  gap: var(--u);
+  padding-bottom: var(--u);
+  overflow-x: auto;
+  align-items: start;
+}
+
+.colonne {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u);
+  min-width: 0;
+  padding: var(--u);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface-2);
+}
+
+.colonne-entete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.colonne-titre { flex: 1 1 auto; font-size: 14px; }
+.colonne-compte { flex: 1 1 100%; color: var(--texte-3); font-size: 12px; }
+.colonne-cible { border-style: dashed; background: transparent; }
+
+.carte-affaire {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: calc(var(--u) * 1.5);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.carte-titre { font-size: 14px; }
+.carte-contact { margin: 0; color: var(--texte-2); font-size: 13px; }
+.carte-montant { margin: 0; font-weight: 500; font-variant-numeric: tabular-nums; }
+.carte-action { margin: var(--u) 0 0; }
+.carte-proprietaire,
+.carte-provenance { margin: 0; color: var(--texte-3); font-size: 12px; }
+
+/* ---------- réceptions ---------- */
+
+.puce-source { border-color: var(--bord-fort); background: var(--surface-3); font-weight: 500; }
+.puce-classe { border-color: var(--accent-bord); background: var(--accent-doux); color: var(--accent-fort); }
+.puce-qualif { border-color: var(--bord-fort); background: var(--surface); }
+
+.tableau-receptions td { font-size: 12px; }
+.tableau-receptions .texte-faible { margin-top: 2px; }
+.ref-externe { margin-top: 2px; }
+
+/* ---------- campagne ---------- */
+
+.identite {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: calc(var(--u) * 1.5);
+  margin-bottom: var(--u);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.identite.actif { border-color: var(--accent-bord); background: var(--accent-doux); }
+.identite-haut { display: flex; flex-wrap: wrap; gap: var(--u); align-items: center; }
+.identite-adresse { font-weight: 500; }
+
+.capacite {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u);
+  align-items: center;
+  padding: var(--u) 0;
+  border-bottom: 1px solid var(--bord);
+}
+
+.capacite:last-of-type { border-bottom: 0; }
+.capacite-nom { flex: 0 0 150px; font-weight: 500; }
+
+.capacite-etat {
+  padding: 2px var(--u);
+  border: 1px solid var(--accent-bord);
+  border-radius: 999px;
+  background: var(--accent-doux);
+  color: var(--accent-fort);
+  font-size: 11px;
+}
+
+.capacite-refus .capacite-etat { border-color: var(--alerte); background: var(--alerte-doux); color: var(--alerte); }
+.capacite .texte-faible { flex: 1 1 100%; }
+
+.resultat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u);
+  align-items: baseline;
+  padding: var(--u) 0;
+  border-bottom: 1px solid var(--bord);
+}
+
+.resultat:last-of-type { border-bottom: 0; }
+.resultat-label { flex: 0 0 220px; }
+.resultat-valeur { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.resultat-inconnu { color: var(--texte-3); font-size: 14px; font-weight: 500; }
+.resultat .texte-faible { flex: 1 1 100%; }
+
+/* ---------- réglages ---------- */
+
+.onglets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--bord);
+}
+
+.onglet {
+  padding: var(--u) calc(var(--u) * 1.5);
+  border-bottom: 2px solid transparent;
+  color: var(--texte-2);
+  text-decoration: none;
+}
+
+.onglet:hover { color: var(--texte); }
+.onglet.actif { border-bottom-color: var(--accent); color: var(--accent-fort); font-weight: 500; }
+
+.connexion,
+.politique {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: calc(var(--u) * 1.5);
+  margin-bottom: var(--u);
+  border: 1px solid var(--bord);
+  border-left: 3px solid var(--bord-fort);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.connexion.etat-verifie { border-left-color: var(--accent); }
+.connexion.etat-declare { border-left-color: var(--attention); }
+.connexion.etat-erreur { border-left-color: var(--alerte); }
+.connexion.etat-desactivee { border-left-color: var(--bord-fort); background: var(--surface-2); }
+.connexion.etat-absent { border-left-style: dashed; }
+
+.connexion-haut { display: flex; flex-wrap: wrap; gap: var(--u); align-items: baseline; }
+.connexion-nom { font-weight: 500; }
+.connexion-protocole { color: var(--texte-3); font-size: 12px; }
+.connexion-etat { font-size: 13px; }
+
+.politique { border-left-color: var(--accent); }
+
+/* ---------- mobile 390 ---------- */
+
+@media (max-width: 860px) {
+  .board { grid-auto-flow: row; grid-auto-columns: auto; overflow-x: visible; }
+
+  .capacite-nom,
+  .resultat-label { flex: 1 1 100%; }
+
+  .onglets { gap: 0; }
+  .onglet { flex: 1 1 auto; text-align: center; font-size: 13px; }
+}
+
+.detail-admin {
+  padding: var(--u) calc(var(--u) * 1.5);
+  border: 1px dashed var(--bord-fort);
+  border-radius: var(--rayon);
+}
+
+.detail-admin summary { color: var(--texte-3); cursor: pointer; font-size: 12px; }
+.detail-admin summary:hover { color: var(--texte-2); }
+.detail-admin .definitions { margin-top: var(--u); font-size: 12px; }

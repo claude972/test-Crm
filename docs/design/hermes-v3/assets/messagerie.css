@@ -1,0 +1,485 @@
+/* Hermès V3 — WhatsApp et boîte e-mail.
+   L'aspect WhatsApp vient de la grammaire de la conversation : alignement,
+   bulle, heure et état dans la bulle, séparateurs de jour, média en pleine
+   largeur de bulle. Aucun logo, aucune ressource de marque. */
+
+/* ---------- WhatsApp ---------- */
+
+.wa {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: calc(var(--u) * 2);
+  align-items: start;
+}
+
+.wa-liste {
+  display: flex;
+  flex-direction: column;
+  max-height: var(--hauteur-fil);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  list-style: none;
+}
+
+.wa-item {
+  display: block;
+  padding: calc(var(--u) * 1.5);
+  border-bottom: 1px solid var(--bord);
+  color: inherit;
+  text-decoration: none;
+}
+
+.wa-liste li:last-child .wa-item { border-bottom: 0; }
+.wa-item:hover { background: var(--surface-2); }
+
+.wa-item.actif {
+  background: var(--accent-doux);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.wa-item-haut { display: flex; justify-content: space-between; gap: var(--u); }
+.wa-item-nom { font-weight: 500; }
+.wa-item-heure { color: var(--texte-3); font-size: 12px; white-space: nowrap; }
+
+.wa-item-apercu {
+  margin: 2px 0 var(--u);
+  overflow: hidden;
+  color: var(--texte-2);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wa-item-bas { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* Le fil occupe une hauteur fixe : les messages défilent, le composeur reste
+   visible en bas, comme dans une messagerie. */
+.wa-fil {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 1.5);
+  height: var(--hauteur-fil);
+  min-width: 0;
+  padding: calc(var(--u) * 2);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.fil-entete {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--u);
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: calc(var(--u) * 1.5);
+  border-bottom: 1px solid var(--bord);
+}
+
+.fil-nom { font-size: 17px; }
+.fil-detail { margin: 2px 0 0; color: var(--texte-3); font-size: 13px; }
+.commande-locale { display: flex; flex-direction: column; gap: 2px; }
+
+/* ---------- bandeau de mode ---------- */
+
+.bandeau-mode {
+  flex: none;
+  padding: var(--u) calc(var(--u) * 1.5);
+  border: 1px solid var(--bord);
+  border-left: 3px solid var(--bord-fort);
+  border-radius: var(--rayon);
+  background: var(--surface-2);
+}
+
+.bandeau-mode.mode-auto { border-left-color: var(--accent); }
+.bandeau-mode.mode-assisted { border-left-color: var(--attention); }
+.bandeau-mode.mode-off { border-left-color: var(--alerte); }
+
+.bandeau-mode-haut { display: flex; flex-wrap: wrap; gap: var(--u); align-items: center; }
+.bandeau-mode-raison { color: var(--texte-2); font-size: 13px; }
+.bandeau-mode-explic { margin: var(--u) 0 0; font-size: 13px; }
+
+.bandeau-mode-detail { margin-top: var(--u); }
+
+.bandeau-mode-detail summary {
+  color: var(--texte-3);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.bandeau-mode-detail summary:hover { color: var(--texte-2); }
+
+.bandeau-mode-details {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px var(--u);
+  margin: var(--u) 0 0;
+  font-size: 12px;
+}
+
+.bandeau-mode-details dt { color: var(--texte-3); }
+.bandeau-mode-details dd { margin: 0; }
+
+/* ---------- fil ---------- */
+
+.fil-corps {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--u);
+  min-height: 0;
+  padding: var(--u);
+  overflow-y: auto;
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface-2);
+}
+
+.jour-separateur {
+  align-self: center;
+  padding: 2px calc(var(--u) * 1.5);
+  border: 1px solid var(--bord);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--texte-3);
+  font-size: 11px;
+}
+
+.jour-nonlu { border-color: var(--accent-bord); background: var(--accent-doux); color: var(--accent-fort); }
+
+.ligne-bulle { display: flex; }
+.ligne-bulle.sortant { justify-content: flex-end; }
+
+.bulle {
+  position: relative;
+  max-width: 78%;
+  padding: var(--u) calc(var(--u) * 1.5);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon-bulle);
+  background: var(--surface);
+}
+
+.bulle.entrant { border-bottom-left-radius: 2px; }
+
+.bulle.sortant {
+  border-color: var(--accent-bord);
+  border-bottom-right-radius: 2px;
+  background: var(--accent-doux);
+}
+
+.bulle-auteur {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--accent-fort);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.bulle-texte { margin: 0; white-space: pre-wrap; }
+
+.bulle-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u);
+  align-items: baseline;
+  justify-content: flex-end;
+  margin-top: 4px;
+  color: var(--texte-3);
+  font-size: 11px;
+}
+
+.bulle-etat { font-style: italic; }
+
+/* ---------- médias ---------- */
+
+.media { margin-bottom: var(--u); }
+
+.media-visuel {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface-3);
+}
+
+.media-credit { display: block; margin-top: 4px; color: var(--texte-3); font-size: 11px; }
+
+.media-indispo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  padding: calc(var(--u) * 1.5);
+  border: 1px dashed var(--bord-fort);
+  border-radius: var(--rayon);
+  background: var(--surface-2);
+}
+
+.media-detail { color: var(--texte-3); font-size: 12px; }
+
+.vocal {
+  display: flex;
+  gap: var(--u);
+  align-items: center;
+  min-width: 220px;
+  padding: var(--u);
+  border: 1px solid var(--bord);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.vocal-bouton {
+  flex: none;
+  width: calc(var(--u) * 4.5);
+  height: calc(var(--u) * 4.5);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: var(--accent);
+  color: #FFFFFF;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.vocal-piste {
+  flex: 1 1 auto;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bord-fort);
+}
+
+.vocal-progres { width: 0; height: 100%; border-radius: 2px; background: var(--accent); }
+.vocal-temps { flex: none; color: var(--texte-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+.vocal-erreur { flex: 1 1 100%; margin: 0; }
+
+.fichier {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u);
+  align-items: center;
+  padding: var(--u);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.fichier-icone { font-size: 16px; }
+.fichier-info { display: flex; flex-direction: column; }
+.fichier-nom { font-size: 13px; font-weight: 500; }
+.fichier-detail { color: var(--texte-3); font-size: 12px; }
+
+/* ---------- composeur ---------- */
+
+.composeur {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--u);
+  max-height: 46%;
+  overflow-y: auto;
+}
+.actions-composeur { margin-top: 0; }
+
+.brouillon,
+.enregistreur,
+.composeur-media {
+  padding: calc(var(--u) * 1.5);
+  border: 1px solid var(--accent-bord);
+  border-radius: var(--rayon);
+  background: var(--accent-doux);
+}
+
+.brouillon-bloque { border-color: var(--bord-fort); background: var(--surface-2); }
+
+.brouillon-entete,
+.enregistreur-entete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u);
+  align-items: center;
+  margin-bottom: var(--u);
+}
+
+.brouillon-titre { font-size: 14px; }
+.brouillon-texte { margin: 0; }
+
+.enregistreur-ligne { display: flex; gap: var(--u); align-items: center; }
+.pastille-enregistrement { color: var(--alerte); font-size: 18px; line-height: 1; }
+.enregistreur-temps { font-variant-numeric: tabular-nums; font-weight: 500; }
+.enregistreur-etat { color: var(--texte-2); font-size: 13px; }
+
+/* ---------- boîte e-mail ---------- */
+
+.mail {
+  display: grid;
+  grid-template-columns: 200px 300px minmax(0, 1fr);
+  gap: calc(var(--u) * 2);
+  align-items: start;
+}
+
+.mail-dossiers {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: var(--u);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  list-style: none;
+}
+
+.mail-dossier {
+  display: flex;
+  gap: var(--u);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--u);
+  border-radius: var(--rayon);
+  color: var(--texte-2);
+  text-decoration: none;
+}
+
+.mail-dossier:hover { background: var(--surface-2); }
+.mail-dossier.actif { background: var(--accent-doux); color: var(--accent-fort); font-weight: 500; }
+.mail-dossier-compte { color: var(--texte-3); font-size: 11px; }
+.mail-note { padding: 0 var(--u); }
+
+.mail-liste {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  list-style: none;
+}
+
+.mail-item {
+  display: block;
+  padding: calc(var(--u) * 1.5);
+  border-bottom: 1px solid var(--bord);
+  border-left: 3px solid transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mail-liste li:last-child .mail-item { border-bottom: 0; }
+.mail-item:hover { background: var(--surface-2); }
+.mail-item.nonlu { border-left-color: var(--accent); }
+.mail-item.actif { background: var(--accent-doux); }
+
+.mail-item-haut { display: flex; gap: var(--u); justify-content: space-between; }
+.mail-item-de { color: var(--texte-2); font-size: 12px; }
+.mail-item-date { color: var(--texte-3); font-size: 12px; white-space: nowrap; }
+.mail-item.nonlu .mail-item-objet { font-weight: 500; }
+.mail-item-objet { margin: 4px 0 var(--u); font-size: 13px; }
+.mail-item-bas { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.mail-fil {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 2);
+  min-width: 0;
+  padding: calc(var(--u) * 2);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.mail-objet { font-size: 18px; }
+
+.mail-destinataires {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 2px var(--u);
+  margin: 0;
+  padding-bottom: calc(var(--u) * 2);
+  border-bottom: 1px solid var(--bord);
+  font-size: 12px;
+}
+
+.mail-destinataires dt { color: var(--texte-3); }
+.mail-destinataires dd { margin: 0; overflow-wrap: anywhere; }
+
+.mail-message {
+  padding: calc(var(--u) * 1.5);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.mail-message.sortant { border-color: var(--accent-bord); background: var(--accent-doux); }
+
+.mail-message-entete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u);
+  justify-content: space-between;
+  margin-bottom: var(--u);
+}
+
+.mail-message-auteur { font-weight: 500; }
+.mail-message-date { color: var(--texte-3); font-size: 12px; }
+.mail-corps p { margin: 0 0 var(--u); }
+.mail-corps p:last-child { margin-bottom: 0; }
+
+.mail-citation { margin-top: var(--u); color: var(--texte-3); font-size: 12px; }
+.mail-citation summary { cursor: pointer; }
+.mail-citation p { margin: var(--u) 0 0; padding-left: var(--u); border-left: 2px solid var(--bord-fort); }
+
+.mail-pj { margin-top: calc(var(--u) * 1.5); padding-top: var(--u); border-top: 1px solid var(--bord); }
+.mail-pj-titre { margin-bottom: var(--u); color: var(--texte-3); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ---------- mobile 390 ---------- */
+
+@media (max-width: 860px) {
+  .wa, .mail { grid-template-columns: minmax(0, 1fr); }
+
+  .wa-liste, .mail-liste { max-height: 34vh; overflow-y: auto; }
+
+  .wa-fil, .mail-fil { padding: calc(var(--u) * 1.5); }
+
+  /* En mobile la page défile : le fil reprend sa hauteur naturelle. */
+  .wa-fil { height: auto; }
+  .fil-corps { flex: 0 1 auto; max-height: 58vh; }
+  .composeur { max-height: none; overflow-y: visible; }
+
+  .bulle { max-width: 92%; }
+
+  .media-visuel { max-width: 100%; }
+
+  .mail-dossiers { flex-direction: row; flex-wrap: wrap; }
+  .mail-dossier { flex: 0 0 auto; border: 1px solid var(--bord); }
+  .mail-note { flex: 1 1 100%; padding: 0; }
+
+  .mail-destinataires { grid-template-columns: minmax(0, 1fr); }
+  .mail-destinataires dt { margin-top: 4px; }
+}
+
+/* ---------- éditeur e-mail ---------- */
+
+.composeur-mail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u);
+  padding: calc(var(--u) * 1.5);
+  border: 1px solid var(--accent-bord);
+  border-radius: var(--rayon);
+  background: var(--accent-doux);
+}
+
+.champ-ligne { display: flex; flex-direction: column; gap: 2px; }
+.champ-large { width: 100%; }
+.composeur-mail .mail-pj { border-top-color: var(--accent-bord); }
+.composeur-mail .brouillon { border-color: var(--bord-fort); background: var(--surface); }
+.composeur-mail .fichier { margin-bottom: var(--u); }
