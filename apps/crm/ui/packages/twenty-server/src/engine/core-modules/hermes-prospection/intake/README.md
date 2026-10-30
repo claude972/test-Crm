@@ -53,3 +53,27 @@ No active Hermes-specific MCP client, endpoint or tool configuration was establi
 ## Provider capabilities
 
 Connections may set server-only `allowedSources` to a nonempty subset of `SCRAPING`, `FORMS`, `CALENDAR`; the default is `['SCRAPING']`. The staging endpoint requires SCRAPING and cannot upgrade a Forms/calendar-only key. Native-contact event endpoints require their explicit source. Use distinct credentials per provider. See `events/README.md` for the normalized signed bridge protocol; raw unsigned Forms webhooks are never accepted.
+
+## Browser status query (metadata GraphQL)
+
+`hermesIntakeState` has **no arguments** and uses the authenticated current workspace. Only a standard non-impersonated user session is accepted; fresh native unrestricted-admin authorization runs before any private configuration or history read. Other workspace connections are filtered out. Invalid private configuration returns a generic CONFIGURATION_ERROR with no raw diagnostic. No credential, operator identity, signature, nonce or TTL is returned.
+
+```graphql
+query HermesIntakeState {
+  hermesIntakeState {
+    status checkedAt errorCode
+    endpoints {
+      connectionId structureId structureName label isAccepting
+      lastCollectionAt providerState errorCode
+      sources {
+        source relativeEndpoint humanQualificationRequired
+        nativeContactCreationEnabled
+      }
+    }
+  }
+}
+```
+
+Top-level status is NOT_CONFIGURED (no mapping for this workspace), CONFIGURED_UNVERIFIED (mapping exists), or CONFIGURATION_ERROR. Each endpoint providerState is CONFIGURED_UNVERIFIED or DISABLED. `isAccepting` is null for an enabled mapping and false for a disabled mapping; this query performs no Redis, provider, bridge or HTTP probe and never reports true. Source is SCRAPING/FORMS/CALENDAR. Paths are relative server routes; browsers must not invoke or sign them. `nativeContactCreationEnabled` reports policy authorization only, not tested provider readiness. SCRAPING always requires human qualification; Forms/calendar do not grant campaign qualification or marketing consent.
+
+New batches carry an optional server-attested `origin`: `{kind:'MANUAL'}` or `{kind:'SIGNED_INTAKE',connectionId,receivedAt}`. Historical batches have no origin. Only the HMAC-authenticated intake service supplies the internal provenance parameter; GraphQL input DTOs expose no such field. Origin is set on creation only; replay cannot upgrade a manual/historical batch or overwrite an existing receipt. lastCollectionAt is the latest matching SIGNED_INTAKE.receivedAt in the authorized workspace's durable batch state. A caller-chosen externalBatchId prefix, URL, createdByUserId, or provider collectedAt is never used as evidence of automatic receipt. Forms/calendar receipts are native Notes, so this field is not their last-receipt time.
