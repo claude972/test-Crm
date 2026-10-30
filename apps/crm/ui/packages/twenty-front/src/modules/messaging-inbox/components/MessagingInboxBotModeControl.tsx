@@ -57,14 +57,18 @@ export const MessagingInboxBotModeControl = ({
   // Only the transitions the policy can accept are offered. AUTO is offered
   // only when the server says this conversation may reply on its own, because
   // it is the one transition that needs a delegation we do not yet ask for.
-  const choices: { mode: MessagingInboxBotMode; label: string }[] =
+  // Typed before the filter: an inline literal infers `mode: string`, which no
+  // longer matches the mode union once it has been through `filter`.
+  const offered: { mode: MessagingInboxBotMode; label: string }[] = [
+    { mode: 'INHERIT', label: t`Follow the company` },
+    { mode: 'ASSISTED', label: t`Drafts only` },
+    { mode: 'OFF', label: t`Stop the bot` },
+  ];
+
+  const choices =
     known === null
       ? []
-      : [
-          { mode: 'INHERIT', label: t`Follow the company` },
-          { mode: 'ASSISTED', label: t`Drafts only` },
-          { mode: 'OFF', label: t`Stop the bot` },
-        ].filter((choice) => choice.mode !== known.localMode);
+      : offered.filter((choice) => choice.mode !== known.localMode);
 
   return (
     <>
