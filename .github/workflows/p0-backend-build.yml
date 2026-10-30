@@ -24,7 +24,7 @@ permissions:
   contents: read
 concurrency:
   group: p0-backend-build-${{ github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref_name != 'feat/codex-hermes-integration' }}
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -102,10 +102,20 @@ jobs:
           node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
           test -s dist/index.js
           test -s dist/index.d.ts
+      - name: Remove committed environment fixtures from the disposable Hermes job
+        if: ${{ inputs.hermes-checks }}
+        working-directory: .
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          git ls-files --error-unmatch apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server >/dev/null
+          git diff --quiet HEAD -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+          rm -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
       - name: Verify Hermes tenant, prospection and SMTP regressions
         if: ${{ inputs.hermes-checks && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}
         working-directory: apps/crm/ui/packages/twenty-server
-        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-jest-cache --runTestsByPath src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-access.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection.service.spec.ts src/engine/core-modules/hermes-prospection/utils/__tests__/hermes-import-policy.spec.ts src/engine/core-modules/emailing-domain/drivers/smtp/__tests__/smtp-emailing-domain-driver.spec.ts
+        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-jest-cache --runTestsByPath src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-access.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection.service.spec.ts src/engine/core-modules/hermes-prospection/utils/__tests__/hermes-import-policy.spec.ts src/engine/core-modules/emailing-domain/drivers/smtp/__tests__/smtp-emailing-domain-driver.spec.ts src/engine/core-modules/emailing-domain/utils/__tests__/get-sole-envelope-recipient.util.spec.ts src/engine/core-modules/emailing-domain/services/__tests__/unsubscribe-content.service.spec.ts src/engine/core-modules/hermes-connectors/evolution/__tests__/evolution-connection.adapter.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.resolver.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.service.spec.ts src/modules/emailing/services/__tests__/campaign-unconfirmed-quarantine.spec.ts src/modules/emailing/services/__tests__/emailing-domain-sender-quarantine.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-batch-settlements.util.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-send-failure.util.spec.ts
       - name: Typecheck backend production sources without starting the server
         id: backend_types
         if: ${{ !cancelled() && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}

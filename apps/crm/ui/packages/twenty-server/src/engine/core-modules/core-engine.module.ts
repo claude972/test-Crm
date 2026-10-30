@@ -1,3 +1,4 @@
+import { HermesConnectorsModule } from 'src/engine/core-modules/hermes-connectors/hermes-connectors.module';
 import { HermesProspectionModule } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.module';
 import { StructureDashboardModule } from 'src/engine/core-modules/workspace/structure-dashboard/structure-dashboard.module';
 import { Module } from '@nestjs/common';
@@ -91,6 +92,7 @@ import { FileApiModule } from './file/file-api.module';
     KovaaLabCRMConfigModule.forRoot(),
     HealthModule,
     HermesProspectionModule,
+    HermesConnectorsModule,
     StructureDashboardModule,
     AuthModule,
     BillingModule,

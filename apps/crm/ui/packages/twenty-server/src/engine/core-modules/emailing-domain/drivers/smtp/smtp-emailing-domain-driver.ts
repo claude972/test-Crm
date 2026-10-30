@@ -176,7 +176,7 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
       // Do not convert this into a retryable temporary-error exception.
       throw new EmailingDomainDriverException(
         'SMTP send outcome could not be confirmed; reconcile before retrying',
-        EmailingDomainDriverExceptionCode.UNKNOWN,
+        EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED,
       );
     }
   }
@@ -243,6 +243,7 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
           messageId: null,
           headerMessageId: null,
           errorMessage: 'SMTP outcome unconfirmed; reconcile before retrying',
+          errorCode: EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED,
         });
       }
     }

@@ -16,7 +16,7 @@ permissions:
   contents: read
 concurrency:
   group: p0-combined-${{ github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref_name != 'feat/codex-hermes-integration' }}
 jobs:
   source-integrity:
     uses: ./.github/workflows/p0-integrity.yml

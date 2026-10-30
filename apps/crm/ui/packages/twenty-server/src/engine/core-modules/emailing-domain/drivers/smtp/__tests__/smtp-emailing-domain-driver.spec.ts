@@ -26,6 +26,7 @@ describe('SmtpEmailingDomainDriver with a loopback SMTP protocol fixture', () =>
   let port: number;
   let connections: number;
   let messages: RecordedMessage[];
+  let loseReceipt: boolean;
   const sockets = new Set<Socket>();
   const sign = jest.fn(({ emailAddress }: { emailAddress: string }) =>
     Buffer.from(emailAddress).toString('base64url'),
@@ -85,6 +86,7 @@ describe('SmtpEmailingDomainDriver with a loopback SMTP protocol fixture', () =>
     sign.mockClear();
     messages = [];
     connections = 0;
+    loseReceipt = false;
     server = createServer((socket) => {
       connections++;
       sockets.add(socket);
@@ -110,6 +112,10 @@ describe('SmtpEmailingDomainDriver with a loopback SMTP protocol fixture', () =>
               data = false;
               content = [];
               recipients = [];
+              if (loseReceipt) {
+                socket.destroy();
+                return;
+              }
               socket.write('250 fixture accepted, not delivered\r\n');
             } else content.push(line.replace(/^\.\./, '.'));
           } else if (/^(EHLO|HELO) /i.test(line))
@@ -302,11 +308,37 @@ describe('SmtpEmailingDomainDriver with a loopback SMTP protocol fixture', () =>
     await expect(
       driver.sendEmail(request({ to: ['rejected@example.test'] })),
     ).rejects.toMatchObject({
-      code: 'UNKNOWN',
+      code: 'SEND_OUTCOME_UNCONFIRMED',
       message:
         'SMTP send outcome could not be confirmed; reconcile before retrying',
     });
     expect(messages).toHaveLength(0);
+  });
+
+  it('quarantines a lost receipt after actual DATA without sending the same message again', async () => {
+    loseReceipt = true;
+    await expect(driver.sendEmail(request())).rejects.toMatchObject({
+      code: 'SEND_OUTCOME_UNCONFIRMED',
+    });
+    expect(messages).toHaveLength(1);
+    expect(messages[0].recipients).toEqual(['recipient@example.test']);
+  });
+
+  it('preserves the unconfirmed code for every batch recipient whose DATA receipt was lost', async () => {
+    loseReceipt = true;
+    const result = await driver.sendEmailBatch(batch());
+    expect(result.entries).toHaveLength(2);
+    expect(
+      result.entries.every(
+        (entry) =>
+          entry.messageId === null &&
+          entry.errorCode === 'SEND_OUTCOME_UNCONFIRMED',
+      ),
+    ).toBe(true);
+    expect(messages.map((message) => message.recipients)).toEqual([
+      ['alice@example.test'],
+      ['bob@example.test'],
+    ]);
   });
 
   it('refuses marketing envelopes with multiple recipients before any SMTP connection', async () => {

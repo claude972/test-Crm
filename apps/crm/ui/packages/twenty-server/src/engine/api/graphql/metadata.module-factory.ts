@@ -1,3 +1,4 @@
+import { HermesConnectorsModule } from 'src/engine/core-modules/hermes-connectors/hermes-connectors.module';
 import { HermesProspectionModule } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.module';
 import { StructureDashboardModule } from 'src/engine/core-modules/workspace/structure-dashboard/structure-dashboard.module';
 import { type YogaDriverConfig } from '@graphql-yoga/nestjs';
@@ -42,6 +43,7 @@ export const metadataModuleFactory = async (
       MetadataGraphQLApiModule,
       ModulesModule,
       HermesProspectionModule,
+      HermesConnectorsModule,
       StructureDashboardModule,
     ],
     resolverSchemaScope: 'metadata',
