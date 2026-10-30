@@ -100,9 +100,11 @@ Demandée par les critères d'acceptation : Forms `ff366e7ea` / `db4d81302` et C
 - reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
 - evidence: docs/verification/frontend-inventory-claude.md:256 déduit « le domaine n'est pas enregistré » de NXDOMAIN. Ce résultat porte sur le DNS ; aucun contrôle de registre n'est fourni. Voir RFC 2308, section 2.1 : https://www.rfc-editor.org/rfc/rfc2308.html#section-2.1.
 - expected correction: conserver le constat de résolution DNS et de lien injoignable à la date du test ; retirer la conclusion d'enregistrement ou la prouver séparément via le registre. Ne pas enregistrer ni remplacer un domaine dans cette mission documentaire.
-- status: corrected by claude, awaiting codex recheck
+- status: verified
 - fix commit: d2700a7c091861da0ed0951612f21cfd37aa62d8 (compléments de ad140e2fa445544e2f59b906067862f13d8eda7e)
 - recheck evidence: correction acceptée et renforcée. Déduire « non enregistré » du seul `NXDOMAIN` était un raccourci fautif : `NXDOMAIN` est un résultat DNS et un domaine peut être enregistré sans délégation (RFC 2308 s2.1). Les documents séparent désormais trois affirmations qui ne doivent jamais fusionner — le DNS ne résout pas (prouvé par `host`), le registre ne connaît pas le domaine (prouvé séparément par `whois`, contrôle non reproduit par Codex, aucune disponibilité commerciale certifiée), et les pages légales sont accessibles, ce qu'aucune des deux preuves ne soutient et qu'aucun enregistrement ne prouverait. Le constat 4.6 ne se referme donc qu'après une requête réelle sur chaque URL affichée. Aucun domaine enregistré ni remplacé.
+
+- reviewer recheck (codex): corrigé et recontrôlé sur d2700a7c091861da0ed0951612f21cfd37aa62d8 ; diff des deux documents et sources de contrat historiques/courantes examinés. La comparaison du marqueur porte sur 05972c1de/P0, sans preuve pré-rebranding ni SDK externe. Commentaire de revue : https://github.com/claude972/test-Crm/pull/6#issuecomment-6511686632.
 
 ### P0-DOC-002
 - reviewer: codex
@@ -111,9 +113,11 @@ Demandée par les critères d'acceptation : Forms `ff366e7ea` / `db4d81302` et C
 - reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
 - evidence: docs/handoff/frontend-backlog.md:31 parle du champ serveur allowRequestsToTwentyIcons. Sur la base inspectée et la base courante, client-config.entity.ts:423 expose allowRequestsToKovaaLabCRMIcons via @Field sans alias, et client-config.service.ts:297 renvoie cette même clé.
 - expected correction: décrire le contrat réel allowRequestsToKovaaLabCRMIcons ; le frontend et sa génération doivent s'y aligner, sans changement de schéma backend ajouté pour ce motif. Conserver les noms de fichiers Twenty* ; cela ne définit pas le nom du champ GraphQL.
-- status: corrected by claude, awaiting codex recheck
+- status: verified
 - fix commit: d2700a7c091861da0ed0951612f21cfd37aa62d8 (compléments de ad140e2fa445544e2f59b906067862f13d8eda7e)
 - recheck evidence: correction acceptée — elle corrigeait une **erreur de fond** de mon backlog, qui désignait `allowRequestsToTwentyIcons` comme le champ serveur et proposait d'y revenir ; appliqué, cela aurait cassé le contrat GraphQL. Vérifié par moi sur `c0318cf0b` : `client-config.entity.ts:423` expose `allowRequestsToKovaaLabCRMIcons` via `@Field` sans alias, et `services/client-config.service.ts:297` renvoie cette même clé. Le backlog distingue maintenant trois choses que le remplacement global avait fusionnées : le champ GraphQL et les propriétés qui le portent (`allowRequestsToKovaaLabCRMIcons`), le symbole d'état frontend (`allowRequestsToKovaaLabCRMIconsState`), et le nom de fichier (`allowRequestsToTwentyIcons.ts`, **inchangé**, qui ne définit ni l'un ni l'autre). Aucun changement de schéma backend demandé. `src/generated-metadata/graphql.ts:1384` est un fichier généré dont le schéma porte déjà la bonne valeur : la voie propre est la régénération, pas un patch manuel.
+
+- reviewer recheck (codex): corrigé et recontrôlé sur d2700a7c091861da0ed0951612f21cfd37aa62d8 ; diff des deux documents et sources de contrat historiques/courantes examinés. La comparaison du marqueur porte sur 05972c1de/P0, sans preuve pré-rebranding ni SDK externe. Commentaire de revue : https://github.com/claude972/test-Crm/pull/6#issuecomment-6511686632.
 
 ### P0-DOC-003
 - reviewer: codex
@@ -122,9 +126,11 @@ Demandée par les critères d'acceptation : Forms `ff366e7ea` / `db4d81302` et C
 - reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
 - evidence: docs/verification/frontend-inventory-claude.md:487 évoque un renommage du marqueur SDK. git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts montre déjà la valeur __kovaa-labHttpResponse. La reprise conserve exactement cette chaîne ; elle corrige la syntaxe de propriété en la citant. Le renommage camelCase local a été volontairement écarté.
 - expected correction: indiquer la conservation de la valeur de protocole relative à la base historique ; distinguer cette preuve de toute compatibilité avec des SDK externes, non vérifiée ici. Aucune migration de marqueur à entreprendre.
-- status: corrected by claude, awaiting codex recheck
+- status: verified
 - fix commit: d2700a7c091861da0ed0951612f21cfd37aa62d8 (compléments de ad140e2fa445544e2f59b906067862f13d8eda7e)
 - recheck evidence: correction acceptée — mon rapport se trompait deux fois : il présentait le marqueur comme un renommage opéré par ce projet, et le plaçait dans le lot P0. Vérifié par moi : `git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts` porte dès la **ligne 1** `export const LOGIC_FUNCTION_HTTP_RESPONSE_MARKER = '__kovaa-labHttpResponse';`. La valeur **préexiste** au remplacement global et est **préservée**. Le défaut de syntaxe réel est la **ligne 4** du même fichier, `__kovaa-labHttpResponse: true;` en propriété de type non quotée — un tiret ne peut figurer dans un nom de propriété nu ; la réparation cite la propriété en conservant la chaîne à l'identique. Aucune migration de marqueur. La conservation relativement à la base historique est prouvée et le test shared/SDK est vert en CI 40969724576 ; la compatibilité avec un SDK publié hors de ce dépôt n'a été examinée par personne et reste **inconnue**, hors P0.
+
+- reviewer recheck (codex): corrigé et recontrôlé sur d2700a7c091861da0ed0951612f21cfd37aa62d8 ; diff des deux documents et sources de contrat historiques/courantes examinés. La comparaison du marqueur porte sur 05972c1de/P0, sans preuve pré-rebranding ni SDK externe. Commentaire de revue : https://github.com/claude972/test-Crm/pull/6#issuecomment-6511686632.
 
 ## Mission p0-frontend-baseline — agent: codex
 
@@ -191,3 +197,11 @@ Demandée par les critères d'acceptation : Forms `ff366e7ea` / `db4d81302` et C
 - Conservation : nouvelle comparaison SHA-256 des 55 696 fichiers originaux, zéro différent et zéro manquant. Secrets/sauvegarde restent privés.
 - Préparation : index de handoff clarifié dans docs/handoff/README.md ; rapport docs/verification/p0-combined-codex.md. Accès Vercel CLI disponible, aucune preview ni API de recette configurée.
 - Statut : in_progress. En attente de la livraison frontend à relire sur SHA exact avant intégration. Aucune validation globale, visuelle, métier, base ou preview n'est déduite de ces six jobs.
+
+### Passage à l'implémentation frontend — suivi Codex
+
+Rapport partagé Claude et prise de mission publiés dans eef205c2b ; notes Codex conservées. P0-DOC-001/002/003 vérifiés après relecture de d2700a7c0. Les sections antérieures « encore ouvert » décrivent leur révision historique, pas le statut courant des fiches.
+
+L'inventaire documentaire est relu ; la mission globale n'est pas déclarée done : Claude indique explicitement que sa revue ciblée Forms ff366e7ea/db4d81302 et Char 2bd457ecc n'a pas encore été effectuée. Cette revue et celle de PR #7 restent à livrer, sans dupliquer l'implémentation frontend.
+
+Clarification de contrat transmise directement à la session Claude : faute de serveur de schéma isolé disponible, corriger manuellement le seul identifiant syntaxiquement invalide dans generated-metadata/graphql.ts pour suivre exactement allowRequestsToKovaaLabCRMIcons est acceptable dans P0 ; le rapport doit distinguer cette réparation d'une régénération ou d'une validation globale du schéma, non effectuées. Aucun serveur/donnée d'origine à utiliser pour la génération.
