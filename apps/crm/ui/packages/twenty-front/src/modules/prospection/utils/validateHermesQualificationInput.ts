@@ -1,4 +1,5 @@
 import {
+  HERMES_MAX_DRAFT_NAME_LENGTH,
   HERMES_MAX_DRAFT_ROW_IDS,
   HERMES_MAX_QUALIFY_ROW_IDS,
   HERMES_PURPOSE_MAX_LENGTH,
@@ -24,8 +25,20 @@ export type HermesQualificationValidation = {
   issues: HermesInputIssue[];
 };
 
-// The notice URL must use HTTPS. Anything else, including a URL that does not
-// parse, is refused here rather than sent.
+// The notice URL must use HTTPS and carry no user info. A URL that does not
+// parse is refused here rather than sent. The credentials check matters on its
+// own: https://user:pass@host is valid HTTPS, and putting a secret in a URL
+// that is shown to recipients would leak it.
+const hasUrlCredentials = (value: string): boolean => {
+  try {
+    const parsed = new URL(value);
+
+    return parsed.username.length > 0 || parsed.password.length > 0;
+  } catch {
+    return false;
+  }
+};
+
 const isHttpsUrl = (value: string): boolean => {
   try {
     return new URL(value).protocol === 'https:';
@@ -86,6 +99,11 @@ export const validateHermesQualificationInput = ({
     issues.push({ key: 'privacy-notice', code: 'privacy-notice-required' });
   } else if (!isHttpsUrl(trimmedPrivacyNoticeUrl)) {
     issues.push({ key: 'privacy-notice', code: 'privacy-notice-not-https' });
+  } else if (hasUrlCredentials(trimmedPrivacyNoticeUrl)) {
+    issues.push({
+      key: 'privacy-notice',
+      code: 'privacy-notice-has-credentials',
+    });
   }
 
   if (issues.length > 0 || batchId.length === 0) {
@@ -144,6 +162,17 @@ export const validateHermesCampaignDraftInput = ({
 
   if (trimmedName.length === 0) {
     issues.push({ key: 'name', code: 'draft-name-required' });
+  }
+
+  // The server caps the draft name at 200 characters; without this the 201st
+  // was accepted here and refused there.
+  if (trimmedName.length > HERMES_MAX_DRAFT_NAME_LENGTH) {
+    issues.push({
+      key: 'name-too-long',
+      code: 'draft-name-too-long',
+      count: trimmedName.length,
+      limit: HERMES_MAX_DRAFT_NAME_LENGTH,
+    });
   }
 
   if (trimmedSubject.length === 0) {

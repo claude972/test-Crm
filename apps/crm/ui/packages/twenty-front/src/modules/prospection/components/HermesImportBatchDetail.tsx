@@ -11,6 +11,7 @@ import { HermesCampaignDraftForm } from '@/prospection/components/HermesCampaign
 import { HermesImportRowStatusTag } from '@/prospection/components/HermesImportRowStatusTag';
 import {
   HermesImportRowsTable,
+  isHermesRowQualifiable,
   isHermesRowSelectable,
 } from '@/prospection/components/HermesImportRowsTable';
 import { HermesQualificationForm } from '@/prospection/components/HermesQualificationForm';
@@ -88,10 +89,15 @@ export const HermesImportBatchDetail = ({
 
   // A selection made before a reload can hold ids that are no longer
   // selectable, so what is sent is always intersected with what is on screen.
-  const selectedRowIdList = useMemo(
+  // Split in two on purpose: qualification takes staged rows, a draft takes
+  // qualified ones, and sending a row the server would ignore would report
+  // work that never happened.
+  const qualifiableRowIds = useMemo(
     () =>
       selectableRows
-        .filter((row) => selectedRowIds.has(row.id))
+        .filter(
+          (row) => selectedRowIds.has(row.id) && isHermesRowQualifiable(row),
+        )
         .map((row) => row.id),
     [selectableRows, selectedRowIds],
   );
@@ -197,8 +203,8 @@ export const HermesImportBatchDetail = ({
         {hasConflictRow && (
           <ProspectionNote>
             <Trans>
-              A conflict row came in under a batch id already used with
-              different content.
+              A conflict row matches a CRM record that is ambiguous, archived
+              or inconsistent. It needs review before qualification.
             </Trans>
           </ProspectionNote>
         )}
@@ -226,7 +232,7 @@ export const HermesImportBatchDetail = ({
         <Section.Root>
           <StyledSelectionBar>
             <ProspectionNote>
-              {t`${i18n.number(selectedRowIdList.length)} of ${i18n.number(selectableRows.length)} selectable rows picked.`}
+              {t`${i18n.number(selectedRowIds.size)} of ${i18n.number(selectableRows.length)} selectable rows picked.`}
             </ProspectionNote>
             <Button
               variant="outline"
@@ -255,7 +261,7 @@ export const HermesImportBatchDetail = ({
 
       <HermesQualificationForm
         batchId={batch.id}
-        selectedRowIds={selectedRowIdList}
+        selectedRowIds={qualifiableRowIds}
         onQualified={onReload}
       />
 

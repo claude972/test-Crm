@@ -26,9 +26,14 @@ export const HermesCallFailureNote = ({
   const headline =
     failure.kind === 'denied'
       ? t`Not authorised: unrestricted workspace administrators only.`
-      : failure.kind === 'conflict'
-        ? t`Same batch id with different content. Use another batch id, or restore the original content.`
-        : fallbackMessage;
+      : failure.kind === 'retention-limit'
+        ? t`This workspace keeps no more batches. Remove one before staging another.`
+        : failure.kind === 'conflict'
+          ? // Deliberately names no cause: the batch id and the retention bound
+            // both answer with a conflict, and the server's own wording is
+            // folded in below.
+            t`The server answered with a conflict. Check the batch id and its content.`
+          : fallbackMessage;
 
   return (
     <>
