@@ -8,6 +8,7 @@ import { type EncryptedString } from 'src/engine/core-modules/secret-encryption/
 import { type EnvironmentConfigDriver } from 'src/engine/core-modules/twenty-config/drivers/environment-config.driver';
 import { type HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
 import { resolveAndValidateHostname } from 'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util';
+import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 
 import { HermesMessagingService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.service';
@@ -179,6 +180,7 @@ function fixture() {
     source as unknown as DataSource,
     access as unknown as HermesProspectionAccessService,
     encryption,
+    new ConnectedAccountTokenEncryptionService(encryption),
   );
   return {
     source,
