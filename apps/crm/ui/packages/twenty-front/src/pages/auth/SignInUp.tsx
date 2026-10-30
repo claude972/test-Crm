@@ -22,6 +22,7 @@ import { StyledOnboardingStepPage } from '@/onboarding/components/StyledOnboardi
 import { SignInUpWorkspaceCreationForm } from '@/auth/sign-in-up/components/internal/SignInUpWorkspaceCreationForm';
 import { SignInUpWorkspaceScopeFormEffect } from '@/auth/sign-in-up/components/internal/SignInUpWorkspaceScopeFormEffect';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { useGetPublicWorkspaceDataByDomain } from '@/domain-manager/hooks/useGetPublicWorkspaceDataByDomain';
 import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace';
 import { useIsCurrentLocationOnDefaultDomain } from '@/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain';
@@ -73,6 +74,9 @@ export const SignInUp = () => {
     useGetPublicWorkspaceDataByDomain();
   const isMultiWorkspaceEnabled = useAtomStateValue(
     isMultiWorkspaceEnabledState,
+  );
+  const isSameOriginMultiWorkspaceEnabled = useAtomStateValue(
+    isSameOriginMultiWorkspaceEnabledState,
   );
   const { workspaceInviteHash, workspace: workspaceFromInviteHash } =
     useWorkspaceFromInviteHash();
@@ -184,7 +188,16 @@ export const SignInUp = () => {
       return <SignInUpTwoFactorAuthenticationRecovery />;
     }
 
-    if (isDefined(workspacePublicData) && isOnAWorkspace) {
+    // On a single canonical host every visitor looks like they are already on
+    // a workspace, so this branch used to answer for all of them and the form
+    // it returns has no workspace picker. The multi-workspace flow needs the
+    // global form and its exchange effect instead. The two-factor steps above
+    // are evaluated first and stay reachable either way.
+    if (
+      isDefined(workspacePublicData) &&
+      isOnAWorkspace &&
+      !isSameOriginMultiWorkspaceEnabled
+    ) {
       return (
         <>
           <SignInUpWorkspaceScopeFormEffect />
@@ -204,6 +217,7 @@ export const SignInUp = () => {
     clientConfigApiStatus.isLoadedOnce,
     isDefaultDomain,
     isMultiWorkspaceEnabled,
+    isSameOriginMultiWorkspaceEnabled,
     isOnAWorkspace,
     getPublicWorkspaceDataLoading,
     signInUpStep,
