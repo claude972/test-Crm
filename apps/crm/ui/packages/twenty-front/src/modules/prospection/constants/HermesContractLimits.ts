@@ -11,6 +11,12 @@ export const HERMES_MAX_DRAFT_ROW_IDS = 100;
 export const HERMES_PURPOSE_MIN_LENGTH = 8;
 export const HERMES_PURPOSE_MAX_LENGTH = 1000;
 export const HERMES_MAX_DRAFT_NAME_LENGTH = 200;
+export const HERMES_MAX_DRAFT_SUBJECT_LENGTH = 200;
+
+// A phone over this is refused by the input type, which rejects the WHOLE
+// batch rather than staging that row. Unlike an unusable email or company, it
+// has to be caught here.
+export const HERMES_MAX_IMPORT_ROW_PHONE_LENGTH = 40;
 
 // HermesCreateImportBatchInput rows carry these fields and no others: the
 // server rejects unknown fields, so a pasted extra field is reported here.

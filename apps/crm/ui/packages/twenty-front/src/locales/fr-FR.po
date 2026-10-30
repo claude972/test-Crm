@@ -30468,3 +30468,13 @@ msgstr "Choisissez comment ces contacts sont informés."
 msgid "Not summed"
 msgstr "Non totalisé"
 
+
+msgid "Conflict: either this batch id is already used with different content, or this workspace keeps no more batches."
+msgstr "Conflit : soit cet identifiant de lot est déjà utilisé avec un contenu différent, soit ce workspace ne conserve pas plus de lots."
+
+msgid "Subject: {0} characters, {1} at most."
+msgstr "Objet : {0} caractères, {1} au maximum."
+
+msgid "Row {0}: phone of {1} characters, {2} at most."
+msgstr "Ligne {0} : téléphone de {1} caractères, {2} au maximum."
+

@@ -1,5 +1,6 @@
 import {
   HERMES_MAX_DRAFT_NAME_LENGTH,
+  HERMES_MAX_DRAFT_SUBJECT_LENGTH,
   HERMES_MAX_DRAFT_ROW_IDS,
   HERMES_MAX_QUALIFY_ROW_IDS,
   HERMES_PURPOSE_MAX_LENGTH,
@@ -191,6 +192,17 @@ export const validateHermesCampaignDraftInput = ({
 
   if (trimmedSubject.length === 0) {
     issues.push({ key: 'subject', code: 'draft-subject-required' });
+  }
+
+  // Same bound as the name, and missed for the same reason: the 201st
+  // character passed here and was refused by the server.
+  if (trimmedSubject.length > HERMES_MAX_DRAFT_SUBJECT_LENGTH) {
+    issues.push({
+      key: 'subject-too-long',
+      code: 'draft-subject-too-long',
+      count: trimmedSubject.length,
+      limit: HERMES_MAX_DRAFT_SUBJECT_LENGTH,
+    });
   }
 
   if (issues.length > 0) {
