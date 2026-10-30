@@ -81,7 +81,9 @@ describe('Hermes native mailbox policy', () => {
       contactHandle: 'person@example.com',
       providerMessageId: 'imap:INBOX:456:12',
       providerMetadata: { rfcMessageId: '<reply@example.com>' },
-      providerConversationId: '<root@example.com>',
+      providerConversationId: expect.stringMatching(
+        /^mail-thread:[a-f0-9]{64}$/,
+      ),
       text: 'Hello',
       subject: 'Re: Quote',
       occurredAt: '2026-10-29T12:00:00.000Z',
@@ -95,7 +97,9 @@ describe('Hermes native mailbox policy', () => {
     expect(event).toMatchObject({
       direction: 'INBOUND',
       contactHandle: 'inbox@example.com',
-      providerConversationId: '<root@example.com>',
+      providerConversationId: expect.stringMatching(
+        /^mail-thread:[a-f0-9]{64}$/,
+      ),
     });
   });
   it('uses stable UIDVALIDITY identity when the sender omitted Message-ID', async () => {

@@ -1,3 +1,18 @@
+jest.mock('src/engine/core-modules/hermes-media/hermes-media.service', () => ({
+  HermesMediaService: class {},
+}));
+jest.mock(
+  'src/engine/core-modules/hermes-messaging/hermes-messaging.service',
+  () => ({ HermesMessagingService: class {} }),
+);
+jest.mock(
+  'src/modules/messaging/message-import-manager/drivers/imap/providers/imap-client.provider',
+  () => ({ ImapClientProvider: class {} }),
+);
+jest.mock(
+  'src/modules/messaging/message-import-manager/drivers/smtp/providers/smtp-client.provider',
+  () => ({ SmtpClientProvider: class {} }),
+);
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 import { HermesMailService } from 'src/engine/core-modules/hermes-mail/hermes-mail.service';
 
@@ -80,6 +95,12 @@ function fixture() {
           ],
     ),
   };
+  Object.assign(client, {
+    fetchOne: jest.fn(
+      async (range: string, query: { source?: unknown }) =>
+        (await client.fetchAll(range, query))[0] ?? false,
+    ),
+  });
   const imap = {
     getClient: jest.fn(async () => client),
     closeClient: jest.fn(async () => undefined),
@@ -155,7 +176,7 @@ describe('Hermes mailbox bridge', () => {
   });
   it('reports credentials as unverified rather than connected', async () => {
     const f = fixture();
-    expect(await f.service.probe(workspaceId)).toEqual({
+    expect(await f.service.probe(workspaceId)).toMatchObject({
       status: 'CONFIGURED_UNVERIFIED',
       canSend: true,
       canSync: true,
@@ -205,6 +226,7 @@ describe('Hermes mailbox bridge', () => {
         channel: 'EMAIL',
         providerMessageId: 'imap:INBOX:123:12',
       }),
+      { suppressAutomation: false, observedOnly: false },
     );
     expect(f.cursors.save).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -253,6 +275,7 @@ describe('Hermes mailbox bridge', () => {
     expect(f.transport.sendMail).not.toHaveBeenCalled();
   });
   it('expires a stalled SMTP acknowledgement without retrying or claiming acceptance', async () => {
+    jest.useFakeTimers();
     const f = fixture();
     f.transport.sendMail.mockImplementation(() => new Promise(() => {}));
     const sent = f.service.send(input);
@@ -261,6 +284,7 @@ describe('Hermes mailbox bridge', () => {
     await observed;
     expect(f.transport.sendMail).toHaveBeenCalledTimes(1);
     expect(f.transport.close).toHaveBeenCalled();
+    jest.useRealTimers();
   });
   it('never upgrades a missing acknowledgement to acceptance and never retries', async () => {
     const f = fixture();
@@ -270,5 +294,99 @@ describe('Hermes mailbox bridge', () => {
     );
     expect(f.transport.sendMail).toHaveBeenCalledTimes(1);
     expect(f.transport.close).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('rich mailbox adapter boundary', () => {
+  const email = {
+    from: 'inbox@example.com',
+    to: ['client@example.com'],
+    cc: [],
+    bcc: [],
+    subject: 'Re: Quote',
+    text: 'Synthetic reply only',
+    references: [],
+  };
+  it('uses exact SMTP envelope and private attachment bytes while sanitizing HTML', async () => {
+    const f = fixture();
+    await f.service.send({
+      ...input,
+      email: {
+        ...email,
+        html: '<p>Hi</p><img src="https://tracker.invalid/x"><script>x()</script>',
+      },
+      attachments: [
+        {
+          assetId: 'asset',
+          kind: 'FILE',
+          mimeType: 'application/pdf',
+          filename: 'document.pdf',
+          bytes: Buffer.from('%PDF-1.7'),
+        },
+      ],
+    });
+    expect(f.transport.sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: 'inbox@example.com',
+        envelope: { from: 'inbox@example.com', to: ['client@example.com'] },
+        html: '<p>Hi</p>',
+        attachments: [
+          expect.objectContaining({
+            filename: 'document.pdf',
+            content: Buffer.from('%PDF-1.7'),
+          }),
+        ],
+        disableFileAccess: true,
+        disableUrlAccess: true,
+      }),
+    );
+  });
+  it('never treats partial multi-recipient SMTP acceptance as completed emission', async () => {
+    const f = fixture();
+    await expect(
+      f.service.send({
+        ...input,
+        email: { ...email, cc: ['other@example.com'] },
+      }),
+    ).rejects.toThrow('SEND_OUTCOME_UNCONFIRMED');
+    expect(f.transport.sendMail).toHaveBeenCalledTimes(1);
+    expect(f.transport.close).toHaveBeenCalled();
+  });
+  it('rejects another sender on the mailbox domain before opening SMTP', async () => {
+    const f = fixture();
+    await expect(
+      f.service.send({
+        ...input,
+        email: { ...email, from: 'admin@example.com' },
+      }),
+    ).rejects.toThrow();
+    expect(f.smtp.getClient).not.toHaveBeenCalled();
+  });
+  it('imports observed Sent MIME without fabrication of acceptance or automatic reply', async () => {
+    const f = fixture();
+    await f.service.observe(
+      actor,
+      { folder: 'Sent', uid: '12', uidValidity: '123' },
+      {
+        headers: [],
+        headerLines: [],
+        attachments: [],
+        from: { name: '', address: 'inbox@example.com' },
+        to: [{ name: '', address: 'client@example.com' }],
+        messageId: '<observed@example.com>',
+        subject: 'Test',
+        text: 'Observed',
+      },
+    );
+    expect(f.inbox.ingest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: 'EMAIL',
+        direction: 'OUTBOUND',
+        contactHandle: 'client@example.com',
+        kind: 'EMAIL',
+      }),
+      { suppressAutomation: true, observedOnly: true },
+    );
+    expect(f.transport.sendMail).not.toHaveBeenCalled();
   });
 });
