@@ -199,6 +199,36 @@ for (const file of charSources) {
   }
 }
 
+// ERB templates carry Ruby EXPRESSIONS, and the brand string is legitimate
+// inside a Ruby string there while being a broken identifier in an expression.
+// My first Char pass got that distinction wrong for this file type and left a
+// half-repaired dashboard layout, so the check now exists.
+const ERB_BROKEN_EXPRESSION =
+  /<%[^%]*(?:kovaa-lab[_a-z]|KovaaLab Char\.|KovaaLab CRM\.)[^%]*%>/;
+let erbParsed = 0;
+
+const erbTemplates = execFileSync('git', ['ls-files', '-z', 'apps/crm/bot/app/views'], {
+  cwd: root,
+  maxBuffer: 64 * 1024 * 1024,
+})
+  .toString()
+  .split('\0')
+  .filter((file) => /\.erb$/.test(file));
+
+for (const file of erbTemplates) {
+  const absolute = path.join(root, file);
+  if (!existsSync(absolute)) continue;
+  erbParsed += 1;
+  const text = readFileSync(absolute, 'utf8');
+  text.split('\n').forEach((line, index) => {
+    if (ERB_BROKEN_EXPRESSION.test(line)) {
+      failures.push(
+        `${file}:${index + 1}: brand token inside an ERB Ruby expression; a display string may keep it, an expression may not`,
+      );
+    }
+  });
+}
+
 for (const failure of failures.slice(0, 60)) console.error(failure);
 if (failures.length > 60)
   console.error(`… and ${failures.length - 60} more failures`);
@@ -226,7 +256,7 @@ console.log(
   `Frontend P0 (CRM): ${parsed} sources parsed; ${importsChecked} internal imports resolved; ${assetsChecked} asset imports checked on disk; ${identifierHits} files with a spaced brand inside an identifier.`,
 );
 console.log(
-  `Frontend P0 (Char): ${charParsed} sources parsed across ${charScriptBlocks} script blocks.`,
+  `Frontend P0 (Char): ${charParsed} sources parsed across ${charScriptBlocks} script blocks; ${erbParsed} ERB templates scanned for Ruby expressions.`,
 );
 assert.equal(
   failures.length,
