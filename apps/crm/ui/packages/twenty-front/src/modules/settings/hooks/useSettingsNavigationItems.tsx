@@ -16,8 +16,8 @@ import { isNonEmptyString } from '@sniptt/guards';
 import {
   IconAppWindow,
   IconApps,
-  IconBuildingSkyscraper,
   IconAt,
+  IconBuildingSkyscraper,
   IconCalendarEvent,
   IconCode,
   IconColorSwatch,
@@ -29,6 +29,7 @@ import {
   IconMail,
   IconMessage,
   IconMessageCircle,
+  IconPlug,
   IconServer,
   IconSettings2,
   IconSparkles,
@@ -173,6 +174,11 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
           label: t`All my companies`,
           path: SettingsPath.Structures,
           Icon: IconBuildingSkyscraper,
+        },
+        {
+          label: t`Integrations`,
+          path: SettingsPath.Integrations,
+          Icon: IconPlug,
         },
         {
           label: t`Apps`,

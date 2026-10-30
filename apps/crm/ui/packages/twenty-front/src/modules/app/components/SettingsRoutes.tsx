@@ -742,6 +742,14 @@ const SettingsStructuresDashboard = lazy(() =>
   ),
 );
 
+const SettingsIntegrations = lazy(() =>
+  import('~/pages/settings/integrations/SettingsIntegrations').then(
+    (module) => ({
+      default: module.SettingsIntegrations,
+    }),
+  ),
+);
+
 const SettingsCommunity = lazy(() =>
   import('~/pages/settings/community/SettingsCommunity').then((module) => ({
     default: module.SettingsCommunity,
@@ -1315,6 +1323,10 @@ const createSettingsRouteElements = ({
       <Route
         path={SettingsPath.Structures}
         element={<SettingsStructuresDashboard />}
+      />
+      <Route
+        path={SettingsPath.Integrations}
+        element={<SettingsIntegrations />}
       />
     </Route>
   </>

@@ -38,7 +38,17 @@ const SPACED_BRAND_IN_IDENTIFIER = /(?:[A-Za-z0-9_$]KovaaLab CRM|KovaaLab CRM[A-
 const listSources = (packageName) =>
   execFileSync(
     'git',
-    ['ls-files', '-z', `apps/crm/ui/packages/${packageName}`],
+    // --others --exclude-standard matters: with only the default (tracked)
+    // listing, a file written but not yet staged is invisible, so the check
+    // passes on code it never read. Ignored files stay out.
+    [
+      'ls-files',
+      '-z',
+      '--cached',
+      '--others',
+      '--exclude-standard',
+      `apps/crm/ui/packages/${packageName}`,
+    ],
     { cwd: root, maxBuffer: 64 * 1024 * 1024 },
   )
     .toString()
@@ -158,10 +168,18 @@ const HYPHEN_IN_IDENTIFIER = /kovaa-lab(?=[A-Z])/;
 let charParsed = 0;
 let charScriptBlocks = 0;
 
-const charSources = execFileSync('git', ['ls-files', '-z', ...CHAR_ROOTS], {
-  cwd: root,
-  maxBuffer: 64 * 1024 * 1024,
-})
+const charSources = execFileSync(
+  'git',
+  [
+    'ls-files',
+    '-z',
+    '--cached',
+    '--others',
+    '--exclude-standard',
+    ...CHAR_ROOTS,
+  ],
+  { cwd: root, maxBuffer: 64 * 1024 * 1024 },
+)
   .toString()
   .split('\0')
   .filter((file) => /\.(?:js|vue)$/.test(file));

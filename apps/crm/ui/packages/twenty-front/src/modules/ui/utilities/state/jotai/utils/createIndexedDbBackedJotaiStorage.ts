@@ -19,7 +19,11 @@ type CrossTabSubscriber<ValueType> = {
 type IndexedDbBackedJotaiStorage<ValueType> = {
   storage: JotaiSyncStorage<ValueType>;
   hydrate: () => Promise<void>;
-  clear: () => Promise<void>;
+  // Promise<boolean>, not Promise<void>: the outcome is the whole point. A
+  // void signature here would silently widen the implementation's boolean at
+  // every call site, so an awaiting caller could not tell a real wipe from a
+  // failed one.
+  clear: () => Promise<boolean>;
 };
 
 const createIndexedDbStore = (cacheName: string): idb.UseStore | undefined => {
