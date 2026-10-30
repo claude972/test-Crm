@@ -34,6 +34,8 @@ export type HermesMessagingSend = {
   contactHandle: string;
   text: string;
   clientRequestId: string;
+  // Internal dispatch provenance, derived only from a validated bot grant.
+  automated?: boolean;
   email?: HermesEmailEnvelope;
   attachments?: HermesMessagingAttachment[];
   media?: {
@@ -117,6 +119,11 @@ export type HermesConversationBotPolicy = {
 export type HermesMessagingProviderMetadata = {
   mimeSha256?: string;
   sentCopyState?: 'PENDING' | 'UNCONFIRMED' | 'SAVED';
+  mailAutoResponseBlockReason?:
+    | 'AUTO_SUBMITTED'
+    | 'NULL_RETURN_PATH'
+    | 'BULK_OR_LIST'
+    | 'DELIVERY_STATUS';
   rfcMessageId?: string;
   inReplyTo?: string;
   references?: string[];

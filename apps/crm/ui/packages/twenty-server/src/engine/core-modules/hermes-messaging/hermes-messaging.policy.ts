@@ -29,6 +29,14 @@ const providerMetadataSchema = z
   .object({
     rfcMessageId: metadataHeader.optional(),
     sentCopyState: z.enum(['PENDING', 'UNCONFIRMED', 'SAVED']).optional(),
+    mailAutoResponseBlockReason: z
+      .enum([
+        'AUTO_SUBMITTED',
+        'NULL_RETURN_PATH',
+        'BULK_OR_LIST',
+        'DELIVERY_STATUS',
+      ])
+      .optional(),
     mimeSha256: z
       .string()
       .regex(/^[a-f0-9]{64}$/)

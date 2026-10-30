@@ -1371,6 +1371,10 @@ export class HermesMessagingService {
       !options.suppressAutomation &&
       !options.observedOnly &&
       event.direction === 'INBOUND' &&
+      !(
+        event.channel === 'EMAIL' &&
+        event.providerMetadata?.mailAutoResponseBlockReason
+      ) &&
       (!event.kind || (event.kind === 'EMAIL' && event.text.trim()))
     )
       await this.processAutoReply(
@@ -1605,6 +1609,7 @@ export class HermesMessagingService {
           contactHandle: conversation.contactHandle,
           text: input.text,
           clientRequestId: input.clientRequestId,
+          ...(botGrant ? { automated: true } : {}),
           ...(mediaInput?.email
             ? {
                 email: mediaInput.email,
