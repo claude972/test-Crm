@@ -1,0 +1,42 @@
+/* Variante A — Colonnes calmes, pipeline en avant.
+   Hiérarchie : le pipeline passe en premier et occupe la largeur ; les
+   indicateurs deviennent une ligne de contexte sous lui ; les affaires suivent.
+   C'est la lecture d'un responsable qui regarde d'abord où en sont les
+   affaires, pas combien il y en a. */
+
+.ecran { max-width: 1180px; }
+
+/* ordre : en-tête, pipeline, indicateurs, affaires, synthèse */
+.entete { order: 1; }
+.bloc:has(.pipeline) { order: 2; }
+.indicateurs { order: 3; }
+.bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 4; }
+.bloc-synthese { order: 5; }
+
+/* Le pipeline est l'objet principal : étapes hautes, montant lisible,
+   progression suggérée par un liseré et non par un dégradé. */
+.bloc:has(.pipeline) { padding: calc(var(--u) * 3); }
+.etape {
+  background: var(--surface);
+  border-top: 3px solid var(--bord-fort);
+  min-height: calc(var(--u) * 11);
+  padding: calc(var(--u) * 2);
+}
+.etape:nth-child(1) { border-top-color: #cbd5e1; }
+.etape:nth-child(2) { border-top-color: #a3bffa; }
+.etape:nth-child(3) { border-top-color: #7dd3fc; }
+.etape:nth-child(4) { border-top-color: #86efac; }
+.etape:nth-child(5) { border-top-color: var(--accent); }
+.etape-nombre { font-size: 24px; }
+.etape-montant { color: var(--texte-2); font-weight: 500; }
+
+/* Indicateurs réduits au rang de contexte. */
+.indicateur { padding: calc(var(--u) * 1.5); }
+.indicateur-valeur { font-size: 20px; }
+
+.bloc-synthese { background: var(--surface-2); }
+
+@media (max-width: 760px) {
+  .bloc:has(.pipeline) { padding: calc(var(--u) * 2); }
+  .etape { min-height: 0; }
+}

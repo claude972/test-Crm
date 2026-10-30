@@ -1,0 +1,66 @@
+/* Variante B — Suivi quotidien, prochaine action au cœur.
+   Hiérarchie : ce qu'il faut faire aujourd'hui vient avant tout le reste. Les
+   affaires passent en tête avec leur prochaine action mise en avant et les
+   retards signalés ; le pipeline est réduit à un bandeau de contexte ; les
+   indicateurs passent en une seule ligne discrète.
+   Accent encre plutôt que vert : la couleur sert l'urgence, pas la marque. */
+
+:root {
+  --accent: #1e3a5f;
+  --accent-doux: #e2e8f0;
+}
+
+.ecran { max-width: 1060px; }
+
+/* ordre : en-tête, affaires, pipeline, indicateurs, synthèse */
+.entete { order: 1; }
+.bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 2; }
+.bloc:has(.pipeline) { order: 3; }
+.indicateurs { order: 4; }
+.bloc-synthese { order: 5; }
+
+/* Les affaires deviennent l'objet principal. */
+.bloc:not(:has(.pipeline)):not(.bloc-synthese) { padding: calc(var(--u) * 3); }
+.bloc:not(:has(.pipeline)):not(.bloc-synthese) .bloc-titre { font-size: 17px; }
+.bloc:not(:has(.pipeline)):not(.bloc-synthese) .tableau td { padding: calc(var(--u) * 1.5) var(--u); }
+
+/* La prochaine action prend le pas sur le montant. */
+.prochaine-quoi { font-size: 15px; font-weight: 600; }
+.prochaine-quand { font-size: 13px; }
+.prochaine-quand.est-retard {
+  background: var(--alerte-douce);
+  border-radius: 3px;
+  padding: 0 6px;
+}
+
+/* Pipeline en bandeau : présent, mais plus le sujet. */
+.pipeline { gap: 0; }
+.etape {
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--bord);
+  border-radius: 0;
+  padding: var(--u) calc(var(--u) * 1.5);
+}
+.etape:last-child { border-right: 0; }
+.etape-nombre { font-size: 16px; }
+.etape-montant { font-size: 11px; }
+
+/* Indicateurs en une ligne sobre, sans cartes. */
+.indicateurs {
+  background: var(--surface);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  gap: 0;
+  padding: calc(var(--u) * 0.5);
+}
+.indicateur { border-right: 1px solid var(--bord); padding: var(--u) calc(var(--u) * 1.5); }
+.indicateur:last-child { border-right: 0; }
+.indicateur-valeur { font-size: 18px; }
+.indicateur-tendance { font-size: 11px; }
+
+@media (max-width: 760px) {
+  .etape { border-bottom: 1px solid var(--bord); border-right: 0; }
+  .indicateur { border-bottom: 1px solid var(--bord); border-right: 0; }
+  .indicateur:last-child { border-bottom: 0; }
+}

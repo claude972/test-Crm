@@ -1,0 +1,55 @@
+/* Variante C — Dense et tabulaire, synthèse des sociétés d'abord.
+   Hiérarchie : on commence par comparer ses sociétés, puis on descend dans
+   celle qui est ouverte. Densité assumée, typographie plus petite, alignements
+   tabulaires et chiffres alignés — la lecture d'un gérant multi-sociétés.
+   Accent ardoise : la couleur ne porte aucun statut à elle seule. */
+
+:root {
+  --accent: #334155;
+  --accent-doux: #e2e8f0;
+  --rayon: 4px;
+}
+
+body { font-size: 13px; }
+.ecran { gap: calc(var(--u) * 2); max-width: 1240px; padding: calc(var(--u) * 3); }
+
+/* ordre : en-tête, synthèse, indicateurs, pipeline, affaires */
+.entete { order: 1; }
+.bloc-synthese { order: 2; }
+.indicateurs { order: 3; }
+.bloc:has(.pipeline) { order: 4; }
+.bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 5; }
+
+.entete-titre { font-size: 19px; }
+
+/* La synthèse ouvre l'écran et porte l'autorité visuelle. */
+.bloc-synthese {
+  border-color: var(--bord-fort);
+  padding: calc(var(--u) * 2.5);
+}
+.bloc-synthese .bloc-titre { font-size: 16px; }
+
+/* Tout ce qui est chiffré s'aligne : colonnes à droite, chiffres tabulaires. */
+.tableau { font-variant-numeric: tabular-nums; }
+.tableau th, .tableau td { padding: calc(var(--u) * 0.75) var(--u); }
+.tableau tbody tr:nth-child(even) { background: var(--surface-2); }
+
+.indicateurs { gap: var(--u); }
+.indicateur {
+  background: var(--surface);
+  border-radius: var(--rayon);
+  padding: var(--u) calc(var(--u) * 1.5);
+}
+.indicateur-valeur { font-size: 19px; font-variant-numeric: tabular-nums; }
+
+.pipeline { gap: var(--u); }
+.etape { padding: var(--u) calc(var(--u) * 1.5); }
+.etape-nombre { font-size: 17px; font-variant-numeric: tabular-nums; }
+
+.bloc { gap: var(--u); padding: calc(var(--u) * 2); }
+.pastille { font-size: 11px; }
+
+@media (max-width: 760px) {
+  .ecran { padding: calc(var(--u) * 2) calc(var(--u) * 2) calc(var(--u) * 10); }
+  .tableau tbody tr:nth-child(even) { background: var(--surface); }
+}

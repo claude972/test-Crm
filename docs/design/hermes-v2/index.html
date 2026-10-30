@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hermès CRM — maquettes V2</title>
+    <link rel="stylesheet" href="assets/base.css" />
+    <style>
+      body { padding: 0 0 calc(var(--u) * 6); }
+      .page { margin: 0 auto; max-width: 980px; padding: calc(var(--u) * 4) calc(var(--u) * 3); display: grid; gap: calc(var(--u) * 4); }
+      .piste { background: var(--surface); border: 1px solid var(--bord); border-radius: var(--rayon); padding: calc(var(--u) * 3); display: grid; gap: calc(var(--u) * 2); }
+      .piste h2 { font-size: 17px; margin: 0; }
+      .piste p { color: var(--texte-2); margin: 0; }
+      .liens { display: grid; gap: var(--u); grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+      .lien-ecran { border: 1px solid var(--bord-fort); border-radius: var(--rayon); color: inherit; display: grid; gap: 2px; padding: var(--u) calc(var(--u) * 1.5); text-decoration: none; }
+      .lien-ecran:hover { border-color: var(--accent); }
+      .lien-ecran small { color: var(--texte-3); }
+      .intro { display: grid; gap: var(--u); }
+      .intro h1 { font-size: 24px; margin: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="bandeau-maquette" role="note">
+      <strong>Maquette</strong>
+      <span>Données fictives · aucune connexion réelle · rien n’est enregistré</span>
+    </div>
+
+    <div class="page">
+      <header class="intro">
+        <h1>Hermès CRM — trois pistes visuelles</h1>
+        <p>Même contenu, même données, trois organisations différentes. Chaque lien ouvre un écran précis ; l’URL porte la piste, l’écran, la société et la largeur, donc une capture se rejoue à l’identique.</p>
+        <p class="avis">Rien ici n’est connecté. Les interrupteurs et la reprise de main réagissent pour montrer le parcours, et leur état repart à zéro au rechargement.</p>
+      </header>
+      <div id="pistes"></div>
+    </div>
+
+    <script>
+      const PISTES = [
+        ['a', 'Piste A — Colonnes calmes', 'Le pipeline ouvre l’écran et porte la hiérarchie ; les indicateurs deviennent du contexte. Lecture d’un responsable qui regarde d’abord où en sont les affaires.'],
+        ['b', 'Piste B — Suivi quotidien', 'Ce qu’il faut faire aujourd’hui passe avant tout : prochaine action en tête, retards marqués, pipeline réduit à un bandeau. Accent encre, la couleur sert l’urgence.'],
+        ['c', 'Piste C — Dense et tabulaire', 'On compare d’abord ses sociétés, puis on descend dans celle qui est ouverte. Densité assumée, chiffres alignés, accent ardoise.'],
+      ];
+      const ECRANS = [
+        ['dashboard', 'Tableau de bord', 'atelier'],
+        ['prospection', 'Prospection', 'atelier'],
+        ['messagerie', 'Messagerie', 'atelier'],
+        ['reglages', 'Réglages', 'atelier'],
+      ];
+      const hote = document.getElementById('pistes');
+      PISTES.forEach(([id, nom, desc]) => {
+        const s = document.createElement('section');
+        s.className = 'piste';
+        s.innerHTML = `<h2>${nom}</h2><p>${desc}</p>`;
+        const liens = document.createElement('div');
+        liens.className = 'liens';
+        ECRANS.forEach(([e, label, soc]) => {
+          const a = document.createElement('a');
+          a.className = 'lien-ecran';
+          a.href = `app.html?variante=${id}&ecran=${e}&societe=${soc}`;
+          a.innerHTML = `<span>${label}</span><small>bureau · ${soc}</small>`;
+          liens.append(a);
+        });
+        ['dashboard', 'messagerie'].forEach((e) => {
+          const a = document.createElement('a');
+          a.className = 'lien-ecran';
+          a.href = `app.html?variante=${id}&ecran=${e}&societe=atelier&vue=mobile`;
+          a.innerHTML = `<span>${e === 'dashboard' ? 'Tableau de bord' : 'Messagerie'} — mobile</span><small>390 px</small>`;
+          liens.append(a);
+        });
+        const a = document.createElement('a');
+        a.className = 'lien-ecran';
+        a.href = `app.html?variante=${id}&ecran=dashboard&societe=commune`;
+        a.innerHTML = `<span>Vue commune</span><small>lecture seule</small>`;
+        liens.append(a);
+        s.append(liens);
+        hote.append(s);
+      });
+    </script>
+  </body>
+</html>

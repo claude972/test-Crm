@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr" data-variante="a" data-ecran="dashboard" data-vue="desktop">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hermès CRM — maquette</title>
+    <link rel="stylesheet" href="assets/base.css" />
+    <link rel="stylesheet" href="assets/variante-a.css" id="theme-variante" />
+  </head>
+  <body>
+    <!-- Bandeau permanent : cet écran ne se connecte à rien. Il ne disparaît
+         sur aucun écran, aucune variante et aucune largeur. -->
+    <div class="bandeau-maquette" role="note">
+      <strong>Maquette</strong>
+      <span>Données fictives · aucune connexion réelle · rien n’est enregistré</span>
+      <span class="bandeau-variante" id="bandeau-variante"></span>
+    </div>
+
+    <div class="appli">
+      <aside class="nav" aria-label="Navigation principale">
+        <div class="nav-marque">
+          <span class="nav-logo" aria-hidden="true">H</span>
+          <span class="nav-nom">Hermès CRM</span>
+        </div>
+
+        <label class="societe" for="selecteur-societe">
+          <span class="societe-intitule">Société</span>
+          <select id="selecteur-societe" class="societe-select"></select>
+        </label>
+
+        <nav class="nav-liens" id="nav-liens"></nav>
+
+        <div class="nav-pied">
+          <span class="nav-avatar" aria-hidden="true">CR</span>
+          <span class="nav-utilisateur" id="nav-utilisateur"></span>
+        </div>
+      </aside>
+
+      <main class="ecran" id="ecran" tabindex="-1"></main>
+    </div>
+
+    <nav class="barre-mobile" id="barre-mobile" aria-label="Navigation"></nav>
+
+    <script src="assets/donnees.js"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>
