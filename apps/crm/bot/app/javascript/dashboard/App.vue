@@ -57,7 +57,7 @@ export default {
   },
   data() {
     return {
-      latestKovaaLab CharVersion: null,
+      latestChatwootVersion: null,
       reconnectService: null,
     };
   },
@@ -88,7 +88,7 @@ export default {
     this.listenToThemeChanges();
     // If user locale is set, use it; otherwise use account locale
     this.setLocale(
-      this.uiSettings?.locale || window.kovaa-labConfig.selectedLocale
+      this.uiSettings?.locale || window.chatwootConfig.selectedLocale
     );
   },
   unmounted() {
@@ -115,12 +115,12 @@ export default {
         accountId: this.currentAccountId,
       });
       const account = this.getAccount(this.currentAccountId);
-      const { locale, latest_kovaa-lab_version: latestKovaaLab CharVersion } =
+      const { locale, latest_chatwoot_version: latestChatwootVersion } =
         account;
       const { pubsub_token: pubsubToken } = this.currentUser || {};
       // If user locale is set, use it; otherwise use account locale
       this.setLocale(this.uiSettings?.locale || locale);
-      this.latestKovaaLab CharVersion = latestKovaaLab CharVersion;
+      this.latestChatwootVersion = latestChatwootVersion;
       vueActionCable.init(this.store, pubsubToken);
       this.reconnectService = new ReconnectService(this.store, this.router);
       window.reconnectService = this.reconnectService;
@@ -145,7 +145,7 @@ export default {
     :dir="isRTL ? 'rtl' : 'ltr'"
   >
     <ImpersonationBanner />
-    <UpdateBanner :latest-kovaa-lab-version="latestKovaaLab CharVersion" />
+    <UpdateBanner :latest-chatwoot-version="latestChatwootVersion" />
     <StatusBanner />
     <template v-if="currentAccountId">
       <PendingEmailVerificationBanner v-if="hideOnOnboardingView" />

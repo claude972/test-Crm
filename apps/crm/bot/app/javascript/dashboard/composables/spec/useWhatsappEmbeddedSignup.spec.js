@@ -55,7 +55,7 @@ describe('useWhatsappEmbeddedSignup', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    window.kovaa-labConfig = {
+    window.chatwootConfig = {
       whatsappAppId: 'app-id',
       whatsappConfigurationId: 'config-id',
       whatsappApiVersion: 'v22.0',

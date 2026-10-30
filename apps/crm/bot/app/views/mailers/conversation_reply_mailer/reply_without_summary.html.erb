@@ -1,7 +1,7 @@
 <% @messages.each do |message| %>
   <p style="font-family: Roboto,"Helvetica Neue",Tahoma,Arial,sans-serif; text-align: start; unicode-bidi: plaintext;">
     <% if message.content %>
-      <%= KovaaLab CharMarkdownRenderer.new(message.content).render_message %>
+      <%= ChatwootMarkdownRenderer.new(message.content).render_message %>
     <% end %>
     <% if message.attachments.present? %>
       <p><%= I18n.t('conversations.reply.attachments') %></p>

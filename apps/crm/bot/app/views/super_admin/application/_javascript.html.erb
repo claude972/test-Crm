@@ -22,7 +22,7 @@ by providing a `content_for(:javascript)` block.
 
 <% support_user = SuperAdmin.first %>
 <script>
-window.kovaa-labSettings = {
+window.chatwootSettings = {
   hideMessageBubble: true,
 };
 
@@ -33,16 +33,16 @@ window.kovaa-labSettings = {
   g.async = true;
   s.parentNode.insertBefore(g,s);
   g.onload=function(){
-    window.kovaa-labSDK.run({
-      websiteToken: '<%= KovaaLab CharHub.support_config[:support_website_token] %>',
-      baseUrl: '<%= KovaaLab CharHub.support_config[:support_script_url] %>'
+    window.chatwootSDK.run({
+      websiteToken: '<%= ChatwootHub.support_config[:support_website_token] %>',
+      baseUrl: '<%= ChatwootHub.support_config[:support_script_url] %>'
     })
   }
 })(document,"script");
 
 window.addEventListener('kovaa-lab:ready', function() {
-  window.$kovaa-lab.setUser('<%= KovaaLab CharHub.installation_identifier %>', {
-    identifier_hash: '<%= KovaaLab CharHub.support_config[:support_identifier_hash] %>',
+  window.$chatwoot.setUser('<%= ChatwootHub.installation_identifier %>', {
+    identifier_hash: '<%= ChatwootHub.support_config[:support_identifier_hash] %>',
     email: '<%= support_user.email %>',
     name: '<%= support_user.name %>'
   });

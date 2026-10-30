@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Тепер ви можете отримувати електронні листи на власний домен."
       }
     },
-    "UPDATE_KOVAALAB": "Доступне оновлення {latestKovaaLab CharVersion} для KovaaLab Char. Будь ласка, оновіть вашу копію.",
+    "UPDATE_KOVAALAB": "Доступне оновлення {latestChatwootVersion} для KovaaLab Char. Будь ласка, оновіть вашу копію.",
     "LEARN_MORE": "Детальніше",
     "PAYMENT_PENDING": "Your account payment is past due. Please update your payment information to avoid subscription cancellation.",
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",

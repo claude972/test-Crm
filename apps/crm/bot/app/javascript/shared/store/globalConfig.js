@@ -9,7 +9,7 @@ const {
   BRAND_NAME: brandName,
   CAPTAIN_TOOLS_CATALOG_URL: captainToolsCatalogURL,
   CAPTAIN_TOOLS_MANIFEST_ENABLED: captainToolsManifestEnabled,
-  KOVAALAB_INBOX_TOKEN: kovaa-labInboxToken,
+  KOVAALAB_INBOX_TOKEN: chatwootInboxToken,
   CREATE_NEW_ACCOUNT_FROM_DASHBOARD: createNewAccountFromDashboard,
   DIRECT_UPLOADS_ENABLED: directUploadsEnabled,
   DISPLAY_MANIFEST: displayManifest,
@@ -41,7 +41,7 @@ const state = {
   brandName,
   captainToolsCatalogURL,
   captainToolsManifestEnabled: parseBoolean(captainToolsManifestEnabled),
-  kovaa-labInboxToken,
+  chatwootInboxToken,
   deploymentEnv,
   createNewAccountFromDashboard,
   directUploadsEnabled: parseBoolean(directUploadsEnabled),
@@ -67,13 +67,13 @@ const state = {
 
 export const getters = {
   get: $state => $state,
-  isOnKovaaLab CharCloud: $state => $state.deploymentEnv === 'cloud',
+  isOnChatwootCloud: $state => $state.deploymentEnv === 'cloud',
   isMetaInboxCreationDisabled: $state =>
     $state.deploymentEnv === 'cloud' && $state.disableMetaInboxCreation,
   isMetaMessageSendingDisabled: $state =>
     $state.deploymentEnv === 'cloud' && $state.disableMetaMessageSending,
   isACustomBrandedInstance: $state => $state.installationName !== 'KovaaLab Char',
-  isAKovaaLab CharInstance: $state => $state.installationName === 'KovaaLab Char',
+  isAChatwootInstance: $state => $state.installationName === 'KovaaLab Char',
 };
 
 export const actions = {};

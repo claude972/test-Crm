@@ -8,7 +8,7 @@ import { getHelpUrlForFeature } from 'dashboard/helper/featureHelper';
 
 const { t } = useI18n();
 const route = useRoute();
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 const { isAdmin } = useAdmin();
 
 const assistantParams = computed(() => ({
@@ -50,7 +50,7 @@ const links = computed(() =>
 </script>
 
 <template>
-  <div v-if="isOnKovaaLab CharCloud" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <div v-if="isOnChatwootCloud" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
     <component
       :is="link.href ? 'a' : RouterLink"
       v-for="link in links"

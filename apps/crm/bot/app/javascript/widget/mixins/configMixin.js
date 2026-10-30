@@ -6,13 +6,13 @@ export default {
       );
     },
     hasAConnectedAgentBot() {
-      return !!window.kovaa-labWebChannel.hasAConnectedAgentBot;
+      return !!window.chatwootWebChannel.hasAConnectedAgentBot;
     },
     inboxAvatarUrl() {
-      return window.kovaa-labWebChannel.avatarUrl;
+      return window.chatwootWebChannel.avatarUrl;
     },
     channelConfig() {
-      return window.kovaa-labWebChannel;
+      return window.chatwootWebChannel;
     },
     hasEmojiPickerEnabled() {
       return this.channelConfig.enabledFeatures.includes('emoji_picker');
@@ -24,11 +24,11 @@ export default {
       return this.channelConfig.enabledFeatures.includes('end_conversation');
     },
     preChatFormEnabled() {
-      return window.kovaa-labWebChannel.preChatFormEnabled;
+      return window.chatwootWebChannel.preChatFormEnabled;
     },
     preChatFormOptions() {
       let preChatMessage = '';
-      const options = window.kovaa-labWebChannel.preChatFormOptions || {};
+      const options = window.chatwootWebChannel.preChatFormOptions || {};
       preChatMessage = options.pre_chat_message;
       const { pre_chat_fields: preChatFields = [] } = options;
       return {

@@ -52,7 +52,7 @@ document.addEventListener('click', event => {
   // A click on a dialog's backdrop lands on the dialog element itself.
   if (target.matches('dialog[data-backdrop-close]')) target.close();
 
-  if (target.closest('[data-support-chat]')) window.$kovaa-lab?.toggle('open');
+  if (target.closest('[data-support-chat]')) window.$chatwoot?.toggle('open');
 
   const revealButton = target.closest('[data-reveal]');
   if (revealButton) {

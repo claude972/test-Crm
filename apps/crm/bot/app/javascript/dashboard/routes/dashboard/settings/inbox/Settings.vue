@@ -131,7 +131,7 @@ export default {
     ...mapGetters({
       accountId: 'getCurrentAccountId',
       isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
-      isOnKovaaLab CharCloud: 'globalConfig/isOnKovaaLab CharCloud',
+      isOnChatwootCloud: 'globalConfig/isOnChatwootCloud',
       isMetaMessageSendingDisabled: 'globalConfig/isMetaMessageSendingDisabled',
       uiFlags: 'inboxes/getUIFlags',
       portals: 'portals/allPortals',
@@ -144,10 +144,10 @@ export default {
     },
     showContinuityToggle() {
       if (this.isInboundEmailEnabled) return true;
-      return this.isOnKovaaLab CharCloud;
+      return this.isOnChatwootCloud;
     },
     isContinuityDisabled() {
-      return this.isOnKovaaLab CharCloud && !this.isInboundEmailEnabled;
+      return this.isOnChatwootCloud && !this.isInboundEmailEnabled;
     },
     continuityDescription() {
       if (this.isContinuityDisabled) {

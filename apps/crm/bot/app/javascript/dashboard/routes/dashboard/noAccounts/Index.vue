@@ -7,10 +7,10 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import Auth from 'dashboard/api/auth';
 
 const { t } = useI18n();
-const isOnKovaaLab CharCloud = useMapGetter('globalConfig/isOnKovaaLab CharCloud');
+const isOnChatwootCloud = useMapGetter('globalConfig/isOnChatwootCloud');
 
 const message = computed(() => {
-  if (isOnKovaaLab CharCloud.value) {
+  if (isOnChatwootCloud.value) {
     return t('APP_GLOBAL.NO_ACCOUNTS.MESSAGE_CLOUD');
   }
   return t('APP_GLOBAL.NO_ACCOUNTS.MESSAGE_SELF_HOSTED');

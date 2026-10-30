@@ -101,10 +101,10 @@ export default {
       currentUser: 'getCurrentUser',
       currentUserId: 'getCurrentUserID',
       globalConfig: 'globalConfig/get',
-      isOnKovaaLab CharCloud: 'globalConfig/isOnKovaaLab CharCloud',
+      isOnChatwootCloud: 'globalConfig/isOnChatwootCloud',
     }),
     apiAndWebhooksEnabled() {
-      if (!this.isOnKovaaLab CharCloud) return true;
+      if (!this.isOnChatwootCloud) return true;
 
       return this.currentUser.accounts.some(
         account => account.api_and_webhooks
@@ -120,7 +120,7 @@ export default {
       );
     },
     isMfaEnabled() {
-      return parseBoolean(window.kovaa-labConfig?.isMfaEnabled);
+      return parseBoolean(window.chatwootConfig?.isMfaEnabled);
     },
   },
   mounted() {

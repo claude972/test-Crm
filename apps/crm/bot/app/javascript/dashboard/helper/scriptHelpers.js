@@ -34,21 +34,21 @@ export const initializeAudioAlerts = user => {
   });
 };
 
-export const initializeKovaaLab CharEvents = () => {
+export const initializeChatwootEvents = () => {
   emitter.on(KOVAALAB_RESET, () => {
-    if (window.$kovaa-lab) {
-      window.$kovaa-lab.reset();
+    if (window.$chatwoot) {
+      window.$chatwoot.reset();
     }
   });
   emitter.on(KOVAALAB_SET_USER, ({ user }) => {
-    if (window.$kovaa-lab) {
-      window.$kovaa-lab.setUser(user.email, {
+    if (window.$chatwoot) {
+      window.$chatwoot.setUser(user.email, {
         avatar_url: user.avatar_url,
         email: user.email,
         identifier_hash: user.hmac_identifier,
         name: user.name,
       });
-      window.$kovaa-lab.setCustomAttributes({
+      window.$chatwoot.setCustomAttributes({
         signedUpAt: user.created_at,
         cloudCustomer: 'true',
         account_id: user.account_id,

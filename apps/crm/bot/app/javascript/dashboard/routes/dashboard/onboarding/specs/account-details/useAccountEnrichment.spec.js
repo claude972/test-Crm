@@ -20,7 +20,7 @@ const mountComposable = ({
   enabledLanguages = ENABLED_LANGUAGES,
   presets = {},
 } = {}) => {
-  window.kovaa-labConfig = { enabledLanguages };
+  window.chatwootConfig = { enabledLanguages };
 
   const store = createStore({
     modules: {
@@ -56,7 +56,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete window.kovaa-labConfig;
+  delete window.chatwootConfig;
 });
 
 describe('useAccountEnrichment', () => {

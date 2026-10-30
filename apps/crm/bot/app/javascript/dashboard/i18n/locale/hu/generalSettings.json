@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Most már goadhatsz e-maileket az egyedi domaineden."
       }
     },
-    "UPDATE_KOVAALAB": "Egy frissítés elérhető a KovaaLab Charhoz {latestKovaaLab CharVersion}. Kérjük frissítsd a telepítésed.",
+    "UPDATE_KOVAALAB": "Egy frissítés elérhető a KovaaLab Charhoz {latestChatwootVersion}. Kérjük frissítsd a telepítésed.",
     "LEARN_MORE": "Tudj meg többet",
     "PAYMENT_PENDING": "A fiók befizetése lejárt. A szolgáltatás lemondásának elkerülése érdekében frissítse a fizetési adatokat.",
     "PAYMENT_PENDING_AGENT": "A fiók befizetése lejárt. A rendezéshez forduljon a rendszergazdához.",

@@ -7,31 +7,31 @@ import {
 describe('PortalHelper', () => {
   describe('buildPortalURL', () => {
     it('returns the correct url', () => {
-      window.kovaa-labConfig = {
+      window.chatwootConfig = {
         hostURL: 'https://app.kovaa-lab.com',
         helpCenterURL: 'https://help.kovaa-lab.com',
       };
       expect(buildPortalURL('handbook')).toEqual(
         'https://help.kovaa-lab.com/hc/handbook'
       );
-      window.kovaa-labConfig = {};
+      window.chatwootConfig = {};
     });
   });
 
   describe('buildPortalArticleURL', () => {
     it('returns the correct url', () => {
-      window.kovaa-labConfig = {
+      window.chatwootConfig = {
         hostURL: 'https://app.kovaa-lab.com',
         helpCenterURL: 'https://help.kovaa-lab.com',
       };
       expect(
         buildPortalArticleURL('handbook', 'culture', 'fr', 'article-slug')
       ).toEqual('https://help.kovaa-lab.com/hc/handbook/articles/article-slug');
-      window.kovaa-labConfig = {};
+      window.chatwootConfig = {};
     });
 
     it('returns the correct url with custom domain', () => {
-      window.kovaa-labConfig = {
+      window.chatwootConfig = {
         hostURL: 'https://app.kovaa-lab.com',
         helpCenterURL: 'https://help.kovaa-lab.com',
       };
@@ -47,7 +47,7 @@ describe('PortalHelper', () => {
     });
 
     it('handles https in custom domain correctly', () => {
-      window.kovaa-labConfig = {
+      window.chatwootConfig = {
         hostURL: 'https://app.kovaa-lab.com',
         helpCenterURL: 'https://help.kovaa-lab.com',
       };
@@ -63,7 +63,7 @@ describe('PortalHelper', () => {
     });
 
     it('uses hostURL when helpCenterURL is not available', () => {
-      window.kovaa-labConfig = {
+      window.chatwootConfig = {
         hostURL: 'https://app.kovaa-lab.com',
         helpCenterURL: '',
       };

@@ -1604,7 +1604,7 @@
         "AGENT_MESSAGE": "Բարև ձեզ"
       },
       "BRANDING_TEXT": "Շահագործվում է KovaaLab Char-ով",
-      "SCRIPT_SETTINGS": "\n      window.kovaa-labSettings = {options};"
+      "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
       "MICROSOFT": {

@@ -87,7 +87,7 @@ const INPUT_TYPE_MAP = {
 };
 
 const { t } = useI18n();
-const { accountId, isCloudFeatureEnabled, isOnKovaaLab CharCloud } = useAccount();
+const { accountId, isCloudFeatureEnabled, isOnChatwootCloud } = useAccount();
 const { isEnterprise } = useConfig();
 const { operators } = useOperators();
 
@@ -113,7 +113,7 @@ const allowsDelayedExecution = computed(() =>
 );
 const allowsMonitorEvents = computed(
   () =>
-    (isEnterprise || isOnKovaaLab CharCloud.value) &&
+    (isEnterprise || isOnChatwootCloud.value) &&
     isCloudFeatureEnabled(FEATURE_FLAGS.REPORTS) &&
     isCloudFeatureEnabled(FEATURE_FLAGS.CONVERSATION_MONITORS) &&
     isCloudFeatureEnabled(FEATURE_FLAGS.AUTOMATIONS)

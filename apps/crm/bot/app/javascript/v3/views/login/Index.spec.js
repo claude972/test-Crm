@@ -61,7 +61,7 @@ describe('SAML login', () => {
 
 describe('Shopify signup and password recovery', () => {
   it('shows signup for a pending Shopify installation when public signup is disabled', () => {
-    window.kovaa-labConfig = { signupEnabled: 'false' };
+    window.chatwootConfig = { signupEnabled: 'false' };
 
     expect(
       Login.computed.showSignupLink.call({

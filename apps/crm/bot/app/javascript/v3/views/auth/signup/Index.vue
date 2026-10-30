@@ -19,7 +19,7 @@ const { replaceInstallationName } = useBranding();
 
 const isLoading = ref(false);
 const globalConfig = computed(() => store.getters['globalConfig/get']);
-const isAKovaaLab CharInstance = computed(
+const isAChatwootInstance = computed(
   () => globalConfig.value.installationName === 'KovaaLab Char'
 );
 const isShopifySignup = computed(() => Boolean(props.shopifyPendingInstall));
@@ -32,7 +32,7 @@ const loginRoute = computed(() => {
 });
 
 onBeforeMount(() => {
-  isLoading.value = isAKovaaLab CharInstance.value;
+  isLoading.value = isAChatwootInstance.value;
 });
 
 const resizeContainers = () => {
@@ -51,7 +51,7 @@ const resizeContainers = () => {
     <div
       v-show="!isLoading"
       class="relative flex max-w-[960px] bg-white dark:bg-n-solid-2 rounded-lg outline outline-1 outline-n-container shadow-sm"
-      :class="{ 'w-auto xl:w-full': isAKovaaLab CharInstance }"
+      :class="{ 'w-auto xl:w-full': isAChatwootInstance }"
     >
       <div class="flex-1 flex items-center justify-center py-10 px-10">
         <div class="max-w-[420px] w-full">
@@ -71,7 +71,7 @@ const resizeContainers = () => {
               {{
                 isShopifySignup
                   ? replaceInstallationName($t('REGISTER.SHOPIFY.TITLE'))
-                  : isAKovaaLab CharInstance
+                  : isAChatwootInstance
                     ? $t('REGISTER.GET_STARTED')
                     : $t('REGISTER.TRY_WOOT')
               }}
@@ -93,7 +93,7 @@ const resizeContainers = () => {
         </div>
       </div>
       <Testimonials
-        v-if="isAKovaaLab CharInstance"
+        v-if="isAChatwootInstance"
         class="flex-1 hidden xl:flex"
         @resize-containers="resizeContainers"
       />

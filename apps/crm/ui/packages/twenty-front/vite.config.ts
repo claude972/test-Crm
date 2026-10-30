@@ -103,7 +103,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: __dirname,
-    cacheDir: '../../node_modules/.vite/packages/kovaa-lab-front',
+    cacheDir: '../../node_modules/.vite/packages/twenty-front',
 
     server: {
       port: port,

@@ -41,7 +41,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      isOnKovaaLab CharCloud: 'globalConfig/isOnKovaaLab CharCloud',
+      isOnChatwootCloud: 'globalConfig/isOnChatwootCloud',
       isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
       records: 'sla/getSLA',
       currentUser: 'getCurrentUser',
@@ -170,7 +170,7 @@ export default {
       <SLAPaywallEnterprise
         v-if="isBehindAPaywall"
         :is-super-admin="isSuperAdmin"
-        :is-on-kovaa-lab-cloud="isOnKovaaLab CharCloud"
+        :is-on-kovaa-lab-cloud="isOnChatwootCloud"
         @upgrade="onClickCTA"
       />
       <BaseTable

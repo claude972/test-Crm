@@ -32,7 +32,7 @@ export default {
           },
           beforeEnter: (to, from, next) => {
             // Check if MFA is enabled globally
-            if (!parseBoolean(window.kovaa-labConfig?.isMfaEnabled)) {
+            if (!parseBoolean(window.chatwootConfig?.isMfaEnabled)) {
               // Redirect to profile settings if MFA is disabled
               next({ name: 'profile_settings_index' });
             } else {

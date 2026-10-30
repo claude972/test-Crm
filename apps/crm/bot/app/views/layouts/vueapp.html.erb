@@ -5,7 +5,7 @@
       <%= @global_config['INSTALLATION_NAME'] %>
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=0"/>
-    <% unless KovaaLab CharApp.kovaa-lab_cloud? %>
+    <% unless ChatwootApp.chatwoot_cloud? %>
       <meta name="robots" content="noindex">
     <% end %>
     <% if @global_config['DISPLAY_MANIFEST'] %>
@@ -34,7 +34,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="<%= @global_config['LOGO_THUMBNAIL'] %>">
     <%= csrf_meta_tags %>
     <script>
-      window.kovaa-labConfig = {
+      window.chatwootConfig = {
         hostURL: '<%= ENV.fetch('FRONTEND_URL', '') %>',
         helpCenterURL: '<%= ENV.fetch('HELPCENTER_URL', '') %>',
         fbAppId: '<%= @global_config['FB_APP_ID'] %>',
@@ -49,7 +49,7 @@
         whatsappApiVersion: '<%= @global_config['WHATSAPP_API_VERSION'] %>',
         signupEnabled: '<%= @global_config['ENABLE_ACCOUNT_SIGNUP'] %>',
         isEnterprise: '<%= @global_config['IS_ENTERPRISE'] %>',
-        isMfaEnabled: '<%= KovaaLab Char.mfa_enabled? %>',
+        isMfaEnabled: '<%= Chatwoot.mfa_enabled? %>',
         <% if @global_config['IS_ENTERPRISE'] %>
         enterprisePlanName: '<%= @global_config['INSTALLATION_PRICING_PLAN'] %>',
         <% end %>

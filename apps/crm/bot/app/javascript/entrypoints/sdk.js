@@ -19,7 +19,7 @@ import { setCookieWithDomain } from '../sdk/cookieHelpers';
 import { SDK_SET_BUBBLE_VISIBILITY } from 'shared/constants/sharedFrameEvents';
 
 const runSDK = ({ baseUrl, websiteToken }) => {
-  if (window.$kovaa-lab) {
+  if (window.$chatwoot) {
     return;
   }
 
@@ -47,38 +47,38 @@ const runSDK = ({ baseUrl, websiteToken }) => {
     restoreWidgetInDOM(event.newDocument.body)
   );
 
-  const kovaa-labSettings = window.kovaa-labSettings || {};
-  let locale = kovaa-labSettings.locale;
-  let baseDomain = kovaa-labSettings.baseDomain;
+  const chatwootSettings = window.chatwootSettings || {};
+  let locale = chatwootSettings.locale;
+  let baseDomain = chatwootSettings.baseDomain;
 
-  if (kovaa-labSettings.useBrowserLanguage) {
+  if (chatwootSettings.useBrowserLanguage) {
     locale = window.navigator.language.replace('-', '_');
   }
 
-  window.$kovaa-lab = {
+  window.$chatwoot = {
     baseUrl,
     baseDomain,
     hasLoaded: false,
-    hideMessageBubble: kovaa-labSettings.hideMessageBubble || false,
+    hideMessageBubble: chatwootSettings.hideMessageBubble || false,
     isOpen: false,
-    position: kovaa-labSettings.position === 'left' ? 'left' : 'right',
+    position: chatwootSettings.position === 'left' ? 'left' : 'right',
     websiteToken,
     locale,
-    useBrowserLanguage: kovaa-labSettings.useBrowserLanguage || false,
-    type: getBubbleView(kovaa-labSettings.type),
-    launcherTitle: kovaa-labSettings.launcherTitle || '',
-    showPopoutButton: kovaa-labSettings.showPopoutButton || false,
-    showUnreadMessagesDialog: kovaa-labSettings.showUnreadMessagesDialog ?? true,
-    widgetStyle: getWidgetStyle(kovaa-labSettings.widgetStyle) || 'standard',
+    useBrowserLanguage: chatwootSettings.useBrowserLanguage || false,
+    type: getBubbleView(chatwootSettings.type),
+    launcherTitle: chatwootSettings.launcherTitle || '',
+    showPopoutButton: chatwootSettings.showPopoutButton || false,
+    showUnreadMessagesDialog: chatwootSettings.showUnreadMessagesDialog ?? true,
+    widgetStyle: getWidgetStyle(chatwootSettings.widgetStyle) || 'standard',
     resetTriggered: false,
-    darkMode: getDarkMode(kovaa-labSettings.darkMode),
-    welcomeTitle: kovaa-labSettings.welcomeTitle || '',
-    welcomeDescription: kovaa-labSettings.welcomeDescription || '',
-    availableMessage: kovaa-labSettings.availableMessage || '',
-    unavailableMessage: kovaa-labSettings.unavailableMessage || '',
-    enableFileUpload: kovaa-labSettings.enableFileUpload,
-    enableEmojiPicker: kovaa-labSettings.enableEmojiPicker ?? true,
-    enableEndConversation: kovaa-labSettings.enableEndConversation ?? true,
+    darkMode: getDarkMode(chatwootSettings.darkMode),
+    welcomeTitle: chatwootSettings.welcomeTitle || '',
+    welcomeDescription: chatwootSettings.welcomeDescription || '',
+    availableMessage: chatwootSettings.availableMessage || '',
+    unavailableMessage: chatwootSettings.unavailableMessage || '',
+    enableFileUpload: chatwootSettings.enableFileUpload,
+    enableEmojiPicker: chatwootSettings.enableEmojiPicker ?? true,
+    enableEndConversation: chatwootSettings.enableEndConversation ?? true,
 
     toggle(state) {
       IFrameHelper.events.toggleBubble(state);
@@ -90,21 +90,21 @@ const runSDK = ({ baseUrl, websiteToken }) => {
       if (visibility === 'hide') {
         addClasses(widgetHolder, 'woot-widget--without-bubble');
         addClasses(widgetElm, 'woot-hidden');
-        window.$kovaa-lab.hideMessageBubble = true;
+        window.$chatwoot.hideMessageBubble = true;
       } else if (visibility === 'show') {
         removeClasses(widgetElm, 'woot-hidden');
         removeClasses(widgetHolder, 'woot-widget--without-bubble');
-        window.$kovaa-lab.hideMessageBubble = false;
+        window.$chatwoot.hideMessageBubble = false;
       }
       IFrameHelper.sendMessage(SDK_SET_BUBBLE_VISIBILITY, {
-        hideMessageBubble: window.$kovaa-lab.hideMessageBubble,
+        hideMessageBubble: window.$chatwoot.hideMessageBubble,
       });
     },
 
     popoutChatWindow() {
       IFrameHelper.events.popoutChatWindow({
-        baseUrl: window.$kovaa-lab.baseUrl,
-        websiteToken: window.$kovaa-lab.websiteToken,
+        baseUrl: window.$chatwoot.baseUrl,
+        websiteToken: window.$chatwoot.websiteToken,
         locale,
       });
     },
@@ -127,8 +127,8 @@ const runSDK = ({ baseUrl, websiteToken }) => {
         return;
       }
 
-      window.$kovaa-lab.identifier = identifier;
-      window.$kovaa-lab.user = user;
+      window.$chatwoot.identifier = identifier;
+      window.$chatwoot.user = user;
       IFrameHelper.sendMessage('set-user', { identifier, user });
 
       setCookieWithDomain(userCookieName, hashToBeStored, {
@@ -193,7 +193,7 @@ const runSDK = ({ baseUrl, websiteToken }) => {
     },
 
     reset() {
-      if (window.$kovaa-lab.isOpen) {
+      if (window.$chatwoot.isOpen) {
         IFrameHelper.events.toggleBubble();
       }
 
@@ -202,11 +202,11 @@ const runSDK = ({ baseUrl, websiteToken }) => {
 
       const iframe = IFrameHelper.getAppFrame();
       iframe.src = IFrameHelper.getUrl({
-        baseUrl: window.$kovaa-lab.baseUrl,
-        websiteToken: window.$kovaa-lab.websiteToken,
+        baseUrl: window.$chatwoot.baseUrl,
+        websiteToken: window.$chatwoot.websiteToken,
       });
 
-      window.$kovaa-lab.resetTriggered = true;
+      window.$chatwoot.resetTriggered = true;
     },
   };
 
@@ -216,6 +216,6 @@ const runSDK = ({ baseUrl, websiteToken }) => {
   });
 };
 
-window.kovaa-labSDK = {
+window.chatwootSDK = {
   run: runSDK,
 };

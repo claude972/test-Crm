@@ -146,6 +146,89 @@ for (const packageName of packages) {
   }
 }
 
+// Char frontend: Vue SFCs and plain JS, plus the ERB views that produce its
+// globals. Parsed per <script> block for .vue. Scoped to the files this mission
+// owns; Char's Ruby sources belong to Codex.
+const CHAR_ROOTS = ['apps/crm/bot/app/javascript', 'apps/crm/bot/app/views'];
+// 'kovaa-lab' followed by an uppercase letter is always a broken identifier:
+// the real package names are lowercase after the hyphen, and the literal value
+// 'kovaa-lab' is never followed by one. Deliberately narrower than the CRM
+// check so it cannot flag a brand string inside a template id.
+const HYPHEN_IN_IDENTIFIER = /kovaa-lab(?=[A-Z])/;
+let charParsed = 0;
+let charScriptBlocks = 0;
+
+const charSources = execFileSync('git', ['ls-files', '-z', ...CHAR_ROOTS], {
+  cwd: root,
+  maxBuffer: 64 * 1024 * 1024,
+})
+  .toString()
+  .split('\0')
+  .filter((file) => /\.(?:js|vue)$/.test(file));
+
+for (const file of charSources) {
+  const absolute = path.join(root, file);
+  if (!existsSync(absolute)) continue;
+  const text = readFileSync(absolute, 'utf8');
+  charParsed += 1;
+
+  if (HYPHEN_IN_IDENTIFIER.test(text)) {
+    failures.push(
+      `${file}: hyphen inside an identifier; Char's canonical name is the upstream Chatwoot spelling`,
+    );
+  }
+
+  const blocks = file.endsWith('.vue')
+    ? [...text.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map((match) => match[1])
+    : [text];
+  for (const code of blocks) {
+    charScriptBlocks += 1;
+    const source = ts.createSourceFile(
+      absolute,
+      code,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.JS,
+    );
+    for (const diagnostic of source.parseDiagnostics) {
+      const { line } = source.getLineAndCharacterOfPosition(diagnostic.start);
+      failures.push(
+        `${file}: script block line ${line + 1}: TS${diagnostic.code} ${ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')}`,
+      );
+    }
+  }
+}
+
+// ERB templates carry Ruby EXPRESSIONS, and the brand string is legitimate
+// inside a Ruby string there while being a broken identifier in an expression.
+// My first Char pass got that distinction wrong for this file type and left a
+// half-repaired dashboard layout, so the check now exists.
+const ERB_BROKEN_EXPRESSION =
+  /<%[^%]*(?:kovaa-lab[_a-z]|KovaaLab Char\.|KovaaLab CRM\.)[^%]*%>/;
+let erbParsed = 0;
+
+const erbTemplates = execFileSync('git', ['ls-files', '-z', 'apps/crm/bot/app/views'], {
+  cwd: root,
+  maxBuffer: 64 * 1024 * 1024,
+})
+  .toString()
+  .split('\0')
+  .filter((file) => /\.erb$/.test(file));
+
+for (const file of erbTemplates) {
+  const absolute = path.join(root, file);
+  if (!existsSync(absolute)) continue;
+  erbParsed += 1;
+  const text = readFileSync(absolute, 'utf8');
+  text.split('\n').forEach((line, index) => {
+    if (ERB_BROKEN_EXPRESSION.test(line)) {
+      failures.push(
+        `${file}:${index + 1}: brand token inside an ERB Ruby expression; a display string may keep it, an expression may not`,
+      );
+    }
+  });
+}
+
 for (const failure of failures.slice(0, 60)) console.error(failure);
 if (failures.length > 60)
   console.error(`… and ${failures.length - 60} more failures`);
@@ -170,7 +253,10 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Frontend P0: ${parsed} sources parsed; ${importsChecked} internal imports resolved; ${assetsChecked} asset imports checked on disk; ${identifierHits} files with a spaced brand inside an identifier.`,
+  `Frontend P0 (CRM): ${parsed} sources parsed; ${importsChecked} internal imports resolved; ${assetsChecked} asset imports checked on disk; ${identifierHits} files with a spaced brand inside an identifier.`,
+);
+console.log(
+  `Frontend P0 (Char): ${charParsed} sources parsed across ${charScriptBlocks} script blocks; ${erbParsed} ERB templates scanned for Ruby expressions.`,
 );
 assert.equal(
   failures.length,

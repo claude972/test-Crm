@@ -15,7 +15,7 @@ const mountComposable = ({
   brandInfo,
   features = { channel_instagram: true, channel_tiktok: true },
   inboxes = [],
-  isOnKovaaLab CharCloud = false,
+  isOnChatwootCloud = false,
   disableMetaInboxCreation = false,
 } = {}) => {
   const store = createStore({
@@ -24,9 +24,9 @@ const mountComposable = ({
         namespaced: true,
         getters: {
           get: () => ({}),
-          isOnKovaaLab CharCloud: () => isOnKovaaLab CharCloud,
+          isOnChatwootCloud: () => isOnChatwootCloud,
           isMetaInboxCreationDisabled: () =>
-            isOnKovaaLab CharCloud && disableMetaInboxCreation,
+            isOnChatwootCloud && disableMetaInboxCreation,
           isMetaMessageSendingDisabled: () => false,
         },
       },
@@ -64,7 +64,7 @@ beforeEach(() => {
   useRoute.mockReturnValue({ params: { accountId: '1' } });
   // Configure the installation OAuth credentials so detected channels aren't
   // hidden by the config gate; individual tests clear this to assert hiding.
-  window.kovaa-labConfig = {
+  window.chatwootConfig = {
     fbAppId: 'fb',
     instagramAppId: 'ig',
     tiktokAppId: 'tt',
@@ -74,7 +74,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete window.kovaa-labConfig;
+  delete window.chatwootConfig;
 });
 
 describe('useDetectedChannels', () => {
@@ -188,7 +188,7 @@ describe('useDetectedChannels', () => {
     });
 
     it('gates the default suggestions by installation config, keeping the list non-empty', () => {
-      window.kovaa-labConfig = {}; // no OAuth credentials configured
+      window.chatwootConfig = {}; // no OAuth credentials configured
       const { displayedChannels } = mountComposable({ brandInfo: undefined });
 
       // Only the credential-free defaults survive (Telegram, LINE).
@@ -199,7 +199,7 @@ describe('useDetectedChannels', () => {
     });
 
     it('hides detected channels whose installation OAuth credentials are missing', () => {
-      window.kovaa-labConfig = {}; // nothing configured
+      window.chatwootConfig = {}; // nothing configured
       const { displayedChannels } = mountComposable({
         brandInfo: {
           socials: [
@@ -222,7 +222,7 @@ describe('useDetectedChannels', () => {
           channel_tiktok: true,
           whatsapp_embedded_signup_inbox_creation: true,
         },
-        isOnKovaaLab CharCloud: true,
+        isOnChatwootCloud: true,
         disableMetaInboxCreation: true,
         brandInfo: {
           socials: [
@@ -242,7 +242,7 @@ describe('useDetectedChannels', () => {
     it('hides Instagram when disabled for the account', () => {
       const { displayedChannels } = mountComposable({
         features: { channel_instagram: false, channel_tiktok: true },
-        isOnKovaaLab CharCloud: true,
+        isOnChatwootCloud: true,
         brandInfo: {
           socials: [
             { type: 'instagram', url: 'https://instagram.com/acme' },
@@ -259,7 +259,7 @@ describe('useDetectedChannels', () => {
     it('keeps disabled TikTok in the secondary channel catalog on KovaaLab Char Cloud', () => {
       const { displayedChannels, remainingChannels } = mountComposable({
         features: { channel_instagram: true, channel_tiktok: false },
-        isOnKovaaLab CharCloud: true,
+        isOnChatwootCloud: true,
         brandInfo: {
           socials: [{ type: 'tiktok', url: 'https://tiktok.com/@acme' }],
         },
@@ -276,7 +276,7 @@ describe('useDetectedChannels', () => {
     it('shows configured TikTok on self-hosted installations even when the Cloud feature is disabled', () => {
       const { displayedChannels, remainingChannels } = mountComposable({
         features: { channel_tiktok: false },
-        isOnKovaaLab CharCloud: false,
+        isOnChatwootCloud: false,
         brandInfo: {
           socials: [{ type: 'tiktok', url: 'https://tiktok.com/@acme' }],
         },
@@ -331,7 +331,7 @@ describe('useDetectedChannels', () => {
     });
 
     it('excludes channels whose installation OAuth credentials are missing', () => {
-      window.kovaa-labConfig = {}; // nothing configured
+      window.chatwootConfig = {}; // nothing configured
       const { remainingChannels } = mountComposable({ brandInfo: {} });
 
       // The only configured channels (Telegram, LINE) are shown as default rows,

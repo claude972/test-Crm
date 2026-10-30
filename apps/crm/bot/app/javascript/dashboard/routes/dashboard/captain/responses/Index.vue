@@ -27,7 +27,7 @@ import ConversationUsageDrawer from 'dashboard/components-next/captain/pageCompo
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 const uiFlags = useMapGetter('captainResponses/getUIFlags');
 const responseMeta = useMapGetter('captainResponses/getMeta');
 const responses = useMapGetter('captainResponses/getRecords');
@@ -287,7 +287,7 @@ onUnmounted(() => {
         :button-label="$t('CAPTAIN.HEADER_KNOW_MORE')"
         :title="$t('CAPTAIN.RESPONSES.EMPTY_STATE.FEATURE_SPOTLIGHT.TITLE')"
         :note="$t('CAPTAIN.RESPONSES.EMPTY_STATE.FEATURE_SPOTLIGHT.NOTE')"
-        :hide-actions="!isOnKovaaLab CharCloud"
+        :hide-actions="!isOnChatwootCloud"
         fallback-thumbnail="/assets/images/dashboard/captain/faqs-popover-light.svg"
         fallback-thumbnail-dark="/assets/images/dashboard/captain/faqs-popover-dark.svg"
         learn-more-url="https://chwt.app/captain-faq"

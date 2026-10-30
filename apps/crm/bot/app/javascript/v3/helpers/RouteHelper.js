@@ -11,7 +11,7 @@ const validateSSOLoginParams = to => {
   return isLoginRoute && hasValidSSOParams;
 };
 
-export const validateRouteAccess = (to, next, kovaa-labConfig = {}) => {
+export const validateRouteAccess = (to, next, chatwootConfig = {}) => {
   // Pages with ignoreSession:true would be rendered
   // even if there is an active session
   // Used for confirmation or password reset pages
@@ -63,14 +63,14 @@ export const validateRouteAccess = (to, next, kovaa-labConfig = {}) => {
   // Signup route has an attribute (requireSignupEnabled) in it's definition
   const isAnInalidSignupNavigation =
     !isPendingShopifySignup &&
-    kovaa-labConfig.signupEnabled !== 'true' &&
+    chatwootConfig.signupEnabled !== 'true' &&
     to.meta &&
     to.meta.requireSignupEnabled;
 
   // Disable navigation to SAML login if enterprise is not enabled
   // SAML route has an attribute (requireEnterprise) in it's definition
   const isEnterpriseOnlyPath =
-    kovaa-labConfig.isEnterprise !== 'true' &&
+    chatwootConfig.isEnterprise !== 'true' &&
     to.meta &&
     to.meta.requireEnterprise;
 

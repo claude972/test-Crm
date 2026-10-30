@@ -3,12 +3,12 @@ import { useAccount } from './useAccount';
 import { useAdmin } from './useAdmin';
 
 export function usePaymentStatus() {
-  const { accountId, currentAccount, isOnKovaaLab CharCloud } = useAccount();
+  const { accountId, currentAccount, isOnChatwootCloud } = useAccount();
   const { isAdmin: canManagePayment } = useAdmin();
 
   const isPastDue = computed(
     () =>
-      isOnKovaaLab CharCloud.value &&
+      isOnChatwootCloud.value &&
       currentAccount.value?.billing_provider === 'stripe' &&
       currentAccount.value?.custom_attributes?.subscription_status ===
         'past_due'

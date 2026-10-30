@@ -13,7 +13,7 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: key => key }),
 }));
 vi.mock('dashboard/composables/useAccount', () => ({
-  useAccount: () => ({ isOnKovaaLab CharCloud: ref(false) }),
+  useAccount: () => ({ isOnChatwootCloud: ref(false) }),
 }));
 vi.mock('dashboard/store/utils/api', () => ({
   clearLocalStorageOnLogout: vi.fn(),

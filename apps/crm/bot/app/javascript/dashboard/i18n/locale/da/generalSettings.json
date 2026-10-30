@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Du kan modtage e-mails på dit brugerdefinerede domæne nu."
       }
     },
-    "UPDATE_KOVAALAB": "En opdatering {latestKovaaLab CharVersion} til KovaaLab Char er tilgængelig. Opdater venligst din instans.",
+    "UPDATE_KOVAALAB": "En opdatering {latestChatwootVersion} til KovaaLab Char er tilgængelig. Opdater venligst din instans.",
     "LEARN_MORE": "Lær mere",
     "PAYMENT_PENDING": "Din kontobetaling er forfalden. Opdater venligst dine betalingsoplysninger for at undgå annullering af abonnement.",
     "PAYMENT_PENDING_AGENT": "Din kontobetaling er forfalden. Kontakt venligst din administrator for at løse den.",

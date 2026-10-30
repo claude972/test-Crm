@@ -93,11 +93,11 @@ export function useWhatsappEmbeddedSignup() {
       (async () => {
         try {
           await setupFacebookSdk(
-            window.kovaa-labConfig?.whatsappAppId,
-            window.kovaa-labConfig?.whatsappApiVersion
+            window.chatwootConfig?.whatsappAppId,
+            window.chatwootConfig?.whatsappApiVersion
           );
           authCode = await initWhatsAppEmbeddedSignup(
-            window.kovaa-labConfig?.whatsappConfigurationId
+            window.chatwootConfig?.whatsappConfigurationId
           );
           resolveIfReady();
         } catch (error) {

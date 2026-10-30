@@ -15,6 +15,8 @@ on:
       - 'apps/crm/ui/packages/twenty-shared/**'
       - 'apps/crm/ui/packages/twenty-sdk/**'
       - 'apps/crm/ui/packages/twenty-client-sdk/**'
+      - 'apps/crm/bot/app/javascript/**'
+      - 'apps/crm/bot/app/views/**'
   # Same paths filter as push, so a documentation-only commit does not start a
   # fresh build and cancel a running one over identical application code.
   pull_request:
@@ -28,6 +30,8 @@ on:
       - 'apps/crm/ui/packages/twenty-shared/**'
       - 'apps/crm/ui/packages/twenty-sdk/**'
       - 'apps/crm/ui/packages/twenty-client-sdk/**'
+      - 'apps/crm/bot/app/javascript/**'
+      - 'apps/crm/bot/app/views/**'
   # Exposed so Codex's combined verification can call this without duplicating it.
   workflow_call:
     outputs:
@@ -36,8 +40,11 @@ on:
         value: ${{ jobs.frontend-bundle.outputs.artifact }}
   workflow_dispatch:
 
+# The event is part of the group on purpose. A push and a pull_request on the
+# same commit otherwise share a group, and cancel-in-progress makes one cancel
+# the other — which surfaces as a red check that is really a cancellation.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -70,6 +77,9 @@ jobs:
   # so the real bundle proof belongs there. Run 40981738957 shows shared and ui
   # building green and the chain stopping at kovaa-lab-client-sdk:build.
   frontend-bundle:
+    # The gate is cheap enough to run on every push; this one is not, so it runs
+    # once per pull request or when called, not twice for the same commit.
+    if: ${{ github.event_name != 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     needs: frontend-sources

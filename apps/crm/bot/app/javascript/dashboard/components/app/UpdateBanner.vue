@@ -9,7 +9,7 @@ import { hasAnUpdateAvailable } from './versionCheckHelper';
 export default {
   components: { Banner },
   props: {
-    latestKovaaLab CharVersion: { type: String, default: '' },
+    latestChatwootVersion: { type: String, default: '' },
   },
   setup() {
     const { isAdmin } = useAdmin();
@@ -24,13 +24,13 @@ export default {
     ...mapGetters({ globalConfig: 'globalConfig/get' }),
     updateAvailable() {
       return hasAnUpdateAvailable(
-        this.latestKovaaLab CharVersion,
+        this.latestChatwootVersion,
         this.globalConfig.appVersion
       );
     },
     bannerMessage() {
       return this.$t('GENERAL_SETTINGS.UPDATE_KOVAALAB', {
-        latestKovaaLab CharVersion: this.latestKovaaLab CharVersion,
+        latestChatwootVersion: this.latestChatwootVersion,
       });
     },
     shouldShowBanner() {
@@ -38,7 +38,7 @@ export default {
         !this.userDismissedBanner &&
         this.globalConfig.displayManifest &&
         this.updateAvailable &&
-        !this.isVersionNotificationDismissed(this.latestKovaaLab CharVersion) &&
+        !this.isVersionNotificationDismissed(this.latestChatwootVersion) &&
         this.isAdmin
       );
     },
@@ -53,9 +53,9 @@ export default {
       let updatedDismissedItems =
         LocalStorage.get(LOCAL_STORAGE_KEYS.DISMISSED_UPDATES) || [];
       if (updatedDismissedItems instanceof Array) {
-        updatedDismissedItems.push(this.latestKovaaLab CharVersion);
+        updatedDismissedItems.push(this.latestChatwootVersion);
       } else {
-        updatedDismissedItems = [this.latestKovaaLab CharVersion];
+        updatedDismissedItems = [this.latestChatwootVersion];
       }
       LocalStorage.set(
         LOCAL_STORAGE_KEYS.DISMISSED_UPDATES,

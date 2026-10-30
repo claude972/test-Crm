@@ -6,21 +6,21 @@ import { useAdmin } from 'dashboard/composables/useAdmin';
 import { useMapGetter } from 'dashboard/composables/store';
 
 const { isAdmin } = useAdmin();
-const isOnKovaaLab CharCloud = useMapGetter('globalConfig/isOnKovaaLab CharCloud');
+const isOnChatwootCloud = useMapGetter('globalConfig/isOnChatwootCloud');
 
 const showBillingLink = computed(
-  () => isAdmin.value && isOnKovaaLab CharCloud.value
+  () => isAdmin.value && isOnChatwootCloud.value
 );
 
 const toggleSupportWidgetVisibility = () => {
-  if (window.$kovaa-lab) {
-    window.$kovaa-lab.toggleBubbleVisibility('show');
+  if (window.$chatwoot) {
+    window.$chatwoot.toggleBubbleVisibility('show');
   }
 };
 
 const toggleSupportWidget = () => {
-  if (window.$kovaa-lab) {
-    window.$kovaa-lab.toggle();
+  if (window.$chatwoot) {
+    window.$chatwoot.toggle();
   }
 };
 

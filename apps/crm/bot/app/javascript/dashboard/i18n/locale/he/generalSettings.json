@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "אתה יכול לקבל אימיילים בדומיין המותאם אישית שלך עכשיו."
       }
     },
-    "UPDATE_KOVAALAB": "עדכון {latestKovaaLab CharVersion} עבור KovaaLab Char זמין. אנא עדכן את המופע שלך.",
+    "UPDATE_KOVAALAB": "עדכון {latestChatwootVersion} עבור KovaaLab Char זמין. אנא עדכן את המופע שלך.",
     "LEARN_MORE": "למד עוד",
     "PAYMENT_PENDING": "Your account payment is past due. Please update your payment information to avoid subscription cancellation.",
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",

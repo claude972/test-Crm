@@ -15,18 +15,18 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['channelItemClick']);
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 
 const hasFbConfigured = computed(() => {
-  return window.kovaa-labConfig?.fbAppId;
+  return window.chatwootConfig?.fbAppId;
 });
 
 const hasInstagramConfigured = computed(() => {
-  return window.kovaa-labConfig?.instagramAppId;
+  return window.chatwootConfig?.instagramAppId;
 });
 
 const hasTiktokConfigured = computed(() => {
-  return window.kovaa-labConfig?.tiktokAppId;
+  return window.chatwootConfig?.tiktokAppId;
 });
 
 const isActive = computed(() => {
@@ -86,7 +86,7 @@ const isBeta = computed(() => {
 const canRequestTiktokAccess = computed(() => {
   return (
     props.channel.key === 'tiktok' &&
-    isOnKovaaLab CharCloud.value &&
+    isOnChatwootCloud.value &&
     hasTiktokConfigured.value &&
     Object.keys(props.enabledFeatures).length > 0 &&
     !props.enabledFeatures.channel_tiktok
@@ -102,7 +102,7 @@ const hasVoiceBadge = computed(() => {
 
 const onItemClick = () => {
   if (canRequestTiktokAccess.value) {
-    window.$kovaa-lab?.toggle();
+    window.$chatwoot?.toggle();
     return;
   }
 

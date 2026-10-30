@@ -9,7 +9,7 @@ export default {
   mounted() {
     this.setColorTheme();
     this.listenToThemeChanges();
-    this.setLocale(window.kovaa-labConfig.selectedLocale);
+    this.setLocale(window.chatwootConfig.selectedLocale);
   },
   methods: {
     setColorTheme() {

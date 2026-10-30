@@ -20,7 +20,7 @@ export default {
       showPopoutButton: false,
       scrollPosition: 0,
       ticking: true,
-      disableBranding: window.kovaa-labWebChannel.disableBranding || false,
+      disableBranding: window.chatwootWebChannel.disableBranding || false,
       requestID: null,
     };
   },
@@ -30,7 +30,7 @@ export default {
       availableAgents: 'agent/availableAgents',
     }),
     portal() {
-      return window.kovaa-labWebChannel.portal;
+      return window.chatwootWebChannel.portal;
     },
     isHeaderCollapsed() {
       if (!this.hasIntroText) {
