@@ -47,3 +47,11 @@ P0-FRONT-BUILD-001 suit l'échec initial réel (UI dist/theme.cjs absent) et sa 
 ## Isolation des groupes de CI
 
 Dans un workflow réutilisé, github.workflow désigne le workflow appelant. Les contrôles de sources et frontend avaient donc la même expression de groupe lors de l'appel combiné. Le groupe du contrôleur de sources est rendu explicitement unique (p0-integrity-<branche>), distinct du frontend, du backend et de l'orchestrateur. Référence primaire : https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations. Cette correction de configuration ne modifie aucune source applicative et doit être vérifiée dans le prochain run complet.
+
+## SDK général et nouveau checkpoint de CI
+
+CI 40982737440 sur 8b8a1c211 : tous les contrôles de sources et le build shared verts, puis la chaîne frontend échoue sur le SDK général (P0-SDK-002), sans lancer le navigateur. Correction backend 39cda1cb7 intégrée : deux déclarations de type et leur chemin réparés, bandeau Node généré rendu valide. Avant/après isolé : quatre diagnostics sur 232 sources puis zéro, 467 imports résolus ; bandeau Node invalide puis accepté. Le target SDK vérifie désormais syntaxiquement ses artefacts Node ESM/CJS réels, et le contrôleur backend inclut les sources SDK. Valeurs des protocoles SDK préservées.
+
+Le checkpoint frontend 9c51c039b ne modifie ensuite que workflow et rapports : filtre de PR sur les mêmes chemins que push, et diagnostic Vite historique clarifié. Intégré après lecture du diff. Sur la seule branche d'intégration, les dossiers SDK/client-sdk sont ajoutés aux filtres frontend, puisqu'ils sont des dépendances réellement démontrées par la construction ; patch annoncé à Claude avant édition. Aucun source frontend de Claude édité.
+
+Une nouvelle CI doit encore vérifier cette chaîne réparée, puis le navigateur. La précédente CI backend runtime reste une preuve de son code serveur inchangé, pas une réussite de ce nouveau bundle.
