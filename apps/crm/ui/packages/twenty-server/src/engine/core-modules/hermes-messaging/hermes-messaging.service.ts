@@ -1,0 +1,937 @@
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
+import { DataSource, type EntityManager, IsNull } from 'typeorm';
+import { z } from 'zod';
+import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
+import { HermesInboxMessageEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity';
+import { HermesMessagingAdapterRegistry } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-adapter.registry';
+import { HermesMessagingPersonService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-person.service';
+import {
+  decodeMessagingCursor,
+  encodeMessagingCursor,
+  messagingDigest,
+  messagingEventSchema,
+  messagingId,
+  messagingText,
+  normalizeContactHandle,
+  pageLimit,
+} from 'src/engine/core-modules/hermes-messaging/hermes-messaging.policy';
+import {
+  type HermesInboxConversationsInput,
+  type HermesInboxMessagesInput,
+  type HermesInboxReplyInput,
+  type HermesMessagingActor,
+  type HermesMessagingChannel,
+  type HermesMessagingEvent,
+  type HermesMessagingBotResult,
+} from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
+import { HermesMessagingAccessService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-access.service';
+import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+
+type BotGrant = { ownerUserWorkspaceId: string; epoch: string };
+const replySchema = z
+  .object({
+    conversationId: z.string().uuid(),
+    clientRequestId: z.string().uuid(),
+    text: messagingText,
+  })
+  .strict();
+const receiptSchema = z.object({
+  providerMessageId: z
+    .string()
+    .min(1)
+    .max(256)
+    .regex(/^[\x21-\x7e]+$/),
+  acceptedAt: z.string().datetime({ offset: true }),
+});
+
+@Injectable()
+export class HermesMessagingService {
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly access: HermesMessagingAccessService,
+    private readonly registry: HermesMessagingAdapterRegistry,
+    private readonly people: HermesMessagingPersonService,
+  ) {}
+
+  private transaction<T>(
+    workspaceId: string,
+    work: (manager: EntityManager) => Promise<T>,
+  ): Promise<T> {
+    return this.dataSource.transaction(async (manager) => {
+      await manager.query(
+        'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+        [`hermes-messaging:${workspaceId}`],
+      );
+      return work(manager);
+    });
+  }
+  private parse<T>(schema: z.ZodType<T>, value: unknown): T {
+    const result = schema.safeParse(value);
+    if (!result.success)
+      throw new BadRequestException('INVALID_MESSAGING_INPUT');
+    return result.data;
+  }
+  private async conversation(
+    workspaceId: string,
+    id: string,
+  ): Promise<HermesConversationEntity> {
+    const result = await this.dataSource
+      .getRepository(HermesConversationEntity)
+      .findOneBy({ workspaceId, id });
+    if (!result) throw new NotFoundException('CONVERSATION_NOT_FOUND');
+    return result;
+  }
+  private async visibleMessage(
+    workspaceId: string,
+    message: HermesInboxMessageEntity,
+  ): Promise<HermesInboxMessageEntity> {
+    if (!message.canonicalMessageId) return message;
+    const canonical = await this.dataSource
+      .getRepository(HermesInboxMessageEntity)
+      .findOneBy({
+        workspaceId,
+        id: message.canonicalMessageId,
+        conversationId: message.conversationId,
+      });
+    if (!canonical)
+      throw new ServiceUnavailableException('MESSAGE_RECONCILIATION_REQUIRED');
+    return canonical;
+  }
+
+  async connections(actor: HermesMessagingActor) {
+    await this.access.assertAllowed(actor);
+    const result = await Promise.all(
+      (['WHATSAPP', 'EMAIL'] as const).map(async (channel) => {
+        const adapter = this.registry.get(channel);
+        if (!adapter)
+          return {
+            channel,
+            state: 'NOT_CONFIGURED',
+            canSend: false,
+            canSync: false,
+            lastCheckedAt: new Date(),
+            errorCode: null,
+          };
+        try {
+          const probe = await adapter.probe(actor.workspaceId);
+          const status = [
+            'NOT_CONFIGURED',
+            'CONFIGURED_UNVERIFIED',
+            'AVAILABLE',
+            'UNAVAILABLE',
+          ].includes(probe.status)
+            ? probe.status
+            : 'UNAVAILABLE';
+          return {
+            channel,
+            state: status,
+            canSend:
+              ['AVAILABLE', 'CONFIGURED_UNVERIFIED'].includes(status) &&
+              (probe.canSend ?? status === 'AVAILABLE'),
+            canSync:
+              ['AVAILABLE', 'CONFIGURED_UNVERIFIED'].includes(status) &&
+              (probe.canSync ?? false),
+            lastCheckedAt: new Date(),
+            errorCode: status === 'UNAVAILABLE' ? 'PROVIDER_UNAVAILABLE' : null,
+          };
+        } catch {
+          return {
+            channel,
+            state: 'UNAVAILABLE',
+            canSend: false,
+            canSync: false,
+            lastCheckedAt: new Date(),
+            errorCode: 'PROVIDER_UNAVAILABLE',
+          };
+        }
+      }),
+    );
+    await this.access.assertAllowed(actor);
+    return result;
+  }
+
+  async conversations(
+    actor: HermesMessagingActor,
+    input: HermesInboxConversationsInput = {},
+  ) {
+    await this.access.assertAllowed(actor);
+    const parsed = this.parse(
+      z
+        .object({
+          channel: z.enum(['WHATSAPP', 'EMAIL']).optional(),
+          limit: z.number().int().min(1).max(100).optional(),
+          cursor: z.string().max(256).optional(),
+        })
+        .strict(),
+      input,
+    );
+    let cursor;
+    try {
+      cursor = decodeMessagingCursor(parsed.cursor);
+    } catch {
+      throw new BadRequestException('INVALID_CURSOR');
+    }
+    const limit = pageLimit(parsed.limit, 30);
+    const query = this.dataSource
+      .getRepository(HermesConversationEntity)
+      .createQueryBuilder('conversation')
+      .where('conversation."workspaceId" = :workspaceId', {
+        workspaceId: actor.workspaceId,
+      });
+    if (parsed.channel)
+      query.andWhere('conversation."channel" = :channel', {
+        channel: parsed.channel,
+      });
+    if (cursor)
+      query.andWhere(
+        '(conversation."lastMessageAt", conversation."id") < (:at, :id)',
+        cursor,
+      );
+    const rows = await query
+      .orderBy('conversation.lastMessageAt', 'DESC')
+      .addOrderBy('conversation.id', 'DESC')
+      .take(limit + 1)
+      .getMany();
+    const selected = rows.slice(0, limit);
+    const items = await Promise.all(
+      selected.map(async (row) => {
+        const conflict = await this.dataSource
+          .getRepository(HermesInboxMessageEntity)
+          .countBy({
+            workspaceId: actor.workspaceId,
+            conversationId: row.id,
+            errorCode: 'CONTACT_HANDLE_CHANGED',
+          });
+        return {
+          ...row,
+          ...(conflict
+            ? { personId: null, personMatchStatus: 'AMBIGUOUS' }
+            : await this.people.match(actor, row.channel, row.contactHandle)),
+        };
+      }),
+    );
+    await this.access.assertAllowed(actor);
+    const last = selected[selected.length - 1];
+    return {
+      items,
+      nextCursor:
+        rows.length > limit && last
+          ? encodeMessagingCursor(last.lastMessageAt, last.id)
+          : null,
+    };
+  }
+
+  async messages(actor: HermesMessagingActor, input: HermesInboxMessagesInput) {
+    await this.access.assertAllowed(actor);
+    const parsed = this.parse(
+      z
+        .object({
+          conversationId: z.string().uuid(),
+          limit: z.number().int().min(1).max(100).optional(),
+          cursor: z.string().max(256).optional(),
+        })
+        .strict(),
+      input,
+    );
+    await this.conversation(actor.workspaceId, parsed.conversationId);
+    let cursor;
+    try {
+      cursor = decodeMessagingCursor(parsed.cursor);
+    } catch {
+      throw new BadRequestException('INVALID_CURSOR');
+    }
+    const limit = pageLimit(parsed.limit, 50);
+    const query = this.dataSource
+      .getRepository(HermesInboxMessageEntity)
+      .createQueryBuilder('message')
+      .where(
+        'message."workspaceId" = :workspaceId AND message."conversationId" = :conversationId AND message."canonicalMessageId" IS NULL',
+        {
+          workspaceId: actor.workspaceId,
+          conversationId: parsed.conversationId,
+        },
+      );
+    if (cursor)
+      query.andWhere(
+        '(message."occurredAt", message."id") < (:at, :id)',
+        cursor,
+      );
+    const rows = await query
+      .orderBy('message.occurredAt', 'DESC')
+      .addOrderBy('message.id', 'DESC')
+      .take(limit + 1)
+      .getMany();
+    const items = rows.slice(0, limit);
+    await this.access.assertAllowed(actor);
+    const last = items[items.length - 1];
+    return {
+      items,
+      nextCursor:
+        rows.length > limit && last
+          ? encodeMessagingCursor(last.occurredAt, last.id)
+          : null,
+    };
+  }
+
+  async draftReply(
+    actor: HermesMessagingActor,
+    raw: { conversationId: string; messageId: string },
+  ): Promise<HermesMessagingBotResult> {
+    await this.access.assertAllowed(actor);
+    const input = this.parse(
+      z
+        .object({
+          conversationId: z.string().uuid(),
+          messageId: z.string().uuid(),
+        })
+        .strict(),
+      raw,
+    );
+    const conversation = await this.conversation(
+      actor.workspaceId,
+      input.conversationId,
+    );
+    const message = await this.dataSource
+      .getRepository(HermesInboxMessageEntity)
+      .findOneBy({
+        workspaceId: actor.workspaceId,
+        conversationId: conversation.id,
+        id: input.messageId,
+        canonicalMessageId: IsNull(),
+      });
+    if (!message) throw new NotFoundException('MESSAGE_NOT_FOUND');
+    const bot = this.registry.getBot();
+    if (!bot)
+      return {
+        mode: 'MANUAL',
+        status: 'NOT_CONFIGURED',
+        provider: 'HERMES_MCP',
+      };
+    let result: HermesMessagingBotResult;
+    try {
+      const draft = await bot.draftReply({
+        workspaceId: actor.workspaceId,
+        conversationId: conversation.id,
+        messageId: message.id,
+        text: message.text,
+        channel: conversation.channel,
+      });
+      result =
+        draft.status === 'READY' &&
+        draft.text &&
+        messagingText.safeParse(draft.text).success
+          ? {
+              mode: 'DRAFT',
+              status: 'READY',
+              text: draft.text,
+              provider: 'HERMES_MCP',
+            }
+          : {
+              mode: 'MANUAL',
+              status:
+                draft.status === 'NOT_CONFIGURED'
+                  ? 'NOT_CONFIGURED'
+                  : 'UNAVAILABLE',
+              provider: 'HERMES_MCP',
+            };
+    } catch {
+      result = {
+        mode: 'MANUAL',
+        status: 'UNAVAILABLE',
+        provider: 'HERMES_MCP',
+      };
+    }
+    await this.access.assertAllowed(actor);
+    return result;
+  }
+
+  private isBotGrant(
+    conversation: HermesConversationEntity,
+    grant: BotGrant,
+  ): boolean {
+    return (
+      conversation.botMode === 'AUTO' &&
+      conversation.botOwnerUserWorkspaceId === grant.ownerUserWorkspaceId &&
+      conversation.botModeUpdatedAt?.toISOString() === grant.epoch
+    );
+  }
+
+  async setBotMode(
+    actor: HermesMessagingActor,
+    raw: { conversationId: string; mode: 'MANUAL' | 'AUTO' },
+  ) {
+    await this.access.assertAllowed(actor);
+    const input = this.parse(
+      z
+        .object({
+          conversationId: z.string().uuid(),
+          mode: z.enum(['MANUAL', 'AUTO']),
+        })
+        .strict(),
+      raw,
+    );
+    const conversation = await this.conversation(
+      actor.workspaceId,
+      input.conversationId,
+    );
+    let mode = input.mode,
+      status = mode === 'MANUAL' ? 'MANUAL' : 'ACTIVE';
+    if (
+      mode === 'AUTO' &&
+      (await this.dataSource
+        .getRepository(HermesInboxMessageEntity)
+        .countBy({
+          workspaceId: actor.workspaceId,
+          conversationId: conversation.id,
+          errorCode: 'CONTACT_HANDLE_CHANGED',
+        }))
+    ) {
+      mode = 'MANUAL';
+      status = 'UNAVAILABLE';
+    }
+    if (mode === 'AUTO') {
+      const adapter = this.registry.get(conversation.channel);
+      if (!adapter) {
+        mode = 'MANUAL';
+        status = 'NOT_CONFIGURED';
+      } else
+        try {
+          const probe = await adapter.probe(actor.workspaceId);
+          if (
+            !(
+              ['AVAILABLE', 'CONFIGURED_UNVERIFIED'].includes(probe.status) &&
+              (probe.canSend ?? probe.status === 'AVAILABLE')
+            )
+          ) {
+            mode = 'MANUAL';
+            status =
+              probe.status === 'NOT_CONFIGURED'
+                ? 'NOT_CONFIGURED'
+                : 'UNAVAILABLE';
+          }
+        } catch {
+          mode = 'MANUAL';
+          status = 'UNAVAILABLE';
+        }
+    }
+    if (mode === 'AUTO') {
+      const latest = await this.dataSource
+        .getRepository(HermesInboxMessageEntity)
+        .findOne({
+          where: {
+            workspaceId: actor.workspaceId,
+            conversationId: conversation.id,
+            direction: 'INBOUND',
+            canonicalMessageId: IsNull(),
+          },
+          order: { occurredAt: 'DESC', id: 'DESC' },
+        });
+      const draft = latest
+        ? await this.draftReply(actor, {
+            conversationId: conversation.id,
+            messageId: latest.id,
+          })
+        : { status: 'UNAVAILABLE' };
+      if (draft.status !== 'READY') {
+        mode = 'MANUAL';
+        status =
+          draft.status === 'NOT_CONFIGURED' ? 'NOT_CONFIGURED' : 'UNAVAILABLE';
+      }
+    }
+    await this.access.assertAllowed(actor);
+    return this.transaction(actor.workspaceId, async (manager) => {
+      const repository = manager.getRepository(HermesConversationEntity);
+      const current = await repository.findOneBy({
+        workspaceId: actor.workspaceId,
+        id: conversation.id,
+      });
+      if (!current) throw new NotFoundException('CONVERSATION_NOT_FOUND');
+      if (
+        input.mode === 'AUTO' &&
+        (current.botModeUpdatedAt?.toISOString() ?? null) !==
+          (conversation.botModeUpdatedAt?.toISOString() ?? null)
+      )
+        throw new ConflictException('BOT_HUMAN_HANDOFF');
+      const at = new Date(
+        Math.max(Date.now(), (current.botModeUpdatedAt?.getTime() ?? 0) + 1),
+      );
+      await repository.update(
+        { workspaceId: actor.workspaceId, id: conversation.id },
+        {
+          botMode: mode,
+          botOwnerUserWorkspaceId:
+            mode === 'AUTO' ? actor.userWorkspaceId : null,
+          botModeUpdatedAt: at,
+        },
+      );
+      return { conversationId: conversation.id, mode, status };
+    });
+  }
+
+  private async stopBot(
+    workspaceId: string,
+    conversationId: string,
+    messageId: string,
+    grant: BotGrant,
+    errorCode: string,
+  ): Promise<void> {
+    await this.transaction(workspaceId, async (manager) => {
+      const repository = manager.getRepository(HermesConversationEntity);
+      const current = await repository.findOneBy({
+        workspaceId,
+        id: conversationId,
+      });
+      if (current && this.isBotGrant(current, grant))
+        await repository.update(
+          { workspaceId, id: conversationId },
+          {
+            botMode: 'MANUAL',
+            botOwnerUserWorkspaceId: null,
+            botModeUpdatedAt: new Date(
+              Math.max(Date.now(), new Date(grant.epoch).getTime() + 1),
+            ),
+          },
+        );
+      await manager
+        .getRepository(HermesInboxMessageEntity)
+        .update(
+          { workspaceId, id: messageId, errorCode: IsNull() },
+          { errorCode },
+        );
+    });
+  }
+
+  private async processAutoReply(
+    workspaceId: string,
+    conversationId: string,
+    messageId: string,
+  ): Promise<void> {
+    const conversation = await this.conversation(workspaceId, conversationId);
+    if (
+      conversation.botMode !== 'AUTO' ||
+      !conversation.botOwnerUserWorkspaceId ||
+      !conversation.botModeUpdatedAt
+    )
+      return;
+    const grant = {
+      ownerUserWorkspaceId: conversation.botOwnerUserWorkspaceId,
+      epoch: conversation.botModeUpdatedAt.toISOString(),
+    };
+    const message = await this.dataSource
+      .getRepository(HermesInboxMessageEntity)
+      .findOneBy({ workspaceId, conversationId, id: messageId });
+    if (
+      !message ||
+      message.direction !== 'INBOUND' ||
+      message.occurredAt.getTime() < conversation.botModeUpdatedAt.getTime()
+    )
+      return;
+    const clientRequestId = messagingId(workspaceId, 'bot-reply', messageId);
+    if (
+      await this.dataSource
+        .getRepository(HermesInboxMessageEntity)
+        .findOneBy({ workspaceId, clientRequestId })
+    )
+      return;
+    const membership = await this.dataSource
+      .getRepository(UserWorkspaceEntity)
+      .findOneBy({
+        id: grant.ownerUserWorkspaceId,
+        workspaceId,
+        deletedAt: IsNull(),
+      });
+    if (!membership || message.errorCode === 'CONTACT_HANDLE_CHANGED') {
+      await this.stopBot(
+        workspaceId,
+        conversationId,
+        messageId,
+        grant,
+        'BOT_OPERATOR_OR_CONTACT_UNAVAILABLE',
+      );
+      return;
+    }
+    const actor = {
+      workspaceId,
+      userId: membership.userId,
+      userWorkspaceId: membership.id,
+    };
+    try {
+      await this.access.assertAllowed(actor);
+      const draft = await this.draftReply(actor, { conversationId, messageId });
+      if (draft.status !== 'READY' || !draft.text) {
+        await this.stopBot(
+          workspaceId,
+          conversationId,
+          messageId,
+          grant,
+          draft.status === 'NOT_CONFIGURED'
+            ? 'BOT_NOT_CONFIGURED'
+            : 'BOT_UNAVAILABLE',
+        );
+        return;
+      }
+      if (
+        !this.isBotGrant(
+          await this.conversation(workspaceId, conversationId),
+          grant,
+        )
+      )
+        return;
+      if (
+        await this.dataSource
+          .getRepository(HermesInboxMessageEntity)
+          .findOneBy({ workspaceId, clientRequestId })
+      )
+        return;
+      await this.reply(
+        actor,
+        { conversationId, clientRequestId, text: draft.text },
+        grant,
+      );
+    } catch (error) {
+      if (
+        await this.dataSource
+          .getRepository(HermesInboxMessageEntity)
+          .findOneBy({ workspaceId, clientRequestId })
+      )
+        return;
+      await this.stopBot(
+        workspaceId,
+        conversationId,
+        messageId,
+        grant,
+        error instanceof ConflictException &&
+          error.message === 'BOT_HUMAN_HANDOFF'
+          ? 'BOT_HUMAN_HANDOFF'
+          : error instanceof ConflictException &&
+              error.message === 'CONVERSATION_CONTACT_REVIEW_REQUIRED'
+            ? 'BOT_CONTACT_REVIEW_REQUIRED'
+            : 'BOT_UNAVAILABLE',
+      );
+    }
+  }
+
+  // Called only by server-authenticated provider adapters; no public GraphQL ingest mutation exists.
+  async ingest(
+    raw: HermesMessagingEvent,
+  ): Promise<{ conversationId: string; messageId: string; replay: boolean }> {
+    const event = this.parse(messagingEventSchema, raw);
+    let handle: string;
+    try {
+      handle = normalizeContactHandle(event.channel, event.contactHandle);
+    } catch {
+      throw new BadRequestException('INVALID_CONTACT_HANDLE');
+    }
+    const conversationId = messagingId(
+      event.workspaceId,
+      event.channel,
+      event.providerConnectionId,
+      event.providerConversationId,
+    );
+    const messageId = messagingId(
+      event.workspaceId,
+      event.channel,
+      event.providerConnectionId,
+      'provider',
+      event.providerMessageId,
+    );
+    const digest = messagingDigest([
+      conversationId,
+      event.direction,
+      handle,
+      event.text,
+    ]);
+    const result = await this.transaction(
+      event.workspaceId,
+      async (manager) => {
+        const workspace = await manager
+          .getRepository(WorkspaceEntity)
+          .findOneBy({
+            id: event.workspaceId,
+            deletedAt: IsNull(),
+            activationStatus: WorkspaceActivationStatus.ACTIVE,
+          });
+        if (!workspace)
+          throw new NotFoundException('MESSAGING_WORKSPACE_UNAVAILABLE');
+        const messages = manager.getRepository(HermesInboxMessageEntity);
+        const existing = await messages.findOneBy({
+          workspaceId: event.workspaceId,
+          id: messageId,
+        });
+        if (existing) {
+          if (
+            existing.contentDigest !== digest ||
+            existing.conversationId !== conversationId
+          )
+            throw new ConflictException('PROVIDER_EVENT_CONFLICT');
+          return { conversationId, messageId, replay: true };
+        }
+        const conversations = manager.getRepository(HermesConversationEntity);
+        const conversation = await conversations.findOneBy({
+          workspaceId: event.workspaceId,
+          id: conversationId,
+        });
+        const contactChanged =
+          !!conversation && conversation.contactHandle !== handle;
+        const at = new Date(event.occurredAt);
+        if (!conversation)
+          await conversations.save({
+            id: conversationId,
+            workspaceId: event.workspaceId,
+            channel: event.channel,
+            providerConnectionId: event.providerConnectionId,
+            providerConversationId: event.providerConversationId,
+            contactHandle: handle,
+            subject: event.subject ?? null,
+            lastMessageAt: at,
+            botMode: 'MANUAL',
+            botOwnerUserWorkspaceId: null,
+            botModeUpdatedAt: null,
+          });
+        else if (at.getTime() > conversation.lastMessageAt.getTime())
+          await conversations.update(
+            { workspaceId: event.workspaceId, id: conversationId },
+            { lastMessageAt: at },
+          );
+        await messages.save({
+          id: messageId,
+          workspaceId: event.workspaceId,
+          conversationId,
+          channel: event.channel,
+          providerConnectionId: event.providerConnectionId,
+          providerMessageId: event.providerMessageId,
+          providerMetadata: event.providerMetadata ?? null,
+          clientRequestId: null,
+          direction: event.direction,
+          status: event.direction === 'INBOUND' ? 'RECEIVED' : 'ACCEPTED',
+          text: event.text,
+          contentDigest: digest,
+          occurredAt: at,
+          errorCode: contactChanged ? 'CONTACT_HANDLE_CHANGED' : null,
+          canonicalMessageId: null,
+        });
+        return { conversationId, messageId, replay: false };
+      },
+    );
+    if (event.direction === 'INBOUND')
+      await this.processAutoReply(
+        event.workspaceId,
+        result.conversationId,
+        result.messageId,
+      );
+    return result;
+  }
+
+  async reply(
+    actor: HermesMessagingActor,
+    raw: HermesInboxReplyInput,
+    botGrant?: BotGrant,
+  ): Promise<HermesInboxMessageEntity> {
+    await this.access.assertAllowed(actor);
+    const input = this.parse(replySchema, raw);
+    const conversation = await this.conversation(
+      actor.workspaceId,
+      input.conversationId,
+    );
+    if (botGrant && !this.isBotGrant(conversation, botGrant))
+      throw new ConflictException('BOT_HUMAN_HANDOFF');
+    const contactConflict = await this.dataSource
+      .getRepository(HermesInboxMessageEntity)
+      .countBy({
+        workspaceId: actor.workspaceId,
+        conversationId: conversation.id,
+        errorCode: 'CONTACT_HANDLE_CHANGED',
+      });
+    if (contactConflict)
+      throw new ConflictException('CONVERSATION_CONTACT_REVIEW_REQUIRED');
+    const digest = messagingDigest([conversation.id, input.text]);
+    const id = messagingId(actor.workspaceId, 'request', input.clientRequestId);
+    const previous = await this.dataSource
+      .getRepository(HermesInboxMessageEntity)
+      .findOneBy({ workspaceId: actor.workspaceId, id });
+    if (previous) {
+      if (previous.contentDigest !== digest)
+        throw new ConflictException('CLIENT_REQUEST_CONFLICT');
+      const result = await this.visibleMessage(actor.workspaceId, previous);
+      await this.access.assertAllowed(actor);
+      return result;
+    }
+    const adapter = this.registry.get(conversation.channel);
+    if (!adapter) throw new BadRequestException('MESSAGING_NOT_CONFIGURED');
+    let probe;
+    try {
+      probe = await adapter.probe(actor.workspaceId);
+    } catch {
+      throw new ServiceUnavailableException('MESSAGING_PROVIDER_UNAVAILABLE');
+    }
+    if (
+      !(
+        ['AVAILABLE', 'CONFIGURED_UNVERIFIED'].includes(probe.status) &&
+        (probe.canSend ?? probe.status === 'AVAILABLE')
+      )
+    )
+      throw new ServiceUnavailableException(
+        probe.status === 'NOT_CONFIGURED'
+          ? 'MESSAGING_NOT_CONFIGURED'
+          : 'MESSAGING_PROVIDER_UNAVAILABLE',
+      );
+    // Authorization repositories use a separate pool connection; do not hold a serialized transaction while waiting for them.
+    await this.access.assertAllowed(actor);
+    const reservation = await this.transaction(
+      actor.workspaceId,
+      async (manager) => {
+        if (botGrant) {
+          const current = await manager
+            .getRepository(HermesConversationEntity)
+            .findOneBy({ workspaceId: actor.workspaceId, id: conversation.id });
+          if (!current || !this.isBotGrant(current, botGrant))
+            throw new ConflictException('BOT_HUMAN_HANDOFF');
+        }
+        const repository = manager.getRepository(HermesInboxMessageEntity);
+        const existing = await repository.findOneBy({
+          workspaceId: actor.workspaceId,
+          id,
+        });
+        if (existing) {
+          if (existing.contentDigest !== digest)
+            throw new ConflictException('CLIENT_REQUEST_CONFLICT');
+          return { message: existing, send: false };
+        }
+        // Commit a durable uncertain handoff BEFORE network I/O. A crash cannot authorize another send.
+        const message = await repository.save({
+          id,
+          workspaceId: actor.workspaceId,
+          conversationId: conversation.id,
+          channel: conversation.channel,
+          providerConnectionId: conversation.providerConnectionId,
+          providerMessageId: null,
+          clientRequestId: input.clientRequestId,
+          direction: 'OUTBOUND',
+          status: 'UNCONFIRMED',
+          text: input.text,
+          contentDigest: digest,
+          occurredAt: new Date(),
+          errorCode: 'DELIVERY_UNCERTAIN',
+          canonicalMessageId: null,
+        });
+        const currentConversation = await manager
+          .getRepository(HermesConversationEntity)
+          .findOneBy({ workspaceId: actor.workspaceId, id: conversation.id });
+        if (
+          currentConversation &&
+          message.occurredAt.getTime() >
+            currentConversation.lastMessageAt.getTime()
+        ) {
+          await manager
+            .getRepository(HermesConversationEntity)
+            .update(
+              { workspaceId: actor.workspaceId, id: conversation.id },
+              { lastMessageAt: message.occurredAt },
+            );
+        }
+        return { message, send: true };
+      },
+    );
+    if (!reservation.send) {
+      const result = await this.visibleMessage(
+        actor.workspaceId,
+        reservation.message,
+      );
+      await this.access.assertAllowed(actor);
+      return result;
+    }
+    try {
+      await this.access.assertAllowed(actor);
+      if (
+        botGrant &&
+        !this.isBotGrant(
+          await this.conversation(actor.workspaceId, conversation.id),
+          botGrant,
+        )
+      )
+        throw new ConflictException('BOT_HUMAN_HANDOFF');
+    } catch (error) {
+      await this.dataSource.getRepository(HermesInboxMessageEntity).update(
+        { id, workspaceId: actor.workspaceId },
+        {
+          status: 'FAILED',
+          errorCode: botGrant
+            ? 'BOT_HANDOFF_OR_ACCESS_REVOKED'
+            : 'ACCESS_REVOKED',
+        },
+      );
+      throw error;
+    }
+    let receipt;
+    try {
+      receipt = receiptSchema.parse(
+        await adapter.send({
+          workspaceId: actor.workspaceId,
+          conversationId: conversation.id,
+          providerConnectionId: conversation.providerConnectionId,
+          contactHandle: conversation.contactHandle,
+          text: input.text,
+          clientRequestId: input.clientRequestId,
+        }),
+      );
+    } catch (error) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String(error.code)
+          : '';
+      const definitelyNotSent = [
+        'NOT_CONFIGURED',
+        'INVALID_RECIPIENT',
+        'SEND_REJECTED',
+      ].includes(code);
+      await this.dataSource.getRepository(HermesInboxMessageEntity).update(
+        { id, workspaceId: actor.workspaceId },
+        {
+          status: definitelyNotSent ? 'FAILED' : 'UNCONFIRMED',
+          errorCode: definitelyNotSent ? code : 'DELIVERY_UNCERTAIN',
+        },
+      );
+      await this.access.assertAllowed(actor);
+      return this.dataSource
+        .getRepository(HermesInboxMessageEntity)
+        .findOneByOrFail({ workspaceId: actor.workspaceId, id });
+    }
+    // An echo received before the HTTP acknowledgement uses this same provider identity.
+    const canonical = await this.ingest({
+      workspaceId: actor.workspaceId,
+      channel: conversation.channel,
+      direction: 'OUTBOUND',
+      providerConnectionId: conversation.providerConnectionId,
+      providerMessageId: receipt.providerMessageId,
+      providerConversationId: conversation.providerConversationId,
+      contactHandle: conversation.contactHandle,
+      text: input.text,
+      occurredAt: receipt.acceptedAt,
+      ...(conversation.subject ? { subject: conversation.subject } : {}),
+    });
+    await this.dataSource.getRepository(HermesInboxMessageEntity).update(
+      { id, workspaceId: actor.workspaceId },
+      {
+        status: 'ACCEPTED',
+        errorCode: null,
+        canonicalMessageId: canonical.messageId,
+      },
+    );
+    await this.access.assertAllowed(actor);
+    return this.dataSource
+      .getRepository(HermesInboxMessageEntity)
+      .findOneByOrFail({
+        workspaceId: actor.workspaceId,
+        id: canonical.messageId,
+      });
+  }
+}

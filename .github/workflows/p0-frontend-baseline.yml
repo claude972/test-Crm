@@ -107,6 +107,70 @@ jobs:
         run: node scripts/local-project.mjs setup
       - name: Compile translation catalogues
         run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
+
+      # P1 only, and keyed on a file rather than on a branch name or a new
+      # input: the baseline tree does not carry these suites, so a baseline run
+      # skips the step and every hashFiles input stays exactly as it was.
+      - name: Detect the P1 sign-out purge suites
+        id: p1-suites
+        run: |
+          if [ -f packages/twenty-front/src/modules/auth/utils/__tests__/purgeSessionStorage.test.ts ]; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      # Runs after the dependency builds, the generated configuration and the
+      # compiled catalogues, because useAuth.test.tsx renders components that
+      # resolve kovaa-lab-ui through dist and read the lingui runtime.
+      #
+      # --runInBand on purpose: these three suites touch module-level state
+      # (localStorage, the jotai default store, fake timers), and the config's
+      # maxWorkers: 3 would let them share a worker and interfere. The cache
+      # goes to /tmp so nothing is written inside the workspace, leaving the
+      # tree unchanged for the bundle build below.
+      #
+      # The paths are listed explicitly rather than matched by a loose pattern,
+      # so a suite that disappears or is renamed makes this step fail instead
+      # of silently running nothing.
+      - name: Run the targeted frontend suites
+        if: ${{ steps.p1-suites.outputs.present == 'true' }}
+        env:
+          CI: 'true'
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          # One list, used both to assert the files exist and to run them, so
+          # the two can never drift apart.
+          SUITES="
+          src/modules/structures/utils/__tests__/buildStructureScopeCacheKey.test.ts
+          src/modules/structures/utils/__tests__/buildStructureMetricColumns.test.ts
+          src/modules/hermes-shell/utils/__tests__/buildHermesModuleNavigationItems.test.ts
+          src/modules/messaging-inbox/utils/__tests__/readMessagingInboxPayload.test.ts
+          src/modules/client-context/utils/__tests__/buildClientContextEntries.test.ts
+          src/modules/client-context/utils/__tests__/buildClientContextSourceCount.test.ts
+          src/modules/client-context/utils/__tests__/readClientContextSourceName.test.ts
+          src/modules/client-context/utils/__tests__/readClientBookingAttendeeResponse.test.ts
+          src/modules/prospection/utils/__tests__/readHermesCollectionProvenance.test.ts
+          src/modules/auth/utils/__tests__/purgeSessionStorage.test.ts
+          src/modules/auth/hooks/__tests__/useAuth.test.tsx
+          src/modules/connectors/utils/__tests__/parseConnectorCheckedAt.test.ts
+          src/modules/connectors/hooks/__tests__/toConnectorReadState.test.ts
+          src/modules/connectors/components/__tests__/HermesEvolutionConnectionTagPresentation.test.ts
+          src/modules/prospection/utils/__tests__/hermesRowSelection.test.ts
+          src/modules/prospection/utils/__tests__/readHermesCallFailure.test.ts
+          src/modules/prospection/utils/__tests__/validateHermesQualificationInput.test.ts
+          src/modules/prospection/utils/__tests__/validateHermesImportBatchInput.test.ts
+          "
+          for suite in $SUITES; do
+            test -f "packages/twenty-front/$suite"
+          done
+          node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec \
+            jest \
+              --config jest.config.mjs \
+              --runInBand \
+              --ci \
+              --cacheDirectory /tmp/jest-cache \
+              $SUITES
       # Driven through the JS API rather than the CLI because the promise
       # rejects on failure, which is transparent regardless of how the CLI
       # behaves. Not justified by P0-BUILD-001: that finding established a

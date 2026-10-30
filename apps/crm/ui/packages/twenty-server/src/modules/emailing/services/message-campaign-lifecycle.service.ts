@@ -5,6 +5,7 @@ import { CAMPAIGN_DELIVERY_STATE } from 'src/engine/core-modules/emailing-domain
 import { CAMPAIGN_FAILURE_REASON } from 'src/engine/core-modules/emailing-domain/constants/campaign-failure-reason.constant';
 import { UNFINISHED_CAMPAIGN_DELIVERY_STATES } from 'src/engine/core-modules/emailing-domain/constants/unfinished-campaign-delivery-states.constant';
 import { CAMPAIGN_SKIP_REASON } from 'src/engine/core-modules/emailing-domain/constants/campaign-skip-reason.constant';
+import { buildNonQuarantinedCampaignDeliveryCriteria } from 'src/engine/core-modules/emailing-domain/utils/build-claimable-campaign-delivery-criteria.util';
 
 import { type FindOptionsWhere, In, IsNull, LessThan } from 'typeorm';
 
@@ -175,6 +176,7 @@ export class MessageCampaignLifecycleService {
       criteria: {
         campaignId,
         state: CAMPAIGN_DELIVERY_STATE.QUEUED,
+        ...buildNonQuarantinedCampaignDeliveryCriteria(),
       },
       update: {
         state: CAMPAIGN_DELIVERY_STATE.SKIPPED,
@@ -210,6 +212,7 @@ export class MessageCampaignLifecycleService {
       criteria: {
         campaignId,
         state: CAMPAIGN_DELIVERY_STATE.QUEUED,
+        ...buildNonQuarantinedCampaignDeliveryCriteria(),
         sentAt: IsNull(),
         providerMessageId: IsNull(),
         updatedAt: LessThan(untouchedSince),
@@ -230,12 +233,29 @@ export class MessageCampaignLifecycleService {
     workspaceId: string;
     campaignId: string;
   }): Promise<number> {
-    return this.settleDeliveries({
+    const expiredAt = new Date();
+    const quarantined = await this.settleDeliveries({
       workspaceId,
       criteria: {
         campaignId,
         state: CAMPAIGN_DELIVERY_STATE.SENDING,
-        claimExpiresAt: LessThan(new Date()),
+        claimExpiresAt: LessThan(expiredAt),
+        failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
+      },
+      update: {
+        state: CAMPAIGN_DELIVERY_STATE.FAILED,
+        failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
+        claimToken: null,
+        claimExpiresAt: null,
+      },
+    });
+    const retryable = await this.settleDeliveries({
+      workspaceId,
+      criteria: {
+        campaignId,
+        state: CAMPAIGN_DELIVERY_STATE.SENDING,
+        claimExpiresAt: LessThan(expiredAt),
+        ...buildNonQuarantinedCampaignDeliveryCriteria(),
       },
       update: {
         state: CAMPAIGN_DELIVERY_STATE.FAILED,
@@ -244,6 +264,7 @@ export class MessageCampaignLifecycleService {
         claimExpiresAt: null,
       },
     });
+    return quarantined + retryable;
   }
 
   private async settleDeliveries({

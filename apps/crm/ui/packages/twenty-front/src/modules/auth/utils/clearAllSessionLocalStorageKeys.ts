@@ -7,7 +7,7 @@ import {
 import { clearMetadataStoreStorage } from '@/metadata-store/storage/metadataStoreStorage';
 import { clearSessionLocalStorageKeys } from './clearSessionLocalStorageKeys';
 
-const getMetadataStoreKeys = (): string[] =>
+export const getMetadataStoreKeys = (): string[] =>
   ALL_METADATA_ENTITY_KEYS.map(
     (key: MetadataEntityKey) => `${METADATA_STORE_KEY_PREFIX}${key}`,
   );

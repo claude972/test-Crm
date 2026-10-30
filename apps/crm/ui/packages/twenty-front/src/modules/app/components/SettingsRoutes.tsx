@@ -734,6 +734,22 @@ const SettingsAdminWorkspaceChatThread = lazy(() =>
   ),
 );
 
+const SettingsStructuresDashboard = lazy(() =>
+  import('~/pages/settings/structures/SettingsStructuresDashboard').then(
+    (module) => ({
+      default: module.SettingsStructuresDashboard,
+    }),
+  ),
+);
+
+const SettingsIntegrations = lazy(() =>
+  import('~/pages/settings/integrations/SettingsIntegrations').then(
+    (module) => ({
+      default: module.SettingsIntegrations,
+    }),
+  ),
+);
+
 const SettingsCommunity = lazy(() =>
   import('~/pages/settings/community/SettingsCommunity').then((module) => ({
     default: module.SettingsCommunity,
@@ -807,6 +823,16 @@ const createSettingsRouteElements = ({
       element={<SettingsTwoFactorAuthenticationMethod />}
     />
     <Route path={SettingsPath.Experience} element={<SettingsExperience />} />
+    {/* Deliberately outside the WORKSPACE permission wrapper. Every user has to
+        be able to see the companies they are authorised for, and gating the
+        route would have hidden the need rather than met it. This is safe
+        because the screen grants nothing: the resolver resolves the authorised
+        set from the session on every request, the client never sends a
+        workspace id, and the page is read-only. No other setting is widened. */}
+    <Route
+      path={SettingsPath.Structures}
+      element={<SettingsStructuresDashboard />}
+    />
     <Route
       element={
         <SettingsProtectedRouteWrapper
@@ -1304,6 +1330,10 @@ const createSettingsRouteElements = ({
       }
     >
       <Route path={SettingsPath.Community} element={<SettingsCommunity />} />
+      <Route
+        path={SettingsPath.Integrations}
+        element={<SettingsIntegrations />}
+      />
     </Route>
   </>
 );

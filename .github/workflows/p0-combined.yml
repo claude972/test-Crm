@@ -1,7 +1,7 @@
 name: P0 combined checkpoints
 on:
   push:
-    branches: [chore/p0-combined-verification]
+    branches: [chore/p0-combined-verification, feat/codex-hermes-integration]
     paths:
       - '.github/workflows/**'
       - 'apps/**'
@@ -16,7 +16,7 @@ permissions:
   contents: read
 concurrency:
   group: p0-combined-${{ github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref_name != 'feat/codex-hermes-integration' }}
 jobs:
   source-integrity:
     uses: ./.github/workflows/p0-integrity.yml
@@ -26,6 +26,7 @@ jobs:
     needs: frontend
     uses: ./.github/workflows/p0-backend-build.yml
     with:
+      hermes-checks: ${{ github.ref_name == 'feat/codex-hermes-integration' }}
       runtime-smoke: true
       browser-smoke: true
       frontend-artifact: ${{ needs.frontend.outputs.bundle-artifact }}

@@ -1,0 +1,109 @@
+import { useLingui } from '@lingui/react/macro';
+import { isNonEmptyString } from '@sniptt/guards';
+import {
+  IconAlertTriangle,
+  IconCheck,
+  IconCircleOff,
+  IconClock,
+  IconPlug,
+  type IconComponent,
+} from 'kovaa-lab-ui/icon';
+import {
+  Tag,
+  type TagColor,
+  type TagProps,
+} from 'kovaa-lab-ui/primitives/data-display';
+
+import { type ConnectorSyncStatus } from '@/connectors/types/ConnectorSyncStatus';
+
+type ConnectorSyncPresentation = {
+  color: TagColor;
+  variant: NonNullable<TagProps['variant']>;
+  borderStyle: NonNullable<TagProps['borderStyle']>;
+  Icon: IconComponent;
+};
+
+// A provider confirmation and a record still waiting for one must never read
+// the same. Pending is the only dashed outline, so that difference survives a
+// colour-blind reading instead of resting on hue alone.
+const CONNECTOR_SYNC_PRESENTATION: Record<
+  ConnectorSyncStatus,
+  ConnectorSyncPresentation
+> = {
+  'not-configured': {
+    color: 'gray',
+    variant: 'outline',
+    borderStyle: 'solid',
+    Icon: IconPlug,
+  },
+  pending: {
+    color: 'amber',
+    variant: 'outline',
+    borderStyle: 'dashed',
+    Icon: IconClock,
+  },
+  confirmed: {
+    color: 'jade',
+    variant: 'soft',
+    borderStyle: 'solid',
+    Icon: IconCheck,
+  },
+  failed: {
+    color: 'red',
+    variant: 'soft',
+    borderStyle: 'solid',
+    Icon: IconAlertTriangle,
+  },
+  unavailable: {
+    color: 'gray',
+    variant: 'soft',
+    borderStyle: 'solid',
+    Icon: IconCircleOff,
+  },
+};
+
+type ConnectorSyncTagProps = {
+  status: ConnectorSyncStatus;
+  // An optional reason from the provider, appended to the status. It never
+  // replaces the status, and an empty or blank string is ignored rather than
+  // rendering an empty badge. Provider text is untrusted, so it is shown as a
+  // label and never as markup or an instruction.
+  reason?: string;
+};
+
+export const ConnectorSyncTag = ({
+  status,
+  reason,
+}: ConnectorSyncTagProps) => {
+  const { t } = useLingui();
+
+  // Narrowed through a binding, not through reason?.trim() inside the guard:
+  // a type guard applied to a call expression tells TypeScript nothing about
+  // reason itself, so reason.trim() on the branch below was still possibly
+  // undefined.
+  const trimmedReason = reason?.trim();
+
+  const labels: Record<ConnectorSyncStatus, string> = {
+    'not-configured': t`Not configured`,
+    pending: t`Waiting for confirmation`,
+    confirmed: t`Confirmed`,
+    failed: t`Failed`,
+    unavailable: t`Provider unavailable`,
+  };
+
+  const { color, variant, borderStyle, Icon } =
+    CONNECTOR_SYNC_PRESENTATION[status];
+
+  return (
+    <Tag
+      color={color}
+      variant={variant}
+      borderStyle={borderStyle}
+      startIcon={<Icon />}
+    >
+      {isNonEmptyString(trimmedReason)
+        ? `${labels[status]} — ${trimmedReason}`
+        : labels[status]}
+    </Tag>
+  );
+};

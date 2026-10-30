@@ -16,6 +16,8 @@ import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.service';
 
+export type SmtpClientDeadlineOptions = { timeoutMs: number };
+
 @Injectable()
 export class SmtpClientProvider {
   constructor(
@@ -26,7 +28,22 @@ export class SmtpClientProvider {
     private readonly connectedAccountRepository: Repository<ConnectedAccountEntity>,
   ) {}
 
-  public async getClient(connectedAccountId: string): Promise<Transporter> {
+  public async getClient(
+    connectedAccountId: string,
+    deadline?: SmtpClientDeadlineOptions,
+  ): Promise<Transporter> {
+    if (
+      deadline !== undefined &&
+      (!deadline ||
+        typeof deadline !== 'object' ||
+        Object.keys(deadline).some((key) => key !== 'timeoutMs') ||
+        !Number.isInteger(deadline.timeoutMs) ||
+        deadline.timeoutMs < 1000 ||
+        deadline.timeoutMs > 30000)
+    )
+      throw new Error(
+        'SMTP timeout must be an integer between 1000 and 30000 milliseconds',
+      );
     const connectedAccount = await this.connectedAccountRepository.findOne({
       where: { id: connectedAccountId },
     });
@@ -67,6 +84,13 @@ export class SmtpClientProvider {
           'IMAP_SMTP_ALLOW_SELF_SIGNED',
         ),
       }),
+      ...(deadline
+        ? {
+            connectionTimeout: deadline.timeoutMs,
+            greetingTimeout: deadline.timeoutMs,
+            socketTimeout: deadline.timeoutMs,
+          }
+        : {}),
     };
 
     const transporter = createTransport(options);

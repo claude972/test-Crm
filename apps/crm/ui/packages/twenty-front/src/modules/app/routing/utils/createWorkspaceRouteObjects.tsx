@@ -7,6 +7,11 @@ import {
   SettingsRouteOutlet,
 } from '@/app/components/SettingsRoutes';
 import { type WorkspaceRouteObject } from '@/app/routing/types/WorkspaceRouteObject';
+import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
+import {
+  PROSPECTION_CAMPAIGN_AUDIENCE_PATH,
+  PROSPECTION_RECEPTION_PATH,
+} from '@/prospection/constants/ProspectionRoutePaths';
 import { RecordIndexSkeletonLoader } from '@/object-record/record-index/components/RecordIndexSkeletonLoader';
 
 const AgentCoreIndexPage = lazy(() =>
@@ -60,6 +65,26 @@ const AiChatInboxPage = lazy(() =>
 const MobileHomePage = lazy(() =>
   import('~/pages/mobile-home/MobileHomePage').then((module) => ({
     default: module.MobileHomePage,
+  })),
+);
+
+const ProspectionImportBatchesPage = lazy(() =>
+  import('~/pages/prospection/ProspectionImportBatchesPage').then((module) => ({
+    default: module.ProspectionImportBatchesPage,
+  })),
+);
+
+const ProspectionCampaignAudiencePage = lazy(() =>
+  import('~/pages/prospection/ProspectionCampaignAudiencePage').then(
+    (module) => ({ default: module.ProspectionCampaignAudiencePage }),
+  ),
+);
+
+// One route: the channel tab and the opened conversation are search
+// parameters, so a thread reloads and shares without a route parameter.
+const MessagingInboxPage = lazy(() =>
+  import('~/pages/messaging/MessagingInboxPage').then((module) => ({
+    default: module.MessagingInboxPage,
   })),
 );
 
@@ -166,6 +191,30 @@ export const createWorkspaceRouteObjects = ({
       element: (
         <LazyRoute>
           <MobileHomePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: PROSPECTION_RECEPTION_PATH,
+      element: (
+        <LazyRoute>
+          <ProspectionImportBatchesPage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: PROSPECTION_CAMPAIGN_AUDIENCE_PATH,
+      element: (
+        <LazyRoute>
+          <ProspectionCampaignAudiencePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: MESSAGING_INBOX_PATH,
+      element: (
+        <LazyRoute>
+          <MessagingInboxPage />
         </LazyRoute>
       ),
     },

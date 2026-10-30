@@ -1,3 +1,10 @@
+import { HermesIntakeModule } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.module';
+import { HermesMailModule } from 'src/engine/core-modules/hermes-mail/hermes-mail.module';
+import { HermesMessagingConnectorsModule } from 'src/engine/core-modules/hermes-connectors/hermes-messaging-connectors.module';
+import { HermesMessagingModule } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.module';
+import { HermesConnectorsModule } from 'src/engine/core-modules/hermes-connectors/hermes-connectors.module';
+import { HermesProspectionModule } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.module';
+import { StructureDashboardModule } from 'src/engine/core-modules/workspace/structure-dashboard/structure-dashboard.module';
 import { type YogaDriverConfig } from '@graphql-yoga/nestjs';
 import * as Sentry from '@sentry/node';
 import GraphQLJSON from 'graphql-type-json';
@@ -36,7 +43,17 @@ export const metadataModuleFactory = async (
 ): Promise<YogaDriverConfig> => {
   const config: YogaDriverConfig = {
     autoSchemaFile: true,
-    include: [MetadataGraphQLApiModule, ModulesModule],
+    include: [
+      MetadataGraphQLApiModule,
+      ModulesModule,
+      HermesMessagingModule,
+      HermesMessagingConnectorsModule,
+      HermesMailModule,
+      HermesIntakeModule,
+      HermesProspectionModule,
+      HermesConnectorsModule,
+      StructureDashboardModule,
+    ],
     resolverSchemaScope: 'metadata',
     buildSchemaOptions: {
       orphanedTypes: [ClientConfig],

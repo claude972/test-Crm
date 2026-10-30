@@ -8,6 +8,11 @@ on:
         description: Start the disposable queue worker
         type: boolean
         default: true
+      session-minutes:
+        description: Absolute preview lifetime from gate start (including preparation)
+        type: choice
+        options: ['60', '90']
+        default: '90'
 permissions:
   contents: read
 concurrency:
@@ -16,7 +21,7 @@ concurrency:
 jobs:
   preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 150
     services:
       postgres:
         image: postgres:16
@@ -112,6 +117,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           P0_ORIGIN_SECRET: ${{ secrets.P0_PREVIEW_ORIGIN_SECRET }}
+          P0_PREVIEW_SESSION_MINUTES: ${{ github.event_name == 'push' && '90' || inputs.session-minutes }}
         run: node scripts/preview-ci-session-p0.mjs start
       - name: Publish public tunnel metadata before waiting for control
         uses: actions/upload-artifact@v4

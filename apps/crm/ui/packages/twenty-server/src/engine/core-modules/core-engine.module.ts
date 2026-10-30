@@ -1,3 +1,10 @@
+import { HermesIntakeModule } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.module';
+import { HermesMailModule } from 'src/engine/core-modules/hermes-mail/hermes-mail.module';
+import { HermesMessagingConnectorsModule } from 'src/engine/core-modules/hermes-connectors/hermes-messaging-connectors.module';
+import { HermesMessagingModule } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.module';
+import { HermesConnectorsModule } from 'src/engine/core-modules/hermes-connectors/hermes-connectors.module';
+import { HermesProspectionModule } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.module';
+import { StructureDashboardModule } from 'src/engine/core-modules/workspace/structure-dashboard/structure-dashboard.module';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, HttpAdapterHost } from '@nestjs/core';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
@@ -88,6 +95,13 @@ import { FileApiModule } from './file/file-api.module';
     EnvironmentModule,
     KovaaLabCRMConfigModule.forRoot(),
     HealthModule,
+    HermesMessagingModule,
+    HermesMessagingConnectorsModule,
+    HermesMailModule,
+    HermesIntakeModule,
+    HermesProspectionModule,
+    HermesConnectorsModule,
+    StructureDashboardModule,
     AuthModule,
     BillingModule,
     BillingWebhookModule,

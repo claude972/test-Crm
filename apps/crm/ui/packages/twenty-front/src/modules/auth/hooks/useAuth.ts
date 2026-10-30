@@ -31,7 +31,8 @@ import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceSta
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { returnToPathState } from '@/auth/states/returnToPathState';
-import { clearSessionLocalStorageKeys } from '@/auth/utils/clearSessionLocalStorageKeys';
+import { purgeSessionStorage } from '@/auth/utils/purgeSessionStorage';
+import { logError } from '~/utils/logError';
 import { broadcastSignOutToOtherTabs } from '@/auth/utils/crossTabSignOut';
 import { clearSessionGeneration } from '@/auth/utils/clearSessionGeneration';
 import { isValidReturnToPath } from '@/auth/utils/isValidReturnToPath';
@@ -64,6 +65,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SOURCE_LOCALE } from 'kovaa-lab-shared/translations';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { doNotTranslate } from 'kovaa-lab-shared/i18n';
+import { assignLocation } from '~/utils/assignLocation';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
 import { useStore } from 'jotai';
@@ -123,7 +125,7 @@ export const useAuth = () => {
 
   const navigate = useNavigate();
 
-  const clearSession = useCallback(() => {
+  const clearSession = useCallback(async () => {
     // The assign below is the only navigation: keep the redirect effect from racing it to the sign-in page.
     store.set(isAppEffectRedirectEnabledState.atom, false);
     sessionStorage.clear();
@@ -133,9 +135,25 @@ export const useAuth = () => {
     store.set(currentWorkspaceMemberState.atom, null);
     store.set(currentUserWorkspaceState.atom, null);
     clearSessionGeneration();
-    clearSessionLocalStorageKeys();
     setLastAuthenticateWorkspaceDomain(null);
-    window.location.assign(AppPath.SignInUp);
+
+    // The metadata store is an IndexedDB cache of the workspace schema, views
+    // and layouts, and it must be gone before we navigate: location.assign
+    // interrupts an in-flight transaction, so a fire-and-forget purge could
+    // leave it on the device for the next person on this origin. Awaited here,
+    // with a bounded wait so a stuck database cannot trap someone signing out.
+    const purgeOutcome = await purgeSessionStorage();
+
+    if (purgeOutcome !== 'cleared') {
+      // Said plainly rather than swallowed: the local copy may still be there.
+      logError(
+        new Error(
+          `Sign-out could not confirm the metadata cache was cleared: ${purgeOutcome}`,
+        ),
+      );
+    }
+
+    assignLocation(AppPath.SignInUp);
   }, [store, setLastAuthenticateWorkspaceDomain]);
 
   const navigateAfterMultiWorkspaceSignInUp = useCallback(
@@ -460,7 +478,7 @@ export const useAuth = () => {
     } catch {}
 
     broadcastSignOutToOtherTabs();
-    clearSession();
+    await clearSession();
   }, [clearSession, signOutMutation, store]);
 
   const handleCredentialsSignUpInWorkspace = useCallback(

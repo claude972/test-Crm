@@ -7,6 +7,27 @@ describe('getSoleEnvelopeRecipient', () => {
     );
   });
 
+  it.each([
+    ['Synthetic Recipient <Person@Example.test>', 'person@example.test'],
+    ['"Recipient, Synthetic" <Person@Example.test>', 'person@example.test'],
+    [' Person@Example.test ', 'person@example.test'],
+  ])(
+    'returns canonical identity for %s without the display name',
+    (recipient, canonical) => {
+      expect(getSoleEnvelopeRecipient({ to: [recipient] })).toBe(canonical);
+    },
+  );
+
+  it.each([
+    'a@example.test, b@example.test',
+    'not-an-email',
+    'Name only',
+    '',
+    'a@example.test\r\nBcc: b@example.test',
+  ])('rejects ambiguous or malformed envelope identity %s', (recipient) => {
+    expect(getSoleEnvelopeRecipient({ to: [recipient] })).toBeNull();
+  });
+
   it('should return null when the envelope carries several primary recipients', () => {
     expect(
       getSoleEnvelopeRecipient({

@@ -38,7 +38,7 @@ const SPACED_BRAND_IN_IDENTIFIER = /(?:[A-Za-z0-9_$]KovaaLab CRM|KovaaLab CRM[A-
 const listSources = (packageName) =>
   execFileSync(
     'git',
-    ['ls-files', '-z', `apps/crm/ui/packages/${packageName}`],
+    ['ls-files', '-z', '--cached', '--others', '--exclude-standard', `apps/crm/ui/packages/${packageName}`],
     { cwd: root, maxBuffer: 64 * 1024 * 1024 },
   )
     .toString()
@@ -47,6 +47,55 @@ const listSources = (packageName) =>
       (file) =>
         /\.(?:ts|tsx|mts|cts)$/.test(file) && !file.includes('/locales/'),
     );
+
+// The icon entry point re-exports a nominative list. A name that lives only in
+// icon/providers/internal/AllIcons.ts feeds the runtime registry and is NOT
+// re-exported, so importing it yields undefined and crashes the screen on
+// render. ts.resolveModuleName below resolves the MODULE, never the binding,
+// so this whole class of defect was invisible to the import check — it reached
+// production code once already.
+const ICON_ENTRY_POINT = 'kovaa-lab-ui/icon';
+const ICON_ENTRY_SOURCE = path.join(
+  workspace,
+  'packages/twenty-ui/src/icon/index.ts',
+);
+
+const readIconExports = () => {
+  if (!existsSync(ICON_ENTRY_SOURCE)) return null;
+
+  const source = ts.createSourceFile(
+    ICON_ENTRY_SOURCE,
+    readFileSync(ICON_ENTRY_SOURCE, 'utf8'),
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const names = new Set();
+  const visit = (node) => {
+    if (
+      ts.isExportDeclaration(node) &&
+      node.exportClause &&
+      ts.isNamedExports(node.exportClause)
+    ) {
+      for (const element of node.exportClause.elements) {
+        names.add(element.name.text);
+      }
+    }
+    // A star re-export would make this set incomplete and turn the check into
+    // a source of false failures, so refuse to guess instead.
+    if (ts.isExportDeclaration(node) && !node.exportClause) {
+      names.add(null);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+
+  if (names.has(null)) return null;
+
+  return names.size > 0 ? names : null;
+};
+
+const iconExports = readIconExports();
+let iconImportsChecked = 0;
 
 const resolveAsset = (specifier, importer) => {
   const bare = specifier.replace(VITE_QUERY, '');
@@ -117,6 +166,22 @@ for (const packageName of packages) {
       const specifier = statement.moduleSpecifier;
       if (!specifier || !ts.isStringLiteral(specifier)) continue;
       const name = specifier.text;
+
+      if (name === ICON_ENTRY_POINT && iconExports !== null) {
+        const namedBindings = statement.importClause?.namedBindings;
+        if (namedBindings && ts.isNamedImports(namedBindings)) {
+          for (const element of namedBindings.elements) {
+            const imported = (element.propertyName ?? element.name).text;
+            iconImportsChecked += 1;
+            if (!iconExports.has(imported)) {
+              failures.push(
+                `${file}: ${imported} is not exported from ${ICON_ENTRY_POINT}; it may exist only in the internal icon registry`,
+              );
+            }
+          }
+        }
+      }
+
       if (
         !name.startsWith('.') &&
         !name.startsWith('@/') &&
@@ -170,7 +235,7 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Frontend P0: ${parsed} sources parsed; ${importsChecked} internal imports resolved; ${assetsChecked} asset imports checked on disk; ${identifierHits} files with a spaced brand inside an identifier.`,
+  `Frontend P0: ${parsed} sources parsed; ${importsChecked} internal imports resolved; ${assetsChecked} asset imports checked on disk; ${iconImportsChecked} icon imports checked against the public export list; ${identifierHits} files with a spaced brand inside an identifier.`,
 );
 assert.equal(
   failures.length,

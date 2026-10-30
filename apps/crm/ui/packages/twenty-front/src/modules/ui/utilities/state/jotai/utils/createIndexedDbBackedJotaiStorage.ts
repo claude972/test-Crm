@@ -19,7 +19,11 @@ type CrossTabSubscriber<ValueType> = {
 type IndexedDbBackedJotaiStorage<ValueType> = {
   storage: JotaiSyncStorage<ValueType>;
   hydrate: () => Promise<void>;
-  clear: () => Promise<void>;
+  // Promise<boolean>, not Promise<void>: the outcome is the whole point. A
+  // void signature here would silently widen the implementation's boolean at
+  // every call site, so an awaiting caller could not tell a real wipe from a
+  // failed one.
+  clear: () => Promise<boolean>;
 };
 
 const createIndexedDbStore = (cacheName: string): idb.UseStore | undefined => {
@@ -171,17 +175,25 @@ export const createIndexedDbBackedJotaiStorage = <ValueType>(
     isHydrated = true;
   };
 
-  const clear = async (): Promise<void> => {
+  // Resolves true only when the persisted copy is really gone. It used to
+  // swallow the failure and always resolve, so a caller awaiting it learned
+  // nothing — and a sign-out purge cannot be proven by a promise that cannot
+  // fail. No store at all means there is nothing persisted to clear.
+  const clear = async (): Promise<boolean> => {
     memoryMap.clear();
 
     if (!isDefined(idbStore)) {
-      return;
+      return true;
     }
 
     try {
       await idb.clear(idbStore);
+
+      return true;
     } catch (error) {
       logError(error);
+
+      return false;
     }
   };
 

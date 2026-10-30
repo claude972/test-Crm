@@ -78,12 +78,14 @@ async function cleanup() {
   await rm(stateFile, { force: true });
 }
 async function start() {
+  const minutes = process.env.P0_PREVIEW_SESSION_MINUTES ?? '60';
+  assert.ok(['60', '90'].includes(minutes), 'Preview session minutes must be exactly 60 or 90');
   assert.match(process.env.P0_ORIGIN_SECRET ?? '', /^[a-f0-9]{64}$/, 'Origin secret must be 32-byte hex');
   assert.ok(process.env.GITHUB_ENV, 'GitHub environment output is required');
   const initial = await remoteControl();
   await mkdir(directory, { recursive: false, mode: 0o700 });
   await mkdir(path.dirname(artifactFile), { mode: 0o700 });
-  const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
+  const expiresAt = new Date(Date.now() + Number(minutes) * 60_000).toISOString();
   const state = { pids: [], expiresAt, baselineSha: initial?.sha ?? null };
   await saveState(state);
   const publicEnv = { PATH: process.env.PATH, P0_PREVIEW_CONTROL_FILE: controlFile, P0_PREVIEW_EXPIRES_AT: expiresAt };

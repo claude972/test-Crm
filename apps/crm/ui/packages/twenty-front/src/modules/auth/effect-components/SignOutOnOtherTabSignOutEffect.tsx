@@ -7,7 +7,9 @@ export const SignOutOnOtherTabSignOutEffect = () => {
 
   useEffect(() => {
     const unsubscribe = subscribeToSignOutFromOtherTabs(() => {
-      clearSession();
+      // Fire-and-forget on purpose: this effect reacts to another tab, and
+      // clearSession now awaits its own purge before navigating.
+      void clearSession();
     });
 
     return unsubscribe;

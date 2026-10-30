@@ -8,6 +8,12 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
+      hermes-integration:
+        type: boolean
+        default: false
+      hermes-checks:
+        type: boolean
+        default: false
       runtime-smoke:
         type: boolean
         default: false
@@ -21,7 +27,7 @@ permissions:
   contents: read
 concurrency:
   group: p0-backend-build-${{ github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref_name != 'feat/codex-hermes-integration' }}
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -99,6 +105,28 @@ jobs:
           node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
           test -s dist/index.js
           test -s dist/index.d.ts
+      - name: Remove committed environment fixtures from the disposable Hermes job
+        if: ${{ inputs.hermes-checks }}
+        working-directory: .
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          git ls-files --error-unmatch apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server >/dev/null
+          git diff --quiet HEAD -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+          rm -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+      - name: Verify Hermes tenant, prospection and SMTP regressions
+        if: ${{ inputs.hermes-checks && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-jest-cache --runTestsByPath src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-access.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-review.spec.ts src/engine/core-modules/hermes-prospection/utils/__tests__/hermes-import-policy.spec.ts src/engine/core-modules/emailing-domain/drivers/smtp/__tests__/smtp-emailing-domain-driver.spec.ts src/engine/core-modules/emailing-domain/utils/__tests__/get-sole-envelope-recipient.util.spec.ts src/engine/core-modules/emailing-domain/services/__tests__/unsubscribe-content.service.spec.ts src/engine/core-modules/hermes-connectors/evolution/__tests__/evolution-connection.adapter.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.resolver.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.service.spec.ts src/modules/emailing/services/__tests__/campaign-unconfirmed-quarantine.spec.ts src/modules/emailing/services/__tests__/emailing-domain-sender-quarantine.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-batch-settlements.util.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-send-failure.util.spec.ts src/engine/core-modules/twenty-config/constants/__tests__/hermes-b2b-campaigns-config.spec.ts src/engine/core-modules/workspace/services/__tests__/workspace-campaign-optin.service.spec.ts
+      - name: Verify unified inbox, incoming mail, WhatsApp and Hermes ingress
+        if: ${{ inputs.hermes-checks }}
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          mapfile -t suites < <(find src/engine/core-modules/hermes-messaging/__tests__ src/engine/core-modules/hermes-mail/__tests__ src/engine/core-modules/hermes-connectors/evolution/messages/__tests__ src/engine/core-modules/hermes-prospection/intake/__tests__ -type f -name '*.spec.ts' | sort)
+          suites+=(src/modules/messaging/message-import-manager/drivers/smtp/providers/__tests__/smtp-client-deadline.spec.ts)
+          test "${#suites[@]}" -ge 10
+          node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-jest-cache --runTestsByPath "${suites[@]}"
       - name: Typecheck backend production sources without starting the server
         id: backend_types
         if: ${{ !cancelled() && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}
@@ -117,6 +145,53 @@ jobs:
           cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
           test -s dist/assets/kovaa-lab-client-sdk/dist/core.cjs
           test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
+      - name: Verify disposable migration guards
+        if: ${{ inputs.hermes-checks }}
+        working-directory: .
+        run: node --test scripts/check-hermes-migration-ci.test.mjs scripts/check-hermes-inbox-migration-ci.test.mjs scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-swc-isolation.test.mjs
+      - name: Generate or verify the registered Hermes migration on disposable PostgreSQL
+        if: ${{ inputs.hermes-checks && inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+        run: |
+          if compgen -G 'apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-import-state.ts' > /dev/null; then
+            node scripts/check-hermes-migration-ci.mjs --verify-existing --reset-after-check
+          else
+            node scripts/check-hermes-migration-ci.mjs --generate --reset-after-generation
+          fi
+      - name: Publish generated Hermes migration for review
+        if: ${{ always() && inputs.hermes-checks }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-migration-${{ github.sha }}
+          path: hermes-migration-artifacts
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Generate or verify the registered Hermes inbox migration on disposable PostgreSQL
+        if: ${{ inputs.hermes-checks && inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+        run: |
+          test -f apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity.ts
+          test -f apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity.ts
+          test -f apps/crm/ui/packages/twenty-server/src/engine/core-modules/hermes-mail/hermes-mail-cursor.entity.ts
+          if compgen -G 'apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-inbox.ts' > /dev/null; then
+            node scripts/check-hermes-inbox-migration-ci.mjs --verify-existing --reset-after-check
+          else
+            node scripts/check-hermes-inbox-migration-ci.mjs --generate --reset-after-generation
+          fi
+      - name: Publish generated Hermes inbox migration for review
+        if: ${{ always() && inputs.hermes-checks }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-inbox-migration-${{ github.sha }}
+          path: hermes-inbox-migration-artifacts
+          if-no-files-found: warn
+          retention-days: 7
       - name: Download the exact frontend build for browser verification
         if: ${{ inputs.browser-smoke }}
         uses: actions/download-artifact@v4
@@ -133,7 +208,18 @@ jobs:
           PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
           REDIS_URL: redis://127.0.0.1:6379
           P0_BROWSER_SMOKE: ${{ inputs.browser-smoke }}
+          P1_HERMES_BROWSER_SMOKE: ${{ inputs.hermes-checks && 'true' || 'false' }}
+          HERMES_B2B_CAMPAIGNS_ENABLED: ${{ inputs.hermes-checks && inputs.browser-smoke && 'true' || 'false' }}
         run: node scripts/check-backend-runtime-p0.mjs
+      - name: Verify registered Hermes APIs and inbox against fresh native fixtures
+        # Generation writes TS after build; run inbox only after the registered command is compiled.
+        if: ${{ inputs.hermes-integration && inputs.hermes-checks && hashFiles('apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-import-state.ts') != '' && hashFiles('apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-inbox.ts') != '' && hashFiles('apps/crm/ui/packages/twenty-server/dist/database/commands/upgrade-version-command/2-52/*-add-hermes-inbox.js') != '' }}
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+          P0_INTEGRATION_DISPOSABLE: 'true'
+        run: node scripts/check-hermes-integration-p0.mjs test/integration/graphql/suites/hermes-structure-dashboard.integration-spec.ts test/integration/graphql/suites/hermes-prospection.integration-spec.ts src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.integration-spec.ts test/integration/graphql/suites/hermes-events.integration-spec.ts
       - name: Publish browser evidence
         if: ${{ !cancelled() && inputs.browser-smoke }}
         uses: actions/upload-artifact@v4

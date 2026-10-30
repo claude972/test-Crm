@@ -51,6 +51,9 @@ const env = {
   IS_CONFIG_VARIABLES_IN_DB_ENABLED: 'false',
   TRUST_PROXY: 'loopback', AUTH_COOKIE_SAME_SITE: 'lax',
   TELEMETRY_ENABLED: 'false', IS_BILLING_ENABLED: 'false', IS_FDW_ENABLED: 'false', EMAIL_DRIVER: 'logger',
+  // Preview campaigns must fail closed until a real relay is explicitly configured.
+  EMAILING_DOMAIN_DRIVER: 'SMTP', EMAILING_SMTP_CONNECTIONS: '{}',
+  HERMES_B2B_CAMPAIGNS_ENABLED: 'true',
 };
 const delay = () => new Promise((resolve) => setTimeout(resolve, 1000));
 const active = () => !stopped && Date.now() < deadline;

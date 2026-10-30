@@ -2425,15 +2425,87 @@ export class ConfigVariables {
   IS_ONBOARDING_AI_CHAT_ENABLED = false;
 
   @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.EMAIL_SETTINGS,
+    description:
+      'Enable campaign drafts for newly activated workspaces. Sending still requires native permissions and a configured provider. Does not enable tracking or change existing workspaces.',
+    type: ConfigVariableType.BOOLEAN,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_B2B_CAMPAIGNS_ENABLED = false;
+
+  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,
     description:
-      'Driver used for the emailing domain feature — AWS_SES (requires AWS credentials), RESEND (requires a Resend API key), LOG fakes registration/verification/sends locally',
+      'Driver used for the emailing domain feature — AWS_SES, RESEND, SMTP (workspace-scoped relay configuration), or LOG (simulated sends)',
     type: ConfigVariableType.ENUM,
     options: Object.values(EmailingDomainDriver),
     isEnvOnly: true,
   })
   @CastToUpperSnakeCase()
   EMAILING_DOMAIN_DRIVER: EmailingDomainDriver = EmailingDomainDriver.LOG;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.EMAIL_SETTINGS,
+    description:
+      'JSON map of workspace IDs to SMTP campaign relay credentials and explicitly authorized sender domains. Empty means no workspace can send via SMTP.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  EMAILING_SMTP_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description:
+      'Server-only JSON map of workspace IDs to Evolution API baseUrl, instanceName and apiKey. Empty means no configured Evolution connection.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_EVOLUTION_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only workspace Evolution webhook secrets; no configured incoming WhatsApp events when empty.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_EVOLUTION_WEBHOOK_SECRETS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only authenticated Hermes intake connection mappings and delegated workspace operators.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_INTAKE_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only workspace mailbox mappings to explicitly delegated native encrypted connected accounts.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_MAIL_CONNECTIONS = '{}';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only workspace Hermes MCP endpoint and permitted response tool configuration.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_MCP_CONNECTIONS = '{}';
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,

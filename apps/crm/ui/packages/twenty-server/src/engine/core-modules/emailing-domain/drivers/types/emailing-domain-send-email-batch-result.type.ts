@@ -1,3 +1,5 @@
+import { type EmailingDomainDriverExceptionCode } from 'src/engine/core-modules/emailing-domain/drivers/exceptions/emailing-domain-driver.exception';
+
 export type EmailingDomainSendEmailBatchResult = {
   // Index into the recipients the driver was handed. Drivers already build
   // their results by walking that array, so reporting the position keeps a
@@ -8,5 +10,6 @@ export type EmailingDomainSendEmailBatchResult = {
     messageId: string | null;
     headerMessageId: string | null;
     errorMessage: string | null;
+    errorCode?: EmailingDomainDriverExceptionCode | null;
   }[];
 };

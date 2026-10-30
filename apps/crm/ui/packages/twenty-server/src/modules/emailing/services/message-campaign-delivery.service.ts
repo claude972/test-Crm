@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { In } from 'typeorm';
-
 import { CampaignDeliveryWorkspaceEntity } from 'src/modules/emailing/standard-objects/campaign-delivery.workspace-entity';
 import { SEND_CAMPAIGN_EMAIL_JOB } from 'src/engine/core-modules/emailing-domain/constants/campaign.constant';
-import { CLAIMABLE_CAMPAIGN_DELIVERY_STATES } from 'src/engine/core-modules/emailing-domain/constants/claimable-campaign-delivery-states.constant';
+import { buildClaimableCampaignDeliveryCriteria } from 'src/engine/core-modules/emailing-domain/utils/build-claimable-campaign-delivery-criteria.util';
 import { CAMPAIGN_SEND_RETRY_BACKOFF } from 'src/engine/core-modules/emailing-domain/constants/campaign-send-retry-backoff.constant';
 import { CAMPAIGN_SEND_RETRY_LIMIT } from 'src/engine/core-modules/emailing-domain/constants/campaign-send-retry-limit.constant';
 import { SEND_SLOT_RETRY } from 'src/engine/core-modules/emailing-domain/constants/send-slot-retry.constant';
@@ -76,7 +74,7 @@ export class MessageCampaignDeliveryService {
         )
         .existsBy({
           id: data.messageId,
-          state: In(CLAIMABLE_CAMPAIGN_DELIVERY_STATES),
+          ...buildClaimableCampaignDeliveryCriteria(),
         });
 
       if (!isStillClaimable) {
@@ -195,7 +193,7 @@ export class MessageCampaignDeliveryService {
         { shouldSkipEventEmission: true },
       )
       .update(
-        { id: messageId, state: In(CLAIMABLE_CAMPAIGN_DELIVERY_STATES) },
+        { id: messageId, ...buildClaimableCampaignDeliveryCriteria() },
         {
           state: CAMPAIGN_DELIVERY_STATE.FAILED,
           failureReason: CAMPAIGN_FAILURE_REASON.RATE_LIMITED,
@@ -418,6 +416,20 @@ export class MessageCampaignDeliveryService {
     emailingDomainId: string;
     email: EmailingDomainEmailContent;
   }): Promise<EmailingDomainSendEmailResult | null> {
+    // Persist intent before transport: a crash or failed settlement cannot make this delivery retryable.
+    const { generatedMaps: handedOff } = await this.workspaceOrmManager
+      .getRepository(
+        CampaignDeliveryWorkspaceEntity,
+        { shouldBypassPermissionChecks: true },
+        { shouldSkipEventEmission: true },
+      )
+      .update(
+        { id: messageId, claimToken, state: CAMPAIGN_DELIVERY_STATE.SENDING },
+        {
+          failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
+        },
+      );
+    if (handedOff.length !== 1) return null;
     try {
       return await this.emailingDomainSenderService.sendEmail(
         workspaceId,
@@ -455,7 +467,15 @@ export class MessageCampaignDeliveryService {
       claimToken,
       update: shouldRetry
         ? { state: CAMPAIGN_DELIVERY_STATE.QUEUED, skipReason, failureReason }
-        : { state, skipReason, failureReason },
+        : {
+            state,
+            skipReason,
+            failureReason,
+            ...(failureReason ===
+            CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED
+              ? { providerMessageId: null, sentAt: null }
+              : {}),
+          },
     });
 
     if (state === CAMPAIGN_DELIVERY_STATE.FAILED) {
@@ -485,7 +505,7 @@ export class MessageCampaignDeliveryService {
         { shouldSkipEventEmission: true },
       )
       .update(
-        { id: messageId, state: In(CLAIMABLE_CAMPAIGN_DELIVERY_STATES) },
+        { id: messageId, ...buildClaimableCampaignDeliveryCriteria() },
         {
           state: CAMPAIGN_DELIVERY_STATE.SENDING,
           claimToken,

@@ -15,6 +15,7 @@ export enum EmailingDomainDriverExceptionCode {
   ALL_RECIPIENTS_SUPPRESSED = 'ALL_RECIPIENTS_SUPPRESSED',
   UNSUBSCRIBE_NOT_READY = 'UNSUBSCRIBE_NOT_READY',
   UNSUBSCRIBE_MULTIPLE_RECIPIENTS = 'UNSUBSCRIBE_MULTIPLE_RECIPIENTS',
+  SEND_OUTCOME_UNCONFIRMED = 'SEND_OUTCOME_UNCONFIRMED',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -38,6 +39,8 @@ const getEmailingDomainDriverExceptionUserFriendlyMessage = (
       return msg`Marketing sending is on hold until the unsubscribe domain is verified.`;
     case EmailingDomainDriverExceptionCode.UNSUBSCRIBE_MULTIPLE_RECIPIENTS:
       return msg`A marketing email can only be sent to one recipient at a time, so each person gets their own unsubscribe link.`;
+    case EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED:
+      return msg`The sending outcome is unconfirmed. Reconcile this message before attempting another send.`;
     case EmailingDomainDriverExceptionCode.TEMPORARY_ERROR:
     case EmailingDomainDriverExceptionCode.UNKNOWN:
       return STANDARD_ERROR_MESSAGE;
