@@ -1,0 +1,98 @@
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
+import { IsNull, Repository } from 'typeorm';
+
+import { HermesEvolutionConnectionDTO } from 'src/engine/core-modules/hermes-connectors/dto/hermes-evolution-connection.dto';
+import { EvolutionConnectionAdapter } from 'src/engine/core-modules/hermes-connectors/evolution/evolution-connection.adapter';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
+import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-target.entity';
+
+export type HermesConnectorActor = {
+  workspaceId: string;
+  userId: string;
+  userWorkspaceId: string;
+};
+
+@Injectable()
+export class HermesConnectorsService {
+  constructor(
+    @InjectRepository(UserWorkspaceEntity)
+    private readonly memberships: Repository<UserWorkspaceEntity>,
+    @InjectRepository(RoleTargetEntity)
+    private readonly roleTargets: Repository<RoleTargetEntity>,
+    private readonly config: KovaaLabCRMConfigService,
+  ) {}
+
+  async evolutionConnection(
+    actor: HermesConnectorActor,
+  ): Promise<HermesEvolutionConnectionDTO> {
+    await this.assertAllowed(actor);
+    try {
+      const adapter = new EvolutionConnectionAdapter(
+        this.config.get('HERMES_EVOLUTION_CONNECTIONS'),
+      );
+      const result = await adapter.probe(actor.workspaceId);
+
+      return { ...result, checkedAt: new Date(result.checkedAt) };
+    } catch {
+      return {
+        workspaceId: actor.workspaceId,
+        provider: 'EVOLUTION',
+        status: 'UNAVAILABLE',
+        providerState: null,
+        checkedAt: new Date(),
+        errorCode: 'REQUEST_FAILED',
+      };
+    }
+  }
+
+  private async assertAllowed(actor: HermesConnectorActor): Promise<void> {
+    const membership = await this.memberships.findOne({
+      where: {
+        id: actor.userWorkspaceId,
+        userId: actor.userId,
+        workspaceId: actor.workspaceId,
+        deletedAt: IsNull(),
+        user: { id: actor.userId, disabled: false, deletedAt: IsNull() },
+        workspace: {
+          id: actor.workspaceId,
+          deletedAt: IsNull(),
+          activationStatus: WorkspaceActivationStatus.ACTIVE,
+        },
+      },
+    });
+
+    if (!membership) throw new ForbiddenException('CONNECTOR_ACCESS_DENIED');
+    const target = await this.roleTargets.findOne({
+      where: { userWorkspaceId: membership.id, workspaceId: actor.workspaceId },
+      relations: {
+        role: {
+          fieldPermissions: true,
+          rowLevelPermissionPredicates: true,
+          rowLevelPermissionPredicateGroups: true,
+        },
+      },
+    });
+    const role = target?.role;
+
+    // Provider state is restricted to live unrestricted administrators until
+    // connection-specific read policies are available for this integration.
+    if (
+      !role ||
+      role.workspaceId !== actor.workspaceId ||
+      !role.canUpdateAllSettings ||
+      !role.canReadAllObjectRecords ||
+      !role.canUpdateAllObjectRecords ||
+      role.fieldPermissions.length > 0 ||
+      role.rowLevelPermissionPredicates.length > 0 ||
+      role.rowLevelPermissionPredicateGroups.length > 0
+    ) {
+      throw new ForbiddenException(
+        'CONNECTOR_REQUIRES_UNRESTRICTED_WORKSPACE_ADMIN',
+      );
+    }
+  }
+}
