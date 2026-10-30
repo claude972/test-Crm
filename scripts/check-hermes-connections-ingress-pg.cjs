@@ -110,7 +110,7 @@ exports.proveIngressGuards = async ({
       const id = randomUUID();
       ids.push(id);
       await gate.query(
-        'INSERT INTO core."hermesConversation" ("id","workspaceId","channel","providerConnectionId","providerConversationId","contactHandle","lastMessageAt","botMode","botOwnerUserWorkspaceId","botModeUpdatedAt") VALUES ($1,$2,\'WHATSAPP\',\'fixture-connection\',$1::text,\'33612345678@s.whatsapp.net\',now(),$3,$4,\'2000-01-01\')',
+        'INSERT INTO core."hermesConversation" ("id","workspaceId","channel","providerConnectionId","providerConversationId","contactHandle","lastMessageAt","botMode","botOwnerUserWorkspaceId","botModeUpdatedAt") VALUES ($1::uuid,$2,\'WHATSAPP\',\'fixture-connection\',$1::uuid::text,\'33612345678@s.whatsapp.net\',now(),$3,$4,\'2000-01-01\')',
         [id, actor.workspaceId, mode, actor.userWorkspaceId],
       );
     }
