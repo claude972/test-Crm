@@ -53,6 +53,7 @@ const env = {
   TELEMETRY_ENABLED: 'false', IS_BILLING_ENABLED: 'false', IS_FDW_ENABLED: 'false', EMAIL_DRIVER: 'logger',
   // Preview campaigns must fail closed until a real relay is explicitly configured.
   EMAILING_DOMAIN_DRIVER: 'SMTP', EMAILING_SMTP_CONNECTIONS: '{}',
+  HERMES_B2B_CAMPAIGNS_ENABLED: 'true',
 };
 const delay = () => new Promise((resolve) => setTimeout(resolve, 1000));
 const active = () => !stopped && Date.now() < deadline;
