@@ -1,3 +1,15 @@
+import { resetWorkspaceSessionAndReload } from '@/auth/utils/resetWorkspaceSessionAndReload';
+import { assertAuthSessionUnchanged } from '@/auth/utils/assertAuthSessionUnchanged';
+import { t } from '@lingui/core/macro';
+import { validate as isUuid } from 'uuid';
+import {
+  CREATE_WORKSPACE_ON_SAME_ORIGIN,
+  SELECT_WORKSPACE_ON_SAME_ORIGIN,
+  type SameOriginWorkspaceLogin,
+} from '@/auth/graphql/mutations/sameOriginWorkspaces';
+import { getLoginTokenWorkspaceIntent } from '@/auth/utils/getLoginTokenWorkspaceIntent';
+import { getSessionGeneration } from '@/auth/utils/getSessionGeneration';
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import {
   useApolloClient,
   useLazyQuery,
@@ -62,7 +74,6 @@ import { isChooseWorkspaceActionRequested } from '@/auth/utils/isChooseWorkspace
 import { useLoadCurrentUser } from '@/users/hooks/useLoadCurrentUser';
 import { i18n } from '@lingui/core';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { SOURCE_LOCALE } from 'kovaa-lab-shared/translations';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { doNotTranslate } from 'kovaa-lab-shared/i18n';
 import { assignLocation } from '~/utils/assignLocation';
@@ -79,6 +90,9 @@ export const useAuth = () => {
   );
 
   const { origin } = useOrigin();
+  const isSameOriginMultiWorkspaceEnabled = useAtomStateValue(
+    isSameOriginMultiWorkspaceEnabledState,
+  );
   const isMultiWorkspaceEnabled = useAtomStateValue(
     isMultiWorkspaceEnabledState,
   );
@@ -267,6 +281,7 @@ export const useAuth = () => {
       email: string,
       captchaToken?: string,
     ) => {
+      const requestSessionGeneration = getSessionGeneration();
       const { data, error } = await verifyEmailAndGetWorkspaceAgnosticToken({
         variables: {
           email,
@@ -285,6 +300,8 @@ export const useAuth = () => {
         );
       }
 
+      if (isSameOriginMultiWorkspaceEnabled)
+        assertAuthSessionUnchanged(requestSessionGeneration);
       markSessionActive();
 
       const { user } = await loadCurrentUser();
@@ -295,6 +312,7 @@ export const useAuth = () => {
       );
     },
     [
+      isSameOriginMultiWorkspaceEnabled,
       verifyEmailAndGetWorkspaceAgnosticToken,
       markSessionActive,
       loadCurrentUser,
@@ -309,19 +327,53 @@ export const useAuth = () => {
     [setLoginToken],
   );
 
-  const handleLoadWorkspaceAfterAuthentication = useCallback(async () => {
-    markSessionActive();
-    setIsAppEffectRedirectEnabled(false);
+  const handleLoadWorkspaceAfterAuthentication = useCallback(
+    async (loginToken: string) => {
+      const expectedWorkspaceId = isSameOriginMultiWorkspaceEnabled
+        ? getLoginTokenWorkspaceIntent(loginToken)
+        : undefined;
+      if (isSameOriginMultiWorkspaceEnabled && !expectedWorkspaceId)
+        throw new Error(t`Authentication failed`);
+      markSessionActive();
+      const sessionGeneration = getSessionGeneration();
+      setIsAppEffectRedirectEnabled(false);
 
-    try {
-      await loadCurrentUser();
-    } finally {
-      setIsAppEffectRedirectEnabled(true);
-    }
-  }, [loadCurrentUser, markSessionActive, setIsAppEffectRedirectEnabled]);
+      try {
+        if (!isSameOriginMultiWorkspaceEnabled) {
+          await loadCurrentUser();
+          return;
+        }
+        await loadCurrentUser({ expectedWorkspaceId, commitState: false });
+        await resetWorkspaceSessionAndReload({
+          client: apolloClient,
+          store,
+          sessionGeneration,
+        });
+      } finally {
+        setIsAppEffectRedirectEnabled(true);
+      }
+    },
+    [
+      isSameOriginMultiWorkspaceEnabled,
+      loadCurrentUser,
+      markSessionActive,
+      setIsAppEffectRedirectEnabled,
+      apolloClient,
+      store,
+    ],
+  );
 
   const handleGetAuthTokensFromLoginToken = useCallback(
-    async (loginToken: string) => {
+    async (loginToken: string, expectedWorkspaceId?: string) => {
+      const requestSessionGeneration = getSessionGeneration();
+      if (isSameOriginMultiWorkspaceEnabled) {
+        const intent = getLoginTokenWorkspaceIntent(loginToken);
+        if (
+          !intent ||
+          (expectedWorkspaceId && intent !== expectedWorkspaceId.toLowerCase())
+        )
+          throw new Error(t`Authentication failed`);
+      }
       try {
         const getAuthTokensResult = await getAuthTokensFromLoginToken({
           variables: {
@@ -340,8 +392,11 @@ export const useAuth = () => {
           );
         }
 
-        await handleLoadWorkspaceAfterAuthentication();
+        if (isSameOriginMultiWorkspaceEnabled)
+          assertAuthSessionUnchanged(requestSessionGeneration);
       } catch (error) {
+        if (isSameOriginMultiWorkspaceEnabled)
+          assertAuthSessionUnchanged(requestSessionGeneration);
         if (
           isGraphqlErrorOfType(
             error,
@@ -367,8 +422,10 @@ export const useAuth = () => {
         }
         throw error;
       }
+      await handleLoadWorkspaceAfterAuthentication(loginToken);
     },
     [
+      isSameOriginMultiWorkspaceEnabled,
       handleSetLoginToken,
       getAuthTokensFromLoginToken,
       origin,
@@ -380,6 +437,22 @@ export const useAuth = () => {
 
   const handleCredentialsSignIn = useCallback(
     async (email: string, password: string, captchaToken?: string) => {
+      if (isSameOriginMultiWorkspaceEnabled) {
+        const requestSessionGeneration = getSessionGeneration();
+        const result = await signIn({
+          variables: { email, password, captchaToken },
+        });
+        if (isDefined(result.error)) throw result.error;
+        if (!result.data?.signIn) throw new Error(t`Authentication failed`);
+        assertAuthSessionUnchanged(requestSessionGeneration);
+        markSessionActive();
+        await loadCurrentUser();
+        await navigateAfterMultiWorkspaceSignInUp(
+          result.data.signIn.availableWorkspaces,
+          email,
+        );
+        return;
+      }
       await signIn({
         variables: { email, password, captchaToken },
         onCompleted: async () => {
@@ -402,6 +475,7 @@ export const useAuth = () => {
       });
     },
     [
+      isSameOriginMultiWorkspaceEnabled,
       markSessionActive,
       signIn,
       loadCurrentUser,
@@ -413,12 +487,13 @@ export const useAuth = () => {
 
   const handleCredentialsSignUp = useCallback(
     async (email: string, password: string, captchaToken?: string) => {
+      const requestSessionGeneration = getSessionGeneration();
       const signUpResult = await signUp({
         variables: {
           email,
           password,
           captchaToken,
-          locale: i18n.locale ?? SOURCE_LOCALE,
+          locale: i18n.locale || 'fr-FR',
         },
       });
 
@@ -426,6 +501,8 @@ export const useAuth = () => {
         throw signUpResult.error;
       }
 
+      if (isSameOriginMultiWorkspaceEnabled)
+        assertAuthSessionUnchanged(requestSessionGeneration);
       if (isEmailVerificationRequired) {
         setSearchParams({ email });
         setSignInUpStep(SignInUpStep.EmailVerification);
@@ -446,6 +523,7 @@ export const useAuth = () => {
       );
     },
     [
+      isSameOriginMultiWorkspaceEnabled,
       isEmailVerificationRequired,
       setSearchParams,
       markSessionActive,
@@ -458,6 +536,8 @@ export const useAuth = () => {
 
   const handleCredentialsSignInInWorkspace = useCallback(
     async (email: string, password: string, captchaToken?: string) => {
+      if (isSameOriginMultiWorkspaceEnabled)
+        return handleCredentialsSignIn(email, password, captchaToken);
       const { loginToken } = await handleGetLoginTokenFromCredentials(
         email,
         password,
@@ -465,7 +545,78 @@ export const useAuth = () => {
       );
       await handleGetAuthTokensFromLoginToken(loginToken.token);
     },
-    [handleGetLoginTokenFromCredentials, handleGetAuthTokensFromLoginToken],
+    [
+      isSameOriginMultiWorkspaceEnabled,
+      handleCredentialsSignIn,
+      handleGetLoginTokenFromCredentials,
+      handleGetAuthTokensFromLoginToken,
+    ],
+  );
+
+  const selectWorkspaceOnSameOrigin = useCallback(
+    async (workspaceId: string) => {
+      const requestSessionGeneration = getSessionGeneration();
+      const expectedWorkspaceId = store.get(currentWorkspaceState.atom)?.id;
+      if (
+        !isSameOriginMultiWorkspaceEnabled ||
+        !expectedWorkspaceId ||
+        !isUuid(workspaceId)
+      )
+        throw new Error(t`Authentication failed`);
+      const result = await apolloClient.mutate<{
+        selectWorkspaceOnSameOrigin: SameOriginWorkspaceLogin;
+      }>({
+        mutation: SELECT_WORKSPACE_ON_SAME_ORIGIN,
+        variables: { input: { workspaceId, expectedWorkspaceId } },
+        context: { expectedWorkspaceId, skipRetry: true },
+      });
+      if (isDefined(result.error)) throw result.error;
+      const selected = result.data?.selectWorkspaceOnSameOrigin;
+      if (!selected || selected.workspace.id !== workspaceId)
+        throw new Error(t`Authentication failed`);
+      assertAuthSessionUnchanged(requestSessionGeneration);
+      await handleGetAuthTokensFromLoginToken(
+        selected.loginToken.token,
+        workspaceId,
+      );
+    },
+    [
+      isSameOriginMultiWorkspaceEnabled,
+      store,
+      apolloClient,
+      handleGetAuthTokensFromLoginToken,
+    ],
+  );
+
+  const createWorkspaceOnSameOrigin = useCallback(
+    async (displayName: string) => {
+      const requestSessionGeneration = getSessionGeneration();
+      const expectedWorkspaceId = store.get(currentWorkspaceState.atom)?.id;
+      if (!isSameOriginMultiWorkspaceEnabled || !expectedWorkspaceId)
+        throw new Error(t`Authentication failed`);
+      const result = await apolloClient.mutate<{
+        createWorkspaceOnSameOrigin: SameOriginWorkspaceLogin;
+      }>({
+        mutation: CREATE_WORKSPACE_ON_SAME_ORIGIN,
+        variables: { input: { displayName, expectedWorkspaceId } },
+        context: { expectedWorkspaceId, skipRetry: true },
+      });
+      if (isDefined(result.error)) throw result.error;
+      const created = result.data?.createWorkspaceOnSameOrigin;
+      if (!created || !isUuid(created.workspace.id))
+        throw new Error(t`Authentication failed`);
+      assertAuthSessionUnchanged(requestSessionGeneration);
+      await handleGetAuthTokensFromLoginToken(
+        created.loginToken.token,
+        created.workspace.id,
+      );
+    },
+    [
+      isSameOriginMultiWorkspaceEnabled,
+      store,
+      apolloClient,
+      handleGetAuthTokensFromLoginToken,
+    ],
   );
 
   const handleSignOut = useCallback(async () => {
@@ -497,6 +648,7 @@ export const useAuth = () => {
       captchaToken?: string;
       verifyEmailRedirectPath?: string;
     }) => {
+      const requestSessionGeneration = getSessionGeneration();
       const signUpInWorkspaceResult = await signUpInWorkspace({
         variables: {
           email,
@@ -504,7 +656,7 @@ export const useAuth = () => {
           workspaceInviteHash,
           workspacePersonalInviteToken,
           captchaToken,
-          locale: i18n.locale ?? SOURCE_LOCALE,
+          locale: i18n.locale || 'fr-FR',
           ...(workspacePublicData?.id
             ? { workspaceId: workspacePublicData.id }
             : {}),
@@ -520,6 +672,8 @@ export const useAuth = () => {
         throw new Error(doNotTranslate('No login token'));
       }
 
+      if (isSameOriginMultiWorkspaceEnabled)
+        assertAuthSessionUnchanged(requestSessionGeneration);
       if (isEmailVerificationRequired) {
         setSearchParams({ email });
         setSignInUpStep(SignInUpStep.EmailVerification);
@@ -548,6 +702,7 @@ export const useAuth = () => {
       );
     },
     [
+      isSameOriginMultiWorkspaceEnabled,
       signUpInWorkspace,
       workspacePublicData,
       isMultiWorkspaceEnabled,
@@ -631,6 +786,7 @@ export const useAuth = () => {
 
   const handleGetAuthTokensFromOTP = useCallback(
     async (otp: string, loginToken: string, captchaToken?: string) => {
+      const requestSessionGeneration = getSessionGeneration();
       const getAuthTokensFromOtpResult = await getAuthTokensFromOtp({
         variables: {
           captchaToken,
@@ -648,9 +804,16 @@ export const useAuth = () => {
         throw new Error(doNotTranslate('No getAuthTokensFromOTP result'));
       }
 
-      await handleLoadWorkspaceAfterAuthentication();
+      if (isSameOriginMultiWorkspaceEnabled)
+        assertAuthSessionUnchanged(requestSessionGeneration);
+      await handleLoadWorkspaceAfterAuthentication(loginToken);
     },
-    [getAuthTokensFromOtp, origin, handleLoadWorkspaceAfterAuthentication],
+    [
+      isSameOriginMultiWorkspaceEnabled,
+      getAuthTokensFromOtp,
+      origin,
+      handleLoadWorkspaceAfterAuthentication,
+    ],
   );
 
   const handleGetAuthTokensFromTwoFactorAuthenticationRecoveryCode =
@@ -660,6 +823,7 @@ export const useAuth = () => {
         loginToken: string,
         captchaToken?: string,
       ) => {
+        const requestSessionGeneration = getSessionGeneration();
         const result =
           await getAuthTokensFromTwoFactorAuthenticationRecoveryCode({
             variables: {
@@ -685,15 +849,18 @@ export const useAuth = () => {
           );
         }
 
+        if (isSameOriginMultiWorkspaceEnabled)
+          assertAuthSessionUnchanged(requestSessionGeneration);
         if (isDefined(redemption.provisioningUri)) {
           return { provisioningUri: redemption.provisioningUri };
         }
 
-        await handleLoadWorkspaceAfterAuthentication();
+        await handleLoadWorkspaceAfterAuthentication(loginToken);
 
         return { provisioningUri: null };
       },
       [
+        isSameOriginMultiWorkspaceEnabled,
         getAuthTokensFromTwoFactorAuthenticationRecoveryCode,
         origin,
         handleLoadWorkspaceAfterAuthentication,
@@ -701,6 +868,8 @@ export const useAuth = () => {
     );
 
   return {
+    selectWorkspaceOnSameOrigin,
+    createWorkspaceOnSameOrigin,
     getLoginTokenFromCredentials: handleGetLoginTokenFromCredentials,
     verifyEmailAndGetWorkspaceAgnosticToken:
       handleverifyEmailAndGetWorkspaceAgnosticToken,

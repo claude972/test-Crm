@@ -108,4 +108,22 @@ describe('useVerifyLogin', () => {
     });
     expect(mockNavigate).toHaveBeenCalledWith(AppPath.SignInUp);
   });
+  it('does not navigate the current session away when an earlier native LOGIN was superseded', async () => {
+    mockGetAuthTokensFromLoginToken.mockRejectedValueOnce(
+      new CombinedGraphQLErrors({
+        errors: [
+          {
+            message: 'Authentication failed',
+            extensions: {
+              code: 'UNAUTHENTICATED',
+              subCode: 'SESSION_SUPERSEDED',
+            },
+          },
+        ],
+      }),
+    );
+    const { result } = renderHooks();
+    await result.current.verifyLoginToken('old-login');
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
 });
