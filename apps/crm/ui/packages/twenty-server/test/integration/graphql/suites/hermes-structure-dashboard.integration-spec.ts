@@ -52,7 +52,7 @@ const A = SEED_APPLE_WORKSPACE_ID;
 const B = SEED_YCOMBINATOR_WORKSPACE_ID;
 const C = randomUUID();
 const UNKNOWN = randomUUID();
-const fixtureSuffix = randomUUID().slice(0, 8);
+const fixtureSuffix = randomUUID();
 const C_NAME = `Hermes forbidden C ${fixtureSuffix}`;
 // A future, explicit fixture period excludes pre-existing seed rows and asynchronous seed jobs.
 const PERIOD_START = '2050-01-01T00:00:00.000Z';
@@ -188,7 +188,8 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
               ? {
                   name: { firstName: 'Same', lastName: 'Synthetic client' },
                   emails: {
-                    primaryEmail: 'same-synthetic@example.com',
+                    // Distinct per person locally, identical across structures by index.
+                    primaryEmail: `hermes-${fixtureSuffix}-person-${index}@example.com`,
                     additionalEmails: [],
                   },
                 }
