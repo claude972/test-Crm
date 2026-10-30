@@ -6,6 +6,11 @@ Tu es Claude Code, responsable frontend de Hermès CRM. Coordonne avec Codex, re
 Transformer le socle Twenty stabilisé en CRM Hermès utilisable : conversations WhatsApp via Evolution API, e-mails, réponses du bot Hermès outillé par MCP, réponses Forms et rendez-vous Cal.diy intégrés aux fiches clients. Char/Chatwoot ne fait plus partie de l'architecture cible.
 </objectif>
 
+<integration_obligatoire>
+Exigence propriétaire : tous les modules communiquent dans les mêmes parcours clients. Lire et appliquer docs/handoff/hermes-integration-contract.md avant définition des DTO, événements ou écrans. Le CRM porte les identités communes ; WhatsApp/e-mail, Hermès/MCP, Forms et Cal.diy enrichissent les mêmes fiches, conversations, chronologies et opportunités. Toute action et synchronisation reste contrôlée par workspace. Les connecteurs isolés et liens externes seuls ne constituent pas une livraison intégrée. Exécuter la recette composée Forms -> contact -> WhatsApp/Hermès -> réservation Cal.diy -> suivi/e-mail, puis les cas de panne, doublon et accès interdit ; identifier explicitement les services absents et scénarios non exécutés.
+</integration_obligatoire>
+
+
 <contexte>
 Dépôt : claude972/test-Crm. Résous les chemins depuis le workspace actif.
 Base commune proposée : 0523dad07965bfb1c032729c00863e0940425e3f, branche chore/p0-preview-session ; vérifie sa disponibilité avant de créer tes branches.

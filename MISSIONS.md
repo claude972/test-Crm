@@ -217,3 +217,13 @@ Le propriétaire demande WhatsApp via Evolution API, e-mail SMTP, réponses par 
 - visual reference: Monday, choix explicite du propriétaire après présentation des captures ; référence dans le prompt dédiée. Dépendance de référence levée, thème clair de départ issu de la capture ; aucune nouvelle validation de style à redemander pour les détails conformes. Audit puis premier lot cadre/navigation/liste et fiche client autorisés, en parallèle du backend. Préserver le mécanisme sombre existant sans déclarer sa refonte achevée.
 - parallelism: Codex garde le backend de hermes-connectors-p1 ; Claude coordonne refonte et fonctionnalités dans un seul chantier frontend. Les sous-agents n'éditent que des périmètres disjoints explicitement attribués.
 - report: CORRECTIONS.md, section hermes-redesign-p1 ; aucune refonte implémentée ou validée à cette publication du cadrage.
+
+
+## Exigence transversale propriétaire — tous les modules communiquent
+- applies to: hermes-connectors-p1 et hermes-redesign-p1 ; ne réactive pas Char.
+- contract document: docs/handoff/hermes-integration-contract.md.
+- source of truth: identité et appartenance workspace du CRM ; correspondances externes par fournisseur/connexion, contrats API/événements, autorisations cohérentes sur chaque entrée et action MCP.
+- codex ownership: concrétiser contrat typé et adaptateurs backend, persistance et correspondances, déduplication, erreurs/reprise et tests d'isolation.
+- claude ownership: fiches et vues communes alimentées par ces contrats, actualisation visible, provenance et états de synchronisation ; même chantier frontend que la refonte Monday.
+- acceptance: parcours intégré Forms -> contact -> conversation WhatsApp -> Hermès/MCP -> réservation Cal.diy -> chronologie/agenda/opportunité et e-mail SMTP ; réception e-mail distincte à configurer et valider avant revendication bidirectionnelle. Rejeu, retard, panne, reprise humaine et isolation entre workspaces vérifiés.
+- delivery rule: preuve end-to-end sur services de recette réels et preview utilisateur ; mocks, services indisponibles et scénarios incomplets identifiés. Aucun module n'est déclaré connecté par sa seule configuration ou présence d'un lien.

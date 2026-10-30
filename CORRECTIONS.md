@@ -892,3 +892,10 @@ Prompt dédié docs/handoff/hermes-redesign-claude-prompt.md ; prompt des connec
 Choix explicite « Monday » après les captures visuelles. Prompt de refonte actualisé : référence officielle et image choisie, thème clair de départ, tableaux structurés, statuts colorés sémantiques, navigation et dashboard. La dépendance de référence est levée ; ne pas demander une nouvelle validation des choix de détail conformes. L'identité reste Hermès, les actifs de marque Monday ne sont pas copiés. Le mécanisme de thème existant est préservé ; aucune nouvelle variante sombre livrée n'est revendiquée.
 
 Prompt des connecteurs et mission réconciliés pour supprimer l'ancienne attente de référence. Premier lot frontend : cadre/navigation/liste et fiche client ; backend distinct. Ce changement documente la décision, sans prétendre que l'interface a déjà été modifiée ni que Claude a terminé sa nouvelle mission.
+
+
+## hermes-connectors-p1 / codex — communication intermodules exigée
+
+Demande propriétaire : tous les modules doivent communiquer. Contrat transverse publié dans docs/handoff/hermes-integration-contract.md et référencé dans les deux prompts. Décrit identités CRM communes, correspondances par workspace/connexion, échanges API/événements, données partagées, droits Hermès/MCP, propagation d'état, déduplication, erreurs/reprise et recette composée réelle. Ne prescrit pas un partage direct des bases externes ni une promesse de livraison exactement une fois sans capacité fournisseur.
+
+La source de référence Monday est inchangée. SMTP n'assure pas la réception ; la limite est conservée. Aucun connecteur, événement ou synchronisation n'est présenté comme déjà implémenté par cette livraison documentaire. Claude reçoit la contrainte pour ses vues et contrats partagés ; backend Codex et frontend Claude gardent leurs périmètres distincts.
