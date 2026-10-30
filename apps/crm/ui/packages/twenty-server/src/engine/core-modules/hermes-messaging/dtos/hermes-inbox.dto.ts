@@ -165,6 +165,10 @@ export class HermesSetWorkspaceBotPolicyInputDTO {
     | 'WORKSPACE'
     | 'WHATSAPP'
     | 'EMAIL';
-  @Field() @IsIn(['AUTO', 'ASSISTED', 'OFF']) mode: 'AUTO' | 'ASSISTED' | 'OFF';
+  @Field() @IsIn(['INHERIT', 'AUTO', 'ASSISTED', 'OFF']) mode:
+    | 'INHERIT'
+    | 'AUTO'
+    | 'ASSISTED'
+    | 'OFF';
   @Field() @IsString() @MinLength(64) @MaxLength(64) expectedRevision: string;
 }

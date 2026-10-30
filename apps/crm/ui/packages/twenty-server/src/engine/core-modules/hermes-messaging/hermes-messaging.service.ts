@@ -33,6 +33,7 @@ import {
   type HermesMessagingEvent,
   type HermesMessagingBotResult,
   type HermesBotPolicyMode,
+  type HermesBotPolicyOverrideMode,
   type HermesBotPolicyScope,
   type HermesConversationBotPolicy,
 } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
@@ -128,7 +129,10 @@ export class HermesMessagingService {
     const localMode =
       conversation.botMode === 'MANUAL' ? 'ASSISTED' : conversation.botMode;
     const workspaceMode = workspace?.mode ?? 'ASSISTED';
-    const channelMode = channel?.mode ?? workspaceMode;
+    const channelMode =
+      channel?.mode === 'INHERIT'
+        ? workspaceMode
+        : (channel?.mode ?? workspaceMode);
     const localPolicy = localMode === 'INHERIT' ? 'AUTO' : localMode;
     const candidates = [
       { mode: workspaceMode, reason: 'WORKSPACE_POLICY' },
@@ -222,7 +226,7 @@ export class HermesMessagingService {
     actor: HermesMessagingActor,
     raw: {
       scope: HermesBotPolicyScope;
-      mode: HermesBotPolicyMode;
+      mode: HermesBotPolicyOverrideMode;
       expectedRevision: string;
     },
   ) {
@@ -231,10 +235,13 @@ export class HermesMessagingService {
       z
         .object({
           scope: z.enum(['WORKSPACE', 'WHATSAPP', 'EMAIL']),
-          mode: z.enum(['AUTO', 'ASSISTED', 'OFF']),
+          mode: z.enum(['INHERIT', 'AUTO', 'ASSISTED', 'OFF']),
           expectedRevision: z.string().regex(/^[a-f0-9]{64}$/),
         })
-        .strict(),
+        .strict()
+        .refine(
+          (input) => input.scope !== 'WORKSPACE' || input.mode !== 'INHERIT',
+        ),
       raw,
     );
     return this.transaction(actor.workspaceId, async (manager) => {
@@ -252,7 +259,11 @@ export class HermesMessagingService {
         (policy) => policy.scope === 'WORKSPACE',
       )!.mode;
       const rank: Record<string, number> = { OFF: 0, ASSISTED: 1, AUTO: 2 };
-      if (input.scope !== 'WORKSPACE' && rank[input.mode] > rank[workspaceMode])
+      if (
+        input.scope !== 'WORKSPACE' &&
+        input.mode !== 'INHERIT' &&
+        rank[input.mode] > rank[workspaceMode]
+      )
         throw new ConflictException('BOT_POLICY_RESTRICTION');
       const repository = manager.getRepository(HermesBotPolicyEntity);
       const previous = await repository.findOneBy({
