@@ -32,7 +32,7 @@ const input = {
   text: 'Synthetic reply only',
 };
 
-function fixture(reader?: unknown) {
+function fixture(reader?: unknown, media?: unknown) {
   let serialized = JSON.stringify({
     [workspaceId]: {
       connectionId: 'company-inbox',
@@ -72,7 +72,11 @@ function fixture(reader?: unknown) {
   const messages = {
     findOne: jest.fn(async () => ({ providerMessageId: '<last@example.com>' })),
   };
-  const access = { assertAllowed: jest.fn(async () => undefined) };
+  const access = {
+    assertAllowed: jest.fn(
+      async (_actor?: unknown, _manager?: unknown) => undefined,
+    ),
+  };
   const client = {
     mailbox: { uidValidity: 123n },
     search: jest.fn(async () => [11, 12]),
@@ -144,7 +148,7 @@ function fixture(reader?: unknown) {
     inbox as never,
     registry as never,
     redis as never,
-    undefined,
+    media as never,
     reader as never,
   );
   return {
@@ -229,7 +233,11 @@ describe('Hermes mailbox bridge', () => {
         channel: 'EMAIL',
         providerMessageId: 'imap:INBOX:123:12',
       }),
-      { suppressAutomation: false, observedOnly: false },
+      expect.objectContaining({
+        suppressAutomation: false,
+        observedOnly: false,
+        assertLive: expect.any(Function),
+      }),
     );
     expect(f.cursors.save).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -388,7 +396,11 @@ describe('rich mailbox adapter boundary', () => {
         contactHandle: 'client@example.com',
         kind: 'EMAIL',
       }),
-      { suppressAutomation: true, observedOnly: true },
+      expect.objectContaining({
+        suppressAutomation: true,
+        observedOnly: true,
+        assertLive: expect.any(Function),
+      }),
     );
     expect(f.transport.sendMail).not.toHaveBeenCalled();
   });
@@ -439,7 +451,7 @@ describe('authoritative encrypted-connection reader', () => {
       status: 'CONFIGURED_UNVERIFIED',
       canSend: true,
     });
-    expect(reader.resolve).toHaveBeenCalledWith(workspaceId, 'MAIL');
+    expect(reader.resolve).toHaveBeenCalledWith(workspaceId, 'MAIL', undefined);
     expect(f.accounts.findOne).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
@@ -486,4 +498,167 @@ describe('authoritative encrypted-connection reader', () => {
     ).rejects.toThrow('SEND_OUTCOME_UNCONFIRMED');
     expect(f.transport.sendMail).not.toHaveBeenCalled();
   });
+});
+
+describe('HERMES-V4-MAIL-001 observation write boundary', () => {
+  it.each(['revoked', 'expired'] as const)(
+    'never ingests a message after %s while private media retrieval was awaiting',
+    async (mode) => {
+      const record = {
+        connectionId: 'central-mail',
+        revision: '1',
+        userId,
+        userWorkspaceId: memberId,
+        settings: {
+          connectedAccountId: accountId,
+          mailbox: 'INBOX',
+          handle: 'inbox@example.com',
+        },
+        secrets: {},
+      };
+      let revoked = false,
+        expired = false;
+      let start: () => void = () => {},
+        release: () => void = () => {};
+      const started = new Promise<void>((resolve) => {
+        start = resolve;
+      });
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const media = {
+        receive: jest.fn(async () => {
+          start();
+          await gate;
+          return { assetId: '54f909f6-0591-48ca-b4ad-7c89a77ea339' };
+        }),
+      };
+      const f = fixture(
+        { resolve: async () => (revoked ? null : record) },
+        media,
+      );
+      const pending = f.service.observe(
+        actor,
+        { folder: 'INBOX', uid: '12', uidValidity: '123' },
+        {
+          headers: [],
+          headerLines: [],
+          attachments: [
+            {
+              filename: 'fixture.pdf',
+              mimeType: 'application/pdf',
+              disposition: 'attachment',
+              content: Buffer.from('%PDF-1.7'),
+            },
+          ],
+          from: { name: '', address: 'client@example.com' },
+          to: [{ name: '', address: 'inbox@example.com' }],
+          messageId: '<guard@example.com>',
+          text: 'Gate',
+        },
+        true,
+        () => {
+          if (expired) throw new Error('MAIL_TIMEOUT');
+        },
+      );
+      await Promise.race([
+        started,
+        pending.then(() => {
+          throw new Error('INGEST_COMPLETED_BEFORE_GATE');
+        }),
+      ]);
+      if (mode === 'revoked') revoked = true;
+      else expired = true;
+      release();
+      await expect(pending).rejects.toThrow(
+        mode === 'revoked' ? 'MAIL_CONNECTION_CHANGED' : 'MAIL_TIMEOUT',
+      );
+      expect(f.inbox.ingest).not.toHaveBeenCalled();
+    },
+  );
+});
+
+it('propagates the ingress manager through the central reader, account and membership authorization without a second pool checkout', async () => {
+  const record = {
+    connectionId: 'central-mail',
+    revision: '1',
+    userId,
+    userWorkspaceId: memberId,
+    settings: {
+      connectedAccountId: accountId,
+      mailbox: 'INBOX',
+      handle: 'inbox@example.com',
+    },
+    secrets: {},
+  };
+  let inTransaction = false;
+  let fixtureResult: ReturnType<typeof fixture>;
+  const manager = {
+    getRepository: jest.fn((target: { name: string }) => ({
+      findOne: async () =>
+        target.name === 'ConnectedAccountEntity'
+          ? fixtureResult.account
+          : { id: memberId, userId, workspaceId },
+    })),
+  };
+  const reader = {
+    resolve: jest.fn(
+      async (_workspaceId: string, _kind: string, transaction?: unknown) => {
+        if (inTransaction) expect(transaction).toBe(manager);
+        return record;
+      },
+    ),
+  };
+  const media = {
+    receive: jest.fn(
+      async (
+        _input: unknown,
+        options: { assertLive: (manager?: unknown) => Promise<void> },
+      ) => {
+        inTransaction = true;
+        try {
+          await options.assertLive(manager);
+          return { assetId: '54f909f6-0591-48ca-b4ad-7c89a77ea339' };
+        } finally {
+          inTransaction = false;
+        }
+      },
+    ),
+  };
+  fixtureResult = fixture(reader, media);
+  fixtureResult.accounts.findOne.mockImplementation(async () => {
+    if (inTransaction) throw new Error('SECOND_POOL_CHECKOUT');
+    return fixtureResult.account;
+  });
+  fixtureResult.access.assertAllowed.mockImplementation(
+    async (_actor, _manager) => {
+      if (inTransaction) expect(_manager).toBe(manager);
+    },
+  );
+  await fixtureResult.service.observe(
+    actor,
+    { folder: 'INBOX', uid: '12', uidValidity: '123' },
+    {
+      headers: [],
+      headerLines: [],
+      attachments: [
+        {
+          filename: 'fixture.pdf',
+          mimeType: 'application/pdf',
+          disposition: 'attachment',
+          content: Buffer.from('%PDF-1.7'),
+        },
+      ],
+      from: { name: '', address: 'client@example.com' },
+      to: [{ name: '', address: 'inbox@example.com' }],
+      messageId: '<manager@example.com>',
+      text: 'Bound',
+    },
+  );
+  expect(manager.getRepository).toHaveBeenCalled();
+  expect(reader.resolve).toHaveBeenCalledWith(workspaceId, 'MAIL', manager);
+  expect(fixtureResult.inbox.ingest).toHaveBeenCalledWith(
+    expect.any(Object),
+    expect.objectContaining({ assertLive: expect.any(Function) }),
+  );
 });

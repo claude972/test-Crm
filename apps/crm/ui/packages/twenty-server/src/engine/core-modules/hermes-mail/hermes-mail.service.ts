@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Cron } from '@nestjs/schedule';
 import { randomUUID } from 'node:crypto';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
-import { IsNull, Raw, Repository } from 'typeorm';
+import { type EntityManager, IsNull, Raw, Repository } from 'typeorm';
 
 import PostalMime, { type Email } from 'postal-mime';
 import { getSendableEmailHandles } from 'kovaa-lab-shared/utils';
@@ -59,6 +59,7 @@ type HermesMailConnectionsReader = {
   resolve(
     workspaceId: string,
     kind: 'MAIL',
+    manager?: EntityManager,
   ): Promise<null | {
     connectionId: string;
     revision: string;
@@ -126,14 +127,17 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     return readHermesMailBindings(this.config.get('HERMES_MAIL_CONNECTIONS'));
   }
 
-  async connection(workspaceId: string): Promise<{
+  async connection(
+    workspaceId: string,
+    manager?: EntityManager,
+  ): Promise<{
     binding: HermesMailBinding;
     account: ConnectedAccountEntity;
     actor: HermesMessagingActor;
     revision: string;
   } | null> {
     const record = this.connections
-      ? await this.connections.resolve(workspaceId, 'MAIL')
+      ? await this.connections.resolve(workspaceId, 'MAIL', manager)
       : undefined;
     if (this.connections && !record) return null;
     const binding = record
@@ -146,7 +150,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       : this.bindings().get(workspaceId);
     if (!binding) return null;
     const revision = record ? String(record.revision) : JSON.stringify(binding);
-    const account = await this.accounts.findOne({
+    const account = await (
+      manager?.getRepository(ConnectedAccountEntity) ?? this.accounts
+    ).findOne({
       where: {
         id: binding.connectedAccountId,
         workspaceId,
@@ -165,16 +171,21 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       account.authFailedAt
     )
       throw unavailable();
-    const member = await this.memberships.findOne({
+    const member = await (
+      manager?.getRepository(UserWorkspaceEntity) ?? this.memberships
+    ).findOne({
       where: { id: binding.userWorkspaceId, workspaceId, deletedAt: IsNull() },
     });
     if (!member) throw unavailable();
     // Delegation is explicit in server configuration, and revocation is live.
-    await this.access.assertAllowed({
-      workspaceId,
-      userWorkspaceId: member.id,
-      userId: member.userId,
-    });
+    await this.access.assertAllowed(
+      {
+        workspaceId,
+        userWorkspaceId: member.id,
+        userId: member.userId,
+      },
+      manager,
+    );
     return {
       binding,
       account,
@@ -423,6 +434,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
           },
           await PostalMime.parse(source),
           false,
+          assertLive,
         );
         if (saved.replay) result.replayed++;
         else result.received++;
@@ -454,10 +466,27 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     scope: { folder: string; uid: string; uidValidity: string },
     parsed: Email,
     suppressAutomation = true,
+    assertDeadline: () => void = () => {},
   ) {
+    assertDeadline();
     await this.access.assertAllowed(actor);
     const item = await this.connection(actor.workspaceId);
     if (!item) throw unavailable();
+    const assertLive = async (manager?: EntityManager) => {
+      assertDeadline();
+      await this.access.assertAllowed(actor, manager);
+      const fresh = await this.connection(actor.workspaceId, manager);
+      if (
+        !fresh ||
+        fresh.binding.connectionId !== item.binding.connectionId ||
+        fresh.account.id !== item.account.id ||
+        fresh.revision !== item.revision ||
+        fresh.account.updatedAt?.getTime() !== item.account.updatedAt?.getTime()
+      )
+        throw new ServiceUnavailableException('MAIL_CONNECTION_CHANGED');
+      assertDeadline();
+    };
+    await assertLive();
     const event = await parseHermesMail({
       source: Buffer.alloc(0),
       parsed,
@@ -515,17 +544,21 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
         continue;
       }
       try {
-        await this.access.assertAllowed(actor);
-        const asset = await this.media.receive({
-          workspaceId: actor.workspaceId,
-          conversationId,
-          providerConnectionId: item.binding.connectionId,
-          providerMessageId: event.providerMessageId + ':part:' + index,
-          kind,
-          mimeType: attachment.mimeType,
-          bytes: content,
-          filename: attachment.filename ?? 'attachment',
-        });
+        await assertLive();
+        const asset = await this.media.receive(
+          {
+            workspaceId: actor.workspaceId,
+            conversationId,
+            providerConnectionId: item.binding.connectionId,
+            providerMessageId: event.providerMessageId + ':part:' + index,
+            kind,
+            mimeType: attachment.mimeType,
+            bytes: content,
+            filename: attachment.filename ?? 'attachment',
+          },
+          { assertLive },
+        );
+        await assertLive();
         total += content.length;
         attachments.push({
           index,
@@ -545,7 +578,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
         });
       }
     }
-    await this.access.assertAllowed(actor);
+    await assertLive();
     const saved = await this.inbox.ingest(
       {
         ...event,
@@ -558,6 +591,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
         suppressAutomation:
           suppressAutomation || event.direction === 'OUTBOUND',
         observedOnly: suppressAutomation || event.direction === 'OUTBOUND',
+        assertLive,
       },
     );
     return {
