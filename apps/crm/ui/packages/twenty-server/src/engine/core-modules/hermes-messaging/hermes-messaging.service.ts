@@ -15,7 +15,7 @@ import {
 } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
-import { DataSource, type EntityManager, IsNull } from 'typeorm';
+import { DataSource, type EntityManager, In, IsNull } from 'typeorm';
 import { z } from 'zod';
 import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
@@ -694,8 +694,13 @@ export class HermesMessagingService {
       contactHandle: string;
       subject: string;
     },
+    options: {
+      allowUnsentUpdate?: boolean;
+      assertLive?: (manager?: EntityManager) => Promise<void>;
+    } = {},
   ) {
     await this.access.assertAllowed(actor);
+    await options.assertLive?.();
     const input = this.parse(
       z
         .object({
@@ -731,21 +736,53 @@ export class HermesMessagingService {
       actor.workspaceId,
       async (manager) => {
         await this.access.assertAllowed(actor, manager);
+        await options.assertLive?.(manager);
         const repository = manager.getRepository(HermesConversationEntity);
         const existing = await repository.findOneBy({
           workspaceId: actor.workspaceId,
           id,
         });
         if (existing) {
+          if (existing.providerConnectionId !== input.providerConnectionId)
+            throw new ConflictException('DRAFT_CONVERSATION_CONFLICT');
+          if (options.allowUnsentUpdate) {
+            // Any send reservation freezes this draft, including FAILED or an
+            // unknown SMTP outcome. Native observed Draft/Sent imports do not.
+            const reserved = await manager
+              .getRepository(HermesInboxMessageEntity)
+              .findOneBy({
+                workspaceId: actor.workspaceId,
+                conversationId: id,
+                direction: 'OUTBOUND',
+                status: In(['PENDING', 'ACCEPTED', 'UNCONFIRMED', 'FAILED']),
+              });
+            if (reserved) throw new ConflictException('DRAFT_ALREADY_RESERVED');
+            await options.assertLive?.(manager);
+            const updated = await repository.save({
+              ...existing,
+              contactHandle: handle,
+              subject: input.subject,
+              botMode: existing.botMode === 'OFF' ? 'OFF' : 'MANUAL',
+              botOwnerUserWorkspaceId: null,
+              botModeUpdatedAt: new Date(
+                Math.max(
+                  Date.now(),
+                  (existing.botModeUpdatedAt?.getTime() ?? 0) + 1,
+                ),
+              ),
+            });
+            await options.assertLive?.(manager);
+            return updated;
+          }
           if (
-            existing.providerConnectionId !== input.providerConnectionId ||
             existing.contactHandle !== handle ||
             existing.subject !== input.subject
           )
             throw new ConflictException('DRAFT_CONVERSATION_CONFLICT');
           return existing;
         }
-        return repository.save({
+        await options.assertLive?.(manager);
+        const created = await repository.save({
           id,
           workspaceId: actor.workspaceId,
           channel: 'EMAIL',
@@ -758,6 +795,8 @@ export class HermesMessagingService {
           botOwnerUserWorkspaceId: null,
           botModeUpdatedAt: null,
         });
+        await options.assertLive?.(manager);
+        return created;
       },
     );
     await this.access.assertAllowed(actor);
