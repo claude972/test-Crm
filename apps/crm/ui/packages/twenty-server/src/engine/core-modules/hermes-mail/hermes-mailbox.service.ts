@@ -39,7 +39,12 @@ export class HermesMailboxService {
   private readonly expiredClients = new WeakSet<ImapFlow>();
   private readonly clientAccounts = new WeakMap<
     ImapFlow,
-    { id: string; revision?: number; connectionId: string }
+    {
+      id: string;
+      revision?: number;
+      bindingRevision?: string;
+      connectionId: string;
+    }
   >();
 
   private async current(actor: HermesMessagingActor, client: ImapFlow) {
@@ -53,7 +58,8 @@ export class HermesMailboxService {
       !fresh ||
       fresh.account.id !== expected.id ||
       fresh.binding.connectionId !== expected.connectionId ||
-      fresh.account.updatedAt?.getTime() !== expected.revision
+      fresh.account.updatedAt?.getTime() !== expected.revision ||
+      fresh.revision !== expected.bindingRevision
     )
       throw new ConflictException('MAIL_CONNECTION_CHANGED');
     if (this.expiredClients.has(client))
@@ -86,6 +92,7 @@ export class HermesMailboxService {
     this.clientAccounts.set(client, {
       id: item.account.id,
       revision: item.account.updatedAt?.getTime(),
+      bindingRevision: item.revision,
       connectionId: item.binding.connectionId,
     });
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -108,6 +115,7 @@ export class HermesMailboxService {
       if (
         !fresh ||
         fresh.account.id !== item.account.id ||
+        fresh.revision !== item.revision ||
         fresh.account.updatedAt?.getTime() !== item.account.updatedAt?.getTime()
       )
         throw new ConflictException('MAIL_CONNECTION_CHANGED');
