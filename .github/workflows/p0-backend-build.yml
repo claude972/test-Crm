@@ -124,6 +124,7 @@ jobs:
         working-directory: apps/crm/ui/packages/twenty-server
         run: |
           mapfile -t suites < <(find src/engine/core-modules/hermes-messaging/__tests__ src/engine/core-modules/hermes-mail/__tests__ src/engine/core-modules/hermes-connectors/evolution/messages/__tests__ src/engine/core-modules/hermes-prospection/intake/__tests__ -type f -name '*.spec.ts' | sort)
+          suites+=(src/modules/messaging/message-import-manager/drivers/smtp/providers/__tests__/smtp-client-deadline.spec.ts)
           test "${#suites[@]}" -ge 10
           node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-jest-cache --runTestsByPath "${suites[@]}"
       - name: Typecheck backend production sources without starting the server
@@ -218,7 +219,7 @@ jobs:
           PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
           REDIS_URL: redis://127.0.0.1:6379
           P0_INTEGRATION_DISPOSABLE: 'true'
-        run: node scripts/check-hermes-integration-p0.mjs test/integration/graphql/suites/hermes-structure-dashboard.integration-spec.ts test/integration/graphql/suites/hermes-prospection.integration-spec.ts src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.integration-spec.ts
+        run: node scripts/check-hermes-integration-p0.mjs test/integration/graphql/suites/hermes-structure-dashboard.integration-spec.ts test/integration/graphql/suites/hermes-prospection.integration-spec.ts src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.integration-spec.ts test/integration/graphql/suites/hermes-events.integration-spec.ts
       - name: Publish browser evidence
         if: ${{ !cancelled() && inputs.browser-smoke }}
         uses: actions/upload-artifact@v4
