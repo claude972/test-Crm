@@ -49,6 +49,7 @@ const env = {
   APP_SECRET: appSecret,
   REDIS_CACHE_PREFIX: `p0-preview-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT ?? '1'}`,
   IS_CONFIG_VARIABLES_IN_DB_ENABLED: 'false',
+  TRUST_PROXY: 'loopback', AUTH_COOKIE_SAME_SITE: 'lax',
   TELEMETRY_ENABLED: 'false', IS_BILLING_ENABLED: 'false', IS_FDW_ENABLED: 'false', EMAIL_DRIVER: 'logger',
 };
 const delay = () => new Promise((resolve) => setTimeout(resolve, 1000));
@@ -149,6 +150,7 @@ try {
   let control = readControl();
   env.SERVER_URL = control.serverUrl;
   env.FRONTEND_URL = control.frontendUrl;
+  env.AUTH_COOKIE_ALLOWED_ORIGINS = control.frontendUrl;
   await command('dist/database/scripts/setup-db.js');
   await command('dist/command/command.js', ['run-instance-commands', '--force', '--include-slow']);
   let server;
@@ -158,6 +160,7 @@ try {
     if (!server) {
       env.SERVER_URL = control.serverUrl;
       env.FRONTEND_URL = control.frontendUrl;
+      env.AUTH_COOKIE_ALLOWED_ORIGINS = control.frontendUrl;
       server = launch('dist/main.js');
       if (withWorker) worker = launch('dist/queue-worker/queue-worker.js');
       await readiness(server, worker);
