@@ -57,7 +57,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      isOnKovaaLab CharCloud: 'globalConfig/isOnKovaaLab CharCloud',
+      isOnChatwootCloud: 'globalConfig/isOnChatwootCloud',
     }),
     isEmbeddedSignupWhatsApp() {
       return this.inbox.provider_config?.source === 'embedded_signup';
@@ -464,7 +464,7 @@ export default {
       </template>
       <WhatsappBusinessManagementToken
         v-if="
-          isOnKovaaLab CharCloud &&
+          isOnChatwootCloud &&
           inbox.provider === 'whatsapp_cloud' &&
           isEmbeddedSignupWhatsApp
         "

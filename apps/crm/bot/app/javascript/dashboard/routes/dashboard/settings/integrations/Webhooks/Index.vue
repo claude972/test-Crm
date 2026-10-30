@@ -44,11 +44,11 @@ export default {
       uiFlags: 'webhooks/getUIFlags',
       accountId: 'getCurrentAccountId',
       isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
-      isOnKovaaLab CharCloud: 'globalConfig/isOnKovaaLab CharCloud',
+      isOnChatwootCloud: 'globalConfig/isOnChatwootCloud',
     }),
     apiAndWebhooksEnabled() {
       return (
-        !this.isOnKovaaLab CharCloud ||
+        !this.isOnChatwootCloud ||
         this.isFeatureEnabledonAccount(
           this.accountId,
           FEATURE_FLAGS.API_AND_WEBHOOKS

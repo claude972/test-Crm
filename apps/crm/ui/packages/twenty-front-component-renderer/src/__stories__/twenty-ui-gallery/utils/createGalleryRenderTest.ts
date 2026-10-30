@@ -3,7 +3,7 @@ import { expect, waitFor, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { MOUNT_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 
 type CreateGalleryRenderTestOptions = {
   expectedFailedComponents: readonly string[];
@@ -13,7 +13,7 @@ type CreateGalleryRenderTestOptions = {
 export const createGalleryRenderTest =
   ({
     expectedFailedComponents,
-  }: CreateGalleryRenderTestOptions): KovaaLab CRMUiGalleryPlayFunction =>
+  }: CreateGalleryRenderTestOptions): KovaaLabCRMUiGalleryPlayFunction =>
   async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const status = await canvas.findByTestId(

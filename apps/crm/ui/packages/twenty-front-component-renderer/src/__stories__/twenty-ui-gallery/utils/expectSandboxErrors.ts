@@ -3,7 +3,7 @@ import { expect, waitFor } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { MOUNT_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type SandboxErrorExpectation } from '@/__stories__/kovaa-lab-ui-gallery/types/SandboxErrorExpectation';
+import { type SandboxErrorExpectation } from '@/__stories__/twenty-ui-gallery/types/SandboxErrorExpectation';
 
 const matchesErrorMessage = (message: unknown, pattern: string | RegExp) =>
   isString(message) &&

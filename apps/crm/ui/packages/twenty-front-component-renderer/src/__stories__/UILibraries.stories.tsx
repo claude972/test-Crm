@@ -127,7 +127,7 @@ export const MuiPreact: Story = createComponentStory('mui-example', {
   play: muiTest,
 });
 
-const kovaa-labUiTest: Story['play'] = async ({ canvasElement }) => {
+const kovaaLabUiTest: Story['play'] = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
   await canvas.findByTestId('kovaa-lab-ui-component', {}, { timeout: 30000 });
@@ -142,10 +142,10 @@ const kovaa-labUiTest: Story['play'] = async ({ canvasElement }) => {
   expect(await canvas.findByText('Count: 2')).toBeVisible();
 };
 
-export const KovaaLab CRMUiReact: Story = createComponentStory('kovaa-lab-ui-example', {
-  play: kovaa-labUiTest,
+export const KovaaLabCRMUiReact: Story = createComponentStory('kovaa-lab-ui-example', {
+  play: kovaaLabUiTest,
 });
-export const KovaaLab CRMUiPreact: Story = createComponentStory('kovaa-lab-ui-example', {
+export const KovaaLabCRMUiPreact: Story = createComponentStory('kovaa-lab-ui-example', {
   runtime: 'preact',
-  play: kovaa-labUiTest,
+  play: kovaaLabUiTest,
 });

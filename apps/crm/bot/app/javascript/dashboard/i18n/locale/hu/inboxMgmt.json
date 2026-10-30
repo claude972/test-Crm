@@ -1604,7 +1604,7 @@
         "AGENT_MESSAGE": "Hello"
       },
       "BRANDING_TEXT": "KovaaLab Char",
-      "SCRIPT_SETTINGS": "\nwindow.kovaa-labSettings = {options};"
+      "SCRIPT_SETTINGS": "\nwindow.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
       "MICROSOFT": {

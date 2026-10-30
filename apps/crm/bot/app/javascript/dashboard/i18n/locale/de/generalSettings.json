@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Sie können jetzt E-Mails in Ihrer benutzerdefinierten Domäne empfangen."
       }
     },
-    "UPDATE_KOVAALAB": "Ein Update {latestKovaaLab CharVersion} für KovaaLab Char ist verfügbar. Bitte aktualisieren Sie Ihre Instanz.",
+    "UPDATE_KOVAALAB": "Ein Update {latestChatwootVersion} für KovaaLab Char ist verfügbar. Bitte aktualisieren Sie Ihre Instanz.",
     "LEARN_MORE": "Mehr erfahren",
     "PAYMENT_PENDING": "Your account payment is past due. Please update your payment information to avoid subscription cancellation.",
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",

@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Du kan motta e-post i ditt egendefinerte domene nå."
       }
     },
-    "UPDATE_KOVAALAB": "En oppdatering av {latestKovaaLab CharVersion} for KovaaLab Char er tilgjengelig. Oppdater din instans.",
+    "UPDATE_KOVAALAB": "En oppdatering av {latestChatwootVersion} for KovaaLab Char er tilgjengelig. Oppdater din instans.",
     "LEARN_MORE": "Learn more",
     "PAYMENT_PENDING": "Your account payment is past due. Please update your payment information to avoid subscription cancellation.",
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",

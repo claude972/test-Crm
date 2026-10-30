@@ -1,5 +1,5 @@
 export const MCP_SETUP = {
-  chatGptKovaaLab CRMAppUrl:
+  chatGptKovaaLabCRMAppUrl:
     'https://chatgpt.com/apps/kovaa-lab/asdk_app_6a0ac8d7e28c8191a58ea65bb0ca3d5c',
   tooltipIds: {
     claudeInstallDisabled: 'mcp-claude-install-disabled',

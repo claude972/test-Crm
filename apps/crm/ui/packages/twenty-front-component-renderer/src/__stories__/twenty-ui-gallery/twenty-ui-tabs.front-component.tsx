@@ -1,14 +1,14 @@
 import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
-import { TabButtonContractsExample } from '@/__stories__/kovaa-lab-ui-gallery/tab-button-contracts-example';
-import { TabsContractsExample } from '@/__stories__/kovaa-lab-ui-gallery/tabs-contracts-example';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
+import { TabButtonContractsExample } from '@/__stories__/twenty-ui-gallery/tab-button-contracts-example';
+import { TabsContractsExample } from '@/__stories__/twenty-ui-gallery/tabs-contracts-example';
 
 const TabsExample = () => (
-  <KovaaLab CRMUiGalleryCard title="Tabs">
+  <KovaaLabCRMUiGalleryCard title="Tabs">
     <TabsContractsExample />
     <TabButtonContractsExample />
-  </KovaaLab CRMUiGalleryCard>
+  </KovaaLabCRMUiGalleryCard>
 );
 
 export default defineFrontComponent({

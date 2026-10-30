@@ -2,13 +2,13 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { galleryRenderTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/galleryRenderTests';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { galleryRenderTest } from '@/__stories__/twenty-ui-gallery/utils/galleryRenderTests';
 
 const OVERFLOW_LABEL = 'A long account name that truncates inside a chip';
 const TOOLTIP_CONTENT = 'Caller supplied details\nFull account name';
 
-export const chipControlsTest: KovaaLab CRMUiGalleryPlayFunction = async (
+export const chipControlsTest: KovaaLabCRMUiGalleryPlayFunction = async (
   context,
 ) => {
   await galleryRenderTest(context);

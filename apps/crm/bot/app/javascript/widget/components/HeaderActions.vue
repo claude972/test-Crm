@@ -53,7 +53,7 @@ export default {
       this.closeWindow();
       const {
         location: { origin },
-        kovaa-labWebChannel: { websiteToken },
+        chatwootWebChannel: { websiteToken },
         authToken,
       } = window;
       popoutChatWindow(

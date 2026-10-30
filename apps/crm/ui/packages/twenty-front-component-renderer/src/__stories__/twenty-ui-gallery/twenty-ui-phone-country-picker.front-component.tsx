@@ -8,7 +8,7 @@ import { Dropdown } from 'kovaa-lab-ui/components/navigation';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const COUNTRIES: PhoneCountryOption[] = [
   { value: 'FR', label: 'France', callingCode: '33', flag: '🇫🇷' },
@@ -42,7 +42,7 @@ const PhoneCountryPickerExample = () => {
   const optionsRef = useRef<HTMLDivElement>(null);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="PhoneCountryPicker">
+    <KovaaLabCRMUiGalleryCard title="PhoneCountryPicker">
       <PhoneCountryPicker
         ref={triggerRef}
         aria-label="Primary phone country"
@@ -124,7 +124,7 @@ const PhoneCountryPickerExample = () => {
       <Text role="status" aria-label="Disabled phone country selection">
         Country: none
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

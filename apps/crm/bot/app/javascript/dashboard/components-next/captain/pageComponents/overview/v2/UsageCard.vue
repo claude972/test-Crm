@@ -15,10 +15,10 @@ const props = defineProps({
 
 const emit = defineEmits(['refresh', 'buy']);
 const { t } = useI18n();
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 const { isAdmin } = useAdmin();
 
-const canBuyCredits = computed(() => isOnKovaaLab CharCloud.value && isAdmin.value);
+const canBuyCredits = computed(() => isOnChatwootCloud.value && isAdmin.value);
 
 const percentage = limits => {
   const total = Number(limits?.totalCount || 0);

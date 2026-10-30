@@ -1,7 +1,7 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import { type TwentyUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/TwentyUiGalleryPlayFunction';
-import { colorSampleTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/colorSampleTest';
+import { type TwentyUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { colorSampleTest } from '@/__stories__/twenty-ui-gallery/utils/colorSampleTest';
 
 export const commandBlockTest: TwentyUiGalleryPlayFunction = async (
   context,

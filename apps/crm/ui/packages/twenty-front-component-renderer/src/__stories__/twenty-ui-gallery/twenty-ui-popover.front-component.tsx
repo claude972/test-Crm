@@ -6,7 +6,7 @@ import {
   type PopoverRootChangeEventReason,
 } from 'kovaa-lab-ui/primitives/surfaces';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const PopoverExample = () => {
   const [open, setOpen] = useState(false);
@@ -15,7 +15,7 @@ const PopoverExample = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Popover">
+    <KovaaLabCRMUiGalleryCard title="Popover">
       <Popover.Root
         open={open}
         onOpenChange={(nextOpen, details) => {
@@ -58,7 +58,7 @@ const PopoverExample = () => {
         Details: {open ? 'open' : 'closed'}; reason: {reason}; target:{' '}
         {triggerTarget}
       </p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

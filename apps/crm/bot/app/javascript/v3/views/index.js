@@ -17,7 +17,7 @@ export const initalizeRouter = () => {
       });
     }
 
-    return validateRouteAccess(to, next, window.kovaa-labConfig);
+    return validateRouteAccess(to, next, window.chatwootConfig);
   });
 };
 

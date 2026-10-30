@@ -23,7 +23,7 @@ const normalizeUserAttribute = value => {
 
 export const getUserCookieName = () => {
   const SET_USER_COOKIE_PREFIX = 'cw_user_';
-  const { websiteToken: websiteIdentifier } = window.$kovaa-lab;
+  const { websiteToken: websiteIdentifier } = window.$chatwoot;
   return `${SET_USER_COOKIE_PREFIX}${websiteIdentifier}`;
 };
 

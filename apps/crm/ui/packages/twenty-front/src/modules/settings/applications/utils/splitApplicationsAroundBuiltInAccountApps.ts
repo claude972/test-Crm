@@ -1,4 +1,4 @@
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 
 export const splitApplicationsAroundBuiltInAccountApps = <
   TApplication extends { universalIdentifier?: string | null },
@@ -21,10 +21,10 @@ export const splitApplicationsAroundBuiltInAccountApps = <
 
   return {
     applicationsBeforeBuiltInAccountApps: applications.filter(
-      isKovaaLab CRMStandardApplication,
+      isKovaaLabCRMStandardApplication,
     ),
     applicationsAfterBuiltInAccountApps: applications.filter(
-      (application) => !isKovaaLab CRMStandardApplication(application),
+      (application) => !isKovaaLabCRMStandardApplication(application),
     ),
   };
 };

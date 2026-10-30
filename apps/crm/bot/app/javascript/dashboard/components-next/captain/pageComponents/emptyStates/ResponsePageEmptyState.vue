@@ -9,7 +9,7 @@ import { responsesList } from 'dashboard/components-next/captain/pageComponents/
 
 const emit = defineEmits(['click']);
 
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 const { replaceInstallationName } = useBranding();
 
 const onClick = () => {
@@ -24,7 +24,7 @@ const onClick = () => {
     fallback-thumbnail="/assets/images/dashboard/captain/faqs-light.svg"
     fallback-thumbnail-dark="/assets/images/dashboard/captain/faqs-dark.svg"
     learn-more-url="https://chwt.app/captain-faq"
-    :hide-actions="!isOnKovaaLab CharCloud"
+    :hide-actions="!isOnChatwootCloud"
     class="mb-8"
   />
   <EmptyStateLayout

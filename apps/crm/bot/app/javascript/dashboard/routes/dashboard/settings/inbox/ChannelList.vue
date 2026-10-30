@@ -10,14 +10,14 @@ import ChannelItem from 'dashboard/components/widgets/ChannelItem.vue';
 
 const { t } = useI18n();
 const router = useRouter();
-const { accountId, currentAccount, isOnKovaaLab CharCloud } = useAccount();
+const { accountId, currentAccount, isOnChatwootCloud } = useAccount();
 
 const globalConfig = useMapGetter('globalConfig/get');
 
 const enabledFeatures = computed(() => currentAccount.value?.features || {});
 
 const hasTiktokConfigured = computed(() => {
-  return window.kovaa-labConfig?.tiktokAppId;
+  return window.chatwootConfig?.tiktokAppId;
 });
 
 const channelList = computed(() => {
@@ -85,7 +85,7 @@ const channelList = computed(() => {
       title: t('INBOX_MGMT.ADD.AUTH.CHANNEL.TIKTOK.TITLE'),
       description:
         currentAccount.value &&
-        isOnKovaaLab CharCloud.value &&
+        isOnChatwootCloud.value &&
         !enabledFeatures.value.channel_tiktok
           ? t('INBOX_MGMT.ADD.AUTH.CHANNEL.TIKTOK.ACCESS_REQUEST_DESCRIPTION')
           : t('INBOX_MGMT.ADD.AUTH.CHANNEL.TIKTOK.DESCRIPTION'),

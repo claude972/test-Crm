@@ -13,7 +13,7 @@ import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 const { shouldShow, shouldShowPaywall } = usePolicy();
 
 const allowedLoginMethods = computed(
-  () => window.kovaa-labConfig.allowedLoginMethods || ['email']
+  () => window.chatwootConfig.allowedLoginMethods || ['email']
 );
 
 const isSamlSsoEnabled = computed(() =>
@@ -32,7 +32,7 @@ const shouldShowSaml = computed(() => {
 const showPaywall = computed(() => shouldShowPaywall('saml'));
 
 const isMfaAvailable = computed(() =>
-  parseBoolean(window.kovaa-labConfig?.isMfaEnabled)
+  parseBoolean(window.chatwootConfig?.isMfaEnabled)
 );
 
 // SAML is cloud/enterprise; self-hosted community reaches this page for MFA only.

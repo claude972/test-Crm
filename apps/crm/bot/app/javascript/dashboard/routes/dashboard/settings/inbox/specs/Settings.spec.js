@@ -12,7 +12,7 @@ describe('Inbox Settings', () => {
       isAWhatsAppCloudChannel: true,
       isEmbeddedSignupWhatsApp: true,
       isFeatureEnabledonAccount,
-      isOnKovaaLab CharCloud: true,
+      isOnChatwootCloud: true,
       inbox: {
         reauthorization_required: true,
       },

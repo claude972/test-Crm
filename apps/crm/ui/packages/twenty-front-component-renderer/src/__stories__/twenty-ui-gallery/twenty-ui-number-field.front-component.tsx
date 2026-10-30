@@ -3,7 +3,7 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Button, Field, NumberField } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const NumberFieldExample = () => {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -17,7 +17,7 @@ const NumberFieldExample = () => {
   const [scrubDetails, setScrubDetails] = useState('none');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="NumberField">
+    <KovaaLabCRMUiGalleryCard title="NumberField">
       <form aria-label="Amount form">
         <Field.Root>
           <Field.Label>Localized amount</Field.Label>
@@ -149,7 +149,7 @@ const NumberFieldExample = () => {
       <Text role="status" aria-label="Scrub state">
         {scrubDetails}
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

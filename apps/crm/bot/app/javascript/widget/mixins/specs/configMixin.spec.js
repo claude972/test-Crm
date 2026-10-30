@@ -21,7 +21,7 @@ const preChatFields = [
   },
 ];
 
-global.kovaa-labWebChannel = {
+global.chatwootWebChannel = {
   avatarUrl: 'https://test.url',
   hasAConnectedAgentBot: 'AgentBot',
   enabledFeatures: [
@@ -40,7 +40,7 @@ describe('configMixin', () => {
       mixins: [configMixin],
       data() {
         return {
-          channelConfig: reactive(global.kovaa-labWebChannel),
+          channelConfig: reactive(global.chatwootWebChannel),
         };
       },
       template: '<div />', // Render a simple div as the template

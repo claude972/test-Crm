@@ -1,6 +1,6 @@
 import { expect } from 'storybook/test';
 
-import { waitForGeometryTrackerToIdle } from '@/__stories__/kovaa-lab-ui-gallery/utils/waitForGeometryTrackerToIdle';
+import { waitForGeometryTrackerToIdle } from '@/__stories__/twenty-ui-gallery/utils/waitForGeometryTrackerToIdle';
 
 export const expectScrollPositionStable = async (
   scrollContainer: Element,

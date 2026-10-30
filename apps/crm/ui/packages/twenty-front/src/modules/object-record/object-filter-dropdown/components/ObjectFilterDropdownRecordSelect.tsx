@@ -26,7 +26,7 @@ import {
 } from 'kovaa-lab-shared/utils';
 import { doNotTranslate } from 'kovaa-lab-shared/i18n';
 import { IconUserCircle } from 'kovaa-lab-ui/icon';
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 export const EMPTY_FILTER_VALUE: string = JSON.stringify({
@@ -58,8 +58,8 @@ const ObjectFilterDropdownRecordSelectContent = ({
     fieldMetadataItemUsedInDropdownComponentSelector,
   );
 
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
 
   const { objectFilterDropdownFilterValue } =
@@ -125,7 +125,7 @@ const ObjectFilterDropdownRecordSelectContent = ({
       selectedIds: selectedRecordIds,
       objectNameSingular,
       limit: 10,
-      allowRequestsToKovaaLab CRMIcons,
+      allowRequestsToKovaaLabCRMIcons,
     });
 
   const currentWorkspaceMemberSelectableItem: SelectableItem = {

@@ -2,9 +2,9 @@ import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import InboxChannelsDialog from '../../inbox-setup/InboxChannelsDialog.vue';
 
-const { isOnKovaaLab CharCloud, isMetaInboxCreationDisabled, isTiktokEnabled } =
+const { isOnChatwootCloud, isMetaInboxCreationDisabled, isTiktokEnabled } =
   vi.hoisted(() => ({
-    isOnKovaaLab CharCloud: { value: false },
+    isOnChatwootCloud: { value: false },
     isMetaInboxCreationDisabled: { value: false },
     isTiktokEnabled: { value: true },
   }));
@@ -12,15 +12,15 @@ const { isOnKovaaLab CharCloud, isMetaInboxCreationDisabled, isTiktokEnabled } =
 vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: key => key }) }));
 vi.mock('dashboard/composables/store', () => ({
   useMapGetter: getter =>
-    getter === 'globalConfig/isOnKovaaLab CharCloud'
-      ? isOnKovaaLab CharCloud
+    getter === 'globalConfig/isOnChatwootCloud'
+      ? isOnChatwootCloud
       : { value: {} },
 }));
 vi.mock('dashboard/composables/useAccount', () => ({
   useAccount: () => ({
     isCloudFeatureEnabled: feature =>
       feature !== 'channel_tiktok' || isTiktokEnabled.value,
-    isOnKovaaLab CharCloud,
+    isOnChatwootCloud,
     isMetaInboxCreationDisabled,
   }),
 }));
@@ -50,14 +50,14 @@ const mountDialog = () =>
 
 describe('InboxChannelsDialog channel availability', () => {
   afterEach(() => {
-    delete window.kovaa-labConfig;
-    isOnKovaaLab CharCloud.value = false;
+    delete window.chatwootConfig;
+    isOnChatwootCloud.value = false;
     isMetaInboxCreationDisabled.value = false;
     isTiktokEnabled.value = true;
   });
 
   it('opens the Facebook page picker when fbAppId is configured', async () => {
-    window.kovaa-labConfig = { fbAppId: 'fb-app' };
+    window.chatwootConfig = { fbAppId: 'fb-app' };
     const wrapper = mountDialog();
 
     wrapper.vm.open('facebook');
@@ -67,7 +67,7 @@ describe('InboxChannelsDialog channel availability', () => {
   });
 
   it('shows the grid (not the picker) when fbAppId is missing', async () => {
-    window.kovaa-labConfig = {};
+    window.chatwootConfig = {};
     const wrapper = mountDialog();
 
     wrapper.vm.open('facebook');
@@ -79,9 +79,9 @@ describe('InboxChannelsDialog channel availability', () => {
   });
 
   it('shows the grid when Meta inbox creation is disabled on KovaaLab Char Cloud', async () => {
-    isOnKovaaLab CharCloud.value = true;
+    isOnChatwootCloud.value = true;
     isMetaInboxCreationDisabled.value = true;
-    window.kovaa-labConfig = { fbAppId: 'fb-app' };
+    window.chatwootConfig = { fbAppId: 'fb-app' };
     const wrapper = mountDialog();
 
     wrapper.vm.open('facebook');
@@ -92,9 +92,9 @@ describe('InboxChannelsDialog channel availability', () => {
   });
 
   it('shows TikTok as disabled when account access is disabled on KovaaLab Char Cloud', () => {
-    isOnKovaaLab CharCloud.value = true;
+    isOnChatwootCloud.value = true;
     isTiktokEnabled.value = false;
-    window.kovaa-labConfig = { tiktokAppId: 'tiktok-app' };
+    window.chatwootConfig = { tiktokAppId: 'tiktok-app' };
     const wrapper = mountDialog();
 
     const tiktokButton = wrapper

@@ -31,8 +31,8 @@ import {
   IconStar,
   IconTrash,
   IconTrashXOff,
-  IconKovaaLab CRMStar,
-  IconKovaaLab CRMStarFilled,
+  IconTwentyStar,
+  IconTwentyStarFilled,
   IconUser,
   IconX,
   IllustrationIconArray,
@@ -88,8 +88,8 @@ const CUSTOM_ICONS: Record<string, IconComponent> = {
   IconRelationManyToOne,
   IconSparkle2,
   IconTrashXOff,
-  IconKovaaLab CRMStar,
-  IconKovaaLab CRMStarFilled,
+  IconTwentyStar,
+  IconTwentyStarFilled,
 };
 
 const ILLUSTRATION_ICONS: Record<string, IconComponent> = {

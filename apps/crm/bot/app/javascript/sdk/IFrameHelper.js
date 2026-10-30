@@ -71,11 +71,11 @@ export const IFrameHelper = {
     iframe.id = 'kovaa-lab_live_chat_widget';
     iframe.style.visibility = 'hidden';
 
-    let holderClassName = `woot-widget-holder woot--hide woot-elements--${window.$kovaa-lab.position}`;
-    if (window.$kovaa-lab.hideMessageBubble) {
+    let holderClassName = `woot-widget-holder woot--hide woot-elements--${window.$chatwoot.position}`;
+    if (window.$chatwoot.hideMessageBubble) {
       holderClassName += ` woot-widget--without-bubble`;
     }
-    if (isFlatWidgetStyle(window.$kovaa-lab.widgetStyle)) {
+    if (isFlatWidgetStyle(window.$chatwoot.widgetStyle)) {
       holderClassName += ` woot-widget-holder--flat`;
     }
 
@@ -139,7 +139,7 @@ export const IFrameHelper = {
   },
 
   setupAudioListeners: () => {
-    const { baseUrl = '' } = window.$kovaa-lab;
+    const { baseUrl = '' } = window.$chatwoot;
     getAlertAudio(baseUrl, { type: 'widget', alertTone: 'ding' }).then(() =>
       initOnEvents.forEach(event => {
         document.removeEventListener(
@@ -153,33 +153,33 @@ export const IFrameHelper = {
 
   events: {
     loaded: message => {
-      updateAuthCookie(message.config.authToken, window.$kovaa-lab.baseDomain);
-      window.$kovaa-lab.hasLoaded = true;
+      updateAuthCookie(message.config.authToken, window.$chatwoot.baseDomain);
+      window.$chatwoot.hasLoaded = true;
       const campaignsSnoozedTill = Cookies.get('cw_snooze_campaigns_till');
       IFrameHelper.sendMessage('config-set', {
-        locale: window.$kovaa-lab.locale,
-        position: window.$kovaa-lab.position,
-        hideMessageBubble: window.$kovaa-lab.hideMessageBubble,
-        showPopoutButton: window.$kovaa-lab.showPopoutButton,
-        widgetStyle: window.$kovaa-lab.widgetStyle,
-        darkMode: window.$kovaa-lab.darkMode,
-        showUnreadMessagesDialog: window.$kovaa-lab.showUnreadMessagesDialog,
+        locale: window.$chatwoot.locale,
+        position: window.$chatwoot.position,
+        hideMessageBubble: window.$chatwoot.hideMessageBubble,
+        showPopoutButton: window.$chatwoot.showPopoutButton,
+        widgetStyle: window.$chatwoot.widgetStyle,
+        darkMode: window.$chatwoot.darkMode,
+        showUnreadMessagesDialog: window.$chatwoot.showUnreadMessagesDialog,
         campaignsSnoozedTill,
-        welcomeTitle: window.$kovaa-lab.welcomeTitle,
-        welcomeDescription: window.$kovaa-lab.welcomeDescription,
-        availableMessage: window.$kovaa-lab.availableMessage,
-        unavailableMessage: window.$kovaa-lab.unavailableMessage,
-        enableFileUpload: window.$kovaa-lab.enableFileUpload,
-        enableEmojiPicker: window.$kovaa-lab.enableEmojiPicker,
-        enableEndConversation: window.$kovaa-lab.enableEndConversation,
+        welcomeTitle: window.$chatwoot.welcomeTitle,
+        welcomeDescription: window.$chatwoot.welcomeDescription,
+        availableMessage: window.$chatwoot.availableMessage,
+        unavailableMessage: window.$chatwoot.unavailableMessage,
+        enableFileUpload: window.$chatwoot.enableFileUpload,
+        enableEmojiPicker: window.$chatwoot.enableEmojiPicker,
+        enableEndConversation: window.$chatwoot.enableEndConversation,
       });
       IFrameHelper.onLoad({
         widgetColor: message.config.channelConfig.widgetColor,
       });
       IFrameHelper.toggleCloseButton();
 
-      if (window.$kovaa-lab.user) {
-        IFrameHelper.sendMessage('set-user', window.$kovaa-lab.user);
+      if (window.$chatwoot.user) {
+        IFrameHelper.sendMessage('set-user', window.$chatwoot.user);
       }
 
       window.playAudioAlert = () => {};
@@ -188,7 +188,7 @@ export const IFrameHelper = {
         document.addEventListener(e, IFrameHelper.setupAudioListeners, false);
       });
 
-      if (!window.$kovaa-lab.resetTriggered) {
+      if (!window.$chatwoot.resetTriggered) {
         dispatchWindowEvent({ eventName: KOVAALAB_READY });
       }
     },
@@ -203,15 +203,15 @@ export const IFrameHelper = {
       dispatchWindowEvent({ eventName, data });
     },
     setBubbleLabel(message) {
-      setBubbleText(window.$kovaa-lab.launcherTitle || message.label);
+      setBubbleText(window.$chatwoot.launcherTitle || message.label);
     },
 
     setAuthCookie({ data: { widgetAuthToken } }) {
-      updateAuthCookie(widgetAuthToken, window.$kovaa-lab.baseDomain);
+      updateAuthCookie(widgetAuthToken, window.$chatwoot.baseDomain);
     },
 
     setCampaignReadOn() {
-      updateCampaignReadStatus(window.$kovaa-lab.baseDomain);
+      updateCampaignReadStatus(window.$chatwoot.baseDomain);
     },
 
     postback(data) {
@@ -234,7 +234,7 @@ export const IFrameHelper = {
 
     popoutChatWindow: ({ baseUrl, websiteToken, locale }) => {
       const cwCookie = Cookies.get('cw_conversation');
-      window.$kovaa-lab.toggle('close');
+      window.$chatwoot.toggle('close');
       popoutChatWindow(baseUrl, websiteToken, locale, cwCookie);
     },
 
@@ -268,7 +268,7 @@ export const IFrameHelper = {
 
     resetUnreadMode: () => removeUnreadClass(),
     handleNotificationDot: event => {
-      if (window.$kovaa-lab.hideMessageBubble) {
+      if (window.$chatwoot.hideMessageBubble) {
         return;
       }
 
@@ -303,13 +303,13 @@ export const IFrameHelper = {
     if (IFrameHelper.getBubbleHolder().length) {
       return;
     }
-    createBubbleHolder(window.$kovaa-lab.hideMessageBubble);
+    createBubbleHolder(window.$chatwoot.hideMessageBubble);
     onLocationChangeListener();
 
     let className = 'woot-widget-bubble';
-    let closeBtnClassName = `woot-elements--${window.$kovaa-lab.position} woot-widget-bubble woot--close woot--hide`;
+    let closeBtnClassName = `woot-elements--${window.$chatwoot.position} woot-widget-bubble woot--close woot--hide`;
 
-    if (isFlatWidgetStyle(window.$kovaa-lab.widgetStyle)) {
+    if (isFlatWidgetStyle(window.$chatwoot.widgetStyle)) {
       className += ' woot-widget-bubble--flat';
       closeBtnClassName += ' woot-widget-bubble--flat';
     }

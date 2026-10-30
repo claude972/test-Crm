@@ -1,7 +1,7 @@
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-export const buttonControlsTest: KovaaLab CRMUiGalleryPlayFunction = async (
+export const buttonControlsTest: KovaaLabCRMUiGalleryPlayFunction = async (
   context,
 ) => {
   const canvas = within(context.canvasElement);

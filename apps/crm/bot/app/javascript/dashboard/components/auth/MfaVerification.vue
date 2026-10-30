@@ -29,7 +29,7 @@ const props = defineProps({
 const emit = defineEmits(['verified', 'cancel', 'setupRequired']);
 
 const { t } = useI18n();
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 
 const OTP = 'otp';
 const BACKUP = 'backup';
@@ -53,7 +53,7 @@ const canSubmit = computed(() =>
 );
 
 const contactDescKey = computed(() =>
-  isOnKovaaLab CharCloud.value ? 'CONTACT_DESC_CLOUD' : 'CONTACT_DESC_SELF_HOSTED'
+  isOnChatwootCloud.value ? 'CONTACT_DESC_CLOUD' : 'CONTACT_DESC_SELF_HOSTED'
 );
 
 // Device verification delivers the code by email; the TOTP tabs, backup codes

@@ -13,7 +13,7 @@ const { t } = useI18n();
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 
 const { updateUISettings } = useUISettings();
 
@@ -29,7 +29,7 @@ const getDefaultLocale = slug => {
 };
 
 const fetchSSLStatus = () => {
-  if (!isOnKovaaLab CharCloud.value) return;
+  if (!isOnChatwootCloud.value) return;
 
   const { portalSlug } = route.params;
   store.dispatch('portals/sslStatus', {
@@ -142,7 +142,7 @@ const handleUpdatePortalConfiguration = portalObj => {
   updatePortalSettings(portalObj);
 
   // If custom domain is added or updated, fetch SSL status after a delay of 5 seconds (only on KovaaLab Char cloud)
-  if (portalObj?.custom_domain && isOnKovaaLab CharCloud.value) {
+  if (portalObj?.custom_domain && isOnChatwootCloud.value) {
     setTimeout(() => {
       fetchSSLStatus();
     }, SSL_STATUS_FETCH_INTERVAL);

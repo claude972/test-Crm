@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "カスタムドメインでのメール受信が有効になりました。"
       }
     },
-    "UPDATE_KOVAALAB": "KovaaLab Charのアップデート {latestKovaaLab CharVersion} が利用可能です。インスタンスを更新してください。",
+    "UPDATE_KOVAALAB": "KovaaLab Charのアップデート {latestChatwootVersion} が利用可能です。インスタンスを更新してください。",
     "LEARN_MORE": "詳細を見る",
     "PAYMENT_PENDING": "Your account payment is past due. Please update your payment information to avoid subscription cancellation.",
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",

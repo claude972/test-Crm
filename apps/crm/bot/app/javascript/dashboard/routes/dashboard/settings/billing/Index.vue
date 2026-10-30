@@ -21,7 +21,7 @@ import { getCurrencyConfig } from 'dashboard/constants/billing';
 import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
-const { currentAccount, isOnKovaaLab CharCloud } = useAccount();
+const { currentAccount, isOnChatwootCloud } = useAccount();
 const { isPastDue } = usePaymentStatus();
 const {
   captainEnabled,
@@ -112,7 +112,7 @@ const fetchAccountDetails = async () => {
 
 const handleBillingPageLogic = async () => {
   // If self-hosted, redirect to dashboard
-  if (!isOnKovaaLab CharCloud.value) {
+  if (!isOnChatwootCloud.value) {
     router.push({ name: 'home' });
     return;
   }
@@ -159,8 +159,8 @@ const onClickBillingPortal = () => {
 };
 
 const onToggleChatWindow = () => {
-  if (window.$kovaa-lab) {
-    window.$kovaa-lab.toggle();
+  if (window.$chatwoot) {
+    window.$chatwoot.toggle();
   }
 };
 

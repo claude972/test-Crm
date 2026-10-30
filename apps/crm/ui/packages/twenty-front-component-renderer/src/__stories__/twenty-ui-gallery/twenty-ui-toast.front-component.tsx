@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Toast } from 'kovaa-lab-ui/components/feedback';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const ToastExample = () => {
   const [closed, setClosed] = useState(false);
   const [action, setAction] = useState('none');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Toast">
+    <KovaaLabCRMUiGalleryCard title="Toast">
       {!closed && (
         <Toast
           status="success"
@@ -26,7 +26,7 @@ const ToastExample = () => {
       <p>
         Notification: {closed ? 'closed' : 'visible'}; Action: {action}
       </p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

@@ -30,11 +30,11 @@ const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const { isEnterprise, enterprisePlanName } = useConfig();
-const { isOnKovaaLab CharCloud } = useAccount();
+const { isOnChatwootCloud } = useAccount();
 
 const isLicensedSelfHosted = computed(
   () =>
-    !isOnKovaaLab CharCloud.value &&
+    !isOnChatwootCloud.value &&
     isEnterprise &&
     enterprisePlanName !== 'community'
 );
@@ -320,7 +320,7 @@ const navigateToAssignmentPolicyEdit = () => {
 };
 
 const handleUpgrade = () => {
-  if (!isOnKovaaLab CharCloud.value) {
+  if (!isOnChatwootCloud.value) {
     window.open(
       'https://www.kovaa-lab.com/pricing/self-hosted-plans',
       '_blank',
@@ -646,7 +646,7 @@ onMounted(() => {
                     </p>
                     <p v-else class="text-body-main text-n-slate-11 mb-1">
                       {{
-                        isOnKovaaLab CharCloud
+                        isOnChatwootCloud
                           ? $t('INBOX_MGMT.ASSIGNMENT.UPGRADE_PROMPT')
                           : $t('INBOX_MGMT.ASSIGNMENT.SELF_HOSTED_PROMPT')
                       }}
@@ -654,7 +654,7 @@ onMounted(() => {
                     <NextButton
                       v-if="!isLicensedSelfHosted"
                       :label="
-                        isOnKovaaLab CharCloud
+                        isOnChatwootCloud
                           ? $t('INBOX_MGMT.ASSIGNMENT.UPGRADE_TO_BUSINESS')
                           : $t('INBOX_MGMT.ASSIGNMENT.UPGRADE_TO_PREMIUM')
                       "

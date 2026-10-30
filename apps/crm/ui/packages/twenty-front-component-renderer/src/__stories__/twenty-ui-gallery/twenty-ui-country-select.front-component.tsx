@@ -5,7 +5,7 @@ import { CountrySelect } from 'kovaa-lab-ui/components/input';
 import { Dropdown } from 'kovaa-lab-ui/components/navigation';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const COUNTRIES = [
   { value: 'FR', label: 'France', flag: '🇫🇷' },
@@ -26,7 +26,7 @@ const CountrySelectExample = () => {
   const [triggerClickCount, setTriggerClickCount] = useState(0);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Country selection">
+    <KovaaLabCRMUiGalleryCard title="Country selection">
       <CountrySelect
         countries={COUNTRIES}
         label="Billing country"
@@ -145,7 +145,7 @@ const CountrySelectExample = () => {
       <p role="status" aria-label="Country trigger click count">
         {triggerClickCount}
       </p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

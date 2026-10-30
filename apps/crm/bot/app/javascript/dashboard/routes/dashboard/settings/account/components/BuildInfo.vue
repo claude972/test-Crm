@@ -10,18 +10,18 @@ import semver from 'semver';
 const { t } = useI18n();
 const { currentAccount } = useAccount();
 
-const latestKovaaLab CharVersion = computed(() => {
-  return currentAccount.value.latest_kovaa-lab_version;
+const latestChatwootVersion = computed(() => {
+  return currentAccount.value.latest_chatwoot_version;
 });
 
 const globalConfig = useMapGetter('globalConfig/get');
 
 const hasAnUpdateAvailable = computed(() => {
-  if (!semver.valid(latestKovaaLab CharVersion.value)) {
+  if (!semver.valid(latestChatwootVersion.value)) {
     return false;
   }
 
-  return semver.lt(globalConfig.value.appVersion, latestKovaaLab CharVersion.value);
+  return semver.lt(globalConfig.value.appVersion, latestChatwootVersion.value);
 });
 
 const gitSha = computed(() => {
@@ -38,7 +38,7 @@ const copyGitSha = () => {
     <div v-if="hasAnUpdateAvailable && globalConfig.displayManifest">
       {{
         t('GENERAL_SETTINGS.UPDATE_KOVAALAB', {
-          latestKovaaLab CharVersion: latestKovaaLab CharVersion,
+          latestChatwootVersion: latestChatwootVersion,
         })
       }}
     </div>

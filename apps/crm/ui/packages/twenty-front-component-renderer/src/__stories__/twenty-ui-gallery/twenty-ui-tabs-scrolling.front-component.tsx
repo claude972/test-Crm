@@ -2,8 +2,8 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { DirectionProvider } from 'kovaa-lab-ui/primitives/layout';
 import { Tabs } from 'kovaa-lab-ui/primitives/navigation';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
-import { createNumberedLabels } from '@/__stories__/kovaa-lab-ui-gallery/utils/createNumberedLabels';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
+import { createNumberedLabels } from '@/__stories__/twenty-ui-gallery/utils/createNumberedLabels';
 
 const SECTION_LABELS = createNumberedLabels({ prefix: 'Section', count: 12 });
 
@@ -27,14 +27,14 @@ const OverflowingTabs = ({ label }: { label: string }) => (
 );
 
 const TabsScrollingExample = () => (
-  <KovaaLab CRMUiGalleryCard title="Tabs scrolling">
+  <KovaaLabCRMUiGalleryCard title="Tabs scrolling">
     <OverflowingTabs label="Sections" />
     <DirectionProvider direction="rtl">
       <div dir="rtl">
         <OverflowingTabs label="Sections RTL" />
       </div>
     </DirectionProvider>
-  </KovaaLab CRMUiGalleryCard>
+  </KovaaLabCRMUiGalleryCard>
 );
 
 export default defineFrontComponent({

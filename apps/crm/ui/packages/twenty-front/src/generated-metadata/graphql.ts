@@ -1381,7 +1381,7 @@ export type ClientConfig = {
   aiEvaluationModels: Array<ClientAiEvaluationModelConfig>;
   aiModelTiers: Array<ClientAiModelTierConfig>;
   aiModels: Array<ClientAiModelConfig>;
-  allowRequestsToKovaaLab CRMIcons: Scalars['Boolean']['output'];
+  allowRequestsToKovaaLabCRMIcons: Scalars['Boolean']['output'];
   analyticsEnabled: Scalars['Boolean']['output'];
   api: ApiConfig;
   appVersion?: Maybe<Scalars['String']['output']>;

@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "지금 사용자 지정 도메인에서 이메일을 받을 수 있습니다."
       }
     },
-    "UPDATE_KOVAALAB": "KovaaLab Char에 대한 {latestKovaaLab CharVersion} 업데이트를 사용할 수 있습니다. 인스턴스를 업데이트하십시오.",
+    "UPDATE_KOVAALAB": "KovaaLab Char에 대한 {latestChatwootVersion} 업데이트를 사용할 수 있습니다. 인스턴스를 업데이트하십시오.",
     "LEARN_MORE": "자세히 알아보기",
     "PAYMENT_PENDING": "Your account payment is past due. Please update your payment information to avoid subscription cancellation.",
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",

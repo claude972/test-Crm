@@ -87,7 +87,7 @@ export const FormWorkspaceMemberFilterValueInput = ({
       selectedIds: selectedRecordIds,
       objectNameSingular: CoreObjectNameSingular.WorkspaceMember,
       limit: 10,
-      allowRequestsToKovaaLab CRMIcons: false,
+      allowRequestsToKovaaLabCRMIcons: false,
     });
 
   const emitChange = useCallback(

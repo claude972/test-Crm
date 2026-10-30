@@ -4,7 +4,7 @@ import { Switch } from 'kovaa-lab-ui/primitives/input';
 
 import { isDefined } from 'kovaa-lab-ui/utilities';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const SwitchExample = () => {
   const [checked, setChecked] = useState(false);
@@ -15,7 +15,7 @@ const SwitchExample = () => {
   const [composition, setComposition] = useState('pending');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Switch">
+    <KovaaLabCRMUiGalleryCard title="Switch">
       <Switch.Root
         ref={rootRef}
         inputRef={inputRef}
@@ -51,7 +51,7 @@ const SwitchExample = () => {
         Notifications: {checked ? 'enabled' : 'disabled'}; Composition:{' '}
         {composition}
       </p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

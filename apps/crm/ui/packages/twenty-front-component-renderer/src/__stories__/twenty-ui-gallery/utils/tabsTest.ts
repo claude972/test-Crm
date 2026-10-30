@@ -2,9 +2,9 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { expectAssertionToKeepFailing } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectAssertionToKeepFailing';
-import { tabButtonTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/tabButtonTest';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { expectAssertionToKeepFailing } from '@/__stories__/twenty-ui-gallery/utils/expectAssertionToKeepFailing';
+import { tabButtonTest } from '@/__stories__/twenty-ui-gallery/utils/tabButtonTest';
 
 const INDICATOR_GEOMETRY_TOLERANCE = 2;
 
@@ -28,7 +28,7 @@ const expectIndicatorAlignedWithTab = ({
   ).toBeLessThanOrEqual(INDICATOR_GEOMETRY_TOLERANCE);
 };
 
-export const tabsTest: KovaaLab CRMUiGalleryPlayFunction = async (context) => {
+export const tabsTest: KovaaLabCRMUiGalleryPlayFunction = async (context) => {
   const canvas = within(context.canvasElement);
   await expectFrontComponentMounted(canvas);
 

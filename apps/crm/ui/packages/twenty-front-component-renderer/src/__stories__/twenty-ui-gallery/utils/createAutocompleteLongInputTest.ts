@@ -2,12 +2,12 @@ import { expect, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
-import { LONG_INPUT_VALUES } from '@/__stories__/kovaa-lab-ui-gallery/constants/LongInputValues';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { expectCaretAt } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectCaretAt';
-import { expectInputScrolledToEdge } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectInputScrolledToEdge';
-import { focusWithoutScrolling } from '@/__stories__/kovaa-lab-ui-gallery/utils/focusWithoutScrolling';
-import { pressKeyboardKeys } from '@/__stories__/kovaa-lab-ui-gallery/utils/pressKeyboardKeys';
+import { LONG_INPUT_VALUES } from '@/__stories__/twenty-ui-gallery/constants/LongInputValues';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { expectCaretAt } from '@/__stories__/twenty-ui-gallery/utils/expectCaretAt';
+import { expectInputScrolledToEdge } from '@/__stories__/twenty-ui-gallery/utils/expectInputScrolledToEdge';
+import { focusWithoutScrolling } from '@/__stories__/twenty-ui-gallery/utils/focusWithoutScrolling';
+import { pressKeyboardKeys } from '@/__stories__/twenty-ui-gallery/utils/pressKeyboardKeys';
 
 const LONG_INPUTS = [
   {
@@ -23,7 +23,7 @@ const LONG_INPUTS = [
 ];
 
 export const createAutocompleteLongInputTest =
-  ({ isTrusted }: { isTrusted: boolean }): KovaaLab CRMUiGalleryPlayFunction =>
+  ({ isTrusted }: { isTrusted: boolean }): KovaaLabCRMUiGalleryPlayFunction =>
   async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expectFrontComponentMounted(canvas);

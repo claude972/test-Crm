@@ -27,7 +27,7 @@ vi.mock('dashboard/composables/useAccount', () => ({
   useAccount: () => ({
     accountId: ref(1),
     isCloudFeatureEnabled: feature => featureState.enabled.has(feature),
-    isOnKovaaLab CharCloud: featureState.cloud,
+    isOnChatwootCloud: featureState.cloud,
   }),
 }));
 

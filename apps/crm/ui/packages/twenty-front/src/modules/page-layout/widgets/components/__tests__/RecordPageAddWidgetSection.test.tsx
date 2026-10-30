@@ -1,7 +1,7 @@
 import { RecordPageAddWidgetSection } from '@/page-layout/widgets/components/RecordPageAddWidgetSection';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type * as KovaaLab CRMIcons from 'kovaa-lab-ui/icon';
+import type * as KovaaLabCRMIcons from 'kovaa-lab-ui/icon';
 
 const mockNavigateToMoreWidgets = jest.fn();
 const mockCreateRecordPageNoteWidget = jest.fn(() => ({ id: 'new-note' }));
@@ -10,7 +10,7 @@ const mockCreateRecordPageFieldsWidget = jest.fn(() => ({ id: 'new-fields' }));
 const mockInsertCreatedWidgetAtContext = jest.fn();
 
 jest.mock('kovaa-lab-ui/icon', () => ({
-  ...jest.requireActual<typeof KovaaLab CRMIcons>('kovaa-lab-ui/icon'),
+  ...jest.requireActual<typeof KovaaLabCRMIcons>('kovaa-lab-ui/icon'),
   IconListDetails: () => <svg role="img" aria-label="Fields group icon" />,
   IconListSearch: () => <svg role="img" aria-label="Field icon" />,
   IconNotes: () => <svg role="img" aria-label="Note icon" />,

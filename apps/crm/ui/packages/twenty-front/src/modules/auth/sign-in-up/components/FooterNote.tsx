@@ -2,7 +2,7 @@ import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { useWorkspaceBypass } from '@/auth/sign-in-up/hooks/useWorkspaceBypass';
-import { getKovaaLab CRMWebsiteUrl } from '@/auth/utils/getKovaaLab CRMWebsiteUrl';
+import { getKovaaLabCRMWebsiteUrl } from '@/auth/utils/getTwentyWebsiteUrl';
 import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace';
 import { ONBOARDING_CONTENT_BLOCK_WIDTH } from '@/onboarding/constants/OnboardingContentBlockWidth';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
@@ -69,7 +69,7 @@ export const FooterNote = () => {
       <StyledCopyContainer>
         <Trans>By using KovaaLab CRM, you agree to the</Trans>{' '}
         <a
-          href={getKovaaLab CRMWebsiteUrl(i18n.locale, 'terms')}
+          href={getKovaaLabCRMWebsiteUrl(i18n.locale, 'terms')}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -77,7 +77,7 @@ export const FooterNote = () => {
         </a>{' '}
         <Trans>and</Trans>{' '}
         <a
-          href={getKovaaLab CRMWebsiteUrl(i18n.locale, 'privacy-policy')}
+          href={getKovaaLabCRMWebsiteUrl(i18n.locale, 'privacy-policy')}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -99,7 +99,7 @@ export const FooterNote = () => {
         </>
       )}
       <a
-        href={getKovaaLab CRMWebsiteUrl(i18n.locale, 'privacy-policy')}
+        href={getKovaaLabCRMWebsiteUrl(i18n.locale, 'privacy-policy')}
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -107,7 +107,7 @@ export const FooterNote = () => {
       </a>
       <StyledSeparator>•</StyledSeparator>
       <a
-        href={getKovaaLab CRMWebsiteUrl(i18n.locale, 'terms')}
+        href={getKovaaLabCRMWebsiteUrl(i18n.locale, 'terms')}
         target="_blank"
         rel="noopener noreferrer"
       >

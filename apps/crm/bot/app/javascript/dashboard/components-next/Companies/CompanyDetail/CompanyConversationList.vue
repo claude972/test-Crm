@@ -43,7 +43,7 @@ const openConversation = (conversation, event) => {
   );
   if (event.metaKey || event.ctrlKey) {
     window.open(
-      `${window.kovaa-labConfig.hostURL}${path}`,
+      `${window.chatwootConfig.hostURL}${path}`,
       '_blank',
       'noopener,noreferrer'
     );

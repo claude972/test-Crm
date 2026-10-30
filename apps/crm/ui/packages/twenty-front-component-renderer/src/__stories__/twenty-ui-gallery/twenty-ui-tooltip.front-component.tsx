@@ -4,7 +4,7 @@ import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Tooltip } from 'kovaa-lab-ui/primitives/surfaces';
 import { ThemeProvider } from 'kovaa-lab-ui/theme';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const TooltipExample = () => {
   const [open, setOpen] = useState(false);
@@ -17,7 +17,7 @@ const TooltipExample = () => {
 
   return (
     <ThemeProvider colorScheme="light" applyToRoot={false}>
-      <KovaaLab CRMUiGalleryCard title="Tooltip">
+      <KovaaLabCRMUiGalleryCard title="Tooltip">
         <Tooltip
           content="Download visible records as a CSV file"
           open={open}
@@ -60,7 +60,7 @@ const TooltipExample = () => {
         <p role="status" aria-busy={!ready}>
           Export help: {open ? 'open' : 'closed'}
         </p>
-      </KovaaLab CRMUiGalleryCard>
+      </KovaaLabCRMUiGalleryCard>
     </ThemeProvider>
   );
 };

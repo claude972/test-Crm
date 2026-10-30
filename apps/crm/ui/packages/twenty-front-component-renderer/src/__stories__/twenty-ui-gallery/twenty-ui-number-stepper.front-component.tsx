@@ -4,7 +4,7 @@ import { NumberStepper } from 'kovaa-lab-ui/components';
 import { Button, Field } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const NumberStepperExample = () => {
   const [value, setValue] = useState<number | null>(3);
@@ -14,7 +14,7 @@ const NumberStepperExample = () => {
   const [editChanges, setEditChanges] = useState(0);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="NumberStepper">
+    <KovaaLabCRMUiGalleryCard title="NumberStepper">
       <form
         aria-label="Quantity form"
         onSubmit={(event) => {
@@ -71,7 +71,7 @@ const NumberStepperExample = () => {
       <Text role="status" aria-label="Editing state">
         Amount: {editableValue ?? 'empty'}; Changes: {editChanges}
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

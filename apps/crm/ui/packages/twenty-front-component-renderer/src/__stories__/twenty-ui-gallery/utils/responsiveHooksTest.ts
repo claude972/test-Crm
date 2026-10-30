@@ -1,9 +1,9 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import { RESPONSIVE_HOOKS_WIDGET_SIZING } from '@/__stories__/kovaa-lab-ui-gallery/constants/RESPONSIVE_HOOKS_WIDGET_SIZING';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { RESPONSIVE_HOOKS_WIDGET_SIZING } from '@/__stories__/twenty-ui-gallery/constants/RESPONSIVE_HOOKS_WIDGET_SIZING';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 
-export const responsiveHooksTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const responsiveHooksTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
   args,
 }) => {

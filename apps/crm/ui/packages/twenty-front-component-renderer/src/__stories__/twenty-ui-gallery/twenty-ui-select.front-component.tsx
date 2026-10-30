@@ -8,7 +8,7 @@ import {
 } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const SelectExample = () => {
   const [value, setValue] = useState<string | null>('new');
@@ -22,7 +22,7 @@ const SelectExample = () => {
   const itemRef = useRef<HTMLElement>(null);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Select">
+    <KovaaLabCRMUiGalleryCard title="Select">
       <form aria-label="Account classification">
         <Field.Root>
           <Field.Label>Account stage</Field.Label>
@@ -132,7 +132,7 @@ const SelectExample = () => {
           Segments: {segments.join(', ') || 'empty'}
         </Text>
       </form>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

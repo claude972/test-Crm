@@ -9,12 +9,12 @@ export default defineConfig(() => {
   return {
     root: __dirname,
     cacheDir:
-      '../../node_modules/.vite/packages/kovaa-lab-front-component-renderer',
+      '../../node_modules/.vite/packages/twenty-front-component-renderer',
     resolve: {
       tsconfigPaths: true,
-      alias: {
-        '@/': path.resolve(__dirname, 'src') + '/',
-      },
+      alias: [
+        { find: /^@\//, replacement: path.resolve(__dirname, 'src') + '/' },
+      ],
     },
     worker: {
       format: 'iife',

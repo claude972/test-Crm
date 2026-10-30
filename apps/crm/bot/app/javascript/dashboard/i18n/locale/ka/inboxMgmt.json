@@ -1604,7 +1604,7 @@
         "AGENT_MESSAGE": "სალამი"
       },
       "BRANDING_TEXT": "მოძრავებულია KovaaLab Char-ის მიერ",
-      "SCRIPT_SETTINGS": "\n      window.kovaa-labSettings = {options};"
+      "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
       "MICROSOFT": {

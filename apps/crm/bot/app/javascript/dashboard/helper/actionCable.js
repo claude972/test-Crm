@@ -29,7 +29,7 @@ const getFilteredUnreadCountsRefreshRetryDelay = () =>
 
 class ActionCableConnector extends BaseActionCableConnector {
   constructor(app, pubsubToken) {
-    const { websocketURL = '' } = window.kovaa-labConfig || {};
+    const { websocketURL = '' } = window.chatwootConfig || {};
     super(app, pubsubToken, websocketURL);
     this.CancelTyping = [];
     this.pendingHandoffAlerts = new Map();

@@ -1604,7 +1604,7 @@
         "AGENT_MESSAGE": "Hej"
       },
       "BRANDING_TEXT": "Drevet af KovaaLab Char",
-      "SCRIPT_SETTINGS": "\n      window.kovaa-labSettings = {options};"
+      "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
       "MICROSOFT": {

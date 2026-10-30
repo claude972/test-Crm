@@ -38,7 +38,7 @@ describe('campaign analytics paywall', () => {
     replace = vi.fn();
     useRouter.mockReturnValue({ push, replace });
     useAccount.mockReturnValue({
-      isOnKovaaLab CharCloud: ref(true),
+      isOnChatwootCloud: ref(true),
       currentAccount,
       accountScopedRoute: name => ({ name, params: { accountId: 1 } }),
     });
@@ -53,7 +53,7 @@ describe('campaign analytics paywall', () => {
         .exists()
     ).toBe(false);
     const paywall = wrapper.findComponent({ name: 'BasePaywallModal' });
-    expect(paywall.props('isOnKovaaLab CharCloud')).toBe(true);
+    expect(paywall.props('isOnChatwootCloud')).toBe(true);
     paywall.vm.$emit('upgrade');
     expect(push).toHaveBeenCalledWith({
       name: 'billing_settings_index',

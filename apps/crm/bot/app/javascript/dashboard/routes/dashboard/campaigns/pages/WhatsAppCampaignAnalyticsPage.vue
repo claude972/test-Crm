@@ -9,12 +9,12 @@ import WhatsAppCampaignAnalyticsContent from './WhatsAppCampaignAnalyticsContent
 
 const router = useRouter();
 const route = useRoute();
-const { accountScopedRoute, isOnKovaaLab CharCloud, currentAccount } = useAccount();
+const { accountScopedRoute, isOnChatwootCloud, currentAccount } = useAccount();
 const { canViewAnalytics, showPaywall } = useCampaignAnalytics();
 const currentUser = useMapGetter('getCurrentUser');
 const isSuperAdmin = computed(() => currentUser.value.type === 'SuperAdmin');
 const paywallKey = computed(() =>
-  isOnKovaaLab CharCloud.value ? 'PAYWALL' : 'ENTERPRISE_PAYWALL'
+  isOnChatwootCloud.value ? 'PAYWALL' : 'ENTERPRISE_PAYWALL'
 );
 const openBilling = () =>
   router.push(accountScopedRoute('billing_settings_index'));
@@ -43,7 +43,7 @@ watch(
     <BasePaywallModal
       feature-prefix="CAMPAIGN.WHATSAPP.ANALYTICS"
       :i18n-key="paywallKey"
-      :is-on-kovaa-lab-cloud="isOnKovaaLab CharCloud"
+      :is-on-kovaa-lab-cloud="isOnChatwootCloud"
       :is-super-admin="isSuperAdmin"
       @upgrade="openBilling"
     />

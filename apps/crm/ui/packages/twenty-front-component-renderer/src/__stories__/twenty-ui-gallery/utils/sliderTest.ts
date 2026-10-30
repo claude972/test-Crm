@@ -1,10 +1,10 @@
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { expectSliderGalleryMounted } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectSliderGalleryMounted';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { expectSliderGalleryMounted } from '@/__stories__/twenty-ui-gallery/utils/expectSliderGalleryMounted';
 import { expect, waitFor } from 'storybook/test';
 
-export const sliderTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const sliderTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const slider = await expectSliderGalleryMounted(canvasElement);

@@ -54,14 +54,14 @@ export const sendRegistrationToServer = subscription => {
 };
 
 export const registerSubscription = (onSuccess = () => {}) => {
-  if (!window.kovaa-labConfig.vapidPublicKey) {
+  if (!window.chatwootConfig.vapidPublicKey) {
     return;
   }
   navigator.serviceWorker.ready
     .then(serviceWorkerRegistration =>
       serviceWorkerRegistration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: window.kovaa-labConfig.vapidPublicKey,
+        applicationServerKey: window.chatwootConfig.vapidPublicKey,
       })
     )
     .then(sendRegistrationToServer)

@@ -82,7 +82,7 @@ const onCardClick = e => {
 
   if (e.metaKey || e.ctrlKey) {
     window.open(
-      window.kovaa-labConfig.hostURL + path,
+      window.chatwootConfig.hostURL + path,
       '_blank',
       'noopener noreferrer nofollow'
     );

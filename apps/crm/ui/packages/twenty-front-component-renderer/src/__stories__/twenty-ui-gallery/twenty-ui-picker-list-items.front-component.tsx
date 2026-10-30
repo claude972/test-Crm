@@ -3,7 +3,7 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Avatar, ColorSample, Tag } from 'kovaa-lab-ui/primitives/data-display';
 import { ListItem } from 'kovaa-lab-ui/primitives/navigation';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const PickerListItemsExample = () => {
   const [assignee, setAssignee] = useState('');
@@ -11,7 +11,7 @@ const PickerListItemsExample = () => {
   const [changes, setChanges] = useState(0);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Picker rows">
+    <KovaaLabCRMUiGalleryCard title="Picker rows">
       <div role="listbox" aria-label="Assignee">
         {['Alex Morgan', 'Sam Taylor'].map((name) => (
           <ListItem
@@ -58,7 +58,7 @@ const PickerListItemsExample = () => {
         </ListItem>
       </div>
       <p role="status">Changes: {changes}</p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

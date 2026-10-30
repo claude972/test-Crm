@@ -10,7 +10,7 @@ export const getAvatarUrl = (
   objectNameSingular: string,
   record: ObjectRecord,
   imageIdentifierFieldMetadataItem: FieldMetadataItem | undefined,
-  allowRequestsToKovaaLab CRMIcons?: boolean | undefined,
+  allowRequestsToKovaaLabCRMIcons?: boolean | undefined,
 ) => {
   if (objectNameSingular === CoreObjectNameSingular.WorkspaceMember) {
     return record.avatarUrl ?? undefined;
@@ -19,7 +19,7 @@ export const getAvatarUrl = (
   const imageIdentifierFieldValue = getImageIdentifierFieldValue(
     record,
     imageIdentifierFieldMetadataItem,
-    allowRequestsToKovaaLab CRMIcons,
+    allowRequestsToKovaaLabCRMIcons,
   );
 
   if (isDefined(imageIdentifierFieldValue)) {

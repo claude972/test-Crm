@@ -5,13 +5,13 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { InlineBanner } from 'kovaa-lab-ui/components/feedback';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const InlineBannerExample = () => {
   const [retryCount, setRetryCount] = useState(0);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Inline banner actions">
+    <KovaaLabCRMUiGalleryCard title="Inline banner actions">
       <InlineBanner
         layout="compact"
         status="error"
@@ -72,7 +72,7 @@ const InlineBannerExample = () => {
           Review sync history
         </Button>
       </InlineBanner>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

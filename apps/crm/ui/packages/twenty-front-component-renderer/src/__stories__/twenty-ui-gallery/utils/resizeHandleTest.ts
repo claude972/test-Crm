@@ -1,11 +1,11 @@
 import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { galleryRenderTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/galleryRenderTests';
-import { withMockPointerCapture } from '@/__stories__/kovaa-lab-ui-gallery/utils/withMockPointerCapture';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { galleryRenderTest } from '@/__stories__/twenty-ui-gallery/utils/galleryRenderTests';
+import { withMockPointerCapture } from '@/__stories__/twenty-ui-gallery/utils/withMockPointerCapture';
 
-export const resizeHandleTest: KovaaLab CRMUiGalleryPlayFunction = async (
+export const resizeHandleTest: KovaaLabCRMUiGalleryPlayFunction = async (
   context,
 ) => {
   await galleryRenderTest(context);

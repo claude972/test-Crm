@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Artık özel alan adınızda e-postalar alabilirsiniz."
       }
     },
-    "UPDATE_KOVAALAB": "{latestKovaaLab CharVersion} kovaa-lab sürümü indirilebilir. Lütfen sürümü güncelleyin.",
+    "UPDATE_KOVAALAB": "{latestChatwootVersion} kovaa-lab sürümü indirilebilir. Lütfen sürümü güncelleyin.",
     "LEARN_MORE": "Daha Fazla",
     "PAYMENT_PENDING": "Hesabınızın ödemesi gecikmiştir. Aboneliğinizin iptal edilmesini önlemek için lütfen ödeme bilgilerinizi güncelleyin.",
     "PAYMENT_PENDING_AGENT": "Hesabınızın ödemesi gecikmiştir. Sorunu çözmek için lütfen yöneticinizle iletişime geçin.",

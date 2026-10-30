@@ -2,10 +2,10 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { expectCaretAt } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectCaretAt';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { expectCaretAt } from '@/__stories__/twenty-ui-gallery/utils/expectCaretAt';
 
-export const numberStepperSelectionTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const numberStepperSelectionTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);
