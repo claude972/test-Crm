@@ -30441,3 +30441,22 @@ msgstr "Entrée de délivrabilité."
 msgid "Unknown entry"
 msgstr "Entrée inconnue"
 
+
+msgid "This workspace keeps no more batches. Remove one before staging another."
+msgstr "Ce workspace ne conserve pas plus de lots. Supprimez-en un avant d'en déposer un autre."
+
+msgid "The server answered with a conflict. Check the batch id and its content."
+msgstr "Le serveur a répondu par un conflit. Vérifiez l'identifiant du lot et son contenu."
+
+msgid "Ambiguous, archived or inconsistent CRM record. Needs review."
+msgstr "Fiche CRM ambiguë, archivée ou incohérente. À revoir."
+
+msgid "A conflict row matches a CRM record that is ambiguous, archived or inconsistent. It needs review before qualification."
+msgstr "Une ligne en conflit correspond à une fiche CRM ambiguë, archivée ou incohérente. Elle doit être revue avant qualification."
+
+msgid "Privacy notice URL must carry no credentials."
+msgstr "L'URL d'information ne doit porter aucun identifiant."
+
+msgid "Campaign name: {0} characters, {1} at most."
+msgstr "Nom de campagne : {0} caractères, {1} au maximum."
+

@@ -14,7 +14,6 @@ export type HermesIssueCode =
   | 'rows-not-array'
   | 'rows-too-many'
   | 'row-not-an-object'
-  | 'row-email-required'
   | 'row-company-required'
   | 'row-field-not-a-string'
   | 'row-unknown-field'
@@ -23,9 +22,11 @@ export type HermesIssueCode =
   | 'purpose-too-long'
   | 'privacy-notice-required'
   | 'privacy-notice-not-https'
+  | 'privacy-notice-has-credentials'
   | 'no-row-selected'
   | 'too-many-rows-selected'
   | 'draft-name-required'
+  | 'draft-name-too-long'
   | 'draft-subject-required'
   | 'no-qualified-row-selected';
 

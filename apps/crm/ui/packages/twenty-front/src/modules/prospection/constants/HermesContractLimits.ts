@@ -3,11 +3,14 @@
 // rather than as a server error.
 export const HERMES_MAX_ROWS_PER_BATCH = 100;
 export const HERMES_MAX_RETAINED_BATCHES = 40;
-export const HERMES_MAX_STATE_BYTES = 2 * 1024 * 1024;
+// The server budgets 2_000_000 bytes, not 2 MiB. Checking against 2_097_152
+// would have let 97_152 bytes through to a refusal.
+export const HERMES_MAX_STATE_BYTES = 2_000_000;
 export const HERMES_MAX_QUALIFY_ROW_IDS = 100;
 export const HERMES_MAX_DRAFT_ROW_IDS = 100;
 export const HERMES_PURPOSE_MIN_LENGTH = 8;
 export const HERMES_PURPOSE_MAX_LENGTH = 1000;
+export const HERMES_MAX_DRAFT_NAME_LENGTH = 200;
 
 // HermesCreateImportBatchInput rows carry these fields and no others: the
 // server rejects unknown fields, so a pasted extra field is reported here.

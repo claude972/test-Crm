@@ -174,10 +174,6 @@ export const readHermesImportRowsText = (rowsText: string): ReadRowsResult => {
     const website = readField('website');
     const phone = readField('phone');
 
-    if (email === null) {
-      issues.push({ key: `row-${row}-email`, code: 'row-email-required', row });
-    }
-
     if (companyName === null) {
       issues.push({
         key: `row-${row}-company`,
@@ -186,14 +182,18 @@ export const readHermesImportRowsText = (rowsText: string): ReadRowsResult => {
       });
     }
 
-    if (email === null || companyName === null) {
+    // An empty email does NOT block the batch. The contract is explicit that
+    // rows are staged even when their email validation fails, with the error
+    // returned per row, so refusing it here would hide a row the server would
+    // have kept and marked invalid.
+    if (companyName === null) {
       return;
     }
 
     // Only the fields the input type declares travel, and an absent optional
     // field is left out rather than sent as an empty string.
     rows.push({
-      email,
+      email: email ?? '',
       companyName,
       ...(firstName !== null ? { firstName } : {}),
       ...(lastName !== null ? { lastName } : {}),

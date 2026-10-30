@@ -102,7 +102,7 @@ export const HermesImportRowStatusTag = ({
     duplicate: t`Already present in this batch.`,
     suppressed: t`Blocked by the workspace suppression register. Never lifted here.`,
     qualified: t`Company and contact created or reused.`,
-    conflict: t`Same batch id, different content.`,
+    conflict: t`Ambiguous, archived or inconsistent CRM record. Needs review.`,
   };
 
   const { color, variant, borderStyle, Icon } =
