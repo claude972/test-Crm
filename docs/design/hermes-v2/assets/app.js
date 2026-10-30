@@ -178,11 +178,11 @@
       D.prospects[s2.id].map((x) => [
         x.contact, x.societe,
         x.proprietaire === 'Non affecté' ? marque('Non affecté') : x.proprietaire,
-        pastille(x.etape),
+        etapeProspect(x),
         prochaineAction({ action: x.action, echeance: x.quand, enRetard: x.enRetard }),
       ]),
     ));
-    secP.append(el('p', 'bloc-note', 'Un prospect opposé reste visible, sans propriétaire ni action : il ne se contacte plus.'));
+    secP.append(el('p', 'bloc-note', 'Une opposition s\u2019ajoute à l\u2019étape sans l\u2019effacer : le prospect reste qualifié, mais plus éligible à un envoi.'));
     f.append(secP);
 
     // 2. D'où viennent les contacts.
@@ -435,14 +435,13 @@
       ['Connexion', 'Protocole', 'État', 'Détail'],
       r.connexions.map((c) => [
         c.nom, c.protocole,
-        pastille(c.etat === 'verifie' ? `Connecté — vérifié le ${c.le}`
-          : c.etat === 'declare' ? 'Déclaré, non vérifié' : 'Non configuré'),
+        pastille(libelleEtatConnexion(c)),
         c.detail,
       ]),
     ));
     secX.append(el('p', 'bloc-note', r.demo
       ? 'Aucun identifiant n\u2019est saisi ni affiché. Dans cette société de démonstration, les états « vérifié » sont simulés : aucune connexion n\u2019existe.'
-      : 'Aucun identifiant n\u2019est saisi ni affiché. « Déclaré, non vérifié » n\u2019est pas « connecté » : seule une vérification datée l\u2019est.'));
+      : 'Aucun identifiant n\u2019est saisi ni affiché. « Configuré, à vérifier » n\u2019est pas « connecté » : seule une vérification datée l\u2019est. « Connexion désactivée » est une décision d\u2019administrateur, distincte d\u2019un bot coupé.'));
     f.append(secX);
 
     const secB = el('section', 'bloc');
@@ -518,6 +517,16 @@
 
   const avisLectureSeule = (texte) => el('p', 'avis', texte);
 
+  // Les cinq états publics du contrat, mot pour mot. Un état de connexion et
+  // une politique de bot sont deux axes : « Connexion désactivée » n'est pas
+  // « Bot coupé », et l'écran ne doit pas les confondre.
+  const libelleEtatConnexion = (c) =>
+    c.etat === 'verifie' ? `Connecté, vérifié le ${c.le}`
+    : c.etat === 'declare' ? 'Configuré, à vérifier'
+    : c.etat === 'erreur' ? 'Connexion en erreur'
+    : c.etat === 'desactivee' ? 'Connexion désactivée'
+    : 'Non configuré';
+
   // Ce que la référence met au centre d'une carte : la prochaine action et sa
   // date, pas seulement le montant. Un retard se lit comme un retard.
   const prochaineAction = (a) => {
@@ -529,20 +538,33 @@
   };
   const marque = (t) => { const s = el('span', 'marque', t); return s; };
 
+  // L'opposition domine l'éligibilité d'envoi sans effacer la qualification :
+  // elle s'ajoute à l'étape au lieu de la remplacer. Écraser l'étape ferait
+  // perdre une information vraie et laisserait croire que le prospect n'a
+  // jamais été qualifié.
+  const etapeProspect = (x) => {
+    const n = el('span', 'etape-prospect');
+    n.append(pastille(x.etape));
+    if (x.oppose) n.append(pastille('Opposition'));
+    return n;
+  };
+
   const pastille = (texte) => {
     const map = {
       'Qualifiée': 'est-ok', 'Qualifié': 'est-ok', 'Gagné': 'est-ok', 'Membre': 'est-ok',
       'Rendez-vous pris': 'est-ok',
+      'Contacté': 'est-ok', 'Rendez-vous': 'est-ok', 'Converti': 'est-ok',
       'À qualifier': 'est-attente', 'Partielle': 'est-attente', 'Négociation': 'est-attente',
-      'En discussion': 'est-attente', 'À contacter': 'est-attente', 'Brouillon': 'est-attente',
-      'Déclaré, non vérifié': 'est-attente',
+      'À contacter': 'est-attente', 'Relance prévue': 'est-attente', 'Brouillon': 'est-attente',
+      'Configuré, à vérifier': 'est-attente',
       'Invalide': 'est-probleme', 'Doublon': 'est-probleme',
-      'Opposition': 'est-bloque',
-      'Non configuré': 'est-neutre',
+      'Connexion en erreur': 'est-probleme',
+      'Opposition': 'est-bloque', 'Perdu': 'est-bloque',
+      'Non configuré': 'est-neutre', 'Connexion désactivée': 'est-neutre',
     };
-    // « Connecté — vérifié le … » porte une date : c'est le seul état qui
+    // « Connecté, vérifié le … » porte une date : c'est le seul état qui
     // affirme une connexion, et il ne peut pas s'écrire sans elle.
-    const classe = texte.startsWith('Connecté — vérifié') ? 'est-ok' : (map[texte] || 'est-neutre');
+    const classe = texte.startsWith('Connecté, vérifié le') ? 'est-ok' : (map[texte] || 'est-neutre');
     const s = el('span', `pastille ${classe}`, texte);
     return s;
   };

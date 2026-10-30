@@ -266,6 +266,7 @@ button, select, textarea { font: inherit; color: inherit; }
 .pastille.est-neutre { color: var(--texte-2); }
 
 .marque { color: var(--texte-3); font-size: 12px; font-style: italic; }
+.etape-prospect { display: flex; flex-wrap: wrap; gap: 4px; }
 .vide { color: var(--texte-3); padding: calc(var(--u) * 2); text-align: center; }
 .avis {
   background: var(--surface-2);

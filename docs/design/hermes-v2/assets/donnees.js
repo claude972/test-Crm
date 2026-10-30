@@ -141,14 +141,14 @@ window.MAQUETTE = {
   prospects: {
     atelier: [
       { contact: 'Camille Barre', societe: 'Menuiserie du Lac', proprietaire: 'Camille R.', etape: 'À contacter', action: 'Premier appel', quand: '31 oct.', enRetard: true },
-      { contact: 'Yanis Pereira', societe: 'Agencement Pereira', proprietaire: 'Camille R.', etape: 'En discussion', action: 'Envoyer la plaquette', quand: '4 nov.', enRetard: false },
-      { contact: 'Inès Lemoine', societe: 'Lemoine Habitat', proprietaire: 'Théo M.', etape: 'Rendez-vous pris', action: 'Visite sur site', quand: '6 nov.', enRetard: false },
-      { contact: 'Paul Guérin', societe: 'Atelier Guérin', proprietaire: 'Non affecté', etape: 'À contacter', action: 'Affecter un propriétaire', quand: '—', enRetard: false },
-      { contact: 'Sarah Oliveira', societe: 'Oliveira Déco', proprietaire: '—', etape: 'Opposition', action: 'Aucune — ne pas contacter', quand: '—', enRetard: false },
+      { contact: 'Yanis Pereira', societe: 'Agencement Pereira', proprietaire: 'Camille R.', etape: 'Contacté', action: 'Envoyer la plaquette', quand: '4 nov.', enRetard: false },
+      { contact: 'Inès Lemoine', societe: 'Lemoine Habitat', proprietaire: 'Théo M.', etape: 'Rendez-vous', action: 'Visite sur site', quand: '6 nov.', enRetard: false },
+      { contact: 'Paul Guérin', societe: 'Atelier Guérin', proprietaire: 'Non affecté', etape: 'À qualifier', action: 'Affecter un propriétaire', quand: '—', enRetard: false },
+      { contact: 'Sarah Oliveira', societe: 'Oliveira Déco', proprietaire: 'Camille R.', etape: 'Qualifié', oppose: true, action: 'Aucune — opposition active', quand: '—', enRetard: false },
     ],
     verdure: [
-      { contact: 'Lucie Hamon', societe: 'Syndic Armor', proprietaire: 'Camille R.', etape: 'En discussion', action: 'Relancer le devis', quand: '2 nov.', enRetard: false },
-      { contact: 'Enzo Riou', societe: 'Copropriété Riou', proprietaire: 'Non affecté', etape: 'À contacter', action: 'Affecter un propriétaire', quand: '—', enRetard: false },
+      { contact: 'Lucie Hamon', societe: 'Syndic Armor', proprietaire: 'Camille R.', etape: 'Relance prévue', action: 'Relancer le devis', quand: '2 nov.', enRetard: false },
+      { contact: 'Enzo Riou', societe: 'Copropriété Riou', proprietaire: 'Non affecté', etape: 'À qualifier', action: 'Affecter un propriétaire', quand: '—', enRetard: false },
     ],
   },
 
@@ -218,12 +218,12 @@ window.MAQUETTE = {
     verdure: {
       general: { nom: 'Verdure & Associés', sousDomaine: 'verdure-associes', fuseau: 'Europe/Paris', langue: 'Français' },
       connexions: [
-        { id: 'wa', nom: 'WhatsApp', protocole: 'Evolution API', etat: 'absent', detail: 'Aucune instance déclarée', verifie: false },
+        { id: 'wa', nom: 'WhatsApp', protocole: 'Evolution API', etat: 'erreur', detail: 'Échec d\u2019authentification au dernier test (état fictif)', verifie: false },
         { id: 'imap', nom: 'E-mail entrant', protocole: 'IMAP', etat: 'verifie', detail: 'bonjour@exemple-verdure.fr', verifie: true, le: '29 oct. 19:05' },
         { id: 'smtp', nom: 'E-mail sortant', protocole: 'SMTP', etat: 'declare', detail: 'Serveur déclaré, aucun envoi test', verifie: false },
         { id: 'mcp', nom: 'Hermès MCP', protocole: 'MCP', etat: 'absent', detail: 'Aucun serveur déclaré', verifie: false },
         { id: 'intake', nom: 'Collectes', protocole: 'Point d\u2019entrée signé', etat: 'verifie', detail: 'Dernière réception : 27 oct.', verifie: true, le: '27 oct. 09:30' },
-        { id: 'forms', nom: 'Formulaires', protocole: 'HeyForm', etat: 'absent', detail: 'Aucun formulaire relié', verifie: false },
+        { id: 'forms', nom: 'Formulaires', protocole: 'HeyForm', etat: 'desactivee', detail: 'Désactivée par un administrateur (état fictif)', verifie: false },
         { id: 'agenda', nom: 'Rendez-vous', protocole: 'Cal.diy', etat: 'absent', detail: 'Aucun agenda Cal.diy relié', verifie: false },
       ],
       bots: { whatsapp: false, email: false },
