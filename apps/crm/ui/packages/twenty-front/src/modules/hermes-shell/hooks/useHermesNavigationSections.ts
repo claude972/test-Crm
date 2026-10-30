@@ -6,6 +6,7 @@ import { getAppPath, getSettingsPath } from 'kovaa-lab-shared/utils';
 import {
   IconBuildingSkyscraper,
   IconGauge,
+  IconInbox,
   IconSettings,
   useIcons,
 } from 'kovaa-lab-ui/icon';
@@ -16,6 +17,9 @@ import { type HermesNavigationSection } from '@/hermes-shell/types/HermesNavigat
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { getObjectPermissionsForObject } from '@/object-metadata/utils/getObjectPermissionsForObject';
 import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
+import { PROSPECTION_RECEPTION_PATH } from '@/prospection/constants/ProspectionRoutePaths';
+import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
+import { PermissionFlagType } from '~/generated-metadata/graphql';
 
 const NAVIGATION_ORDER: readonly string[] = HERMES_RECORD_NAVIGATION_ORDER;
 
@@ -35,6 +39,12 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
   const { objectMetadataItems } = useObjectMetadataItems();
   const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
   const { getIcon } = useIcons();
+  // The reception's operations are restricted to unrestricted workspace
+  // administrators server side, so the link is offered to them rather than to
+  // everyone and then refused.
+  const hasWorkspacePermission = useHasPermissionFlag(
+    PermissionFlagType.WORKSPACE,
+  );
 
   return useMemo(() => {
     const readableRecordObjects = objectMetadataItems
@@ -67,6 +77,21 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
         ],
       },
     ];
+
+    if (hasWorkspacePermission) {
+      sections.push({
+        key: 'prospection',
+        label: t`Prospection`,
+        items: [
+          {
+            key: 'reception',
+            label: t`Reception`,
+            to: PROSPECTION_RECEPTION_PATH,
+            Icon: IconInbox,
+          },
+        ],
+      });
+    }
 
     if (readableRecordObjects.length > 0) {
       sections.push({
@@ -103,5 +128,11 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
     });
 
     return sections;
-  }, [objectMetadataItems, objectPermissionsByObjectMetadataId, getIcon, t]);
+  }, [
+    objectMetadataItems,
+    objectPermissionsByObjectMetadataId,
+    getIcon,
+    hasWorkspacePermission,
+    t,
+  ]);
 };
