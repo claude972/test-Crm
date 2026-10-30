@@ -47,7 +47,22 @@ export const useApolloFactory = (options: Partial<Options> = {}) => {
 
   const { enqueueToast } = useToast();
 
+  // The workspace a client is built for. A client is never retargeted: when
+  // this changes, the old one is disposed and a new one takes its place.
+  const workspaceScopeId = currentWorkspace?.id ?? null;
+
   const apolloClient = useMemo(() => {
+    const previous = apolloRef.current;
+
+    // Disposed here rather than in an effect cleanup: a cleanup runs after the
+    // replacement exists and would tear down the client already in use.
+    if (isDefined(previous)) {
+      const previousClient = previous.getClient();
+
+      previousClient.stop();
+      void previousClient.clearStore();
+    }
+
     apolloRef.current = new ApolloFactory({
       uri: `${REACT_APP_SERVER_BASE_URL}/graphql`,
       cache: new InMemoryCache({
@@ -66,6 +81,7 @@ export const useApolloFactory = (options: Partial<Options> = {}) => {
       devtools: { enabled: process.env.IS_DEBUG_MODE === 'true' },
       currentWorkspaceMember: currentWorkspaceMember,
       currentWorkspace: currentWorkspace,
+      expectedWorkspaceId: workspaceScopeId,
       appVersion,
       onUnauthenticatedError: () => {
         clearSessionGeneration();
@@ -109,6 +125,7 @@ export const useApolloFactory = (options: Partial<Options> = {}) => {
     return apolloRef.current.getClient();
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    workspaceScopeId,
     setCurrentUser,
     setCurrentWorkspaceMember,
     setCurrentWorkspace,
