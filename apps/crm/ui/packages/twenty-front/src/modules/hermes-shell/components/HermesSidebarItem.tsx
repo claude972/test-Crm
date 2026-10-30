@@ -49,6 +49,9 @@ type HermesSidebarItemProps = {
   to: string;
   Icon: IconComponent;
   isActive: boolean;
+  // Called after a destination is chosen, so the mobile menu closes instead of
+  // leaving the reader on a screenful of navigation.
+  onNavigate?: () => void;
 };
 
 export const HermesSidebarItem = ({
@@ -56,6 +59,7 @@ export const HermesSidebarItem = ({
   to,
   Icon,
   isActive,
+  onNavigate,
 }: HermesSidebarItemProps) => {
   const theme = useTheme();
 
@@ -65,6 +69,7 @@ export const HermesSidebarItem = ({
     // assistive technology, which the background tint alone would not.
     <StyledItem
       to={to}
+      onClick={onNavigate}
       data-active={isActive}
       aria-current={isActive ? 'page' : undefined}
     >

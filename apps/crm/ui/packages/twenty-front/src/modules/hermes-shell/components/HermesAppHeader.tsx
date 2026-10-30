@@ -61,9 +61,16 @@ const StyledProductName = styled.span`
 type HermesAppHeaderProps = {
   title: string;
   subtitle?: ReactNode;
+  // The mobile navigation toggle. Absent on desktop, where the navigation is
+  // always on screen and a disclosure button would control nothing.
+  navigationToggle?: ReactNode;
 };
 
-export const HermesAppHeader = ({ title, subtitle }: HermesAppHeaderProps) => {
+export const HermesAppHeader = ({
+  title,
+  subtitle,
+  navigationToggle,
+}: HermesAppHeaderProps) => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
 
   // The workspace name is only shown once it is actually loaded. No
@@ -73,6 +80,7 @@ export const HermesAppHeader = ({ title, subtitle }: HermesAppHeaderProps) => {
 
   return (
     <StyledHeader>
+      {navigationToggle}
       <StyledTitleGroup>
         <StyledTitle>{title}</StyledTitle>
         {isDefined(subtitle) && <StyledSubtitle>{subtitle}</StyledSubtitle>}

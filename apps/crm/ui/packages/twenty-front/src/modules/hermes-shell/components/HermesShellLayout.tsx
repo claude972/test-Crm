@@ -1,11 +1,19 @@
 import { styled } from '@linaria/react';
-import { type ReactNode } from 'react';
+import { useLingui } from '@lingui/react/macro';
+import { useState, type ReactNode } from 'react';
 
+import { IconButton } from 'kovaa-lab-ui/components/input';
+import { IconLayoutSidebar, IconX } from 'kovaa-lab-ui/icon';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'kovaa-lab-ui/theme';
+import { useIsMobile } from 'kovaa-lab-ui/utilities';
 
 import { HermesAppHeader } from '@/hermes-shell/components/HermesAppHeader';
 import { HermesSidebar } from '@/hermes-shell/components/HermesSidebar';
 import { HERMES_SIDEBAR_WIDTH } from '@/hermes-shell/constants/HermesShellSizes';
+
+// Tied to the toggle through aria-controls, so the button names the region it
+// opens instead of merely sitting next to it.
+const HERMES_NAVIGATION_ID = 'hermes-main-navigation';
 
 const StyledShell = styled.div`
   background: ${themeCssVariables.background.primary};
@@ -56,10 +64,45 @@ export const HermesShellLayout = ({
   title,
   subtitle,
   children,
-}: HermesShellLayoutProps) => (
-  <StyledShell>
-    <HermesSidebar />
-    <HermesAppHeader title={title} subtitle={subtitle} />
-    <StyledMain>{children}</StyledMain>
-  </StyledShell>
-);
+}: HermesShellLayoutProps) => {
+  const { t } = useLingui();
+  const isMobile = useIsMobile();
+
+  // Collapsed to start on a phone. The sidebar lists every readable object, so
+  // as a permanent band it pushed the first figure a full screen down. Desktop
+  // is unchanged: the navigation is always there and there is no button.
+  const [isNavigationOpen, setIsNavigationOpen] = useState(false);
+
+  const isNavigationVisible = !isMobile || isNavigationOpen;
+
+  return (
+    <StyledShell>
+      <HermesSidebar
+        id={HERMES_NAVIGATION_ID}
+        isHidden={!isNavigationVisible}
+        onNavigate={isMobile ? () => setIsNavigationOpen(false) : undefined}
+      />
+      <HermesAppHeader
+        title={title}
+        subtitle={subtitle}
+        navigationToggle={
+          isMobile ? (
+            <IconButton
+              // A real button, so the keyboard reaches it and Enter and Space
+              // work without anything being reimplemented.
+              aria-label={t`Main navigation`}
+              aria-expanded={isNavigationOpen}
+              aria-controls={HERMES_NAVIGATION_ID}
+              variant="outline"
+              size="sm"
+              onClick={() => setIsNavigationOpen((isOpen) => !isOpen)}
+            >
+              {isNavigationOpen ? <IconX /> : <IconLayoutSidebar />}
+            </IconButton>
+          ) : undefined
+        }
+      />
+      <StyledMain>{children}</StyledMain>
+    </StyledShell>
+  );
+};
