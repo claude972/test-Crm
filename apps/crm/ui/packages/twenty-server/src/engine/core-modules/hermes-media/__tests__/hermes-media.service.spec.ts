@@ -197,6 +197,33 @@ describe('Hermes media authorization, quarantine and revocation', () => {
     });
     expect(h.asset.contentSha256).toBe(hash);
   });
+  it('keeps native WebM detection authoritative for audio-only MediaRecorder containers', async () => {
+    const h = harness();
+    const target = await h.service.prepare(actor, {
+      conversationId,
+      kind: 'AUDIO',
+      filename: 'voice.webm',
+      mimeType: 'audio/webm',
+      size: bytes.length,
+    });
+    h.files.findOneBy.mockResolvedValueOnce({
+      id: fileId,
+      workspaceId: actor.workspaceId,
+      mimeType: 'video/webm',
+      size: bytes.length,
+      contentSha256: hash,
+    });
+    const result = await h.service.finalize(actor, {
+      conversationId,
+      assetId: target.assetId,
+    });
+    expect(result).toMatchObject({
+      kind: 'AUDIO',
+      mimeType: 'video/webm',
+      status: 'READY',
+    });
+    expect(h.asset.mimeType).toBe('video/webm');
+  });
   it('does not promote MIME-mismatched content or bytes with a changed size', async () => {
     for (const patch of [
       { mimeType: 'text/html' },

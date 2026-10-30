@@ -65,18 +65,32 @@ export const messagingEventSchema = z
       .string()
       .max(20_000)
       .refine((value) => !value.includes('\0')),
-    kind: z.enum(['IMAGE', 'VIDEO', 'AUDIO']).optional(),
+    kind: z.enum(['IMAGE', 'VIDEO', 'AUDIO', 'EMAIL']).optional(),
+    attachmentIds: z.array(z.string().uuid()).max(10).optional(),
     mediaAssetId: z.string().uuid().optional(),
     occurredAt: z.string().datetime({ offset: true }),
     subject: z.string().max(512).optional(),
     providerMetadata: providerMetadataSchema.optional(),
   })
   .strict()
-  .refine((event) =>
-    event.kind
-      ? !!event.mediaAssetId
-      : messagingText.safeParse(event.text).success,
-  );
+  .refine((event) => {
+    if (event.kind === 'EMAIL')
+      return event.channel === 'EMAIL' && !event.mediaAssetId;
+    if (event.kind)
+      return (
+        event.channel === 'WHATSAPP' &&
+        (!!event.mediaAssetId || event.attachmentIds?.length === 1) &&
+        (!event.attachmentIds ||
+          (event.attachmentIds.length === 1 &&
+            (!event.mediaAssetId ||
+              event.mediaAssetId === event.attachmentIds[0])))
+      );
+    return (
+      !event.attachmentIds?.length &&
+      !event.mediaAssetId &&
+      messagingText.safeParse(event.text).success
+    );
+  });
 export const normalizeContactHandle = (
   channel: HermesMessagingChannel,
   value: string,

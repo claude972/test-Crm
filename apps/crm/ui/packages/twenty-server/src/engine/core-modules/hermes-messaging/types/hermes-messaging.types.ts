@@ -3,6 +3,7 @@ export type HermesMessagingChannel = 'WHATSAPP' | 'EMAIL';
 export type HermesMessagingDirection = 'INBOUND' | 'OUTBOUND';
 export type HermesMessagingStatus =
   | 'RECEIVED'
+  | 'OBSERVED'
   | 'PENDING'
   | 'ACCEPTED'
   | 'FAILED'
@@ -23,6 +24,7 @@ export type HermesMessagingProbe = {
   canSendMedia?: boolean;
   canReceiveMedia?: boolean;
   canRecordVoice?: boolean;
+  canComposeRichEmail?: boolean;
   errorCode?: string;
 };
 export type HermesMessagingSend = {
@@ -32,6 +34,8 @@ export type HermesMessagingSend = {
   contactHandle: string;
   text: string;
   clientRequestId: string;
+  email?: HermesEmailEnvelope;
+  attachments?: HermesMessagingAttachment[];
   media?: {
     kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
     mimeType: string;
@@ -60,8 +64,9 @@ export type HermesMessagingEvent = {
   occurredAt: string;
   subject?: string;
   providerMetadata?: HermesMessagingProviderMetadata;
-  kind?: 'IMAGE' | 'VIDEO' | 'AUDIO';
+  kind?: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'EMAIL';
   mediaAssetId?: string;
+  attachmentIds?: string[];
 };
 export type HermesInboxPageInput = { limit?: number; cursor?: string };
 export type HermesInboxConversationsInput = HermesInboxPageInput & {
@@ -124,4 +129,31 @@ export type HermesInboxReplyV3Input = {
   kind: 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO';
   text: string;
   assetId?: string;
+};
+
+// Server-only envelope. Never include Bcc or raw HTML in the inbox DTO.
+export type HermesEmailEnvelope = {
+  from: string;
+  to: string[];
+  cc: string[];
+  bcc: string[];
+  subject: string;
+  text: string;
+  html?: string;
+  inReplyTo?: string;
+  references?: string[];
+  inlineAttachments?: { assetId: string; cid: string }[];
+};
+export type HermesMessagingAttachment = {
+  assetId: string;
+  kind: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'FILE';
+  mimeType: string;
+  filename: string;
+  bytes: Buffer;
+};
+export type HermesEmailReplyInput = {
+  conversationId: string;
+  clientRequestId: string;
+  envelope: HermesEmailEnvelope;
+  attachmentIds: string[];
 };
