@@ -29738,3 +29738,97 @@ msgstr "Zoom avant"
 #: src/modules/settings/data-model/graph-overview/components/SettingsDataModelOverview.tsx
 msgid "Zoom out"
 msgstr "Zoom arrière"
+
+msgid "Connectors"
+msgstr "Connecteurs"
+
+msgid "Configured by an administrator"
+msgstr "Configuration par un administrateur"
+
+msgid "To configure"
+msgstr "À configurer"
+
+msgid "Connecting"
+msgstr "Connexion en cours"
+
+msgid "Provider: active · sending not tested"
+msgstr "État du fournisseur : actif · envoi non testé"
+
+msgid "Disconnected"
+msgstr "Déconnecté"
+
+msgid "Provider unavailable"
+msgstr "Fournisseur indisponible"
+
+msgid "Checking…"
+msgstr "Vérification…"
+
+msgid "Status unavailable"
+msgstr "État indisponible"
+
+msgid "Status not reported"
+msgstr "État non communiqué"
+
+msgid "Never checked"
+msgstr "Jamais vérifié"
+
+msgid "Last checked {lastCheckedDate}"
+msgstr "Dernière vérification {lastCheckedDate}"
+
+msgid "Last check time unknown"
+msgstr "Date de dernière vérification inconnue"
+
+msgid "Reported state"
+msgstr "État communiqué"
+
+msgid "Error code"
+msgstr "Code d'erreur"
+
+msgid "No connector available"
+msgstr "Aucun connecteur disponible"
+
+msgid "Messaging"
+msgstr "Messagerie"
+
+msgid "Integrations"
+msgstr "Intégrations"
+
+msgid "Your authorised companies"
+msgstr "Vos sociétés autorisées"
+
+msgid "Some data is unavailable."
+msgstr "Certaines données sont indisponibles."
+
+msgid "No access yet. Ask an administrator."
+msgstr "Aucun accès pour le moment. Demandez à un administrateur."
+
+msgid "Read-only. Open a company to work in it."
+msgstr "Lecture seule. Ouvrez une société pour y travailler."
+
+msgid "Partial totals: some companies did not answer."
+msgstr "Totaux partiels : certaines sociétés n'ont pas répondu."
+
+msgid "Across your companies"
+msgstr "Toutes sociétés confondues"
+
+msgid "All your companies"
+msgstr "Toutes vos sociétés"
+
+msgid "Not authorised"
+msgstr "Non autorisé"
+
+msgid "Sign in required"
+msgstr "Connexion requise"
+
+msgid "Company"
+msgstr "Société"
+
+msgid "People"
+msgstr "Personnes"
+
+msgid "Opportunities"
+msgstr "Opportunités"
+
+msgid "Tasks"
+msgstr "Tâches"
+
