@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { randomUUID, createHash } from 'node:crypto';
-import { DataSource, type EntityManager, IsNull } from 'typeorm';
+import { DataSource, type EntityManager, IsNull, Not } from 'typeorm';
 import { z } from 'zod';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 
@@ -27,6 +27,7 @@ import {
 } from './hermes-connection.entity';
 import {
   connectionIdentity,
+  connectionSecretHash,
   connectionKind,
   validateConnectionConfiguration,
   type HermesConnectionConfiguration,
@@ -44,6 +45,21 @@ const removeSchema = z
   .object({
     kind: connectionKind,
     expectedRevision: z.number().int().min(1).max(2147483646),
+  })
+  .strict();
+
+const storedConfigurationSchema = z
+  .object({
+    workspaceId: z.string().uuid(),
+    kind: connectionKind,
+    userId: z.string().uuid(),
+    userWorkspaceId: z.string().uuid(),
+    settings: z.record(z.string(), z.unknown()),
+    secrets: z.record(z.string(), z.string()),
+    mailCredentialDigest: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
   })
   .strict();
 
@@ -153,10 +169,12 @@ export class HermesConnectionsService {
   private decrypt(row: HermesConnectionEntity): StoredConfiguration {
     try {
       if (!row.configuration) throw new Error();
-      const decoded: StoredConfiguration = JSON.parse(
-        this.encryption.decryptVersionedOrThrow(row.configuration, {
-          workspaceId: row.workspaceId,
-        }),
+      const decoded = storedConfigurationSchema.parse(
+        JSON.parse(
+          this.encryption.decryptVersionedOrThrow(row.configuration, {
+            workspaceId: row.workspaceId,
+          }),
+        ),
       );
       if (
         decoded.workspaceId !== row.workspaceId ||
@@ -164,7 +182,35 @@ export class HermesConnectionsService {
         decoded.userWorkspaceId !== row.updatedByUserWorkspaceId
       )
         throw new Error();
-      return decoded;
+      const { handle, ...mailSettings } = decoded.settings;
+      const native = validateConnectionConfiguration(
+        row.workspaceId,
+        row.kind,
+        {
+          settings: row.kind === 'MAIL' ? mailSettings : decoded.settings,
+          secrets: decoded.secrets,
+        },
+      );
+      if (row.kind === 'MAIL') {
+        if (
+          typeof handle !== 'string' ||
+          !handle ||
+          handle.length > 320 ||
+          /[\r\n\x00]/.test(handle)
+        )
+          throw new Error();
+        native.settings = { ...native.settings, handle };
+      }
+      if (
+        (row.kind === 'EVOLUTION' || row.kind === 'MCP') &&
+        new URL(
+          String(
+            native.settings[row.kind === 'EVOLUTION' ? 'baseUrl' : 'endpoint'],
+          ),
+        ).protocol !== 'https:'
+      )
+        throw new Error();
+      return { ...decoded, ...native };
     } catch {
       throw new ServiceUnavailableException(
         'CONNECTION_CONFIGURATION_UNAVAILABLE',
@@ -350,26 +396,27 @@ export class HermesConnectionsService {
         'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
         [`hermes-connections-provider:${input.kind}`],
       );
+      const secretHash = connectionSecretHash(
+        input.kind,
+        configuration.secrets,
+      );
       if (input.kind !== 'MAIL') {
-        const peers = await repository.findBy({
+        if (!secretHash)
+          throw new BadRequestException('CONNECTION_CONFIGURATION_INVALID');
+        const scope = {
           kind: input.kind,
           enabled: true,
-        });
-        for (const peer of peers) {
-          if (peer.workspaceId === actor.workspaceId) continue;
-          const duplicate =
-            input.kind === 'EVOLUTION'
-              ? peer.identityHash === identityHash ||
-                this.decrypt(peer).secrets.webhookSecret ===
-                  configuration.secrets.webhookSecret
-              : (() => {
-                  const previous = this.decrypt(peer);
-                  const key = input.kind === 'MCP' ? 'token' : 'secret';
-                  return previous.secrets[key] === configuration.secrets[key];
-                })();
-          if (duplicate)
-            throw new ConflictException('CONNECTION_IDENTITY_ALREADY_BOUND');
-        }
+          workspaceId: Not(actor.workspaceId),
+        };
+        const collision =
+          input.kind === 'EVOLUTION'
+            ? [
+                { ...scope, identityHash },
+                { ...scope, secretHash },
+              ]
+            : { ...scope, secretHash };
+        if (await repository.existsBy(collision))
+          throw new ConflictException('CONNECTION_IDENTITY_ALREADY_BOUND');
       }
       await this.access.assertAllowed(actor, manager);
       const stored: StoredConfiguration = {
@@ -393,6 +440,7 @@ export class HermesConnectionsService {
         revision: (row?.revision ?? 0) + 1,
         enabled: true,
         identityHash,
+        secretHash,
         configuration: this.encryption.encryptVersioned(
           JSON.stringify(stored) as PlaintextString,
           { workspaceId: actor.workspaceId },
@@ -425,6 +473,7 @@ export class HermesConnectionsService {
         throw new ConflictException('CONNECTION_REVISION_CONFLICT');
       row.enabled = false;
       row.configuration = null;
+      row.secretHash = null;
       row.revision++;
       row.updatedAt = new Date();
       row.updatedByUserWorkspaceId = actor.userWorkspaceId;
@@ -497,6 +546,13 @@ export class HermesConnectionsService {
       .findOneBy({ workspaceId, kind });
     if (!row?.enabled) return null;
     const configuration = this.decrypt(row);
+    if (
+      connectionIdentity(kind, configuration.settings) !== row.identityHash ||
+      connectionSecretHash(kind, configuration.secrets) !== row.secretHash
+    )
+      throw new ServiceUnavailableException(
+        'CONNECTION_CONFIGURATION_UNAVAILABLE',
+      );
     const actor = {
       workspaceId,
       userId: configuration.userId,

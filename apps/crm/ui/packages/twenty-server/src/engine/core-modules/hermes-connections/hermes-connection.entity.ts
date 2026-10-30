@@ -17,6 +17,15 @@ export type HermesConnectionKind = 'EVOLUTION' | 'MAIL' | 'MCP' | 'INTAKE';
 @Index('UQ_hermesConnection_workspace_kind', ['workspaceId', 'kind'], {
   unique: true,
 })
+@Index('IDX_HERMES_CONNECTION_ID', ['connectionId'], { unique: true })
+@Index('IDX_HERMES_CONNECTION_ACTIVE_SECRET', ['kind', 'secretHash'], {
+  unique: true,
+  where: '"enabled" = true',
+})
+@Index('IDX_HERMES_CONNECTION_ACTIVE_EVOLUTION', ['kind', 'identityHash'], {
+  unique: true,
+  where: '"enabled" = true AND "kind" = \'EVOLUTION\'',
+})
 @Entity({ name: 'hermesConnection', schema: 'core' })
 @Check(
   'CHK_hermesConnection_ciphertext',
@@ -35,6 +44,9 @@ export class HermesConnectionEntity {
   @Column({ type: 'varchar', nullable: true })
   configuration: EncryptedString | null;
   @Column({ type: 'varchar', length: 64 }) identityHash: string;
+  @Column({ type: 'varchar', length: 64, nullable: true }) secretHash:
+    | string
+    | null;
   @Column('uuid') updatedByUserWorkspaceId: string;
   @Column({ type: 'timestamptz' }) updatedAt: Date;
 }
