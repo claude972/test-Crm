@@ -22,7 +22,10 @@ const env = {
   NODE_ENV: 'production',
   NODE_HOST: '127.0.0.1',
   NODE_PORT: '3000',
-  SERVER_URL: 'http://127.0.0.1:3000',
+  // P1 browser exposes both app and API through Vite, like the real preview.
+  SERVER_URL: process.env.P1_HERMES_BROWSER_SMOKE === 'true'
+    ? 'http://127.0.0.1:3001'
+    : 'http://127.0.0.1:3000',
   FRONTEND_URL: 'http://127.0.0.1:3001',
   APP_SECRET: appSecret,
   REDIS_CACHE_PREFIX: `p0-ci-${process.env.GITHUB_RUN_ID}`,

@@ -153,6 +153,7 @@ async function prepareHermesFixture() {
   const configResponse = await fetch(`${API_ORIGIN}/client-config`, { signal: AbortSignal.timeout(10_000), redirect: 'error' });
   assert.equal(configResponse.status, 200);
   const config = await configResponse.json();
+  assert.equal(config.serverUrl, APP_API_ORIGIN, 'P1 Hermes smoke requires the public same-origin API URL');
   assert.equal(config.authProviders.password, true, 'P1 Hermes smoke requires password auth');
   assert.equal(config.isEmailVerificationRequired, false, 'P1 Hermes smoke must not send verification email');
   assert.equal(config.billing.isBillingEnabled, false, 'P1 Hermes smoke requires disposable billing-disabled runtime');
@@ -167,8 +168,10 @@ async function prepareHermesFixture() {
   console.info(`::add-mask::${fixture.password}`);
   const signup = await graphql('metadata', 'mutation P1Signup($email:String!,$password:String!) { signUp(email:$email,password:$password) { tokens { accessOrWorkspaceAgnosticToken { token } } } }', { email: fixture.email, password: fixture.password });
   fixture.token = sessionToken(signup.signUp.tokens.accessOrWorkspaceAgnosticToken.token);
-  const created = await graphql('metadata', 'mutation P1Workspace($input:SignUpInNewWorkspaceInput) { signUpInNewWorkspace(input:$input) { loginToken { token } workspace { id displayName } } }', { input: { displayName: `P1 CI ${process.env.GITHUB_RUN_ID} ${suffix}` } }, fixture.token);
+  const created = await graphql('metadata', 'mutation P1Workspace($input:SignUpInNewWorkspaceInput) { signUpInNewWorkspace(input:$input) { loginToken { token } workspace { id displayName workspaceUrls { subdomainUrl customUrl } } } }', { input: { displayName: `P1 CI ${process.env.GITHUB_RUN_ID} ${suffix}` } }, fixture.token);
   fixture.workspace = created.signUpInNewWorkspace.workspace;
+  const workspaceUrls = fixture.workspace.workspaceUrls;
+  assert.equal(new URL(workspaceUrls.customUrl ?? workspaceUrls.subdomainUrl).origin, FRONTEND_ORIGIN, 'P1 Hermes smoke: native workspace URL leaves the frontend origin');
   const exchange = await graphql('metadata', 'mutation P1Exchange($loginToken:String!,$origin:String!) { getAuthTokensFromLoginToken(loginToken:$loginToken,origin:$origin) { tokens { accessOrWorkspaceAgnosticToken { token } } } }', { loginToken: sessionToken(created.signUpInNewWorkspace.loginToken.token), origin: FRONTEND_ORIGIN });
   fixture.token = sessionToken(exchange.getAuthTokensFromLoginToken.tokens.accessOrWorkspaceAgnosticToken.token);
   const activated = await graphql('metadata', 'mutation P1Activate($input:ActivateWorkspaceInput!) { activateWorkspace(data:$input) { id activationStatus } }', { input: {} }, fixture.token, 180_000);
