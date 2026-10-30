@@ -102,6 +102,14 @@ export class HermesMailNewDraftInput extends OmitType(HermesMailComposeInput, [
   'mode',
 ] as const) {
   @Field() @IsString() @MaxLength(512) subject: string;
+  @Field(() => UUIDScalarType, { nullable: true })
+  @IsOptional()
+  @IsUUID()
+  draftId?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @Matches(/^[a-f0-9]{64}$/)
+  draftRevision?: string;
 }
 
 @InputType()

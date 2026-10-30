@@ -91,17 +91,20 @@ export function sanitizeMailHtml(value: string | undefined) {
   });
 }
 
-export function planMailEnvelope(input: {
-  mode: 'NEW' | 'REPLY' | 'REPLY_ALL' | 'FORWARD';
-  source: Email;
-  ownAddresses: string[];
-  from: string;
-  to?: string[];
-  cc?: string[];
-  bcc?: string[];
-  text: string;
-  html?: string;
-}): HermesMailEnvelope {
+export function planMailEnvelope(
+  input: {
+    mode: 'NEW' | 'REPLY' | 'REPLY_ALL' | 'FORWARD';
+    source: Email;
+    ownAddresses: string[];
+    from: string;
+    to?: string[];
+    cc?: string[];
+    bcc?: string[];
+    text: string;
+    html?: string;
+  },
+  options: { allowEmptyRecipients?: boolean } = {},
+): HermesMailEnvelope {
   const own = new Set(
     input.ownAddresses
       .map(mailAddress)
@@ -157,7 +160,7 @@ export function planMailEnvelope(input: {
   );
   // Never inherit Bcc from received MIME, including when forwarding it.
   const bcc = clean(input.bcc ?? []);
-  if (!dedup.size || dedup.size > 50)
+  if ((!dedup.size && !options.allowEmptyRecipients) || dedup.size > 50)
     throw new BadRequestException('MAIL_INVALID_RECIPIENTS');
   const subject = mailHeader(input.source.subject ?? '');
   const messageId = mailMessageId(input.source.messageId);
@@ -235,5 +238,69 @@ export function mailThreadKey(source: Email, ownAddresses: string[]) {
     createHash('sha256')
       .update(JSON.stringify({ root, participants }))
       .digest('hex')
+  );
+}
+
+// Canonical content for native draft CAS/replay, never SMTP acceptance evidence.
+export function mailContentSignature(
+  value: {
+    from: string;
+    to: string[];
+    cc: string[];
+    bcc: string[];
+    subject: string;
+    text: string;
+    html?: string;
+  },
+  files: { filename?: string; mimeType: string; bytes: Buffer }[],
+) {
+  const normalize = (text: string | undefined) =>
+    (text ?? '').replace(/\r\n/g, '\n').trimEnd();
+  return createHash('sha256')
+    .update(
+      JSON.stringify({
+        from: value.from,
+        to: value.to,
+        cc: value.cc,
+        bcc: value.bcc,
+        subject: value.subject,
+        text: normalize(value.text),
+        html: normalize(value.html),
+        files: files.map((file) => ({
+          filename: file.filename ?? '',
+          mimeType: file.mimeType,
+          digest: createHash('sha256').update(file.bytes).digest('hex'),
+        })),
+      }),
+    )
+    .digest('hex');
+}
+
+export function mailParsedContentSignature(source: Email) {
+  return mailContentSignature(
+    {
+      from: mailAddress(source.from?.address) ?? '',
+      to: mailAddresses(source.to),
+      cc: mailAddresses(source.cc),
+      bcc: mailAddresses(source.bcc),
+      subject: source.subject ?? '',
+      text: source.text ?? '',
+      html: sanitizeMailHtml(source.html),
+    },
+    source.attachments.map((file) => ({
+      filename: file.filename,
+      mimeType: file.mimeType,
+      bytes:
+        typeof file.content === 'string'
+          ? Buffer.from(
+              file.content,
+              file.encoding === 'base64' ? 'base64' : 'utf8',
+            )
+          : Buffer.from(
+              file.content instanceof Uint8Array
+                ? file.content
+                : new Uint8Array(file.content),
+            ),
+    })),
   );
 }
