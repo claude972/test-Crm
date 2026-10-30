@@ -390,7 +390,7 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 
 ### Claude — propriétaire exclusif du design
 - agent: claude
-- status: in_progress
+- status: done
 - assigned session:8f3db32e-4613-45e3-94f3-16e664f3cbfc ; ne pas lancer de doublon depuis une autre veille.
 - branch: feat/claude-hermes-v2-ui ; worktree créé /Volumes/Stockage/dev/hermes-crm/v2-claude-maquettes (sparse docs uniquement).
 - ownership: docs/design/hermes-v2/** uniquement ; aucune modification apps/, production, backend, compte ou connexion.
@@ -401,14 +401,21 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 
 ### Codex — contrats et vérification
 - agent: codex
-- status: ready_for_review
+- status: done
 - branch: feat/codex-hermes-v2-core ; worktree créé /Volumes/Stockage/dev/hermes-crm/v2-codex-contracts (sparse docs uniquement).
 - ownership: docs/handoff/hermes-v2-settings-bots-contract.md et hermes-v2-company-prospection-contract.md ; root possède coordination et vérification des maquettes ; ne pas modifier les fichiers Claude.
 - deliverables: contrats cible explicitement non implémentés, matrice des droits/scopes, vrai OFF par société/canal, sociétés/session/caches/onglets, données de prospection et recette ; chemins/signatures sources prouvés ; pas de fausse API existante.
 - acceptance: isolation A/B/C et arrêt en vol décrits, aucune fuite de secret ni nouveau stockage/câblage réel, revue du prototype exact et images ; pas de test/app/deploy annoncé comme fait sans preuve.
-- implementation revision: 9ed917ead33cef2b739e1b8386281776f11b735f ; contrats publiés, revues Codex réciproques faites, revue Claude en attente.
+- implementation revision: 1c6760cfc ; contrats publiés, revues Codex réciproques et revue Claude du final achevées (statique seulement).
 - dependency: design validé avant code applicatif. Codex peut préparer les contrats sans modifier les fonctionnalités pendant les maquettes.
 
 ### Garde commune
 - Les veilles lisent cette mission et n'en créent pas une copie. Pas de modification produit sous couvert d'autonomie avant validation visuelle. Maquettes = démonstration explicite, jamais faux fournisseur connecté.
 - Aucun service payant nouveau, aucune production, aucun envoi réel ; preview statique de design permise sur projet existant, séparée d'une preview CRM fonctionnelle et sans secrets.
+
+### Livraison de cette étape — validation visuelle utilisateur attendue
+- Claude implementation revision: af8ce71e86ebfa03c07ee892bc782cbcdb53a249 ; onze fichiers statiques exclusivement docs/design/hermes-v2.
+- Codex implementation revision: 1c6760cfc ; contrats proposés, aucune API V2 créée.
+- verification report: docs/handoff/hermes-v2-maquettes-recette.md et CORRECTIONS.md section finale18:12UTC ; captures et JSON de preuves identifiés.
+- preview: déploiement privé dpl_4NHEh9JihfYcRaNwtR1rj5FxLVZ8, lien complet uniquement chat ; maquettes et aucune API. Expiration31oct2026 14:07:35Martinique.
+- status meaning: done concerne exclusivement production/revue des maquettes et contrats. Câblage applicatif non commencé ; aucune validation implicite du design. Attendre choix A/B/C puis maquettes détaillées validées avant implementation.

@@ -1,0 +1,271 @@
+{
+  "sourceSha": "af8ce71e86ebfa03c07ee892bc782cbcdb53a249",
+  "desktop": [
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Atelier Fontaine",
+      "lang": "fr",
+      "screen": "dashboard",
+      "switches": 0,
+      "variant": "a",
+      "width": 1280,
+      "file": "a-dashboard-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Prospection",
+      "lang": "fr",
+      "screen": "prospection",
+      "switches": 0,
+      "variant": "a",
+      "width": 1280,
+      "file": "a-prospection-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Messagerie",
+      "lang": "fr",
+      "screen": "messagerie",
+      "switches": 0,
+      "variant": "a",
+      "width": 1280,
+      "file": "a-messagerie-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Réglages",
+      "lang": "fr",
+      "screen": "reglages",
+      "switches": 2,
+      "variant": "a",
+      "width": 1280,
+      "file": "a-reglages-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Atelier Fontaine",
+      "lang": "fr",
+      "screen": "dashboard",
+      "switches": 0,
+      "variant": "b",
+      "width": 1280,
+      "file": "b-dashboard-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Prospection",
+      "lang": "fr",
+      "screen": "prospection",
+      "switches": 0,
+      "variant": "b",
+      "width": 1280,
+      "file": "b-prospection-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Messagerie",
+      "lang": "fr",
+      "screen": "messagerie",
+      "switches": 0,
+      "variant": "b",
+      "width": 1280,
+      "file": "b-messagerie-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Réglages",
+      "lang": "fr",
+      "screen": "reglages",
+      "switches": 2,
+      "variant": "b",
+      "width": 1280,
+      "file": "b-reglages-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Atelier Fontaine",
+      "lang": "fr",
+      "screen": "dashboard",
+      "switches": 0,
+      "variant": "c",
+      "width": 1280,
+      "file": "c-dashboard-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Prospection",
+      "lang": "fr",
+      "screen": "prospection",
+      "switches": 0,
+      "variant": "c",
+      "width": 1280,
+      "file": "c-prospection-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Messagerie",
+      "lang": "fr",
+      "screen": "messagerie",
+      "switches": 0,
+      "variant": "c",
+      "width": 1280,
+      "file": "c-messagerie-desktop.png"
+    },
+    {
+      "documentWidth": 1280,
+      "font": true,
+      "heading": "Réglages",
+      "lang": "fr",
+      "screen": "reglages",
+      "switches": 2,
+      "variant": "c",
+      "width": 1280,
+      "file": "c-reglages-desktop.png"
+    }
+  ],
+  "mobile": [
+    {
+      "documentWidth": 390,
+      "heading": "Atelier Fontaine",
+      "screen": "dashboard",
+      "variant": "a",
+      "width": 390,
+      "file": "a-dashboard-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Prospection",
+      "screen": "prospection",
+      "variant": "a",
+      "width": 390,
+      "file": "a-prospection-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Messagerie",
+      "screen": "messagerie",
+      "variant": "a",
+      "width": 390,
+      "file": "a-messagerie-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Réglages",
+      "screen": "reglages",
+      "variant": "a",
+      "width": 390,
+      "file": "a-reglages-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Atelier Fontaine",
+      "screen": "dashboard",
+      "variant": "b",
+      "width": 390,
+      "file": "b-dashboard-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Prospection",
+      "screen": "prospection",
+      "variant": "b",
+      "width": 390,
+      "file": "b-prospection-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Messagerie",
+      "screen": "messagerie",
+      "variant": "b",
+      "width": 390,
+      "file": "b-messagerie-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Réglages",
+      "screen": "reglages",
+      "variant": "b",
+      "width": 390,
+      "file": "b-reglages-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Atelier Fontaine",
+      "screen": "dashboard",
+      "variant": "c",
+      "width": 390,
+      "file": "c-dashboard-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Prospection",
+      "screen": "prospection",
+      "variant": "c",
+      "width": 390,
+      "file": "c-prospection-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Messagerie",
+      "screen": "messagerie",
+      "variant": "c",
+      "width": 390,
+      "file": "c-messagerie-mobile.png"
+    },
+    {
+      "documentWidth": 390,
+      "heading": "Réglages",
+      "screen": "reglages",
+      "variant": "c",
+      "width": 390,
+      "file": "c-reglages-mobile.png"
+    }
+  ],
+  "common": [
+    {
+      "documentWidth": 390,
+      "firstMainChild": "Vue communeLecture seule — vos sociétés autorisées uniquement",
+      "switches": 0,
+      "titleTop": 197,
+      "variant": "a",
+      "width": 390
+    },
+    {
+      "documentWidth": 390,
+      "firstMainChild": "Vue communeLecture seule — vos sociétés autorisées uniquement",
+      "switches": 0,
+      "titleTop": 197,
+      "variant": "b",
+      "width": 390
+    },
+    {
+      "documentWidth": 390,
+      "firstMainChild": "Vue communeLecture seule — vos sociétés autorisées uniquement",
+      "switches": 0,
+      "titleTop": 214.25,
+      "variant": "c",
+      "width": 390
+    }
+  ],
+  "interactions": {
+    "whatsappToggleBefore": true,
+    "whatsappToggleAfter": false,
+    "emailUnchanged": false,
+    "companyOffRetainedAfterSwitch": true,
+    "verdureBothDisabled": true,
+    "humanTakeover": "Reprise humaine sur ce fil",
+    "commonMessaging": "choose-company-before-reply",
+    "realSend": false
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "deploymentId": "dpl_4NHEh9JihfYcRaNwtR1rj5FxLVZ8",
+  "sourceSha": "af8ce71e86ebfa03c07ee892bc782cbcdb53a249",
+  "bareStatus": 302,
+  "anonymousShareStatus": 200,
+  "matchedPublicFiles": [
+    "app.html",
+    "assets/app.js",
+    "assets/base.css",
+    "assets/donnees.js",
+    "assets/polices/Geist-LICENSE.txt",
+    "assets/polices/Geist-Variable.woff2",
+    "assets/variante-a.css",
+    "assets/variante-b.css",
+    "assets/variante-c.css",
+    "index.html"
+  ],
+  "documentationOmitted": [
+    "README.md (source documentation omitted from public serving)"
+  ],
+  "vercelFeedbackSuffixOnly": [
+    "app.html",
+    "index.html"
+  ],
+  "ttlSeconds": 86400,
+  "createdAt": 1793383655521,
+  "expiresUnixSeconds": 1793470055
+}
