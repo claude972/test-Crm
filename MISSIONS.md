@@ -306,3 +306,13 @@ Le propriétaire demande poursuite autonome jusqu'au lien de test, avec sous-age
 - Recettes réelles dashboard A/B/C et prospection/opposition native préparées (7 scénarios chacune), non exécutées avant migration officielle. Wrapper CI avant reset, accès services jetables uniquement.
 - Revue indépendante prospection : états user/workspace invalides et rejeux DRAFT dont audience a changé reproduits. prospection_api corrige ; ne pas annoncer ce lot validé avant ses tests et intégration.
 - Prochaines étapes : récupérer/appliquer/recompiler migration générée par CLI natif, vérifier via registre officiel, exécuter recettes et navigateur desktop/mobile. Nouveau lien de partage Vercel attendu au matin après recette, ancien backend expiré.
+
+
+### Checkpoint nuit — 06:05 UTC / 02:05 Martinique
+- Source intégration `7c2f4e3aa` puis checkpoint `52e7b6628` ; PR draft [11](https://github.com/claude972/test-Crm/pull/11). Rapport détaillé : docs/verification/hermes-night-20261030-0605utc.md sur feat/codex-hermes-integration.
+- Frontend complet Claude intégré jusqu’à `dcf18cadd` : shell Hermès/Monday, dashboard, réception JSON/qualification/brouillon natif et navigation. Bundle source19576db92 compilé en ligne ; **82 tests frontend / 10 suites passent** après intégration des validations. PWA Hermès et icônes réelles ajoutées par Codex.
+- **200 tests backend**, compilation/typecheck production passent. Migration officielle générée, revue, enregistrée puis réellement vérifiée en PostgreSQL CI : up/down/up, FK, concurrence/idempotence, isolation, persistance, stockage rollback et cascade réussis. **7 scénarios prospection HTTP/ORM passent** (A/B, contacts natifs, DRAFT sans livraison, opposition durable après réimport/révocation).
+- Recette dashboard A/B/C : fixture FK corrigée puis dates inter-VM identifiées ; correctif98a3ebe9e transmet ISO sans modifier les assertions, attend confirmation CI. backend_review reste propriétaire de cette suite.
+- Recette navigateur bloque avant UI au premier signup. preview_hosting investigue les diagnostics expurgés du run41010788330 ; sourcebb9fac8f2 aligne l’environnement HTTP sur CLI/preview sans toucher aux protections Auth. Ne pas annoncer la recette complète verte.
+- Authentification de changement de workspace même origine non résolue : les filtres dashboards ne changent pas le contexte CRUD. Adaptateurs externes restent non configurés sans accès vérifié. Aucun e-mail externe, service payant ou production modifié.
+- Prochain lien : nouvelle session90min vers05:00–05:15 Martinique, bundle exact, contrôle public puis partage privé Vercel et navigateur destinataire. Ancien lien expiré, aucun nouveau lien utilisable prétendu avant preuve.
