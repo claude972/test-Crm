@@ -17,7 +17,9 @@ export type HermesQualificationFormValues = {
   rowIds: string[];
   professionalPurpose: string;
   privacyNoticeUrl: string;
-  informationMethod: HermesInformationMethod;
+  // Null until the operator picks one. The contract's input requires a value,
+  // so an unanswered form is refused here rather than sent with a guess.
+  informationMethod: HermesInformationMethod | null;
 };
 
 export type HermesQualificationValidation = {
@@ -93,6 +95,13 @@ export const validateHermesQualificationInput = ({
     });
   }
 
+  if (informationMethod === null) {
+    issues.push({
+      key: 'information-method',
+      code: 'information-method-required',
+    });
+  }
+
   const trimmedPrivacyNoticeUrl = privacyNoticeUrl.trim();
 
   if (trimmedPrivacyNoticeUrl.length === 0) {
@@ -106,7 +115,12 @@ export const validateHermesQualificationInput = ({
     });
   }
 
-  if (issues.length > 0 || batchId.length === 0) {
+  if (
+    issues.length > 0 ||
+    batchId.length === 0 ||
+    // Narrows for the input below: the guard above already recorded the issue.
+    informationMethod === null
+  ) {
     return { input: null, issues };
   }
 

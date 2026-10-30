@@ -30460,3 +30460,7 @@ msgstr "L'URL d'information ne doit porter aucun identifiant."
 msgid "Campaign name: {0} characters, {1} at most."
 msgstr "Nom de campagne : {0} caractères, {1} au maximum."
 
+
+msgid "Choose how these contacts are informed."
+msgstr "Choisissez comment ces contacts sont informés."
+

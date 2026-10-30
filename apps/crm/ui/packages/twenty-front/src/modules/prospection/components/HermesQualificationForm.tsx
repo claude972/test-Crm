@@ -69,8 +69,11 @@ export const HermesQualificationForm = ({
 
   const [professionalPurpose, setProfessionalPurpose] = useState('');
   const [privacyNoticeUrl, setPrivacyNoticeUrl] = useState('');
+  // Nothing is preselected. Defaulting to 'already-informed' would have the
+  // form assert, on the operator's behalf, that these people had already been
+  // told — which is exactly the claim that must be made deliberately.
   const [informationMethod, setInformationMethod] =
-    useState<HermesInformationMethod>('already-informed');
+    useState<HermesInformationMethod | null>(null);
   const [submittedIssues, setSubmittedIssues] = useState<HermesInputIssue[]>(
     [],
   );
@@ -155,7 +158,7 @@ export const HermesQualificationForm = ({
           <Field.Label>{t`Information method`}</Field.Label>
           <RadioGroup
             aria-label={t`Information method`}
-            value={informationMethod}
+            value={informationMethod ?? ''}
             onValueChange={(value) => {
               // Only the two values the contract accepts are kept.
               if (

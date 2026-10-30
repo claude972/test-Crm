@@ -76,7 +76,12 @@ export const useHermesEvolutionConnection =
       );
 
     const refresh = useCallback(() => {
-      void refetch();
+      // refetch rejects when the refresh fails, and an unhandled rejection
+      // would land in the console instead of on the screen. The rejection is
+      // absorbed here because the failure is already reported where it
+      // belongs: the query's own error drives the unknown state above, so a
+      // failed refresh shows as unknown rather than as a stale status.
+      refetch().catch(() => {});
     }, [refetch]);
 
     return {
