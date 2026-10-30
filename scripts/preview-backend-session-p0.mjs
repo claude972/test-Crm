@@ -30,8 +30,11 @@ const maxMinutes = Number(process.env.P0_PREVIEW_MAX_MINUTES ?? 60);
 assert.ok(Number.isFinite(maxMinutes) && maxMinutes > 0 && maxMinutes <= 90, 'Duration must be >0 and <=90 minutes');
 assert.ok([undefined, 'true', 'false'].includes(process.env.P0_PREVIEW_START_WORKER), 'Worker option must be true or false');
 const withWorker = process.env.P0_PREVIEW_START_WORKER === 'true';
-const hardDeadline = Date.now() + 90 * 60_000;
-let deadline = hardDeadline;
+const startedAt = Date.now();
+const expiry = process.env.P0_PREVIEW_EXPIRES_AT;
+if (expiry !== undefined) assert.match(expiry, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/, 'Expiry must be an absolute UTC ISO timestamp');
+const deadline = expiry === undefined ? startedAt + maxMinutes * 60_000 : Date.parse(expiry);
+assert.ok(Number.isFinite(deadline) && deadline > startedAt && deadline <= startedAt + 90 * 60_000, 'Expiry must be in the future and at most 90 minutes away');
 let stopped = false;
 let receivedSignal;
 const children = new Set();
@@ -51,7 +54,8 @@ const env = {
 const delay = () => new Promise((resolve) => setTimeout(resolve, 1000));
 const active = () => !stopped && Date.now() < deadline;
 function signalChild(child, signal) {
-  if (!child.pid || child.exitCode !== null || child.signalCode !== null) return;
+  // Descendants can outlive the detached group leader.
+  if (!child.pid) return;
   try { process.kill(-child.pid, signal); } catch (error) {
     if (error.code !== 'ESRCH') throw error;
   }
@@ -99,7 +103,8 @@ function publicOrigin(value) {
   assert.equal(typeof value, 'string', 'Public URL must be a string');
   const url = new URL(value);
   assert.equal(url.protocol, 'https:', 'Public URLs must use HTTPS');
-  assert.ok(url.hostname && !['localhost', '127.0.0.1', '[::1]'].includes(url.hostname), 'Public hostname required');
+  assert.ok(url.hostname.endsWith('.vercel.app'), 'An isolated Vercel preview hostname is required');
+  assert.equal(url.port, '', 'Public URLs cannot contain a port');
   assert.equal(url.username + url.password + url.search + url.hash, '', 'Public URLs cannot contain credentials, query or fragment');
   assert.equal(url.pathname, '/', 'Public URLs must be origins');
   return url.origin;
@@ -110,7 +115,10 @@ function readControl() {
   const value = JSON.parse(content);
   assert.ok(value && !Array.isArray(value) && typeof value === 'object', 'Control must be an object');
   assert.deepEqual(Object.keys(value).sort(), ['frontendUrl', 'serverUrl'], 'Control accepts public URLs only');
-  return { serverUrl: publicOrigin(value.serverUrl), frontendUrl: publicOrigin(value.frontendUrl) };
+  const serverUrl = publicOrigin(value.serverUrl);
+  const frontendUrl = publicOrigin(value.frontendUrl);
+  assert.equal(serverUrl, frontendUrl, 'Server and frontend must share the same public origin');
+  return { serverUrl, frontendUrl };
 }
 async function readiness(server, worker) {
   const expires = Math.min(Date.now() + 120_000, deadline);
@@ -135,7 +143,7 @@ async function readiness(server, worker) {
 
 try {
   console.info('P0 preview: waiting up to 15 minutes for public control URLs');
-  const controlDeadline = Math.min(Date.now() + 15 * 60_000, hardDeadline);
+  const controlDeadline = Math.min(Date.now() + 15 * 60_000, deadline);
   while (active() && !existsSync(controlFile) && Date.now() < controlDeadline) await delay();
   assert.ok(active() && existsSync(controlFile), 'Public control URLs were not received in time');
   let control = readControl();
@@ -145,7 +153,6 @@ try {
   await command('dist/command/command.js', ['run-instance-commands', '--force', '--include-slow']);
   let server;
   let worker;
-  let firstReady = true;
   let lastInvalidControl;
   while (active()) {
     if (!server) {
@@ -154,10 +161,6 @@ try {
       server = launch('dist/main.js');
       if (withWorker) worker = launch('dist/queue-worker/queue-worker.js');
       await readiness(server, worker);
-      if (firstReady) {
-        deadline = Math.min(hardDeadline, Date.now() + maxMinutes * 60_000);
-        firstReady = false;
-      }
       console.info(`P0 preview ready: healthz and client-config verified; worker=${withWorker}; expires=${new Date(deadline).toISOString()}`);
     }
     assertRunning(server);
