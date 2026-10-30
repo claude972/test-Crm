@@ -1222,3 +1222,29 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Publication approuvée par root après revue indépendante v3_contracts_review puis lecture root. Hashes SHA256 avant stage concordants avec les contenus revus : messagerie290711d627f3f1815d015db0663c70a52e8c4d51c5f89a5fe985f79241a02a1a ; CRM771a12584b24d107c3b054ea54db510023fee3fd1bf08a895942f231b7228f5c. Aucun changement de contenu par le coordinateur ; index limité aux deux documents, git diff --cached --check propre. Aucune source applicative incluse.
 - CLI root → session2418 / Claude8f3db32e-4613-45e3-94f3-16e664f3cbfc : START phase 1 envoyé et accepté, transcript19:10:27UTC ; outils médias observés à19:11:11 et19:11:42UTC. Claude in_progress, maquettes détaillées sous docs/design/hermes-v3 uniquement ; ces observations ne constituent pas une livraison ni une recette média fournisseur. Aucune nouvelle commande CLI lancée par le sous-agent coordination.
 - Codex ready_for_review : audit/contrats livrés ; revue Claude sur révision finale encore attendue, pas done. Root poursuivra revue exacte des maquettes puis preview statique isolée. Aucune preview V3 disponible à ce checkpoint, aucun live validé et aucun test applicatif/DB/provider exécuté pour ces documents. Gate visuelle utilisateur avant câblage/phases2–8 inchangée.
+
+
+### HERMES-V3-AUDIT-MAQUETTES-20261030 — prérevue intermédiaire, 2026-10-30 19:25 UTC
+
+- Coordination documentaire sur preuves root ; aucun nouveau commit de livrable Codex/Claude. Reviewer a revérifié contrats8c4460fd874ec8d2ab17ffcdd757c7cc98dcca2f et leurs hashes inchangés ; aucun finding documentaire ouvert dans ce périmètre. Revue Claude encore attendue, Codex reste ready_for_review.
+- CLI root/session2418 → Claude8f3db32e-4613-45e3-94f3-16e664f3cbfc depuis START : types de contrats puis SHA8c transmis ; vidéo MDN CC0 vérifiée dans /private/tmp puis copiée par Claude à19:13:38UTC ; demande de relecture par sous-agent Claude ; arbitrages accent vert et board pipeline maintenus dans le périmètre de maquettes. Activité observée : donnees.js19:16:46, donnees-crm.js19:17:54, app.js19:22:07 et assets audio/vidéo/SVG locaux. Ces preuves d’activité ne valent ni livraison poussée ni validation finale.
+- Prérevue v3_design_review sur JavaScript non commité, donc sans SHA final : trois findings ci-dessous transmis via CLI en deux étapes ; pas de fix observé à ce checkpoint. Une VM a vérifié12combinaisons de modes correctes ; scan sans réseau fournisseur, micro réel ni stockage persistant. Ces contrôles statiques/VM ne constituent pas une recette navigateur exhaustive.
+- Point audio à vérifier : rejet de play() et nettoyage du lecteur à contrôler ; pas de finding runtime établi à ce stade. Source applicative/epoch inchangée. Préparation preview : projetID et protection existants préservés ; serveur local127.0.0.1:8769/session60064 pour préparation, aucun déploiement V3 avant SHA revu. Aucun lien de preview V3 disponible et aucune API réelle raccordée.
+
+#### V3-DESIGN-001 — état de brouillon conservé par popstate
+- reviewer: v3_design_review ; assigned agent: claude ; status: open.
+- reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: fichiers locaux en cours, non commités, pas de SHA final.
+- Evidence communiquée par root : app.js autour de845 pour popstate conserve ui brouillon/composeur après navigation, contrairement au chemin aller autour de144. Risque d’afficher un état de composition dans le mauvais contexte.
+- Expected correction: harmoniser la remise à zéro ou le cloisonnement contextuel des états de composition sur navigation et historique, vérifier retour/avance entre fils/sociétés ; publier SHA fix et preuve navigateur. Fix commit: aucun observé ; recheck: pending.
+
+#### V3-DESIGN-002 — sélecteur local annonce une sauvegarde sans mutation
+- reviewer: v3_design_review ; assigned agent: claude ; status: open.
+- reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: fichiers locaux en cours, non commités, pas de SHA final.
+- Evidence communiquée par root : app.js autour de370–377, sélecteur local annonce enregistré sans mutation mémoire correspondante.
+- Expected correction: appliquer le mode sélectionné dans l’état de démonstration et recalculer mode effectif/raison avec priorité restrictive ; ne pas annoncer de persistance serveur. Vérifier navigation et indépendance des fils/sociétés. Fix commit: aucun observé ; recheck: pending.
+
+#### V3-DESIGN-003 — fixture réception et affaire incohérentes
+- reviewer: v3_design_review ; assigned agent: claude ; status: open.
+- reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: fixtures locales en cours, non commitées, pas de SHA final.
+- Evidence communiquée par root : réception rc-803 pending sans affaire mais op-2 déjà liée. Les données de démonstration contredisent la séparation qualification/affaire annoncée.
+- Expected correction: réconcilier statut de qualification et relations réception/prospect/affaire dans les fixtures ; vérifier les liens entre inbox, fiche, pipeline et campagne sans transformer toute réception en opportunité. Fix commit: aucun observé ; recheck: pending.
