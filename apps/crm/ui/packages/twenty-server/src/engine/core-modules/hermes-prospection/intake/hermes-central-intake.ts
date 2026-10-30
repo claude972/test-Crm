@@ -32,6 +32,12 @@ export async function centralIntake(
 ): Promise<{
   connections: Record<string, HermesIntakeConnection>;
   assertCurrent: (manager?: EntityManager) => Promise<void>;
+  assertRevisionViaQuery: (
+    query: (
+      sql: string,
+      parameters?: unknown[],
+    ) => Promise<Record<string, unknown>[]>,
+  ) => Promise<void>;
 }> {
   const snapshot = await reader.resolveByConnectionId(connectionId, 'INTAKE');
   const assertCurrent = async (manager?: EntityManager) => {
