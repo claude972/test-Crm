@@ -368,16 +368,19 @@ export class HermesMediaService {
   }
 
   // Internal provider ingress only; the receiver has already authenticated the workspace.
-  async receive(input: {
-    workspaceId: string;
-    conversationId: string;
-    providerConnectionId: string;
-    providerMessageId: string;
-    kind: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'FILE';
-    filename?: string;
-    mimeType: string;
-    bytes: Buffer;
-  }) {
+  async receive(
+    input: {
+      workspaceId: string;
+      conversationId: string;
+      providerConnectionId: string;
+      providerMessageId: string;
+      kind: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'FILE';
+      filename?: string;
+      mimeType: string;
+      bytes: Buffer;
+    },
+    options: { assertLive?: (manager?: EntityManager) => Promise<void> } = {},
+  ) {
     const format = HERMES_MEDIA_FORMATS[input.kind];
     if (
       !input.bytes.length ||
@@ -399,6 +402,7 @@ export class HermesMediaService {
         'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
         [`hermes-media:${id}`],
       );
+      await options.assertLive?.(manager);
       const workspace = await manager.getRepository(WorkspaceEntity).findOneBy({
         id: input.workspaceId,
         deletedAt: IsNull(),
@@ -411,6 +415,7 @@ export class HermesMediaService {
         id,
         workspaceId: input.workspaceId,
       });
+      await options.assertLive?.(manager);
       if (existing) {
         if (
           existing.conversationId !== input.conversationId ||
@@ -453,21 +458,25 @@ export class HermesMediaService {
         mimeType: input.mimeType,
         size: input.bytes.length,
       });
+      await options.assertLive?.(manager);
       const target = await this.uploads.createFileUpload({
         workspaceId: input.workspaceId,
         filename,
         size: input.bytes.length,
         fileFolder: FileFolder.AgentChat,
       });
+      await options.assertLive?.(manager);
       await this.uploads.receiveFileStream({
         workspaceId: input.workspaceId,
         fileId: target.fileId,
         stream: Readable.from(input.bytes),
       });
+      await options.assertLive?.(manager);
       await this.uploads.completeFileUpload({
         workspaceId: input.workspaceId,
         fileId: target.fileId,
       });
+      await options.assertLive?.(manager);
       const file = await manager.getRepository(FileEntity).findOneBy({
         id: target.fileId,
         workspaceId: input.workspaceId,
@@ -481,6 +490,7 @@ export class HermesMediaService {
         file.contentSha256 !== contentSha256
       )
         throw new BadRequestException('MEDIA_CONTENT_MISMATCH');
+      await options.assertLive?.(manager);
       await assets.save({
         id,
         workspaceId: input.workspaceId,
@@ -497,6 +507,7 @@ export class HermesMediaService {
         contentSha256,
         expiresAt: new Date(),
       });
+      await options.assertLive?.(manager);
       return { assetId: id };
     });
   }
