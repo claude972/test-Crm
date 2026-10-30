@@ -5,6 +5,10 @@ import { type CampaignBatchSendOutcome } from 'src/modules/emailing/types/campai
 import { type CampaignDeliverySettlement } from 'src/modules/emailing/types/campaign-delivery-settlement.type';
 import { resolveCampaignSendFailure } from 'src/modules/emailing/utils/resolve-campaign-send-failure.util';
 import { isDefined } from 'kovaa-lab-shared/utils';
+import {
+  EmailingDomainDriverException,
+  EmailingDomainDriverExceptionCode,
+} from 'src/engine/core-modules/emailing-domain/drivers/exceptions/emailing-domain-driver.exception';
 
 export const resolveCampaignBatchSettlements = ({
   claimedRecipients,
@@ -39,9 +43,20 @@ export const resolveCampaignBatchSettlements = ({
       continue;
     }
 
-    if (!isDefined(entry.messageId)) {
+    if (
+      !isDefined(entry.messageId) ||
+      entry.errorCode ===
+        EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED
+    ) {
       const { state, skipReason, failureReason } = resolveCampaignSendFailure(
-        new Error(entry.errorMessage ?? 'Provider rejected the destination'),
+        isDefined(entry.errorCode)
+          ? new EmailingDomainDriverException(
+              entry.errorMessage ?? 'Provider outcome',
+              entry.errorCode,
+            )
+          : new Error(
+              entry.errorMessage ?? 'Provider rejected the destination',
+            ),
       );
 
       settlementByDeliveryId.set(recipient.messageId, {
@@ -75,7 +90,7 @@ export const resolveCampaignBatchSettlements = ({
       deliveryId: recipient.messageId,
       state: CAMPAIGN_DELIVERY_STATE.FAILED,
       skipReason: null,
-      failureReason: CAMPAIGN_FAILURE_REASON.UNKNOWN,
+      failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
       providerMessageId: null,
       sentAt: null,
     });

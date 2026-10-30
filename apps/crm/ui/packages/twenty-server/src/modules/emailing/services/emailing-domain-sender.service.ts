@@ -29,6 +29,7 @@ import { getDomainFromEmail } from 'src/utils/get-domain-from-email';
 import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
 import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/workspace-scoped-repository';
 import { isDefined } from 'kovaa-lab-shared/utils';
+import { getSoleEnvelopeRecipient } from 'src/engine/core-modules/emailing-domain/utils/get-sole-envelope-recipient.util';
 
 @Injectable()
 export class EmailingDomainSenderService {
@@ -125,7 +126,7 @@ export class EmailingDomainSenderService {
     const suppressedRecipientIndexes: number[] = [];
 
     recipients.forEach((recipient, recipientIndex) => {
-      if (blockedAddresses.has(recipient.email.trim().toLowerCase())) {
+      if (blockedAddresses.has(this.canonicalRecipient(recipient.email))) {
         suppressedRecipientIndexes.push(recipientIndex);
 
         return;
@@ -169,6 +170,7 @@ export class EmailingDomainSenderService {
         messageId: entry.messageId,
         headerMessageId: entry.headerMessageId,
         errorMessage: entry.errorMessage,
+        errorCode: entry.errorCode,
       })),
       suppressedRecipientIndexes,
     };
@@ -192,7 +194,9 @@ export class EmailingDomainSenderService {
     const suppressions =
       await this.messageSuppressionService.findApplicableSuppressions({
         workspaceId,
-        emailAddresses,
+        emailAddresses: emailAddresses.map((address) =>
+          this.canonicalRecipient(address),
+        ),
         unsubscribeTopicId,
       });
 
@@ -299,7 +303,9 @@ export class EmailingDomainSenderService {
     const suppressions =
       await this.messageSuppressionService.findApplicableSuppressions({
         workspaceId,
-        emailAddresses: allRecipients,
+        emailAddresses: allRecipients.map((address) =>
+          this.canonicalRecipient(address),
+        ),
         unsubscribeTopicId: emailContent.unsubscribeTopicId,
       });
 
@@ -316,7 +322,7 @@ export class EmailingDomainSenderService {
     );
 
     const isDeliverable = (address: string): boolean =>
-      !blockedAddresses.has(address.trim().toLowerCase());
+      !blockedAddresses.has(this.canonicalRecipient(address));
 
     const to = emailContent.to.filter(isDeliverable);
 
@@ -332,5 +338,16 @@ export class EmailingDomainSenderService {
       cc: emailContent.cc?.filter(isDeliverable),
       bcc: emailContent.bcc?.filter(isDeliverable),
     };
+  }
+
+  private canonicalRecipient(address: string): string {
+    const recipient = getSoleEnvelopeRecipient({ to: [address] });
+    if (!isDefined(recipient)) {
+      throw new EmailingDomainDriverException(
+        'Recipient must contain exactly one valid email address',
+        EmailingDomainDriverExceptionCode.CONFIGURATION_ERROR,
+      );
+    }
+    return recipient;
   }
 }

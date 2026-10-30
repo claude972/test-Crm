@@ -30,6 +30,13 @@ export const resolveCampaignSendFailure = (
   }
 
   switch (error.code) {
+    case EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED:
+      return {
+        state: CAMPAIGN_DELIVERY_STATE.FAILED,
+        skipReason: null,
+        failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
+        shouldRetry: false,
+      };
     case EmailingDomainDriverExceptionCode.ALL_RECIPIENTS_SUPPRESSED:
       return {
         state: CAMPAIGN_DELIVERY_STATE.SKIPPED,

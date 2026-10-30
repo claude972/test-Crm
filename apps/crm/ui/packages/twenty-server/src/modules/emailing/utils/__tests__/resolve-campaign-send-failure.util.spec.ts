@@ -11,6 +11,19 @@ const driverException = (code: EmailingDomainDriverExceptionCode) =>
   new EmailingDomainDriverException('failure', code);
 
 describe('resolveCampaignSendFailure', () => {
+  it('quarantines an unconfirmed provider outcome without treating it as sent or retryable', () => {
+    const failure = resolveCampaignSendFailure(
+      driverException(
+        EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED,
+      ),
+    );
+    expect(failure).toEqual({
+      state: CAMPAIGN_DELIVERY_STATE.FAILED,
+      failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
+      skipReason: null,
+      shouldRetry: false,
+    });
+  });
   it('should retry a failure that did not come from the driver', () => {
     const failure = resolveCampaignSendFailure(new Error('socket hang up'));
 

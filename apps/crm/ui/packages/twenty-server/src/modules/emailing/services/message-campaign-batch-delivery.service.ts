@@ -12,7 +12,10 @@ import { CAMPAIGN_FAILURE_REASON } from 'src/engine/core-modules/emailing-domain
 import { CAMPAIGN_SEND_RETRY_BACKOFF } from 'src/engine/core-modules/emailing-domain/constants/campaign-send-retry-backoff.constant';
 import { CAMPAIGN_SEND_RETRY_LIMIT } from 'src/engine/core-modules/emailing-domain/constants/campaign-send-retry-limit.constant';
 import { CAMPAIGN_SKIP_REASON } from 'src/engine/core-modules/emailing-domain/constants/campaign-skip-reason.constant';
-import { CLAIMABLE_CAMPAIGN_DELIVERY_STATES } from 'src/engine/core-modules/emailing-domain/constants/claimable-campaign-delivery-states.constant';
+import {
+  buildClaimableCampaignDeliveryCriteria,
+  buildNonQuarantinedCampaignDeliveryCriteria,
+} from 'src/engine/core-modules/emailing-domain/utils/build-claimable-campaign-delivery-criteria.util';
 import { SEND_SLOT_RETRY } from 'src/engine/core-modules/emailing-domain/constants/send-slot-retry.constant';
 import { type SendCampaignEmailBatchJobData } from 'src/engine/core-modules/emailing-domain/types/send-campaign-email-batch-job-data.type';
 import { type SendSlotRefusal } from 'src/engine/core-modules/emailing-domain/types/send-slot-refusal.type';
@@ -42,6 +45,7 @@ import { chunkRecipientsToAdmissibleSize } from 'src/modules/emailing/utils/chun
 import { computeSendSlotBackoffMs } from 'src/modules/emailing/utils/compute-send-slot-backoff-ms.util';
 import { resolveCampaignBatchSettlements } from 'src/modules/emailing/utils/resolve-campaign-batch-settlements.util';
 import { resolveCampaignSendFailure } from 'src/modules/emailing/utils/resolve-campaign-send-failure.util';
+import { getSoleEnvelopeRecipient } from 'src/engine/core-modules/emailing-domain/utils/get-sole-envelope-recipient.util';
 import { MessageChannelMessageAssociationWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association.workspace-entity';
 import { MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
 import { buildOutboundThreadingHeaders } from 'src/modules/messaging/message-outbound-manager/utils/build-outbound-threading-headers.util';
@@ -165,7 +169,9 @@ export class MessageCampaignBatchDeliveryService {
 
     const deliverableRecipientCount = claimedRecipients.filter(
       (recipient) =>
-        !blockedAddresses.has(recipient.email.trim().toLowerCase()),
+        !blockedAddresses.has(
+          getSoleEnvelopeRecipient({ to: [recipient.email] }) ?? '',
+        ),
     ).length;
 
     const sendRefusal =
@@ -368,6 +374,28 @@ export class MessageCampaignBatchDeliveryService {
 
     const fromAddress = campaign.fromAddress?.primaryEmail ?? '';
 
+    const { generatedMaps: handedOff } = await this.workspaceOrmManager
+      .getRepository(
+        CampaignDeliveryWorkspaceEntity,
+        { shouldBypassPermissionChecks: true },
+        { shouldSkipEventEmission: true },
+      )
+      .update(
+        {
+          id: In(claimedRecipients.map((recipient) => recipient.messageId)),
+          claimToken,
+          state: CAMPAIGN_DELIVERY_STATE.SENDING,
+        },
+        {
+          failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
+        },
+      );
+    const handedOffIds = new Set(handedOff.map((delivery) => delivery.id));
+    const handedOffRecipients = claimedRecipients.filter((recipient) =>
+      handedOffIds.has(recipient.messageId),
+    );
+    if (handedOffRecipients.length === 0) return;
+
     const providerOutcome = await this.emailingDomainSenderService
       .sendEmailBatch({
         workspaceId,
@@ -375,7 +403,7 @@ export class MessageCampaignBatchDeliveryService {
         sendKind: 'MARKETING',
         from: fromAddress,
         template: trackedBatch.template,
-        recipients: claimedRecipients.map((recipient) => ({
+        recipients: handedOffRecipients.map((recipient) => ({
           email: recipient.email,
           replacements:
             trackedBatch.replacementsByDeliveryId.get(recipient.messageId) ??
@@ -393,7 +421,7 @@ export class MessageCampaignBatchDeliveryService {
         const { shouldRetry } = await this.recordBatchFailure({
           campaignId,
           claimToken,
-          claimedRecipients,
+          claimedRecipients: handedOffRecipients,
           error,
         });
 
@@ -409,14 +437,14 @@ export class MessageCampaignBatchDeliveryService {
     }
 
     const settlements = resolveCampaignBatchSettlements({
-      claimedRecipients,
+      claimedRecipients: handedOffRecipients,
       outcome: providerOutcome,
     });
 
     const headerMessageIdByDeliveryId = new Map<string, string>();
 
     for (const entry of providerOutcome.entries) {
-      const recipient = claimedRecipients[entry.recipientIndex];
+      const recipient = handedOffRecipients[entry.recipientIndex];
 
       if (isDefined(recipient) && isDefined(entry.headerMessageId)) {
         headerMessageIdByDeliveryId.set(
@@ -493,6 +521,8 @@ export class MessageCampaignBatchDeliveryService {
     const sentDeliveryIds = sentSettlements.map(
       (settlement) => settlement.deliveryId,
     );
+
+    if (sentDeliveryIds.length === 0) return;
 
     await this.emailBillingService
       .billSentEmails({
@@ -591,7 +621,7 @@ export class MessageCampaignBatchDeliveryService {
         { shouldSkipEventEmission: true },
       )
       .update(
-        { id: In(deliveryIds), state: In(CLAIMABLE_CAMPAIGN_DELIVERY_STATES) },
+        { id: In(deliveryIds), ...buildClaimableCampaignDeliveryCriteria() },
         {
           state: CAMPAIGN_DELIVERY_STATE.SENDING,
           claimToken,
@@ -675,6 +705,7 @@ export class MessageCampaignBatchDeliveryService {
   }: {
     claimToken: string;
   }): Promise<void> {
+    // Only unmarked claims are safe to requeue. A transport handoff survives failed recovery writes.
     await this.workspaceOrmManager
       .getRepository(
         CampaignDeliveryWorkspaceEntity,
@@ -682,7 +713,24 @@ export class MessageCampaignBatchDeliveryService {
         { shouldSkipEventEmission: true },
       )
       .update(
-        { claimToken },
+        {
+          claimToken,
+          failureReason: CAMPAIGN_FAILURE_REASON.SEND_OUTCOME_UNCONFIRMED,
+        },
+        {
+          state: CAMPAIGN_DELIVERY_STATE.FAILED,
+          claimToken: null,
+          claimExpiresAt: null,
+        },
+      );
+    await this.workspaceOrmManager
+      .getRepository(
+        CampaignDeliveryWorkspaceEntity,
+        { shouldBypassPermissionChecks: true },
+        { shouldSkipEventEmission: true },
+      )
+      .update(
+        { claimToken, ...buildNonQuarantinedCampaignDeliveryCriteria() },
         {
           state: CAMPAIGN_DELIVERY_STATE.QUEUED,
           claimToken: null,
@@ -692,9 +740,8 @@ export class MessageCampaignBatchDeliveryService {
   }
 
   // Settling threw after the provider had already taken the batch, so the rows
-  // still hold their claim. The rows the provider accepted are settled first:
-  // whatever is left claimed after this is re-queued by the finally block, and
-  // only recipients the provider never delivered to may safely go back.
+  // still hold their claim. Only acknowledged outcomes may become SENT;
+  // unresolved handoffs keep their durable quarantine through finally/expiry.
   private async settleClaimsAlreadyHandedToProvider({
     workspaceId,
     claimToken,
