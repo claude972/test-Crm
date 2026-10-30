@@ -14,16 +14,16 @@ body { font-size: 13px; }
 .ecran { gap: calc(var(--u) * 2); max-width: 1240px; padding: calc(var(--u) * 3); }
 
 /* Ordre borné au tableau de bord : ailleurs, le titre reste premier. */
-[data-ecran='dashboard'] .entete { order: 1; }
-[data-ecran='dashboard'] .bloc-synthese { order: 2; }
-[data-ecran='dashboard'] .indicateurs { order: 3; }
-[data-ecran='dashboard'] .bloc:has(.pipeline) { order: 4; }
-[data-ecran='dashboard'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 5; }
+[data-ecran='dashboard'][data-contexte='societe'] .entete { order: 1; }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc-synthese { order: 2; }
+[data-ecran='dashboard'][data-contexte='societe'] .indicateurs { order: 3; }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc:has(.pipeline) { order: 4; }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 5; }
 
 .entete-titre { font-size: 19px; }
 
 /* La synthèse ouvre l'écran et porte l'autorité visuelle. */
-[data-ecran='dashboard'] .bloc-synthese {
+[data-ecran='dashboard'][data-contexte='societe'] .bloc-synthese {
   border-color: var(--bord-fort);
   padding: calc(var(--u) * 2.5);
 }

@@ -256,15 +256,27 @@
     });
     f.append(onglets);
 
-    // L'état du bot est affiché ici, mais ne se règle pas ici : le module
-    // montre l'état et renvoie au centre Réglages.
+    // Le fil courant est déterminé avant le bandeau : sans cela le bandeau
+    // décrivait le canal pendant que la notice décrivait le fil, et les deux
+    // se contredisaient après une reprise en main.
+    const filsCanal = D.conversations[s.id].filter((c) => c.canal === etat.canal);
+    const courante0 = filsCanal.find((c) => c.id === etat.conversation) || filsCanal[0];
+    const reprisCourant = courante0 ? Boolean(etat.repriseHumaine[courante0.id]) : false;
+
+    // L'état se montre ici, il ne se règle pas ici : le module renvoie au
+    // centre Réglages.
     const bandeBot = el('div', 'bande-bot');
     const actif = etat.canal === 'whatsapp' ? bots.whatsapp : bots.email;
-    bandeBot.append(el('span', actif ? 'puce est-actif' : 'puce', actif ? 'Bot actif' : 'Bot coupé'));
+    const reprisAffiche = actif && reprisCourant;
+    bandeBot.append(el('span',
+      reprisAffiche ? 'puce est-repris' : actif ? 'puce est-actif' : 'puce',
+      reprisAffiche ? 'Reprise humaine sur ce fil' : actif ? 'Bot actif' : 'Bot coupé'));
     bandeBot.append(el('span', 'bande-bot-texte',
-      actif
-        ? 'Le bot peut proposer une réponse. Rien ne part sans votre envoi.'
-        : 'Bot coupé. La réception et vos réponses restent possibles.'));
+      reprisAffiche
+        ? 'Le bot ne propose plus rien sur ce fil. Il reste actif sur les autres fils de ce canal ; sa réactivation ici se fait dans Réglages.'
+        : actif
+          ? 'Le bot peut proposer une réponse. Rien ne part sans votre envoi.'
+          : 'Bot coupé. La réception et vos réponses restent possibles.'));
     const lien = el('button', 'lien', 'Régler dans Réglages');
     lien.type = 'button';
     lien.addEventListener('click', () => { etat.ecran = 'reglages'; rendre(); });
@@ -273,7 +285,7 @@
 
     const zone = el('div', 'messagerie');
     const liste = el('ul', 'fils');
-    const fils = D.conversations[s.id].filter((c) => c.canal === etat.canal);
+    const fils = filsCanal;
     if (!fils.length) {
       liste.append(el('li', 'vide', 'Aucune conversation sur ce canal.'));
     }
@@ -603,6 +615,10 @@
   const rendre = () => {
     document.documentElement.dataset.variante = etat.variante;
     document.documentElement.dataset.ecran = etat.ecran;
+    // Le contexte commun n'est pas un tableau de bord de société : il n'a ni
+    // pipeline ni synthèse, donc aucune hiérarchie de variante ne s'y applique
+    // et son titre doit rester premier.
+    document.documentElement.dataset.contexte = estCommune() ? 'commune' : 'societe';
     document.documentElement.dataset.vue = etat.vue;
     $('#theme-variante').href = `assets/variante-${etat.variante}.css`;
     $('#bandeau-variante').textContent = VARIANTES[etat.variante];

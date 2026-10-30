@@ -335,6 +335,9 @@ button, select, textarea { font: inherit; color: inherit; }
   padding: 1px 8px;
 }
 .puce.est-actif { background: var(--accent-doux); border-color: transparent; color: var(--accent); }
+/* La reprise se distingue d'un bot actif comme d'un bot coupé : ce n'est ni
+   l'un ni l'autre, c'est un fil soustrait au bot. */
+.puce.est-repris { background: transparent; border-color: var(--texte); color: var(--texte); font-weight: 600; }
 .lien {
   background: none;
   border: 0;

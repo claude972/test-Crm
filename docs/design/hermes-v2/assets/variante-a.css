@@ -8,15 +8,15 @@
 
 /* Ordre borné au tableau de bord : ailleurs, le titre reste premier et rien
    ne se réordonne. */
-[data-ecran='dashboard'] .entete { order: 1; }
-[data-ecran='dashboard'] .bloc:has(.pipeline) { order: 2; }
-[data-ecran='dashboard'] .indicateurs { order: 3; }
-[data-ecran='dashboard'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 4; }
-[data-ecran='dashboard'] .bloc-synthese { order: 5; }
+[data-ecran='dashboard'][data-contexte='societe'] .entete { order: 1; }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc:has(.pipeline) { order: 2; }
+[data-ecran='dashboard'][data-contexte='societe'] .indicateurs { order: 3; }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc:not(:has(.pipeline)):not(.bloc-synthese) { order: 4; }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc-synthese { order: 5; }
 
 /* Le pipeline est l'objet principal : étapes hautes, montant lisible,
    progression suggérée par un liseré et non par un dégradé. */
-[data-ecran='dashboard'] .bloc:has(.pipeline) { padding: calc(var(--u) * 3); }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc:has(.pipeline) { padding: calc(var(--u) * 3); }
 .etape {
   background: var(--surface);
   border-top: 3px solid var(--bord-fort);
@@ -35,7 +35,7 @@
 .indicateur { padding: calc(var(--u) * 1.5); }
 .indicateur-valeur { font-size: 20px; }
 
-[data-ecran='dashboard'] .bloc-synthese { background: var(--surface-2); }
+[data-ecran='dashboard'][data-contexte='societe'] .bloc-synthese { background: var(--surface-2); }
 
 @media (max-width: 760px) {
   .bloc:has(.pipeline) { padding: calc(var(--u) * 2); }
