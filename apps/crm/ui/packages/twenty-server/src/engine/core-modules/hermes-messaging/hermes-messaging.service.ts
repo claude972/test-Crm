@@ -2,9 +2,13 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Inject,
+  Optional,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { type HermesMediaService } from 'src/engine/core-modules/hermes-media/hermes-media.service';
+import { type HermesInboxReplyV3Input } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 import { DataSource, type EntityManager, IsNull } from 'typeorm';
@@ -65,6 +69,9 @@ export class HermesMessagingService {
     private readonly access: HermesMessagingAccessService,
     private readonly registry: HermesMessagingAdapterRegistry,
     private readonly people: HermesMessagingPersonService,
+    @Optional()
+    @Inject('HERMES_MEDIA_SERVICE')
+    private readonly media?: HermesMediaService,
   ) {}
 
   private transaction<T>(
@@ -371,6 +378,9 @@ export class HermesMessagingService {
             state: 'NOT_CONFIGURED',
             canSend: false,
             canSync: false,
+            canSendMedia: false,
+            canReceiveMedia: false,
+            canRecordVoice: false,
             lastCheckedAt: new Date(),
             errorCode: null,
           };
@@ -393,6 +403,11 @@ export class HermesMessagingService {
             canSync:
               ['AVAILABLE', 'CONFIGURED_UNVERIFIED'].includes(status) &&
               (probe.canSync ?? false),
+            canSendMedia: status === 'AVAILABLE' && probe.canSendMedia === true,
+            canReceiveMedia:
+              status === 'AVAILABLE' && probe.canReceiveMedia === true,
+            canRecordVoice:
+              status === 'AVAILABLE' && probe.canRecordVoice === true,
             lastCheckedAt: new Date(),
             errorCode: status === 'UNAVAILABLE' ? 'PROVIDER_UNAVAILABLE' : null,
           };
@@ -402,6 +417,9 @@ export class HermesMessagingService {
             state: 'UNAVAILABLE',
             canSend: false,
             canSync: false,
+            canSendMedia: false,
+            canReceiveMedia: false,
+            canRecordVoice: false,
             lastCheckedAt: new Date(),
             errorCode: 'PROVIDER_UNAVAILABLE',
           };
@@ -411,9 +429,9 @@ export class HermesMessagingService {
     await this.access.assertAllowed(actor);
     return result.map((connection) => ({
       ...connection,
-      canSendMedia: false,
-      canReceiveMedia: false,
-      canRecordVoice: false,
+      canSendMedia: connection.canSendMedia ?? false,
+      canReceiveMedia: connection.canReceiveMedia ?? false,
+      canRecordVoice: connection.canRecordVoice ?? false,
       canComposeRichEmail: false,
     }));
   }
@@ -541,6 +559,65 @@ export class HermesMessagingService {
     };
   }
 
+  async messageV3(
+    actor: HermesMessagingActor,
+    message: HermesInboxMessageEntity,
+  ) {
+    const attachments =
+      message.mediaAssetId && this.media
+        ? await this.media.attachment(
+            actor.workspaceId,
+            message.mediaAssetId,
+            message.conversationId,
+          )
+        : [];
+    await this.access.assertAllowed(actor);
+    return { ...message, kind: message.kind ?? 'TEXT', attachments };
+  }
+  async messagesV3(
+    actor: HermesMessagingActor,
+    input: HermesInboxMessagesInput,
+  ) {
+    const page = await this.messages(actor, input);
+    return {
+      ...page,
+      items: await Promise.all(
+        page.items.map((item) => this.messageV3(actor, item)),
+      ),
+    };
+  }
+  async replyV3(actor: HermesMessagingActor, raw: HermesInboxReplyV3Input) {
+    const input = this.parse(
+      z
+        .object({
+          conversationId: z.string().uuid(),
+          clientRequestId: z.string().uuid(),
+          kind: z.enum(['TEXT', 'IMAGE', 'VIDEO', 'AUDIO']),
+          text: z.string().max(20_000),
+          assetId: z.string().uuid().optional(),
+        })
+        .strict(),
+      raw,
+    );
+    if (input.kind === 'AUDIO' && input.text !== '')
+      throw new BadRequestException('AUDIO_CAPTION_UNSUPPORTED');
+    if ((input.kind === 'TEXT') === !!input.assetId)
+      throw new BadRequestException('MESSAGE_ASSET_KIND_MISMATCH');
+    const result = await this.reply(
+      actor,
+      {
+        conversationId: input.conversationId,
+        clientRequestId: input.clientRequestId,
+        text: input.text,
+      },
+      undefined,
+      input.kind === 'TEXT'
+        ? undefined
+        : { assetId: input.assetId!, kind: input.kind },
+    );
+    return this.messageV3(actor, result);
+  }
+
   async draftReply(
     actor: HermesMessagingActor,
     raw: { conversationId: string; messageId: string },
@@ -571,6 +648,8 @@ export class HermesMessagingService {
         canonicalMessageId: IsNull(),
       });
     if (!message) throw new NotFoundException('MESSAGE_NOT_FOUND');
+    if (message.kind && message.kind !== 'TEXT')
+      throw new BadRequestException('MEDIA_MCP_ANALYSIS_UNSUPPORTED');
     const bot = this.registry.getBot();
     if (!bot)
       return {
@@ -925,11 +1004,27 @@ export class HermesMessagingService {
       'provider',
       event.providerMessageId,
     );
+    const mediaDigest =
+      event.mediaAssetId && this.media
+        ? await this.media.digest(
+            event.workspaceId,
+            event.mediaAssetId,
+            conversationId,
+            event.providerConnectionId,
+          )
+        : undefined;
+    if (event.kind && !mediaDigest)
+      throw new BadRequestException('MEDIA_ASSET_NOT_FOUND');
     const digest = messagingDigest([
       conversationId,
       event.direction,
       handle,
       event.text,
+      // Evolution may transcode outbound audio before echoing it. The provider ID
+      // reconciles that echo; inbound replays must still match the stored bytes.
+      ...(event.kind
+        ? [event.kind, ...(event.direction === 'INBOUND' ? [mediaDigest] : [])]
+        : []),
     ]);
     const result = await this.transaction(
       event.workspaceId,
@@ -995,6 +1090,8 @@ export class HermesMessagingService {
           direction: event.direction,
           status: event.direction === 'INBOUND' ? 'RECEIVED' : 'ACCEPTED',
           text: event.text,
+          kind: event.kind ?? 'TEXT',
+          mediaAssetId: event.mediaAssetId ?? null,
           contentDigest: digest,
           occurredAt: at,
           errorCode: contactChanged ? 'CONTACT_HANDLE_CHANGED' : null,
@@ -1003,7 +1100,7 @@ export class HermesMessagingService {
         return { conversationId, messageId, replay: false };
       },
     );
-    if (event.direction === 'INBOUND')
+    if (event.direction === 'INBOUND' && !event.kind)
       await this.processAutoReply(
         event.workspaceId,
         result.conversationId,
@@ -1016,9 +1113,26 @@ export class HermesMessagingService {
     actor: HermesMessagingActor,
     raw: HermesInboxReplyInput,
     botGrant?: BotGrant,
+    mediaInput?: { assetId: string; kind: 'IMAGE' | 'VIDEO' | 'AUDIO' },
   ): Promise<HermesInboxMessageEntity> {
     await this.access.assertAllowed(actor);
-    const input = this.parse(replySchema, raw);
+    const input = mediaInput
+      ? this.parse(
+          z
+            .object({
+              conversationId: z.string().uuid(),
+              clientRequestId: z.string().uuid(),
+              text: z
+                .string()
+                .max(4096)
+                .refine((v) => !v.includes('\0')),
+            })
+            .strict(),
+          raw,
+        )
+      : this.parse(replySchema, raw);
+    if (mediaInput && (!this.media || botGrant))
+      throw new BadRequestException('MEDIA_AUTOMATION_UNSUPPORTED');
     const conversation = await this.conversation(
       actor.workspaceId,
       input.conversationId,
@@ -1034,7 +1148,11 @@ export class HermesMessagingService {
       });
     if (contactConflict)
       throw new ConflictException('CONVERSATION_CONTACT_REVIEW_REQUIRED');
-    const digest = messagingDigest([conversation.id, input.text]);
+    const digest = messagingDigest([
+      conversation.id,
+      input.text,
+      ...(mediaInput ? [mediaInput.kind, mediaInput.assetId] : []),
+    ]);
     const id = messagingId(actor.workspaceId, 'request', input.clientRequestId);
     const previous = await this.dataSource
       .getRepository(HermesInboxMessageEntity)
@@ -1065,6 +1183,8 @@ export class HermesMessagingService {
           ? 'MESSAGING_NOT_CONFIGURED'
           : 'MESSAGING_PROVIDER_UNAVAILABLE',
       );
+    if (mediaInput && !probe.canSendMedia)
+      throw new ServiceUnavailableException('MEDIA_PROVIDER_NOT_VERIFIED');
     // Authorization repositories use a separate pool connection; do not hold a serialized transaction while waiting for them.
     await this.access.assertAllowed(actor);
     const reservation = await this.transaction(
@@ -1090,6 +1210,16 @@ export class HermesMessagingService {
             throw new ConflictException('CLIENT_REQUEST_CONFLICT');
           return { message: existing, send: false };
         }
+        if (mediaInput) {
+          const asset = await this.media!.bind(
+            actor,
+            { conversationId: conversation.id, assetId: mediaInput.assetId },
+            id,
+            manager,
+          );
+          if (asset.kind !== mediaInput.kind)
+            throw new BadRequestException('MEDIA_KIND_MISMATCH');
+        }
         // Commit a durable uncertain handoff BEFORE network I/O. A crash cannot authorize another send.
         const message = await repository.save({
           id,
@@ -1102,6 +1232,8 @@ export class HermesMessagingService {
           direction: 'OUTBOUND',
           status: 'UNCONFIRMED',
           text: input.text,
+          kind: mediaInput?.kind ?? 'TEXT',
+          mediaAssetId: mediaInput?.assetId ?? null,
           contentDigest: digest,
           occurredAt: new Date(),
           errorCode: 'DELIVERY_UNCERTAIN',
@@ -1157,6 +1289,13 @@ export class HermesMessagingService {
     }
     let receipt;
     try {
+      const attachment = mediaInput
+        ? await this.media!.bytes(actor, {
+            conversationId: conversation.id,
+            assetId: mediaInput.assetId,
+          })
+        : undefined;
+      await this.access.assertAllowed(actor);
       receipt = receiptSchema.parse(
         await adapter.send({
           workspaceId: actor.workspaceId,
@@ -1165,6 +1304,16 @@ export class HermesMessagingService {
           contactHandle: conversation.contactHandle,
           text: input.text,
           clientRequestId: input.clientRequestId,
+          ...(attachment
+            ? {
+                media: {
+                  kind: mediaInput!.kind,
+                  mimeType: attachment.asset.mimeType,
+                  filename: attachment.asset.filename,
+                  bytes: attachment.bytes,
+                },
+              }
+            : {}),
         }),
       );
     } catch (error) {
@@ -1200,6 +1349,9 @@ export class HermesMessagingService {
       contactHandle: conversation.contactHandle,
       text: input.text,
       occurredAt: receipt.acceptedAt,
+      ...(mediaInput
+        ? { kind: mediaInput.kind, mediaAssetId: mediaInput.assetId }
+        : {}),
       ...(conversation.subject ? { subject: conversation.subject } : {}),
     });
     await this.dataSource.getRepository(HermesInboxMessageEntity).update(

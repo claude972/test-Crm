@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 
 import { z } from 'zod';
+import { messagingId } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.policy';
 
 import {
   type EvolutionConnection,
@@ -30,6 +31,13 @@ const messageSchema = z.object({
   }),
   message: z.object({
     conversation: z.string().optional(),
+    imageMessage: z
+      .object({ caption: z.string().max(4096).optional() })
+      .optional(),
+    videoMessage: z
+      .object({ caption: z.string().max(4096).optional() })
+      .optional(),
+    audioMessage: z.object({}).optional(),
     extendedTextMessage: z.object({ text: z.string().optional() }).optional(),
   }),
   messageTimestamp: z.union([z.number(), z.string().regex(/^\d{1,12}$/)]),
@@ -45,6 +53,16 @@ export type EvolutionWebhookResult =
         | 'UNSUPPORTED_ADDRESS';
     };
 
+export type EvolutionReceiveMedia = (input: {
+  workspaceId: string;
+  conversationId: string;
+  providerConnectionId: string;
+  providerMessageId: string;
+  remoteJid: string;
+  fromMe: boolean;
+  kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
+}) => Promise<{ assetId: string }>;
+
 export class EvolutionWebhookReceiver {
   readonly #connections: Record<string, EvolutionConnection>;
   readonly #tokens: Record<string, string>;
@@ -54,6 +72,7 @@ export class EvolutionWebhookReceiver {
     serializedConnections: string,
     serializedSecrets: string,
     ingest: EvolutionIngest,
+    private readonly receiveMedia?: EvolutionReceiveMedia,
   ) {
     this.#connections = parseEvolutionConnections(serializedConnections);
     try {
@@ -121,9 +140,22 @@ export class EvolutionWebhookReceiver {
         : undefined;
     if (!contactHandle)
       return { status: 'IGNORED', reason: 'UNSUPPORTED_ADDRESS' };
+    const mediaKinds = [
+      data.message.imageMessage ? 'IMAGE' : null,
+      data.message.videoMessage ? 'VIDEO' : null,
+      data.message.audioMessage ? 'AUDIO' : null,
+    ].filter(Boolean) as ('IMAGE' | 'VIDEO' | 'AUDIO')[];
+    if (mediaKinds.length > 1)
+      throw new EvolutionMessageError('WEBHOOK_INVALID_EVENT');
+    const kind = mediaKinds[0];
     const text =
-      data.message.conversation ?? data.message.extendedTextMessage?.text;
-    if (!text) return { status: 'IGNORED', reason: 'UNSUPPORTED_MESSAGE' };
+      data.message.conversation ??
+      data.message.extendedTextMessage?.text ??
+      data.message.imageMessage?.caption ??
+      data.message.videoMessage?.caption ??
+      '';
+    if ((!text && !kind) || (kind && !this.receiveMedia))
+      return { status: 'IGNORED', reason: 'UNSUPPORTED_MESSAGE' };
     const seconds = Number(data.messageTimestamp);
     if (
       !Number.isSafeInteger(seconds) ||
@@ -136,6 +168,25 @@ export class EvolutionWebhookReceiver {
     if (envelope.data.event === 'send.message' && !data.key.fromMe)
       throw new EvolutionMessageError('WEBHOOK_INVALID_EVENT');
 
+    const providerConnectionId = evolutionProviderConnectionId(
+      this.#connections[workspaceId],
+    );
+    const media = kind
+      ? await this.receiveMedia!({
+          workspaceId,
+          conversationId: messagingId(
+            workspaceId,
+            'WHATSAPP',
+            providerConnectionId,
+            data.key.remoteJid,
+          ),
+          providerConnectionId,
+          providerMessageId: data.key.id,
+          remoteJid: data.key.remoteJid,
+          fromMe: data.key.fromMe,
+          kind,
+        })
+      : undefined;
     // Durable duplicate handling belongs to the core's unique provider ledger,
     // never to a per-process cache that loses entries on restart.
     const result = await this.#ingest({
@@ -149,6 +200,7 @@ export class EvolutionWebhookReceiver {
       direction: data.key.fromMe ? 'OUTBOUND' : 'INBOUND',
       contactHandle,
       text,
+      ...(kind && media ? { kind, mediaAssetId: media.assetId } : {}),
       occurredAt: new Date(seconds * 1000).toISOString(),
     });
     return { status: 'INGESTED', result };

@@ -9,6 +9,9 @@ import {
   HermesInboxConversationsInputDTO,
   HermesInboxMessagesInputDTO,
   HermesInboxReplyInputDTO,
+  HermesInboxReplyV3InputDTO,
+  HermesInboxMessageV3DTO,
+  HermesInboxMessagesV3PageDTO,
   HermesInboxDraftReplyInputDTO,
   HermesInboxConversationsPageDTO,
   HermesInboxMessagesPageDTO,
@@ -87,6 +90,38 @@ export class HermesMessagingResolver {
     @Args('input') input: HermesInboxMessagesInputDTO,
   ) {
     return this.messaging.messages(
+      {
+        workspaceId: workspace.id,
+        userId: user.id,
+        userWorkspaceId: membership,
+      },
+      input,
+    );
+  }
+  @Query(() => HermesInboxMessagesV3PageDTO)
+  hermesInboxMessagesV3(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() membership: string,
+    @Args('input') input: HermesInboxMessagesInputDTO,
+  ) {
+    return this.messaging.messagesV3(
+      {
+        workspaceId: workspace.id,
+        userId: user.id,
+        userWorkspaceId: membership,
+      },
+      input,
+    );
+  }
+  @Mutation(() => HermesInboxMessageV3DTO)
+  hermesInboxReplyV3(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() membership: string,
+    @Args('input') input: HermesInboxReplyV3InputDTO,
+  ) {
+    return this.messaging.replyV3(
       {
         workspaceId: workspace.id,
         userId: user.id,

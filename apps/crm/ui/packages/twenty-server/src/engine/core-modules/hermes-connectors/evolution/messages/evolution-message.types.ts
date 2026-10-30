@@ -9,6 +9,12 @@ export type EvolutionMessageInput = {
   contactHandle: string;
   text: string;
   clientRequestId: string;
+  media?: {
+    kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
+    mimeType: string;
+    filename: string;
+    bytes: Buffer;
+  };
 };
 
 export type EvolutionIngestMessage = {
@@ -21,6 +27,8 @@ export type EvolutionIngestMessage = {
   contactHandle: string;
   text: string;
   occurredAt: string;
+  kind?: 'IMAGE' | 'VIDEO' | 'AUDIO';
+  mediaAssetId?: string;
 };
 
 export type EvolutionIngestResult = {
