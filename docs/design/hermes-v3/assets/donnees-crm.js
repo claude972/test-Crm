@@ -65,6 +65,13 @@ Object.assign(window.MAQUETTE, {
       prochaineAction: 'Aucune',
     },
     {
+      id: 'rc-809', societe: 'atelier', source: 'EMAIL', connexion: 'IMAP · contact@atelier-fontaine.fr',
+      externalEventId: 'rfc_<nf2…@heyform.local>', recuLe: '29 oct. 10:11', classification: 'TECHNICAL',
+      qualification: 'REJECTED', contact: null, affaire: null, proprietaire: null,
+      resume: 'Notification du formulaire, pas une demande : la réponse au formulaire est le reçu à qualifier, pas son e-mail d’avis.',
+      prochaineAction: 'Aucune',
+    },
+    {
       id: 'rc-806', societe: 'atelier', source: 'WHATSAPP', connexion: 'Evolution · instance atelier',
       externalEventId: 'wa_51aa…77b', recuLe: '27 oct. 15:36', classification: 'REVIEW_REQUIRED',
       qualification: 'REVIEW_REQUIRED', contact: null, affaire: null, proprietaire: null,

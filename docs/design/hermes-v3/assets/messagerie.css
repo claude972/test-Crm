@@ -442,8 +442,31 @@
 
 /* ---------- mobile 390 ---------- */
 
+.mail-col { min-width: 0; }
+
 @media (max-width: 860px) {
   .wa, .mail { grid-template-columns: minmax(0, 1fr); }
+
+  /* Navigation en profondeur : un seul volet à la fois. */
+  [data-niveau='fil'] .wa-liste,
+  [data-niveau='liste'] .wa-fil { display: none; }
+
+  [data-niveau='dossiers'] .mail-col-liste,
+  [data-niveau='dossiers'] .mail-col-fil,
+  [data-niveau='liste'] .mail-col-dossiers,
+  [data-niveau='liste'] .mail-col-fil,
+  [data-niveau='fil'] .mail-col-dossiers,
+  [data-niveau='fil'] .mail-col-liste { display: none; }
+
+  /* Le sélecteur de mode du bot passe sous le titre au lieu de l'élargir. */
+  .fil-entete { align-items: stretch; }
+  .fil-entete > * { min-width: 0; max-width: 100%; }
+  .commande-locale { flex: 1 1 100%; min-width: 0; }
+  .commande-locale .champ { width: 100%; }
+  .commande-locale .puce { align-self: flex-start; }
+
+  .bandeau-mode, .bulle, .composeur, .composeur-mail { min-width: 0; max-width: 100%; }
+  .vocal { min-width: 0; flex-wrap: wrap; }
 
   .wa-liste, .mail-liste { max-height: 34vh; overflow-y: auto; }
 
@@ -464,6 +487,9 @@
 
   .mail-destinataires { grid-template-columns: minmax(0, 1fr); }
   .mail-destinataires dt { margin-top: 4px; }
+
+  .bandeau-mode-details { grid-template-columns: minmax(0, 1fr); }
+  .bandeau-mode-details dt { margin-top: 4px; }
 }
 
 /* ---------- éditeur e-mail ---------- */

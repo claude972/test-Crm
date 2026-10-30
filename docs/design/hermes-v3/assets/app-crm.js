@@ -325,11 +325,17 @@
           sel.append(o);
         });
         sel.addEventListener('change', () => {
-          ui.etapeDeplacee = '« ' + a.nom + ' » passerait de ' + stageLabel(a.stage) + ' à ' + stageLabel(sel.value)
-            + '. Déplacement simulé : la maquette n’écrit rien, et un mouvement visuel ne prouve pas la persistance. '
-            + 'Le produit confirmerait après relecture serveur, ou annulerait la carte en cas d’échec.';
-          sel.value = a.stage;
-          window.H.aller({});
+          if (sel.value === a.stage) return;
+          const depuis = stageLabel(a.stage);
+          const vers = stageLabel(sel.value);
+          // La carte change réellement de colonne, et le tableau de bord comme
+          // la vue commune suivent, puisqu'ils lisent les mêmes affaires.
+          a.stage = sel.value;
+          ui.etapeDeplacee = '« ' + a.nom + ' » passe de ' + depuis + ' à ' + vers
+            + '. Déplacement de démonstration, en mémoire seulement : il disparaît au rechargement de la page. '
+            + 'Un mouvement à l’écran ne prouve pas l’enregistrement ; le produit confirmerait après relecture '
+            + 'serveur et remettrait la carte en place en cas d’échec.';
+          window.H.rendre();
         });
         c.append(lab, sel, puceSimule('aucune mutation native n’est envoyée'));
         col.append(c);
@@ -434,7 +440,7 @@
       li.append(el('code', null, '{{' + x.nom + '}}'));
       li.append(document.createTextNode(x.manquant ? ' — manquante sur ' + x.manquant + ' fiches' : ' — complète'));
       if (x.manquant) li.append(puce('à compléter', 'alerte'));
-      liste_ajout(li, vars);
+      vars.append(li);
     });
     aud.append(el('h3', 'bloc-sous-titre', 'Personnalisation'), vars);
     aud.append(el('p', 'note', 'Les exclusions sont revérifiées au départ, y compris une opposition enregistrée après l’aperçu ou la programmation.'));
@@ -443,7 +449,7 @@
     const parcours = bloc('Parcours', 'Objet : ' + c.objet);
     const actions = el('div', 'actions');
     const mkAction = (label, explic, actif) => {
-      const b = el('button', 'bouton' + (actif ? '' : ' '), label);
+      const b = el('button', 'bouton', label);
       b.type = 'button';
       b.disabled = !actif;
       b.title = explic;
@@ -480,8 +486,6 @@
     return frag;
   }
 
-  function liste_ajout(li, parent) { parent.append(li); }
-
   /* ---------- réglages ---------- */
 
   const ONGLETS = [
@@ -496,13 +500,12 @@
     const s = D.societes[v.societe];
     frag.append(entete('Réglages', s.nom + ' · centre unique des comptes, connexions et politiques'));
 
-    const nav = el('div', 'onglets');
-    nav.setAttribute('role', 'tablist');
+    const nav = el('nav', 'onglets');
+    nav.setAttribute('aria-label', 'Sections des réglages');
     ONGLETS.forEach((o) => {
       const a = el('a', 'onglet' + (o.id === onglet ? ' actif' : ''), o.label);
       a.href = '?ecran=reglages&societe=' + v.societe + '&onglet=' + o.id;
-      a.setAttribute('role', 'tab');
-      a.setAttribute('aria-selected', o.id === onglet ? 'true' : 'false');
+      if (o.id === onglet) a.setAttribute('aria-current', 'page');
       a.addEventListener('click', (e) => { e.preventDefault(); aller({ ecran: 'reglages', onglet: o.id }); });
       nav.append(a);
     });

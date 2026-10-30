@@ -69,7 +69,13 @@ canal et le réglage de la conversation. Un réglage de conversation ne peut jam
 Les douze combinaisons sont atteignables depuis l'interface : le sélecteur d'une conversation
 applique réellement le changement en mémoire, et refuse visiblement un choix plus large que la
 société. Changer de mode n'efface pas la réponse humaine déjà saisie : seule la suggestion du bot
-est invalidée. Changer de conversation, de société ou revenir en arrière purge le contexte.
+est invalidée, et ni un média choisi ni un vocal en préécoute ne disparaissent. Changer de
+conversation, de société ou revenir en arrière purge le contexte.
+
+Une quatrième raison, `LOCAL_SET`, a dû être ajoutée pour les trois cas où la conversation porte le
+même réglage que la société : l'énumération du contrat proposé n'offre que `INHERITED`,
+`LOCAL_RESTRICTION` et `COMPANY_RESTRICTION`, et annoncer « restreint » sur un fil qui ne restreint
+rien serait faux. Cet écart est remonté dans la revue croisée du contrat.
 
 Un bot à l'arrêt n'est ni une opposition marketing, ni une déconnexion de canal : les trois sont
 des écrans et des objets distincts.
@@ -86,15 +92,21 @@ refus de taille.
 **Boîte e-mail** — dossiers Réception, Envoyés, Brouillons, Archives, Corbeille ; liste de fils
 avec objet, participants et pièces jointes ; lecture avec À, Cc, Cci, citation repliée et pièces
 jointes. Répondre, Répondre à tous et Transférer ouvrent un éditeur : les destinataires découlent
-du choix, le transfert part sans destinataire et emporte des pièces jointes retirables, un
-brouillon Hermès s'insère en mode Assisté. Chaque fil porte son propre réglage de bot.
+du choix — on répond au correspondant et jamais à sa propre boîte, y compris depuis Envoyés et
+Brouillons. Le transfert part sans destinataire et emporte les pièces jointes du fil entier,
+retirables une à une. Un brouillon Hermès se demande, se relit et s'insère en mode Assisté ; en
+Arrêt complet le bouton est désactivé avec son motif, sans empêcher la réponse humaine. Enregistrer
+le brouillon écrit une copie relisible dans le dossier Brouillons, en mémoire seulement. Les
+compteurs de dossiers sont dérivés des fils présents. Chaque fil porte son propre réglage de bot.
 
 **Réceptions** — six classements de reçus avec leur provenance, leur source, leur identifiant
 externe et leur prochaine action. Quatre axes tenus séparés : réception technique, qualification de
 la demande, étape de l'affaire, opposition marketing. Aucune réception ne crée d'affaire.
 
 **Pipeline** — board par étape, cartes portant contact, montant, prochaine action, propriétaire et
-provenance du reçu d'origine. Le changement d'étape est simulé et le dit. Une colonne montre que
+provenance du reçu d'origine. Changer l'étape déplace réellement la carte et met à jour le tableau
+de bord et la vue commune, qui lisent les mêmes affaires ; l'écran dit que ce déplacement ne vit
+qu'en mémoire et qu'un mouvement à l'écran ne prouve pas l'enregistrement. Une colonne montre que
 l'issue gagné/perdu n'existe pas encore.
 
 **Campagne** — identité d'expéditeur reliée à une boîte exacte, seconde identité du même domaine
@@ -182,7 +194,13 @@ succès d'acceptation. L'acceptation n'est jamais présentée comme une livraiso
 Chaque champ a un libellé associé. Les boutons d'icône portent un `aria-label` qui change avec
 l'état. Le focus est visible. L'état n'est jamais porté par la seule couleur : un texte l'accompagne
 toujours. L'enregistrement en cours est annoncé dans une région `status`. `prefers-reduced-motion`
-est respecté. En 390 px les grilles passent sur une colonne et les tableaux deviennent des blocs
+est respecté.
+
+En 390 px la navigation passe en profondeur plutôt qu'en volets empilés : la barre se réduit à la
+marque, la société et un bouton Menu ; WhatsApp montre la liste puis la conversation avec un retour
+« Conversations » ; la boîte e-mail montre les dossiers, puis la liste, puis le fil, avec les
+retours correspondants. Le niveau vient de l'adresse elle-même, donc chaque route de capture arrive
+directement au bon volet. Les grilles passent sur une colonne et les tableaux deviennent des blocs
 étiquetés, sans défilement horizontal de page. Les lecteurs n'ont pas d'autoplay, signalent une
 erreur de lecture et sont arrêtés à chaque changement d'écran.
 
@@ -212,7 +230,13 @@ Poppins, Roboto ou system-ui, aucun dégradé violet.
   `getUserMedia` est le commentaire d'en-tête qui rappelle l'interdiction.
 - Service statique local sur `127.0.0.1:8787` : `index.html`, `app.html`, la police, la vidéo et un
   vocal répondent en 200.
-- Relecture déléguée à un agent en lecture seule sur l'ensemble des fichiers.
+- Exécution sans navigateur : un DOM minimal écrit hors du dépôt charge les quatre fichiers et rend
+  les écrans. Vérifiés en exécution : le brouillon réellement conservé puis rouvert, le déplacement
+  d'étape et sa répercussion sur le tableau de bord, la survie du texte humain à un changement de
+  mode, les destinataires depuis Envoyés et Brouillons, les pièces jointes d'un transfert, et les
+  douze combinaisons de modes — zéro écart sur le mode effectif.
+- Relecture déléguée à un agent en lecture seule, puis recoupement de chaque constat avec l'état
+  courant des fichiers.
 
 ## Contrôles non exécutés
 

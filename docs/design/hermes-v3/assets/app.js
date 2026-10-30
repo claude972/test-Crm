@@ -72,9 +72,15 @@
       ? companyMode
       : (ORDRE[localMode] <= ORDRE[companyMode] ? localMode : companyMode);
 
+    /* Le contrat proposé ne prévoit que INHERITED, LOCAL_RESTRICTION et
+       COMPANY_RESTRICTION. Il manque le cas d'une exception posée au même
+       niveau que la société : elle ne restreint rien et ne peut pas être
+       annoncée comme une restriction. LOCAL_SET comble ce trou ici ; l'écart
+       est remonté dans la revue croisée du contrat. */
     let reasonCode;
     if (localMode === 'INHERIT') reasonCode = 'INHERITED';
-    else if (ORDRE[localMode] <= ORDRE[companyMode]) reasonCode = 'LOCAL_RESTRICTION';
+    else if (ORDRE[localMode] < ORDRE[companyMode]) reasonCode = 'LOCAL_RESTRICTION';
+    else if (ORDRE[localMode] === ORDRE[companyMode]) reasonCode = 'LOCAL_SET';
     else reasonCode = 'COMPANY_RESTRICTION';
 
     const canalConnexion = canal === 'WHATSAPP' ? connexion(societe, 'wa') : connexion(societe, 'smtp');
@@ -105,6 +111,7 @@
 
   function raisonTexte(p) {
     if (p.reasonCode === 'INHERITED') return 'hérité de la société (' + MODE_FR[p.companyMode] + ')';
+    if (p.reasonCode === 'LOCAL_SET') return 'réglé sur cette conversation, au même niveau que la société';
     if (p.reasonCode === 'LOCAL_RESTRICTION') return 'restreint pour cette conversation';
     return 'plafonné par la société (' + MODE_FR[p.companyMode] + ')';
   }
@@ -123,6 +130,8 @@
     scenarioApplique: null,
     composeurMail: null,
     composeurMailType: null,
+    envoyeAction: null,
+    menuOuvert: false,
   };
 
   function vue() {
@@ -133,6 +142,8 @@
       societe,
       fil: p.get('fil'),
       dossier: p.get('dossier') || 'inbox',
+      dossierExplicite: p.has('dossier'),
+      filExplicite: p.has('fil'),
       onglet: p.get('onglet'),
       scenario: p.get('scenario') || '',
     };
@@ -160,7 +171,7 @@
       reponse: '', brouillonOuvert: false, brouillonInsere: false,
       composeurMedia: null, enregistreur: null, envoye: null,
       etapeDeplacee: null, message: null, scenarioApplique: null,
-      composeurMail: null, composeurMailType: null,
+      composeurMail: null, composeurMailType: null, envoyeAction: null, menuOuvert: false,
     });
     rendre();
   }
@@ -198,7 +209,7 @@
   ];
 
   function barre(v) {
-    const b = el('nav', 'barre');
+    const b = el('nav', 'barre' + (ui.menuOuvert ? ' menu-ouvert' : ''));
     b.setAttribute('aria-label', 'Navigation principale');
 
     const marque = el('div', 'marque');
@@ -216,9 +227,16 @@
       if (s.id === v.societe) o.selected = true;
       sel.append(o);
     });
-    sel.addEventListener('change', () => aller({ societe: sel.value, fil: null }));
+    sel.addEventListener('change', () => aller({ societe: sel.value, fil: null, dossier: null }));
     bloc.append(lab, sel);
     b.append(bloc);
+
+    // En 390 px la barre se réduit à la marque, la société et ce bouton.
+    const menu = el('button', 'bouton bouton-menu', ui.menuOuvert ? 'Fermer' : 'Menu');
+    menu.type = 'button';
+    menu.setAttribute('aria-expanded', ui.menuOuvert ? 'true' : 'false');
+    menu.addEventListener('click', () => { ui.menuOuvert = !ui.menuOuvert; rendre(); });
+    b.append(menu);
 
     const liste = el('ul', 'nav');
     NAV.forEach((item) => {
@@ -226,7 +244,10 @@
       const a = el('a', 'nav-lien' + (item.ecran === v.ecran ? ' actif' : ''), item.label);
       a.href = '?ecran=' + item.ecran + '&societe=' + v.societe;
       if (item.ecran === v.ecran) a.setAttribute('aria-current', 'page');
-      a.addEventListener('click', (e) => { e.preventDefault(); aller({ ecran: item.ecran, fil: null, onglet: null, scenario: null }); });
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        aller({ ecran: item.ecran, fil: null, dossier: null, onglet: null, scenario: null });
+      });
       li.append(a);
       liste.append(li);
     });
@@ -244,6 +265,13 @@
     pied.append(ident);
     b.append(pied);
     return b;
+  }
+
+  function retour(libelle, modif) {
+    const a = el('a', 'retour', '← ' + libelle);
+    a.href = '#';
+    a.addEventListener('click', (e) => { e.preventDefault(); aller(modif); });
+    return a;
   }
 
   function entete(titre, sousTitre, actions) {
@@ -294,6 +322,11 @@
     bouton.setAttribute('aria-label', 'Lire le message vocal');
     bouton.textContent = '▶';
     const piste = el('div', 'vocal-piste');
+    piste.setAttribute('role', 'progressbar');
+    piste.setAttribute('aria-label', 'Progression du message vocal');
+    piste.setAttribute('aria-valuemin', '0');
+    piste.setAttribute('aria-valuemax', '100');
+    piste.setAttribute('aria-valuenow', '0');
     const barreP = el('div', 'vocal-progres');
     piste.append(barreP);
     const temps = el('span', 'vocal-temps', duree(m.durationMs));
@@ -320,7 +353,11 @@
     });
     audio.addEventListener('error', signalerEchec);
     audio.addEventListener('timeupdate', () => {
-      if (audio.duration) barreP.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      if (audio.duration) {
+        const part = audio.currentTime / audio.duration * 100;
+        barreP.style.width = part + '%';
+        piste.setAttribute('aria-valuenow', String(Math.round(part)));
+      }
       temps.textContent = duree(audio.currentTime * 1000);
     });
     audio.addEventListener('ended', () => {
@@ -487,6 +524,12 @@
         + ' Le mode du bot et l’état de la connexion sont deux choses différentes.'));
     }
 
+    if (p.exceptionObsolete) {
+      n.append(el('p', 'note note-alerte', 'Cette conversation garde un réglage « ' + MODE_FR[p.localMode]
+        + ' » devenu plus large que celui de la société. Il est conservé dans l’historique mais ne s’applique plus : '
+        + 'le bot reste en « ' + MODE_FR[p.effectiveMode] + ' ».'));
+    }
+
     const det = el('details', 'bandeau-mode-detail');
     det.append(el('summary', null, 'Détail du mode et de l’héritage'));
     det.append(el('p', 'bandeau-mode-explic', MODE_EXPLIC[p.effectiveMode]));
@@ -498,10 +541,6 @@
     ligne('Référence interne', 'politique ' + p.policyRevision + (p.localRevision ? ' · exception ' + p.localRevision : ''));
     det.append(details);
 
-    if (p.exceptionObsolete) {
-      det.append(el('p', 'note note-alerte', 'Cette conversation garde un réglage « Automatique » devenu plus large que celui de la société. '
-        + 'Il est conservé dans l’historique mais ne s’applique plus : le bot reste en « ' + MODE_FR[p.effectiveMode] + ' ».'));
-    }
     n.append(det);
     return n;
   }
@@ -724,6 +763,7 @@
     });
 
     const fil = el('section', 'wa-fil');
+    fil.append(retour('Conversations', { ecran: 'wa', fil: null }));
     const filEntete = el('header', 'fil-entete');
     const ident = el('div');
     ident.append(el('h2', 'fil-nom', conv.nom));
@@ -761,25 +801,77 @@
      répondre à tous ajoute les autres participants sans nos propres adresses
      ni doublons, transférer part sans destinataire et emporte les pièces
      jointes choisies explicitement. */
+  /* Un transfert emporte les pièces jointes du fil entier : sur un échange,
+     elles sont portées par le message qui les a apportées, pas par le dernier. */
+  const piecesDuFil = (contenu) => contenu.messages.reduce(
+    (liste, m) => liste.concat((m.pj || []).filter((id) => liste.indexOf(id) === -1)), []);
+
   function ouvrirComposeurMail(type, boite, fil, contenu) {
-    const dernier = contenu.messages[contenu.messages.length - 1];
-    const expediteur = adresseDe(contenu.participants.de);
     const nous = boite.adresse;
-    const autres = contenu.participants.a.concat(contenu.participants.cc)
-      .map(adresseDe)
-      .filter((x, i, t) => x !== nous && x !== expediteur && t.indexOf(x) === i);
+    const expediteur = adresseDe(contenu.participants.de);
+
+    /* On répond au correspondant, jamais à sa propre boîte : dans Envoyés et
+       Brouillons l'expéditeur du fil, c'est nous. Les doublons et nos propres
+       adresses sont retirés une seule fois, ici. */
+    const externes = [expediteur]
+      .concat(contenu.participants.a.map(adresseDe))
+      .concat(contenu.participants.cc.map(adresseDe))
+      .filter((x, i, t) => x && x !== nous && t.indexOf(x) === i);
+    const principal = expediteur !== nous ? expediteur : (externes[0] || '');
+    const autres = externes.filter((x) => x !== principal);
+
     const objetNu = fil.objet.replace(/^\s*(Re|Tr)\s*:\s*/i, '');
     ui.composeurMail = {
       type,
-      a: type === 'FORWARD' ? [] : [expediteur],
+      a: type === 'FORWARD' || !principal ? [] : [principal],
       cc: type === 'REPLY_ALL' ? autres : [],
       objet: (type === 'FORWARD' ? 'Tr: ' : 'Re: ') + objetNu,
       corps: '',
-      pj: type === 'FORWARD' ? (dernier.pj || []).slice() : [],
+      pj: type === 'FORWARD' ? piecesDuFil(contenu) : [],
       retires: [],
       brouillonOuvert: false,
       brouillonInsere: false,
     };
+  }
+
+  const deuxChiffres = (n) => String(n).padStart(2, '0');
+
+  /* Le brouillon est réellement écrit dans le dossier Brouillons de la
+     démonstration, puis relisible. En mémoire seulement : aucune persistance,
+     aucun appel serveur. Réenregistrer le même fil met la copie à jour au lieu
+     d'en empiler une seconde. */
+  function enregistrerBrouillon(boite, fil, c) {
+    const id = 'brouillon-' + fil.id;
+    const maintenant = new Date();
+    const heure = deuxChiffres(maintenant.getHours()) + ':' + deuxChiffres(maintenant.getMinutes());
+    const existant = boite.fils.find((f) => f.id === id);
+    const entree = {
+      id, dossier: 'drafts', contact: fil.contact, societe: fil.societe, canal: 'EMAIL',
+      localMode: 'INHERIT', localRevision: 'loc-1',
+      objet: c.objet,
+      correspondants: 'Brouillon · ' + (c.a.length ? c.a.join(', ') : 'sans destinataire'),
+      date: heure, nonLu: false, piecesJointes: c.pj.length, messages: 1,
+    };
+    if (existant) Object.assign(existant, entree);
+    else boite.fils.unshift(entree);
+
+    boite.contenus[id] = {
+      participants: { de: boite.adresse, a: c.a.slice(), cc: c.cc.slice(), cci: [] },
+      messages: [{
+        id: 'e1', auteur: D.membreActif.nom, adresse: boite.adresse,
+        date: 'brouillon enregistré à ' + heure, sortant: true, brouillon: true,
+        corps: (c.corps || '').split('\n').filter((l) => l.trim()).length
+          ? c.corps.split('\n').filter((l) => l.trim())
+          : ['(message vide)'],
+        pj: c.pj.slice(),
+      }],
+    };
+
+    if (!existant) {
+      const dossier = boite.dossiers.find((d) => d.id === 'drafts');
+      if (dossier) dossier.total += 1;
+    }
+    return id;
   }
 
   function composeurMail(p, boite, fil, contenu) {
@@ -900,8 +992,11 @@
     const garder = el('button', 'bouton', 'Enregistrer le brouillon');
     garder.type = 'button';
     garder.addEventListener('click', () => {
+      const id = enregistrerBrouillon(boite, fil, c);
       ui.composeurMail = null;
-      ui.envoye = 'Brouillon humain conservé dans le dossier Brouillons de la maquette. Enregistrer n’envoie rien.';
+      ui.envoye = 'Brouillon conservé dans le dossier Brouillons. Enregistrer n’envoie rien, '
+        + 'et la copie ne vit qu’en mémoire : elle disparaît au rechargement de la page.';
+      ui.envoyeAction = { label: 'Ouvrir le brouillon', modif: { ecran: 'mail', dossier: 'drafts', fil: id } };
       rendre();
     });
 
@@ -929,13 +1024,16 @@
     const dossiers = el('ul', 'mail-dossiers');
     dossiers.setAttribute('aria-label', 'Dossiers');
     boite.dossiers.forEach((d) => {
+      const dedans = boite.fils.filter((f) => f.dossier === d.id);
+      const nonLus = dedans.filter((f) => f.nonLu).length;
       const li = el('li');
       const a = el('a', 'mail-dossier' + (d.id === v.dossier ? ' actif' : ''));
       a.href = '?ecran=mail&societe=' + v.societe + '&dossier=' + d.id;
       if (d.id === v.dossier) a.setAttribute('aria-current', 'true');
       a.addEventListener('click', (e) => { e.preventDefault(); aller({ ecran: 'mail', dossier: d.id, fil: null }); });
+      a.setAttribute('aria-label', d.label + ', ' + (nonLus ? nonLus + ' non lus' : dedans.length + ' fils'));
       a.append(el('span', 'mail-dossier-nom', d.label));
-      a.append(el('span', 'mail-dossier-compte', d.nonLus ? d.nonLus + ' non lus' : String(d.total)));
+      a.append(el('span', 'mail-dossier-compte', nonLus ? nonLus + ' non lus' : String(dedans.length)));
       li.append(a);
       dossiers.append(li);
     });
@@ -963,7 +1061,7 @@
       a.append(el('p', 'mail-item-objet', f.objet));
       const bas = el('div', 'mail-item-bas');
       if (f.messages > 1) bas.append(puce(f.messages + ' messages', 'compteur'));
-      if (f.piecesJointes) bas.append(puce('📎 ' + f.piecesJointes, 'compteur'));
+      if (f.piecesJointes) bas.append(puce(f.piecesJointes + (f.piecesJointes > 1 ? ' pièces jointes' : ' pièce jointe'), 'compteur'));
       a.append(bas);
       li.append(a);
       liste.append(li);
@@ -984,7 +1082,17 @@
       filEntete.append(selecteurLocal(p, fil));
       lecture.append(filEntete);
       lecture.append(bandeauMode(p, fil));
-      if (ui.envoye) lecture.append(el('p', 'note note-succes', ui.envoye));
+      if (ui.envoye) {
+        const succes = el('div', 'note note-succes');
+        succes.append(el('p', 'note-succes-texte', ui.envoye));
+        if (ui.envoyeAction) {
+          const b = el('button', 'bouton bouton-discret', ui.envoyeAction.label);
+          b.type = 'button';
+          b.addEventListener('click', () => aller(ui.envoyeAction.modif));
+          succes.append(b);
+        }
+        lecture.append(succes);
+      }
       const dest = el('dl', 'mail-destinataires');
       const ligne = (t, val) => { dest.append(el('dt', null, t), el('dd', null, val)); };
       ligne('De', contenu.participants.de);
@@ -1056,7 +1164,16 @@
       }
     }
 
-    grille.append(dossiers, liste, lecture);
+    const colDossiers = el('div', 'mail-col mail-col-dossiers');
+    colDossiers.append(dossiers);
+
+    const colListe = el('div', 'mail-col mail-col-liste');
+    colListe.append(retour('Dossiers', { ecran: 'mail', dossier: null, fil: null }), liste);
+
+    const colFil = el('div', 'mail-col mail-col-fil');
+    colFil.append(retour('Messages', { ecran: 'mail', fil: null }), lecture);
+
+    grille.append(colDossiers, colListe, colFil);
     frag.append(grille);
     return frag;
   }
@@ -1082,6 +1199,15 @@
     document.documentElement.setAttribute('data-societe', v.societe);
     if (v.scenario) document.documentElement.setAttribute('data-scenario', v.scenario);
     else document.documentElement.removeAttribute('data-scenario');
+
+    /* Niveau de navigation en profondeur pour les petits écrans : l'adresse
+       porte déjà le dossier et le fil, le CSS n'a qu'à suivre. */
+    const niveau = v.ecran === 'wa'
+      ? (v.filExplicite ? 'fil' : 'liste')
+      : v.ecran === 'mail'
+        ? (v.filExplicite ? 'fil' : (v.dossierExplicite ? 'liste' : 'dossiers'))
+        : 'ecran';
+    document.documentElement.setAttribute('data-niveau', niveau);
 
     const appli = document.getElementById('appli');
     appli.textContent = '';
@@ -1130,12 +1256,14 @@
   // Un retour navigateur change de fil ou de société : le contexte transitoire
   // (réponse en cours, brouillon ouvert, média, enregistreur) ne doit pas
   // réapparaître ailleurs. Même purge que dans aller().
+  window.H.rendre = rendre;
+
   window.addEventListener('popstate', () => {
     Object.assign(ui, {
       reponse: '', brouillonOuvert: false, brouillonInsere: false,
       composeurMedia: null, enregistreur: null, envoye: null,
       etapeDeplacee: null, message: null, scenarioApplique: null,
-      composeurMail: null, composeurMailType: null,
+      composeurMail: null, composeurMailType: null, envoyeAction: null, menuOuvert: false,
     });
     rendre();
   });

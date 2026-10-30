@@ -89,7 +89,7 @@ window.MAQUETTE = {
       id: 'wa-lea', societe: 'atelier', canal: 'WHATSAPP', contact: 'lea',
       nom: 'Léa Mercier', poste: 'Boutique Mercier', handle: '+33 6 •• •• •• 18',
       localMode: 'INHERIT', localRevision: 'loc-3',
-      apercu: 'Parfait, on valide le plan de la vitrine.', heure: '09:42', nonLus: 2,
+      apercu: 'Parfait, on valide le plan de la vitrine.', heure: '09:42', nonLus: 1,
     },
     {
       id: 'wa-ines', societe: 'atelier', canal: 'WHATSAPP', contact: 'ines',
@@ -113,7 +113,7 @@ window.MAQUETTE = {
       id: 'wa-sofia', societe: 'verdure', canal: 'WHATSAPP', contact: 'sofia',
       nom: 'Sofia Nguyen', poste: 'Copropriété Les Tilleuls', handle: '+33 6 •• •• •• 72',
       localMode: 'INHERIT', localRevision: 'loc-2',
-      apercu: 'Vidéo du massif après plantation', heure: '11:05', nonLus: 1,
+      apercu: 'Vidéo du massif après plantation', heure: '11:05', nonLus: 3,
     },
   ],
 
