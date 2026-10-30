@@ -212,6 +212,12 @@ export const readMessagingInboxConnection = (
     canSend: readBoolean(value.canSend),
     // The contract gives canSync a default of false.
     canSync: readBoolean(value.canSync) ?? false,
+    // Same rule, and it also covers a server that does not publish these
+    // fields yet: absent means not available, never available by default.
+    canSendMedia: readBoolean(value.canSendMedia) ?? false,
+    canReceiveMedia: readBoolean(value.canReceiveMedia) ?? false,
+    canRecordVoice: readBoolean(value.canRecordVoice) ?? false,
+    canComposeRichEmail: readBoolean(value.canComposeRichEmail) ?? false,
     lastCheckedAt: readString(value.lastCheckedAt),
     errorCode: readString(value.errorCode),
   };

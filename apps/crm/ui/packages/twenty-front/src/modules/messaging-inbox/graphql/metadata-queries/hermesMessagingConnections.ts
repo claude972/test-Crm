@@ -16,6 +16,10 @@ export const HERMES_MESSAGING_CONNECTIONS = gql`
       state
       canSend
       canSync
+      canSendMedia
+      canReceiveMedia
+      canRecordVoice
+      canComposeRichEmail
       lastCheckedAt
       errorCode
     }

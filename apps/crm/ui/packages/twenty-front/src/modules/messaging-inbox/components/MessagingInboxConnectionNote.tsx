@@ -208,6 +208,55 @@ export const MessagingInboxConnectionNote = ({
         </Tag>
       )}
 
+      {/* Media, voice and rich e-mail are named one by one when the server
+          says they are not available. Saying nothing would leave the operator
+          to discover the limit by trying, and a capability nobody confirmed is
+          never offered. These are not errors: the connection can be healthy
+          and still carry text only. */}
+      {channel === 'WHATSAPP' && !connection.canReceiveMedia && (
+        <Tag
+          color="gray"
+          variant="soft"
+          truncate={false}
+          startIcon={<IconCircleOff />}
+        >
+          {t`Incoming media unavailable`}
+        </Tag>
+      )}
+
+      {channel === 'WHATSAPP' && !connection.canSendMedia && (
+        <Tag
+          color="gray"
+          variant="soft"
+          truncate={false}
+          startIcon={<IconCircleOff />}
+        >
+          {t`Sending media unavailable`}
+        </Tag>
+      )}
+
+      {channel === 'WHATSAPP' && !connection.canRecordVoice && (
+        <Tag
+          color="gray"
+          variant="soft"
+          truncate={false}
+          startIcon={<IconCircleOff />}
+        >
+          {t`Voice messages unavailable`}
+        </Tag>
+      )}
+
+      {channel === 'EMAIL' && !connection.canComposeRichEmail && (
+        <Tag
+          color="gray"
+          variant="soft"
+          truncate={false}
+          startIcon={<IconCircleOff />}
+        >
+          {t`Attachments and formatting unavailable`}
+        </Tag>
+      )}
+
       {isNonEmptyString(connection.errorCode) && (
         <Tag
           color="red"
