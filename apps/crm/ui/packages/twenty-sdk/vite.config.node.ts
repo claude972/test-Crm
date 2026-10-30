@@ -18,12 +18,12 @@ import packageJson from './package.json';
 // esbuild's CJS-globals shim had the same limitation, so this is not a
 // regression; our own __dirname usage already targets dist/ intentionally.
 const esmNodeGlobalsBanner = [
-  "import { createRequire as __kovaa-labCreateRequire } from 'node:module';",
-  "import { fileURLToPath as __kovaa-labFileURLToPath } from 'node:url';",
-  "import { dirname as __kovaa-labDirname } from 'node:path';",
-  'const require = __kovaa-labCreateRequire(import.meta.url);',
-  'const __filename = __kovaa-labFileURLToPath(import.meta.url);',
-  'const __dirname = __kovaa-labDirname(__filename);',
+  "import { createRequire as __kovaaLabCreateRequire } from 'node:module';",
+  "import { fileURLToPath as __kovaaLabFileURLToPath } from 'node:url';",
+  "import { dirname as __kovaaLabDirname } from 'node:path';",
+  'const require = __kovaaLabCreateRequire(import.meta.url);',
+  'const __filename = __kovaaLabFileURLToPath(import.meta.url);',
+  'const __dirname = __kovaaLabDirname(__filename);',
 ].join('\n');
 
 export default defineConfig(() => {

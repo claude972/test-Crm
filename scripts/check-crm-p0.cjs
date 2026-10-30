@@ -11,7 +11,7 @@ const dependencyRequire = process.env.HERMES_CHECK_MODULES
   : require;
 const ts = dependencyRequire('typescript');
 const workspace = path.join(root, 'apps/crm/ui');
-const packages = ['twenty-server', 'twenty-shared'];
+const packages = ['twenty-server', 'twenty-shared', 'twenty-sdk'];
 const failures = [];
 let parsed = 0;
 let importsChecked = 0;

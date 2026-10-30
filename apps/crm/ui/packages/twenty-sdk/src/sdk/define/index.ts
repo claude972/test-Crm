@@ -151,7 +151,7 @@ export {
   STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS as STANDARD_OBJECT,
   STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS,
 } from '@/sdk/define/objects/standard-object-ids';
-export type { KovaaLab CRMRecord } from '@/sdk/define/objects/kovaa-lab-record.type';
+export type { KovaaLabCRMRecord } from '@/sdk/define/objects/twenty-record.type';
 
 export { definePageLayout } from '@/sdk/define/page-layouts/define-page-layout';
 export { definePageLayoutTab } from '@/sdk/define/page-layouts/define-page-layout-tab';
