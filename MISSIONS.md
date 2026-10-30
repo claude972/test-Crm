@@ -174,7 +174,7 @@ Mission ID: p0-combined-verification
 - owned files: workflow de session preview, scripts preview-* et rapport docs/verification/preview-* ; aucune source frontend métier.
 - delegation: preview_hosting code gate/staging/routes ; backend_review code superviseur backend et worker ; root intègre/relit et code orchestration cloud. Revues croisées des helpers effectuées, trois corrections de lifecycle/contrat appliquées avant intégration.
 - deliverables: build/artifact exact, session bornée, URL web/PWA protégée testée avec vrai backend, date d'expiration et limites explicites ; rapport partagé avant ready_for_review.
-- blockers: CI navigateur complète encore en cours ; orchestration de session et déploiement preview à effectuer. Pas de serveur existant, secrets privés ou original à utiliser.
+- blockers: aucun pour tester la preview CRM pendant sa session ; revue ciblée Claude en attente. Aucun serveur historique, secret original ou production existante utilisé.
 
 - implementation revision: d1060f44e, PR #10, rapport publié dans CORRECTIONS.md avant ce statut.
 - preview verified: https://hermes-crm-p0-preview-mjgvbtc3d-brafas-projects.vercel.app ; API expire 29 octobre 2026 à 22:55:40 America/Martinique.
