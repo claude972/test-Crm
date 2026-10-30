@@ -177,3 +177,20 @@ test('rejects duplicate FK used to replace a workspace boundary', () =>
   assert.throws(() =>
     validateMigrationSql([...up.slice(0, -1), up.at(-2)], down),
   ));
+
+test('rejects unrelated ImportState default normalization emitted by TypeORM', () => {
+  assert.throws(
+    () =>
+      validateMigrationSql(
+        [
+          ...up,
+          `ALTER TABLE "core"."hermesImportState" ALTER COLUMN "state" SET DEFAULT '{}'::jsonb`,
+        ],
+        [
+          ...down,
+          `ALTER TABLE "core"."hermesImportState" ALTER COLUMN "state" SET DEFAULT '{}'::jsonb`,
+        ],
+      ),
+    /Only three CREATE TABLE/,
+  );
+});
