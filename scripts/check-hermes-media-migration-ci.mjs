@@ -563,7 +563,9 @@ export async function main() {
       );
     const generating = find().length === 0;
     const nativeCandidateUp = schemaDiff(server);
-    const nativeCandidateDown = report.nativeMetadataComparisons.at(-1).down;
+    const nativeCandidateDown = [
+      ...report.nativeMetadataComparisons.at(-1).down,
+    ].reverse();
     writeFileSync(
       path.join(artifactDirectory, "native-feature-diff-before-generator.json"),
       JSON.stringify(nativeCandidateUp, null, 2) + "\n",
