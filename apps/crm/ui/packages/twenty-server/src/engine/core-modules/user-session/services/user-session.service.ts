@@ -463,6 +463,11 @@ export class UserSessionService {
             AuthExceptionCode.FORBIDDEN_EXCEPTION,
           );
         if (input.userWorkspaceId) {
+          if (!input.workspaceId)
+            throw new AuthException(
+              'Workspace access is unavailable',
+              AuthExceptionCode.FORBIDDEN_EXCEPTION,
+            );
           const membership = await manager
             .getRepository(UserWorkspaceEntity)
             .findOne({

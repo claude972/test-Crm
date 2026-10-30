@@ -63,6 +63,8 @@ Native social/SSO callbacks retain provider/state/enterprise validation. Workspa
 
 Capture `X-Expected-Workspace-Id` from the client/form context before dispatch and before any refresh. Workspace user mutations require a matching header in opt-in mode; reads reject a mismatched header if present. The server compares against its cryptographically/session-verified workspace; the header never selects a tenant. Metadata, data and user upload/REST paths are guarded. Native public authentication/bootstrap, provider webhooks, API keys and fixed-scope machine identities keep their native boundaries. Root fragment/alias expansion is recursive and mixed public/private operations are not exempt.
 
+These checks run at the native request hydration boundary. They reject stale requests arriving after a session change, and prevent an old A form from writing into B through a refreshed B cookie. They do not retroactively cancel an A mutation already authorized before a switch and subsequently waiting inside its resolver. Keep frontend request/form context immutable, discard late A results while B is displayed, and optionally block switching while tenant mutations are outstanding. No global ORM cancellation guarantee is claimed.
+
 When a user bearer and native cookie are both presented, both must be valid and agree on user, workspace and membership. A malformed bearer is never replaced with a cookie. `SESSION_SUPERSEDED` means discard late results, clear the old tenant cache, and restore a coherent native authentication context. Never automatically retry a mutation after this error.
 
 ## Validation and ownership
