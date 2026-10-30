@@ -18,6 +18,7 @@ import { LogEmailingDomainDriver } from 'src/engine/core-modules/emailing-domain
 import { ResendApiClientService } from 'src/engine/core-modules/emailing-domain/drivers/resend/services/resend-api-client.service';
 import { ResendDriver } from 'src/engine/core-modules/emailing-domain/drivers/resend/services/resend-driver.service';
 import { EmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-driver.type';
+import { SmtpEmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/smtp/smtp-emailing-domain-driver';
 import { EmailGroupAccessService } from 'src/engine/core-modules/emailing-domain/services/email-group-access.service';
 import { UnsubscribeContentService } from 'src/engine/core-modules/emailing-domain/services/unsubscribe-content.service';
 import { DriverFactoryBase } from 'src/engine/core-modules/twenty-config/dynamic-factory.base';
@@ -69,6 +70,8 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
       }
       case EmailingDomainDriver.LOG:
         return 'log';
+      case EmailingDomainDriver.SMTP:
+        return `smtp|${this.configGroupHashService.computeHash(ConfigVariablesGroup.EMAIL_SETTINGS)}|${this.kovaaLabConfigService.get('SERVER_URL')}`;
       default:
         throw new Error(`Unsupported emailing domain driver: ${driver}`);
     }
@@ -131,8 +134,19 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
       case EmailingDomainDriver.LOG:
         return this.logEmailingDomainDriver;
 
+      case EmailingDomainDriver.SMTP:
+        return new SmtpEmailingDomainDriver(
+          this.kovaaLabConfigService.get('EMAILING_SMTP_CONNECTIONS'),
+          this.kovaaLabConfigService.get('SERVER_URL'),
+          this.unsubscribeContentService,
+        );
+
       default:
         throw new Error(`Invalid emailing domain driver: ${driver}`);
     }
+  }
+
+  protected disposeDriver(driver: EmailingDomainDriverInterface): void {
+    if (driver instanceof SmtpEmailingDomainDriver) driver.close();
   }
 }

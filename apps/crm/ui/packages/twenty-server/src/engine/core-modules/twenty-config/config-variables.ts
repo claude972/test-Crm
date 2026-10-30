@@ -2427,13 +2427,24 @@ export class ConfigVariables {
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,
     description:
-      'Driver used for the emailing domain feature — AWS_SES (requires AWS credentials), RESEND (requires a Resend API key), LOG fakes registration/verification/sends locally',
+      'Driver used for the emailing domain feature — AWS_SES, RESEND, SMTP (workspace-scoped relay configuration), or LOG (simulated sends)',
     type: ConfigVariableType.ENUM,
     options: Object.values(EmailingDomainDriver),
     isEnvOnly: true,
   })
   @CastToUpperSnakeCase()
   EMAILING_DOMAIN_DRIVER: EmailingDomainDriver = EmailingDomainDriver.LOG;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.EMAIL_SETTINGS,
+    description:
+      'JSON map of workspace IDs to SMTP campaign relay credentials and explicitly authorized sender domains. Empty means no workspace can send via SMTP.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  EMAILING_SMTP_CONNECTIONS = '{}';
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,
