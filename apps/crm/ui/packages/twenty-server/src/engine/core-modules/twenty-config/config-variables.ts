@@ -2425,6 +2425,16 @@ export class ConfigVariables {
   IS_ONBOARDING_AI_CHAT_ENABLED = false;
 
   @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.EMAIL_SETTINGS,
+    description:
+      'Enable campaign drafts for newly activated workspaces. Sending still requires native permissions and a configured provider. Does not enable tracking or change existing workspaces.',
+    type: ConfigVariableType.BOOLEAN,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_B2B_CAMPAIGNS_ENABLED = false;
+
+  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,
     description:
       'Driver used for the emailing domain feature — AWS_SES, RESEND, SMTP (workspace-scoped relay configuration), or LOG (simulated sends)',

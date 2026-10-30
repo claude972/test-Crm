@@ -21,6 +21,7 @@ import {
   normalizeAllowedIframeOrigin,
 } from 'kovaa-lab-shared/utils';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
+import { FeatureFlagKey } from 'kovaa-lab-shared/types';
 import {
   DataSource,
   In,
@@ -566,6 +567,15 @@ export class WorkspaceService {
         DEFAULT_FEATURE_FLAGS,
         workspace.id,
       );
+
+      if (
+        this.kovaaLabConfigService.get('HERMES_B2B_CAMPAIGNS_ENABLED') === true
+      ) {
+        await this.featureFlagService.enableFeatureFlags(
+          [FeatureFlagKey.IS_MESSAGE_CAMPAIGN_ENABLED],
+          workspace.id,
+        );
+      }
 
       await this.userWorkspaceService.createWorkspaceMember(workspace.id, user);
 
