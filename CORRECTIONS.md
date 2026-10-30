@@ -1489,3 +1489,10 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Evidence: observe() attend media.receive puis vérifie uniquement le rôle avant inbox.ingest, sans refaire le contrôle D/revision ni le deadline. Deux barrières de test reproduites rouges par le responsable : révocation D ou expiration pendant attente média laisse encore ingérer avant le contrôle final de session.
 - Expected correction: guard server-only lié à la révision native D/account et au deadline, propagé dans ingest/receive B ; recheck après advisory lock et avant mutations/commit avec le même manager. Le client ne peut fournir ni callback ni flags internes. Native D resolve(manager) et voie intake/events coordonnées.
 - Fix: checkpoints locaux C et B c7303223c en validation ; recheck indépendant et CI du correctif pending, pas verified.
+
+### 2026-10-30 19:52 America/Martinique — reprise supervision / Claude
+
+- Acting agent: Codex root. CLI parent 8f3db32e-4613-45e3-94f3-16e664f3cbfc, session PTY 2418 réutilisée, aucune nouvelle session doublon. Instruction réelle envoyée : reprendre assemblage complet, réutiliser quatre workers runtime, déléguer backend et CI uniquement à Claude, rendre SHAs et dispatch reçus.
+- Résultat observé avant envoi : conteneur réglages b2692543d livré et fusionné parent, 84 tests annoncés ; trois runtime encore en cours. Les anciens agents Codex ont échoué sur quota, ils ne sont plus actifs.
+- Root intégration 6dd0b3dce contient backend assemblé et frontend e21, sans recette finale. C ee0943bd8 cloud 41145406389 success ; D compiled/barriers 41145150959 failure. Pas de preview V4 accessible annoncée.
+- Prochain contrôle : ACK réel parent, correction CI D et MAIL006, quatre montages, build combiné, preview neuve et navigateur.
