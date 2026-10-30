@@ -593,3 +593,16 @@ Le 29 octobre 2026, le propriétaire confirme la poursuite autonome avec cible e
 - recheck evidence: aucune réussite de bundle/navigateur revendiquée.
 
 Accusé de réception réel de Claude : contrainte web/PWA enregistrée dans sa session ; il poursuit le diagnostic worker dans son paquet. La règle est aussi ajoutée au AGENTS.md de la branche d'intégration pour les futures reprises. Aucun projet natif lancé.
+
+
+## p0-preview-session / codex — avancement vérifié
+
+Révision d'intégration isolée `013b6ac46` sur `chore/p0-preview-session`, base `c96b7eea6cf316c0e1841f13b203e7731aaef4f1`. Les deux sous-agents Codex ont livré des scripts réels : gate HTTP d'origine + staging Vercel, et superviseur Nest/worker à durée absolue bornée. Quatre tests HTTP/staging réussissent ; revues croisées effectuées, trois défauts de durée/nettoyage/contrat corrigés avant intégration. Ces tests ne prouvent pas encore le démarrage de la session CRM complète.
+
+Preuve frontend : [CI 40985976531](https://github.com/claude972/test-Crm/actions/runs/40985976531), checkpoint `bad53ac26b0c3a17a91c91b95be41986c7343836`, job frontend-bundle **réussi**, artefact téléchargé et index présent. Le job backend de ce run échouait avant checkout à cause du répertoire de travail absent ; correction d'orchestration `c96b7eea6`, nouveau [run 40986681086](https://github.com/claude972/test-Crm/actions/runs/40986681086) encore en cours. Aucun succès du navigateur intégré n'est revendiqué.
+
+Le correctif worker Claude `6c7bcd48a`, intégré comme `bad53ac26`, a donc dépassé l'échec renderer observé : P0-FRONT-WORKER-001 et P0-FRONT-BUILD-001 vérifiés dans le périmètre de construction frontend de ce run. Le SDK général a lui aussi construit ses sorties dans cette chaîne ; audit indépendant Codex sans défaut trouvé sur `39cda1cb7`, revue Claude toujours attendue pour terminer son affectation.
+
+Projet Vercel **hermes-crm-p0-preview**, isolé et sans déploiement production, créé dans l'équipe existante. Deux secrets jetables neufs configurés pour la seule session de preview ; aucune valeur publiée, aucun secret existant chargé. API/PG/Redis réels jetables et workflow borné en préparation. Pas encore d'URL testable : le frontend statique seul ne sera pas présenté comme CRM opérationnel.
+
+Préservation : création d'un nouveau checkout complet interrompue par manque d'espace ; cette création Git échouée a été retirée par Git et le chemin était absent avant reprise. Recréation **sparse** de notre seule branche de preview ; original test-Crm et sauvegardes inchangés. Les sous-agents réduisent également leurs propres checkouts terminés, sans supprimer leurs commits ni toucher aux autres worktrees.
