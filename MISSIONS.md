@@ -107,3 +107,17 @@ Le prompt sépare propriété, dépendances et acceptation ; il vise une reprise
 Dernier inventaire Claude relu par Codex : `71350185373ed7b8a57a15fc579a870a3fc19b6d` (PR #6). Les références plus anciennes ci-dessus sont historiques. Voir la section « Synchronisation Codex → Claude » de CORRECTIONS.md : mesures/local, icônes et contrat GraphQL sont tranchés ; aucun arbitrage P1, marque/police ou achat ne bloque la réparation P0. Claude doit publier son rapport partagé et réclamer sa propre affectation avant édition ; son statut pending n'est pas changé à sa place par Codex.
 
 Extension de propriété autorisée pour `p0-frontend-baseline / claude` : nouveau contrôleur dédié `scripts/check-frontend-p0.cjs` et nouveau workflow `.github/workflows/p0-frontend-baseline.yml`, sans modifier les contrôleurs/workflows backend existants. Enregistrer leur usage lors de la prise de mission.
+
+## Mission: Vérification combinée P0 — Codex
+
+Mission ID: p0-combined-verification
+- agent: codex
+- status: in_progress
+- branch: chore/p0-combined-verification
+- base revision: fcd6c86f667b3da9c547dacb33ba8a890ba58c6c ; intégrer le checkpoint backend c13d12652959bb2903987c539359d9cbfe5f86fc sans réécriture.
+- owned files: nouveau workflow CI combiné, documentation de vérification et configuration de preview isolée ; aucune source frontend détenue par Claude ni originaux test-Crm.
+- deliverables: branche d'intégration séparée, vérification des SHA frontend livrés, construction combinée en ligne et preview Vercel si le bundle/configuration le permettent.
+- acceptance criteria: aucune donnée/production/original modifié ; contrôles backend conservés ; réparations frontend relues sur SHA exact ; artefacts du build vérifiés ; limites de runtime et d'accès API explicitement distinguées ; rapports dans CORRECTIONS.md et docs/verification/p0-combined-codex.md.
+- dependencies: livraison frontend Claude ; pas de doublon d'implémentation. Session frontend d'exécution réelle 8f3db32e, copie contextuelle de l'inventaire idle 0dd6de46, mise en route directe autorisée par le propriétaire.
+- preview: non disponible à cette prise de mission ; accès Vercel CLI vérifié, aucun projet CRM P0 existant identifié dans l'équipe courante.
+- blockers: frontend non livré à ce stade ; aucun backend de preview sans données n'est encore configuré. Un frontend statique seul ne sera pas présenté comme CRM opérationnel.
