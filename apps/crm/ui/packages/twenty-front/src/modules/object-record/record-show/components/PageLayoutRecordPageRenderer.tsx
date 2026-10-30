@@ -12,6 +12,7 @@ import { type TargetRecordIdentifier } from '@/ui/layout/contexts/TargetRecordId
 import { useWorkspaceSurface } from '@/ui/layout/hooks/useWorkspaceSurface';
 import { SidePanelFooter } from '@/ui/layout/side-panel/components/SidePanelFooter';
 import { useAtomFamilySelectorValue } from '@/ui/utilities/state/jotai/hooks/useAtomFamilySelectorValue';
+import { ClientContextRecordSection } from '@/client-context/components/ClientContextRecordSection';
 import { styled } from '@linaria/react';
 import { CoreObjectNameSingular } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
@@ -96,6 +97,16 @@ export const PageLayoutRecordPageRenderer = ({
             {isDefined(pageLayoutId) && (
               <PageLayoutRenderer pageLayoutId={pageLayoutId} />
             )}
+            {/* Forms responses and bookings actually received for this client.
+                Renders null for every object other than person and company,
+                queries nothing and reads no record store, so it cannot throw
+                on a record page that does not concern it. */}
+            <ClientContextRecordSection
+              recordId={targetRecordIdentifier.id}
+              objectNameSingular={
+                targetRecordIdentifier.targetObjectNameSingular
+              }
+            />
           </LayoutRenderingProvider>
         </StyledContentContainer>
 

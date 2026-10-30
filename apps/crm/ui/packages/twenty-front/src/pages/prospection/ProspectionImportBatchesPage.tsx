@@ -11,8 +11,9 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 import { CampaignAudiencesSection } from '@/prospection/components/CampaignAudiencesSection';
 import { HermesCapabilitiesNote } from '@/prospection/components/HermesCapabilitiesNote';
 import { HermesImportBatchDetail } from '@/prospection/components/HermesImportBatchDetail';
-import { HermesImportBatchForm } from '@/prospection/components/HermesImportBatchForm';
 import { HermesImportBatchesTable } from '@/prospection/components/HermesImportBatchesTable';
+import { HermesIntakeSection } from '@/prospection/components/HermesIntakeSection';
+import { HermesManualDepositSection } from '@/prospection/components/HermesManualDepositSection';
 import { HermesPayloadProblemNote } from '@/prospection/components/HermesPayloadProblemNote';
 import {
   ProspectionCounters,
@@ -25,6 +26,7 @@ import {
   PROSPECTION_RECEPTION_PATH,
 } from '@/prospection/constants/ProspectionRoutePaths';
 import { useHermesImportBatches } from '@/prospection/hooks/useHermesImportBatches';
+import { useHermesIntakeState } from '@/prospection/hooks/useHermesIntakeState';
 import { buildHermesStateCounts } from '@/prospection/utils/buildHermesCounts';
 import { PageCardHeader } from '@/ui/layout/page/components/PageCardHeader';
 import { PageCardLayout } from '@/ui/layout/page/components/PageCardLayout';
@@ -53,7 +55,7 @@ const StyledActions = styled.div`
   gap: ${themeCssVariables.spacing[2]};
 `;
 
-const ProspectionImportBatchesContent = () => {
+const HermesCollectionsContent = () => {
   const { t } = useLingui();
   const [searchParams] = useSearchParams();
 
@@ -64,9 +66,15 @@ const ProspectionImportBatchesContent = () => {
   const { status, state, problem, failureMessage, isRefreshing, refetch } =
     useHermesImportBatches();
 
+  // Read first and rendered first: the automatic entry point is how
+  // collections arrive, so its state is the first thing the screen says even
+  // when the list below cannot be read.
+  const intakeState = useHermesIntakeState();
+
   if (status === 'loading') {
     return (
       <StyledContent>
+        <HermesIntakeSection state={intakeState} />
         <ProspectionNote>
           <Trans>Loading…</Trans>
         </ProspectionNote>
@@ -79,6 +87,7 @@ const ProspectionImportBatchesContent = () => {
   if (status === 'denied') {
     return (
       <StyledContent>
+        <HermesIntakeSection state={intakeState} />
         <ProspectionNote role="alert">
           <Trans>
             Not authorised: unrestricted workspace administrators only.
@@ -92,17 +101,20 @@ const ProspectionImportBatchesContent = () => {
     );
   }
 
-  // The reception could not be read. It is shown as unknown, never as an
-  // empty reception, and nothing offers to stage into it.
+  // The collections could not be read. Shown as unknown, never as no
+  // collection, and nothing offers to deposit into it.
   if (status === 'unreadable' || !isDefined(state)) {
     return (
       <StyledContent>
+        <HermesIntakeSection state={intakeState} />
         <HermesPayloadProblemNote
           problem={problem ?? 'missing'}
-          subject={t`Reception`}
+          subject={t`Collections`}
         />
         <ProspectionNote>
-          <Trans>Staging opens once the reception can be read.</Trans>
+          <Trans>
+            The manual deposit opens once the collections can be read.
+          </Trans>
         </ProspectionNote>
         <ProspectionDiagnostic message={failureMessage} />
         <StyledActions>
@@ -126,7 +138,7 @@ const ProspectionImportBatchesContent = () => {
     return (
       <StyledContent>
         <StyledBackLink to={PROSPECTION_RECEPTION_PATH}>
-          {t`Back to the reception`}
+          {t`Back to collections`}
         </StyledBackLink>
 
         {isDefined(batch) ? (
@@ -137,7 +149,7 @@ const ProspectionImportBatchesContent = () => {
           />
         ) : (
           <ProspectionNote role="alert">
-            <Trans>Batch not found in this workspace.</Trans>
+            <Trans>Collection not found in this workspace.</Trans>
           </ProspectionNote>
         )}
       </StyledContent>
@@ -147,18 +159,20 @@ const ProspectionImportBatchesContent = () => {
   const counts = buildHermesStateCounts(state);
 
   const counters: ProspectionCounter[] = [
-    { key: 'batches', label: t`Batches`, count: counts.batches },
-    { key: 'rows', label: t`Staged rows`, count: counts.rows },
+    { key: 'collections', label: t`Collections`, count: counts.batches },
+    { key: 'rows', label: t`Rows received`, count: counts.rows },
     { key: 'qualified', label: t`Qualified`, count: counts.qualifiedRows },
     { key: 'suppressed', label: t`Suppressed`, count: counts.suppressedRows },
   ];
 
   return (
     <StyledContent>
+      <HermesIntakeSection state={intakeState} />
+
       <Section.Root>
         <Section.Header
-          title={t`Reception`}
-          description={t`Batches staged for this workspace, with the status the server gave each row.`}
+          title={t`Collections received`}
+          description={t`Collections held for this workspace, whatever path they came in through, with the status the server gave each row.`}
         />
         <ProspectionCounters counters={counters} />
         <HermesCapabilitiesNote capabilities={state.capabilities} />
@@ -166,13 +180,13 @@ const ProspectionImportBatchesContent = () => {
 
       {state.unreadableBatchCount > 0 && (
         <ProspectionNote role="alert">
-          <Trans>Some batches could not be read and are not listed.</Trans>
+          <Trans>Some collections could not be read and are not listed.</Trans>
         </ProspectionNote>
       )}
 
       {state.batches.length === 0 ? (
         <ProspectionNote>
-          <Trans>No batch staged yet.</Trans>
+          <Trans>No collection received yet.</Trans>
         </ProspectionNote>
       ) : (
         <Section.Root>
@@ -180,7 +194,9 @@ const ProspectionImportBatchesContent = () => {
         </Section.Root>
       )}
 
-      <HermesImportBatchForm
+      {/* Folded and placed last: kept for a collection the entry point did
+          not bring in, and no longer presented as the way in. */}
+      <HermesManualDepositSection
         retainedBatchCount={state.batches.length}
         onStaged={refetch}
       />
@@ -190,18 +206,25 @@ const ProspectionImportBatchesContent = () => {
   );
 };
 
-// Route component for /prospection. The reception reads the Hermes import
-// state; the campaign audiences below it read the native messageList object.
-// The two are deliberately separate: an audience list is already qualified and
-// is not an incoming batch.
+// Route component for /prospection: the Hermes collections surface. The
+// automatic entry point comes first, the collections already received come
+// next, and the manual JSON deposit is kept folded underneath them. The
+// campaign audiences below read the native messageList object and are
+// deliberately separate: an audience list is already qualified and is not an
+// incoming collection.
+//
+// The exported name and the file name are unchanged on purpose: the route
+// table and the navigation import them and belong to another owner.
 export const ProspectionImportBatchesPage = () => {
   const { t } = useLingui();
 
   return (
     <PageCardLayout
-      header={<PageCardHeader icon={<IconInbox />} title={t`Prospection`} />}
+      header={
+        <PageCardHeader icon={<IconInbox />} title={t`Hermès collections`} />
+      }
     >
-      <ProspectionImportBatchesContent />
+      <HermesCollectionsContent />
     </PageCardLayout>
   );
 };
