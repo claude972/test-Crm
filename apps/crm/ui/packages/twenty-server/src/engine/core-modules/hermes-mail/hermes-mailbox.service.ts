@@ -6,6 +6,7 @@ import {
   Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 import { type ImapFlow } from 'imapflow';
 import PostalMime from 'postal-mime';
 import MailComposer from 'nodemailer/lib/mail-composer';
@@ -316,7 +317,7 @@ export class HermesMailboxService {
   private async source(client: ImapFlow, input: HermesMailMessageInput) {
     const summary = await client.fetchOne(
       String(input.uid),
-      { uid: true, size: true },
+      { uid: true, size: true, internalDate: true },
       { uid: true },
     );
     if (!summary || summary.uid !== Number(input.uid))
@@ -338,9 +339,13 @@ export class HermesMailboxService {
       message.source.length !== summary.size
     )
       throw new ConflictException('MAIL_MESSAGE_CHANGED');
-    return PostalMime.parse(message.source, {
+    const parsed = await PostalMime.parse(message.source, {
       maxNestingDepth: 30,
       maxHeadersSize: 256 * 1024,
+    });
+    return Object.assign(parsed, {
+      mimeSha256: createHash('sha256').update(message.source).digest('hex'),
+      internalDate: summary.internalDate,
     });
   }
 
@@ -351,10 +356,11 @@ export class HermesMailboxService {
         await this.current(actor, client);
         const observed = await this.mail.observe(
           actor,
-          input,
+          { ...input, internalDate: parsed.internalDate },
           parsed,
           true,
           () => this.alive(client),
+          parsed.mimeSha256,
         );
         return {
           conversationId: observed.conversationId,
@@ -379,7 +385,10 @@ export class HermesMailboxService {
           text: parsed.text ?? '',
           html: sanitizeMailHtml(parsed.html),
           remoteImagesBlocked: true,
-          threadKey: mailThreadKey(parsed, [item.account.handle]),
+          threadKey: mailThreadKey(
+            parsed,
+            getSendableEmailHandles(item.account),
+          ),
           attachments: observed.attachments,
         };
       }),
@@ -448,10 +457,11 @@ export class HermesMailboxService {
         await this.current(actor, client);
         const observed = await this.mail.observe(
           actor,
-          input,
+          { ...input, internalDate: source.internalDate },
           source,
           true,
           () => this.alive(client),
+          source.mimeSha256,
         );
         const conversationId =
           input.mode === 'FORWARD'
@@ -590,10 +600,11 @@ export class HermesMailboxService {
         await this.current(actor, client);
         const observed = await this.mail.observe(
           actor,
-          input,
+          { ...input, internalDate: source.internalDate },
           source,
           true,
           () => this.alive(client),
+          source.mimeSha256,
         );
         const conversationId =
           input.mode === 'FORWARD'

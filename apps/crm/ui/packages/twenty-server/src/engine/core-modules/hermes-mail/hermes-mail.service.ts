@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cron } from '@nestjs/schedule';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 import { type EntityManager, IsNull, Raw, Repository } from 'typeorm';
 
@@ -355,7 +355,11 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
           { uid: true },
         );
         const source = body && body.source;
-        if (!source || source.length > MAX_MIME_BYTES) {
+        if (
+          !source ||
+          source.length > MAX_MIME_BYTES ||
+          source.length !== entry.size
+        ) {
           result.skipped++;
           continue;
         }
@@ -382,14 +386,52 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
         }
         assertLive();
         const rfcId = event.providerMetadata?.rfcMessageId;
-        const duplicate = rfcId
+        const mimeSha256 = event.providerMetadata?.mimeSha256;
+        const knownPhysical = await this.messages.findOne({
+          where: {
+            workspaceId,
+            channel: 'EMAIL',
+            providerConnectionId: binding.connectionId,
+            providerMessageId: event.providerMessageId,
+          },
+          relations: { conversation: true },
+        });
+        if (
+          knownPhysical?.id &&
+          knownPhysical.providerMessageId === event.providerMessageId
+        ) {
+          result.replayed++;
+          continue;
+        }
+        const duplicate = mimeSha256
           ? await this.messages.findOne({
               where: {
                 workspaceId,
                 channel: 'EMAIL',
                 providerConnectionId: binding.connectionId,
-                direction: 'INBOUND',
-                text: event.text,
+                providerMetadata: Raw(
+                  (alias) => alias + " ->> 'mimeSha256' = :mailMimeSha256",
+                  { mailMimeSha256: mimeSha256 },
+                ),
+              },
+              relations: { conversation: true },
+            })
+          : null;
+        if (
+          mimeSha256 &&
+          duplicate?.providerMetadata?.mimeSha256 === mimeSha256
+        ) {
+          result.replayed++;
+          continue;
+        }
+        // A reused RFC id without an exact native byte proof is observed, never
+        // guessed to be a new delivery eligible for automation.
+        const ambiguous = rfcId
+          ? await this.messages.findOne({
+              where: {
+                workspaceId,
+                channel: 'EMAIL',
+                providerConnectionId: binding.connectionId,
                 providerMetadata: Raw(
                   (alias) => alias + " ->> 'rfcMessageId' = :mailRfcId",
                   { mailRfcId: rfcId },
@@ -398,43 +440,19 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
               relations: { conversation: true },
             })
           : null;
-        if (
-          duplicate?.conversation?.contactHandle === event.contactHandle &&
-          duplicate.conversation.providerConversationId ===
-            event.providerConversationId
-        ) {
-          result.replayed++;
-          continue;
-        }
-        const known =
-          rfcId && event.contactHandle === mailAddress(account.handle)
-            ? await this.messages.findOne({
-                where: {
-                  workspaceId,
-                  channel: 'EMAIL',
-                  providerConnectionId: binding.connectionId,
-                  providerMessageId: mailProviderId(rfcId),
-                  direction: 'OUTBOUND',
-                  status: 'ACCEPTED',
-                },
-              })
-            : null;
-        // Only our own confirmed ledger can deduplicate a copied outbound.
-        // An arbitrary RFC From/Message-ID never creates a send receipt.
-        if (known && known.text === event.text.trim()) {
-          result.replayed++;
-          continue;
-        }
         const saved = await this.observe(
           item.actor,
           {
             folder: binding.mailbox,
             uid: String(entry.uid),
             uidValidity: validity,
+            internalDate: entry.internalDate,
           },
           await PostalMime.parse(source),
-          false,
+          !lastUid ||
+            (ambiguous?.providerMetadata?.rfcMessageId === rfcId && !!rfcId),
           assertLive,
+          mimeSha256,
         );
         if (saved.replay) result.replayed++;
         else result.received++;
@@ -463,10 +481,16 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
 
   async observe(
     actor: HermesMessagingActor,
-    scope: { folder: string; uid: string; uidValidity: string },
+    scope: {
+      folder: string;
+      uid: string;
+      uidValidity: string;
+      internalDate?: Date | string;
+    },
     parsed: Email,
     suppressAutomation = true,
     assertDeadline: () => void = () => {},
+    mimeSha256?: string,
   ) {
     assertDeadline();
     await this.access.assertAllowed(actor);
@@ -490,11 +514,13 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     const event = await parseHermesMail({
       source: Buffer.alloc(0),
       parsed,
+      mimeSha256,
       workspaceId: actor.workspaceId,
       connectionId: item.binding.connectionId,
       mailbox: scope.folder,
       uid: Number(scope.uid),
       uidValidity: scope.uidValidity,
+      internalDate: scope.internalDate,
       ownAddress: item.account.handle,
       ownAddresses: getSendableEmailHandles(item.account),
     });
@@ -508,6 +534,31 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       if (!external) throw unavailable();
       event.contactHandle = external;
       event.direction = 'OUTBOUND';
+    }
+    if (mimeSha256) {
+      const known = await this.messages.findOne({
+        where: {
+          workspaceId: actor.workspaceId,
+          channel: 'EMAIL',
+          providerConnectionId: item.binding.connectionId,
+          providerMetadata: Raw(
+            (alias) => alias + " ->> 'mimeSha256' = :mailMimeSha256",
+            { mailMimeSha256: mimeSha256 },
+          ),
+        },
+        relations: { conversation: true },
+      });
+      if (
+        known?.providerMetadata?.mimeSha256 === mimeSha256 &&
+        known.providerMessageId &&
+        known.conversation
+      ) {
+        event.providerMessageId = known.providerMessageId;
+        event.providerConversationId =
+          known.conversation.providerConversationId;
+        event.contactHandle = known.conversation.contactHandle;
+        event.direction = known.direction;
+      }
     }
     const conversationId = messagingId(
       actor.workspaceId,
