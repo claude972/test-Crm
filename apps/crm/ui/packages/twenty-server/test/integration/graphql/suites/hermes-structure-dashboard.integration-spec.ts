@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 
 import request from 'supertest';
-import { In } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 
 import { ApplicationService } from 'src/engine/core-modules/application/application.service';
@@ -103,18 +103,21 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
   const createUser = async (label: string): Promise<UserEntity> => {
     const id = randomUUID();
     userIds.push(id);
-    return testDataSource.getRepository(UserEntity).save({
-      id,
-      email: `hermes-${fixtureSuffix}-${label}@example.com`,
-      firstName: 'Hermes',
-      lastName: label,
-      locale: 'en',
-      passwordHash: await hashPassword(randomBytes(24).toString('base64url')),
-      isEmailVerified: true,
-      disabled: false,
-      canAccessFullAdminPanel: false,
-      canImpersonate: false,
-    });
+    return global.app
+      .get(DataSource)
+      .getRepository(UserEntity)
+      .save({
+        id,
+        email: `hermes-${fixtureSuffix}-${label}@example.com`,
+        firstName: 'Hermes',
+        lastName: label,
+        locale: 'en',
+        passwordHash: await hashPassword(randomBytes(24).toString('base64url')),
+        isEmailVerified: true,
+        disabled: false,
+        canAccessFullAdminPanel: false,
+        canImpersonate: false,
+      });
   };
 
   const accessFor = async (
@@ -213,7 +216,20 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       .hermesStructureDashboard;
 
   beforeAll(async () => {
-    const workspaceRepository = testDataSource.getRepository(WorkspaceEntity);
+    const coreDataSource = global.app.get(DataSource);
+    assert.ok(
+      coreDataSource.isInitialized,
+      'Nest core datasource must be initialized',
+    );
+    for (const entity of [UserEntity, WorkspaceEntity, UserWorkspaceEntity]) {
+      assert.ok(
+        coreDataSource.hasMetadata(entity),
+        'Core fixture entity metadata must be registered',
+      );
+    }
+    const workspaceRepository = global.app
+      .get(DataSource)
+      .getRepository(WorkspaceEntity);
     const a = await workspaceRepository.findOneByOrFail({ id: A });
     const b = await workspaceRepository.findOneByOrFail({ id: B });
     const userWorkspaceService = global.app.get(UserWorkspaceService);
@@ -349,7 +365,8 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
         }
       }, buildSystemAuthContext(workspaceId));
     }
-    const memberships = await testDataSource
+    const memberships = await global.app
+      .get(DataSource)
       .getRepository(UserWorkspaceEntity)
       .find({ where: { userId: In(userIds) }, withDeleted: true });
     for (const membership of memberships)
@@ -370,7 +387,8 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       }, buildSystemAuthContext(workspaceId));
     }
     if (userIds.length)
-      await testDataSource
+      await global.app
+        .get(DataSource)
         .getRepository(UserEntity)
         .delete({ id: In(userIds) });
   }, 120_000);
@@ -486,7 +504,8 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
   });
 
   it('removes B immediately after native membership revocation and refuses its forged filter', async () => {
-    const membership = await testDataSource
+    const membership = await global.app
+      .get(DataSource)
       .getRepository(UserWorkspaceEntity)
       .findOneByOrFail({ userId: u2.user.id, workspaceId: B });
     await global.app.get(UserWorkspaceService).deleteUserWorkspace({
