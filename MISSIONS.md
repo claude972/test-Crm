@@ -390,7 +390,7 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 
 ### Claude — propriétaire exclusif du design
 - agent: claude
-- status: pending
+- status: in_progress
 - assigned session:8f3db32e-4613-45e3-94f3-16e664f3cbfc ; ne pas lancer de doublon depuis une autre veille.
 - branch: feat/claude-hermes-v2-ui ; worktree créé /Volumes/Stockage/dev/hermes-crm/v2-claude-maquettes (sparse docs uniquement).
 - ownership: docs/design/hermes-v2/** uniquement ; aucune modification apps/, production, backend, compte ou connexion.
@@ -401,7 +401,7 @@ Nouvelle instruction propriétaire : vérifier/créer les sociétés cloisonnée
 
 ### Codex — contrats et vérification
 - agent: codex
-- status: pending
+- status: in_progress
 - branch: feat/codex-hermes-v2-core ; worktree créé /Volumes/Stockage/dev/hermes-crm/v2-codex-contracts (sparse docs uniquement).
 - ownership: docs/handoff/hermes-v2-settings-bots-contract.md et hermes-v2-company-prospection-contract.md ; root possède coordination et vérification des maquettes ; ne pas modifier les fichiers Claude.
 - deliverables: contrats cible explicitement non implémentés, matrice des droits/scopes, vrai OFF par société/canal, sociétés/session/caches/onglets, données de prospection et recette ; chemins/signatures sources prouvés ; pas de fausse API existante.

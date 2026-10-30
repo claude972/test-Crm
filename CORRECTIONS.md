@@ -1141,3 +1141,10 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - CLI discovery: aide Claude et inventaire consultés ; session8f3db32e existe, idle/done, ancien checkout non modifié. Session interactive2418 joignable. Aucune instruction nouvelle envoyée avant publication de la mission.
 - Worktrees docs-only créés depuis333ba5349 : feat/claude-hermes-v2-ui et feat/codex-hermes-v2-core ; ne pas changer les anciens checkouts. Deux veilles test-Crm détectées, non interrompues ; propriétaire design explicitement réservé à8f3 pour éviter duplication.
 - Références primaires Pipedrive activités/dashboard consultées. Aucun accès fournisseur, compte, secret ou DB consulté. Prochaine action : dispatch réel à la session réservée, puis observation de l'acceptation et des artefacts.
+
+### HERMES-V2-MAQUETTES-20261030 — dispatch effectif 2026-10-30T17:49:10.518440+00:00
+
+- Codex a envoyé le prompt dans la session Claude `8f3db32e-4613-45e3-94f3-16e664f3cbfc` (terminal 2418), puis validé séparément. Réception prouvée dans le transcript à 17:48:31 UTC : « Reçu. Je lis la mission publiée avant d’implémenter. » Premier outil : vérification du nouveau worktree et de sa branche.
+- Précision transmise : initialiser uniquement le nouveau worktree sparse encore sans index, puis commits explicites `docs/design/hermes-v2/**`. Aucune modification des anciens checkouts.
+- Deux sous-agents Codex actifs : `v2_settings_contract` et `v2_company_prospection_contract`, propriété documentaire disjointe dans `v2-codex-contracts`. Aucun code applicatif ni connexion externe autorisé à cette étape.
+- Prochaine preuve attendue : prototype statique Claude, contrats techniques vérifiés, captures desktop/mobile et revue sur SHA.
