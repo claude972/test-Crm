@@ -22,14 +22,14 @@ const exactTimestamp = useExactTimestamp();
 
 const { t } = useI18n();
 const store = useStore();
-const { isCloudFeatureEnabled, isOnKovaaLab CharCloud } = useAccount();
+const { isCloudFeatureEnabled, isOnChatwootCloud } = useAccount();
 const { formatMessage } = useMessageFormatter();
 
 const isFeatureEnabled = computed(() =>
   isCloudFeatureEnabled('csat_review_notes')
 );
 const showPaywall = computed(
-  () => !isFeatureEnabled.value && isOnKovaaLab CharCloud.value
+  () => !isFeatureEnabled.value && isOnChatwootCloud.value
 );
 
 const reviewNotes = ref(props.response.csat_review_notes || '');

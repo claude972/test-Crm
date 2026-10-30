@@ -103,17 +103,17 @@ export default {
   computed: {
     ...mapGetters({ globalConfig: 'globalConfig/get' }),
     allowedLoginMethods() {
-      return window.kovaa-labConfig.allowedLoginMethods || ['email'];
+      return window.chatwootConfig.allowedLoginMethods || ['email'];
     },
     showGoogleOAuth() {
       return (
         this.allowedLoginMethods.includes('google_oauth') &&
-        Boolean(window.kovaa-labConfig.googleOAuthClientId)
+        Boolean(window.chatwootConfig.googleOAuthClientId)
       );
     },
     showSignupLink() {
       return (
-        window.kovaa-labConfig.signupEnabled === 'true' ||
+        window.chatwootConfig.signupEnabled === 'true' ||
         Boolean(this.signupRoute.query?.shopify_pending_install)
       );
     },

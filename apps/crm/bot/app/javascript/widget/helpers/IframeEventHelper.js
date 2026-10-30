@@ -3,7 +3,7 @@ export const loadedEventConfig = () => {
     event: 'loaded',
     config: {
       authToken: window.authToken,
-      channelConfig: window.kovaa-labWebChannel,
+      channelConfig: window.chatwootWebChannel,
     },
   };
 };

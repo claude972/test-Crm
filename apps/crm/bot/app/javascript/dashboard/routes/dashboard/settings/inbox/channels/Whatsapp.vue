@@ -22,7 +22,7 @@ const { t } = useI18n();
 const accessRequestDialogRef = ref(null);
 const {
   isCloudFeatureEnabled,
-  isOnKovaaLab CharCloud,
+  isOnChatwootCloud,
   isMetaInboxCreationDisabled,
 } = useAccount();
 
@@ -37,8 +37,8 @@ const PROVIDER_TYPES = {
 
 const hasWhatsappAppId = computed(() => {
   return (
-    window.kovaa-labConfig?.whatsappAppId &&
-    window.kovaa-labConfig.whatsappAppId !== 'none'
+    window.chatwootConfig?.whatsappAppId &&
+    window.chatwootConfig.whatsappAppId !== 'none'
   );
 });
 
@@ -53,7 +53,7 @@ const isWhatsappEmbeddedSignupDisabled = computed(
 
 const isWhatsappEmbeddedSignupFeatureEnabled = computed(
   () =>
-    !isOnKovaaLab CharCloud.value ||
+    !isOnChatwootCloud.value ||
     isCloudFeatureEnabled(FEATURE_FLAGS.WHATSAPP_EMBEDDED_SIGNUP_FLOW)
 );
 
@@ -68,7 +68,7 @@ const shouldShowWhatsappEmbeddedSignup = computed(() => {
 const shouldShowEmbeddedSignupAccessRequest = computed(() => {
   return (
     selectedProvider.value === PROVIDER_TYPES.WHATSAPP &&
-    isOnKovaaLab CharCloud.value &&
+    isOnChatwootCloud.value &&
     hasWhatsappAppId.value &&
     !isWhatsappEmbeddedSignupFeatureEnabled.value &&
     !isWhatsappEmbeddedSignupDisabled.value

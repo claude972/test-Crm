@@ -16,7 +16,7 @@ vi.mock('dashboard/composables/useImpersonation', () => ({
   }),
 }));
 
-global.kovaa-labConfig = {
+global.chatwootConfig = {
   websocketURL: 'wss://test.kovaa-lab.com',
 };
 

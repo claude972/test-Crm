@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "اکنون می‌توانید ایمیل‌ها را در دامنه سفارشی خود دریافت کنید."
       }
     },
-    "UPDATE_KOVAALAB": "به روزرسانی{latestKovaaLab CharVersion} برای KovaaLab Char در دسترس است. لطفا نمونه خود را به روز کنید.",
+    "UPDATE_KOVAALAB": "به روزرسانی{latestChatwootVersion} برای KovaaLab Char در دسترس است. لطفا نمونه خود را به روز کنید.",
     "LEARN_MORE": "بیشتر بدانید",
     "PAYMENT_PENDING": "Your account payment is past due. Please update your payment information to avoid subscription cancellation.",
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",

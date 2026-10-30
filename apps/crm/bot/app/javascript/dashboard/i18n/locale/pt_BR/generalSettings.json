@@ -160,7 +160,7 @@
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "Você pode receber e-mails em seu domínio personalizado agora."
       }
     },
-    "UPDATE_KOVAALAB": "Uma atualização {latestKovaaLab CharVersion} para o KovaaLab Char está disponível. Por favor, atualize sua instância.",
+    "UPDATE_KOVAALAB": "Uma atualização {latestChatwootVersion} para o KovaaLab Char está disponível. Por favor, atualize sua instância.",
     "LEARN_MORE": "Saiba mais",
     "PAYMENT_PENDING": "O pagamento da sua conta está em atraso. Atualize suas informações de pagamento para evitar o cancelamento da assinatura.",
     "PAYMENT_PENDING_AGENT": "O pagamento da sua conta está em atraso. Por favor, entre em contato com o seu administrador para resolver isso.",

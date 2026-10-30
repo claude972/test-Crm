@@ -5,7 +5,7 @@ import {
 } from '../campaignHelper';
 import campaigns from './campaignFixtures';
 
-global.kovaa-labWebChannel = {
+global.chatwootWebChannel = {
   workingHoursEnabled: false,
 };
 describe('#Campaigns Helper', () => {

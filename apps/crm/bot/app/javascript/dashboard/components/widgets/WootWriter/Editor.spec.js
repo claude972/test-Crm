@@ -34,7 +34,7 @@ const store = createStore({
     getUISettings: () => ({ editor_message_key: 'enter' }),
     getSelectedChat: () => ({}),
     'globalConfig/get': () => ({}),
-    'globalConfig/isOnKovaaLab CharCloud': () => false,
+    'globalConfig/isOnChatwootCloud': () => false,
     'accounts/getAccount': () => () => ({}),
     'accounts/getUIFlags': () => ({}),
     'accounts/isFeatureEnabledonAccount': () => () => false,

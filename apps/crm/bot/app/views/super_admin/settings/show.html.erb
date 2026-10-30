@@ -17,15 +17,15 @@
     <% end %>
   <% end %>
 
-  <% user_count = User.count if KovaaLab CharHub.pricing_plan != 'community' %>
-  <% if user_count && user_count > KovaaLab CharHub.pricing_plan_quantity %>
+  <% user_count = User.count if ChatwootHub.pricing_plan != 'community' %>
+  <% if user_count && user_count > ChatwootHub.pricing_plan_quantity %>
     <%= render "alert", role: "alert" do %>
       <%= t("super_admin.settings.agents_over_limit", count: user_count) %>
     <% end %>
   <% end %>
 
   <div class="rounded-xl border border-n-weak bg-n-solid-1 divide-y divide-n-weak">
-    <% if KovaaLab CharApp.enterprise? %>
+    <% if ChatwootApp.enterprise? %>
       <div class="<%= summary_row %>">
         <%= render "icon_tile", icon: "i-lucide-badge-check", tone: "bg-n-teal-3 text-n-teal-11" %>
         <div class="min-w-0">
@@ -34,7 +34,7 @@
         </div>
         <div class="<%= summary_actions %>">
           <%= render "button", label: t("super_admin.settings.refresh"), icon: "i-lucide-refresh-cw size-3.5", url: refresh_super_admin_settings_path, variant: :secondary %>
-          <%= render "button", label: t("super_admin.settings.manage"), icon_end: "i-lucide-arrow-up-right size-3.5", url: KovaaLab CharHub.billing_url, target: "_blank", rel: "noopener noreferrer" %>
+          <%= render "button", label: t("super_admin.settings.manage"), icon_end: "i-lucide-arrow-up-right size-3.5", url: ChatwootHub.billing_url, target: "_blank", rel: "noopener noreferrer" %>
         </div>
       </div>
     <% end %>
@@ -46,7 +46,7 @@
         <p class="text-body-main text-n-slate-11"><%= t("super_admin.settings.installation_identifier_description") %></p>
       </div>
       <div class="<%= summary_actions %> sm:w-80">
-        <div class="w-full"><%= render "secret", value: KovaaLab CharHub.installation_identifier, boxed: true %></div>
+        <div class="w-full"><%= render "secret", value: ChatwootHub.installation_identifier, boxed: true %></div>
       </div>
     </div>
 
@@ -58,7 +58,7 @@
       </div>
       <div class="<%= summary_actions %>">
         <%= render "button", label: t("super_admin.settings.community_support"), icon_end: "i-lucide-arrow-up-right size-3.5 text-n-slate-10", url: "https://discord.gg/cJXdrwS", target: "_blank", variant: :secondary %>
-        <% if KovaaLab CharHub.pricing_plan != 'community' %>
+        <% if ChatwootHub.pricing_plan != 'community' %>
           <%= render "button", label: t("super_admin.settings.chat_support"), icon: "i-lucide-message-circle size-3.5", variant: :secondary, data: { support_chat: true } %>
         <% end %>
       </div>

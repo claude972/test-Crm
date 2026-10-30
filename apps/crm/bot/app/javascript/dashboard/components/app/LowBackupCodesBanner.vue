@@ -55,7 +55,7 @@ const bannerMessage = computed(() => {
 });
 
 const fetchMfaStatus = async () => {
-  if (!parseBoolean(window.kovaa-labConfig?.isMfaEnabled)) return;
+  if (!parseBoolean(window.chatwootConfig?.isMfaEnabled)) return;
 
   try {
     const { data } = await mfaAPI.get();

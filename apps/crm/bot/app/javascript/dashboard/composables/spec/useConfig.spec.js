@@ -1,10 +1,10 @@
 import { useConfig } from '../useConfig';
 
 describe('useConfig', () => {
-  const originalKovaaLab CharConfig = window.kovaa-labConfig;
+  const originalChatwootConfig = window.chatwootConfig;
 
   beforeEach(() => {
-    window.kovaa-labConfig = {
+    window.chatwootConfig = {
       hostURL: 'https://example.com',
       vapidPublicKey: 'vapid-key',
       enabledLanguages: ['en', 'fr'],
@@ -15,7 +15,7 @@ describe('useConfig', () => {
   });
 
   afterEach(() => {
-    window.kovaa-labConfig = originalKovaaLab CharConfig;
+    window.chatwootConfig = originalChatwootConfig;
   });
 
   it('returns the correct configuration values', () => {
@@ -30,7 +30,7 @@ describe('useConfig', () => {
   });
 
   it('handles missing configuration values', () => {
-    window.kovaa-labConfig = {};
+    window.chatwootConfig = {};
     const config = useConfig();
 
     expect(config.hostURL).toBeUndefined();
@@ -41,8 +41,8 @@ describe('useConfig', () => {
     expect(config.searchTimeRangeLimitDays).toBeUndefined();
   });
 
-  it('handles undefined window.kovaa-labConfig', () => {
-    window.kovaa-labConfig = undefined;
+  it('handles undefined window.chatwootConfig', () => {
+    window.chatwootConfig = undefined;
     const config = useConfig();
 
     expect(config.hostURL).toBeUndefined();

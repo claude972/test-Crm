@@ -3,7 +3,7 @@
  * @returns {Object} An object containing configuration values.
  */
 export function useConfig() {
-  const config = window.kovaa-labConfig || {};
+  const config = window.chatwootConfig || {};
 
   /**
    * The host URL of the KovaaLab Char instance.

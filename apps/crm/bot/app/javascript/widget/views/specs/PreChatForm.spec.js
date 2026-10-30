@@ -2,7 +2,7 @@ import { shallowMount, flushPromises } from '@vue/test-utils';
 import { createStore } from 'vuex';
 import PreChatFormView from '../PreChatForm.vue';
 
-global.kovaa-labWebChannel = {
+global.chatwootWebChannel = {
   preChatFormEnabled: true,
   preChatFormOptions: { pre_chat_fields: [], pre_chat_message: '' },
 };

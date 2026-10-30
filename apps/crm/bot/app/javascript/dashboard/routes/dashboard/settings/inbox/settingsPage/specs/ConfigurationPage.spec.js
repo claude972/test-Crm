@@ -20,7 +20,7 @@ const mountComponent = inbox =>
       plugins: [
         createStore({
           getters: {
-            'globalConfig/isOnKovaaLab CharCloud': () => true,
+            'globalConfig/isOnChatwootCloud': () => true,
           },
         }),
       ],

@@ -13,7 +13,7 @@
     </span>
     <span class="<%= class_names("block text-label-small text-n-slate-11", "truncate" => !locked) %>" title="<%= attrs['description'] %>"><%= attrs['description'] || t('super_admin.settings.default_description') %></span>
     <% if locked %>
-      <%= render KovaaLab CharApp.enterprise? ? "upgrade_button_enterprise" : "upgrade_button_community" %>
+      <%= render ChatwootApp.enterprise? ? "upgrade_button_enterprise" : "upgrade_button_community" %>
     <% end %>
   </span>
   <% if locked %>

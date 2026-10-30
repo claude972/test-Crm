@@ -1604,7 +1604,7 @@
         "AGENT_MESSAGE": "Merhaba"
       },
       "BRANDING_TEXT": "KovaaLab Char tarafından desteklenmektedir",
-      "SCRIPT_SETTINGS": "\nwindow.kovaa-labSettings = {options};"
+      "SCRIPT_SETTINGS": "\nwindow.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
       "MICROSOFT": {

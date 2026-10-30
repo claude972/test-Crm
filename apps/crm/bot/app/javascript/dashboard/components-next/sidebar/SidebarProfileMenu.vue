@@ -40,13 +40,13 @@ const showChatSupport = computed(() => {
     isFeatureEnabledonAccount.value(
       accountId.value,
       FEATURE_FLAGS.CONTACT_KOVAALAB_SUPPORT_TEAM
-    ) && globalConfig.value.kovaa-labInboxToken
+    ) && globalConfig.value.chatwootInboxToken
   );
 });
 
 const toggleChatSupport = () => {
-  if (window.$kovaa-lab) {
-    window.$kovaa-lab.toggle();
+  if (window.$chatwoot) {
+    window.$chatwoot.toggle();
   }
 };
 

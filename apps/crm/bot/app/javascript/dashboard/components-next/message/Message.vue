@@ -155,7 +155,7 @@ const { t } = useI18n();
 const route = useRoute();
 const inboxGetter = useMapGetter('inboxes/getInbox');
 const inbox = computed(() => inboxGetter.value(props.inboxId) || {});
-const isOnKovaaLab CharCloud = useMapGetter('globalConfig/isOnKovaaLab CharCloud');
+const isOnChatwootCloud = useMapGetter('globalConfig/isOnChatwootCloud');
 const { replaceInstallationName } = useBranding();
 const autoTranslate = useMapGetter('getAutoTranslate');
 const translationState = useMapGetter('getMessageTranslationState');
@@ -450,7 +450,7 @@ const contextMenuEnabledOptions = computed(() => {
       !isFailedOrProcessing &&
       !isMessageDeleted.value,
     report:
-      isOnKovaaLab CharCloud.value &&
+      isOnChatwootCloud.value &&
       isCaptainMessage.value &&
       !isMessageDeleted.value,
   };

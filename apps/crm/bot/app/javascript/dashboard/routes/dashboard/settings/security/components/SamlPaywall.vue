@@ -12,10 +12,10 @@ const currentUser = useMapGetter('getCurrentUser');
 const isSuperAdmin = computed(() => {
   return currentUser.value.type === 'SuperAdmin';
 });
-const { accountId, isOnKovaaLab CharCloud } = useAccount();
+const { accountId, isOnChatwootCloud } = useAccount();
 
 const i18nKey = computed(() =>
-  isOnKovaaLab CharCloud.value ? 'PAYWALL' : 'ENTERPRISE_PAYWALL'
+  isOnChatwootCloud.value ? 'PAYWALL' : 'ENTERPRISE_PAYWALL'
 );
 const openBilling = () => {
   router.push({
@@ -34,7 +34,7 @@ const openBilling = () => {
       feature-prefix="SECURITY_SETTINGS.SAML"
       :i18n-key="i18nKey"
       :is-super-admin="isSuperAdmin"
-      :is-on-kovaa-lab-cloud="isOnKovaaLab CharCloud"
+      :is-on-kovaa-lab-cloud="isOnChatwootCloud"
       @upgrade="openBilling"
     />
   </div>

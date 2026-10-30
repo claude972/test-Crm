@@ -9,33 +9,33 @@ vi.mock('../sdk/IFrameHelper', () => ({
   },
 }));
 
-describe('$kovaa-lab.setUser', () => {
+describe('$chatwoot.setUser', () => {
   beforeEach(() => {
-    delete window.$kovaa-lab;
-    window.kovaa-labSettings = {};
+    delete window.$chatwoot;
+    window.chatwootSettings = {};
     vi.spyOn(Cookies, 'get').mockReturnValue(undefined);
     vi.spyOn(Cookies, 'set').mockImplementation(() => {});
 
-    window.kovaa-labSDK.run({
+    window.chatwootSDK.run({
       baseUrl: 'https://app.kovaa-lab.com',
       websiteToken: 'website-token',
     });
   });
 
   afterEach(() => {
-    delete window.$kovaa-lab;
-    delete window.kovaa-labSettings;
+    delete window.$chatwoot;
+    delete window.chatwootSettings;
     vi.restoreAllMocks();
   });
 
   it('updates the SDK identity synchronously', () => {
     const user = { name: 'Pranav' };
 
-    const result = window.$kovaa-lab.setUser('first-user', user);
+    const result = window.$chatwoot.setUser('first-user', user);
 
     expect(result).toBeUndefined();
-    expect(window.$kovaa-lab.identifier).toBe('first-user');
-    expect(window.$kovaa-lab.user).toBe(user);
+    expect(window.$chatwoot.identifier).toBe('first-user');
+    expect(window.$chatwoot.user).toBe(user);
     expect(IFrameHelper.sendMessage).toHaveBeenCalledWith('set-user', {
       identifier: 'first-user',
       user,
@@ -46,11 +46,11 @@ describe('$kovaa-lab.setUser', () => {
     const firstUser = { name: 'First user' };
     const secondUser = { name: 'Second user' };
 
-    window.$kovaa-lab.setUser('first-user', firstUser);
-    window.$kovaa-lab.setUser('second-user', secondUser);
+    window.$chatwoot.setUser('first-user', firstUser);
+    window.$chatwoot.setUser('second-user', secondUser);
 
-    expect(window.$kovaa-lab.identifier).toBe('second-user');
-    expect(window.$kovaa-lab.user).toBe(secondUser);
+    expect(window.$chatwoot.identifier).toBe('second-user');
+    expect(window.$chatwoot.user).toBe(secondUser);
     expect(IFrameHelper.sendMessage).toHaveBeenLastCalledWith('set-user', {
       identifier: 'second-user',
       user: secondUser,

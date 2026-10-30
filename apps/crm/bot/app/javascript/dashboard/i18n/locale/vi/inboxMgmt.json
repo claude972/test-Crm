@@ -1604,7 +1604,7 @@
         "AGENT_MESSAGE": "Xin chào"
       },
       "BRANDING_TEXT": "CC bởi KovaaLab Char",
-      "SCRIPT_SETTINGS": "\nwindow.kovaa-labSettings = {options};"
+      "SCRIPT_SETTINGS": "\nwindow.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
       "MICROSOFT": {

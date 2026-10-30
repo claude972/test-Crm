@@ -60,7 +60,7 @@
     </section>
 
     <section class="tool">
-      <p class="note">Runs <code>$kovaa-lab.reset()</code> and reloads as an anonymous visitor.</p>
+      <p class="note">Runs <code>$chatwoot.reset()</code> and reloads as an anonymous visitor.</p>
       <button type="button" id="reset-session" onclick="resetSession()" disabled>Reset session</button>
     </section>
 
@@ -108,7 +108,7 @@ function randomizeContact(form) {
 
 // Clears the widget session and the identity fields, keeps the display settings
 function resetSession() {
-  window.$kovaa-lab.reset();
+  window.$chatwoot.reset();
   var query = new URLSearchParams(window.location.search);
   ['identifier', 'email', 'name', 'hash'].forEach(function(key) { query.delete(key); });
   window.location = window.location.pathname + '?' + query.toString();
@@ -128,7 +128,7 @@ function beforeIdentify(form) {
     setHmacStatus('Add an email or a name. The SDK rejects setUser without one.', 'failed');
     return false;
   }
-  if (form.hash.value === 'invalid' && window.$kovaa-lab) window.$kovaa-lab.reset();
+  if (form.hash.value === 'invalid' && window.$chatwoot) window.$chatwoot.reset();
   return true;
 }
 
@@ -174,7 +174,7 @@ function logEvent(name, detail) {
   list.prepend(item);
 }
 
-window.kovaa-labSettings = {
+window.chatwootSettings = {
   hideMessageBubble: false,
   // showUnreadMessagesDialog: false,
   // baseDomain: '.loca.lt',
@@ -194,7 +194,7 @@ window.kovaa-labSettings = {
   g.async = true;
   s.parentNode.insertBefore(g,s);
   g.onload=function(){
-    window.kovaa-labSDK.run({
+    window.chatwootSDK.run({
       websiteToken: '<%= @web_widget.website_token %>',
       baseUrl: BASE_URL
     })
@@ -202,25 +202,25 @@ window.kovaa-labSettings = {
 })(document,"script");
 
 window.addEventListener('kovaa-lab:ready', function() {
-  console.log('kovaa-lab:ready', window.$kovaa-lab);
+  console.log('kovaa-lab:ready', window.$chatwoot);
   logEvent('kovaa-lab:ready');
   // Reset needs the SDK, so the button stays disabled until here
   document.getElementById('reset-session').disabled = false;
   // Open the widget on load
-  window.$kovaa-lab.toggle('open');
+  window.$chatwoot.toggle('open');
   // Identify with the HMAC-signed details from the form
   var verifiedUser = <%= raw json_escape(verified_user.to_json) %>;
   var expectsRejection = <%= params[:hash] == 'invalid' && params[:identifier].present? %>;
   if (verifiedUser) {
     var identifier = verifiedUser.identifier;
     delete verifiedUser.identifier;
-    window.$kovaa-lab.setUser(identifier, verifiedUser);
+    window.$chatwoot.setUser(identifier, verifiedUser);
     console.log('setUser with HMAC', identifier, verifiedUser);
     logEvent(expectsRejection ? 'setUser with invalid HMAC' : 'setUser with HMAC', { identifier: identifier });
     if (expectsRejection) watchForRejection(identifier);
   }
   if (new URLSearchParams(window.location.search).has('setUser')) {
-    window.$kovaa-lab.setUser('<%= user_id %>', {
+    window.$chatwoot.setUser('<%= user_id %>', {
       identifier_hash: '<%= user_hash %>',
       email: 'jane@example.com',
       name: 'Jane Doe',

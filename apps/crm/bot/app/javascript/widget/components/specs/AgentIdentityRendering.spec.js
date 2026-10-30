@@ -14,11 +14,11 @@ const channelConfig = {
 
 describe('agent identity rendering', () => {
   beforeEach(() => {
-    window.kovaa-labWebChannel = channelConfig;
+    window.chatwootWebChannel = channelConfig;
   });
 
   afterEach(() => {
-    delete window.kovaa-labWebChannel;
+    delete window.chatwootWebChannel;
   });
 
   it('renders the agent name as plain text beside widget messages', () => {

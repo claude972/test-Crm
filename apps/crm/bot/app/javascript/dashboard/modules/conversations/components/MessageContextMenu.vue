@@ -88,7 +88,7 @@ export default {
   methods: {
     async copyLinkToMessage() {
       const fullConversationURL =
-        window.kovaa-labConfig.hostURL +
+        window.chatwootConfig.hostURL +
         frontendURL(
           conversationUrl({
             id: this.conversationId,

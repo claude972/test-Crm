@@ -11,17 +11,17 @@ export function useChannelConfig() {
   const globalConfig = useMapGetter('globalConfig/get');
   const {
     isCloudFeatureEnabled,
-    isOnKovaaLab CharCloud,
+    isOnChatwootCloud,
     isMetaInboxCreationDisabled,
   } = useAccount();
-  const installationConfig = window.kovaa-labConfig || {};
+  const installationConfig = window.chatwootConfig || {};
 
   const CHANNEL_CONFIGURED = {
     // WhatsApp is onboarded only via Meta embedded signup, which needs both the
     // app id (not the 'none' sentinel) and the signup configuration id.
     whatsapp: () =>
       !isMetaInboxCreationDisabled.value &&
-      (!isOnKovaaLab CharCloud.value ||
+      (!isOnChatwootCloud.value ||
         isCloudFeatureEnabled(FEATURE_FLAGS.WHATSAPP_EMBEDDED_SIGNUP_FLOW)) &&
       Boolean(installationConfig.whatsappAppId) &&
       installationConfig.whatsappAppId !== 'none' &&
@@ -40,7 +40,7 @@ export function useChannelConfig() {
   const isConfigured = type => CHANNEL_CONFIGURED[type]?.() ?? true;
   const isEnabled = type =>
     type !== 'tiktok' ||
-    !isOnKovaaLab CharCloud.value ||
+    !isOnChatwootCloud.value ||
     isCloudFeatureEnabled(FEATURE_FLAGS.CHANNEL_TIKTOK);
 
   return { isConfigured, isEnabled };

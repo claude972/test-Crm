@@ -18,4 +18,4 @@ export const fetchToolsetDetails = (detailUrl, options) =>
   fetchCatalogJson(detailUrl, options);
 
 // Every catalog toolset lives in kovaa-lab/tools; the author is who wrote it. GitHub logins are case-insensitive
-export const isKovaaLab CharAuthor = author => author?.toLowerCase() === 'kovaa-lab';
+export const isChatwootAuthor = author => author?.toLowerCase() === 'kovaa-lab';
