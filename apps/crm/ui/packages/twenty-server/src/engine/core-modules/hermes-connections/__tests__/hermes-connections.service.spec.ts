@@ -8,6 +8,8 @@ import { type HermesProspectionAccessService } from 'src/engine/core-modules/her
 import { resolveAndValidateHostname } from 'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 
+import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
+import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConnectionEntity } from '../hermes-connection.entity';
 import { HermesConnectionsService } from '../hermes-connections.service';
 
@@ -72,9 +74,54 @@ function fixture() {
     },
   };
   const accounts = { findOne: jest.fn(async () => account) };
+  const conversations: Partial<HermesConversationEntity>[] = [];
+  const policies: Partial<HermesBotPolicyEntity>[] = [];
+  const conversationRepository = {
+    findBy: jest.fn(async (scope: { workspaceId: string; channel: string }) =>
+      conversations.filter(
+        (row) =>
+          row.workspaceId === scope.workspaceId &&
+          row.channel === scope.channel,
+      ),
+    ),
+    update: jest.fn(
+      async (
+        scope: { id: string },
+        changes: Partial<HermesConversationEntity>,
+      ) => {
+        Object.assign(
+          conversations.find((row) => row.id === scope.id)!,
+          changes,
+        );
+      },
+    ),
+  };
+  const policyRepository = {
+    findOneBy: jest.fn(async (scope: { workspaceId: string; scope: string }) =>
+      policies.find(
+        (row) =>
+          row.workspaceId === scope.workspaceId && row.scope === scope.scope,
+      ),
+    ),
+    save: jest.fn(async (row: Partial<HermesBotPolicyEntity>) => {
+      const index = policies.findIndex(
+        (item) =>
+          item.workspaceId === row.workspaceId && item.scope === row.scope,
+      );
+      if (index === -1) policies.push(row);
+      else policies[index] = row;
+      return row;
+    }),
+  };
   const manager = {
     getRepository: jest.fn((entity: unknown) =>
-      entity === ConnectedAccountEntity ? accounts : repository,
+      entity === ConnectedAccountEntity
+        ? accounts
+        : entity === HermesConversationEntity
+          ? conversationRepository
+          : entity === HermesBotPolicyEntity
+            ? policyRepository
+            : repository,
     ),
     query: jest.fn(async () => undefined),
   };
@@ -103,6 +150,8 @@ function fixture() {
     encryption,
   );
   return {
+    conversations,
+    policies,
     service,
     rows,
     repository,
@@ -400,6 +449,72 @@ describe('encrypted workspace connections', () => {
         },
       ),
     ).rejects.toThrow('CONNECTION_IDENTITY_ALREADY_BOUND');
+  });
+
+  it('transactionally invalidates AUTO grants and epochs on rotation and revocation', async () => {
+    const f = fixture();
+    await f.service.save(actor, evolution);
+    const epoch = new Date();
+    f.conversations.push(
+      {
+        id: 'wa',
+        workspaceId,
+        channel: 'WHATSAPP',
+        botMode: 'AUTO',
+        botOwnerUserWorkspaceId: userWorkspaceId,
+        botModeUpdatedAt: epoch,
+      },
+      {
+        id: 'mail',
+        workspaceId,
+        channel: 'EMAIL',
+        botMode: 'AUTO',
+        botOwnerUserWorkspaceId: userWorkspaceId,
+        botModeUpdatedAt: epoch,
+      },
+    );
+    const priorPolicy = f.policies.find(
+      (row) => row.scope === 'WHATSAPP',
+    )!.updatedAt!;
+    await f.service.save(actor, {
+      ...evolution,
+      expectedRevision: 1,
+      secrets: { ...evolution.secrets, apiKey: 'rotated-key' },
+    });
+    expect(f.conversations[0]).toMatchObject({
+      botMode: 'MANUAL',
+      botOwnerUserWorkspaceId: null,
+    });
+    expect(f.conversations[0].botModeUpdatedAt!.getTime()).toBeGreaterThan(
+      epoch.getTime(),
+    );
+    expect(
+      f.policies.find((row) => row.scope === 'WHATSAPP')!.updatedAt!.getTime(),
+    ).toBeGreaterThan(priorPolicy.getTime());
+    expect(f.conversations[1].botMode).toBe('AUTO');
+    f.conversations[0].botMode = 'AUTO';
+    f.conversations[0].botOwnerUserWorkspaceId = userWorkspaceId;
+    await f.service.remove(actor, { kind: 'EVOLUTION', expectedRevision: 2 });
+    expect(f.conversations[0].botOwnerUserWorkspaceId).toBeNull();
+    expect(f.manager.query).toHaveBeenCalledWith(
+      'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+      [`hermes-messaging:${workspaceId}`],
+    );
+    await f.service.save(actor, {
+      kind: 'MCP',
+      expectedRevision: 0,
+      settings: {
+        endpoint: 'https://mcp.example.com/tools',
+        toolName: 'draft',
+        protocolVersion: '2025-11-25',
+        argumentMap: { text: 'text' },
+      },
+      secrets: { token: 't'.repeat(32) },
+    });
+    expect(f.conversations[1]).toMatchObject({
+      botMode: 'MANUAL',
+      botOwnerUserWorkspaceId: null,
+    });
   });
 
   it('validates bounded intake secrets and never assumes configured implies verified', async () => {
