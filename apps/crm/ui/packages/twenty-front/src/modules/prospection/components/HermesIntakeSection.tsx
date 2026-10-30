@@ -1,22 +1,56 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
-import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { ConnectorDiagnostics } from '@/connectors/components/ConnectorDiagnostics';
-import { HermesIntakeStateTag } from '@/prospection/components/HermesIntakeStateTag';
+import { parseConnectorCheckedAt } from '@/connectors/utils/parseConnectorCheckedAt';
+import {
+  HermesIntakeAcceptanceTag,
+  HermesIntakeStateTag,
+} from '@/prospection/components/HermesIntakeStateTag';
 import { HermesPayloadProblemNote } from '@/prospection/components/HermesPayloadProblemNote';
 import { ProspectionNote } from '@/prospection/components/ProspectionNote';
-import { type HermesIntakeReadState } from '@/prospection/types/HermesIntakeState';
-import { parseConnectorCheckedAt } from '@/connectors/utils/parseConnectorCheckedAt';
+import {
+  type HermesIntakeEndpoint,
+  type HermesIntakeReadState,
+} from '@/prospection/types/HermesIntakeState';
 
 const StyledState = styled.div`
   align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: ${themeCssVariables.spacing[2]};
+`;
+
+const StyledEndpoints = styled.div`
+  display: grid;
+  gap: ${themeCssVariables.spacing[2]};
+`;
+
+const StyledEndpoint = styled.article`
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: ${themeCssVariables.border.radius.md};
+  display: grid;
+  gap: ${themeCssVariables.spacing[2]};
+  padding: ${themeCssVariables.spacing[3]};
+`;
+
+const StyledEndpointHeader = styled.div`
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${themeCssVariables.spacing[2]};
+  justify-content: space-between;
+`;
+
+const StyledStructure = styled.h3`
+  font-size: ${themeCssVariables.font.size.md};
+  font-weight: ${themeCssVariables.font.weight.medium};
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `;
 
 const StyledFacts = styled.dl`
@@ -42,28 +76,27 @@ const StyledMissing = styled.span`
   color: ${themeCssVariables.font.color.light};
 `;
 
-type HermesIntakeSectionProps = {
-  state: HermesIntakeReadState;
+type HermesIntakeEndpointCardProps = {
+  endpoint: HermesIntakeEndpoint;
 };
 
-// The automatic reception, presented as the normal way collections arrive.
+// One structure's entry point. It shows the four facts this screen is allowed
+// to show — which structure, what state, when it last received, and the
+// server's folded diagnostic — and nothing else.
 //
-// There is no button here, and there is nothing to press: the entry point is
-// configured outside this screen, and its contract is not published, so any
-// control would promise work that cannot happen. What the section does is say
-// precisely what the client knows and what it is waiting for.
-export const HermesIntakeSection = ({ state }: HermesIntakeSectionProps) => {
+// Deliberately absent: the webhook URL, the connection identifier, the HMAC
+// secret, the nonce and any action that would post to the endpoint. The intake
+// is server to server; a control here would be a control the browser cannot
+// legitimately exercise.
+const HermesIntakeEndpointCard = ({
+  endpoint,
+}: HermesIntakeEndpointCardProps) => {
   const { t, i18n } = useLingui();
 
-  const endpoint = state.kind === 'reported' ? state.endpoint : null;
+  const lastCollection = parseConnectorCheckedAt(endpoint.lastCollectionAt);
 
-  const lastCollection = isDefined(endpoint)
-    ? parseConnectorCheckedAt(endpoint.lastCollectionAt)
-    : null;
-
-  const lastCollectionLabel = !isDefined(lastCollection)
-    ? null
-    : lastCollection.kind === 'at'
+  const lastCollectionLabel =
+    lastCollection.kind === 'at'
       ? i18n.date(lastCollection.date, {
           dateStyle: 'medium',
           timeStyle: 'short',
@@ -73,24 +106,85 @@ export const HermesIntakeSection = ({ state }: HermesIntakeSectionProps) => {
         : t`Unreadable`;
 
   return (
+    <StyledEndpoint>
+      <StyledEndpointHeader>
+        {isNonEmptyString(endpoint.structureName) ? (
+          <StyledStructure>{endpoint.structureName}</StyledStructure>
+        ) : (
+          <StyledStructure>
+            <StyledMissing>{t`Structure not named`}</StyledMissing>
+          </StyledStructure>
+        )}
+        {/* Announced once when it settles, so a move from checking to a
+            result reaches a screen reader without being read as an alarm. */}
+        <div role="status" aria-live="polite">
+          <HermesIntakeAcceptanceTag isAccepting={endpoint.isAccepting} />
+        </div>
+      </StyledEndpointHeader>
+
+      <StyledFacts>
+        <dt>{t`Entry point`}</dt>
+        <dd>
+          {isNonEmptyString(endpoint.label) ? (
+            endpoint.label
+          ) : (
+            <StyledMissing>{t`Unnamed`}</StyledMissing>
+          )}
+        </dd>
+        <dt>{t`Last collection`}</dt>
+        <dd>{lastCollectionLabel}</dd>
+      </StyledFacts>
+
+      {/* Folded away: a server's own wording belongs on screen, but not in
+          front of the state. Rendered as a value, never parsed. */}
+      <ConnectorDiagnostics
+        providerState={endpoint.providerState}
+        errorCode={endpoint.errorCode}
+      />
+    </StyledEndpoint>
+  );
+};
+
+type HermesIntakeSectionProps = {
+  state: HermesIntakeReadState;
+};
+
+// The automatic reception, presented as the normal way collections arrive.
+//
+// There is no button here, and there is nothing to press. The intake is a
+// server-to-server webhook signed with a secret the browser must never hold,
+// delegated per structure and configured outside this screen. What the section
+// does is say precisely what the client knows and what it is waiting for.
+export const HermesIntakeSection = ({ state }: HermesIntakeSectionProps) => {
+  const { t } = useLingui();
+
+  return (
     <Section.Root>
       <Section.Header
         title={t`Automatic reception`}
-        description={t`Collections arrive through the authenticated entry point. This is the normal path; the manual deposit below is kept for a one-off.`}
+        description={t`Collections are posted to an authenticated entry point, one per structure. This is the normal path; the manual deposit below is kept for a one-off.`}
       />
 
-      {/* Announced once when it settles, so a move from checking to a result
-          reaches a screen reader without being read as an alarm. */}
-      <StyledState role="status" aria-live="polite">
-        <HermesIntakeStateTag state={state} />
-      </StyledState>
+      {/* Said once, so nobody looks for a control that must not exist. */}
+      <ProspectionNote>
+        <Trans>
+          Server to server: the entry point is signed and configured outside
+          this screen. Nothing here sends, tests or reveals its credentials.
+        </Trans>
+      </ProspectionNote>
+
+      {state.kind !== 'reported' && (
+        <StyledState role="status" aria-live="polite">
+          <HermesIntakeStateTag state={state} />
+        </StyledState>
+      )}
 
       {state.kind === 'awaiting-contract' && (
         <>
           <ProspectionNote>
             <Trans>
-              This screen cannot read the entry point yet: its contract is not
-              published. Nothing is missing from your workspace.
+              This screen cannot read the entry point state yet: the query is
+              not published. Nothing is missing from your workspace.
             </Trans>
           </ProspectionNote>
           <ProspectionNote>
@@ -127,8 +221,8 @@ export const HermesIntakeSection = ({ state }: HermesIntakeSectionProps) => {
       {state.kind === 'not-configured' && (
         <ProspectionNote>
           <Trans>
-            No entry point set up for this workspace. It is configured outside
-            this screen.
+            No structure has an entry point delegated to it. Delegation happens
+            outside this screen.
           </Trans>
         </ProspectionNote>
       )}
@@ -140,43 +234,32 @@ export const HermesIntakeSection = ({ state }: HermesIntakeSectionProps) => {
         />
       )}
 
-      {isDefined(endpoint) && (
-        <>
-          <StyledFacts>
-            <dt>{t`Entry point`}</dt>
-            <dd>
-              {isNonEmptyString(endpoint.label) ? (
-                endpoint.label
-              ) : (
-                <StyledMissing>{t`Unnamed`}</StyledMissing>
-              )}
-            </dd>
-            <dt>{t`Reference`}</dt>
-            <dd>
-              {isNonEmptyString(endpoint.id) ? (
-                endpoint.id
-              ) : (
-                <StyledMissing>{t`Unknown`}</StyledMissing>
-              )}
-            </dd>
-            <dt>{t`Last collection`}</dt>
-            <dd>
-              {isNonEmptyString(lastCollectionLabel) ? (
-                lastCollectionLabel
-              ) : (
-                <StyledMissing>{t`Unknown`}</StyledMissing>
-              )}
-            </dd>
-          </StyledFacts>
-
-          {/* Folded away: a provider's own wording belongs on screen, but not
-              in front of the state. Rendered as a value, never parsed. */}
-          <ConnectorDiagnostics
-            providerState={endpoint.providerState}
-            errorCode={endpoint.errorCode}
-          />
-        </>
-      )}
+      {state.kind === 'reported' &&
+        (state.endpoints.length === 0 ? (
+          // The server answered with no entry point at all. A fact, and it
+          // reads the same as 'not-configured' because it is the same fact.
+          <ProspectionNote>
+            <Trans>
+              No structure has an entry point delegated to it. Delegation
+              happens outside this screen.
+            </Trans>
+          </ProspectionNote>
+        ) : (
+          <StyledEndpoints>
+            {state.endpoints.map((endpoint, index) => (
+              <HermesIntakeEndpointCard
+                // The connection identifier is the stable key when the payload
+                // carried one; it is used here and rendered nowhere.
+                key={
+                  endpoint.connectionId ??
+                  endpoint.structureId ??
+                  `endpoint-${index}`
+                }
+                endpoint={endpoint}
+              />
+            ))}
+          </StyledEndpoints>
+        ))}
     </Section.Root>
   );
 };

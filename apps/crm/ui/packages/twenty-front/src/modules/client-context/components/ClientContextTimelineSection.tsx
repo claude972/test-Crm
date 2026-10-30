@@ -8,11 +8,13 @@ import { ClientContextInstant } from '@/client-context/components/ClientContextI
 import {
   CLIENT_CONTEXT_BOOKINGS_SOURCE,
   CLIENT_CONTEXT_FORMS_SOURCE,
+  CLIENT_CONTEXT_NOTES_SOURCE,
 } from '@/client-context/constants/ClientContextSources';
 import { type ClientBooking } from '@/client-context/types/ClientBooking';
 import { type ClientContextEntryKind } from '@/client-context/types/ClientContextEntry';
 import { type ClientContextSourceState } from '@/client-context/types/ClientContextSourceState';
 import { type ClientFormResponse } from '@/client-context/types/ClientFormResponse';
+import { type ClientRecordNote } from '@/client-context/types/ClientRecordNote';
 import { buildClientContextEntries } from '@/client-context/utils/buildClientContextEntries';
 import { readClientContextSourceName } from '@/client-context/utils/readClientContextSourceName';
 import { ConnectorSyncTag } from '@/connectors/components/ConnectorSyncTag';
@@ -44,6 +46,7 @@ const StyledMissing = styled.span`
 type ClientContextTimelineSectionProps = {
   formResponses: ClientContextSourceState<ClientFormResponse>;
   bookings: ClientContextSourceState<ClientBooking>;
+  notes: ClientContextSourceState<ClientRecordNote>;
 };
 
 // The client's chronology, merged from the sources that answered.
@@ -54,22 +57,26 @@ type ClientContextTimelineSectionProps = {
 export const ClientContextTimelineSection = ({
   formResponses,
   bookings,
+  notes,
 }: ClientContextTimelineSectionProps) => {
   const { t } = useLingui();
 
   const { entries, entryCount, unreadSourceKinds } = buildClientContextEntries({
     formResponses,
     bookings,
+    notes,
   });
 
   const sourceNames: Record<ClientContextEntryKind, string> = {
     'form-response': CLIENT_CONTEXT_FORMS_SOURCE.name,
     booking: CLIENT_CONTEXT_BOOKINGS_SOURCE.name,
+    note: CLIENT_CONTEXT_NOTES_SOURCE.name,
   };
 
   const kindLabels: Record<ClientContextEntryKind, string> = {
     'form-response': t`Form response`,
     booking: t`Appointment`,
+    note: t`Recorded action`,
   };
 
   const counters: ProspectionCounter[] = [
@@ -84,7 +91,7 @@ export const ClientContextTimelineSection = ({
     <Section.Root>
       <Section.Header
         title={t`Client chronology`}
-        description={t`Form responses and appointments actually received for this client, newest first.`}
+        description={t`Form responses, appointments and recorded actions actually received for this client, newest first.`}
       />
       <ProspectionCounters counters={counters} />
 
