@@ -77,6 +77,12 @@ export const ConnectorSyncTag = ({
 }: ConnectorSyncTagProps) => {
   const { t } = useLingui();
 
+  // Narrowed through a binding, not through reason?.trim() inside the guard:
+  // a type guard applied to a call expression tells TypeScript nothing about
+  // reason itself, so reason.trim() on the branch below was still possibly
+  // undefined.
+  const trimmedReason = reason?.trim();
+
   const labels: Record<ConnectorSyncStatus, string> = {
     'not-configured': t`Not configured`,
     pending: t`Waiting for confirmation`,
@@ -95,8 +101,8 @@ export const ConnectorSyncTag = ({
       borderStyle={borderStyle}
       startIcon={<Icon />}
     >
-      {isNonEmptyString(reason?.trim())
-        ? `${labels[status]} — ${reason.trim()}`
+      {isNonEmptyString(trimmedReason)
+        ? `${labels[status]} — ${trimmedReason}`
         : labels[status]}
     </Tag>
   );

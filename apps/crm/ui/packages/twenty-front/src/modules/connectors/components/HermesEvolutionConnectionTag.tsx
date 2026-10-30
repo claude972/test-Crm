@@ -1,10 +1,10 @@
 import { useLingui } from '@lingui/react/macro';
 import {
   IconAlertTriangle,
+  IconCircleDashed,
   IconCircleOff,
   IconClock,
   IconPlug,
-  IconPlugConnected,
   type IconComponent,
 } from 'kovaa-lab-ui/icon';
 import {
@@ -15,20 +15,24 @@ import {
 
 import { type HermesEvolutionConnectionStatus } from '@/connectors/types/HermesEvolutionConnectionStatus';
 
-type Presentation = {
+type HermesEvolutionConnectionPresentation = {
   color: TagColor;
   variant: NonNullable<TagProps['variant']>;
   borderStyle: NonNullable<TagProps['borderStyle']>;
   Icon: IconComponent;
 };
 
-// PROVIDER_REPORTED_OPEN keeps a dashed border on purpose. A solid green
-// badge would read as "connected, you can send", which is precisely the claim
-// this status does not support. Dashed carries the doubt without relying on
-// hue, so it survives a colour-blind reading; the label carries whose claim it
-// is. CONNECTING is amber and dashed because it is in-flight, so the two
-// unproven states differ by colour and by wording rather than by border alone.
-const PRESENTATION: Record<HermesEvolutionConnectionStatus, Presentation> = {
+// The two unproven states keep a dashed border, and they are the only ones
+// that do. Tag only paints a border in the 'outline' variant, so an unproven
+// state must be outline or the dashed cue silently disappears and the
+// distinction falls back to hue alone.
+//
+// Nothing here is solid green: no value in this contract proves a connector
+// can send.
+export const HERMES_EVOLUTION_CONNECTION_TAG_PRESENTATION: Record<
+  HermesEvolutionConnectionStatus,
+  HermesEvolutionConnectionPresentation
+> = {
   NOT_CONFIGURED: {
     color: 'gray',
     variant: 'outline',
@@ -43,9 +47,9 @@ const PRESENTATION: Record<HermesEvolutionConnectionStatus, Presentation> = {
   },
   PROVIDER_REPORTED_OPEN: {
     color: 'blue',
-    variant: 'soft',
+    variant: 'outline',
     borderStyle: 'dashed',
-    Icon: IconPlugConnected,
+    Icon: IconCircleDashed,
   },
   DISCONNECTED: {
     color: 'red',
@@ -70,17 +74,18 @@ export const HermesEvolutionConnectionTag = ({
 }: HermesEvolutionConnectionTagProps) => {
   const { t } = useLingui();
 
-  // "Provider reports the line open" names the source of the claim instead of
-  // asserting it. No label here says "connected" on its own.
   const labels: Record<HermesEvolutionConnectionStatus, string> = {
-    NOT_CONFIGURED: t`Not configured`,
+    NOT_CONFIGURED: t`To configure`,
     CONNECTING: t`Connecting`,
-    PROVIDER_REPORTED_OPEN: t`Provider reports the line open`,
+    // The qualifier is the load-bearing half of this label, which is why the
+    // tag never truncates: 'Provider: active' on its own would read as ready.
+    PROVIDER_REPORTED_OPEN: t`Provider: active · sending not tested`,
     DISCONNECTED: t`Disconnected`,
     UNAVAILABLE: t`Provider unavailable`,
   };
 
-  const { color, variant, borderStyle, Icon } = PRESENTATION[status];
+  const { color, variant, borderStyle, Icon } =
+    HERMES_EVOLUTION_CONNECTION_TAG_PRESENTATION[status];
 
   return (
     <Tag
@@ -89,6 +94,7 @@ export const HermesEvolutionConnectionTag = ({
       borderStyle={borderStyle}
       startIcon={<Icon />}
       weight="medium"
+      truncate={false}
     >
       {labels[status]}
     </Tag>

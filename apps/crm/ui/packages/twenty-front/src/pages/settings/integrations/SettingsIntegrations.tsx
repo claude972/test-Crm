@@ -1,17 +1,23 @@
-import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { Section } from 'kovaa-lab-ui/components/layout';
+import { IconRefresh } from 'kovaa-lab-ui/icon';
+import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 import { SettingsPath } from 'kovaa-lab-shared/types';
-import { getSettingsPath, isDefined } from 'kovaa-lab-shared/utils';
+import { getSettingsPath } from 'kovaa-lab-shared/utils';
 
 import { HermesEvolutionConnectionCard } from '@/connectors/components/HermesEvolutionConnectionCard';
-import { HERMES_EVOLUTION_CONNECTION } from '@/connectors/graphql/metadata-queries/hermesEvolutionConnection';
-import { type HermesEvolutionConnection } from '@/connectors/types/HermesEvolutionConnection';
+import { EVOLUTION_WHATSAPP_CONNECTOR_ID } from '@/connectors/constants/EvolutionWhatsappConnector';
+import { useHermesEvolutionConnection } from '@/connectors/hooks/useHermesEvolutionConnection';
 import { SettingsPageContainer } from '@/settings/components/SettingsPageContainer';
 import { SettingsPageLayout } from '@/settings/components/layout/SettingsPageLayout';
+
+const StyledConnectorList = styled.div`
+  display: grid;
+  gap: ${themeCssVariables.spacing[2]};
+`;
 
 const StyledNote = styled.p`
   color: ${themeCssVariables.font.color.tertiary};
@@ -20,16 +26,17 @@ const StyledNote = styled.p`
 `;
 
 export const SettingsIntegrations = () => {
-  const { data, loading, error } = useQuery<{
-    hermesEvolutionConnection: HermesEvolutionConnection | null;
-  }>(HERMES_EVOLUTION_CONNECTION, {
-    // The status is a point-in-time fact about a remote provider. A cached
-    // answer would show a line as open after it dropped, which is the one
-    // mistake this screen must not make.
-    fetchPolicy: 'network-only',
-  });
+  const { state, refresh, isRefreshing } = useHermesEvolutionConnection();
 
-  const connection = data?.hermesEvolutionConnection;
+  // Every connector shown on this page goes through the same panel. Only the
+  // ones the server publishes a status for appear: a connector invented here
+  // would be a claim the server never made.
+  const connectors = [
+    {
+      id: EVOLUTION_WHATSAPP_CONNECTOR_ID,
+      node: <HermesEvolutionConnectionCard state={state} />,
+    },
+  ];
 
   return (
     <SettingsPageLayout
@@ -43,44 +50,34 @@ export const SettingsIntegrations = () => {
       ]}
     >
       <SettingsPageContainer>
-        {/* This page reports state. It does not configure anything yet, and
-            saying so is better than offering a control that does nothing. */}
-        <StyledNote>
-          <Trans>
-            What the server currently knows about each connection. This screen
-            reports status only — it does not connect, disconnect or hold
-            credentials.
-          </Trans>
-        </StyledNote>
-
         <Section.Root>
-          <Section.Header title={t`WhatsApp`} />
+          <Section.Header
+            title={t`Connectors`}
+            description={t`Configured by an administrator`}
+            actions={
+              <Button
+                variant="outline"
+                size="sm"
+                startIcon={<IconRefresh />}
+                loading={isRefreshing}
+                loadingPosition="start"
+                onClick={refresh}
+              >
+                <Trans>Refresh</Trans>
+              </Button>
+            }
+          />
 
-          {loading && (
+          {connectors.length === 0 ? (
             <StyledNote>
-              <Trans>Checking the connection…</Trans>
+              <Trans>No connector available</Trans>
             </StyledNote>
-          )}
-
-          {isDefined(error) && (
-            <StyledNote role="alert">
-              <Trans>
-                The connection state could not be read. That is an unknown
-                state, not a disconnected one.
-              </Trans>
-            </StyledNote>
-          )}
-
-          {!loading && !isDefined(error) && !isDefined(connection) && (
-            <StyledNote>
-              <Trans>
-                No WhatsApp connection exists for this company yet.
-              </Trans>
-            </StyledNote>
-          )}
-
-          {isDefined(connection) && (
-            <HermesEvolutionConnectionCard connection={connection} />
+          ) : (
+            <StyledConnectorList>
+              {connectors.map((connector) => (
+                <div key={connector.id}>{connector.node}</div>
+              ))}
+            </StyledConnectorList>
           )}
         </Section.Root>
       </SettingsPageContainer>
