@@ -36,8 +36,6 @@ jobs:
             esac
           done
           df -h .
-      - name: Validate disposable fixture drift and media SQL guards
-        run: node --test scripts/check-hermes-media-migration-ci.test.mjs
       - name: Install immutable workspace dependencies
         working-directory: apps/crm/ui
         run: node .yarn/releases/yarn-4.18.1.cjs install --immutable

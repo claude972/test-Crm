@@ -12,6 +12,7 @@ import PostalMime from 'postal-mime';
 import MailComposer from 'nodemailer/lib/mail-composer';
 import { getSendableEmailHandles } from 'kovaa-lab-shared/utils';
 
+import { messagingId } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.policy';
 import { HermesMessagingPersonService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-person.service';
 import { mailAddress } from 'src/engine/core-modules/hermes-mail/hermes-mail.policy';
 import { HermesMailService } from 'src/engine/core-modules/hermes-mail/hermes-mail.service';
@@ -735,6 +736,17 @@ export class HermesMailboxService {
           },
           { allowEmptyRecipients: true },
         );
+        const expectedConversationId = messagingId(
+          actor.workspaceId,
+          'EMAIL',
+          item.binding.connectionId,
+          `draft:${draftId}`,
+        );
+        if (
+          input.conversationId &&
+          input.conversationId !== expectedConversationId
+        )
+          throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
         const listed = await client.list();
         const drafts = listed.find(
           (folder) =>
@@ -780,6 +792,21 @@ export class HermesMailboxService {
           }
           if (input.draftRevision && input.draftRevision !== latestRevision)
             throw new ConflictException('MAIL_DRAFT_REVISION_CONFLICT');
+          const attachments = await this.mail.draftAttachments(
+            actor,
+            expectedConversationId,
+            input.attachmentIds ?? [],
+          );
+          const draftRevision = mailContentSignature(
+            envelope,
+            attachments.map((file) => ({
+              filename: file.filename,
+              mimeType: file.contentType,
+              bytes: file.content,
+            })),
+          );
+          if (latestRevision !== draftRevision && old.length && !trash)
+            throw new ConflictException('MAIL_DRAFT_REPLACE_UNAVAILABLE');
           const conversation = await this.mail.draftConversation(
             actor,
             {
@@ -792,19 +819,8 @@ export class HermesMailboxService {
           );
           if (input.conversationId && input.conversationId !== conversation.id)
             throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
-          const attachments = await this.mail.draftAttachments(
-            actor,
-            conversation.id,
-            input.attachmentIds ?? [],
-          );
-          const draftRevision = mailContentSignature(
-            envelope,
-            attachments.map((file) => ({
-              filename: file.filename,
-              mimeType: file.contentType,
-              bytes: file.content,
-            })),
-          );
+          if (conversation.id !== expectedConversationId)
+            throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
           if (latestRevision === draftRevision && old.length)
             return {
               state: 'SAVED',
@@ -816,8 +832,6 @@ export class HermesMailboxService {
               uid: String(old[old.length - 1]),
               uidValidity: validity,
             };
-          if (old.length && !trash)
-            throw new ConflictException('MAIL_DRAFT_REPLACE_UNAVAILABLE');
           const compiled = new MailComposer({
             ...envelope,
             messageId,
@@ -828,7 +842,14 @@ export class HermesMailboxService {
           compiled.keepBcc = true;
           const raw = await compiled.build();
           await this.current(actor, client);
-          const result = await client.append(drafts.path, raw, ['\\Draft']);
+          let result;
+          try {
+            result = await client.append(drafts.path, raw, ['\\Draft']);
+          } catch {
+            throw new ServiceUnavailableException(
+              'MAIL_DRAFT_SAVE_UNCONFIRMED',
+            );
+          }
           if (!result || !result.uid || String(result.uidValidity) !== validity)
             throw new ServiceUnavailableException(
               'MAIL_DRAFT_SAVE_UNCONFIRMED',
