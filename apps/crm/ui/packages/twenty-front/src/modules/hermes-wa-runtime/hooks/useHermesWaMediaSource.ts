@@ -50,13 +50,10 @@ const resolveDownloadUrl = (downloadPath: string): string | null => {
 //
 // Nothing runs on mount. `resolve` is the only way in.
 //
-// On the session header: the contract describes an Authorization Bearer header,
-// and this deployment's front end holds no bearer token — the Apollo links
-// authenticate every call with `credentials: 'include'` and an http-only
-// cookie. The fetch below does the same thing the rest of the client does. If
-// the media route insists on a bearer header specifically, it will refuse this
-// read, and the screen will say the read was refused rather than pretend it
-// worked. That gap is reported rather than papered over with a forged header.
+// The media route accepts the session cookie when no bearer is presented, so
+// `credentials: 'include'` is the right call and the only one this client can
+// make: it holds no bearer token. The upload target carries its own short
+// token in its URL and needs no header either.
 export const useHermesWaMediaSource = ({
   conversationId,
   assetId,
