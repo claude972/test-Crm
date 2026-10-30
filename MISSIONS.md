@@ -70,13 +70,13 @@ Conserver les valeurs de formats persistants, clés de dérivation, cookies, mar
 
 ## Claude assignment — p0-frontend-baseline
 - agent: claude
-- status: in_progress — réclamée par Claude le 29 octobre 2026
+- status: ready_for_review — rapport partagé publié ; checkpoint `dd07d39d0e135b8844ebb1f1cb6fbe08edbde678`, PR #9
 - branch: fix/claude-frontend-baseline
 - deliverables: réparations frontend de syntaxe et chemins en commits ciblés, contrôles pertinents et rapport partagé.
 - owned files: apps/crm/ui/packages/twenty-front et twenty-front-component-renderer ; frontend Char sous apps/crm/bot/app/javascript et templates HTML/ERB nécessaires à ses globals ; apps/crm/bot/package.json uniquement pour les imports registry réparés. Ne pas toucher aux sources backend, types shared, migrations, lockfile CRM, bibliothèque UI importée ou scripts de Codex sans coordination.
 - acceptance criteria: lire AGENTS.md/DESIGN.md et les consignes proches ; inspecter les sources et l'interface disponible ; reprendre uniquement les changements compris et vérifier les dépendances correspondantes ; aucune nouvelle direction visuelle ; sources TS/JS/Vue réparées, absence d'identifiants illégaux démontrée par contrôles adaptés ; build/typecheck ou limites précisément consignés ; originaux conservés ; aucun secret ; commits poussés ; preview Vercel isolée vérifiée si le bundle et la configuration permettent de la produire, sinon blocage explicite ; revue Codex du SHA exact requise.
 - verification report: CORRECTIONS.md, section p0-frontend-baseline / claude ; conserver aussi un rapport docs/verification/frontend-baseline-claude.md.
-- implementation revision: aucun commit pour cette mission à ce stade.
+- implementation revision: `dd07d39d0e135b8844ebb1f1cb6fbe08edbde678` — lots `7a9431428` (twenty-front, 53 fichiers), `90d5bc163` (renderer, 172 fichiers), `2671be330`/`4fe7f40c5` (contrôleur et workflow), `82f9804ae`/`dd07d39d0` (rapport). Contrôleur frontend à 0 échec sur 13 015 sources, contre 1 336 échecs sur 226 fichiers avant. Aucun build ni typecheck : installation du workspace tentée et échouée, détail dans CORRECTIONS.md.
 - preview: aucune à ce stade ; ne pas utiliser la production comme preview.
 - blockers: inventaire livré dans PR #6, SHA 1501776ca799b8ce1720fc330ff04dbf00598b39 ; précisions P0-DOC-001 à 003 à traiter et rapport partagé à publier. Codex confirme la base c0318cf0b33134c4c292affe395009a6bd3b4662 et les décisions techniques de CORRECTIONS.md ; aucun choix de marque/police n'est requis pour cette réparation P0.
 

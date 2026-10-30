@@ -132,6 +132,78 @@ Demandée par les critères d'acceptation : Forms `ff366e7ea` / `db4d81302` et C
 
 - reviewer recheck (codex): corrigé et recontrôlé sur d2700a7c091861da0ed0951612f21cfd37aa62d8 ; diff des deux documents et sources de contrat historiques/courantes examinés. La comparaison du marqueur porte sur 05972c1de/P0, sans preuve pré-rebranding ni SDK externe. Commentaire de revue : https://github.com/claude972/test-Crm/pull/6#issuecomment-6511686632.
 
+## Mission p0-frontend-baseline — agent: claude
+
+- agent: claude
+- branche : `fix/claude-frontend-baseline`, worktree distinct
+- base de départ résolue : `c0318cf0b33134c4c292affe395009a6bd3b4662`
+- **checkpoint désigné pour revue Codex : `dd07d39d0e135b8844ebb1f1cb6fbe08edbde678`** — sources, contrôleur, workflow et rapport complet
+- PR brouillon : https://github.com/claude972/test-Crm/pull/9 → `chore/p0-stabilization`
+- commits : `7a9431428` (lot 1, twenty-front) · `90d5bc163` (lot 2, renderer) · `2671be330` puis `4fe7f40c5` (contrôleur et workflow) · `82f9804ae` puis `dd07d39d0` (rapport)
+- rapport détaillé : `docs/verification/frontend-baseline-claude.md`
+
+### Résultat mesuré
+
+`scripts/check-frontend-p0.cjs` sur `twenty-front` et `twenty-front-component-renderer` :
+
+| Mesure | Avant | Après |
+| --- | --- | --- |
+| Échecs totaux | **1 336** | **0** |
+| Fichiers affectés | 226 | 0 |
+| Diagnostics de parsing | 741 | 0 |
+| Imports internes non résolus | 383 | 0 |
+| Fichiers avec marque espacée dans un identifiant | 212 | 0 |
+
+Après : 13 015 sources analysées, 47 222 imports internes résolus, 65 imports d'assets vérifiés sur disque, code de sortie 0.
+
+**Élargissement à consigner contre mon propre inventaire :** la PR #6 n'avait mesuré que `twenty-front` (223 diagnostics, 27 imports). `twenty-front-component-renderer`, pourtant dans mon périmètre, **n'avait pas été mesuré** et portait à lui seul ~518 diagnostics et 356 imports non résolus.
+
+### Décisions respectées
+
+Champ serveur `allowRequestsToKovaaLabCRMIcons` suivi tel quel, vérifié à `client-config.entity.ts:423` et `services/client-config.service.ts:297` ; aucun changement de schéma demandé. `IconTwentyStar` / `IconTwentyStarFilled` et les basenames `Twenty*` conservés. Noms de paquets npm `kovaa-lab-ui` / `kovaa-lab-shared` intacts. `generated-metadata/graphql.ts` : réparation manuelle du seul identifiant invalide selon le complément de contrat — schéma **non** régénéré, **non** validé, aucun serveur ni donnée démarré, aucun catalogue touché.
+
+### Convergence
+
+Les **225 fichiers** réparés sont **octet pour octet identiques aux originaux locaux correspondants** (53/53 et 172/172, zéro divergence), convergence **atteinte par règles scopées et non par copie**. Rien d'autre n'a été repris : aucun catalogue, aucun outil intégré, aucune fonctionnalité non publiée.
+
+### Deux points contre mon propre travail
+
+1. **Divergence laissée délibérément.** `src/constants/ScrollBridgeProperties.ts` porte `'__kovaa-labScrollRequest'` et `'__kovaa-labScrollUpdate'` ; les originaux écrivent `__kovaaLab*`. La forme publiée est une **chaîne**, donc valide, et ce sont des **valeurs de protocole de bridge**. Les aligner ne corrigerait aucune syntaxe et modifierait un protocole. Laissé tel quel, à arbitrer hors P0 — même raisonnement que pour `__kovaa-labHttpResponse`.
+2. **Régression introduite puis corrigée.** J'avais sur-appliqué la règle de chemin à `kovaa-lab-ui-gallery`, qui est **aussi un identifiant de story Storybook** dans les URL `/iframe.html?id=frontcomponent-…` des tests natifs. Les originaux le conservent. Détectée par le diff de convergence, **pas par mon contrôleur** — qui ne voit ni les identifiants de story ni les URL. Revertée dans le lot 2, 6 occurrences dans 4 fichiers. C'est la limite exacte de l'outil : il valide la syntaxe et la résolution, pas la justesse sémantique d'une chaîne.
+
+### Contrôleur et CI
+
+`scripts/check-frontend-p0.cjs` et `.github/workflows/p0-frontend-baseline.yml`, propriété enregistrée dans `MISSIONS.md` avant édition. `scripts/check-crm-p0.cjs` et les workflows backend **non modifiés**. Assets résolus sur le système de fichiers plutôt que par `ts.resolveModuleName` — sans quoi 65 imports sains seraient signalés en échec ; requête Vite entière retirée (`?worker&inline`). Marque espacée signalée explicitement avec son remède. `workflow_call` exposé avec le nom de l'artefact en sortie.
+
+Deux corrections suite à la revue Codex de `2671be330`, toutes deux justifiées et acceptées : construction des **trois** dépendances résolues par `exports` vers `dist` (`shared`, `ui`, renderer — vérifié dans les manifestes) et non de `shared` seule ; et build du front par l'**API JS de Vite**, le CLI ayant été observé sortant en 0 sans rien émettre (P0-BUILD-001). Assertions d'artefacts **conservées et resserrées**, vérifiées contre les sources avant d'être affirmées (`vite.config.ts:224` → `outDir: 'build'` ; `index.html:89` → `div#root`).
+
+### Limites — aucun contrôle non exécuté n'est revendiqué
+
+- **Aucun build, aucun typecheck, aucun test frontend exécuté.** L'installation du workspace a été **tentée et a échoué** : résolution et récupération abouties (946 Mo), puis `ERROR: Yarn is terminating due to an unexpected empty event loop` sans franchir l'étape de liaison — `node_modules/.bin` contient 0 binaire, `vite` et `tsgo` sont absents. À noter : **le code de sortie observé était 0** alors que l'installation était inutilisable, troisième occurrence du même piège dans cette mission. Le parsing et la résolution d'imports **ne prouvent ni les types, ni le build, ni le comportement**.
+- **Le job `frontend-bundle` n'est pas vérifié par moi** ; sa première exécution CI le prouvera ou l'infirmera.
+- Aucun rendu, aucune preview, aucune capture, aucun test clavier, responsive ou E2E. Aucun déploiement.
+- Cal.diy et « Outils clients » hors P0, non intégrés.
+- **Note prise sur l'avertissement Codex :** si une tentative de build local échoue par les défauts `client-sdk`/`emails` encore présents sur `c0318cf0b`, je **ne recréerai pas** ces réparations et **ne masquerai pas** l'erreur ; elles existent dans `ed80da151` et dans la construction combinée de PR #8.
+
+### Revue croisée
+
+Demandée à Codex sur `dd07d39d0e135b8844ebb1f1cb6fbe08edbde678`. **Non déclarée terminée par moi.**
+
+## Mission p0-frontend-baseline — revue Claude du lot backend
+
+- reviewer: claude
+- reviewed branch: `fix/codex-backend-build` (PR #7), intégré dans PR #8 à `e7d1332ba`
+- reviewed revision: **`ed80da15116fd2d1490022cf53564d85bc0abe26`**
+- périmètre relu : le correctif `.swcrc`, sa cohérence avec le projet TypeScript du serveur, et la présence du correctif sur la branche d'intégration. **Aucun fichier backend modifié par moi.**
+
+**Correctif confirmé cohérent.** `jsc.baseUrl` passe de `"./../../"` à `"."` dans `apps/crm/ui/packages/twenty-server/.swcrc`. Le fichier étant à la racine du paquet, l'ancienne valeur faisait résoudre les specifiers non relatifs depuis `apps/crm/ui/`, soit un `src` qui n'est pas celui du serveur ; `"."` les résout depuis la racine du paquet. Vérifié aussi présent sur `chore/p0-combined-verification` (ligne 10 du fichier).
+
+**Pourquoi build et typecheck ne pouvaient pas le voir, et c'est le point intéressant.** `tsc`/`tsgo` résolvent via le `baseUrl` et les `paths` du `tsconfig.json`, qui étaient corrects ; seul le **code émis** par SWC était faux. Un contrôle de types vert et un build vert étaient donc parfaitement compatibles avec un runtime cassé. C'est exactement ce que le smoke jetable a attrapé, et cela vaut d'être retenu comme méthode : la preuve d'exécution n'est pas substituable par la preuve de compilation. Même raisonnement que pour le CLI Vite sortant en 0 sans artefact.
+
+**Observation, explicitement pas un défaut.** Le `tsconfig.json` du serveur porte **26 entrées `paths`** mappant des specifiers rebrandés (`src/engine/core-modules/kovaa-lab-config/…`, `src/engine/kovaa-lab-orm/…`) vers les fichiers réels `twenty-config` / `twenty-orm`. Or `.swcrc` ne contient **aucun `jsc.paths`** (0 occurrence) et les répertoires `kovaa-lab-config` et `kovaa-lab-orm` **n'existent pas** (0 fichier, contre 63 et 196 pour `twenty-config` et `twenty-orm`). J'ai donc cherché si une source utilisait réellement ces specifiers : **aucune**. Ces 26 entrées sont de la **configuration morte**, sans impact d'exécution. Je le signale comme nettoyage éventuel hors P0, et je précise que ce n'est **pas** une faille — j'ai vérifié avant d'affirmer, plutôt que de lever une fausse alerte.
+
+**Limites de cette revue, explicites.** Je n'ai **pas** exécuté la CI backend, ni le smoke de démarrage, ni reproduit le build serveur. Je n'ai relu ni les 20 réparations `client-sdk`/`emails` de `79305ae2e`, ni les commits Forms `ff366e7ea` / `db4d81302`, ni Char `2bd457ecc` — ces revues restent dues et je ne les déclare pas faites. Je ne certifie donc **aucune** validation applicative ou intégrée du backend ; je confirme la cohérence du correctif `.swcrc` sur lecture des sources, et rien de plus.
+
 ## Mission p0-frontend-baseline — agent: codex
 
 - Branche : fix/codex-backend-build
