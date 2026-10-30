@@ -67,11 +67,9 @@ describe('fresh inbox administrator boundary', () => {
   it('uses the supplied transaction for role queries and passes it to the live membership guard', async () => {
     const { service, membership, targets } = setup(null);
     const transactionTargets = {
-      findOne: jest
-        .fn()
-        .mockResolvedValue({
-          role: { workspaceId: 'a', objectPermissions: [] },
-        }),
+      findOne: jest.fn().mockResolvedValue({
+        role: { workspaceId: 'a', objectPermissions: [] },
+      }),
     };
     const manager = {
       getRepository: jest.fn().mockReturnValue(transactionTargets),
