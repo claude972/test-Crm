@@ -27,3 +27,11 @@ Commit f7f05f90b : le workflow backend réutilisable accepte désormais une opti
 Le contrôle initialise uniquement cette base jetable, exécute les commandes d'instance existantes, lance le serveur compilé puis vérifie healthz et le contrat réel du endpoint client-config. Il arrête le processus ensuite ; aucun compte métier, workspace de production ni e-mail envoyé. Ce contrôle doit passer avant d'être présenté comme preuve de démarrage.
 
 Validation préalable du helper : node --check réussi ; invocation locale effectivement refusée avant toute action de base/service ; git diff --check et Gitleaks staged réussis. CI runtime en cours : https://github.com/claude972/test-Crm/actions/runs/40979175124. La CI verte précédente ne contenait pas ce contrôle et ne prouve donc pas son résultat.
+
+## Démarrage vérifié et préparation navigateur
+
+Le premier contrôle runtime (40979175124) a révélé P0-RUNTIME-001 : .swcrc émettait des chemins vers la mauvaise racine de sources. Correction backend ed80da151 (.swcrc baseUrl .), intégrée dans e7d1332ba. CI https://github.com/claude972/test-Crm/actions/runs/40979688501 **réussie, six jobs**, étape runtime effectivement exécutée. Base CI jetable initialisée, commandes d'instance réussies, serveur healthy et champ client-config réel vérifiés. Le code backend est identique à celui de PR #7 ; aucun original/base persistante utilisé.
+
+Le helper navigateur et les entrées optionnelles du workflow backend sont maintenant préparés : un futur bundle issu du workflow frontend réutilisable sera téléchargé dans le runner, servi avec l'API réelle jetable, puis contrôlé sur desktop/mobile (accueil, passage au champ e-mail, assets, débordement horizontal). Les captures seront des artefacts CI. Aucun compte ni authentification simulée. Le slot de configuration du seul index.html compilé sera temporairement renseigné pour l'API loopback puis restauré ; les sources frontend ne sont pas éditées.
+
+À ce checkpoint, browser-smoke reste désactivé dans l'orchestrateur tant que le bundle de Claude n'est pas livré : **aucun succès navigateur ou preview n'est revendiqué**. Pré-vérifications des helpers : syntaxe Node, refus effectif hors CI, diff propre et Gitleaks staged sans détection.
