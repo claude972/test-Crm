@@ -577,7 +577,7 @@ Le stockage système disponible (environ28Go) accueille les nouveaux worktrees /
 
 ### Lot A — sociétés et hôtes
 - agent: codex (A/tenancy)
-- status: pending
+- status: in_progress — claim distant a368 confirmé ; auth same-origin, binding cookies/CAS et header X-Expected-Workspace-Id en cours.
 - branch: feat/codex-hermes-v4-tenancy
 - checkout: /private/tmp/hermes-v4-tenancy
 - owned files: backend auth/domain/client-config/configvariables et tests/migrations strictement scoped à la fonctionnalité tenancy. Pas hermes-messaging/media/mail, pas frontend.
@@ -588,7 +588,7 @@ Le stockage système disponible (environ28Go) accueille les nouveaux worktrees /
 
 ### Lot B — WhatsApp, médias et contrats messagerie
 - agent: codex (B/media)
-- status: pending
+- status: in_progress — claim distant a368 confirmé ; checkpoint e1ca825b9062e262026a8d3f77288a6de9affbff poussé, migration PostgreSQL/revue encore attendues.
 - branch: feat/codex-hermes-v4-media
 - checkout: /private/tmp/hermes-v4-media
 - owned files: backend hermes-messaging, nouveau hermes-media, Evolution/messages, types/DTO messagerie partagés, migrations et tests correspondants ; propriétaire exclusif DTO messaging. Pas auth/domain ni hermes-mail.
@@ -599,7 +599,7 @@ Le stockage système disponible (environ28Go) accueille les nouveaux worktrees /
 
 ### Lot C — vraie boîte e-mail
 - agent: codex (C/mail)
-- status: pending
+- status: in_progress — claim distant a368 confirmé ; contrat3bb9550a9 publié, implémentation/tests en cours.
 - branch: feat/codex-hermes-v4-mail
 - checkout: /private/tmp/hermes-v4-mail
 - owned files: backend hermes-mail, MIME/folders/SMTPidentity et tests correspondants. Aucun DTO hermes-messaging (propriétaire B), aucun auth/domain ni service connexions du lot futur.
@@ -621,11 +621,11 @@ Le stockage système disponible (environ28Go) accueille les nouveaux worktrees /
 
 ### Claude — orchestration frontend et lots isolés
 - agent: claude
-- status: pending
+- status: in_progress — dispatch réel quatre sous-agents implémentation21:38:44UTC ; UI disjointes en cours, parent possède routage/auth/Apollo/hooks/catalogues.
 - assigned session: Claude parent8f3db32e-4613-45e3-94f3-16e664f3cbfc ; root le coordonne, pas de doublon du parent.
 - branches: feat/claude-hermes-v4-wa ; feat/claude-hermes-v4-mail ; feat/claude-hermes-v4-settings ; feat/claude-hermes-v4-campaigns.
 - checkouts: /private/tmp/hermes-v4-claude-wa, /private/tmp/hermes-v4-claude-mail, /private/tmp/hermes-v4-claude-settings, /private/tmp/hermes-v4-claude-campaigns.
-- owned files: sous-agent WA possède mediaUI/compositeur WhatsApp ; sous-agent mail possède boîte e-mail ; sous-agent settings possède Réglages/sociétés ; sous-agent campaigns possède prospection/campagnes. Parent attribue les fichiers UI exacts sans chevauchement avant édition ; aucun backend Codex.
+- owned files: nouveaux dossiers hermes-wa-ui (WA), hermes-mailbox-ui (mail), hermes-admin-ui (settings/sociétés), hermes-campaigns-ui (prospection/campagnes), chacun dans son worktree isolé ; parent possède routage/auth/Apollo/hooks/catalogues. Aucun backend Codex.
 - deliverables: quatre parcours conformes aux maquettes f638, sur API concrètes validées B/C/A/D ; états et capacités réels, français compilé, contrôles modes cohérents. Contrats readonly permis avant API, câblage après signatures confirmées.
 - acceptance criteria: typecheck/build/tests pertinents ; parcours desktop390px/clavier vérifiés ; aucun ID traduction brut, faux succès, connexion fictive ni envoi réel ; médias/brouillons conservés selon règles, sociétés réellement isolées, campagnes liées à vraie boîte/droits/licence.
 - dependencies: APIs concrètes et contrats des lots Codex ; root coordonne interfaces partagées et livraison par checkpoints poussés.
