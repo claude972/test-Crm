@@ -82,3 +82,5 @@ export type HermesMessagingBotAdapter = {
     channel: HermesMessagingChannel;
   }): Promise<HermesMessagingBotResult>;
 };
+
+export type HermesBotMode = 'MANUAL' | 'AUTO';
