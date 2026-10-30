@@ -43,3 +43,7 @@ Checkpoint Claude désigné et relu : dd07d39d0e135b8844ebb1f1cb6fbe08edbde678 (
 L'orchestrateur appelle maintenant le workflow frontend de Claude, attend son artefact nommé, puis transmet cet artefact au contrôle backend avec browser-smoke activé. Une construction manquante empêche les tests navigateur de démarrer et ne peut pas produire un succès de l'ensemble. Les contrôles de sources/backend initiaux restent disponibles en parallèle.
 
 P0-FRONT-BUILD-001 suit l'échec initial réel (UI dist/theme.cjs absent) et sa correction de chaîne de dépendances. Cette correction doit encore être vérifiée par la CI combinée ; aucune preview ou réussite navigateur n'est revendiquée à ce commit. Le frontend Char et les revues backend restantes sont des travaux distincts encore ouverts.
+
+## Isolation des groupes de CI
+
+Dans un workflow réutilisé, github.workflow désigne le workflow appelant. Les contrôles de sources et frontend avaient donc la même expression de groupe lors de l'appel combiné. Le groupe du contrôleur de sources est rendu explicitement unique (p0-integrity-<branche>), distinct du frontend, du backend et de l'orchestrateur. Référence primaire : https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations. Cette correction de configuration ne modifie aucune source applicative et doit être vérifiée dans le prochain run complet.
