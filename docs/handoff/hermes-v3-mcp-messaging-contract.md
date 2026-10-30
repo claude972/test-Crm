@@ -126,6 +126,17 @@ type OutboundMessageContent =
       subject: string; text: string; sanitizedHtml: string | null;
       to: string[]; cc: string[]; bcc: string[]; attachmentIds: string[];
       replyKind: 'NEW' | 'REPLY' | 'REPLY_ALL' | 'FORWARD'; replyToMessageId: string | null };
+type InboundMessageContent =
+  | { kind: 'TEXT'; text: string }
+  | { kind: 'WHATSAPP_MEDIA'; mediaId: string; caption: string | null }
+  | { kind: 'EMAIL';
+      envelope: { mailboxId: string; fromAddress: string;
+        to: string[]; cc: string[]; bcc: string[] | null };
+      subject: string; text: string; sanitizedHtml: string | null; attachmentIds: string[] };
+type InboundMessage = {
+  id: string; workspaceId: string; conversationId: string; channel: Channel;
+  receivedAt: string; content: InboundMessageContent; mediaAssets: MediaAsset[];
+};
 type DraftSuggestion = {
   id: string; conversationId: string; sourceMessageId: string;
   state: 'GENERATING' | 'READY' | 'UNAVAILABLE' | 'INVALIDATED';
@@ -143,7 +154,7 @@ type DisplayError = { code: string; message: string; retryable: boolean; request
 
 `MediaAsset.createdAt` date la création de l'asset durable. `accessExpiresAt` décrit seulement l'expiration de l'accès temporaire courant, ou `null` sans accès émis ; il ne date pas la rétention de l'asset. L'expiration de cet accès ne met pas l'asset en état `EXPIRED` et ne modifie pas son identité. Rafraîchir via `hermesMediaReadAccess` exige un nouveau contrôle vivant workspace/fil/asset et droits ; un accès révoqué ou un asset indisponible ne sont pas renouvelés par simple possession de l'ancien accès. Les compteurs MailFolder sont optionnels et valent `null` ou sont absents si inconnus/non accessibles ; afficher « inconnu », jamais convertir en zéro. Un zéro exige une mesure autorisée.
 
-`OutboundMessageContent` décrit uniquement la composition sortante proposée. Pour l'affichage d'un message reçu, l'expéditeur externe vient de l'enveloppe de réception authentifiée et de sa provenance : son adresse est informative et ne constitue jamais une identité autorisée d'émission. Cette enveloppe entrante reste séparée du `sender` sortant ; aucune délégation de la boîte de l'expéditeur externe n'est exigée pour lire le message.
+`OutboundMessageContent` décrit uniquement la composition sortante proposée. Pour l'affichage d'un message reçu, l'expéditeur externe vient de l'enveloppe de réception authentifiée et de sa provenance : son adresse est informative et ne constitue jamais une identité autorisée d'émission. Cette enveloppe `InboundMessageContent.EMAIL` reste séparée du `sender` sortant ; aucune délégation de la boîte de l'expéditeur externe n'est exigée pour lire le message. `envelope.mailboxId` désigne la boîte locale de réception accessible, jamais la boîte de l'expéditeur externe. Les adresses to/cc sont filtrées serveur ; Bcc n'est retourné que si connu et autorisé, sinon `null`, sans révéler de destinataire caché. `mediaId` et `attachmentIds` référencent les `MediaAsset` autorisés de `InboundMessage.mediaAssets`, dans le même workspace/fil ; leurs métadonnées ne valent pas accès aux octets, soumis à `hermesMediaReadAccess`. Le HTML reçu est assaini côté serveur avant rendu.
 
 L'identité `sender` est une sélection cible validée serveur : boîte exacte déléguée et adresse principale, ou alias exact explicitement autorisé (`aliasId` non nul), avec revision courante. Ni le domaine seul ni un From libre ne suffisent ; brouillon et envoi recontrôlent boîte/alias/connexion et permissions, puis l'envoi recontrôle au dernier départ évitable. Cette forme ne décrit pas une API d'identités actuellement disponible. Le contenu e-mail et les destinataires sont filtrés selon droits ; Bcc n'est jamais exposé à un lecteur sans autorisation d'accès aux données sortantes. Le HTML passé par le client à la composition n'est pas du `sanitizedHtml` de confiance : serveur valide/assainit avant persistance/rendu. Les objets média publics ne contiennent ni clé stockage, URL fournisseur, credential, chemin local, payload base64 ou identifiant d'instance.
 
@@ -154,6 +165,7 @@ L'identité `sender` est une sélection cible validée serveur : boîte exacte d
 | `hermesSetConversationBotPolicy` | conversationId/localMode + contexte/revision/key → politique effective ; commande locale |
 | `hermesCreateMediaUpload` puis `hermesFinalizeMediaUpload` | fil, kind, MIME/taille déclarés → autorisation courte scoped ; finalisation après contrôle des octets réels |
 | `hermesMediaReadAccess` | mediaId, usage aperçu/téléchargement → accès court après contrôle vivant ; révocation et cache privés |
+| Lectures inbox/mail, versions V3 cibles à définir | contexte/fil, ou mailbox/folder/thread accessibles + cursor/limit → page de messages reçus `InboundMessage`, métadonnées et assets autorisés ; proposition de résultat versionné, pas réponse disponible des lectures v1 |
 | `hermesInboxSendContentV3` | fil + OutboundMessageContent + contexte/revision/clientRequestId + draftId optionnel → message/état ledger |
 | `hermesMailFolders`, `hermesMailThreads`, `hermesSaveMailDraft` | mailbox/folder/thread scoped et pagination ; brouillon humain durable versionné, zéro émission |
 
