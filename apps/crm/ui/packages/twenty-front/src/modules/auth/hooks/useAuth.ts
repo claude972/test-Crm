@@ -31,7 +31,8 @@ import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceSta
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { returnToPathState } from '@/auth/states/returnToPathState';
-import { clearAllSessionLocalStorageKeys } from '@/auth/utils/clearAllSessionLocalStorageKeys';
+import { purgeSessionStorage } from '@/auth/utils/purgeSessionStorage';
+import { logError } from '~/utils/logError';
 import { broadcastSignOutToOtherTabs } from '@/auth/utils/crossTabSignOut';
 import { clearSessionGeneration } from '@/auth/utils/clearSessionGeneration';
 import { isValidReturnToPath } from '@/auth/utils/isValidReturnToPath';
@@ -123,7 +124,7 @@ export const useAuth = () => {
 
   const navigate = useNavigate();
 
-  const clearSession = useCallback(() => {
+  const clearSession = useCallback(async () => {
     // The assign below is the only navigation: keep the redirect effect from racing it to the sign-in page.
     store.set(isAppEffectRedirectEnabledState.atom, false);
     sessionStorage.clear();
@@ -133,12 +134,24 @@ export const useAuth = () => {
     store.set(currentWorkspaceMemberState.atom, null);
     store.set(currentUserWorkspaceState.atom, null);
     clearSessionGeneration();
-    // The metadata store is an IndexedDB cache of the workspace schema, views
-    // and layouts. Clearing only the localStorage session keys left it on the
-    // device after sign-out, readable by the next person using this browser on
-    // this origin, so the full purge runs here instead.
-    clearAllSessionLocalStorageKeys();
     setLastAuthenticateWorkspaceDomain(null);
+
+    // The metadata store is an IndexedDB cache of the workspace schema, views
+    // and layouts, and it must be gone before we navigate: location.assign
+    // interrupts an in-flight transaction, so a fire-and-forget purge could
+    // leave it on the device for the next person on this origin. Awaited here,
+    // with a bounded wait so a stuck database cannot trap someone signing out.
+    const purgeOutcome = await purgeSessionStorage();
+
+    if (purgeOutcome !== 'cleared') {
+      // Said plainly rather than swallowed: the local copy may still be there.
+      logError(
+        new Error(
+          `Sign-out could not confirm the metadata cache was cleared: ${purgeOutcome}`,
+        ),
+      );
+    }
+
     window.location.assign(AppPath.SignInUp);
   }, [store, setLastAuthenticateWorkspaceDomain]);
 
@@ -464,7 +477,7 @@ export const useAuth = () => {
     } catch {}
 
     broadcastSignOutToOtherTabs();
-    clearSession();
+    await clearSession();
   }, [clearSession, signOutMutation, store]);
 
   const handleCredentialsSignUpInWorkspace = useCallback(
