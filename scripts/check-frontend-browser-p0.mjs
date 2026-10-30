@@ -168,7 +168,7 @@ async function prepareHermesFixture() {
   console.info(`::add-mask::${fixture.password}`);
   const signup = await graphql('metadata', 'mutation P1Signup($email:String!,$password:String!) { signUp(email:$email,password:$password) { tokens { accessOrWorkspaceAgnosticToken { token } } } }', { email: fixture.email, password: fixture.password });
   fixture.token = sessionToken(signup.signUp.tokens.accessOrWorkspaceAgnosticToken.token);
-  const created = await graphql('metadata', 'mutation P1Workspace($input:SignUpInNewWorkspaceInput) { signUpInNewWorkspace(input:$input) { loginToken { token } workspace { id displayName workspaceUrls { subdomainUrl customUrl } } } }', { input: { displayName: `P1 CI ${process.env.GITHUB_RUN_ID} ${suffix}` } }, fixture.token);
+  const created = await graphql('metadata', 'mutation P1Workspace($input:SignUpInNewWorkspaceInput) { signUpInNewWorkspace(input:$input) { loginToken { token } workspace { id workspaceUrls { subdomainUrl customUrl } } } }', { input: { displayName: `P1 CI ${process.env.GITHUB_RUN_ID} ${suffix}` } }, fixture.token);
   fixture.workspace = created.signUpInNewWorkspace.workspace;
   const workspaceUrls = fixture.workspace.workspaceUrls;
   assert.equal(new URL(workspaceUrls.customUrl ?? workspaceUrls.subdomainUrl).origin, FRONTEND_ORIGIN, 'P1 Hermes smoke: native workspace URL leaves the frontend origin');
