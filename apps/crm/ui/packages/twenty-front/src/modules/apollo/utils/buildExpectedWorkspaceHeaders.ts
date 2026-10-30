@@ -10,3 +10,16 @@ export const buildExpectedWorkspaceHeaders = (
   typeof expectedWorkspaceId === 'string' && expectedWorkspaceId.trim() !== ''
     ? { [EXPECTED_WORKSPACE_ID_HEADER]: expectedWorkspaceId.trim() }
     : {};
+
+// An inherited header would survive a spread and keep asserting the previous
+// workspace exactly when the caller asked to assert none. Removed by name,
+// whatever its casing, before the new one is added.
+export const stripExpectedWorkspaceHeader = (
+  headers: Record<string, unknown>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(headers).filter(
+      ([name]) =>
+        name.toLowerCase() !== EXPECTED_WORKSPACE_ID_HEADER.toLowerCase(),
+    ),
+  );

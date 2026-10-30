@@ -1,6 +1,7 @@
 import {
   buildExpectedWorkspaceHeaders,
   EXPECTED_WORKSPACE_ID_HEADER,
+  stripExpectedWorkspaceHeader,
 } from '@/apollo/utils/buildExpectedWorkspaceHeaders';
 
 describe('buildExpectedWorkspaceHeaders', () => {
@@ -18,4 +19,22 @@ describe('buildExpectedWorkspaceHeaders', () => {
       expect(buildExpectedWorkspaceHeaders(value)).toEqual({});
     },
   );
+});
+
+describe('stripExpectedWorkspaceHeader', () => {
+  it.each([
+    'X-Expected-Workspace-Id',
+    'x-expected-workspace-id',
+    'X-EXPECTED-WORKSPACE-ID',
+  ])('removes %s whatever its casing', (name) => {
+    expect(
+      stripExpectedWorkspaceHeader({ [name]: 'ws-a', 'x-locale': 'fr' }),
+    ).toEqual({ 'x-locale': 'fr' });
+  });
+
+  it('leaves every other header alone', () => {
+    expect(stripExpectedWorkspaceHeader({ 'x-locale': 'fr' })).toEqual({
+      'x-locale': 'fr',
+    });
+  });
 });

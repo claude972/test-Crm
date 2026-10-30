@@ -18,7 +18,10 @@ import { logDebug } from '~/utils/logDebug';
 import { REST_API_BASE_URL } from '@/apollo/constants/RestApiBaseUrl';
 import { type ApolloManager } from '@/apollo/types/ApolloManager';
 import { isSessionSupersededGraphQLError } from '@/apollo/utils/isSessionSupersededGraphQLError';
-import { buildExpectedWorkspaceHeaders } from '@/apollo/utils/buildExpectedWorkspaceHeaders';
+import {
+  buildExpectedWorkspaceHeaders,
+  stripExpectedWorkspaceHeader,
+} from '@/apollo/utils/buildExpectedWorkspaceHeaders';
 import { resolveExpectedWorkspaceId } from '@/apollo/utils/resolveExpectedWorkspaceId';
 import { isMutationOperation } from '@/apollo/utils/isMutationOperation';
 import { isSupersededSessionServerError } from '@/apollo/utils/isSupersededSessionServerError';
@@ -132,8 +135,10 @@ export class ApolloFactory implements ApolloManager {
         return {
           sessionGeneration: getSessionGeneration(),
           headers: {
-            ...headers,
-            ...optionHeaders,
+            ...stripExpectedWorkspaceHeader({
+              ...headers,
+              ...optionHeaders,
+            }),
             ...buildExpectedWorkspaceHeaders(context.expectedWorkspaceId),
             'x-locale': locale,
             ...(isDefined(this.appVersion) && {

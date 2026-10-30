@@ -1,11 +1,18 @@
-// The workspace an operation is meant for: what the caller explicitly asked
-// for, otherwise the one this client instance was built for. The instance
-// value is captured at construction and never re-read, so a client built for
-// one workspace can never carry a request for another.
+// The workspace an operation is meant for.
+//
+// Three cases, deliberately distinct. An explicit null means "send nothing":
+// a cold bootstrap read may hold a stale workspace in local storage while the
+// cookie already points elsewhere, and asserting the stale one would loop on a
+// superseded session. Undefined means the caller said nothing, so the client
+// speaks for the workspace it was built for. A string is that caller's choice.
 export const resolveExpectedWorkspaceId = (
   explicitFromContext: unknown,
   instanceWorkspaceId: string | null,
 ): string | null => {
+  if (explicitFromContext === null) {
+    return null;
+  }
+
   if (
     typeof explicitFromContext === 'string' &&
     explicitFromContext.trim() !== ''
