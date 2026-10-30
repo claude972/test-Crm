@@ -289,3 +289,10 @@ Le propriétaire demande poursuite autonome jusqu'au lien de test, avec sous-age
 - Contrat prospection concret : docs/handoff/hermes-prospection-backend-contract.md ; réception, qualification et brouillon DRAFT seulement, aucun envoi réel ni tracking activé.
 - Claude réel 8f3db32e actif ; HEAD frontend705177d46 contient des briques de statut/contrats/cache, pas encore de refonte Monday visible. Revue et poursuite demandées, ne pas marquer frontend prêt.
 - Préparation du matin : session GitHub Actions90min et nouvelle Vercel preview vers05h locale. Ancienne session P0 expirée. Le test final doit vérifier le lien de partage depuis un navigateur et l’authentification CRM.
+
+### Recette unitaire et correctifs supplémentaires — 03:33 UTC
+- Les **71/71 tests backend intégrés passent** après timeout réseau de fixture borné ; les 18 tests des garde-fous CI passent. SHA source de la CI actuelle afe9558d7721fa5d179ad21e4caeb2ff25def882, run [40997692482](https://github.com/claude972/test-Crm/actions/runs/40997692482), encore en cours.
+- Génération officielle de migration ajoutée avant le smoke runtime, avec garde GitHub-hosted/p0_ci et reset de cette seule DB jetable. Télécharger/revoir/appliquer son patch généré, committer/recompiler puis vérifier via le registre officiel avant de déclarer les imports intégrés.
+- Revue supplémentaire en cours : canonicalisation de l’adresse de désinscription d’un destinataire avec display-name (prospection_api) ; absence de relance automatique sur acceptation SMTP incertaine après DATA, chemin simple et batch (backend_review). Driver SMTP adapté par root après contrat.
+- preview_hosting : adaptateur Evolution minimal réellement sondable, limité à configuration serveur par workspace et statut réel, sécurité SSRF/timeout. Aucun compte externe connecté par défaut.
+- Aucun basculement de session multi-structure même origine sûr livré ; dashboard/filtre autorisé seulement. Le frontend ne doit pas présenter un faux changement de société pour les écritures CRM. Cookie partagé entre onglets : une vraie solution exige session native vérifiée et rejet des écritures sous contexte devenu différent.
