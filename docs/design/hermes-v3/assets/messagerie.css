@@ -83,7 +83,23 @@
 
 .fil-nom { font-size: 17px; }
 .fil-detail { margin: 2px 0 0; color: var(--texte-3); font-size: 13px; }
-.commande-locale { display: flex; flex-direction: column; gap: 2px; }
+
+/* Les deux blocs de l'en-tête de fil peuvent rétrécir et passer à la ligne ;
+   aucun ne dicte sa largeur au panneau qui les contient. */
+.fil-entete > * { min-width: 0; max-width: 100%; }
+.fil-entete > :first-child { flex: 1 1 200px; }
+
+.commande-locale {
+  display: flex;
+  flex: 0 1 300px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.commande-locale .champ { width: 100%; max-width: 100%; }
+.commande-locale .puce { align-self: flex-start; max-width: 100%; white-space: normal; }
 
 /* ---------- bandeau de mode ---------- */
 
@@ -396,7 +412,7 @@
   background: var(--surface);
 }
 
-.mail-objet { font-size: 18px; }
+.mail-objet { font-size: 18px; min-width: 0; overflow-wrap: anywhere; }
 
 .mail-destinataires {
   display: grid;
@@ -461,9 +477,7 @@
   /* Le sélecteur de mode du bot passe sous le titre au lieu de l'élargir. */
   .fil-entete { align-items: stretch; }
   .fil-entete > * { min-width: 0; max-width: 100%; }
-  .commande-locale { flex: 1 1 100%; min-width: 0; }
-  .commande-locale .champ { width: 100%; }
-  .commande-locale .puce { align-self: flex-start; }
+  .commande-locale { flex: 1 1 100%; }
 
   .bandeau-mode, .bulle, .composeur, .composeur-mail { min-width: 0; max-width: 100%; }
   .vocal { min-width: 0; flex-wrap: wrap; }

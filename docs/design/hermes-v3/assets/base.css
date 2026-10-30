@@ -263,6 +263,12 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
   font-size: 13px;
 }
 
+/* Un select garde par défaut la largeur de sa plus longue option : sans
+   largeur explicite ni min-width nulle, il élargit son conteneur au lieu de
+   s'y adapter, y compris en desktop. */
+.champ { min-width: 0; }
+select.champ { width: 100%; }
+
 .champ-zone { width: 100%; resize: vertical; }
 .champ-mini { min-height: calc(var(--u) * 4.5); font-size: 12px; }
 
