@@ -8,6 +8,7 @@ import { type HermesProspectionAccessService } from 'src/engine/core-modules/her
 import { resolveAndValidateHostname } from 'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 
+import { HermesMessagingService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.service';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConnectionEntity } from '../hermes-connection.entity';
@@ -77,6 +78,12 @@ function fixture() {
   const conversations: Partial<HermesConversationEntity>[] = [];
   const policies: Partial<HermesBotPolicyEntity>[] = [];
   const conversationRepository = {
+    findOneBy: jest.fn(
+      async (scope: { workspaceId: string; id: string }) =>
+        conversations.find(
+          (row) => row.workspaceId === scope.workspaceId && row.id === scope.id,
+        ) ?? null,
+    ),
     findBy: jest.fn(async (scope: { workspaceId: string; channel: string }) =>
       conversations.filter(
         (row) =>
@@ -150,6 +157,7 @@ function fixture() {
     encryption,
   );
   return {
+    source,
     conversations,
     policies,
     service,
@@ -514,6 +522,82 @@ describe('encrypted workspace connections', () => {
     expect(f.conversations[1]).toMatchObject({
       botMode: 'MANUAL',
       botOwnerUserWorkspaceId: null,
+    });
+  });
+
+  it('preserves OFF, ASSISTED and INHERIT restrictions while revoking all old owners', async () => {
+    const f = fixture();
+    await f.service.save(actor, evolution);
+    const epoch = new Date();
+    for (const [index, botMode] of (
+      ['OFF', 'ASSISTED', 'MANUAL', 'INHERIT'] as const
+    ).entries())
+      f.conversations.push({
+        id: `wa-${index}`,
+        workspaceId,
+        channel: 'WHATSAPP',
+        botMode,
+        botOwnerUserWorkspaceId: userWorkspaceId,
+        botModeUpdatedAt: epoch,
+      });
+    await f.service.save(actor, { ...evolution, expectedRevision: 1 });
+    expect(f.conversations.map((row) => row.botMode)).toEqual([
+      'OFF',
+      'ASSISTED',
+      'MANUAL',
+      'INHERIT',
+    ]);
+    for (const conversation of f.conversations) {
+      expect(conversation.botOwnerUserWorkspaceId).toBeNull();
+      expect(conversation.botModeUpdatedAt!.getTime()).toBeGreaterThan(
+        epoch.getTime(),
+      );
+    }
+    await f.service.remove(actor, { kind: 'EVOLUTION', expectedRevision: 2 });
+    expect(f.conversations.map((row) => row.botMode)).toEqual([
+      'OFF',
+      'ASSISTED',
+      'MANUAL',
+      'INHERIT',
+    ]);
+    expect(
+      f.conversations.every((row) => row.botOwnerUserWorkspaceId === null),
+    ).toBe(true);
+  });
+
+  it('continues to block MCP drafts under local OFF after configuration rotation and removal', async () => {
+    const f = fixture();
+    await f.service.save(actor, evolution);
+    const id = '00000000-0000-4000-8000-000000000001';
+    f.conversations.push({
+      id,
+      workspaceId,
+      channel: 'WHATSAPP',
+      botMode: 'OFF',
+      botOwnerUserWorkspaceId: userWorkspaceId,
+      botModeUpdatedAt: new Date(),
+    });
+    const messaging = new HermesMessagingService(
+      f.source as unknown as DataSource,
+      f.access as never,
+      { getBot: () => ({}) } as never,
+      {} as never,
+    );
+    await f.service.save(actor, { ...evolution, expectedRevision: 1 });
+    expect(
+      await messaging.conversationBotPolicy(actor, { conversationId: id }),
+    ).toMatchObject({
+      effectiveMode: 'OFF',
+      canDraft: false,
+      canAutoReply: false,
+    });
+    await f.service.remove(actor, { kind: 'EVOLUTION', expectedRevision: 2 });
+    expect(
+      await messaging.conversationBotPolicy(actor, { conversationId: id }),
+    ).toMatchObject({
+      effectiveMode: 'OFF',
+      canDraft: false,
+      canAutoReply: false,
     });
   });
 

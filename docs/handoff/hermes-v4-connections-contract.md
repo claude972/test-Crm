@@ -19,7 +19,7 @@ Settings/secrets by kind:
 
 Cross-workspace Evolution instance identity reuse and MCP/intake shared tokens are rejected under a provider lock, preserving native parser isolation.
 
-Every save/removal serializes under the native messaging workspace lock and clears existing AUTO delegation owners for affected channels (Evolution→WhatsApp, MAIL→EMAIL, MCP→both), downgrades local grants to MANUAL and advances conversation/channel policy epochs monotonically. Credential rotation never restores an old grant; a fresh explicit policy action is required.
+Every save/removal serializes under the native messaging workspace lock and clears existing AUTO delegation owners for affected channels (Evolution→WhatsApp, MAIL→EMAIL, MCP→both), downgrades only AUTO local grants to MANUAL while preserving OFF/ASSISTED/MANUAL/INHERIT restrictions and advances conversation/channel policy epochs monotonically. Credential rotation never restores an old grant; a fresh explicit policy action is required.
 
 Saving does not send provider requests, invoke tools or send email/WhatsApp. HTTPS DNS targets are validated by the native SSRF helper before persistence; provider adapters must keep their existing connection-time SSRF/TLS protection. Disallowed or unresolved hosts fail with a sanitized code, never a raw config/secret in GraphQL errors.
 
