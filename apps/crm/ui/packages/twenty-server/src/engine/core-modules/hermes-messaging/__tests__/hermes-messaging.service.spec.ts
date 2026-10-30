@@ -1,3 +1,4 @@
+import { createServer } from 'node:http';
 import { FindOperator, type DataSource } from 'typeorm';
 import { randomUUID } from 'node:crypto';
 import { HermesMessagingService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.service';
@@ -12,6 +13,10 @@ import {
 jest.mock('src/engine/core-modules/workspace/workspace.entity', () => ({
   WorkspaceEntity: class WorkspaceEntity {},
 }));
+jest.mock(
+  'src/engine/core-modules/user-workspace/user-workspace.entity',
+  () => ({ UserWorkspaceEntity: class UserWorkspaceEntity {} }),
+);
 jest.mock(
   'src/engine/core-modules/hermes-messaging/hermes-messaging-access.service',
   () => ({ HermesMessagingAccessService: class {} }),
@@ -60,14 +65,24 @@ const setup = () => {
         async (criteria: Row) =>
           [...rows.values()].filter((row) => matches(row, criteria)).length,
       ),
-      findOneBy: jest.fn(
-        async (criteria: Row) =>
-          [...rows.values()].find((row) => matches(row, criteria)) ?? null,
-      ),
+      findOne: jest.fn(async (options: { where: Row }) => {
+        const found = [...rows.values()]
+          .filter((row) => matches(row, options.where))
+          .sort(
+            (left, right) =>
+              (right.occurredAt as Date).getTime() -
+              (left.occurredAt as Date).getTime(),
+          )[0];
+        return found ? { ...found } : null;
+      }),
+      findOneBy: jest.fn(async (criteria: Row) => {
+        const found = [...rows.values()].find((row) => matches(row, criteria));
+        return found ? { ...found } : null;
+      }),
       findOneByOrFail: jest.fn(async (criteria: Row) => {
         const row = [...rows.values()].find((row) => matches(row, criteria));
         if (!row) throw Error('Missing row');
-        return row;
+        return { ...row };
       }),
       save: jest.fn(async (row: Row) => {
         const saved = { ...row };
@@ -176,6 +191,12 @@ const setup = () => {
       activationStatus: 'ACTIVE',
       deletedAt: null,
     });
+  table('UserWorkspaceEntity').set(actor.userWorkspaceId, {
+    id: actor.userWorkspaceId,
+    workspaceId: A,
+    userId: actor.userId,
+    deletedAt: null,
+  });
   let allowed = true;
   const access = {
     assertAllowed: jest.fn(async (candidate: HermesMessagingActor) => {
@@ -604,5 +625,362 @@ describe('persistent messaging service contract', () => {
       }),
     ).rejects.toThrow('CLIENT_REQUEST_CONFLICT');
     expect(send).toHaveBeenCalledTimes(1);
+  });
+  it('does not acquire separate authorization connections while holding the serialized database transaction', async () => {
+    const { service, dataSource, access } = setup();
+    const incoming = await service.ingest(event);
+    let insideTransaction = false;
+    const original = dataSource.transaction.bind(dataSource);
+    jest.spyOn(dataSource, 'transaction').mockImplementation((work) =>
+      original(async (manager) => {
+        insideTransaction = true;
+        try {
+          return await work(manager);
+        } finally {
+          insideTransaction = false;
+        }
+      }),
+    );
+    access.assertAllowed.mockImplementation(async () => {
+      if (insideTransaction) throw Error('Authorization pool starvation');
+    });
+    expect(
+      (
+        await service.reply(actor, {
+          conversationId: incoming.conversationId,
+          clientRequestId: randomUUID(),
+          text: 'Reply',
+        })
+      ).status,
+    ).toBe('ACCEPTED');
+  });
+
+  it('keeps default manual and refuses AUTO when MCP is not configured', async () => {
+    const { service, table, send } = setup();
+    const incoming = await service.ingest(event);
+    expect(
+      table(HermesConversationEntity.name).get(incoming.conversationId)
+        ?.botMode,
+    ).toBe('MANUAL');
+    expect(
+      await service.setBotMode(actor, {
+        conversationId: incoming.conversationId,
+        mode: 'AUTO',
+      }),
+    ).toMatchObject({ mode: 'MANUAL', status: 'NOT_CONFIGURED' });
+    expect(send).not.toHaveBeenCalled();
+  });
+  it('auto-replies once only to a future inbound event under the live operator grant', async () => {
+    const { service, registry, send } = setup();
+    const incoming = await service.ingest(event);
+    registry.registerBot({
+      draftReply: async () => ({
+        mode: 'DRAFT',
+        status: 'READY',
+        provider: 'HERMES_MCP',
+        text: 'Bot response',
+      }),
+    });
+    expect(
+      (
+        await service.setBotMode(actor, {
+          conversationId: incoming.conversationId,
+          mode: 'AUTO',
+        })
+      ).mode,
+    ).toBe('AUTO');
+    expect(send).not.toHaveBeenCalled();
+    const future = {
+      ...event,
+      providerMessageId: 'future-auto',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    };
+    await Promise.all([service.ingest(future), service.ingest(future)]);
+    expect(send).toHaveBeenCalledTimes(1);
+    await service.ingest(future);
+    expect(send).toHaveBeenCalledTimes(1);
+    await service.ingest({ ...event, providerMessageId: 'old-history' });
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+  it('honors human handoff while an MCP response is in flight', async () => {
+    const { service, registry, send } = setup();
+    const incoming = await service.ingest(event);
+    let started!: () => void, release!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let calls = 0;
+    registry.registerBot({
+      draftReply: async () => {
+        if (++calls > 1) {
+          started();
+          await gate;
+        }
+        return {
+          mode: 'DRAFT',
+          status: 'READY',
+          provider: 'HERMES_MCP',
+          text: 'Delayed draft',
+        };
+      },
+    });
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'AUTO',
+    });
+    const processing = service.ingest({
+      ...event,
+      providerMessageId: 'pending-draft',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    await entered;
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'MANUAL',
+    });
+    release();
+    await processing;
+    expect(send).not.toHaveBeenCalled();
+  });
+  it('refuses a revoked operator and disables AUTO without provider dispatch', async () => {
+    const { service, registry, revoke, send, table } = setup();
+    const incoming = await service.ingest(event);
+    registry.registerBot({
+      draftReply: async () => ({
+        mode: 'DRAFT',
+        status: 'READY',
+        provider: 'HERMES_MCP',
+        text: 'Bot response',
+      }),
+    });
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'AUTO',
+    });
+    revoke();
+    await service.ingest({
+      ...event,
+      providerMessageId: 'after-revoke',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    expect(send).not.toHaveBeenCalled();
+    expect(
+      table(HermesConversationEntity.name).get(incoming.conversationId)
+        ?.botMode,
+    ).toBe('MANUAL');
+  });
+  it('leaves AUTO unavailable and switches to manual if configured MCP stops responding', async () => {
+    const { service, registry, send, table } = setup();
+    const incoming = await service.ingest(event);
+    let configured = true;
+    registry.registerBot({
+      draftReply: async () =>
+        configured
+          ? {
+              mode: 'DRAFT',
+              status: 'READY',
+              provider: 'HERMES_MCP',
+              text: 'Ready',
+            }
+          : {
+              mode: 'MANUAL',
+              status: 'NOT_CONFIGURED',
+              provider: 'HERMES_MCP',
+            },
+    });
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'AUTO',
+    });
+    configured = false;
+    await service.ingest({
+      ...event,
+      providerMessageId: 'configuration-removed',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    expect(send).not.toHaveBeenCalled();
+    expect(
+      table(HermesConversationEntity.name).get(incoming.conversationId)
+        ?.botMode,
+    ).toBe('MANUAL');
+  });
+
+  it('invalidates an old draft across manual takeover and re-enable by the same operator', async () => {
+    const { service, registry, send } = setup();
+    const incoming = await service.ingest(event);
+    let started!: () => void, release!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let calls = 0;
+    registry.registerBot({
+      draftReply: async () => {
+        if (++calls === 2) {
+          started();
+          await gate;
+        }
+        return {
+          mode: 'DRAFT',
+          status: 'READY',
+          provider: 'HERMES_MCP',
+          text: 'Draft',
+        };
+      },
+    });
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'AUTO',
+    });
+    const processing = service.ingest({
+      ...event,
+      providerMessageId: 'old-inflight',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    await entered;
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'MANUAL',
+    });
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'AUTO',
+    });
+    release();
+    await processing;
+    expect(send).not.toHaveBeenCalled();
+  });
+  it('rechecks the grant after a slow provider probe and before any POST', async () => {
+    const { service, registry, send } = setup();
+    const incoming = await service.ingest(event);
+    registry.registerBot({
+      draftReply: async () => ({
+        mode: 'DRAFT',
+        status: 'READY',
+        provider: 'HERMES_MCP',
+        text: 'Draft',
+      }),
+    });
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'AUTO',
+    });
+    let started!: () => void, release!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    registry.get('WHATSAPP')!.probe = async () => {
+      started();
+      await gate;
+      return { status: 'AVAILABLE' };
+    };
+    const processing = service.ingest({
+      ...event,
+      providerMessageId: 'probe-pending',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    await entered;
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'MANUAL',
+    });
+    release();
+    await processing;
+    expect(send).not.toHaveBeenCalled();
+  });
+  it('honors handoff before an actual loopback HTTP proposal response and performs no provider POST', async () => {
+    const { service, registry } = setup();
+    const incoming = await service.ingest(event);
+    let proposed = 0,
+      posted = 0,
+      entered!: () => void,
+      release!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const server = createServer(async (request, response) => {
+      if (request.url === '/draft') {
+        if (++proposed === 2) {
+          entered();
+          await gate;
+        }
+        response.setHeader('content-type', 'application/json');
+        response.end(
+          JSON.stringify({
+            mode: 'DRAFT',
+            status: 'READY',
+            provider: 'HERMES_MCP',
+            text: 'Loopback proposal',
+          }),
+        );
+      } else {
+        posted++;
+        response.setHeader('content-type', 'application/json');
+        response.end(
+          JSON.stringify({
+            providerMessageId: 'loopback-only',
+            acceptedAt: new Date().toISOString(),
+          }),
+        );
+      }
+    });
+    await new Promise<void>((resolve) =>
+      server.listen(0, '127.0.0.1', resolve),
+    );
+    const address = server.address();
+    if (!address || typeof address === 'string')
+      throw Error('Fixture bind failed');
+    const origin = `http://127.0.0.1:${address.port}`;
+    try {
+      registry.registerBot({
+        draftReply: async (input) =>
+          (
+            await fetch(`${origin}/draft`, {
+              method: 'POST',
+              body: JSON.stringify(input),
+            })
+          ).json(),
+      });
+      registry.get('WHATSAPP')!.send = async (input) =>
+        (
+          await fetch(`${origin}/send`, {
+            method: 'POST',
+            body: JSON.stringify(input),
+          })
+        ).json();
+      await service.setBotMode(actor, {
+        conversationId: incoming.conversationId,
+        mode: 'AUTO',
+      });
+      const processing = service.ingest({
+        ...event,
+        providerMessageId: 'http-handoff',
+        occurredAt: new Date(Date.now() + 10).toISOString(),
+      });
+      await pending;
+      await service.setBotMode(actor, {
+        conversationId: incoming.conversationId,
+        mode: 'MANUAL',
+      });
+      release();
+      await processing;
+      expect(proposed).toBe(2);
+      expect(posted).toBe(0);
+    } finally {
+      release();
+      server.closeAllConnections();
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
   });
 });

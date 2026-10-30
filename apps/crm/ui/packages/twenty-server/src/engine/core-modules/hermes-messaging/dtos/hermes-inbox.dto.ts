@@ -65,6 +65,12 @@ export class HermesInboxConversationDTO {
   @Field() personMatchStatus: string;
   @Field(() => String, { nullable: true }) subject: string | null;
   @Field(() => GraphQLISODateTime) lastMessageAt: Date;
+  @Field() botMode: string;
+  @Field(() => UUIDScalarType, { nullable: true }) botOwnerUserWorkspaceId:
+    | string
+    | null;
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  botModeUpdatedAt: Date | null;
 }
 @ObjectType('HermesInboxMessage')
 export class HermesInboxMessageDTO {
@@ -104,4 +110,16 @@ export class HermesInboxDraftReplyDTO {
   @Field() status: string;
   @Field() provider: string;
   @Field(() => String, { nullable: true }) text?: string;
+}
+
+@InputType('HermesInboxSetBotModeInput')
+export class HermesInboxSetBotModeInputDTO {
+  @Field(() => UUIDScalarType) @IsUUID() conversationId: string;
+  @Field() @IsIn(['MANUAL', 'AUTO']) mode: 'MANUAL' | 'AUTO';
+}
+@ObjectType('HermesInboxBotMode')
+export class HermesInboxBotModeDTO {
+  @Field(() => UUIDScalarType) conversationId: string;
+  @Field() mode: string;
+  @Field() status: string;
 }

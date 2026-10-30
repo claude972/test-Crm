@@ -15,6 +15,8 @@ import {
   HermesInboxMessageDTO,
   HermesInboxDraftReplyDTO,
   HermesMessagingConnectionDTO,
+  HermesInboxSetBotModeInputDTO,
+  HermesInboxBotModeDTO,
 } from 'src/engine/core-modules/hermes-messaging/dtos/hermes-inbox.dto';
 import { HermesMessagingService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -112,6 +114,22 @@ export class HermesMessagingResolver {
     @Args('input') input: HermesInboxDraftReplyInputDTO,
   ) {
     return this.messaging.draftReply(
+      {
+        workspaceId: workspace.id,
+        userId: user.id,
+        userWorkspaceId: membership,
+      },
+      input,
+    );
+  }
+  @Mutation(() => HermesInboxBotModeDTO)
+  hermesInboxSetBotMode(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() membership: string,
+    @Args('input') input: HermesInboxSetBotModeInputDTO,
+  ) {
+    return this.messaging.setBotMode(
       {
         workspaceId: workspace.id,
         userId: user.id,

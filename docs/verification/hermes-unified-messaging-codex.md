@@ -21,3 +21,14 @@ Selected unit command from server directory (after installed dependencies/shared
 ```sh
 node ../../node_modules/jest/bin/jest.js --config ./jest.config.mjs --runInBand --runTestsByPath src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.service.spec.ts src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging-access.service.spec.ts src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging-person.service.spec.ts src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging-metadata.spec.ts
 ```
+
+
+## AUTO/handoff and SQL fixture follow-up
+
+Schema checkpoint 470b666cad0a65b75d5d382fddd8768510fd3a27 adds only mode/owner/monotonic mode epoch columns; root generates the shared official migration before activation. Runtime now implements explicit per-conversation mode mutation, channel readiness and readonly MCP readiness validation, future-inbound automatic proposals, stored-operator fresh role checks and deterministic parent-message command IDs. MANUAL takeover cancels pending proposals even across re-enable by the same owner; outbound echoes never recurse. Missing configuration remains manual/nonconfigured. No real bot or prospect is activated by default.
+
+35 unit/metadata tests pass, including actual loopback HTTP proposal/transport fixtures and handoff before delayed response, human takeover during a provider probe, epoch invalidation after re-enable, owner revocation, configuration removal and replay without second dispatch. These fixture adapters send nowhere outside ephemeral loopback. The final production TSGo pass for the AUTO code exited0; a subsequent small channel-probe guard is type-compatible and is included in parent combined CI. Native DB/HTTP integration is still not claimed from these results.
+
+A potential pool-starvation path was removed: fresh authorization runs immediately BEFORE serialized SQL transactions and again before network handoff, rather than requesting an extra default-pool connection while holding an advisory transaction lock. A unit guard covers this constraint. No network request runs while holding those SQL transactions.
+
+A separate seven-case native integration suite is prepared under this module for the root guarded harness: actual PostgreSQL provider replay/concurrency, composite tenant-FK rejection, HTTP scope/authentication/revocation, native Person matching across A/B, durable reservation before synthetic transport and uncertain command replay. It is source-parsed only locally, and will be committed separately for root's invocation whitelist. Core schema, adapters, migration and metadata wiring must all be present before executing it in fresh CI.

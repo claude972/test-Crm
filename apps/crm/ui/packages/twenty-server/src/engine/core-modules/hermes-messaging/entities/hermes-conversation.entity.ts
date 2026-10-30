@@ -10,7 +10,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
-import { type HermesBotMode, type HermesMessagingChannel } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
+import {
+  type HermesBotMode,
+  type HermesMessagingChannel,
+} from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 
 @Entity({ name: 'hermesConversation', schema: 'core' })
 @Index('IDX_HERMES_CONVERSATION_TENANT_ID', ['workspaceId', 'id'], {
@@ -36,9 +39,13 @@ export class HermesConversationEntity {
     | string
     | null;
   @Column({ type: 'timestamptz' }) lastMessageAt: Date;
-  @Column({type:'varchar',length:16,default:'MANUAL'}) botMode:HermesBotMode;
-  @Column({type:'uuid',nullable:true}) botOwnerUserWorkspaceId:string|null;
-  @Column({type:'timestamptz',nullable:true}) botModeUpdatedAt:Date|null;
+  @Column({ type: 'varchar', length: 16, default: 'MANUAL' })
+  botMode: HermesBotMode;
+  @Column({ type: 'uuid', nullable: true }) botOwnerUserWorkspaceId:
+    | string
+    | null;
+  @Column({ type: 'timestamptz', nullable: true })
+  botModeUpdatedAt: Date | null;
   @CreateDateColumn({ type: 'timestamptz' }) createdAt: Date;
   @UpdateDateColumn({ type: 'timestamptz' }) updatedAt: Date;
 }
