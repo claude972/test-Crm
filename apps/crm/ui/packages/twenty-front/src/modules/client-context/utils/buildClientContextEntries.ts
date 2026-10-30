@@ -92,8 +92,16 @@ export const buildClientContextEntries = ({
   bookings,
   notes,
 }: BuildClientContextEntriesArgs): ClientContextChronology => {
+  // 'recorded-in-notes' is not a source that failed to answer: that stream's
+  // items ARE the notes read below, so it contributes no entry of its own and
+  // must not be counted as a gap. Counting it as unread would turn a complete
+  // chronology into a permanently partial one.
   const readFormResponses =
-    formResponses.kind === 'read' ? formResponses.entries : null;
+    formResponses.kind === 'read'
+      ? formResponses.entries
+      : formResponses.kind === 'recorded-in-notes'
+        ? []
+        : null;
   const readBookings = bookings.kind === 'read' ? bookings.entries : null;
   const readNotes = notes.kind === 'read' ? notes.entries : null;
 

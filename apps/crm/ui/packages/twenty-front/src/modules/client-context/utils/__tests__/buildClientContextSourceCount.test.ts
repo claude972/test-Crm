@@ -20,7 +20,7 @@ describe('buildClientContextSourceCount', () => {
   // The defect this guards against: an unpublished contract, a refusal or an
   // unreadable payload rendering as "0 responses" on a client record.
   it.each([
-    { kind: 'awaiting-contract' } as const,
+    { kind: 'recorded-in-notes' } as const,
     { kind: 'denied' } as const,
     { kind: 'not-configured' } as const,
     { kind: 'unreadable', problem: 'missing' } as const,

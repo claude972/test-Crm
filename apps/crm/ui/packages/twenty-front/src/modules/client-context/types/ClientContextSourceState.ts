@@ -3,9 +3,11 @@ import { type HermesPayloadProblem } from '@/prospection/types/HermesImportState
 // What the client knows about one source of record context, as opposed to what
 // the source holds. Six cases that must never collapse into one:
 //
-// - 'awaiting-contract' is the client's own gap. No contract is published for
-//   Forms responses or Cal.diy bookings, so nothing is queried and the surface
-//   says that rather than showing an empty record;
+// - 'recorded-in-notes' is neither a gap nor a wait: that stream's items are
+//   held in CRM notes rather than in a stream of their own, so there is no
+//   separate list to read and the surface says where they are. It replaced an
+//   'awaiting-contract' state that promised a contract which is not coming,
+//   and a section waiting forever is a screen that lies by omission;
 // - 'loading' carries nothing yet and is not an empty source;
 // - 'denied' is an authorisation answer, not a failure;
 // - 'not-configured' is a fact the server stated about the workspace;
@@ -18,7 +20,7 @@ import { type HermesPayloadProblem } from '@/prospection/types/HermesImportState
 // already names the four ways a payload can fail to be read, and a second
 // vocabulary for the same facts would drift from it.
 export type ClientContextSourceState<TEntry> =
-  | { kind: 'awaiting-contract' }
+  | { kind: 'recorded-in-notes' }
   | { kind: 'loading' }
   | { kind: 'denied' }
   | { kind: 'not-configured' }

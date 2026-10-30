@@ -59,7 +59,7 @@ const read = <TEntry>(entries: TEntry[]): ClientContextSourceState<TEntry> => ({
   entries,
 });
 
-const AWAITING = { kind: 'awaiting-contract' } as const;
+const RECORDED_IN_NOTES = { kind: 'recorded-in-notes' } as const;
 
 describe('buildClientContextEntries', () => {
   it('merges the three sources that answered, newest first', () => {
@@ -112,9 +112,9 @@ describe('buildClientContextEntries', () => {
   // as a record with nothing on it.
   it('reports an unknown number of entries when no source answered', () => {
     const chronology = buildClientContextEntries({
-      formResponses: AWAITING,
-      bookings: AWAITING,
-      notes: AWAITING,
+      formResponses: { kind: 'denied' },
+      bookings: { kind: 'denied' },
+      notes: { kind: 'denied' },
     });
 
     expect(chronology.entries).toEqual([]);
@@ -128,6 +128,20 @@ describe('buildClientContextEntries', () => {
       'booking',
       'note',
     ]);
+  });
+
+  // Form responses are recorded as notes, so that stream holds no entry of its
+  // own. It is not a gap, and counting it as one would keep the figure partial
+  // for ever.
+  it('does not count the form stream as unread when it is held in the notes', () => {
+    const chronology = buildClientContextEntries({
+      formResponses: RECORDED_IN_NOTES,
+      bookings: read([buildBooking({})]),
+      notes: read([buildNote({})]),
+    });
+
+    expect(chronology.unreadSourceKinds).toEqual([]);
+    expect(chronology.entryCount).toEqual({ status: 'exact', value: 2 });
   });
 
   it('keeps a figure partial, and attributable, when a source is missing', () => {
