@@ -22,6 +22,7 @@ if (hermesSmoke) {
 }
 const API_ORIGIN = 'http://127.0.0.1:3000';
 const FRONTEND_ORIGIN = 'http://127.0.0.1:3001';
+const APP_API_ORIGIN = hermesSmoke ? FRONTEND_ORIGIN : API_ORIGIN;
 // Verified against SettingsPath.Structures and getSettingsPath at 64fd5f28a.
 const STRUCTURES_PATH = '/settings/structures';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -35,8 +36,28 @@ const require = createRequire(path.join(frontend, 'package.json'));
 const { chromium } = require('playwright');
 const screenshots = path.join(root, 'p0-browser-artifacts');
 mkdirSync(screenshots, { recursive: true });
-writeFileSync(indexPath, originalIndex.replace(runtimeConfig, 'window._env_ = { REACT_APP_SERVER_BASE_URL: "http://127.0.0.1:3000" };'));
-const preview = spawn(process.execPath, ['--input-type=module', '-e', "const { preview } = await import('vite'); await preview({ preview: { host: '127.0.0.1', port: 3001, strictPort: true } });"], {
+// Production auth deliberately refuses cross-origin loopback cookie issuance.
+// Match the real preview topology: route the published API paths under the
+// frontend origin and preserve its canonical Host. Do not weaken Auth/CORS.
+const proxy = {};
+if (hermesSmoke) {
+  const contract = readFileSync(path.join(root, 'apps/crm/ui/packages/twenty-shared/src/types/ApiPath.ts'), 'utf8');
+  const body = contract.match(/export enum ApiPath\s*\{([\s\S]*?)\}/)?.[1];
+  assert.ok(body, 'ApiPath contract is required for same-origin browser verification');
+  assert.equal(body.replace(/^\s*\w+\s*=\s*'([^']+)',?\s*$/gm, '').trim(), '', 'Unsupported ApiPath contract syntax');
+  for (const [, prefix] of body.matchAll(/^\s*\w+\s*=\s*'([^']+)',?\s*$/gm)) {
+    assert.match(prefix, /^[a-z.-]+$/);
+    const escaped = prefix.replaceAll('.', '[.]');
+    proxy[`^/${escaped}(?:[/?]|$)`] = {
+      target: API_ORIGIN, changeOrigin: false, ws: true,
+      headers: { host: new URL(FRONTEND_ORIGIN).host },
+    };
+  }
+  assert.ok(Object.keys(proxy).length > 0);
+}
+writeFileSync(indexPath, originalIndex.replace(runtimeConfig, `window._env_ = { REACT_APP_SERVER_BASE_URL: ${JSON.stringify(APP_API_ORIGIN)} };`));
+const previewOptions = { host: '127.0.0.1', port: 3001, strictPort: true, ...(hermesSmoke ? { proxy } : {}) };
+const preview = spawn(process.execPath, ['--input-type=module', '-e', `const { preview } = await import('vite'); await preview({ preview: ${JSON.stringify(previewOptions)} });`], {
   cwd: frontend,
   env: { ...process.env, CI: 'true' },
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -100,7 +121,7 @@ async function graphql(endpoint, query, variables = {}, token, timeout = 45_000)
   }
   let response;
   try {
-    response = await fetch(`${API_ORIGIN}/${endpoint}`, {
+    response = await fetch(`${APP_API_ORIGIN}/${endpoint}`, {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(timeout),
       headers: { 'Content-Type': 'application/json', Origin: FRONTEND_ORIGIN, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ query, variables }),
@@ -175,7 +196,7 @@ async function prepareHermesFixture() {
 }
 
 function hasOperation(response, field) {
-  if (response.url() !== `${API_ORIGIN}/metadata`) return false;
+  if (response.url() !== `${APP_API_ORIGIN}/metadata`) return false;
   try {
     const payload = response.request().postDataJSON();
     return [payload].flat().some((operation) => typeof operation?.query === 'string' && operation.query.includes(field));
@@ -302,7 +323,7 @@ async function checkHermesReception(page, name) {
     }
     return route.continue();
   };
-  await page.route(`${API_ORIGIN}/**`, rejectSending);
+  await page.route(`${APP_API_ORIGIN}/**`, rejectSending);
   try {
     const initial = await metadataUIResult(page, 'hermesImportBatches', () => page.goto(`${FRONTEND_ORIGIN}/prospection`, { waitUntil: 'domcontentloaded' }));
     assert.equal(initial.version, 1);
@@ -375,7 +396,7 @@ async function checkHermesReception(page, name) {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1), false, `${name}: reception horizontal overflow`);
     await page.screenshot({ path: path.join(screenshots, `${name}-hermes-reception-draft.png`), fullPage: true });
     hermesEvidence.push({ viewport: name, path: '/prospection', batchId: batch.id, rowId: row.id, personId: row.personId, campaignId: draft.campaignId, status: draft.status, deliveries: 0, suppressionRegisterUnchanged: true });
-  } finally { await page.unroute(`${API_ORIGIN}/**`, rejectSending); }
+  } finally { await page.unroute(`${APP_API_ORIGIN}/**`, rejectSending); }
 }
 
 try {
@@ -403,7 +424,7 @@ try {
       }
     });
     try {
-      const configResponse = page.waitForResponse((response) => response.url().startsWith('http://127.0.0.1:3000/client-config') && response.status() === 200, { timeout: 60_000 });
+      const configResponse = page.waitForResponse((response) => response.url().startsWith(`${APP_API_ORIGIN}/client-config`) && response.status() === 200, { timeout: 60_000 });
       await page.goto('http://127.0.0.1:3001/welcome', { waitUntil: 'domcontentloaded' });
       await configResponse;
       const continueWithEmail = page.getByRole('button', { name: 'Continue with Email', exact: true });
