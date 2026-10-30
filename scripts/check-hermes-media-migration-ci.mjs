@@ -161,21 +161,23 @@ async function postgresAssertions(client, Pool, url) {
   try {
     await client.query("BEGIN");
     for (const id of [workspaceId, otherWorkspaceId]) {
+      const nativeApplicationId =
+        id === workspaceId ? applicationId : randomUUID();
       await client.query(
         'INSERT INTO "core"."workspace" ("id","displayName","activationStatus","subdomain","workspaceCustomApplicationId","inviteHash") VALUES ($1,$2,\'PENDING_CREATION\',$3,$4,$5)',
         [
           id,
           "Disposable media CI",
           `media-ci-${id}`,
-          id === workspaceId ? applicationId : randomUUID(),
+          nativeApplicationId,
           randomUUID(),
         ],
       );
+      await client.query(
+        'INSERT INTO "core"."application" ("id","workspaceId","universalIdentifier","name","sourcePath","version","sourceType","canBeUninstalled") VALUES ($1,$2,$1,$3,\'workspace-custom\',\'1.0.1\',\'local\',false)',
+        [nativeApplicationId, id, "Disposable media application"],
+      );
     }
-    await client.query(
-      'INSERT INTO "core"."application" ("id","workspaceId","universalIdentifier","name","sourcePath","version","sourceType","canBeUninstalled") VALUES ($1,$2,$1,$3,\'workspace-custom\',\'1.0.1\',\'local\',false)',
-      [applicationId, workspaceId, "Disposable media application"],
-    );
     await client.query(
       'INSERT INTO "core"."file" ("id","workspaceId","applicationId","path","size","mimeType") VALUES ($1,$2,$3,$4,16,\'image/png\')',
       [fileId, workspaceId, applicationId, `agent-chat/${fileId}.png`],
