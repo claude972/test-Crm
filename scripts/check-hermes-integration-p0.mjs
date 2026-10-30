@@ -21,6 +21,16 @@ const exists = (filename) => {
 
 export const validateIntegrationEnvironment = (env, root = ROOT) => {
   assert.equal(env.GITHUB_ACTIONS, "true", "Disposable GitHub Actions only");
+  assert.equal(
+    env.RUNNER_ENVIRONMENT,
+    "github-hosted",
+    "GitHub-hosted runner required",
+  );
+  assert.equal(
+    realpathSync(env.GITHUB_WORKSPACE ?? ""),
+    realpathSync(root),
+    "Checkout must match the actual runner workspace",
+  );
   assert.match(env.GITHUB_RUN_ID ?? "", /^\d+$/, "A CI run ID is required");
   assert.equal(
     env.P0_INTEGRATION_DISPOSABLE,
@@ -35,20 +45,39 @@ export const validateIntegrationEnvironment = (env, root = ROOT) => {
   assert.equal(database.hostname, "127.0.0.1", "Postgres must be loopback");
   assert.equal(database.port, "5432");
   assert.equal(database.pathname, "/p0_ci", "Only p0_ci may be reset");
-  assert.equal(database.search, "");
-  assert.equal(database.hash, "");
+  assert.ok(database.search === "", "Postgres URL overrides are forbidden");
+  assert.ok(database.hash === "", "Postgres fragments are forbidden");
   assert.ok(
-    database.password.length > 0,
-    "Fresh CI database password required",
+    database.username === "postgres",
+    "Only the disposable postgres user is allowed",
   );
-  assert.notEqual(env.PG_SSL_ALLOW_SELF_SIGNED, "true");
+  assert.ok(
+    decodeURIComponent(database.password) === env.GITHUB_RUN_ID,
+    "Database password must match this CI run",
+  );
+  assert.ok(
+    env.PG_SSL_ALLOW_SELF_SIGNED === undefined ||
+      env.PG_SSL_ALLOW_SELF_SIGNED === "false",
+    "SSL overrides are forbidden",
+  );
+  for (const key of Object.keys(env).filter((key) => key.startsWith("PGSSL"))) {
+    assert.ok(env[key] === undefined, "libpq SSL overrides are forbidden");
+  }
+  assert.equal(env.PGOPTIONS, undefined, "libpq options are forbidden");
   const redis = new URL(env.REDIS_URL ?? "");
   assert.equal(redis.protocol, "redis:");
   assert.equal(redis.hostname, "127.0.0.1", "Redis must be loopback");
   assert.equal(redis.port, "6379");
-  assert.ok(["", "/", "/0"].includes(redis.pathname));
-  assert.equal(redis.search, "");
-  assert.equal(redis.hash, "");
+  assert.ok(
+    redis.username === "" && redis.password === "",
+    "Redis credentials are forbidden",
+  );
+  assert.ok(
+    ["", "/", "/0"].includes(redis.pathname),
+    "Only Redis database zero is allowed",
+  );
+  assert.ok(redis.search === "", "Redis URL overrides are forbidden");
+  assert.ok(redis.hash === "", "Redis fragments are forbidden");
   for (const directory of [
     root,
     path.join(root, "apps/crm/ui"),
@@ -72,6 +101,49 @@ export const validateIntegrationEnvironment = (env, root = ROOT) => {
     undefined,
     "Do not trust a previous reset status file",
   );
+};
+
+export const buildIntegrationChildEnvironment = (source, appSecret) => {
+  const env = {};
+  // Runtime paths and CI identity only; cloud tokens and ambient app credentials stay outside Nest.
+  for (const key of [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "TMP",
+    "TEMP",
+    "LANG",
+    "LC_ALL",
+    "TZ",
+    "CI",
+    "GITHUB_ACTIONS",
+    "GITHUB_RUN_ID",
+    "GITHUB_RUN_ATTEMPT",
+    "GITHUB_WORKSPACE",
+    "RUNNER_ENVIRONMENT",
+    "PG_DATABASE_URL",
+    "REDIS_URL",
+  ]) {
+    if (source[key] !== undefined) env[key] = source[key];
+  }
+  return {
+    ...env,
+    NODE_ENV: "test",
+    NODE_OPTIONS: "--max-old-space-size=6144",
+    NODE_HOST: "127.0.0.1",
+    NODE_PORT: "4000",
+    SERVER_URL: "http://127.0.0.1:4000",
+    FRONTEND_URL: "http://127.0.0.1:3001",
+    APP_SECRET: appSecret,
+    REDIS_CACHE_PREFIX: `hermes-integration-${source.GITHUB_RUN_ID}`,
+    EMAIL_DRIVER: "logger",
+    EMAILING_DOMAIN_DRIVER: "LOG",
+    TELEMETRY_ENABLED: "false",
+    IS_BILLING_ENABLED: "false",
+    IS_FDW_ENABLED: "false",
+    IS_CONFIG_VARIABLES_IN_DB_ENABLED: "false",
+    IS_MULTIWORKSPACE_ENABLED: "false",
+  };
 };
 
 export const runIntegration = async () => {
@@ -106,24 +178,7 @@ export const runIntegration = async () => {
   }
   const appSecret = randomBytes(32).toString("hex");
   process.stdout.write(`::add-mask::${appSecret}\n`);
-  const env = {
-    ...process.env,
-    NODE_ENV: "test",
-    NODE_HOST: "127.0.0.1",
-    NODE_PORT: "4000",
-    SERVER_URL: "http://127.0.0.1:4000",
-    FRONTEND_URL: "http://127.0.0.1:3001",
-    APP_SECRET: appSecret,
-    REDIS_CACHE_PREFIX: `hermes-integration-${process.env.GITHUB_RUN_ID}`,
-    EMAIL_DRIVER: "logger",
-    EMAILING_DOMAIN_DRIVER: "LOG",
-    TELEMETRY_ENABLED: "false",
-    IS_BILLING_ENABLED: "false",
-    IS_FDW_ENABLED: "false",
-    IS_CONFIG_VARIABLES_IN_DB_ENABLED: "false",
-    IS_MULTIWORKSPACE_ENABLED: "false",
-  };
-  delete env.CLICKHOUSE_URL;
+  const env = buildIntegrationChildEnvironment(process.env, appSecret);
   const secrets = [
     appSecret,
     process.env.PG_DATABASE_URL,

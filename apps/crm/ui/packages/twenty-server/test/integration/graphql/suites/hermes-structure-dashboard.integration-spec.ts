@@ -2,37 +2,40 @@ import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 
 import request from 'supertest';
-import { DataSource, In } from 'typeorm';
+import { type DataSource, In } from 'typeorm';
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
 
-import { ApplicationService } from 'src/engine/core-modules/application/application.service';
+import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
-import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
-import { WorkspaceAgnosticTokenService } from 'src/engine/core-modules/auth/token/services/workspace-agnostic-token.service';
+import { type AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
+import { type WorkspaceAgnosticTokenService } from 'src/engine/core-modules/auth/token/services/workspace-agnostic-token.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
-import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
+import { type UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { fromUserEntityToFlat } from 'src/engine/core-modules/user/utils/from-user-entity-to-flat.util';
 import {
   HermesAuthorizedStructureDTO,
   HermesStructureDashboardDTO,
 } from 'src/engine/core-modules/workspace/structure-dashboard/dtos/hermes-structure-dashboard.dto';
-import { WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
+import { type WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceDiscoverability } from 'src/engine/core-modules/workspace/types/workspace-discoverability.type';
 import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
-import { ObjectPermissionService } from 'src/engine/metadata-modules/object-permission/object-permission.service';
-import { RoleService } from 'src/engine/metadata-modules/role/role.service';
-import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { type ObjectPermissionService } from 'src/engine/metadata-modules/object-permission/object-permission.service';
+import { type RoleService } from 'src/engine/metadata-modules/role/role.service';
+import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
-import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
+import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import {
   SEED_APPLE_WORKSPACE_ID,
   SEED_YCOMBINATOR_WORKSPACE_ID,
 } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
-// The workflow must apply these checks before the harness globalSetup resets a database.
+import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
+import { getCoreRepository } from 'test/integration/utils/get-core-repository.util';
+
+// The wrapper must guard before native reset and harness globalSetup.
 assert.equal(
   process.env.GITHUB_ACTIONS,
   'true',
@@ -103,34 +106,31 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
   const createUser = async (label: string): Promise<UserEntity> => {
     const id = randomUUID();
     userIds.push(id);
-    return global.app
-      .get(DataSource)
-      .getRepository(UserEntity)
-      .save({
-        id,
-        email: `hermes-${fixtureSuffix}-${label}@example.com`,
-        firstName: 'Hermes',
-        lastName: label,
-        locale: 'en',
-        passwordHash: await hashPassword(randomBytes(24).toString('base64url')),
-        isEmailVerified: true,
-        disabled: false,
-        canAccessFullAdminPanel: false,
-        canImpersonate: false,
-      });
+    return getCoreRepository<UserEntity>(UserEntity).save({
+      id,
+      email: `hermes-${fixtureSuffix}-${label}@example.com`,
+      firstName: 'Hermes',
+      lastName: label,
+      locale: 'en',
+      passwordHash: await hashPassword(randomBytes(24).toString('base64url')),
+      isEmailVerified: true,
+      disabled: false,
+      canAccessFullAdminPanel: false,
+      canImpersonate: false,
+    });
   };
 
   const accessFor = async (
     user: UserEntity,
     workspaceId: string,
   ): Promise<string> => {
-    const issued = await global.app
-      .get(AccessTokenService)
-      .generateAccessToken({
-        userId: user.id,
-        workspaceId,
-        authProvider: AuthProviderEnum.Password,
-      });
+    const issued = await getAppProviderByClassName<AccessTokenService>(
+      'AccessTokenService',
+    ).generateAccessToken({
+      userId: user.id,
+      workspaceId,
+      authProvider: AuthProviderEnum.Password,
+    });
     return issued.token;
   };
 
@@ -138,7 +138,9 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
     workspaceId: string,
     quantities: Record<string, number>,
   ) => {
-    const manager = global.app.get(WorkspaceOrmManager);
+    const manager = getAppProviderByClassName<WorkspaceOrmManager>(
+      'WorkspaceOrmManager',
+    );
     const byObject = new Map<string, string[]>();
     inserted.set(workspaceId, byObject);
     await manager.executeInWorkspaceContext(async () => {
@@ -216,24 +218,24 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       .hermesStructureDashboard;
 
   beforeAll(async () => {
-    const coreDataSource = global.app.get(DataSource);
+    const coreDataSource = getAppProviderByClassName<DataSource>('DataSource');
     assert.ok(
       coreDataSource.isInitialized,
       'Nest core datasource must be initialized',
     );
     for (const entity of [UserEntity, WorkspaceEntity, UserWorkspaceEntity]) {
       assert.ok(
-        coreDataSource.hasMetadata(entity),
+        coreDataSource.hasMetadata(entity.name),
         'Core fixture entity metadata must be registered',
       );
     }
-    const workspaceRepository = global.app
-      .get(DataSource)
-      .getRepository(WorkspaceEntity);
+    const workspaceRepository =
+      getCoreRepository<WorkspaceEntity>(WorkspaceEntity);
     const a = await workspaceRepository.findOneByOrFail({ id: A });
     const b = await workspaceRepository.findOneByOrFail({ id: B });
-    const userWorkspaceService = global.app.get(UserWorkspaceService);
-    const roleService = global.app.get(RoleService);
+    const userWorkspaceService =
+      getAppProviderByClassName<UserWorkspaceService>('UserWorkspaceService');
+    const roleService = getAppProviderByClassName<RoleService>('RoleService');
     const adminA = await roleService.getRoleByUniversalIdentifier({
       universalIdentifier: STANDARD_ROLE.admin.universalIdentifier,
       workspaceId: A,
@@ -254,9 +256,10 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       adminA.id,
     );
 
-    const { workspaceCustomFlatApplication } = await global.app
-      .get(ApplicationService)
-      .findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow({
+    const { workspaceCustomFlatApplication } =
+      await getAppProviderByClassName<ApplicationService>(
+        'ApplicationService',
+      ).findWorkspaceKovaaLabCRMStandardAndCustomApplicationOrThrow({
         workspaceId: B,
       });
     const restrictedRole = await roleService.createRole({
@@ -274,14 +277,17 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
         canBeAssignedToApiKeys: false,
       },
     });
-    const { flatObjectMetadataMaps } = await global.app
-      .get(WorkspaceCacheService)
-      .getOrRecompute(B, ['flatObjectMetadataMaps']);
+    const { flatObjectMetadataMaps } =
+      await getAppProviderByClassName<WorkspaceCacheService>(
+        'WorkspaceCacheService',
+      ).getOrRecompute(B, ['flatObjectMetadataMaps']);
     const person = Object.values(
       flatObjectMetadataMaps.byUniversalIdentifier,
     ).find((object) => object?.nameSingular === 'person');
     assert.ok(person);
-    await global.app.get(ObjectPermissionService).upsertObjectPermissions({
+    await getAppProviderByClassName<ObjectPermissionService>(
+      'ObjectPermissionService',
+    ).upsertObjectPermissions({
       workspaceId: B,
       input: {
         roleId: restrictedRole.id,
@@ -314,7 +320,9 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       isPasswordAuthEnabled: true,
       isTwoFactorAuthenticationEnforced: false,
     });
-    await global.app.get(ApplicationService).createWorkspaceCustomApplication({
+    await getAppProviderByClassName<ApplicationService>(
+      'ApplicationService',
+    ).createWorkspaceCustomApplication({
       workspaceId: C,
       applicationId: customApplicationId,
     });
@@ -324,9 +332,9 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       isExistingUser: true,
       locale: 'en',
     });
-    await global.app
-      .get(WorkspaceService)
-      .activateWorkspace(fromUserEntityToFlat(user3), c);
+    await getAppProviderByClassName<WorkspaceService>(
+      'WorkspaceService',
+    ).activateWorkspace(fromUserEntityToFlat(user3), c);
     memberWorkspaces.add(C);
 
     await fixtureRecords(A, { company: 2, person: 4, opportunity: 1, task: 3 });
@@ -338,19 +346,21 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
     u0 = {
       user: user0,
       token: (
-        await global.app
-          .get(WorkspaceAgnosticTokenService)
-          .generateWorkspaceAgnosticToken({
-            userId: user0.id,
-            authProvider: AuthProviderEnum.Password,
-          })
+        await getAppProviderByClassName<WorkspaceAgnosticTokenService>(
+          'WorkspaceAgnosticTokenService',
+        ).generateWorkspaceAgnosticToken({
+          userId: user0.id,
+          authProvider: AuthProviderEnum.Password,
+        })
       ).token,
     };
   }, 300_000);
 
   afterAll(async () => {
     // Only fixture UUIDs are removed. C's schema and its fixture role remain in this disposable DB until runner teardown.
-    const manager = global.app.get(WorkspaceOrmManager);
+    const manager = getAppProviderByClassName<WorkspaceOrmManager>(
+      'WorkspaceOrmManager',
+    );
     for (const [workspaceId, objects] of inserted) {
       await manager.executeInWorkspaceContext(async () => {
         for (const [objectName, ids] of [...objects].reverse()) {
@@ -365,12 +375,13 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
         }
       }, buildSystemAuthContext(workspaceId));
     }
-    const memberships = await global.app
-      .get(DataSource)
-      .getRepository(UserWorkspaceEntity)
-      .find({ where: { userId: In(userIds) }, withDeleted: true });
+    const memberships = await getCoreRepository<UserWorkspaceEntity>(
+      UserWorkspaceEntity,
+    ).find({ where: { userId: In(userIds) }, withDeleted: true });
     for (const membership of memberships)
-      await global.app.get(UserWorkspaceService).deleteUserWorkspace({
+      await getAppProviderByClassName<UserWorkspaceService>(
+        'UserWorkspaceService',
+      ).deleteUserWorkspace({
         workspaceId: membership.workspaceId,
         userWorkspaceId: membership.id,
       });
@@ -387,10 +398,9 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       }, buildSystemAuthContext(workspaceId));
     }
     if (userIds.length)
-      await global.app
-        .get(DataSource)
-        .getRepository(UserEntity)
-        .delete({ id: In(userIds) });
+      await getCoreRepository<UserEntity>(UserEntity).delete({
+        id: In(userIds),
+      });
   }, 120_000);
 
   it('U1 sees A only; U2 sees A+B; C is not advertised', async () => {
@@ -504,11 +514,12 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
   });
 
   it('removes B immediately after native membership revocation and refuses its forged filter', async () => {
-    const membership = await global.app
-      .get(DataSource)
-      .getRepository(UserWorkspaceEntity)
-      .findOneByOrFail({ userId: u2.user.id, workspaceId: B });
-    await global.app.get(UserWorkspaceService).deleteUserWorkspace({
+    const membership = await getCoreRepository<UserWorkspaceEntity>(
+      UserWorkspaceEntity,
+    ).findOneByOrFail({ userId: u2.user.id, workspaceId: B });
+    await getAppProviderByClassName<UserWorkspaceService>(
+      'UserWorkspaceService',
+    ).deleteUserWorkspace({
       userWorkspaceId: membership.id,
       workspaceId: B,
       softDelete: true,
