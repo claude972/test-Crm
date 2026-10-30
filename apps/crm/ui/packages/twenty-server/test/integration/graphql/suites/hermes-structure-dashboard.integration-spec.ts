@@ -565,15 +565,25 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
     const id = randomUUID();
     const name = `Hermes persistent pipeline ${fixtureSuffix}`;
     inserted.get(A)?.get('opportunity')?.push(id);
-    const readOpportunity = async (token: string) =>
-      api<{ opportunity: { id: string; name: string; stage: string } | null }>(
-        token,
-        `query PipelineRecord($filter: OpportunityFilterInput!) {
-          opportunity(filter: $filter) { id name stage }
-        }`,
-        { filter: { id: { eq: id } } },
-        '/graphql',
+    const readOpportunity = async (token: string) => {
+      const result = successful(
+        await api<{
+          opportunities: {
+            edges: { node: { id: string; name: string; stage: string } }[];
+          };
+        }>(
+          token,
+          `query PipelineRecords($filter: OpportunityFilterInput!) {
+            opportunities(filter: $filter, first: 2) {
+              edges { node { id name stage } }
+            }
+          }`,
+          { filter: { id: { eq: id } } },
+          '/graphql',
+        ),
       );
+      return result.opportunities.edges.map(({ node }) => node);
+    };
     const updateOpportunity = async (token: string, stage: string) =>
       api<{ updateOpportunity: { id: string; stage: string } | null }>(
         token,
@@ -601,43 +611,42 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
       ),
     ).createOpportunity;
     expect(created).toEqual({ id, stage: 'NEW' });
-    expect(successful(await readOpportunity(u1.token)).opportunity).toEqual({
-      id,
-      name,
-      stage: 'NEW',
-    });
+    expect(await readOpportunity(u1.token)).toEqual([
+      { id, name, stage: 'NEW' },
+    ]);
     expect(await opportunityCount()).toBe(initialCount + 1);
 
     for (const stage of ['SCREENING', 'MEETING', 'PROPOSAL', 'CUSTOMER']) {
       expect(
         successful(await updateOpportunity(u1.token, stage)).updateOpportunity,
       ).toEqual({ id, stage });
-      expect(successful(await readOpportunity(u1.token)).opportunity).toEqual({
-        id,
-        name,
-        stage,
-      });
+      expect(await readOpportunity(u1.token)).toEqual([{ id, name, stage }]);
     }
     expect(await opportunityCount()).toBe(initialCount + 1);
 
     const tokenB = await accessFor(u2.user, B);
-    expect(successful(await readOpportunity(tokenB)).opportunity).toBeNull();
+    expect(await readOpportunity(tokenB)).toEqual([]);
     const deniedB = await updateOpportunity(tokenB, 'NEW');
     expect(deniedB.errors?.length).toBeGreaterThan(0);
     expect(deniedB.data?.updateOpportunity).toBeFalsy();
     expect(JSON.stringify(deniedB)).not.toContain(name);
 
+    const guest = await getCoreRepository<UserEntity>(
+      UserEntity,
+    ).findOneByOrFail({
+      email: 'phil.schiler@apple.dev',
+    });
     const deniedGuest = await updateOpportunity(
-      APPLE_PHIL_GUEST_ACCESS_TOKEN,
+      await accessFor(guest, A),
       'NEW',
     );
-    expect(deniedGuest.errors?.length).toBeGreaterThan(0);
+    expect(
+      deniedGuest.errors?.map((error) => error.extensions?.code),
+    ).toContain('FORBIDDEN');
     expect(deniedGuest.data?.updateOpportunity).toBeFalsy();
-    expect(successful(await readOpportunity(u1.token)).opportunity).toEqual({
-      id,
-      name,
-      stage: 'CUSTOMER',
-    });
+    expect(await readOpportunity(u1.token)).toEqual([
+      { id, name, stage: 'CUSTOMER' },
+    ]);
 
     successful(
       await api<{ deleteOpportunity: { id: string } }>(
@@ -649,7 +658,7 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
         '/graphql',
       ),
     );
-    expect(successful(await readOpportunity(u1.token)).opportunity).toBeNull();
+    expect(await readOpportunity(u1.token)).toEqual([]);
     expect(await opportunityCount()).toBe(initialCount);
   }, 120_000);
 
