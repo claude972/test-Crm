@@ -26,7 +26,7 @@ describe('buildHermesModuleNavigationItems', () => {
     expect(dashboard.to).toBe('/dashboard');
   });
 
-  it('offers the reception to a workspace administrator', () => {
+  it('offers the messaging inbox and the reception to a workspace administrator', () => {
     expect(
       keysOf(
         buildHermesModuleNavigationItems({
@@ -34,11 +34,36 @@ describe('buildHermesModuleNavigationItems', () => {
           pathname: '/dashboard',
         }),
       ),
-    ).toEqual(['dashboard', 'reception']);
+    ).toEqual(['dashboard', 'messaging', 'reception']);
   });
 
   // Its operations are refused server side for everyone else, and a link that
   // only leads to a refusal is worse than no link.
+  // Its operations are restricted to unrestricted workspace administrators
+  // server side, exactly like the reception.
+  it('does not offer the messaging inbox without the workspace permission', () => {
+    expect(
+      keysOf(
+        buildHermesModuleNavigationItems({
+          hasWorkspacePermission: false,
+          pathname: '/dashboard',
+        }),
+      ),
+    ).not.toContain('messaging');
+  });
+
+  // The pathname never carries the search parameters, so an opened
+  // conversation leaves it at /messaging — the entry stays current because
+  // the path does not change, not because startsWith swallows a query.
+  it('keeps the messaging inbox current while a conversation is open', () => {
+    const [, messaging] = buildHermesModuleNavigationItems({
+      hasWorkspacePermission: true,
+      pathname: '/messaging',
+    });
+
+    expect(messaging.isActive).toBe(true);
+  });
+
   it('does not offer the reception without the workspace permission', () => {
     expect(
       keysOf(

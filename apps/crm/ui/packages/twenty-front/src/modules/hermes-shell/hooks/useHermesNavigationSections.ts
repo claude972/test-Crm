@@ -7,6 +7,7 @@ import {
   IconBuildingSkyscraper,
   IconGauge,
   IconInbox,
+  IconMessage,
   IconSettings,
   useIcons,
 } from 'kovaa-lab-ui/icon';
@@ -17,6 +18,7 @@ import { type HermesNavigationSection } from '@/hermes-shell/types/HermesNavigat
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { getObjectPermissionsForObject } from '@/object-metadata/utils/getObjectPermissionsForObject';
 import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
+import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
 import { PROSPECTION_RECEPTION_PATH } from '@/prospection/constants/ProspectionRoutePaths';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
@@ -83,6 +85,12 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
         key: 'prospection',
         label: t`Prospection`,
         items: [
+          {
+            key: 'messaging',
+            label: t`Messaging`,
+            to: MESSAGING_INBOX_PATH,
+            Icon: IconMessage,
+          },
           {
             key: 'reception',
             label: t`Hermès collections`,
