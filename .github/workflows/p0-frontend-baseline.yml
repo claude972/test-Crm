@@ -13,6 +13,8 @@ on:
       - 'apps/crm/ui/packages/twenty-front-component-renderer/**'
       - 'apps/crm/ui/packages/twenty-ui/**'
       - 'apps/crm/ui/packages/twenty-shared/**'
+      - 'apps/crm/bot/app/javascript/**'
+      - 'apps/crm/bot/app/views/**'
   # Same paths filter as push, so a documentation-only commit does not start a
   # fresh build and cancel a running one over identical application code.
   pull_request:
@@ -24,6 +26,8 @@ on:
       - 'apps/crm/ui/packages/twenty-front-component-renderer/**'
       - 'apps/crm/ui/packages/twenty-ui/**'
       - 'apps/crm/ui/packages/twenty-shared/**'
+      - 'apps/crm/bot/app/javascript/**'
+      - 'apps/crm/bot/app/views/**'
   # Exposed so Codex's combined verification can call this without duplicating it.
   workflow_call:
     outputs:
