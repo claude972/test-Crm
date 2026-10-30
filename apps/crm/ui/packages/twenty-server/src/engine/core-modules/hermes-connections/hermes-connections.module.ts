@@ -26,7 +26,11 @@ import { HermesConnectionsService } from './hermes-connections.service';
     HermesProspectionAccessService,
     HermesConnectionsService,
     HermesConnectionsResolver,
+    {
+      provide: 'HERMES_CONNECTIONS_SERVICE',
+      useExisting: HermesConnectionsService,
+    },
   ],
-  exports: [HermesConnectionsService],
+  exports: [HermesConnectionsService, 'HERMES_CONNECTIONS_SERVICE'],
 })
 export class HermesConnectionsModule {}

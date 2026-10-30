@@ -23,7 +23,7 @@ Saving does not send provider requests, invoke tools or send email/WhatsApp. HTT
 
 ## Internal shared reader
 
-`HermesConnectionsModule` is global, exports `HermesConnectionsService`, and must be imported once by the integration owner. D does not edit other lots' modules. Reader:
+`HermesConnectionsModule` is global, exports `HermesConnectionsService` and the same singleton under injection token `HERMES_CONNECTIONS_SERVICE`, and must be imported once by the integration owner. D does not edit other lots' modules. Reader:
 
 `resolve(workspaceId,kind): Promise<null | {connectionId,revision,userId,userWorkspaceId,settings,secrets}>`.
 
