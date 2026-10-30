@@ -85,7 +85,7 @@ jobs:
         working-directory: apps/crm/ui/packages/twenty-server
         run: |
           mapfile -t suites < <(find src/engine/core-modules/auth src/engine/core-modules/user-session/services/__tests__ src/engine/core-modules/domain/workspace-domains src/engine/guards/utils/__tests__ -type f -name '*same-origin*.spec.ts' | sort)
-          suites+=(src/engine/core-modules/auth/token/services/__tests__/sso-exchange-scoped.service.spec.ts src/engine/guards/utils/__tests__/assert-expected-workspace-context.util.spec.ts src/engine/core-modules/domain/workspace-domains/utils/__tests__/is-canonical-frontend-origin.util.spec.ts src/engine/core-modules/auth/auth.resolver.spec.ts)
+          suites+=(src/engine/core-modules/auth/token/services/__tests__/sso-exchange-scoped.service.spec.ts src/engine/guards/utils/__tests__/assert-expected-workspace-context.util.spec.ts src/engine/core-modules/domain/workspace-domains/utils/__tests__/is-canonical-frontend-origin.util.spec.ts src/engine/core-modules/auth/auth.resolver.spec.ts src/engine/core-modules/user-session/utils/extract-user-session-token-from-request.util.spec.ts)
           node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath "${suites[@]}"
       - name: Typecheck backend production sources without starting the server
         id: backend_types

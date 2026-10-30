@@ -2,7 +2,7 @@
 
 Mission: HERMES-V4-PARCOURS-COMPLET-20261030, lot A. Isolated branch `feat/codex-hermes-v4-tenancy`, based on `baece3a46a6286a933cfc99b22a53ac50c34e498`.
 
-Status: implementation and targeted unit checks; isolated native PostgreSQL/HTTP validation pending. This is not proof of a working deployed creation/switch journey. No live configuration, database, original checkout, credentials, or preview runtime was changed.
+Status: native PostgreSQL/HTTP validation, production TypeScript and Nest compilation passed for checkpoint `82f3b0f149f5703aa2105d00444050e389489e04` in [CI run 41138218320](https://github.com/claude972/test-Crm/actions/runs/41138218320), alongside 135 unit tests. The subsequent malformed-cookie hardening requires the final commit’s CI and security cross-review. This is not proof of a working deployed creation/switch journey. No live configuration, database, original checkout, credentials, or preview runtime was changed.
 
 ## Configuration and native API
 
@@ -65,7 +65,7 @@ Capture `X-Expected-Workspace-Id` from the client/form context before dispatch a
 
 These checks run at the native request hydration boundary. They reject stale requests arriving after a session change, and prevent an old A form from writing into B through a refreshed B cookie. They do not retroactively cancel an A mutation already authorized before a switch and subsequently waiting inside its resolver. Keep frontend request/form context immutable, discard late A results while B is displayed, and optionally block switching while tenant mutations are outstanding. No global ORM cancellation guarantee is claimed.
 
-When a user bearer and native cookie are both presented, both must be valid and agree on user, workspace and membership. A malformed bearer is never replaced with a cookie. `SESSION_SUPERSEDED` means discard late results, clear the old tenant cache, and restore a coherent native authentication context. Never automatically retry a mutation after this error.
+When a user bearer and native cookie are both presented, both must be valid and agree on user, workspace and membership. A malformed bearer is never replaced with a cookie. A present malformed/empty authorized native cookie also refuses a user Bearer request; insecure cookies planted on an HTTPS deployment remain ignored under native cookie-name precedence. Duplicate cookie names retain native extractor precedence. `SESSION_SUPERSEDED` means discard late results, clear the old tenant cache, and restore a coherent native authentication context. Never automatically retry a mutation after this error.
 
 ## Validation and ownership
 
@@ -73,4 +73,4 @@ Targeted checks cover canonical/malicious origins; default-off and multidomain c
 
 A dedicated `hermes-v4-tenancy.yml` workflow builds/types production sources, runs targeted and existing auth unit checks with legacy defaults, then runs the native HTTP suite on disposable GitHub-hosted PostgreSQL 16/Redis 7. Its wrapper hardcodes the single tenancy suite and opt-in while leaving subdomains disabled. Existing stable jobs remain unchanged. The native suite creates a synthetic admin in A, creates/activates B through native GraphQL, checks reload and A/B record isolation, refuses C, stale tokens/headers and malicious origins, then revokes B membership and verifies server-admin demotion. Only owned disposable fixtures are cleaned up.
 
-Ownership extension approved by root: native UserSessionService, targeted UserWorkspaceService/UserResolver picker, AuthTokens DTO, middleware/JwtAuthGuard expected-context boundary, AccessTokenService dual-credential coherence, and isolated CI wrapper/workflow. These authentication boundary changes need a separate security cross-review. No Hermes messaging/mail or frontend files are included. No entity shape changed and no database migration is needed.
+Ownership extension approved by root: native UserSessionService, targeted UserWorkspaceService/UserResolver picker, AuthTokens DTO, middleware/JwtAuthGuard expected-context boundary, AccessTokenService dual-credential coherence, and isolated CI wrapper/workflow. The additional native CookieService/extractor presence helper is also approved ownership and stays internal (no raw credential API). These authentication boundary changes need a separate security cross-review. No Hermes messaging/mail or frontend files are included. No entity shape changed and no database migration is needed.

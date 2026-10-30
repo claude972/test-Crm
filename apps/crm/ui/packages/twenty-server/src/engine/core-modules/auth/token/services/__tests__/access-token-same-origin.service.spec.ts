@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { type Request } from 'express';
+import { UserSessionCookieService } from 'src/engine/core-modules/user-session/services/user-session-cookie.service';
 import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
 import {
   AuthException,
@@ -31,10 +32,6 @@ jest.mock(
 jest.mock(
   'src/engine/core-modules/user-session/services/user-session.service',
   () => ({ UserSessionService: class {} }),
-);
-jest.mock(
-  'src/engine/core-modules/user-session/services/user-session-cookie.service',
-  () => ({ UserSessionCookieService: class {} }),
 );
 jest.mock('src/engine/twenty-orm/workspace-orm.manager', () => ({
   WorkspaceOrmManager: class {},
@@ -71,6 +68,8 @@ const setup = (enabled = true, multiDomain = false) => {
     ),
   };
   const cookies = {
+    hasSessionCookieInRequest: (request: Request) =>
+      Boolean(request.headers.cookie),
     extractSessionTokenFromRequest: (request: Request) =>
       request.headers.cookie,
   };
@@ -118,6 +117,84 @@ const setup = (enabled = true, multiDomain = false) => {
   };
 };
 describe('native dual credential coherence in same-origin mode', () => {
+  const useNativeHttpsCookies = (f: ReturnType<typeof setup>) => {
+    Object.assign(f.service, {
+      userSessionCookieService: new UserSessionCookieService({
+        get: (key: string) =>
+          key === 'SERVER_URL' ? 'https://crm.example.test' : 'lax',
+      } as never),
+    });
+  };
+  it.each([
+    '__Host-kovaa-lab-session=malformed-private-fixture',
+    '__Host-kovaa-lab-session=',
+    '__Host-kovaa-lab-session',
+  ])(
+    'refuses a presented malformed or empty authorized native cookie without logging its value',
+    async (header) => {
+      const f = setup();
+      useNativeHttpsCookies(f);
+      f.request.headers.cookie = header;
+      await expect(
+        f.service.validateTokenByRequest(f.request),
+      ).rejects.toMatchObject({
+        code: AuthExceptionCode.UNAUTHENTICATED,
+        message: 'The browser session credential is invalid',
+      });
+      expect(f.sessions.resolveSession).not.toHaveBeenCalled();
+    },
+  );
+  it('ignores an insecure cookie planted on an HTTPS deployment, including malformed values', async () => {
+    const f = setup();
+    useNativeHttpsCookies(f);
+    for (const value of ['sess_tossed', 'invalid', '']) {
+      f.request.headers.cookie = 'kovaa-lab-session=' + value;
+      await expect(
+        f.service.validateTokenByRequest(f.request),
+      ).resolves.toMatchObject({ workspace: { id: A } });
+    }
+    expect(f.sessions.resolveSession).not.toHaveBeenCalled();
+  });
+  it('keeps native secure-name and duplicate-value precedence instead of selecting a tenant from later cookies', async () => {
+    const f = setup();
+    useNativeHttpsCookies(f);
+    f.request.headers.cookie =
+      'kovaa-lab-session=sess_insecure; __Host-kovaa-lab-session=sess_first; __Host-kovaa-lab-session=sess_second';
+    await expect(
+      f.service.validateTokenByRequest(f.request),
+    ).resolves.toMatchObject({ workspace: { id: A } });
+    expect(f.sessions.resolveSession).toHaveBeenCalledWith('sess_first');
+    f.sessions.resolveSession.mockClear();
+    f.request.headers.cookie =
+      '__Host-kovaa-lab-session=invalid-first; __Host-kovaa-lab-session=sess_second';
+    await expect(
+      f.service.validateTokenByRequest(f.request),
+    ).rejects.toMatchObject({ code: AuthExceptionCode.UNAUTHENTICATED });
+    expect(f.sessions.resolveSession).not.toHaveBeenCalled();
+  });
+  it.each([
+    [false, JwtTokenTypeEnum.ACCESS],
+    [true, JwtTokenTypeEnum.API_KEY],
+    [true, JwtTokenTypeEnum.APPLICATION_ACCESS],
+  ])(
+    'preserves legacy or fixed-scope principals with malformed incidental cookies',
+    async (enabled, type) => {
+      const f = setup(enabled);
+      useNativeHttpsCookies(f);
+      if (type !== JwtTokenTypeEnum.ACCESS)
+        f.bearer({
+          workspace: { id: A },
+          tokenType: type,
+          apiKey: { id: 'native-key' },
+        } as RawAuthContext);
+      f.request.headers.cookie = '__Host-kovaa-lab-session=invalid';
+      await expect(
+        f.service.validateTokenByRequest(f.request),
+      ).resolves.toMatchObject({ workspace: { id: A } });
+      expect(f.sessions.resolveSession).not.toHaveBeenCalled();
+    },
+  );
+
   it('verifies both native credentials when their user/workspace/membership agree', async () => {
     const f = setup();
     expect(await f.service.validateTokenByRequest(f.request)).toMatchObject({

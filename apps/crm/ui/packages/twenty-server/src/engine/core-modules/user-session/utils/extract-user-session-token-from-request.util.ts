@@ -28,6 +28,34 @@ const readCookieValue = (
   return undefined;
 };
 
+// Presence is separate from validity so an explicitly malformed browser credential
+// cannot silently disappear behind a user Bearer token. Match only names this
+// deployment accepts; a sibling domain's insecure cookie is ignored on HTTPS.
+export const hasUserSessionCookieInRequest = (
+  request: Request,
+  {
+    secureCookieName,
+    insecureCookieName,
+    allowInsecureCookieName,
+  }: {
+    secureCookieName: string;
+    insecureCookieName: string;
+    allowInsecureCookieName: boolean;
+  },
+): boolean => {
+  const header = request.headers.cookie;
+  if (!isNonEmptyString(header)) return false;
+  const accepted = new Set([
+    secureCookieName,
+    ...(allowInsecureCookieName ? [insecureCookieName] : []),
+  ]);
+  return header.split(';').some((part) => {
+    const separator = part.indexOf('=');
+    const name = (separator < 0 ? part : part.slice(0, separator)).trim();
+    return accepted.has(name);
+  });
+};
+
 // Plain name only on plain http: on https a sibling subdomain could plant one and fixate the visitor.
 export const extractUserSessionTokenFromRequestCookie = (
   request: Request,

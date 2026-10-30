@@ -206,19 +206,26 @@ export class AccessTokenService {
       }
 
       const context = await this.validateToken(token);
-      const sessionToken =
-        this.userSessionCookieService.extractSessionTokenFromRequest(request);
       if (
         this.kovaaLabConfigService.get(
           'IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED',
         ) &&
         !this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
-        sessionToken &&
         context.user &&
         (context.tokenType === JwtTokenTypeEnum.ACCESS ||
           context.tokenType === JwtTokenTypeEnum.PLAYGROUND) &&
         !isPublicAuthenticationGraphqlRequest(request)
       ) {
+        const sessionToken =
+          this.userSessionCookieService.extractSessionTokenFromRequest(request);
+        if (!sessionToken) {
+          if (this.userSessionCookieService.hasSessionCookieInRequest(request))
+            throw new AuthException(
+              'The browser session credential is invalid',
+              AuthExceptionCode.UNAUTHENTICATED,
+            );
+          return context;
+        }
         const cookieContext = await this.validateSessionToken(sessionToken);
         if (
           context.user.id !== cookieContext.user?.id ||

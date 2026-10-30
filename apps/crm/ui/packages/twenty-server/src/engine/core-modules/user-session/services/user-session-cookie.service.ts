@@ -8,7 +8,10 @@ import { USER_SESSION_COOKIE_NAME } from 'src/engine/core-modules/user-session/c
 import { USER_SESSION_IMPERSONATOR_COOKIE_NAME } from 'src/engine/core-modules/user-session/constants/user-session-impersonator-cookie-name.constant';
 import { USER_SESSION_IMPERSONATOR_SECURE_COOKIE_NAME } from 'src/engine/core-modules/user-session/constants/user-session-impersonator-secure-cookie-name.constant';
 import { USER_SESSION_SECURE_COOKIE_NAME } from 'src/engine/core-modules/user-session/constants/user-session-secure-cookie-name.constant';
-import { extractUserSessionTokenFromRequestCookie } from 'src/engine/core-modules/user-session/utils/extract-user-session-token-from-request.util';
+import {
+  extractUserSessionTokenFromRequestCookie,
+  hasUserSessionCookieInRequest,
+} from 'src/engine/core-modules/user-session/utils/extract-user-session-token-from-request.util';
 import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 const isHttpsUrl = (url: string | undefined): boolean => {
@@ -25,7 +28,9 @@ const isHttpsUrl = (url: string | undefined): boolean => {
 
 @Injectable()
 export class UserSessionCookieService {
-  constructor(private readonly kovaaLabConfigService: KovaaLabCRMConfigService) {}
+  constructor(
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
+  ) {}
 
   private isSecureDeployment(): boolean {
     const serverUrl = this.kovaaLabConfigService.get('SERVER_URL');
@@ -33,6 +38,14 @@ export class UserSessionCookieService {
 
     // SameSite=None is rejected by browsers without Secure, so it forces it.
     return isHttpsUrl(serverUrl) || sameSite === 'none';
+  }
+
+  hasSessionCookieInRequest(request: Request): boolean {
+    return hasUserSessionCookieInRequest(request, {
+      secureCookieName: USER_SESSION_SECURE_COOKIE_NAME,
+      insecureCookieName: USER_SESSION_COOKIE_NAME,
+      allowInsecureCookieName: !this.isSecureDeployment(),
+    });
   }
 
   extractSessionTokenFromRequest(request: Request): string | undefined {
