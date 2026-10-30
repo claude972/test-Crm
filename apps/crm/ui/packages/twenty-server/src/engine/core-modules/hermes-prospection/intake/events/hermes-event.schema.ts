@@ -35,16 +35,32 @@ export const hermesCalendarEventSchema = z
     provider: z.literal('CAL_DIY'),
     event: z
       .object({
-        type: z.literal('BOOKING_CREATED'),
+        type: z.enum([
+          'BOOKING_CREATED',
+          'BOOKING_RESCHEDULED',
+          'BOOKING_CANCELLED',
+        ]),
         bookingUid: identifier,
-        status: z.literal('ACCEPTED'),
+        previousBookingUid: identifier.optional(),
+        status: z.enum(['ACCEPTED', 'CANCELLED']),
         title: z.string().trim().min(1).max(200),
         startsAt: z.string().datetime({ offset: true }),
         endsAt: z.string().datetime({ offset: true }),
         location: z.string().max(1000).default(''),
       })
       .strict()
-      .refine((event) => Date.parse(event.endsAt) > Date.parse(event.startsAt)),
+      .refine((event) => Date.parse(event.endsAt) > Date.parse(event.startsAt))
+      .refine(
+        (event) =>
+          (event.type === 'BOOKING_CANCELLED') ===
+          (event.status === 'CANCELLED'),
+      )
+      .refine(
+        (event) =>
+          event.previousBookingUid === undefined ||
+          (event.type === 'BOOKING_RESCHEDULED' &&
+            event.previousBookingUid !== event.bookingUid),
+      ),
   })
   .strict();
 export type HermesBridgeEvent =

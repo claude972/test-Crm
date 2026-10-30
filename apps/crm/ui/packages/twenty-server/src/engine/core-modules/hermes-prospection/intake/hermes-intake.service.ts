@@ -67,6 +67,7 @@ export class HermesIntakeService {
       : undefined;
     if (
       !connection?.enabled ||
+      !connection.allowedSources.includes('SCRAPING') ||
       !verifyHermesIntakeSignature({
         connectionId,
         body,

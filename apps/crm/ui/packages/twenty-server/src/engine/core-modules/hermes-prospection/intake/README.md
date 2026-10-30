@@ -49,3 +49,7 @@ A successful200 returns `{batchId,externalBatchId,replay,rowCount,intakeConnecti
 ## Hermes MCP capability discovery
 
 No active Hermes-specific MCP client, endpoint or tool configuration was established from repository source/docs. Old `packages/twenty-server/dist/modules/bot` files are historical artifacts, not active integration evidence. The native `/mcp` implementation is this CRM's own inbound MCP server. It must not be advertised as an external Hermes reply bot. The separate messaging adapter contract is draftReply({workspaceId,conversationId,messageId,text,channel}) returning MANUAL/NOT_CONFIGURED unless a verified, operator-configured MCP draft tool is available; no dispatch belongs to that adapter.
+
+## Provider capabilities
+
+Connections may set server-only `allowedSources` to a nonempty subset of `SCRAPING`, `FORMS`, `CALENDAR`; the default is `['SCRAPING']`. The staging endpoint requires SCRAPING and cannot upgrade a Forms/calendar-only key. Native-contact event endpoints require their explicit source. Use distinct credentials per provider. See `events/README.md` for the normalized signed bridge protocol; raw unsigned Forms webhooks are never accepted.

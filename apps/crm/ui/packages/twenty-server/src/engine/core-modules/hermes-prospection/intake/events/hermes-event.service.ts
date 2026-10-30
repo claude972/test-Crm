@@ -81,6 +81,9 @@ export class HermesEventService {
       : undefined;
     if (
       !connection?.enabled ||
+      !connection.allowedSources.includes(
+        kind === 'forms' ? 'FORMS' : 'CALENDAR',
+      ) ||
       !verifyHermesIntakeSignature({
         connectionId,
         body,
@@ -141,8 +144,9 @@ export class HermesEventService {
             workspaceId: actor.workspaceId,
             emailAddresses: [event.contact.email],
           });
-          if (blocked.some((entry) => entry.reason !== 'TRACKING'))
-            throw new ConflictException('HERMES_EVENT_CONTACT_REQUIRES_REVIEW');
+          const isSuppressed = blocked.some(
+            (entry) => entry.reason !== 'TRACKING',
+          );
           const people = transaction.getRepository<PersonWorkspaceEntity>(
             'person',
             permissions,
@@ -179,9 +183,124 @@ export class HermesEventService {
             )
             .take(2)
             .getMany<PersonWorkspaceEntity>();
-          if (matching.length > 1 || matching[0]?.deletedAt)
+          if (
+            matching.length > 1 ||
+            matching[0]?.deletedAt ||
+            (isSuppressed && matching.length === 0)
+          )
             throw new ConflictException('HERMES_EVENT_CONTACT_REQUIRES_REVIEW');
           const person = matching[0];
+          const bookingKey =
+            event.provider === 'CAL_DIY'
+              ? JSON.stringify([
+                  actor.workspaceId,
+                  connectionId,
+                  event.event.bookingUid,
+                ])
+              : null;
+          const calendarEventId = bookingKey
+            ? v5(`calendar:${bookingKey}`, v5.URL)
+            : null;
+          const calendarTargetId = bookingKey
+            ? v5(`calendar-target:${bookingKey}`, v5.URL)
+            : null;
+          const calendars =
+            event.provider === 'CAL_DIY'
+              ? transaction.getRepository<CalendarEventWorkspaceEntity>(
+                  'calendarEvent',
+                  permissions,
+                )
+              : null;
+          const calendarTargets =
+            event.provider === 'CAL_DIY'
+              ? transaction.getRepository<CalendarEventTargetWorkspaceEntity>(
+                  'calendarEventTarget',
+                  permissions,
+                )
+              : null;
+          const calendar =
+            calendars && calendarEventId
+              ? await calendars.findOne({
+                  where: { id: calendarEventId },
+                  withDeleted: true,
+                })
+              : null;
+          const calendarTarget =
+            calendarTargets && calendarTargetId
+              ? await calendarTargets.findOne({
+                  where: { id: calendarTargetId },
+                  withDeleted: true,
+                })
+              : null;
+          if (
+            event.provider === 'CAL_DIY' &&
+            (calendar?.deletedAt ||
+              (calendar &&
+                (!calendarTarget ||
+                  calendarTarget.deletedAt ||
+                  calendarTarget.calendarEventId !== calendarEventId ||
+                  calendarTarget.targetPersonId !== person?.id)))
+          )
+            throw new ConflictException('HERMES_EVENT_BOOKING_REQUIRES_REVIEW');
+          if (
+            event.provider === 'CAL_DIY' &&
+            calendar &&
+            calendar.externalUpdatedAt &&
+            Date.parse(calendar.externalUpdatedAt) ===
+              Date.parse(event.occurredAt) &&
+            (calendar.isCanceled !== (event.event.status === 'CANCELLED') ||
+              calendar.title !== event.event.title ||
+              Date.parse(calendar.startsAt ?? '') !==
+                Date.parse(event.event.startsAt) ||
+              Date.parse(calendar.endsAt ?? '') !==
+                Date.parse(event.event.endsAt))
+          )
+            throw new ConflictException('HERMES_EVENT_BOOKING_REQUIRES_REVIEW');
+          const previousCalendarId =
+            event.provider === 'CAL_DIY' &&
+            event.event.type === 'BOOKING_RESCHEDULED' &&
+            event.event.previousBookingUid &&
+            event.event.previousBookingUid !== event.event.bookingUid
+              ? v5(
+                  `calendar:${JSON.stringify([actor.workspaceId, connectionId, event.event.previousBookingUid])}`,
+                  v5.URL,
+                )
+              : null;
+          const previousCalendar =
+            previousCalendarId && calendars
+              ? await calendars.findOne({
+                  where: { id: previousCalendarId },
+                  withDeleted: true,
+                })
+              : null;
+          if (
+            previousCalendarId &&
+            (!previousCalendar || previousCalendar.deletedAt)
+          )
+            throw new ConflictException('HERMES_EVENT_BOOKING_REQUIRES_REVIEW');
+          if (
+            previousCalendarId &&
+            calendarTargets &&
+            event.provider === 'CAL_DIY'
+          ) {
+            const previousTargetId = v5(
+              `calendar-target:${JSON.stringify([actor.workspaceId, connectionId, event.event.previousBookingUid])}`,
+              v5.URL,
+            );
+            const previousTarget = await calendarTargets.findOne({
+              where: { id: previousTargetId },
+              withDeleted: true,
+            });
+            if (
+              !previousTarget ||
+              previousTarget.deletedAt ||
+              previousTarget.calendarEventId !== previousCalendarId ||
+              previousTarget.targetPersonId !== person?.id
+            )
+              throw new ConflictException(
+                'HERMES_EVENT_BOOKING_REQUIRES_REVIEW',
+              );
+          }
           const prior = await notes.findOne({
             where: { id: noteId },
             withDeleted: true,
@@ -198,7 +317,8 @@ export class HermesEventService {
               !target ||
               target.deletedAt ||
               target.noteId !== noteId ||
-              target.targetPersonId !== person.id
+              target.targetPersonId !== person.id ||
+              (event.provider === 'CAL_DIY' && !calendar)
             )
               throw new ConflictException(
                 'HERMES_EVENT_REPLAY_REQUIRES_REVIEW',
@@ -206,14 +326,33 @@ export class HermesEventService {
             return {
               personId: person.id,
               noteId,
-              calendarEventId:
-                event.provider === 'CAL_DIY'
-                  ? v5(`calendar:${eventKey}`, v5.URL)
-                  : null,
+              calendarEventId,
               replay: true,
               marketingConsentGranted: false,
             };
           }
+          if (event.provider === 'CAL_DIY') {
+            if (
+              (!calendar &&
+                event.event.type !== 'BOOKING_CREATED' &&
+                !previousCalendar) ||
+              (calendar && event.event.type === 'BOOKING_CREATED') ||
+              (calendar &&
+                Date.parse(calendar.externalUpdatedAt ?? '') >=
+                  Date.parse(event.occurredAt))
+            )
+              throw new ConflictException(
+                'HERMES_EVENT_BOOKING_REQUIRES_REVIEW',
+              );
+          }
+          if (
+            previousCalendar &&
+            event.provider === 'CAL_DIY' &&
+            (previousCalendar.isCanceled ||
+              Date.parse(previousCalendar.externalUpdatedAt ?? '') >=
+                Date.parse(event.occurredAt))
+          )
+            throw new ConflictException('HERMES_EVENT_BOOKING_REQUIRES_REVIEW');
           let companyId = person?.companyId ?? null;
           if (event.contact.companyName) {
             const matches = await companies
@@ -291,26 +430,34 @@ export class HermesEventService {
             targetPersonId: personId,
             targetCompanyId: companyId,
           });
-          let calendarEventId: string | null = null;
-          if (event.provider === 'CAL_DIY') {
-            calendarEventId = v5(`calendar:${eventKey}`, v5.URL);
-            await transaction
-              .getRepository<CalendarEventWorkspaceEntity>(
-                'calendarEvent',
-                permissions,
-              )
-              .insert({
-                id: calendarEventId,
-                title: event.event.title,
-                isCanceled: false,
-                isFullDay: false,
-                startsAt: event.event.startsAt,
-                endsAt: event.event.endsAt,
-                externalCreatedAt: event.occurredAt,
+          if (
+            event.provider === 'CAL_DIY' &&
+            calendars &&
+            calendarTargets &&
+            calendarEventId &&
+            calendarTargetId
+          ) {
+            const values = {
+              title: event.event.title,
+              isCanceled: event.event.status === 'CANCELLED',
+              isFullDay: false,
+              startsAt: event.event.startsAt,
+              endsAt: event.event.endsAt,
+              externalUpdatedAt: event.occurredAt,
+              description: `${event.event.type} reported by the configured Cal.diy bridge; no attendance inferred.`,
+              location: event.event.location,
+            };
+            if (previousCalendarId)
+              await calendars.update(previousCalendarId, {
+                isCanceled: true,
                 externalUpdatedAt: event.occurredAt,
-                description:
-                  'Accepted booking reported by the configured Cal.diy bridge; no attendance inferred.',
-                location: event.event.location,
+              });
+            if (calendar) await calendars.update(calendarEventId, values);
+            else {
+              await calendars.insert({
+                ...values,
+                id: calendarEventId,
+                externalCreatedAt: event.occurredAt,
                 iCalUid: null,
                 conferenceSolution: null,
                 conferenceLink: {
@@ -319,19 +466,15 @@ export class HermesEventService {
                   secondaryLinks: [],
                 },
               });
-            await transaction
-              .getRepository<CalendarEventTargetWorkspaceEntity>(
-                'calendarEventTarget',
-                permissions,
-              )
-              .insert({
-                id: v5(`calendar-target:${eventKey}`, v5.URL),
+              await calendarTargets.insert({
+                id: calendarTargetId,
                 calendarEventId,
                 targetPersonId: personId,
                 targetCompanyId: companyId,
                 isAutomaticallyAssigned: true,
                 isManuallyAssigned: false,
               });
+            }
           }
           return {
             personId: personId,

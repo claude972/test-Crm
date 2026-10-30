@@ -7,6 +7,11 @@ const connectionSchema = z
     operatorUserWorkspaceId: z.string().uuid(),
     secret: z.string().regex(/^[a-f0-9]{64}$/),
     enabled: z.boolean().default(true),
+    allowedSources: z
+      .array(z.enum(['SCRAPING', 'FORMS', 'CALENDAR']))
+      .min(1)
+      .max(3)
+      .default(['SCRAPING']),
     maxRequestsPerMinute: z.number().int().min(1).max(60).default(10),
   })
   .strict();

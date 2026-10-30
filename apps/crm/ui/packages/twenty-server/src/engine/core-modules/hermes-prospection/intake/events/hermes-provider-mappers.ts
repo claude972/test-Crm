@@ -88,12 +88,17 @@ export const mapCalDiyBooking = (
 ) => {
   const payload = z
     .object({
-      triggerEvent: z.literal('BOOKING_CREATED'),
+      triggerEvent: z.enum([
+        'BOOKING_CREATED',
+        'BOOKING_RESCHEDULED',
+        'BOOKING_CANCELLED',
+      ]),
       createdAt: z.string(),
       payload: z
         .object({
           uid: z.string(),
-          status: z.literal('ACCEPTED'),
+          rescheduleUid: z.string().optional(),
+          status: z.enum(['ACCEPTED', 'CANCELLED']),
           title: z.string(),
           startTime: z.string(),
           endTime: z.string(),
@@ -127,7 +132,7 @@ export const mapCalDiyBooking = (
   return hermesCalendarEventSchema.parse({
     version: 'hermes-bridge-v1',
     provider: 'CAL_DIY',
-    eventId: `${payload.payload.uid}:BOOKING_CREATED`,
+    eventId: `${payload.payload.uid}:${payload.triggerEvent}:${payload.createdAt}`,
     occurredAt: payload.createdAt,
     contact: {
       email: attendee.email,
@@ -136,8 +141,13 @@ export const mapCalDiyBooking = (
       companyName: options.companyName,
     },
     event: {
-      type: 'BOOKING_CREATED',
+      type: payload.triggerEvent,
       bookingUid: payload.payload.uid,
+      ...(payload.triggerEvent === 'BOOKING_RESCHEDULED' &&
+      payload.payload.rescheduleUid &&
+      payload.payload.rescheduleUid !== payload.payload.uid
+        ? { previousBookingUid: payload.payload.rescheduleUid }
+        : {}),
       status: payload.payload.status,
       title: payload.payload.title,
       startsAt: payload.payload.startTime,

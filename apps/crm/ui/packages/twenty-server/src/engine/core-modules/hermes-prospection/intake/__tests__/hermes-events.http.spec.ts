@@ -28,6 +28,8 @@ const B = randomUUID();
 const connectionA = randomUUID();
 const connectionB = randomUUID();
 const secretA = randomBytes(32).toString('hex');
+const secretStage = randomBytes(32).toString('hex');
+const connectionStage = randomUUID();
 const secretB = randomBytes(32).toString('hex');
 const occurredAt = '2026-10-30T12:00:00.000Z';
 const form = () =>
@@ -103,6 +105,11 @@ describe('Hermes Forms and Calendar ingress', () => {
       insert: async (value: RecordValue) => {
         if (table.has(value.id)) throw new Error('duplicate native id');
         table.set(value.id, structuredClone(value));
+      },
+      update: async (id: string, values: object) => {
+        const existing = table.get(id);
+        if (!existing) throw new Error('Missing native record');
+        Object.assign(existing, structuredClone(values));
       },
       findOne: async ({ where }: { where: { id: string } }) =>
         table.get(where.id) ?? null,
@@ -201,17 +208,25 @@ describe('Hermes Forms and Calendar ingress', () => {
     const config = {
       get: () =>
         JSON.stringify({
+          [connectionStage]: {
+            workspaceId: A,
+            operatorUserId: randomUUID(),
+            operatorUserWorkspaceId: randomUUID(),
+            secret: secretStage,
+          },
           [connectionA]: {
             workspaceId: A,
             operatorUserId: randomUUID(),
             operatorUserWorkspaceId: randomUUID(),
             secret: secretA,
+            allowedSources: ['FORMS', 'CALENDAR'],
           },
           [connectionB]: {
             workspaceId: B,
             operatorUserId: randomUUID(),
             operatorUserWorkspaceId: randomUUID(),
             secret: secretB,
+            allowedSources: ['FORMS', 'CALENDAR'],
           },
         }),
     };
@@ -314,6 +329,20 @@ describe('Hermes Forms and Calendar ingress', () => {
     expect((await post('forms', changed)).status).toBe(409);
     expect(store(A, 'note').size).toBe(1);
   });
+  it('never upgrades a default scraping connection into automatic contact creation', async () => {
+    expect(
+      (
+        await post('forms', form(), {
+          connection: connectionStage,
+          secret: secretStage,
+        })
+      ).status,
+    ).toBe(401);
+    expect(access.assertAllowed).not.toHaveBeenCalled();
+    expect(stores.size).toBe(0);
+    expect(nonces.size).toBe(0);
+  });
+
   it('refuses bad signature before access, cache or native state', async () => {
     expect((await post('forms', form(), { bad: true })).status).toBe(401);
     expect(access.assertAllowed).not.toHaveBeenCalled();
@@ -343,6 +372,20 @@ describe('Hermes Forms and Calendar ingress', () => {
     expect((await post('forms', form())).status).toBe(409);
     expect(store(A, 'person').size).toBe(1);
   });
+  it('records an incoming request for an existing opted-out contact without changing suppression or consent', async () => {
+    const first = await (await post('forms', form())).json();
+    suppressed.add(A);
+    const response = await post('forms', form());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      personId: first.personId,
+      marketingConsentGranted: false,
+    });
+    expect(suppressed.has(A)).toBe(true);
+    expect(store(A, 'person').size).toBe(1);
+    expect(store(A, 'note').size).toBe(2);
+  });
+
   it('creates a real native CalendarEvent + target for an accepted booking only', async () => {
     const payload = booking();
     const response = await post('calendar', payload);
@@ -366,6 +409,132 @@ describe('Hermes Forms and Calendar ingress', () => {
       ).status,
     ).toBe(400);
   });
+  it('updates the same native booking on reschedule then cancellation without extra contacts/events', async () => {
+    const payload = booking();
+    const receipt = await (await post('calendar', payload)).json();
+    const rescheduled = {
+      ...payload,
+      eventId: `${payload.event.bookingUid}:rescheduled`,
+      occurredAt: '2026-10-30T12:01:00.000Z',
+      event: {
+        ...payload.event,
+        type: 'BOOKING_RESCHEDULED',
+        startsAt: '2026-11-02T12:00:00.000Z',
+        endsAt: '2026-11-02T13:00:00.000Z',
+      },
+    };
+    expect((await post('calendar', rescheduled)).status).toBe(200);
+    expect(
+      store(A, 'calendarEvent').get(receipt.calendarEventId),
+    ).toMatchObject({
+      startsAt: rescheduled.event.startsAt,
+      isCanceled: false,
+    });
+    const cancelled = {
+      ...rescheduled,
+      eventId: `${payload.event.bookingUid}:cancelled`,
+      occurredAt: '2026-10-30T12:02:00.000Z',
+      event: {
+        ...rescheduled.event,
+        type: 'BOOKING_CANCELLED',
+        status: 'CANCELLED',
+      },
+    };
+    expect((await post('calendar', cancelled)).status).toBe(200);
+    expect(
+      store(A, 'calendarEvent').get(receipt.calendarEventId),
+    ).toMatchObject({ isCanceled: true });
+    expect(store(A, 'person').size).toBe(1);
+    expect(store(A, 'calendarEvent').size).toBe(1);
+    expect(store(A, 'calendarEventTarget').size).toBe(1);
+    expect(store(A, 'note').size).toBe(3);
+    expect((await post('calendar', rescheduled)).status).toBe(200);
+    expect(
+      store(A, 'calendarEvent').get(receipt.calendarEventId)?.isCanceled,
+    ).toBe(true);
+  });
+
+  it('maps Cal rescheduleUid to the prior booking and cancels the old slot atomically', async () => {
+    const created = booking();
+    const old = await (await post('calendar', created)).json();
+    const moved = mapCalDiyBooking(
+      {
+        triggerEvent: 'BOOKING_RESCHEDULED',
+        createdAt: '2026-10-30T12:01:00.000Z',
+        payload: {
+          uid: randomUUID(),
+          rescheduleUid: created.event.bookingUid,
+          status: 'ACCEPTED',
+          title: created.event.title,
+          startTime: '2026-11-02T12:00:00.000Z',
+          endTime: '2026-11-02T13:00:00.000Z',
+          attendees: [{ email: created.contact.email }],
+        },
+      },
+      { attendeeEmail: created.contact.email },
+    );
+    expect(moved.event.previousBookingUid).toBe(created.event.bookingUid);
+    const response = await post('calendar', moved);
+    expect(response.status).toBe(200);
+    const next = await response.json();
+    expect(next.personId).toBe(old.personId);
+    expect(next.calendarEventId).not.toBe(old.calendarEventId);
+    expect(store(A, 'calendarEvent').get(old.calendarEventId)?.isCanceled).toBe(
+      true,
+    );
+    expect(store(A, 'calendarEvent').get(next.calendarEventId)).toMatchObject({
+      isCanceled: false,
+      startsAt: moved.event.startsAt,
+    });
+    expect((await post('calendar', moved)).status).toBe(200);
+    expect(store(A, 'calendarEvent').size).toBe(2);
+  });
+
+  it('refuses missing booking updates, out-of-order events and contradictory cancellation status', async () => {
+    const payload = booking();
+    const update = {
+      ...payload,
+      eventId: 'missing-update',
+      event: { ...payload.event, type: 'BOOKING_RESCHEDULED' },
+    };
+    expect((await post('calendar', update)).status).toBe(409);
+    expect(store(A, 'person').size).toBe(0);
+    await post('calendar', payload);
+    expect(
+      (
+        await post('calendar', {
+          ...update,
+          occurredAt: '2026-10-30T11:59:00.000Z',
+        })
+      ).status,
+    ).toBe(409);
+    expect(
+      (
+        await post('calendar', {
+          ...update,
+          event: {
+            ...update.event,
+            type: 'BOOKING_CANCELLED',
+            status: 'ACCEPTED',
+          },
+        })
+      ).status,
+    ).toBe(400);
+    expect(store(A, 'note').size).toBe(1);
+  });
+
+  it('refuses a replay whose native calendar target was edited or event archived', async () => {
+    const payload = booking();
+    const receipt = await (await post('calendar', payload)).json();
+    const target = [...store(A, 'calendarEventTarget').values()][0];
+    target.targetPersonId = randomUUID();
+    expect((await post('calendar', payload)).status).toBe(409);
+    target.targetPersonId = receipt.personId;
+    store(A, 'calendarEvent').get(receipt.calendarEventId)!.deletedAt =
+      occurredAt;
+    expect((await post('calendar', payload)).status).toBe(409);
+  });
+
   it('rejects exact signed nonce replay and rolls back partial native writes on conflict', async () => {
     const payload = form();
     const nonce = randomUUID();
