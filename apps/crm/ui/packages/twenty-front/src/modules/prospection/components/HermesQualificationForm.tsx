@@ -1,6 +1,6 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import {
@@ -36,6 +36,18 @@ const StyledField = styled.div`
   display: grid;
   gap: ${themeCssVariables.spacing[1]};
   min-width: 0;
+`;
+
+// Same tokens as Field.Label, because this group cannot live inside a
+// Field.Root: Field injects its own aria-labelledby on every control it
+// wraps, which renamed both radios after the field and made the two choices
+// indistinguishable. Outside it, each radio keeps its own name.
+const StyledGroupLabel = styled.span`
+  color: ${themeCssVariables.font.color.light};
+  display: block;
+  font-size: ${themeCssVariables.font.size.xs};
+  font-weight: ${themeCssVariables.font.weight.semiBold};
+  margin-bottom: ${themeCssVariables.spacing[1]};
 `;
 
 const StyledRadioLabel = styled.span`
@@ -77,6 +89,15 @@ export const HermesQualificationForm = ({
   const [submittedIssues, setSubmittedIssues] = useState<HermesInputIssue[]>(
     [],
   );
+
+  // One id per option, because Field.Root injects its own aria-labelledby on
+  // every control it wraps: without these both radios were named after the
+  // field's label, "Information method", and a screen reader could not tell
+  // the two choices apart. Pointing each radio at its own visible text
+  // overrides that, and is the association this repository already uses
+  // (SettingsRadioCard, SettingsRadioSettingsCard).
+  const alreadyInformedLabelId = useId();
+  const firstContactNoticeLabelId = useId();
 
   const { outcome, qualifyRows, resetOutcome } = useHermesQualifyImportRows();
 
@@ -154,8 +175,8 @@ export const HermesQualificationForm = ({
           <Field.Description>{t`HTTPS only.`}</Field.Description>
         </Field.Root>
 
-        <Field.Root render={<StyledField />}>
-          <Field.Label>{t`Information method`}</Field.Label>
+        <StyledField>
+          <StyledGroupLabel>{t`Information method`}</StyledGroupLabel>
           <RadioGroup
             aria-label={t`Information method`}
             value={informationMethod ?? ''}
@@ -169,14 +190,24 @@ export const HermesQualificationForm = ({
               }
             }}
           >
-            <Radio value="already-informed">
-              <StyledRadioLabel>{t`Contacts already informed`}</StyledRadioLabel>
+            <Radio
+              value="already-informed"
+              aria-labelledby={alreadyInformedLabelId}
+            >
+              <StyledRadioLabel id={alreadyInformedLabelId}>
+                {t`Contacts already informed`}
+              </StyledRadioLabel>
             </Radio>
-            <Radio value="first-contact-notice">
-              <StyledRadioLabel>{t`Notice given at first contact`}</StyledRadioLabel>
+            <Radio
+              value="first-contact-notice"
+              aria-labelledby={firstContactNoticeLabelId}
+            >
+              <StyledRadioLabel id={firstContactNoticeLabelId}>
+                {t`Notice given at first contact`}
+              </StyledRadioLabel>
             </Radio>
           </RadioGroup>
-        </Field.Root>
+        </StyledField>
 
         <HermesIssueList issues={submittedIssues} />
 
