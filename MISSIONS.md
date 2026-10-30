@@ -514,7 +514,7 @@ Les deux branches d'implémentation partent de la même base applicative ci-dess
 
 ### Claude assignment — frontend fonctionnel
 - agent: claude
-- status: pending
+- status: in_progress — lecture distante et claim confirmés20:41:19UTC ; checkpoint capacités média56bb4a5bf poussé, modes/settings en cours.
 - branch: feat/claude-hermes-v3-live
 - checkout: /Volumes/Stockage/dev/hermes-crm/v3-claude-live
 - assigned session: session Claude existante 8f3db32e-4613-45e3-94f3-16e664f3cbfc ; root coordonne via CLI et évite les doublons.
@@ -522,7 +522,7 @@ Les deux branches d'implémentation partent de la même base applicative ci-dess
 - deliverables: interface réelle française conforme au prototype V3 ; accès aux fonctions existantes, modes et états serveur correctement présentés ; chargement/vide/erreur/non configuré/disabled/succès applicables ; actions faisables branchées, fonctions indisponibles explicites.
 - acceptance criteria: typecheck/build pertinents ; parcours responsive/clavier et isolation société ; aucune donnée de démonstration présentée comme persistée ; pas de faux succès, secret ou envoi réel. Revue croisée de la branche Codex exacte et rapport requis.
 - verification report: CORRECTIONS.md, section HERMES-V3-INTEGRATION-1H-20261030/claude ; root publie synthèse CLI sur coordination.
-- implementation revision: non livrée à la publication initiale.
+- implementation revision: checkpoint56bb4a5bf capacités média uniquement ; livraison modes/settings attendue.
 - preview: attendue sur branche intégration privée ; aucune URL privée de partage dans Git.
 - blockers: validation runtime/fournisseur et étendue média à vérifier ; pas de résultat live revendiqué avant preuve.
 
@@ -535,7 +535,7 @@ Les deux branches d'implémentation partent de la même base applicative ci-dess
 - deliverables: modes AUTO/ASSISTED/OFF effectifs côté serveur et isolation ; opérations messagerie/MCP existantes raccordables et contrats compatibles ; migrations minimales si requises avec contrôles de sécurité/accès appropriés. Prioriser réutilisation des services existants.
 - acceptance criteria: tests pertinents droits/sociétés/modes/transitions ; aucun affaiblissement d'autorisation, fuite de secret, envoi réel, migration destructive ou API fictive ; build/typecheck pertinents. Revue croisée de la branche Claude exacte et rapport requis.
 - verification report: CORRECTIONS.md, section HERMES-V3-INTEGRATION-1H-20261030/codex.
-- implementation revision: non livrée à la publication initiale.
+- implementation revision: e9a76066a6aa616896ec2fa35085baac08af24d5 ;59tests/4suites annoncés, deux findings concurrence revus ; intégration native CI encore en échec à20:55UTC.
 - preview: attendue sur branche intégration privée.
 - blockers: capacité/fournisseur réellement configuré à établir sans divulgation de credentials ; média incomplet doit rester explicite.
 
