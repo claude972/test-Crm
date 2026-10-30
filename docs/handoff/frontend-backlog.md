@@ -153,7 +153,7 @@ Vérification : avec un objet distant et une liste vide, constater que le texte 
 
 ### B2 — P2 · Résoudre les liens vers `kovaa-lab.com` (§ 4.6)
 
-`kovaa-lab.com` renvoie `NXDOMAIN`. Le plus sensible : **les CGU et la politique de confidentialité de l'écran de connexion** (`getTwentyWebsiteUrl.ts:7`, consommé par `FooterNote.tsx:72, 80, 102, 110`). Puis `docs.kovaa-lab.com` (`twenty-shared/src/constants/DocumentationBaseUrl.ts:1`, 9 fichiers de production), `SettingsCommunity.tsx:116` et `:135`, et l'aperçu social (`index.html:19`, `:26`, dépôt GitHub en 404).
+Le DNS de `kovaa-lab.com` ne résout pas (`NXDOMAIN`), ce qui suffit à rendre les liens injoignables aujourd'hui ; le statut de registre est une preuve séparée (§ 6 du rapport). Le plus sensible : **les CGU et la politique de confidentialité de l'écran de connexion** (`getTwentyWebsiteUrl.ts:7`, consommé par `FooterNote.tsx:72, 80, 102, 110`). Puis `docs.kovaa-lab.com` (`twenty-shared/src/constants/DocumentationBaseUrl.ts:1`, 9 fichiers de production), `SettingsCommunity.tsx:116` et `:135`, et l'aperçu social (`index.html:19`, `:26`, dépôt GitHub en 404).
 
 **Ce n'est pas un correctif frontend seul** : il faut soit enregistrer un domaine, soit choisir des cibles réelles, soit masquer les entrées concernées.
 

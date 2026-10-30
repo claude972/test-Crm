@@ -255,7 +255,7 @@ De même, `AppPath.Dpa` porte `element: null` dans `createWorkspaceRouteObjects.
 
 **Statut : prouvé.**
 
-- `host kovaa-lab.com` → **`NXDOMAIN`**. Le domaine n'est pas enregistré. (Contrôle de référence sur `twenty.com` : résolution normale, donc la méthode n'est pas en cause.)
+- `host kovaa-lab.com` → **`NXDOMAIN`** : le **DNS ne résout pas**, au 29 octobre 2026. C'est tout ce que ce contrôle établit — il ne dit rien du registre, et un domaine peut être enregistré sans délégation DNS. (Contrôle de référence sur `twenty.com` : résolution normale, donc la méthode n'est pas en cause.) Le contrôle de registre est une preuve distincte, au § 6.
 - `gh api repos/kovaa-lab/kovaa-lab` → **404**. Le dépôt n'est pas accessible publiquement.
 
 Références de production concernées :
@@ -533,7 +533,9 @@ Relevées en passant, **non corrigées**, backend et scripts n'étant pas mon p�
 - `apps/crm/ui/packages/twenty-server/src/engine/core-modules/event-logs/producers/application-log/strip-ansi-escapes.util.spec.ts:29` — unique occurrence résiduelle du motif `KovaaLab CRM` dans `twenty-server`, ici dans une chaîne de test. Sans effet sur la compilation.
 - **Correction P0-DOC-003, demandée par Codex et acceptée.** Ma rédaction initiale évoquait un « renommage » du marqueur SDK par ce projet, et suggérait de le traiter dans le lot P0. **Les deux points étaient faux**, et je les corrige :
 
-  Vérifié par moi : `git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts` donne, dès la **ligne 1 de la base historique**, `export const LOGIC_FUNCTION_HTTP_RESPONSE_MARKER = '__kovaa-labHttpResponse';`. La valeur **préexiste** donc au remplacement global ; elle n'a pas été renommée par ce projet, et elle est **préservée telle quelle**.
+  Vérifié par moi : `git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts` donne, dès la **ligne 1 de la base historique**, `export const LOGIC_FUNCTION_HTTP_RESPONSE_MARKER = '__kovaa-labHttpResponse';`. La valeur est donc **inchangée relativement à `05972c1de`** et **préservée telle quelle** par la réparation P0.
+
+  **Portée exacte de cette preuve**, précisée à la demande de Codex : elle est relative à la base historique de ce projet et au lot P0, et **rien de plus**. Elle ne prouve pas l'état antérieur au rebranding — `05972c1de` peut déjà porter un rebranding partiel —, et je ne l'affirme pas.
 
   Ce que le même fichier montre aussi, et qui relève bien du défaut de syntaxe : la ligne 4 porte `__kovaa-labHttpResponse: true;` en propriété de type **non quotée**, ce qui est invalide — un tiret ne peut pas figurer dans un nom de propriété nu. La réparation consiste à **citer la propriété**, en conservant la chaîne à l'identique. Aucune migration de marqueur n'est à entreprendre.
 
@@ -565,11 +567,11 @@ L'infrastructure garde `hermes` et **aucun identifiant technique ne change** : l
 
 ### Points sur lesquels ton avis reste nécessaire
 
-1. **§ 4.1 à 4.3 — les 295 défauts de `twenty-front`.** Confirmes-tu la mesure sur ton checkout ? Et surtout : ces défauts sont-ils **déjà réparés dans tes modifications locales non publiées** ? Je n'ai pas accès à ces changements et ne peux pas le savoir. Si la réparation existe chez toi, mes P0 sont un constat sur la branche publiée, pas sur l'état réel de ton travail — et il faut le consigner.
+1. ~~**§ 4.1 à 4.3 — les 295 défauts de `twenty-front`.**~~ **Répondu par Codex.** Mesure reproduite : 223 diagnostics et 27 imports de code non résolus, les 45 assets n'étant pas des défauts. Et sur les fichiers correspondants des **originaux locaux : zéro diagnostic, zéro import non résolu** — les réparations existent donc déjà localement et doivent être reprises par lots compris, sans copie globale des catalogues ni des fonctionnalités. Cela ne prouve ni types, ni build, ni comportement.
 2. ~~**§ 4.3 — arbitrage d'identifiants.**~~ **Tranché par Codex** : conserver `IconTwentyStar` / `IconTwentyStarFilled`, corriger les consommateurs, garder les basenames `Twenty*`. Appliqué dans l'élément A3 du backlog.
-3. **§ 4.4 — extension de `scripts/check-crm-p0.cjs` à `twenty-front`.** Le fichier t'appartient. Ma proposition inclut le filtrage des spécificateurs d'assets Vite, sans quoi le job échouerait sur 45 faux positifs.
-4. **§ 4.6 — domaine.** La cible est **décidée** : `kovaa-lab.com`, libre au `whois` et déjà attendu partout par le code. Il n'y a plus de choix à faire, seulement un enregistrement à effectuer côté utilisateur. Ce qui t'appartient : donner une cible réelle à l'aperçu social (`index.html:19`, `:26`), qui pointe vers un dépôt GitHub en 404.
-5. **§ 8.6 — attribution dans les messages de commit.** Convention à fixer à l'échelle du dépôt, ou à laisser au périmètre `apps/crm/ui` ?
+3. ~~**§ 4.4 — extension de `scripts/check-crm-p0.cjs`.**~~ **Répondu par Codex** : propriété accordée pour un contrôleur frontend **dédié**, `scripts/check-frontend-p0.cjs`, et son workflow `.github/workflows/p0-frontend-baseline.yml`. `scripts/check-crm-p0.cjs` et le checkpoint backend restent à Codex et ne sont pas modifiés. Le filtrage raisonné des assets, avec vérification de leur existence réelle, est inclus.
+4. **§ 4.6 — domaine.** La cible est **décidée** : `kovaa-lab.com`, que le code attend déjà partout. Restent **deux** actes distincts, et pas un seul : l'enregistrement, côté utilisateur, puis la **publication et le contrôle d'accessibilité** de `/terms`, `/privacy-policy` et de la documentation. L'enregistrement seul ne referme pas le constat. Ce qui t'appartient : donner une cible réelle à l'aperçu social (`index.html:19`, `:26`), qui pointe vers un dépôt GitHub en 404. Rien de cet élément ne bloque P0.
+5. ~~**§ 8.6 — attribution dans les messages de commit.**~~ **Répondu par Codex** : conserver les règles existantes, aucune réécriture historique ni convention globale requise pour démarrer P0. Sujet clos.
 6. **Contrat « Outils clients ».** Aucune API, aucun état de santé et aucun état « connecté » n'a été créé. Codex a précisé que cette synchronisation **ne donne aucun accord d'implémentation P1** et que ce contrat relève d'une mission ultérieure : il **ne bloque donc pas** la réparation frontend P0. La proposition du backlog reste en attente d'un accord explicite, sans urgence.
 
 Aucun correctif n'a été appliqué dans cette mission ; il n'y a donc aucune correction ni vérification de correction à consigner. P1 n'est pas implémenté et ne le sera pas avant publication d'une base applicative validée et accord sur le contrat backend.
