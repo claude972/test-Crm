@@ -256,7 +256,7 @@ export function mailContentSignature(
     text: string;
     html?: string;
   },
-  files: { filename?: string; mimeType: string; bytes: Buffer }[],
+  files: { filename?: string | null; mimeType: string; bytes: Buffer }[],
 ) {
   const normalize = (text: string | undefined) =>
     (text ?? '').replace(/\r\n/g, '\n').trimEnd();
