@@ -26,6 +26,8 @@ const env = {
   FRONTEND_URL: 'http://127.0.0.1:3001',
   APP_SECRET: appSecret,
   REDIS_CACHE_PREFIX: `p0-ci-${process.env.GITHUB_RUN_ID}`,
+  // Use the same explicit environment source as isolated migrations and preview.
+  IS_CONFIG_VARIABLES_IN_DB_ENABLED: 'false',
   TELEMETRY_ENABLED: 'false',
   IS_BILLING_ENABLED: 'false',
   IS_FDW_ENABLED: 'false',
