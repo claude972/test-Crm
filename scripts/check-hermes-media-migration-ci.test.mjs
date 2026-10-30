@@ -6,7 +6,7 @@ import {
   validateMediaSql,
 } from "./check-hermes-media-migration-ci.mjs";
 
-test("only the eight reviewed historical deltas may prepare the disposable baseline", () => {
+test("only the eight pinned raw canonical diagnostic entries are accepted", () => {
   assert.equal(BASELINE_FIXTURE_DRIFT.length, 8);
   validateBaselineFixtureDrift([...BASELINE_FIXTURE_DRIFT].reverse());
   assert.throws(() =>

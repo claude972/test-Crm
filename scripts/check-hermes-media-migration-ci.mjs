@@ -25,7 +25,8 @@ const manifestPath = path.join(
   "src/database/commands/upgrade-version-command/instance-commands.constant.ts",
 );
 
-// These are historical baseline deltas, never part of the media migration.
+// Raw canonical metadata includes seven deliberately removed legacy columns.
+// This diagnostic must never be applied as a baseline schema repair.
 export const BASELINE_FIXTURE_DRIFT = Object.freeze([
   `ALTER TABLE "core"."agent" ADD "evaluationInputs" text array NOT NULL DEFAULT '{}'`,
   'ALTER TABLE "core"."rolePermissionFlag" ADD "flag" character varying NOT NULL',
@@ -42,7 +43,7 @@ export function validateBaselineFixtureDrift(queries) {
   assert.deepEqual(
     [...queries].sort(),
     [...BASELINE_FIXTURE_DRIFT].sort(),
-    "Unexpected historical baseline drift: do not synchronize an unreviewed fixture",
+    "Unexpected raw canonical diagnostic at the pinned baseline",
   );
 }
 
@@ -359,7 +360,7 @@ export async function main() {
       );
     return result.stdout;
   };
-  const schemaDiff = (cwd) => {
+  const canonicalSchemaDiff = (cwd) => {
     const output = run(
       [
         "-e",
@@ -372,6 +373,27 @@ export async function main() {
       .find((entry) => entry.startsWith("HERMES_SCHEMA_DIFF:"));
     assert.ok(line, "Missing metadata comparison");
     return JSON.parse(line.slice("HERMES_SCHEMA_DIFF:".length));
+  };
+  const schemaDiff = (cwd) => {
+    const output = run(
+      [
+        "-e",
+        `const {CommandFactory}=require('nest-commander');const {DataSource}=require('typeorm');const {CommandModule}=require('./dist/command/command.module.js');const {UpgradeMigrationService}=require('./dist/engine/core-modules/upgrade/services/upgrade-migration.service.js');const {MetadataEventEmitter}=require('./dist/engine/subscriptions/metadata-event/metadata-event-emitter.js');(async()=>{const app=await CommandFactory.createWithoutRunning(CommandModule,{logger:['error'],bufferLogs:false});try{const source=app.get(DataSource);const sql=await source.driver.createSchemaBuilder().log();const cursor=await app.get(UpgradeMigrationService).getLastAttemptedInstanceCommand();console.log('HERMES_NATIVE_SCHEMA:'+JSON.stringify({up:sql.upQueries.map(({query})=>query),down:sql.downQueries.map(({query})=>query),cursor:cursor?{name:cursor.name,status:cursor.status,executedByVersion:cursor.executedByVersion}:null,columns:source.entityMetadatas.filter(item=>['agent','rolePermissionFlag','fieldMetadata','objectMetadata','timelineActivityType','hermesImportState'].includes(item.tableName)).map(item=>({table:item.tablePath,columns:item.columns.map(column=>column.databaseName).sort()}))}));}finally{await app.get(MetadataEventEmitter).drain();await app.close();}})().catch(error=>{console.error(error instanceof Error?error.message:'Native metadata comparison failed');process.exitCode=1;});`,
+      ],
+      cwd,
+    );
+    const line = output
+      .split("\n")
+      .find((entry) => entry.startsWith("HERMES_NATIVE_SCHEMA:"));
+    assert.ok(line, "Missing upgrade-aware native metadata comparison");
+    const comparison = JSON.parse(line.slice("HERMES_NATIVE_SCHEMA:".length));
+    report.nativeMetadataComparisons ??= [];
+    report.nativeMetadataComparisons.push({
+      checkout: cwd === baseline ? "baseline" : "feature",
+      ...comparison,
+    });
+    save();
+    return comparison.up;
   };
   const requireFromServer = createRequire(path.join(server, "package.json"));
   const { Client, Pool } = requireFromServer("pg");
@@ -401,39 +423,58 @@ export async function main() {
       ],
       baseline,
     );
-    const historicalBaselineDrift = schemaDiff(baseline);
+    const canonicalDiagnostic = canonicalSchemaDiff(baseline);
+    validateBaselineFixtureDrift(canonicalDiagnostic);
     writeFileSync(
-      path.join(artifactDirectory, "historical-baseline-drift.json"),
+      path.join(artifactDirectory, "raw-canonical-metadata-diagnostic.json"),
       JSON.stringify(
-        { base: baseSha, queries: historicalBaselineDrift },
+        {
+          base: baseSha,
+          diagnosticOnly: true,
+          interpretation:
+            "Seven columns are deliberately removed by native upgrade-aware metadata at the applied cursor; bare DataSource must not reintroduce them. The remaining JSONB literal formatting difference is checked semantically.",
+          queries: canonicalDiagnostic,
+        },
         null,
         2,
       ) + "\n",
     );
-    report.historicalBaselineMigrationConvergence =
-      historicalBaselineDrift.length
-        ? {
-            status: "pre-existing-drift",
-            count: historicalBaselineDrift.length,
-            evidence: "historical-baseline-drift.json",
-          }
-        : { status: "passed", count: 0 };
-    save();
-    if (historicalBaselineDrift.length) {
-      validateBaselineFixtureDrift(historicalBaselineDrift);
-      // The fresh, guarded GitHub fixture is prepared from BASELINE metadata.
-      // This does not repair or validate the historical migration chain.
-      run(
-        [
-          "-e",
-          `const { connectionSource } = require('./dist/database/typeorm/core/core.datasource.js'); (async () => { await connectionSource.initialize(); try { await connectionSource.synchronize(false); } finally { await connectionSource.destroy(); } })().catch(() => { console.error('Disposable baseline metadata preparation failed'); process.exitCode = 1; });`,
-        ],
-        baseline,
+    report.rawCanonicalMetadataDiagnostic = {
+      count: canonicalDiagnostic.length,
+      evidence: "raw-canonical-metadata-diagnostic.json",
+      schemaSynchronizationApplied: false,
+    };
+    const historicalBaselineDrift = schemaDiff(baseline);
+    if (historicalBaselineDrift.length)
+      assert.deepEqual(
+        historicalBaselineDrift,
+        [BASELINE_FIXTURE_DRIFT[7]],
+        "Only the exact semantic JSONB default difference may remain in the native baseline context",
       );
-    }
-    const residualBaselineDrift = schemaDiff(baseline);
     writeFileSync(
-      path.join(artifactDirectory, "baseline-after-native-sync.json"),
+      path.join(artifactDirectory, "historical-baseline-drift.json"),
+      JSON.stringify(
+        {
+          base: baseSha,
+          comparison:
+            "Native CommandModule context, with UpgradeAwareEntityMetadataAdapter at the applied cursor",
+          queries: historicalBaselineDrift,
+        },
+        null,
+        2,
+      ) + "\n",
+    );
+    report.historicalBaselineMigrationConvergence = {
+      status: historicalBaselineDrift.length
+        ? "semantic-default-proof-required"
+        : "passed",
+      count: historicalBaselineDrift.length,
+      evidence: "historical-baseline-drift.json",
+    };
+    save();
+    const residualBaselineDrift = historicalBaselineDrift;
+    writeFileSync(
+      path.join(artifactDirectory, "baseline-native-before-normalization.json"),
       JSON.stringify(residualBaselineDrift, null, 2) + "\n",
     );
     if (residualBaselineDrift.length) {
@@ -507,9 +548,10 @@ export async function main() {
       [],
       "The disposable baseline metadata fixture must converge before feature generation",
     );
-    report.fixturePreparation = historicalBaselineDrift.length
-      ? "Native TypeORM baseline metadata synchronization of eight explicitly reviewed historical deltas, fresh GitHub-hosted fixture only"
-      : "Historical migrations already match baseline metadata";
+    report.fixturePreparation =
+      "Exact baseline migrations and the native CommandModule upgrade-aware cursor projection; NO schema synchronization and NO reintroduction of removed columns. Only the proven JSONB default representation is normalized in memory.";
+    report.historicalBaselineMigrationConvergence.status =
+      "passed with native cursor and validated semantic default";
     report.stage = "baseline-metadata-fixture-created";
     save();
     const beforeManifest = readFileSync(manifestPath, "utf8");
@@ -518,6 +560,10 @@ export async function main() {
         name.endsWith("-add-hermes-media.ts"),
       );
     const generating = find().length === 0;
+    writeFileSync(
+      path.join(artifactDirectory, "native-feature-diff-before-generator.json"),
+      JSON.stringify(schemaDiff(server), null, 2) + "\n",
+    );
     if (generating)
       run([
         "dist/command/command.js",
@@ -534,6 +580,16 @@ export async function main() {
       migrationPath = path.join(versionDirectory, filename),
       source = readFileSync(migrationPath, "utf8"),
       manifest = readFileSync(manifestPath, "utf8");
+    const generatedTimestamp = Number(filename.match(/-fast-(\d+)-/)?.[1]);
+    const priorTimestamps = readdirSync(versionDirectory)
+      .filter((name) => name !== filename)
+      .map((name) => Number(name.match(/-(?:fast|slow)-(\d+)-/)?.[1]))
+      .filter(Number.isFinite);
+    assert.ok(
+      Number.isSafeInteger(generatedTimestamp) &&
+        generatedTimestamp > Math.max(0, ...priorTimestamps),
+      "The native command timestamp must exceed every existing current-version instance command",
+    );
     const className = "AddHermesMediaFastInstanceCommand";
     assert.ok(
       manifest.includes(`import { ${className} }`) &&
@@ -570,6 +626,14 @@ export async function main() {
         down.push(sql);
       },
     });
+    writeFileSync(
+      path.join(artifactDirectory, "candidate-sql.unvalidated.json"),
+      JSON.stringify({ up, down }, null, 2) + "\n",
+    );
+    writeFileSync(
+      path.join(artifactDirectory, "candidate-command.unvalidated.txt"),
+      source,
+    );
     validateMediaSql(up, down);
     const relativeMigration = path.relative(root, migrationPath),
       relativeManifest = path.relative(root, manifestPath);
@@ -628,7 +692,7 @@ export async function main() {
     report.status = "passed";
     report.migration = relativeMigration;
     report.roundTrip =
-      "native official generator, prepared baseline metadata fixture → up → feature metadata → down → prepared baseline metadata fixture → up → feature metadata; historical baseline drift is reported separately";
+      "native official generator, prepared baseline metadata fixture → up → feature metadata → down → prepared baseline metadata fixture → up → feature metadata; the raw canonical diagnostic and native cursor/default proof are reported separately";
     console.info(
       "Hermes media: official migration, PostgreSQL reservations and exact metadata round-trip passed",
     );

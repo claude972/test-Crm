@@ -114,7 +114,7 @@ jobs:
         run: |
           mapfile -t suites < <(find src/engine/core-modules/hermes-media/__tests__ src/engine/core-modules/hermes-messaging/__tests__ src/engine/core-modules/hermes-connectors/evolution/messages/__tests__ -name '*.spec.ts' -type f | sort)
           node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath "${suites[@]}"
-      - name: Prepare disposable baseline metadata, generate native 2.52 media delta and prove PostgreSQL up/down/up
+      - name: Compare native upgrade-aware baseline, generate official 2.52 media delta and prove PostgreSQL up/down/up
         env:
           PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
           REDIS_URL: redis://127.0.0.1:6379
