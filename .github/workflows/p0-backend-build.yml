@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
+      hermes-integration:
+        type: boolean
+        default: false
       hermes-checks:
         type: boolean
         default: false
@@ -115,7 +118,7 @@ jobs:
       - name: Verify Hermes tenant, prospection and SMTP regressions
         if: ${{ inputs.hermes-checks && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}
         working-directory: apps/crm/ui/packages/twenty-server
-        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-jest-cache --runTestsByPath src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-access.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection.service.spec.ts src/engine/core-modules/hermes-prospection/utils/__tests__/hermes-import-policy.spec.ts src/engine/core-modules/emailing-domain/drivers/smtp/__tests__/smtp-emailing-domain-driver.spec.ts src/engine/core-modules/emailing-domain/utils/__tests__/get-sole-envelope-recipient.util.spec.ts src/engine/core-modules/emailing-domain/services/__tests__/unsubscribe-content.service.spec.ts src/engine/core-modules/hermes-connectors/evolution/__tests__/evolution-connection.adapter.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.resolver.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.service.spec.ts src/modules/emailing/services/__tests__/campaign-unconfirmed-quarantine.spec.ts src/modules/emailing/services/__tests__/emailing-domain-sender-quarantine.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-batch-settlements.util.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-send-failure.util.spec.ts
+        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --cacheDirectory /tmp/hermes-jest-cache --runTestsByPath src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-access.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection.service.spec.ts src/engine/core-modules/hermes-prospection/__tests__/hermes-prospection-review.spec.ts src/engine/core-modules/hermes-prospection/utils/__tests__/hermes-import-policy.spec.ts src/engine/core-modules/emailing-domain/drivers/smtp/__tests__/smtp-emailing-domain-driver.spec.ts src/engine/core-modules/emailing-domain/utils/__tests__/get-sole-envelope-recipient.util.spec.ts src/engine/core-modules/emailing-domain/services/__tests__/unsubscribe-content.service.spec.ts src/engine/core-modules/hermes-connectors/evolution/__tests__/evolution-connection.adapter.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.resolver.spec.ts src/engine/core-modules/hermes-connectors/__tests__/hermes-connectors.service.spec.ts src/modules/emailing/services/__tests__/campaign-unconfirmed-quarantine.spec.ts src/modules/emailing/services/__tests__/emailing-domain-sender-quarantine.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-batch-settlements.util.spec.ts src/modules/emailing/utils/__tests__/resolve-campaign-send-failure.util.spec.ts
       - name: Typecheck backend production sources without starting the server
         id: backend_types
         if: ${{ !cancelled() && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}
@@ -137,14 +140,19 @@ jobs:
       - name: Verify disposable migration guards
         if: ${{ inputs.hermes-checks }}
         working-directory: .
-        run: node --test scripts/check-hermes-migration-ci.test.mjs
-      - name: Generate and exercise the official Hermes migration on disposable PostgreSQL
+        run: node --test scripts/check-hermes-migration-ci.test.mjs scripts/check-hermes-integration-p0.test.mjs
+      - name: Generate or verify the registered Hermes migration on disposable PostgreSQL
         if: ${{ inputs.hermes-checks && inputs.runtime-smoke && steps.backend_types.outcome == 'success' && steps.backend_build.outcome == 'success' }}
         working-directory: .
         env:
           PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
           REDIS_URL: redis://127.0.0.1:6379
-        run: node scripts/check-hermes-migration-ci.mjs --generate --reset-after-generation
+        run: |
+          if compgen -G 'apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-import-state.ts' > /dev/null; then
+            node scripts/check-hermes-migration-ci.mjs --verify-existing --reset-after-check
+          else
+            node scripts/check-hermes-migration-ci.mjs --generate --reset-after-generation
+          fi
       - name: Publish generated Hermes migration for review
         if: ${{ always() && inputs.hermes-checks }}
         uses: actions/upload-artifact@v4
@@ -171,6 +179,14 @@ jobs:
           P0_BROWSER_SMOKE: ${{ inputs.browser-smoke }}
           P1_HERMES_BROWSER_SMOKE: ${{ inputs.hermes-checks && 'true' || 'false' }}
         run: node scripts/check-backend-runtime-p0.mjs
+      - name: Verify registered Hermes APIs against fresh native fixtures
+        if: ${{ inputs.hermes-integration && inputs.hermes-checks && hashFiles('apps/crm/ui/packages/twenty-server/src/database/commands/upgrade-version-command/2-52/*-add-hermes-import-state.ts') != '' }}
+        working-directory: .
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+          P0_INTEGRATION_DISPOSABLE: 'true'
+        run: node scripts/check-hermes-integration-p0.mjs test/integration/graphql/suites/hermes-structure-dashboard.integration-spec.ts test/integration/graphql/suites/hermes-prospection.integration-spec.ts
       - name: Publish browser evidence
         if: ${{ !cancelled() && inputs.browser-smoke }}
         uses: actions/upload-artifact@v4

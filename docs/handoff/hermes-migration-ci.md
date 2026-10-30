@@ -70,3 +70,9 @@ This validates durable staging integration, not the complete authenticated Graph
 ## Local verification status
 
 Local validation completed: Node syntax check passed; 18 CI target/SQL guard tests passed; the portable Jest configuration ran all 26 Hermes policy/access/bridge tests successfully. No database was accessed. Node syntax and the CI target/SQL guard unit suite are runnable without a database. The database-generation path deliberately refuses local execution and must be run by the root agent in the disposable CI job; no database integration pass is claimed before that run.
+
+## Independent backend loop and registered verification
+
+The root integration branch also runs `p1-hermes-backend.yml`, which calls the existing backend workflow without waiting for a frontend artifact. This prevents a frontend bundle defect from blocking official migration generation. Its services are fresh and disposable; browser checks stay in the combined workflow.
+
+The workflow uses generation mode until the official source artifact has been reviewed/committed, then selects `--verify-existing --reset-after-check` on fresh PostgreSQL. `--reset-after-check` is the explicit equivalent of the older generation-only reset flag, available after either successful mode; the exact hosted/loopback/run-ID protections and zero-workspace fixture check remain unchanged. The native API integration step requires the generated source to exist and successful prior verification, otherwise it is visibly skipped. A skipped step is not integration evidence.

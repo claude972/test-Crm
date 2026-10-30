@@ -312,14 +312,14 @@ async function checkImportTransactions(requireFromServer, database) {
 export async function main() {
   const mode = process.argv[2] ?? '--generate';
   assert.ok(['--generate', '--verify-existing'].includes(mode));
-  const resetAfterGeneration = process.argv[3] === '--reset-after-generation';
+  const resetAfterGeneration = ['--reset-after-generation', '--reset-after-check'].includes(process.argv[3]);
   assert.ok(
     process.argv.length <= 4 &&
       (process.argv.length < 4 || resetAfterGeneration),
     'Unknown arguments',
   );
   assert.ok(
-    !resetAfterGeneration || mode === '--generate',
+    process.argv[3] !== '--reset-after-generation' || mode === '--generate',
     'Reset is only available in generation mode',
   );
   const database = assertDisposableTarget(process.env);

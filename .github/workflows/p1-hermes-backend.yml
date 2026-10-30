@@ -1,0 +1,26 @@
+name: P1 Hermes backend independently
+on:
+  push:
+    branches: [feat/codex-hermes-integration]
+    paths:
+      - '.github/workflows/p1-hermes-backend.yml'
+      - '.github/workflows/p0-backend-build.yml'
+      - 'apps/crm/ui/packages/twenty-server/**'
+      - 'apps/crm/ui/packages/twenty-shared/**'
+      - 'apps/crm/ui/packages/twenty-client-sdk/**'
+      - 'apps/crm/ui/packages/twenty-emails/**'
+      - 'scripts/check-hermes-*.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p1-hermes-backend-${{ github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  backend:
+    uses: ./.github/workflows/p0-backend-build.yml
+    with:
+      runtime-smoke: true
+      browser-smoke: false
+      hermes-checks: true
+      hermes-integration: true
