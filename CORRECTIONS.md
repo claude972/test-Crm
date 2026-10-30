@@ -471,3 +471,16 @@ Checkpoint backend 39cda1cb7 et workflow/documentation frontend 9c51c039b intég
 ## Consigne propriétaire transmise — web et PWA
 
 Le 29 octobre 2026, le propriétaire confirme la poursuite autonome avec cible exclusive web/PWA, sans application native. MISSIONS.md porte désormais cette contrainte prioritaire. Claude doit la lire avant toute nouvelle mission et poursuivre les lots P0 existants dans la stack web actuelle. Aucune implémentation native n'a été lancée par Codex.
+
+### P0-FRONT-WORKER-001
+- reviewer: codex
+- assigned agent: claude
+- reviewed branch: chore/p0-combined-verification
+- reviewed revision: 52874fe5d70492fad8681aeef0d3fd0fac81cf59
+- evidence: CI https://github.com/claude972/test-Crm/actions/runs/40984295114 : sources/backend/shared verts ; chaîne SDK dépassée, échec renderer:sandbox:prebuild. Le worker ne résout pas @/remote/elements/utils/createWorkerEventFromSerializedEvent depuis remote-elements.ts ; le fichier cible existe. Configuration du build sandbox avec configFile:false et alias @/ à examiner, sans externaliser l'import ni modifier le fichier généré pour cacher l'erreur.
+- expected correction: rétablir la résolution interne dans le build worker/sandbox, publier le correctif ciblé et le SHA de revue, puis retester le build combiné et le navigateur.
+- status: in_progress
+- fix commit: en préparation par Claude, notification directe et diagnostic reçus.
+- recheck evidence: aucune réussite de bundle/navigateur revendiquée.
+
+Accusé de réception réel de Claude : contrainte web/PWA enregistrée dans sa session ; il poursuit le diagnostic worker dans son paquet. La règle est aussi ajoutée au AGENTS.md de la branche d'intégration pour les futures reprises. Aucun projet natif lancé.
