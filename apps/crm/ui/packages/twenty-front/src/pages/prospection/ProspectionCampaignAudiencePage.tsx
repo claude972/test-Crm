@@ -4,21 +4,22 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { useParams } from 'react-router-dom';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
-import { IconListCheck } from 'kovaa-lab-ui/icon';
+import { IconUsers } from 'kovaa-lab-ui/icon';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import { CampaignAudienceMembersTable } from '@/prospection/components/CampaignAudienceMembersTable';
 import {
   ProspectionCounters,
   type ProspectionCounter,
 } from '@/prospection/components/ProspectionCounters';
 import { ProspectionNote } from '@/prospection/components/ProspectionNote';
 import { ProspectionObjectsGate } from '@/prospection/components/ProspectionObjectsGate';
-import { ReceivedListMembersTable } from '@/prospection/components/ReceivedListMembersTable';
-import { PROSPECTION_RECEIVED_LISTS_PATH } from '@/prospection/constants/ProspectionRoutePaths';
-import { useReceivedListQualification } from '@/prospection/hooks/useReceivedListQualification';
+import { PROSPECTION_RECEPTION_PATH } from '@/prospection/constants/ProspectionRoutePaths';
+import { useCampaignAudienceMembers } from '@/prospection/hooks/useCampaignAudienceMembers';
 import { PageCardHeader } from '@/ui/layout/page/components/PageCardHeader';
 import { PageCardLayout } from '@/ui/layout/page/components/PageCardLayout';
+import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
 
 const StyledContent = styled.div`
   display: flex;
@@ -33,13 +34,13 @@ const StyledFooter = styled.div`
   justify-content: center;
 `;
 
-type ProspectionListQualificationContentProps = {
+type ProspectionCampaignAudienceContentProps = {
   messageListId: string | undefined;
 };
 
-const ProspectionListQualificationContent = ({
+const ProspectionCampaignAudienceContent = ({
   messageListId,
-}: ProspectionListQualificationContentProps) => {
+}: ProspectionCampaignAudienceContentProps) => {
   const { t } = useLingui();
 
   const {
@@ -48,21 +49,20 @@ const ProspectionListQualificationContent = ({
     contactCount,
     withEmailCount,
     withoutCompanyCount,
-    optedOutCount,
-    oppositionCoverage,
+    registerCoverage,
     loading,
     error,
     hasMoreMembers,
     fetchMoreMembers,
-  } = useReceivedListQualification({ messageListId });
+  } = useCampaignAudienceMembers({ messageListId });
 
   const trimmedName = list?.name?.trim();
-  const listName = isNonEmptyString(trimmedName)
+  const audienceName = isNonEmptyString(trimmedName)
     ? trimmedName
-    : t`Untitled list`;
+    : t`Untitled audience`;
 
-  // Until the list is read, its name is not known either, and a placeholder
-  // name over real counters would read as the list's own name.
+  // Until the audience is read, its name is not known either, and a
+  // placeholder name over real counters would read as the audience's own name.
   if (loading && !isDefined(list)) {
     return (
       <StyledContent>
@@ -73,16 +73,18 @@ const ProspectionListQualificationContent = ({
     );
   }
 
-  // The list itself could not be read, so nothing below it would mean
-  // anything: an empty table here would read as an empty list.
+  // The audience itself could not be read, so nothing below it would mean
+  // anything: an empty table here would read as an empty audience.
   if (!loading && !isDefined(list)) {
     return (
       <StyledContent>
         <ProspectionNote role="alert">
-          {isDefined(error) ? (
+          {isGraphqlErrorOfType(error, 'FORBIDDEN') ? (
+            <Trans>Not authorised to read this audience.</Trans>
+          ) : isDefined(error) ? (
             <Trans>Some data is unavailable.</Trans>
           ) : (
-            <Trans>List not found.</Trans>
+            <Trans>Audience not found.</Trans>
           )}
         </ProspectionNote>
       </StyledContent>
@@ -92,31 +94,47 @@ const ProspectionListQualificationContent = ({
   const counters: ProspectionCounter[] = [
     { key: 'contacts', label: t`Contacts`, count: contactCount },
     { key: 'with-email', label: t`With an email`, count: withEmailCount },
-    { key: 'no-company', label: t`Without a company`, count: withoutCompanyCount },
-    { key: 'opted-out', label: t`Opted out`, count: optedOutCount },
+    {
+      key: 'no-company',
+      label: t`Without a company`,
+      count: withoutCompanyCount,
+    },
   ];
 
   return (
     <StyledContent>
       <Section.Root>
-        {/* Origin, legal basis and collection date are not held against a
-            received contact, so the screen says so instead of implying them. */}
-        <Section.Header title={listName} description={t`Origin not recorded`} />
+        {/* An audience list carries no import origin, no legal basis and no
+            collection date, so the screen says so instead of implying them. */}
+        <Section.Header
+          title={audienceName}
+          description={t`Already qualified for campaigns. No import origin recorded.`}
+        />
         <ProspectionCounters counters={counters} />
       </Section.Root>
 
-      {isDefined(error) && (
+      {isGraphqlErrorOfType(error, 'FORBIDDEN') ? (
         <ProspectionNote role="alert">
-          <Trans>Some data is unavailable.</Trans>
+          <Trans>Not authorised to read this audience.</Trans>
         </ProspectionNote>
+      ) : (
+        isDefined(error) && (
+          <ProspectionNote role="alert">
+            <Trans>Some data is unavailable.</Trans>
+          </ProspectionNote>
+        )
       )}
 
-      {oppositionCoverage !== 'complete' && (
+      {/* How much of the suppression register was read. The column itself
+          shows each entry as it is; no "may be contacted" verdict is formed
+          here, because that depends on the reason and the topic scope and is
+          decided server side. */}
+      {registerCoverage !== 'complete' && (
         <ProspectionNote>
-          {oppositionCoverage === 'unavailable' ? (
-            <Trans>Opt-outs unavailable.</Trans>
+          {registerCoverage === 'unavailable' ? (
+            <Trans>Suppression register unavailable.</Trans>
           ) : (
-            <Trans>Opt-outs partly checked.</Trans>
+            <Trans>Suppression register partly read.</Trans>
           )}
         </ProspectionNote>
       )}
@@ -129,13 +147,13 @@ const ProspectionListQualificationContent = ({
 
       {!loading && rows.length === 0 && !isDefined(error) && (
         <ProspectionNote>
-          <Trans>No contact in this list.</Trans>
+          <Trans>No contact in this audience.</Trans>
         </ProspectionNote>
       )}
 
       {rows.length > 0 && (
         <Section.Root>
-          <ReceivedListMembersTable rows={rows} />
+          <CampaignAudienceMembersTable rows={rows} />
           {hasMoreMembers && (
             <StyledFooter>
               <Button
@@ -154,7 +172,9 @@ const ProspectionListQualificationContent = ({
   );
 };
 
-export const ProspectionListQualificationPage = () => {
+// One already-qualified campaign audience, read from messageList. Read-only:
+// nothing here imports, qualifies or sends anything.
+export const ProspectionCampaignAudiencePage = () => {
   const { t } = useLingui();
   const { messageListId } = useParams();
 
@@ -162,16 +182,16 @@ export const ProspectionListQualificationPage = () => {
     <PageCardLayout
       header={
         <PageCardHeader
-          icon={<IconListCheck />}
+          icon={<IconUsers />}
           links={[
-            { children: t`Reception`, href: PROSPECTION_RECEIVED_LISTS_PATH },
-            { children: t`Qualification` },
+            { children: t`Prospection`, href: PROSPECTION_RECEPTION_PATH },
+            { children: t`Campaign audience` },
           ]}
         />
       }
     >
       <ProspectionObjectsGate>
-        <ProspectionListQualificationContent messageListId={messageListId} />
+        <ProspectionCampaignAudienceContent messageListId={messageListId} />
       </ProspectionObjectsGate>
     </PageCardLayout>
   );

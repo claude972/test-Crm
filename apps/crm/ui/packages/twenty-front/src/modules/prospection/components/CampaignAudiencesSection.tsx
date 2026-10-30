@@ -2,35 +2,26 @@ import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
-import { IconInbox } from 'kovaa-lab-ui/icon';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import { CampaignAudiencesTable } from '@/prospection/components/CampaignAudiencesTable';
 import {
   ProspectionCounters,
   type ProspectionCounter,
 } from '@/prospection/components/ProspectionCounters';
 import { ProspectionNote } from '@/prospection/components/ProspectionNote';
 import { ProspectionObjectsGate } from '@/prospection/components/ProspectionObjectsGate';
-import { ReceivedListsTable } from '@/prospection/components/ReceivedListsTable';
-import { useReceivedLists } from '@/prospection/hooks/useReceivedLists';
-import { PageCardHeader } from '@/ui/layout/page/components/PageCardHeader';
-import { PageCardLayout } from '@/ui/layout/page/components/PageCardLayout';
-
-const StyledContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${themeCssVariables.spacing[4]};
-  overflow: auto;
-  padding: ${themeCssVariables.spacing[4]};
-`;
+import { useCampaignAudiences } from '@/prospection/hooks/useCampaignAudiences';
+import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
 
 const StyledFooter = styled.div`
   display: flex;
   justify-content: center;
+  padding-top: ${themeCssVariables.spacing[2]};
 `;
 
-const ProspectionReceivedListsContent = () => {
+const CampaignAudiencesContent = () => {
   const { t } = useLingui();
 
   const {
@@ -41,24 +32,34 @@ const ProspectionReceivedListsContent = () => {
     error,
     hasMoreLists,
     fetchMoreLists,
-  } = useReceivedLists();
+  } = useCampaignAudiences();
 
   const counters: ProspectionCounter[] = [
-    { key: 'lists', label: t`Lists`, count: listCount },
+    { key: 'audiences', label: t`Audiences`, count: listCount },
     { key: 'contacts', label: t`Contacts`, count: contactCount },
   ];
 
   return (
-    <StyledContent>
-      <Section.Root>
-        <Section.Header title={t`Received lists`} />
-        <ProspectionCounters counters={counters} />
-      </Section.Root>
+    <Section.Root>
+      {/* These lists are campaign audiences, already qualified. They are not
+          an incoming batch, and nothing here imports anything. */}
+      <Section.Header
+        title={t`Campaign audiences`}
+        description={t`Audience lists already qualified for campaigns. Read-only here.`}
+      />
+      <ProspectionCounters counters={counters} />
 
-      {isDefined(error) && (
+      {/* An authorisation answer reads as one, not as a technical failure. */}
+      {isGraphqlErrorOfType(error, 'FORBIDDEN') ? (
         <ProspectionNote role="alert">
-          <Trans>Some data is unavailable.</Trans>
+          <Trans>Not authorised to read campaign audiences.</Trans>
         </ProspectionNote>
+      ) : (
+        isDefined(error) && (
+          <ProspectionNote role="alert">
+            <Trans>Some data is unavailable.</Trans>
+          </ProspectionNote>
+        )
       )}
 
       {loading && rows.length === 0 && (
@@ -69,13 +70,13 @@ const ProspectionReceivedListsContent = () => {
 
       {!loading && rows.length === 0 && !isDefined(error) && (
         <ProspectionNote>
-          <Trans>No list received yet.</Trans>
+          <Trans>No campaign audience yet.</Trans>
         </ProspectionNote>
       )}
 
       {rows.length > 0 && (
-        <Section.Root>
-          <ReceivedListsTable rows={rows} />
+        <>
+          <CampaignAudiencesTable rows={rows} />
           {hasMoreLists && (
             <StyledFooter>
               <Button
@@ -88,24 +89,16 @@ const ProspectionReceivedListsContent = () => {
               </Button>
             </StyledFooter>
           )}
-        </Section.Root>
+        </>
       )}
-    </StyledContent>
+    </Section.Root>
   );
 };
 
-export const ProspectionReceivedListsPage = () => {
-  const { t } = useLingui();
-
-  return (
-    <PageCardLayout
-      header={
-        <PageCardHeader icon={<IconInbox />} title={t`Reception`} />
-      }
-    >
-      <ProspectionObjectsGate>
-        <ProspectionReceivedListsContent />
-      </ProspectionObjectsGate>
-    </PageCardLayout>
-  );
-};
+// The objects are checked before anything queries them: the record hooks throw
+// when one is absent from the workspace.
+export const CampaignAudiencesSection = () => (
+  <ProspectionObjectsGate>
+    <CampaignAudiencesContent />
+  </ProspectionObjectsGate>
+);

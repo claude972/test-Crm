@@ -7,20 +7,20 @@ import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
 import {
   PROSPECTION_COMPANIES_SCAN_LIMIT,
-  PROSPECTION_LIST_MEMBERS_PAGE_SIZE,
+  PROSPECTION_AUDIENCE_MEMBERS_PAGE_SIZE,
 } from '@/prospection/constants/ProspectionLimits';
-import { useProspectionOppositionRegister } from '@/prospection/hooks/useProspectionOppositionRegister';
+import { useProspectionSuppressionRegister } from '@/prospection/hooks/useProspectionSuppressionRegister';
 import { type ProspectionCount } from '@/prospection/types/ProspectionCount';
-import { type ReceivedList } from '@/prospection/types/ReceivedList';
-import { type ReceivedListMember } from '@/prospection/types/ReceivedListMember';
-import { type ReceivedListMemberQualification } from '@/prospection/types/ReceivedListMemberQualification';
+import { type CampaignAudience } from '@/prospection/types/CampaignAudience';
+import { type CampaignAudienceMember } from '@/prospection/types/CampaignAudienceMember';
+import { type CampaignAudienceMemberRow } from '@/prospection/types/CampaignAudienceMemberRow';
 import {
   buildCoveredProspectionCount,
   exactProspectionCount,
   loadingProspectionCount,
   unavailableProspectionCount,
 } from '@/prospection/utils/buildProspectionCount';
-import { getProspectionOppositionState } from '@/prospection/utils/getProspectionOppositionState';
+import { normaliseProspectionEmail } from '@/prospection/utils/normaliseProspectionEmail';
 
 type ProspectionCompany = {
   id: string;
@@ -28,11 +28,11 @@ type ProspectionCompany = {
   __typename: string;
 };
 
-type UseReceivedListQualificationArgs = {
+type UseCampaignAudienceQualificationArgs = {
   messageListId: string | undefined;
 };
 
-const getDisplayName = (member: ReceivedListMember): string | null => {
+const getDisplayName = (member: CampaignAudienceMember): string | null => {
   const firstName = member.person?.name?.firstName?.trim() ?? '';
   const lastName = member.person?.name?.lastName?.trim() ?? '';
   const fullName = `${firstName} ${lastName}`.trim();
@@ -40,14 +40,14 @@ const getDisplayName = (member: ReceivedListMember): string | null => {
   return isNonEmptyString(fullName) ? fullName : null;
 };
 
-export const useReceivedListQualification = ({
+export const useCampaignAudienceMembers = ({
   messageListId,
-}: UseReceivedListQualificationArgs) => {
+}: UseCampaignAudienceQualificationArgs) => {
   const {
     record: list,
     loading: listLoading,
     error: listError,
-  } = useFindOneRecord<ReceivedList>({
+  } = useFindOneRecord<CampaignAudience>({
     objectNameSingular: CoreObjectNameSingular.MessageList,
     objectRecordId: messageListId,
     recordGqlFields: {
@@ -65,7 +65,7 @@ export const useReceivedListQualification = ({
     error: membersError,
     hasNextPage: hasMoreMembers,
     fetchMoreRecords: fetchMoreMembers,
-  } = useFindManyRecords<ReceivedListMember>({
+  } = useFindManyRecords<CampaignAudienceMember>({
     objectNameSingular: CoreObjectNameSingular.MessageListMember,
     filter: { listId: { eq: messageListId ?? '' } },
     orderBy: [{ createdAt: 'AscNullsLast' }],
@@ -82,7 +82,7 @@ export const useReceivedListQualification = ({
         companyId: true,
       },
     },
-    limit: PROSPECTION_LIST_MEMBERS_PAGE_SIZE,
+    limit: PROSPECTION_AUDIENCE_MEMBERS_PAGE_SIZE,
     skip: !isNonEmptyString(messageListId),
   });
 
@@ -117,14 +117,15 @@ export const useReceivedListQualification = ({
   );
 
   const {
-    optedOutEmails,
-    coverage: oppositionCoverage,
-    loading: oppositionLoading,
-  } = useProspectionOppositionRegister({
+    entriesByEmail,
+    coverage: registerCoverage,
+    isAbsenceKnown: isSuppressionAbsenceKnown,
+    loading: registerLoading,
+  } = useProspectionSuppressionRegister({
     skip: !isNonEmptyString(messageListId),
   });
 
-  const rows: ReceivedListMemberQualification[] = useMemo(
+  const rows: CampaignAudienceMemberRow[] = useMemo(
     () =>
       members.map((member) => {
         const trimmedEmail = member.person?.emails?.primaryEmail?.trim();
@@ -145,14 +146,24 @@ export const useReceivedListQualification = ({
               // read, which is not the same as a company without a name.
               (companyNameById.get(companyId) ?? null)
             : null,
-          opposition: getProspectionOppositionState({
-            primaryEmail,
-            optedOutEmails,
-            coverage: oppositionCoverage,
-          }),
+          // The register's entries, carried as they are: this hook decides
+          // nothing about whether a message may be sent.
+          suppressions: isDefined(primaryEmail)
+            ? (entriesByEmail.get(normaliseProspectionEmail(primaryEmail)) ??
+              [])
+            : [],
+          // Without an address there is nothing to look up, so the absence of
+          // an entry says nothing either.
+          isSuppressionAbsenceKnown:
+            isSuppressionAbsenceKnown && isDefined(primaryEmail),
         };
       }),
-    [members, companyNameById, optedOutEmails, oppositionCoverage],
+    [
+      members,
+      companyNameById,
+      entriesByEmail,
+      isSuppressionAbsenceKnown,
+    ],
   );
 
   const areRowsReadable = !isDefined(membersError);
@@ -190,28 +201,6 @@ export const useReceivedListQualification = ({
     return exactProspectionCount(memberTotalCount);
   };
 
-  // Bounded by both pages: the rows read and the part of the register read.
-  // Either one being short makes the figure partial, and an unreadable
-  // register makes it unknown rather than zero.
-  const buildOptedOutCount = (): ProspectionCount => {
-    if (oppositionCoverage === 'unavailable') {
-      return unavailableProspectionCount();
-    }
-
-    if (oppositionLoading) {
-      return loadingProspectionCount();
-    }
-
-    const value = rows.filter(({ opposition }) => opposition === 'opted-out')
-      .length;
-
-    if (oppositionCoverage === 'partial') {
-      return { status: 'partial', value, covered: coveredRows };
-    }
-
-    return countOver(value);
-  };
-
   const contactCount = buildContactCount();
 
   const withEmailCount = countOver(
@@ -222,17 +211,17 @@ export const useReceivedListQualification = ({
     ? countOver(rows.filter(({ companyId }) => !isDefined(companyId)).length)
     : unavailableProspectionCount();
 
-  const optedOutCount = buildOptedOutCount();
-
   return {
     list,
     rows,
     contactCount,
     withEmailCount,
     withoutCompanyCount,
-    optedOutCount,
-    oppositionCoverage,
-    loading: listLoading || membersLoading || oppositionLoading,
+    // Passed on so the screen can say how much of the register it read. No
+    // count of "opposed" contacts is derived here: that verdict belongs to the
+    // server, which combines the reason and the topic scope of each entry.
+    registerCoverage,
+    loading: listLoading || membersLoading || registerLoading,
     error: listError ?? membersError,
     hasMoreMembers,
     fetchMoreMembers,

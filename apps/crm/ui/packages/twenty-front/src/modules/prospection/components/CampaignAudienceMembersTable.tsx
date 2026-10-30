@@ -3,15 +3,15 @@ import { useLingui } from '@lingui/react/macro';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
-import { ProspectionOppositionTag } from '@/prospection/components/ProspectionOppositionTag';
-import { type ReceivedListMemberQualification } from '@/prospection/types/ReceivedListMemberQualification';
+import { ProspectionSuppressionCell } from '@/prospection/components/ProspectionSuppressionCell';
+import { type CampaignAudienceMemberRow } from '@/prospection/types/CampaignAudienceMemberRow';
 import { Table } from '@/ui/layout/table/components/Table';
 import { TableBody } from '@/ui/layout/table/components/TableBody';
 import { TableCell } from '@/ui/layout/table/components/TableCell';
 import { TableHeader } from '@/ui/layout/table/components/TableHeader';
 import { TableRow } from '@/ui/layout/table/components/TableRow';
 
-const RECEIVED_MEMBERS_GRID_TEMPLATE_COLUMNS =
+const AUDIENCE_MEMBERS_GRID_TEMPLATE_COLUMNS =
   'minmax(0, 1.4fr) minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1fr)';
 
 const StyledPrimary = styled.span`
@@ -30,28 +30,28 @@ const StyledMissing = styled.span`
   white-space: nowrap;
 `;
 
-type ReceivedListMembersTableProps = {
-  rows: ReceivedListMemberQualification[];
+type CampaignAudienceMembersTableProps = {
+  rows: CampaignAudienceMemberRow[];
 };
 
-export const ReceivedListMembersTable = ({
+export const CampaignAudienceMembersTable = ({
   rows,
-}: ReceivedListMembersTableProps) => {
+}: CampaignAudienceMembersTableProps) => {
   const { t } = useLingui();
 
   return (
     <Table>
-      <TableRow gridTemplateColumns={RECEIVED_MEMBERS_GRID_TEMPLATE_COLUMNS}>
+      <TableRow gridTemplateColumns={AUDIENCE_MEMBERS_GRID_TEMPLATE_COLUMNS}>
         <TableHeader>{t`Contact`}</TableHeader>
         <TableHeader>{t`Email`}</TableHeader>
         <TableHeader>{t`Company`}</TableHeader>
-        <TableHeader>{t`Opt-out`}</TableHeader>
+        <TableHeader>{t`Suppression register`}</TableHeader>
       </TableRow>
       <TableBody>
         {rows.map((row) => (
           <TableRow
             key={row.memberId}
-            gridTemplateColumns={RECEIVED_MEMBERS_GRID_TEMPLATE_COLUMNS}
+            gridTemplateColumns={AUDIENCE_MEMBERS_GRID_TEMPLATE_COLUMNS}
           >
             <TableCell overflow="hidden">
               {isDefined(row.displayName) ? (
@@ -79,7 +79,10 @@ export const ReceivedListMembersTable = ({
               )}
             </TableCell>
             <TableCell overflow="hidden">
-              <ProspectionOppositionTag state={row.opposition} />
+              <ProspectionSuppressionCell
+                entries={row.suppressions}
+                isAbsenceKnown={row.isSuppressionAbsenceKnown}
+              />
             </TableCell>
           </TableRow>
         ))}
