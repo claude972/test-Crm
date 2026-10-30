@@ -276,3 +276,96 @@ describe('Evolution webhook authenticated provider bridge', () => {
     );
   });
 });
+
+describe('Evolution private media ingress', () => {
+  it.each(['IMAGE', 'VIDEO', 'AUDIO'] as const)(
+    'imports %s after authentication, ignoring webhook URLs and media keys',
+    async (kind) => {
+      const assetId = 'd969ca4a-05fb-4f6f-a8e6-c1baf31e22f5';
+      const ingest = jest.fn(async () => ({
+        conversationId: 'fixture-conversation',
+        messageId: 'fixture-message',
+        replay: false,
+      }));
+      const media = jest.fn(async () => ({ assetId }));
+      const receiver = new EvolutionWebhookReceiver(
+        CONFIG,
+        TOKENS,
+        ingest,
+        media,
+      );
+      const field = {
+        IMAGE: 'imageMessage',
+        VIDEO: 'videoMessage',
+        AUDIO: 'audioMessage',
+      }[kind];
+      const data = {
+        key: { id: 'private-media', remoteJid: JID, fromMe: false },
+        message: {
+          [field]: {
+            caption: kind === 'AUDIO' ? undefined : 'Caption',
+            url: 'http://169.254.169.254/latest/meta-data',
+            mediaKey: 'untrusted-private-key',
+          },
+        },
+        messageTimestamp: Math.floor(Date.now() / 1000),
+      };
+      await receiver.receive(TOKEN_A, event({ data }));
+      expect(media).toHaveBeenCalledWith({
+        workspaceId: WORKSPACE_A,
+        conversationId: expect.any(String),
+        providerConnectionId: evolutionProviderConnectionId(CONNECTION_A),
+        providerMessageId: 'private-media',
+        remoteJid: JID,
+        fromMe: false,
+        kind,
+      });
+      expect(JSON.stringify(media.mock.calls)).not.toContain('169.254.169.254');
+      expect(JSON.stringify(ingest.mock.calls)).not.toContain('mediaKey');
+      expect(ingest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          workspaceId: WORKSPACE_A,
+          kind,
+          mediaAssetId: assetId,
+          text: kind === 'AUDIO' ? '' : 'Caption',
+        }),
+      );
+    },
+  );
+  it('does not fetch or persist media for a forged webhook token', async () => {
+    const media = jest.fn(),
+      ingest = jest.fn();
+    const receiver = new EvolutionWebhookReceiver(
+      CONFIG,
+      TOKENS,
+      ingest,
+      media,
+    );
+    await expect(
+      receiver.receive('0'.repeat(64), event()),
+    ).rejects.toMatchObject({ code: 'WEBHOOK_UNAUTHORIZED' });
+    expect(media).not.toHaveBeenCalled();
+    expect(ingest).not.toHaveBeenCalled();
+  });
+  it('fails ingestion instead of acknowledging missing or unavailable media as received', async () => {
+    const media = jest.fn(async () => {
+        throw Error('MEDIA_FETCH_FAILED');
+      }),
+      ingest = jest.fn();
+    const receiver = new EvolutionWebhookReceiver(
+      CONFIG,
+      TOKENS,
+      ingest,
+      media,
+    );
+    const data = {
+      key: { id: 'private-media', remoteJid: JID, fromMe: false },
+      message: { imageMessage: {} },
+      messageTimestamp: Math.floor(Date.now() / 1000),
+    };
+    await expect(receiver.receive(TOKEN_A, event({ data }))).rejects.toThrow(
+      'MEDIA_FETCH_FAILED',
+    );
+    expect(ingest).not.toHaveBeenCalled();
+  });
+});

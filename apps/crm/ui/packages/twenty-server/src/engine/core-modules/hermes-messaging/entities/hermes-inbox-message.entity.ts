@@ -58,6 +58,13 @@ export class HermesInboxMessageEntity {
   @Column({ type: 'jsonb', nullable: true })
   providerMetadata: HermesMessagingProviderMetadata | null;
   @Column({ type: 'text' }) text: string;
+  @Column({ type: 'varchar', length: 16, default: 'TEXT' }) kind:
+    | 'TEXT'
+    | 'IMAGE'
+    | 'VIDEO'
+    | 'AUDIO'
+    | 'EMAIL';
+  @Column({ type: 'uuid', nullable: true }) mediaAssetId: string | null;
   @Column({ type: 'varchar', length: 64 }) contentDigest: string;
   @Column({ type: 'timestamptz' }) occurredAt: Date;
   @Column({ type: 'varchar', length: 64, nullable: true }) errorCode:
