@@ -131,7 +131,7 @@ Convention d'attribution, résolue par périmètre et sans contournement : `apps
 - owned files: scripts/, CI, packages backend/shared/client-sdk/emails nécessaires à la construction ; types partagés uniquement après coordination ; aucun fichier frontend détenu par Claude pendant son implémentation.
 - acceptance criteria: SHA de base et SHA Claude examinés enregistrés ; contrôles significatifs reproduits ; compatibilités persistantes conservées ; correction ciblée des défauts démontrés ; rapport de revue partagé et résultat combiné honnête ; aucune revendication de validation globale sans exécution.
 - verification report: CORRECTIONS.md, section p0-frontend-baseline / codex
-- implementation revision: ed80da151 (réparation SWC runtime), PR #7 ; base c0318cf0b33134c4c292affe395009a6bd3b4662. Le code antérieur 79305ae2e reste le checkpoint de compilation vérifié.
+- implementation revision: 39cda1cb700f0e1296ac4c7c3e1cf740a8ddd22f (SDK général réparé), PR #7 ; base c0318cf0b33134c4c292affe395009a6bd3b4662. Checkpoint runtime serveur ed80da151 inchangé, SDK général à vérifier dans la nouvelle chaîne.
 - preview: dépend de la disponibilité du résultat combiné ; aucune vérifiée.
 - blockers: P0-RUNTIME-001 vérifié ; CI backend 40979668149 et démarrage isolé dans CI 40979688501 verts, code ed80da151. Rapport partagé publié. Revue Claude du nouveau SHA et frontend combiné toujours attendus ; aucune preview intégrée.
 

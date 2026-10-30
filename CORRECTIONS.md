@@ -400,6 +400,12 @@ Les groupes des workflows réutilisés sont isolés dans 8b8a1c211 : p0-integrit
 - reviewed revision: 8b8a1c211b9b68d19c27e08030ace076b514b1a8
 - evidence: CI https://github.com/claude972/test-Crm/actions/runs/40982737440 : tous les contrôles de sources passent, mais la chaîne renderer échoue sur kovaa-lab-sdk:build, src/sdk/define/index.ts:154 (export type KovaaLab CRMRecord et chemin de fichier inexistant). Parsing indépendant de 232 sources SDK : quatre diagnostics sur deux fichiers. Analyse du bandeau esmNodeGlobalsBanner avec node --check : SyntaxError sur __kovaa-labCreateRequire.
 - expected correction: réparer les deux déclarations/types et leur chemin réel twenty-record.type ; réparer les identifiants privés du bandeau généré ; préserver les trois constantes FRONT_COMPONENT_*_KEY et le marqueur de réponse, dont les valeurs locales camelCase ne sont pas reprises.
-- status: in_progress
-- fix commit: en préparation sur fix/codex-backend-build ; reprise ciblée de trois fichiers, pas de copie globale des neuf différences locales SDK.
+- status: fixed_pending_review
+- fix commit: 39cda1cb700f0e1296ac4c7c3e1cf740a8ddd22f sur fix/codex-backend-build ; trois réparations ciblées, vérification Node des sorties ESM/CJS ajoutée au target SDK et couverture du contrôleur backend étendue au SDK.
 - recheck evidence: échecs source/bandeau reproduits avant correction ; construction combinée et revue Claude requises après correction. Aucun succès navigateur revendiqué.
+
+### Recontrôle statique SDK et nouvelle intégration — Codex
+
+Après réparation : 232 sources SDK, 467 imports internes, zéro échec ; bandeau généré accepté par node --check. Le contrôleur complet sur le worktree d'intégration confirme ensuite 14 186 sources TypeScript et 50 760 imports internes, marqueur SDK historique préservé. Les trois fichiers réparés correspondent aux réparations locales comprises ; aucune reprise des constantes de protocole camelCase locales. Diff et Gitleaks staged réussis.
+
+Checkpoint backend 39cda1cb7 et workflow/documentation frontend 9c51c039b intégrés dans 52874fe5d70492fad8681aeef0d3fd0fac81cf59. Sur la branche d'intégration uniquement, filtres frontend étendus à SDK/client-sdk après annonce à Claude. Nouvelle CI de l'orchestrateur : https://github.com/claude972/test-Crm/actions/runs/40984295114, en cours. Build, types SDK général et navigateur ne sont pas encore déclarés réussis. La revue Claude doit porter sur le nouveau checkpoint SDK en complément des réparations client-sdk/e-mails et serveur précédentes.
