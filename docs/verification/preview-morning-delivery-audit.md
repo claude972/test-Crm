@@ -50,7 +50,7 @@ gh run download <session-run> --repo claude972/test-Crm --name p0-preview-tunnel
 node scripts/preview-prepare.mjs prepare /absolute/new-front-build /absolute/new-staging https://<fresh>.trycloudflare.com
 # Lier uniquement ce staging au projet isolé existant.
 vercel link --cwd /absolute/new-staging --scope brafas-projects --project hermes-crm-p0-preview --yes
-vercel deploy --cwd /absolute/new-staging --scope brafas-projects --target preview --skip-domain --yes
+vercel deploy --cwd /absolute/new-staging --scope brafas-projects --target preview --yes
 # Capturer l’ID et inspecter : exiger projectId exact, READY, target preview/null.
 vercel api /v13/deployments/<new-dpl-id> --scope brafas-projects --raw | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["id","projectId","target","readyState","url"]}))'
 ```
@@ -100,3 +100,13 @@ Lecture des scripts/workflow ; GET Vercel métadonnées filtrées ; noms/modes e
 - [SDK officiel, schéma TTL et deployment ID](https://raw.githubusercontent.com/vercel/sdk/main/src/models/patchurlprotectionbypassop.ts), lignes108–126.
 - [SDK officiel, endpoint PATCH](https://raw.githubusercontent.com/vercel/sdk/main/src/funcs/aliasesPatchUrlProtectionBypass.ts), lignes96/126.
 - [Cloudflare Quick Tunnels, limitations](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/).
+
+## Recette interne exécutée — 30 octobre, source9ce
+
+Backend run41052809170 et frontend41052674485 : même SHA9ce34b95b43fadf195bb0be3cacf378fe116f35c. Front artefact12976390274 digest `sha256:4c6e5e2b4852d3b43037a72e7a750f67e90c87035fc08a011824f20cf381ab75`, 2098fichiers ; manifesteSHA256 `cf7ba807a8cc50039305a61cef3f6c72b379567ebb8b831b22760cc71f151c4d`, indexSHA256 `9b27d4318884886ca8a217260de294cffe9888c776dcf59c8895916054544e68`. Worktree propre neuf chore/p0-internal-deploy-9ce ; staging distinct release-20261030-staging. Vercel link a généré `.env.local` avec un tokenOIDC : fichier supprimé sans lecture avant upload, seules métadonnées projectId/orgId vérifiées.
+
+CLI58.4.0 refuse désormais `--skip-domain` avec `--target preview` AVANT création. La commande corrigée conserve uniquement `--target preview --yes` ; aucune option production ajoutée. Autre piège de cette version : `vercel curl ... --non-interactive -- ...` transmet l’option à curl, qui échoue. Employer l’invocation exacte du helper éprouvé `vercel curl <path> --deployment <url> -- --config -`, dans un checkout lié au projet isolé. Aucun contrôle natif affaibli pour ces adaptations CLI.
+
+Déploiement `dpl_AASJaddNFftZ1Lax9cgLDNMsLexN` READY, projectId exact et targetnullpreview vérifiés avant ContentsPUT ; contrôle public commitbc26818cf4b691bcda9e268dfb721d1b93d6d888. API expiration13:40:16.263UTC (départgate12:10:16.263UTC). URL publique `https://hermes-crm-p0-preview-a448finxf-brafas-projects.vercel.app`, protégée hors partage. Ce créneau interne expire avant12hMartinique et ne valide pas la disponibilité finale demandée.
+
+Helper onboarding : PASS14étapes, signup/workspace activation/login/profil/onboardingcompleted/CRUDcompany et suppression vérifiée. Partage créé seulement pour cetIDdeployment, scope shareable-link et expiration <=APIexpiry-30s, réponse et URLdashboard exclusivement dans coffre0600. Preuve curl standard, cookiejar neuf sans CLIAuth ni Authorization : document nu302protégé, lien privé200 avec pathfinal/dashboard préservé, healthstatusok et client-configserverUrl exact200. Root a reçu uniquement cheminsprivés, jamais valeurs de secrets. La recette navigateur root et le run combiné restent indépendants de ces vérifications HTTP ; aucun succès global inventé.
