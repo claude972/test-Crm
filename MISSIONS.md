@@ -167,7 +167,7 @@ Mission ID: p0-combined-verification
 
 ## Mission p0-preview-session — preview web/PWA temporaire
 - agent: codex
-- status: in_progress
+- status: ready_for_review
 - branch: chore/p0-preview-session
 - base revision: c96b7eea6cf316c0e1841f13b203e7731aaef4f1
 - objective: livrer une preview Vercel avec API réelle isolée, PG/Redis jetables, durée bornée et protection d'origine ; aucun service/donnée de production, achat ou natif.
@@ -175,3 +175,8 @@ Mission ID: p0-combined-verification
 - delegation: preview_hosting code gate/staging/routes ; backend_review code superviseur backend et worker ; root intègre/relit et code orchestration cloud. Revues croisées des helpers effectuées, trois corrections de lifecycle/contrat appliquées avant intégration.
 - deliverables: build/artifact exact, session bornée, URL web/PWA protégée testée avec vrai backend, date d'expiration et limites explicites ; rapport partagé avant ready_for_review.
 - blockers: CI navigateur complète encore en cours ; orchestration de session et déploiement preview à effectuer. Pas de serveur existant, secrets privés ou original à utiliser.
+
+- implementation revision: d1060f44e, PR #10, rapport publié dans CORRECTIONS.md avant ce statut.
+- preview verified: https://hermes-crm-p0-preview-mjgvbtc3d-brafas-projects.vercel.app ; API expire 29 octobre 2026 à 22:55:40 America/Martinique.
+- acceptance evidence: CI combinée 40986681086 verte ; API/config/PWA assets et onboarding/CRUD synthétique en ligne vérifiés, sources originales intactes.
+- remaining review/limits: revue ciblée Claude de cette livraison demandée ; session temporaire, SSE/hors ligne/installation appareil non validés ; ce statut ne clôt pas les autres lots P0.

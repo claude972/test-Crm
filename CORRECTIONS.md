@@ -702,3 +702,20 @@ Revue Claude du SDK 39cda1cb7 sans constat publiée dans ce document ; elle comp
 Preview : scripts intégrés et revus, workflow **357856370** sur preview/p0-session-20261029, [session 40988179084](https://github.com/claude972/test-Crm/actions/runs/40988179084) en construction. Durée backend limitée à 60 minutes à partir de la création du tunnel, pas à partir de la livraison utilisateur ; aucune URL testable revendiquée avant vérification publique. Nouveau contrôle en ligne santé/config/manifeste livré dans d1d9df119 sur chore/p0-preview-session, sans relancer le build de session.
 
 Nouvel audit final de préservation : **55 696 / 55 696 SHA-256 identiques**, zéro différence, zéro disparition inattendue ; **1 / 1 absence initiale** toujours absente. Lecture seule, originaux et sauvegardes inchangés.
+
+
+## p0-preview-session / codex — livraison en ligne vérifiée
+
+Implémentation `d1060f44e` sur `chore/p0-preview-session`, PR #10 ; backend de session exécuté au SHA `35785637057a4abb1fea9fc1f7fe427ac87cf2cc`, code applicatif identique au checkpoint CRM c96b7eea6. [CI combinée verte](https://github.com/claude972/test-Crm/actions/runs/40986681086).
+
+**Preview : https://hermes-crm-p0-preview-mjgvbtc3d-brafas-projects.vercel.app** — target preview READY vérifié ; API/PG/Redis jetables jusqu'au **29 octobre 2026, 22:55:40 heure de Martinique**. La session GitHub reste intentionnellement in_progress pendant sa disponibilité, ce n'est pas un build en échec.
+
+Santé API, configuration réelle, runtime same-origin, manifeste standalone et icône 192 vérifiés. Compte synthétique inscrit, workspace activé, profil enregistré et relu, onboarding COMPLETED ; société de recette créée/relue/modifiée/relue/supprimée, absence vérifiée par liste filtrée. Aucune invitation ou paiement. Identifiants de démonstration conservés hors Git et remis au propriétaire uniquement.
+
+[Rapport exact, contrôles et limites](https://github.com/claude972/test-Crm/blob/chore/p0-preview-session/docs/verification/p0-preview-online-codex.md), [résultat public expurgé](https://github.com/claude972/test-Crm/blob/chore/p0-preview-session/docs/verification/p0-preview-online-proof.json). Deux ajustements du smoke ont été nécessaires : réauthentification Bearer après activation, puis vérification d'absence via collection plutôt que findOne qui lève RECORD_NOT_FOUND. Pas de correction d'authentification applicative ni de prétention de bug navigateur.
+
+Incident Vercel déclaré : premier déploiement du nouveau projet classé production automatiquement malgré target preview, sans API connectée ni données de recette ; ce seul bootstrap a été supprimé avant publication du contrôle. Le déploiement final est vérifié preview. Aucune production existante modifiée. Protection Vercel maintenue ; connexion du propriétaire à Vercel éventuellement requise.
+
+Revues helpers : sous-agents preview_hosting/backend_review, puis root sur leurs SHA exacts. Correctif de sauvegarde atomique 357856370 relu ; reprise privée du smoke relue par backend_review. Claude reçoit le lien et le rapport pour revue ciblée, aucune validation globale du dépôt ne lui est attribuée par avance.
+
+Limites : PWA en ligne conservée, aucune installation sur appareil ni hors ligne validée ; SSE indisponible via Quick Tunnel. Char/Forms ne sont pas déployés dans ce lien CRM ; constats Char et confidentialité/cache toujours ouverts, ainsi que consolidation Git. Originaux vérifiés 55 696 empreintes identiques et une absence attendue préservée. Ne pas marquer tout P0 terminé sur cette livraison.
