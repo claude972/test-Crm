@@ -18,6 +18,13 @@ export const messagingText = z
   .min(1)
   .max(20_000)
   .refine((value) => !value.includes('\0') && value.trim().length > 0);
+const metadataHeader=z.string().max(998).refine(value=>!/[\r\n\0]/.test(value)&&Buffer.byteLength(value,'utf8')<=998);
+const providerMetadataSchema=z.object({
+  rfcMessageId:metadataHeader.optional(),inReplyTo:metadataHeader.optional(),references:z.array(metadataHeader).max(20).optional(),
+  mailbox:z.string().min(1).max(256).refine(value=>!/[\r\n\0]/.test(value)).optional(),
+  uidValidity:z.union([z.string().regex(/^[1-9]\d{0,19}$/),z.number().int().min(1).max(4294967295).transform(String)]).optional(),
+  uid:z.number().int().min(1).max(4294967295).optional(),
+}).strict().refine(value=>Buffer.byteLength(JSON.stringify(value),'utf8')<=16_384);
 export const messagingEventSchema = z
   .object({
     workspaceId: z.string().uuid(),
@@ -34,6 +41,7 @@ export const messagingEventSchema = z
     text: messagingText,
     occurredAt: z.string().datetime({ offset: true }),
     subject: z.string().max(512).optional(),
+    providerMetadata:providerMetadataSchema.optional(),
   })
   .strict();
 export const normalizeContactHandle = (

@@ -13,6 +13,7 @@ import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.ent
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import {
   type HermesMessagingChannel,
+  type HermesMessagingProviderMetadata,
   type HermesMessagingDirection,
   type HermesMessagingStatus,
 } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
@@ -54,6 +55,7 @@ export class HermesInboxMessageEntity {
   @Column({ type: 'uuid', nullable: true }) clientRequestId: string | null;
   @Column({ type: 'varchar', length: 16 }) direction: HermesMessagingDirection;
   @Column({ type: 'varchar', length: 24 }) status: HermesMessagingStatus;
+  @Column({type:'jsonb',nullable:true}) providerMetadata:HermesMessagingProviderMetadata|null;
   @Column({ type: 'text' }) text: string;
   @Column({ type: 'varchar', length: 64 }) contentDigest: string;
   @Column({ type: 'timestamptz' }) occurredAt: Date;

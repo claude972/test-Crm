@@ -50,6 +50,7 @@ export type HermesMessagingEvent = {
   text: string;
   occurredAt: string;
   subject?: string;
+  providerMetadata?:HermesMessagingProviderMetadata;
 };
 export type HermesInboxPageInput = { limit?: number; cursor?: string };
 export type HermesInboxConversationsInput = HermesInboxPageInput & {
@@ -84,3 +85,5 @@ export type HermesMessagingBotAdapter = {
 };
 
 export type HermesBotMode = 'MANUAL' | 'AUTO';
+
+export type HermesMessagingProviderMetadata = {rfcMessageId?:string;inReplyTo?:string;references?:string[];mailbox?:string;uidValidity?:string|number;uid?:number};

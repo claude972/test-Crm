@@ -692,6 +692,7 @@ export class HermesMessagingService {
           channel: event.channel,
           providerConnectionId: event.providerConnectionId,
           providerMessageId: event.providerMessageId,
+        providerMetadata:event.providerMetadata??null,
           clientRequestId: null,
           direction: event.direction,
           status: event.direction === 'INBOUND' ? 'RECEIVED' : 'ACCEPTED',

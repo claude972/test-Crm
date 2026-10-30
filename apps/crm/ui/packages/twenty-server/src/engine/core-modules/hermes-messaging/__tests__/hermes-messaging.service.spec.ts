@@ -983,4 +983,14 @@ describe('persistent messaging service contract', () => {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
   });
+  it('persists bounded private provider metadata without using it as an authorization or direction grant',async()=>{
+    const {service,table}=setup();const received=await service.ingest({...event,providerMetadata:{rfcMessageId:'<header@example.test>',inReplyTo:'<parent@example.test>',references:['<parent@example.test>'],mailbox:'INBOX',uidValidity:123,uid:45}});
+    expect(table(HermesInboxMessageEntity.name).get(received.messageId)?.providerMetadata).toMatchObject({rfcMessageId:'<header@example.test>',uidValidity:'123',uid:45});
+    expect(table(HermesInboxMessageEntity.name).get(received.messageId)?.status).toBe('RECEIVED');
+  });
+  it('rejects metadata privilege keys, header injection and oversized reference lists',async()=>{
+    const {service}=setup();
+    for(const providerMetadata of [{workspaceId:B},{rfcMessageId:'x\r\nBcc: private@example.test'},{rfcMessageId:'x'.repeat(999)},{references:Array.from({length:21},()=>'<x>')},{references:Array.from({length:20},()=> 'x'.repeat(998))},{uid:0}])await expect(service.ingest({...event,providerMetadata} as never)).rejects.toThrow('INVALID_MESSAGING_INPUT');
+  });
+
 });
