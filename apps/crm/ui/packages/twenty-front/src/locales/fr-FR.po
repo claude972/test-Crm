@@ -33725,3 +33725,21 @@ msgstr "Zoom avant"
 #: src/modules/settings/data-model/graph-overview/components/SettingsDataModelOverview.tsx
 msgid "Zoom out"
 msgstr "Zoom arrière"
+
+msgid "Incoming media unavailable"
+msgstr "Médias entrants indisponibles"
+
+msgid "Sending media unavailable"
+msgstr "Envoi de médias indisponible"
+
+msgid "Voice messages unavailable"
+msgstr "Messages vocaux indisponibles"
+
+msgid "Attachments and formatting unavailable"
+msgstr "Pièces jointes et mise en forme indisponibles"
+
+msgid "The company settings stop the bot on this channel. Replies stay human."
+msgstr "Les réglages de la société arrêtent le bot sur ce canal. Les réponses restent humaines."
+
+msgid "The company settings keep the bot assisted: it may draft, and you send."
+msgstr "Les réglages de la société gardent le bot assisté : il propose, vous envoyez."

@@ -92,10 +92,14 @@ export const useMessagingInboxBotPolicy = (
       // Without a revision there is nothing to compare, and a write that
       // cannot be refused for staleness is a write that can overwrite someone
       // else's decision.
+      // The policy must be the one of the thread on screen. A revision read
+      // for another conversation would be compared against the wrong record.
       if (
         conversationId === null ||
         read.kind !== 'reported' ||
-        read.policy.revision === null
+        read.policy.revision === null ||
+        (read.policy.conversationId !== null &&
+          read.policy.conversationId !== conversationId)
       ) {
         setWriteState({ kind: 'refused', message: null });
 
