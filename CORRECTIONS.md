@@ -467,3 +467,7 @@ Les groupes des workflows réutilisés sont isolés dans 8b8a1c211 : p0-integrit
 Après réparation : 232 sources SDK, 467 imports internes, zéro échec ; bandeau généré accepté par node --check. Le contrôleur complet sur le worktree d'intégration confirme ensuite 14 186 sources TypeScript et 50 760 imports internes, marqueur SDK historique préservé. Les trois fichiers réparés correspondent aux réparations locales comprises ; aucune reprise des constantes de protocole camelCase locales. Diff et Gitleaks staged réussis.
 
 Checkpoint backend 39cda1cb7 et workflow/documentation frontend 9c51c039b intégrés dans 52874fe5d70492fad8681aeef0d3fd0fac81cf59. Sur la branche d'intégration uniquement, filtres frontend étendus à SDK/client-sdk après annonce à Claude. Nouvelle CI de l'orchestrateur : https://github.com/claude972/test-Crm/actions/runs/40984295114, en cours. Build, types SDK général et navigateur ne sont pas encore déclarés réussis. La revue Claude doit porter sur le nouveau checkpoint SDK en complément des réparations client-sdk/e-mails et serveur précédentes.
+
+## Consigne propriétaire transmise — web et PWA
+
+Le 29 octobre 2026, le propriétaire confirme la poursuite autonome avec cible exclusive web/PWA, sans application native. MISSIONS.md porte désormais cette contrainte prioritaire. Claude doit la lire avant toute nouvelle mission et poursuivre les lots P0 existants dans la stack web actuelle. Aucune implémentation native n'a été lancée par Codex.

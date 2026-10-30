@@ -1,3 +1,7 @@
+# Contrainte produit prioritaire — 29 octobre 2026
+
+Instruction explicite du propriétaire : **web et PWA uniquement**. Cette contrainte vaut pour toutes les missions présentes et futures de ce projet. Aucune application native iOS/Android, aucun portage Expo/React Native, build natif ou publication sur les stores. Préserver la stack web existante. Le responsive mobile et les capacités PWA restent dans le périmètre web ; ne pas ajouter de cache hors ligne de données privées ou authentifiées sans conception explicite de leur isolation. Poursuivre le P0 et ses vérifications ; cette consigne ne demande aucune refonte.
+
 # Missions
 
 ## Mission: Stabilisation P0 de test-Crm
