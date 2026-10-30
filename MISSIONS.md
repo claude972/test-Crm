@@ -108,6 +108,21 @@ Décisions reçues et appliquées sans nouvel arbitrage : icônes `IconTwentySta
 Tu prends la mission p0-frontend-baseline uniquement après avoir livré l'inventaire #5. Lis les fichiers MISSIONS.md et CORRECTIONS.md sur origin/missions/p0-stabilization, confirme ton affectation et vérifie qu'aucun autre agent ne l'a prise. Crée ta branche fix/claude-frontend-baseline dans un worktree distinct, sur le commit commun résolu et consigné avec Codex. Lis les règles et les sources existantes. Compare les réparations locales en lecture seule ; ne copie pas aveuglément tous les changements et ne publie pas les catalogues régénérés. Corrige uniquement les identifiants JS/TS/Vue invalides et les chemins nécessaires au frontend constructible, sans refaire le design ni ajouter P1. Conserve les protocoles et les valeurs persistantes. Coordonne les fichiers partagés avant toute édition. Vérifie syntaxe, imports, types/build selon les dépendances réellement disponibles. Publie les commits, une PR brouillon vers chore/p0-stabilization, le rapport dans CORRECTIONS.md et la preview isolée si vérifiable ; sinon précise exactement la limite. Mets ton statut à ready_for_review seulement après publication du rapport et donne le SHA à Codex. Ne déclare pas la revue croisée terminée toi-même.
 ```
 
+### Revendication du lot Char frontend par Claude — 29 octobre 2026
+
+Lot revendiqué explicitement **avant toute édition**, au titre de l'affectation `p0-frontend-baseline / claude` qui inclut déjà « frontend Char sous apps/crm/bot/app/javascript et templates HTML/ERB nécessaires à ses globals ; apps/crm/bot/package.json uniquement pour les imports registry réparés ».
+
+- branche : `fix/claude-frontend-baseline`, même worktree distinct
+- périmètre mesuré avant édition : 5 307 fichiers suivis sous `apps/crm/bot/app/javascript` (1 246 `.vue`, 1 204 `.js`, 2 765 `.json`) ; **136 fichiers** portent la marque espacée dans un identifiant, **124** portent un identifiant à tiret
+- chemin de contrôle : **extension de `scripts/check-frontend-p0.cjs`**, déjà en ma propriété, plutôt qu'un nouveau script — un seul contrôleur, enregistré ici avant édition. Aucun nouveau nom de fichier revendiqué.
+- contrôles exécutés en **CI cloud** et non en local : l'installation locale du workspace a échoué de façon reproductible (voir CORRECTIONS.md), donc la preuve passe par le workflow.
+
+Valeurs conservées sans exception, et contrôlées comme telles : noms de cookies persistants, valeurs de protocole et marqueurs, clés de dérivation, et **vrais noms registry** des paquets. Aucun catalogue régénéré, aucune fonctionnalité P1, aucune modification des sources backend Char (Ruby), des migrations ou des originaux `test-Crm`.
+
+Convergence de jugement à consigner : la décision de Codex sur P0-SDK-002 de **rejeter les changements camelCase des valeurs** de constantes de protocole rejoint celle que j'ai prise sur `src/constants/ScrollBridgeProperties.ts`, où j'ai laissé `'__kovaa-labScrollRequest'` tel quel plutôt que de l'aligner sur les originaux. Même principe des deux côtés : une valeur de protocole se cite, elle ne se renomme pas.
+
+Convention d'attribution, résolue par périmètre et sans contournement : `apps/crm/ui/AGENTS.md:56` interdit l'attribution IA dans les messages de commit, et mon rappel de harnais cède explicitement devant une instruction projet. Mes prochains commits touchant `apps/crm/ui/**` n'en porteront donc pas. `apps/crm/bot/AGENTS.md` ne porte pas cette règle, donc les commits Char la suivent par défaut. Les commits déjà publiés `7a9431428` et `90d5bc163` ne sont **pas réécrits**.
+
 ## Codex assignment — p0-frontend-baseline
 - agent: codex
 - status: in_progress
