@@ -82,9 +82,10 @@ const api = async <TData>(
   token: string,
   query: string,
   variables: object = {},
+  endpoint = '/metadata',
 ): Promise<ApiResult<TData>> => {
   const response = await request(`http://127.0.0.1:${APP_PORT}`)
-    .post('/metadata')
+    .post(endpoint)
     .set('Authorization', `Bearer ${token}`)
     .send({ query, variables });
   if (response.status !== 200)
@@ -559,6 +560,98 @@ describe('Hermes structure dashboard — real isolated A/B/C authorization', () 
     expect(result.structures).toEqual([]);
     expect(result.totals).toEqual([]);
   });
+
+  it('persists native pipeline stages across HTTP requests, keeps dashboard totals coherent and enforces A/B permissions', async () => {
+    const id = randomUUID();
+    const name = `Hermes persistent pipeline ${fixtureSuffix}`;
+    inserted.get(A)?.get('opportunity')?.push(id);
+    const readOpportunity = async (token: string) =>
+      api<{ opportunity: { id: string; name: string; stage: string } | null }>(
+        token,
+        `query PipelineRecord($filter: OpportunityFilterInput!) {
+          opportunity(filter: $filter) { id name stage }
+        }`,
+        { filter: { id: { eq: id } } },
+        '/graphql',
+      );
+    const updateOpportunity = async (token: string, stage: string) =>
+      api<{ updateOpportunity: { id: string; stage: string } | null }>(
+        token,
+        `mutation PipelineStage($id: UUID!, $data: OpportunityUpdateInput!) {
+          updateOpportunity(id: $id, data: $data) { id stage }
+        }`,
+        { id, data: { stage } },
+        '/graphql',
+      );
+    const opportunityCount = async () =>
+      (await dashboard(u1.token)).totals.find(
+        (metric) => metric.key === 'opportunities',
+      )?.value;
+    const initialCount = await opportunityCount();
+    assert.ok(typeof initialCount === 'number');
+
+    const created = successful(
+      await api<{ createOpportunity: { id: string; stage: string } }>(
+        u1.token,
+        `mutation PipelineCreate($data: OpportunityCreateInput!) {
+          createOpportunity(data: $data) { id stage }
+        }`,
+        { data: { id, name, stage: 'NEW', createdAt: INSIDE } },
+        '/graphql',
+      ),
+    ).createOpportunity;
+    expect(created).toEqual({ id, stage: 'NEW' });
+    expect(successful(await readOpportunity(u1.token)).opportunity).toEqual({
+      id,
+      name,
+      stage: 'NEW',
+    });
+    expect(await opportunityCount()).toBe(initialCount + 1);
+
+    for (const stage of ['SCREENING', 'MEETING', 'PROPOSAL', 'CUSTOMER']) {
+      expect(
+        successful(await updateOpportunity(u1.token, stage)).updateOpportunity,
+      ).toEqual({ id, stage });
+      expect(successful(await readOpportunity(u1.token)).opportunity).toEqual({
+        id,
+        name,
+        stage,
+      });
+    }
+    expect(await opportunityCount()).toBe(initialCount + 1);
+
+    const tokenB = await accessFor(u2.user, B);
+    expect(successful(await readOpportunity(tokenB)).opportunity).toBeNull();
+    const deniedB = await updateOpportunity(tokenB, 'NEW');
+    expect(deniedB.errors?.length).toBeGreaterThan(0);
+    expect(deniedB.data?.updateOpportunity).toBeFalsy();
+    expect(JSON.stringify(deniedB)).not.toContain(name);
+
+    const deniedGuest = await updateOpportunity(
+      APPLE_PHIL_GUEST_ACCESS_TOKEN,
+      'NEW',
+    );
+    expect(deniedGuest.errors?.length).toBeGreaterThan(0);
+    expect(deniedGuest.data?.updateOpportunity).toBeFalsy();
+    expect(successful(await readOpportunity(u1.token)).opportunity).toEqual({
+      id,
+      name,
+      stage: 'CUSTOMER',
+    });
+
+    successful(
+      await api<{ deleteOpportunity: { id: string } }>(
+        u1.token,
+        `mutation PipelineDelete($id: UUID!) {
+          deleteOpportunity(id: $id) { id }
+        }`,
+        { id },
+        '/graphql',
+      ),
+    );
+    expect(successful(await readOpportunity(u1.token)).opportunity).toBeNull();
+    expect(await opportunityCount()).toBe(initialCount);
+  }, 120_000);
 
   it('removes B immediately after native membership revocation and refuses its forged filter', async () => {
     const membership = await getCoreRepository<UserWorkspaceEntity>(
