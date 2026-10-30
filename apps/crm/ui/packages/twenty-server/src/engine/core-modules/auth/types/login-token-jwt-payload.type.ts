@@ -8,4 +8,5 @@ export type LoginTokenJwtPayload = CommonPropertiesJwtPayload & {
   authProvider: AuthProviderEnum;
   impersonatorUserWorkspaceId?: string;
   jti?: string;
+  sameOriginSessionHash?: string;
 };

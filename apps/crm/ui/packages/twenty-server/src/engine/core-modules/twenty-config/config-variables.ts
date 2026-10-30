@@ -2207,6 +2207,15 @@ export class ConfigVariables {
   IS_MULTIWORKSPACE_ENABLED = false;
 
   @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.SERVER_CONFIG,
+    description:
+      'Allow authenticated server administrators to create workspaces and members to select workspaces on the canonical frontend origin, without subdomains. Does not enable public workspace signup.',
+    type: ConfigVariableType.BOOLEAN,
+  })
+  @IsOptional()
+  IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED = false;
+
+  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.ADVANCED_SETTINGS,
     description:
       'Number of inactive days before sending a deletion warning for workspaces. Used in the workspace deletion cron job to determine when to send warning emails.',

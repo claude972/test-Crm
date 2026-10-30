@@ -70,6 +70,8 @@ import { OnboardingRecentMessagesImportModule } from 'src/modules/onboarding-rec
 import { MessagingFolderSyncManagerModule } from 'src/modules/messaging/message-folder-manager/messaging-folder-sync-manager.module';
 
 import { AuthResolver } from './auth.resolver';
+import { SameOriginWorkspaceResolver } from './same-origin-workspace.resolver';
+import { SameOriginWorkspaceService } from './services/same-origin-workspace.service';
 
 import { AuthService } from './services/auth.service';
 
@@ -137,6 +139,8 @@ import { AuthService } from './services/auth.service';
     AuthService,
     SamlAuthStrategy,
     AuthResolver,
+    SameOriginWorkspaceResolver,
+    SameOriginWorkspaceService,
     GoogleAPIsService,
     GoogleApiScopesService,
     GoogleApisServiceAvailabilityService,

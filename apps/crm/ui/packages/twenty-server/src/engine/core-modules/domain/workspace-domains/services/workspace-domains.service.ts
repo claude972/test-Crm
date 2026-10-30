@@ -3,7 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { isNonEmptyString } from '@sniptt/guards';
 import { assertIsDefinedOrThrow, isDefined } from 'kovaa-lab-shared/utils';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
+import {
+  AuthException,
+  AuthExceptionCode,
+} from 'src/engine/core-modules/auth/auth.exception';
+import { isCanonicalFrontendOrigin } from 'src/engine/core-modules/domain/workspace-domains/utils/is-canonical-frontend-origin.util';
 
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
 import { buildUrlWithPathnameAndSearchParams } from 'src/engine/core-modules/domain/domain-server-config/utils/build-url-with-pathname-and-search-params.util';
@@ -26,6 +31,44 @@ export class WorkspaceDomainsService {
     @InjectRepository(PublicDomainEntity)
     private readonly publicDomainRepository: Repository<PublicDomainEntity>,
   ) {}
+
+  isSameOriginMultiWorkspaceEnabled(): boolean {
+    return (
+      this.kovaaLabConfigService.get('IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED') &&
+      !this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED')
+    );
+  }
+
+  assertSameOriginWorkspaceRequest(origin: string | undefined): void {
+    if (
+      !this.isSameOriginMultiWorkspaceEnabled() ||
+      !isCanonicalFrontendOrigin(
+        origin,
+        this.domainServerConfigService.getFrontUrl().toString(),
+      )
+    )
+      throw new AuthException(
+        'Same-origin workspace access is not allowed',
+        AuthExceptionCode.FORBIDDEN_EXCEPTION,
+      );
+  }
+
+  async getWorkspaceForLoginToken(
+    origin: string,
+    workspaceId: string,
+    requestOrigin?: string,
+  ): Promise<WorkspaceEntity | undefined> {
+    if (!this.isSameOriginMultiWorkspaceEnabled())
+      return this.getWorkspaceByOriginOrDefaultWorkspace(origin);
+    this.assertSameOriginWorkspaceRequest(origin);
+    if (requestOrigin !== undefined)
+      this.assertSameOriginWorkspaceRequest(requestOrigin);
+    return (
+      (await this.workspaceRepository.findOne({
+        where: { id: workspaceId, deletedAt: IsNull() },
+      })) ?? undefined
+    );
+  }
 
   buildWorkspaceURL({
     workspace,
@@ -82,12 +125,12 @@ export class WorkspaceDomainsService {
 
     const workspaces = await this.workspaceRepository.find({
       order: {
-        createdAt: 'DESC',
+        createdAt: this.isSameOriginMultiWorkspaceEnabled() ? 'ASC' : 'DESC',
       },
       relations: ['workspaceSsoIdentityProviders'],
     });
 
-    if (workspaces.length > 1) {
+    if (workspaces.length > 1 && !this.isSameOriginMultiWorkspaceEnabled()) {
       Logger.warn(
         `${workspaces.length} workspaces found in database. In single-workspace mode, there should be only one workspace. The Apple seed workspace will be used as fallback if present.`,
       );
@@ -287,6 +330,11 @@ export class WorkspaceDomainsService {
     customDomain,
     isCustomDomainEnabled,
   }: WorkspaceDomainConfig) {
+    if (this.isSameOriginMultiWorkspaceEnabled())
+      return {
+        customUrl: undefined,
+        subdomainUrl: this.domainServerConfigService.getFrontUrl().toString(),
+      };
     return {
       customUrl:
         isCustomDomainEnabled && customDomain

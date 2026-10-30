@@ -1,3 +1,7 @@
+import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
+import { workspaceValidator } from 'src/engine/core-modules/workspace/workspace.validate';
+import { UserEntity } from 'src/engine/core-modules/user/user.entity';
+import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -6,7 +10,7 @@ import { addMilliseconds } from 'date-fns';
 import { type Request } from 'express';
 import ms from 'ms';
 import { isDefined } from 'kovaa-lab-shared/utils';
-import { IsNull, MoreThan, Repository } from 'typeorm';
+import { type EntityManager, IsNull, MoreThan, Repository } from 'typeorm';
 
 import {
   AppTokenEntity,
@@ -80,11 +84,13 @@ export class UserSessionService {
     tokenPair,
     request,
     origin,
+    expectedSessionHash,
   }: {
     tokenPair: AuthTokenPair;
     request: Request;
     origin: UserSessionCreationOrigin;
-  }): Promise<void> {
+    expectedSessionHash?: string;
+  }): Promise<{ sessionToken: string }> {
     const response = request.res;
 
     if (!isDefined(response)) {
@@ -120,6 +126,20 @@ export class UserSessionService {
       const presentedSessionToken =
         this.userSessionCookieService.extractSessionTokenFromRequest(request);
 
+      const sameOriginMode =
+        this.kovaaLabConfigService.get(
+          'IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED',
+        ) && !this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED');
+      if (
+        sameOriginMode &&
+        origin === 'renewal_bridge' &&
+        !presentedSessionToken
+      )
+        throw new AuthException(
+          'Renewal requires the current native session',
+          AuthExceptionCode.UNAUTHENTICATED,
+        );
+
       if (isDefined(presentedSessionToken) && origin === 'renewal_bridge') {
         try {
           const { payload: presentedPayload } = await this.resolveSession(
@@ -129,9 +149,15 @@ export class UserSessionService {
           if (
             this.isSessionScopeMatchingRenewal(presentedPayload, sessionInput)
           ) {
-            return;
+            return { sessionToken: presentedSessionToken };
           }
+          if (sameOriginMode)
+            throw new AuthException(
+              'Renewal would replace another workspace session',
+              AuthExceptionCode.SESSION_SUPERSEDED,
+            );
         } catch (error) {
+          if (sameOriginMode) throw error;
           if (
             !(error instanceof AuthException) ||
             (error.code !== AuthExceptionCode.UNAUTHENTICATED &&
@@ -140,6 +166,27 @@ export class UserSessionService {
             throw error;
           }
         }
+      }
+
+      if (sameOriginMode && expectedSessionHash !== undefined) {
+        if (
+          !presentedSessionToken ||
+          hashUserSessionToken(presentedSessionToken) !== expectedSessionHash
+        )
+          throw new AuthException(
+            'The workspace session changed',
+            AuthExceptionCode.SESSION_SUPERSEDED,
+          );
+        const replaced = await this.replaceSameOriginSession(
+          sessionInput,
+          expectedSessionHash,
+        );
+        this.userSessionCookieService.attachSessionTokenToResponse(
+          response,
+          replaced.sessionToken,
+          replaced.session.expiresAt,
+        );
+        return { sessionToken: replaced.sessionToken };
       }
 
       // Create the replacement first so a failed insert leaves the browser its working credential.
@@ -152,7 +199,7 @@ export class UserSessionService {
       );
 
       if (!isDefined(presentedSessionToken)) {
-        return;
+        return { sessionToken };
       }
 
       if (sessionInput.isImpersonating === true) {
@@ -162,7 +209,7 @@ export class UserSessionService {
           presentedSessionToken,
         );
 
-        return;
+        return { sessionToken };
       }
 
       try {
@@ -178,6 +225,7 @@ export class UserSessionService {
           }`,
         );
       }
+      return { sessionToken };
     } catch (error) {
       this.logger.error(
         `Failed to issue a required session: ${
@@ -275,7 +323,10 @@ export class UserSessionService {
     return undefined;
   }
 
-  async createSession(input: CreateUserSessionInput): Promise<{
+  async createSession(
+    input: CreateUserSessionInput,
+    manager?: EntityManager,
+  ): Promise<{
     sessionToken: string;
     session: UserSessionEntity;
   }> {
@@ -313,8 +364,10 @@ export class UserSessionService {
     const now = new Date();
     const sessionToken = generateUserSessionToken();
 
-    const session = await this.userSessionRepository.save(
-      this.userSessionRepository.create({
+    const repository =
+      manager?.getRepository(UserSessionEntity) ?? this.userSessionRepository;
+    const session = await repository.save(
+      repository.create({
         tokenHash: hashUserSessionToken(sessionToken),
         userId: input.userId,
         workspaceId: input.workspaceId ?? null,
@@ -336,11 +389,130 @@ export class UserSessionService {
       }),
     );
 
-    if (input.origin === 'sign_in' && isDefined(session.workspaceId)) {
+    if (
+      !manager &&
+      input.origin === 'sign_in' &&
+      isDefined(session.workspaceId)
+    ) {
       this.emitAuthSessionEvent(session, 'user_signed_in');
     }
 
     return { sessionToken, session };
+  }
+
+  async assertSameOriginWorkspaceSession(
+    actor: {
+      sessionHash: string;
+      userId: string;
+      workspaceId: string;
+      userWorkspaceId: string;
+    },
+    manager?: EntityManager,
+  ): Promise<void> {
+    const repository =
+      manager?.getRepository(UserSessionEntity) ?? this.userSessionRepository;
+    const session = await repository.findOne({
+      where: {
+        tokenHash: actor.sessionHash,
+        userId: actor.userId,
+        workspaceId: actor.workspaceId,
+        userWorkspaceId: actor.userWorkspaceId,
+      },
+      ...(manager ? { lock: { mode: 'pessimistic_read' as const } } : {}),
+    });
+    if (!session || !this.isSessionActive(session) || session.isImpersonating)
+      throw new AuthException(
+        'The workspace session changed',
+        AuthExceptionCode.SESSION_SUPERSEDED,
+      );
+  }
+
+  private async replaceSameOriginSession(
+    input: CreateUserSessionInput,
+    expectedHash: string,
+  ) {
+    const result = await this.userSessionRepository.manager.transaction(
+      async (manager) => {
+        await manager.query(
+          'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+          [`same-origin-session:${expectedHash}`],
+        );
+        const repository = manager.getRepository(UserSessionEntity);
+        const previous = await repository.findOne({
+          where: { tokenHash: expectedHash },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (
+          !previous ||
+          !this.isSessionActive(previous) ||
+          previous.userId !== input.userId ||
+          previous.isImpersonating
+        )
+          throw new AuthException(
+            'The login session was replaced',
+            AuthExceptionCode.SESSION_SUPERSEDED,
+          );
+        const user = await manager.getRepository(UserEntity).findOneBy({
+          id: input.userId,
+          disabled: false,
+          deletedAt: IsNull(),
+        });
+        if (!user)
+          throw new AuthException(
+            'User access is unavailable',
+            AuthExceptionCode.FORBIDDEN_EXCEPTION,
+          );
+        if (input.userWorkspaceId) {
+          if (!input.workspaceId)
+            throw new AuthException(
+              'Workspace access is unavailable',
+              AuthExceptionCode.FORBIDDEN_EXCEPTION,
+            );
+          const membership = await manager
+            .getRepository(UserWorkspaceEntity)
+            .findOne({
+              where: {
+                id: input.userWorkspaceId,
+                userId: input.userId,
+                workspaceId: input.workspaceId,
+                deletedAt: IsNull(),
+                workspace: { id: input.workspaceId, deletedAt: IsNull() },
+              },
+              relations: { workspace: true },
+            });
+          if (!membership)
+            throw new AuthException(
+              'Workspace access is unavailable',
+              AuthExceptionCode.FORBIDDEN_EXCEPTION,
+            );
+          if (
+            input.authProvider !== AuthProviderEnum.SSO &&
+            !workspaceValidator.isAuthEnabled(
+              input.authProvider,
+              membership.workspace,
+            )
+          )
+            throw new AuthException(
+              'Workspace authentication provider is not enabled',
+              AuthExceptionCode.OAUTH_ACCESS_DENIED,
+            );
+        }
+        const created = await this.createSession(input, manager);
+        await repository.update(
+          { id: previous.id, revokedAt: IsNull() },
+          {
+            revokedAt: new Date(),
+            revokedReason: UserSessionRevokedReason.Superseded,
+          },
+        );
+        return { ...created, previous };
+      },
+    );
+    await this.cacheStorageService.del(expectedHash);
+    this.emitAuthSessionEvent(result.previous, 'session_revoked');
+    if (input.origin === 'sign_in' && result.session.workspaceId)
+      this.emitAuthSessionEvent(result.session, 'user_signed_in');
+    return result;
   }
 
   async resolveSession(sessionToken: string): Promise<{

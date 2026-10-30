@@ -1,3 +1,5 @@
+import { assertExpectedWorkspaceContext } from 'src/engine/guards/utils/assert-expected-workspace-context.util';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { Injectable } from '@nestjs/common';
 
 import { isNonEmptyString } from '@sniptt/guards';
@@ -43,6 +45,7 @@ export class MiddlewareService {
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly userSessionCookieService: UserSessionCookieService,
+    private readonly kovaaLabConfigService: KovaaLabCRMConfigService,
   ) {}
 
   public isTokenPresent(request: Request): boolean {
@@ -130,6 +133,7 @@ export class MiddlewareService {
     }
 
     bindDataToRequestObject(data, request, metadataVersion);
+    assertExpectedWorkspaceContext(request, this.kovaaLabConfigService, 'http');
   }
 
   private clearDeadSessionCookie(request: Request, error: unknown) {
@@ -183,6 +187,11 @@ export class MiddlewareService {
       : undefined;
 
     bindDataToRequestObject(data, request, metadataVersion);
+    assertExpectedWorkspaceContext(
+      request,
+      this.kovaaLabConfigService,
+      'graphql',
+    );
   }
 
   private async getOrSeedMetadataVersion(

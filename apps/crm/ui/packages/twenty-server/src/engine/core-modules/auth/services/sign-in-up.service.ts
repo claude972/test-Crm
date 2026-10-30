@@ -1,3 +1,4 @@
+import { UserSessionService } from 'src/engine/core-modules/user-session/services/user-session.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 
@@ -10,6 +11,7 @@ import {
   QueryFailedError,
   Repository,
   type DataSource,
+  type EntityManager,
   type QueryRunner,
 } from 'typeorm';
 import { v4 } from 'uuid';
@@ -54,6 +56,7 @@ import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.
 import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { TelemetryEventType } from 'src/engine/core-modules/telemetry/telemetry-event.type';
 import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
@@ -68,6 +71,13 @@ import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/works
 import { WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
 import { getDomainFromEmailOrThrow } from 'src/utils/get-domain-from-email-or-throw';
 import { isWorkEmail } from 'src/utils/is-work-email';
+
+export type SameOriginWorkspaceActor = {
+  userId: string;
+  workspaceId: string;
+  userWorkspaceId: string;
+  sessionHash?: string;
+};
 
 @Injectable()
 // oxlint-disable-next-line kovaa-lab/inject-workspace-repository
@@ -97,6 +107,7 @@ export class SignInUpService {
     private readonly billingService: BillingService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    private readonly userSessions: UserSessionService,
   ) {}
 
   async computePartialUserFromUserPayload(
@@ -495,39 +506,122 @@ export class SignInUpService {
 
   private async assertWorkspaceCreationAllowed(
     userData: ExistingUserOrPartialUserWithPicture['userData'],
+    actor?: SameOriginWorkspaceActor,
+    manager?: EntityManager,
   ): Promise<void> {
-    await this.assertSignUpEnabled();
-
-    const workspaceCount = await this.workspaceRepository.count();
-
-    if (workspaceCount === 0) {
-      return;
+    if (actor) {
+      if (
+        !this.kovaaLabConfigService.get(
+          'IS_SAME_ORIGIN_MULTIWORKSPACE_ENABLED',
+        ) ||
+        this.kovaaLabConfigService.get('IS_MULTIWORKSPACE_ENABLED') ||
+        userData.type !== 'existingUser' ||
+        actor.userId !== userData.existingUser.id
+      )
+        throw new AuthException(
+          'Same-origin workspace creation is disabled',
+          AuthExceptionCode.SIGNUP_DISABLED,
+        );
+      if (!actor.sessionHash)
+        throw new AuthException(
+          'A native browser session is required',
+          AuthExceptionCode.UNAUTHENTICATED,
+        );
+      await this.userSessions.assertSameOriginWorkspaceSession(
+        { ...actor, sessionHash: actor.sessionHash },
+        manager,
+      );
+      const membership = await (manager ?? this.dataSource.manager)
+        .getRepository(UserWorkspaceEntity)
+        .findOne({
+          where: {
+            id: actor.userWorkspaceId,
+            userId: actor.userId,
+            workspaceId: actor.workspaceId,
+            deletedAt: IsNull(),
+            user: {
+              id: actor.userId,
+              disabled: false,
+              deletedAt: IsNull(),
+              canAccessFullAdminPanel: true,
+            },
+            workspace: {
+              id: actor.workspaceId,
+              deletedAt: IsNull(),
+              activationStatus: WorkspaceActivationStatus.ACTIVE,
+            },
+          },
+        });
+      if (!membership)
+        throw new AuthException(
+          'Workspace creation requires a live server administrator',
+          AuthExceptionCode.FORBIDDEN_EXCEPTION,
+        );
+    } else {
+      await this.assertSignUpEnabled();
     }
 
+    const workspaceRepository =
+      manager?.getRepository(WorkspaceEntity) ?? this.workspaceRepository;
+    const workspaceCount = await workspaceRepository.count();
+    if (workspaceCount === 0) return;
     await this.assertWorkspaceCountWithinLimit(workspaceCount);
-
     if (
       !this.kovaaLabConfigService.get(
         'IS_WORKSPACE_CREATION_LIMITED_TO_SERVER_ADMINS',
       )
-    ) {
+    )
       return;
-    }
-
-    const isExistingAdmin =
-      userData.type === 'existingUser' &&
-      userData.existingUser.canAccessFullAdminPanel;
-
-    if (isExistingAdmin) {
+    if (
+      actor ||
+      (userData.type === 'existingUser' &&
+        userData.existingUser.canAccessFullAdminPanel)
+    )
       return;
-    }
-
     throw new AuthException(
       'Workspace creation is restricted to admins',
       AuthExceptionCode.FORBIDDEN_EXCEPTION,
-      {
-        userFriendlyMessage: msg`Workspace creation is restricted to admins`,
-      },
+      { userFriendlyMessage: msg`Workspace creation is restricted to admins` },
+    );
+  }
+
+  async assertSameOriginWorkspaceCreationAllowed(
+    actor: SameOriginWorkspaceActor,
+  ): Promise<void> {
+    const user = await this.userRepository.findOneBy({
+      id: actor.userId,
+      disabled: false,
+      deletedAt: IsNull(),
+    });
+    if (!user)
+      throw new AuthException(
+        'User access is unavailable',
+        AuthExceptionCode.FORBIDDEN_EXCEPTION,
+      );
+    await this.assertWorkspaceCreationAllowed(
+      { type: 'existingUser', existingUser: user },
+      actor,
+    );
+  }
+
+  async signUpOnNewWorkspaceForSameOrigin(
+    actor: SameOriginWorkspaceActor,
+    displayName: string,
+  ) {
+    const user = await this.userRepository.findOneBy({
+      id: actor.userId,
+      disabled: false,
+      deletedAt: IsNull(),
+    });
+    if (!user)
+      throw new AuthException(
+        'User access is unavailable',
+        AuthExceptionCode.FORBIDDEN_EXCEPTION,
+      );
+    return this.signUpOnNewWorkspace(
+      { type: 'existingUser', existingUser: user },
+      { displayName },
+      actor,
     );
   }
 
@@ -640,6 +734,7 @@ export class SignInUpService {
   async signUpOnNewWorkspace(
     userData: ExistingUserOrPartialUserWithPicture['userData'],
     options?: { displayName?: string; subdomain?: string; partner?: string },
+    sameOriginActor?: SameOriginWorkspaceActor,
   ) {
     const email =
       userData.type === 'newUserWithPicture'
@@ -656,7 +751,7 @@ export class SignInUpService {
       );
     }
 
-    await this.assertWorkspaceCreationAllowed(userData);
+    await this.assertWorkspaceCreationAllowed(userData, sameOriginActor);
 
     const displayName = options?.displayName?.trim();
 
@@ -689,6 +784,17 @@ export class SignInUpService {
       const { user, workspace, customApplicationUniversalIdentifier } =
         await this.dataSource.transaction(async (entityManager) => {
           const queryRunner = entityManager.queryRunner as QueryRunner;
+          if (sameOriginActor) {
+            await entityManager.query(
+              'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+              ['same-origin-workspace-creation'],
+            );
+            await this.assertWorkspaceCreationAllowed(
+              userData,
+              sameOriginActor,
+              entityManager,
+            );
+          }
 
           const workspaceToCreate = this.workspaceRepository.create({
             id: workspaceId,

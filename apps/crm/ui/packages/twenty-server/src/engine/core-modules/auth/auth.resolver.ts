@@ -1,3 +1,4 @@
+import { workspaceValidator } from 'src/engine/core-modules/workspace/workspace.validate';
 import { Logger, UseFilters, UseGuards, UsePipes } from '@nestjs/common';
 import { Args, Context, Mutation, Query } from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -177,6 +178,60 @@ export class AuthResolver {
     private readonly userSessionCookieService: UserSessionCookieService,
   ) {}
 
+  private async loginTokenForRequest(
+    user: UserEntity,
+    workspaceId: string,
+    provider: AuthProviderEnum,
+    request?: Request,
+    preserveSession = false,
+  ) {
+    if (!this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled())
+      return this.loginTokenService.generateLoginToken(
+        user.email,
+        workspaceId,
+        provider,
+      );
+    if (!request)
+      throw new AuthException(
+        'A native browser request is required',
+        AuthExceptionCode.UNAUTHENTICATED,
+      );
+    return this.loginTokenService.generateLoginTokenForRequest(
+      user,
+      workspaceId,
+      provider,
+      request,
+      preserveSession,
+    );
+  }
+
+  private async sameOriginWorkspacePicker(
+    user: UserEntity,
+    provider: AuthProviderEnum,
+    availableWorkspaces: Parameters<
+      UserWorkspaceService['setLoginTokenToAvailableWorkspacesWhenAuthProviderMatch']
+    >[0],
+    request: Request,
+  ): Promise<AvailableWorkspacesAndAccessTokensDTO> {
+    const { tokens, sameOriginSessionHash } =
+      await this.loginTokenService.createSameOriginAgnosticSession(
+        user.id,
+        provider,
+        request,
+      );
+    return {
+      tokens,
+      availableWorkspaces:
+        await this.userWorkspaceService.setLoginTokenToAvailableWorkspacesWhenAuthProviderMatch(
+          availableWorkspaces,
+          user,
+          provider,
+          true,
+          { request, sameOriginSessionHash },
+        ),
+    };
+  }
+
   @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
   @Query(() => CheckUserExistDTO)
   async checkUserExists(
@@ -226,6 +281,7 @@ export class AuthResolver {
     @Args()
     getLoginTokenFromCredentialsInput: UserCredentialsInput,
     @Args('origin') origin: string,
+    @Context() context?: { req: Request },
   ): Promise<LoginTokenDTO> {
     const workspace =
       await this.workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace(
@@ -246,11 +302,11 @@ export class AuthResolver {
         workspace,
       );
 
-    const loginToken = await this.loginTokenService.generateLoginToken(
-      user.email,
+    const loginToken = await this.loginTokenForRequest(
+      user,
       workspace.id,
-      // email validation is active only for password flow
       AuthProviderEnum.Password,
+      context?.req,
     );
 
     return { loginToken };
@@ -270,6 +326,14 @@ export class AuthResolver {
     const availableWorkspaces =
       await this.userWorkspaceService.findAvailableWorkspacesByEmail(
         user.email,
+      );
+
+    if (this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled())
+      return this.sameOriginWorkspacePicker(
+        user,
+        AuthProviderEnum.Password,
+        availableWorkspaces,
+        context.req,
       );
 
     const result = {
@@ -311,6 +375,7 @@ export class AuthResolver {
     @Args()
     getAuthTokenFromEmailVerificationTokenInput: GetAuthTokenFromEmailVerificationTokenInput,
     @Args('origin') origin: string,
+    @Context() context?: { req: Request },
   ) {
     const appToken =
       await this.emailVerificationTokenService.validateEmailVerificationTokenOrThrow(
@@ -339,10 +404,11 @@ export class AuthResolver {
 
     await this.authService.joinWorkspaceIfInvited({ user, workspace });
 
-    const loginToken = await this.loginTokenService.generateLoginToken(
-      user.email,
+    const loginToken = await this.loginTokenForRequest(
+      user,
       workspace.id,
       AuthProviderEnum.Password,
+      context?.req,
     );
 
     const workspaceUrls =
@@ -381,6 +447,14 @@ export class AuthResolver {
     const availableWorkspaces =
       await this.userWorkspaceService.findAvailableWorkspacesByEmail(
         user.email,
+      );
+
+    if (this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled())
+      return this.sameOriginWorkspacePicker(
+        user,
+        AuthProviderEnum.Password,
+        availableWorkspaces,
+        context.req,
       );
 
     const result = {
@@ -428,11 +502,20 @@ export class AuthResolver {
       twoFactorAuthenticationVerificationInput.loginToken,
     );
 
+    await this.loginTokenService.assertSameOriginSessionForLoginToken(
+      loginTokenPayload,
+      context.req,
+    );
+
     assertLoginTokenIsNotForImpersonation(loginTokenPayload);
 
     const { sub: email, authProvider, workspaceId } = loginTokenPayload;
 
-    const workspace = await this.validateWorkspaceAccess(origin, workspaceId);
+    const workspace = await this.validateWorkspaceAccess(
+      origin,
+      workspaceId,
+      context.req,
+    );
 
     const user = await this.userService.findUserByEmailOrThrow(email);
 
@@ -441,6 +524,11 @@ export class AuthResolver {
       twoFactorAuthenticationVerificationInput.otp,
       workspace.id,
       TwoFactorAuthenticationStrategy.TOTP,
+    );
+
+    await this.loginTokenService.assertSameOriginSessionForLoginToken(
+      loginTokenPayload,
+      context.req,
     );
 
     await this.loginTokenService.consumeLoginTokenOrThrow(loginTokenPayload);
@@ -455,6 +543,7 @@ export class AuthResolver {
       tokenPair: authTokens.tokens,
       request: context.req,
       origin: 'sign_in',
+      expectedSessionHash: loginTokenPayload.sameOriginSessionHash,
     });
 
     return authTokens;
@@ -473,11 +562,20 @@ export class AuthResolver {
       recoveryCodeVerificationInput.loginToken,
     );
 
+    await this.loginTokenService.assertSameOriginSessionForLoginToken(
+      loginTokenPayload,
+      context.req,
+    );
+
     assertLoginTokenIsNotForImpersonation(loginTokenPayload);
 
     const { sub: email, authProvider, workspaceId } = loginTokenPayload;
 
-    const workspace = await this.validateWorkspaceAccess(origin, workspaceId);
+    const workspace = await this.validateWorkspaceAccess(
+      origin,
+      workspaceId,
+      context.req,
+    );
 
     const user = await this.userService.findUserByEmailOrThrow(email);
 
@@ -490,8 +588,17 @@ export class AuthResolver {
       });
 
     if (isDefined(provisioningUri)) {
+      await this.loginTokenService.assertSameOriginSessionForLoginToken(
+        loginTokenPayload,
+        context.req,
+      );
       return { tokens: null, provisioningUri };
     }
+
+    await this.loginTokenService.assertSameOriginSessionForLoginToken(
+      loginTokenPayload,
+      context.req,
+    );
 
     await this.loginTokenService.consumeLoginTokenOrThrow(loginTokenPayload);
 
@@ -505,6 +612,7 @@ export class AuthResolver {
       tokenPair: authTokens.tokens,
       request: context.req,
       origin: 'sign_in',
+      expectedSessionHash: loginTokenPayload.sameOriginSessionHash,
     });
 
     return { tokens: authTokens.tokens, provisioningUri: null };
@@ -541,6 +649,14 @@ export class AuthResolver {
       verifyEmailRedirectPath: signUpInput.verifyEmailRedirectPath,
       verificationTrigger: EmailVerificationTrigger.SIGN_UP,
     });
+
+    if (this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled())
+      return this.sameOriginWorkspacePicker(
+        user,
+        AuthProviderEnum.Password,
+        availableWorkspaces,
+        context.req,
+      );
 
     const result = {
       availableWorkspaces:
@@ -579,6 +695,7 @@ export class AuthResolver {
   @AllowSuspendedWorkspace()
   async signUpInWorkspace(
     @Args() signUpInput: SignUpInput,
+    @Context() context?: { req: Request },
   ): Promise<SignUpDTO> {
     const currentWorkspace = await this.authService.findWorkspaceForSignInUp({
       workspaceInviteHash: signUpInput.workspaceInviteHash,
@@ -633,10 +750,11 @@ export class AuthResolver {
       verificationTrigger: EmailVerificationTrigger.SIGN_UP,
     });
 
-    const loginToken = await this.loginTokenService.generateLoginToken(
-      user.email,
+    const loginToken = await this.loginTokenForRequest(
+      user,
       workspace.id,
       AuthProviderEnum.Password,
+      context?.req,
     );
 
     return {
@@ -699,6 +817,7 @@ export class AuthResolver {
     @AuthUser() currentUser: AuthContextUser,
     @AuthProvider() authProvider: AuthProviderEnum,
     @Args('input', { nullable: true }) input?: SignUpInNewWorkspaceInput,
+    @Context() context?: { req: Request },
   ): Promise<SignUpDTO> {
     assertIsDefinedOrThrow(
       authProvider,
@@ -719,10 +838,12 @@ export class AuthResolver {
       },
     );
 
-    const loginToken = await this.loginTokenService.generateLoginToken(
-      user.email,
+    const loginToken = await this.loginTokenForRequest(
+      user,
       workspace.id,
       authProvider,
+      context?.req,
+      true,
     );
 
     return {
@@ -884,9 +1005,15 @@ export class AuthResolver {
       getAuthTokensFromLoginTokenInput.loginToken,
     );
 
+    await this.loginTokenService.assertSameOriginSessionForLoginToken(
+      tokenPayload,
+      context.req,
+    );
+
     const workspace = await this.validateWorkspaceAccess(
       origin,
       tokenPayload.workspaceId,
+      context.req,
     );
 
     const { user, userWorkspace } = await this.validateUserAccess(
@@ -909,6 +1036,11 @@ export class AuthResolver {
         user.email,
       );
 
+      await this.loginTokenService.assertSameOriginSessionForLoginToken(
+        tokenPayload,
+        context.req,
+      );
+
       await this.loginTokenService.consumeLoginTokenOrThrow(tokenPayload);
 
       authTokens =
@@ -922,6 +1054,11 @@ export class AuthResolver {
     } else {
       await this.validateRegularAuthentication(workspace, userWorkspace);
 
+      await this.loginTokenService.assertSameOriginSessionForLoginToken(
+        tokenPayload,
+        context.req,
+      );
+
       await this.loginTokenService.consumeLoginTokenOrThrow(tokenPayload);
 
       authTokens = await this.authService.verify(
@@ -931,10 +1068,16 @@ export class AuthResolver {
       );
     }
 
+    await this.loginTokenService.assertSameOriginSessionForLoginToken(
+      tokenPayload,
+      context.req,
+    );
+
     await this.userSessionService.issueSessionForTokenPair({
       tokenPair: authTokens.tokens,
       request: context.req,
       origin: 'sign_in',
+      expectedSessionHash: tokenPayload.sameOriginSessionHash,
     });
 
     return authTokens;
@@ -948,10 +1091,52 @@ export class AuthResolver {
     { ssoExchangeToken }: GetAuthTokensFromSsoExchangeTokenInput,
     @Context() context: { req: Request },
   ): Promise<AuthTokens> {
-    const { userId, authProvider } =
+    if (this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled())
+      this.workspaceDomainsService.assertSameOriginWorkspaceRequest(
+        context.req.headers.origin,
+      );
+    const { userId, authProvider, workspaceId } =
       await this.ssoExchangeTokenService.validateAndConsumeSsoExchangeTokenOrThrow(
         ssoExchangeToken,
       );
+
+    if (this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled()) {
+      const user = await this.userService.findUserByIdOrThrow(userId);
+      if (user.disabled || user.deletedAt)
+        throw new AuthException(
+          'User access is unavailable',
+          AuthExceptionCode.FORBIDDEN_EXCEPTION,
+        );
+      const { tokens, sameOriginSessionHash } =
+        await this.loginTokenService.createSameOriginAgnosticSession(
+          user.id,
+          authProvider,
+          context.req,
+        );
+      if (!workspaceId) return { tokens };
+      const workspace = await this.validateWorkspaceAccess(
+        context.req.headers.origin!,
+        workspaceId,
+        context.req,
+      );
+      await this.validateUserAccess(user.email, workspaceId);
+      if (
+        authProvider !== AuthProviderEnum.SSO &&
+        !workspaceValidator.isAuthEnabled(authProvider, workspace)
+      )
+        throw new AuthException(
+          'Workspace authentication provider is not enabled',
+          AuthExceptionCode.OAUTH_ACCESS_DENIED,
+        );
+      const workspaceLoginToken =
+        await this.loginTokenService.generateLoginToken(
+          user.email,
+          workspaceId,
+          authProvider,
+          { sameOriginSessionHash },
+        );
+      return { tokens, workspaceLoginToken };
+    }
 
     const authTokens = {
       tokens: {
@@ -988,10 +1173,13 @@ export class AuthResolver {
   private async validateWorkspaceAccess(
     origin: string,
     tokenWorkspaceId: string,
+    request?: Request,
   ): Promise<WorkspaceEntity> {
     const workspace =
-      await this.workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace(
+      await this.workspaceDomainsService.getWorkspaceForLoginToken(
         origin,
+        tokenWorkspaceId,
+        request?.headers.origin,
       );
 
     assertIsDefinedOrThrow(
@@ -1017,6 +1205,12 @@ export class AuthResolver {
     workspaceId: string,
   ): Promise<{ user: UserEntity; userWorkspace: UserWorkspaceEntity }> {
     const user = await this.userService.findUserByEmailOrThrow(email);
+
+    if (user.disabled || user.deletedAt)
+      throw new AuthException(
+        'User access is unavailable',
+        AuthExceptionCode.FORBIDDEN_EXCEPTION,
+      );
 
     await this.authService.checkIsEmailVerified(user.isEmailVerified);
 

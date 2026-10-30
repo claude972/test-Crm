@@ -19,7 +19,7 @@ import {
 } from 'src/engine/core-modules/auth/auth.exception';
 import { type AuthToken } from 'src/engine/core-modules/auth/dto/auth-token.dto';
 import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
-import { type AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
+import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 
 const hashSsoExchangeToken = (ssoExchangeToken: string) =>
   crypto.createHash('sha256').update(ssoExchangeToken).digest('hex');
@@ -43,9 +43,11 @@ export class SsoExchangeTokenService {
   async generateSsoExchangeToken({
     userId,
     authProvider,
+    workspaceId,
   }: {
     userId: string;
     authProvider: AuthProviderEnum;
+    workspaceId?: string;
   }): Promise<AuthToken> {
     const expiresIn = this.kovaaLabConfigService.get(
       'SHORT_TERM_TOKEN_EXPIRES_IN',
@@ -57,6 +59,7 @@ export class SsoExchangeTokenService {
     await this.appTokenRepository.save(
       this.appTokenRepository.create({
         userId,
+        ...(workspaceId ? { workspaceId } : {}),
         expiresAt,
         type: AppTokenType.SsoExchangeToken,
         value: hashSsoExchangeToken(plainToken),
@@ -72,7 +75,11 @@ export class SsoExchangeTokenService {
 
   async validateAndConsumeSsoExchangeTokenOrThrow(
     ssoExchangeToken: string,
-  ): Promise<{ userId: string; authProvider: AuthProviderEnum }> {
+  ): Promise<{
+    userId: string;
+    authProvider: AuthProviderEnum;
+    workspaceId?: string;
+  }> {
     const appToken = await this.appTokenRepository.findOneBy({
       value: hashSsoExchangeToken(ssoExchangeToken),
       type: AppTokenType.SsoExchangeToken,
@@ -101,7 +108,11 @@ export class SsoExchangeTokenService {
 
     if (
       !isDefined(appToken.userId) ||
-      !isDefined(appToken.context?.authProvider)
+      !isDefined(appToken.context?.authProvider) ||
+      !Object.values(AuthProviderEnum).includes(
+        appToken.context.authProvider,
+      ) ||
+      appToken.context.authProvider === AuthProviderEnum.Impersonation
     ) {
       throw buildInvalidSsoExchangeTokenException();
     }
@@ -109,6 +120,7 @@ export class SsoExchangeTokenService {
     return {
       userId: appToken.userId,
       authProvider: appToken.context.authProvider,
+      ...(appToken.workspaceId ? { workspaceId: appToken.workspaceId } : {}),
     };
   }
 }

@@ -1112,6 +1112,27 @@ export class AuthService {
         authProvider,
       });
 
+      if (this.workspaceDomainsService.isSameOriginMultiWorkspaceEnabled()) {
+        const exchange =
+          await this.ssoExchangeTokenService.generateSsoExchangeToken({
+            userId: user.id,
+            workspaceId: workspace.id,
+            authProvider,
+          });
+        return this.workspaceDomainsService
+          .buildWorkspaceURL({
+            workspace,
+            pathname: AppPath.SignInUp,
+            hash: `ssoExchangeToken=${exchange.token}`,
+            searchParams: {
+              ...(isNonEmptyString(returnToPath) && returnToPath.startsWith('/')
+                ? { returnToPath }
+                : {}),
+            },
+          })
+          .toString();
+      }
+
       const loginToken = await this.loginTokenService.generateLoginToken(
         user.email,
         workspace.id,
