@@ -213,6 +213,14 @@ Clarification de contrat transmise directement à la session Claude : faute de s
 - reviewed revision: f7f05f90b1da0e8853a9b033ad35b27112ace668
 - evidence: CI https://github.com/claude972/test-Crm/actions/runs/40979175124 : builds/types/19 tests réussis, mais setup-db.js compilé échoue immédiatement avec MODULE_NOT_FOUND vers ../../../../../src/database/typeorm/raw/raw.datasource. Aucun script d'initialisation applicative n'a atteint la base ; seuls les services jetables du job avaient été créés.
 - expected correction: aligner la racine SWC sur les aliases relatifs au paquet serveur et vérifier une exécution réelle des artefacts, pas seulement leur présence.
-- status: fixed_pending_review
+- status: verified
 - fix commit: ed80da151 sur fix/codex-backend-build, PR #7 ; .swcrc baseUrl passe de ./../../ à ., réparation déjà présente dans les originaux locaux et reprise isolément. Rapport backend actualisé.
 - recheck evidence: vérification JSON/diff/Gitleaks réussie ; contrôle de démarrage à relancer sur l'intégration du nouveau checkpoint. Aucun succès runtime ou preview revendiqué. La CI verte 40977970048 ne contenait pas le contrôle runtime.
+
+### Recontrôle runtime Codex — code ed80da151
+
+CI de branche backend https://github.com/claude972/test-Crm/actions/runs/40979668149 verte. CI d'intégration https://github.com/claude972/test-Crm/actions/runs/40979688501 verte sur e7d1332ba48b6a03891f39cafcc5e780a2a3cc4f : six jobs, dont l'étape de démarrage isolé réellement exécutée (success, non skipped). Journal : « P0 runtime: disposable database initialized, server healthy, client-config contract verified ».
+
+P0-RUNTIME-001 corrigé et recontrôlé : setup-db et commandes d'instance existantes réussis sur la base p0_ci jetable ; serveur lancé, healthz répond et client-config contient allowRequestsToKovaaLabCRMIcons booléen, sans ancien champ allowRequestsToTwentyIcons. Aucun workspace métier/compte de production ou e-mail envoyé. Processus et services du job arrêtés.
+
+Diff vérifié vide entre ed80da15116fd2d1490022cf53564d85bc0abe26 et e7d1332ba pour serveur/shared/SDK/e-mails : c'est bien le code backend de PR #7 qui a été exécuté. Rapport backend actualisé ; revue Claude du nouveau SHA encore requise, frontend et preview combinée en attente. Cette preuve de démarrage n'est pas un E2E métier.
