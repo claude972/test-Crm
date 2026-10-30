@@ -222,3 +222,23 @@ it('a connection lost after SMTP DATA stays unconfirmed with a single native sen
     await fixture.close();
   }
 });
+
+it('native SMTP accepts a Bcc-only envelope without putting its hidden recipient in MIME headers', async () => {
+  const fixture = await smtpFixture();
+  try {
+    const { instance, input } = service(fixture.transport);
+    input.email.to = [];
+    input.email.cc = [];
+    await instance.send(input);
+    expect(fixture.captured).toHaveLength(1);
+    expect(fixture.captured[0].recipients).toEqual(['hidden@example.com']);
+    const parsed = await PostalMime.parse(fixture.captured[0].raw);
+    expect(parsed.bcc).toBeUndefined();
+    expect(parsed.to).toBeUndefined();
+    expect(fixture.captured[0].raw.toString()).not.toContain(
+      'hidden@example.com',
+    );
+  } finally {
+    await fixture.close();
+  }
+});

@@ -371,6 +371,7 @@ export class HermesMailboxService {
             : { personId: null, personMatchStatus: 'UNAVAILABLE' }),
           direction: observed.direction,
           observedOnly: true,
+          botUnavailableReason: observed.botUnavailableReason,
           state: 'AVAILABLE',
           uid: input.uid,
           uidValidity: input.uidValidity,
@@ -468,7 +469,8 @@ export class HermesMailboxService {
             ? (
                 await this.mail.draftConversation(actor, {
                   clientRequestId: input.clientRequestId!,
-                  contactHandle: envelope.to[0],
+                  contactHandle:
+                    envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
                   subject: envelope.subject,
                 })
               ).id
@@ -503,7 +505,7 @@ export class HermesMailboxService {
       await this.current(actor, client);
       const conversation = await this.mail.draftConversation(actor, {
         clientRequestId: input.clientRequestId!,
-        contactHandle: envelope.to[0],
+        contactHandle: envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
         subject: envelope.subject,
       });
       if (input.conversationId && input.conversationId !== conversation.id)
@@ -538,7 +540,7 @@ export class HermesMailboxService {
       await this.current(actor, client);
       const conversation = await this.mail.draftConversation(actor, {
         clientRequestId: input.clientRequestId!,
-        contactHandle: envelope.to[0],
+        contactHandle: envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
         subject: envelope.subject,
       });
       if (input.conversationId && input.conversationId !== conversation.id)
@@ -611,7 +613,8 @@ export class HermesMailboxService {
             ? (
                 await this.mail.draftConversation(actor, {
                   clientRequestId: input.clientRequestId!,
-                  contactHandle: envelope.to[0],
+                  contactHandle:
+                    envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
                   subject: envelope.subject,
                 })
               ).id

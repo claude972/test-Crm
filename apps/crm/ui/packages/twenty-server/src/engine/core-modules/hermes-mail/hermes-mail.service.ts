@@ -526,13 +526,15 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     });
     if (!event) throw unavailable();
     const own = new Set(getSendableEmailHandles(item.account).map(mailAddress));
+    let botUnavailableReason: string | null = null;
     if (own.has(mailAddress(parsed.from?.address))) {
       const external = [...(parsed.to ?? []), ...(parsed.cc ?? [])]
         .flatMap((address) => address.group ?? [address])
         .map((address) => mailAddress(address.address))
         .find((address) => address && !own.has(address));
-      if (!external) throw unavailable();
-      event.contactHandle = external;
+      // Private recipients never become public CRM conversation handles.
+      event.contactHandle = external ?? item.account.handle;
+      if (!external) botUnavailableReason = 'MAIL_PRIVATE_OR_SELF_RECIPIENT';
       event.direction = 'OUTBOUND';
     }
     if (mimeSha256) {
@@ -648,6 +650,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     return {
       ...saved,
       contactHandle: event.contactHandle,
+      botUnavailableReason,
       direction: event.direction,
       attachments,
       providerConnectionId: item.binding.connectionId,

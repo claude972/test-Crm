@@ -233,3 +233,31 @@ describe('native mailbox APIs', () => {
     jest.useRealTimers();
   });
 });
+
+it('creates a Bcc-only mail with an own mailbox canonical contact and no hidden recipient in draft conversation arguments', async () => {
+  const f = fixture();
+  await f.service.sendNew(actor, {
+    from: 'me@example.com',
+    to: [],
+    bcc: ['hidden@example.org'],
+    subject: 'Private',
+    text: 'Hello',
+    clientRequestId: 'e4d16125-1299-4b15-aa57-d193a423b4e6',
+  });
+  expect(f.mail.draftConversation).toHaveBeenCalledWith(
+    actor,
+    expect.objectContaining({ contactHandle: 'me@example.com' }),
+  );
+  expect(JSON.stringify(f.mail.draftConversation.mock.calls)).not.toContain(
+    'hidden@example.org',
+  );
+  expect(f.mail.replyRich).toHaveBeenCalledWith(
+    actor,
+    expect.objectContaining({
+      envelope: expect.objectContaining({
+        to: [],
+        bcc: ['hidden@example.org'],
+      }),
+    }),
+  );
+});
