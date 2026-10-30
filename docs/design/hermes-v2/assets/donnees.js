@@ -207,7 +207,7 @@ window.MAQUETTE = {
         { id: 'mcp', nom: 'Hermès MCP', protocole: 'MCP', etat: 'verifie', detail: 'Serveur de démonstration — vérification simulée', verifie: true, le: '30 oct. 09:40' },
         { id: 'intake', nom: 'Collectes', protocole: 'Point d\u2019entrée signé', etat: 'verifie', detail: 'Dernière réception : 28 oct.', verifie: true, le: '28 oct. 17:40' },
         { id: 'forms', nom: 'Formulaires', protocole: 'HeyForm', etat: 'declare', detail: 'Réponses enregistrées en notes', verifie: false },
-        { id: 'agenda', nom: 'Rendez-vous', protocole: 'Agenda', etat: 'absent', detail: 'Aucun agenda relié', verifie: false },
+        { id: 'agenda', nom: 'Rendez-vous', protocole: 'Cal.diy', etat: 'absent', detail: 'Aucun agenda Cal.diy relié', verifie: false },
       ],
       // Démonstration : le bot WhatsApp part ACTIF pour que la reprise en main
       // soit atteignable. Le bot e-mail reste coupé dans la même société, ce qui
@@ -224,7 +224,7 @@ window.MAQUETTE = {
         { id: 'mcp', nom: 'Hermès MCP', protocole: 'MCP', etat: 'absent', detail: 'Aucun serveur déclaré', verifie: false },
         { id: 'intake', nom: 'Collectes', protocole: 'Point d\u2019entrée signé', etat: 'verifie', detail: 'Dernière réception : 27 oct.', verifie: true, le: '27 oct. 09:30' },
         { id: 'forms', nom: 'Formulaires', protocole: 'HeyForm', etat: 'absent', detail: 'Aucun formulaire relié', verifie: false },
-        { id: 'agenda', nom: 'Rendez-vous', protocole: 'Agenda', etat: 'absent', detail: 'Aucun agenda relié', verifie: false },
+        { id: 'agenda', nom: 'Rendez-vous', protocole: 'Cal.diy', etat: 'absent', detail: 'Aucun agenda Cal.diy relié', verifie: false },
       ],
       bots: { whatsapp: false, email: false },
     },
