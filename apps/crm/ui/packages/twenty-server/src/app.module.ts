@@ -1,3 +1,4 @@
+import { HermesConnectionsModule } from 'src/engine/core-modules/hermes-connections/hermes-connections.module';
 import { type MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -48,6 +49,7 @@ const MIGRATED_REST_METHODS = [
 
 @Module({
   imports: [
+    HermesConnectionsModule,
     SentryModule.forRoot(),
     GraphQLModule.forRootAsync<YogaDriverConfig>({
       driver: YogaDriver,

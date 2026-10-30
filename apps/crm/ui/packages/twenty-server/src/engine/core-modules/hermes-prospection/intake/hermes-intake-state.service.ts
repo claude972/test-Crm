@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { HermesConnectionsService } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
+import { centralIntakeRecord } from './hermes-central-intake';
+import { Injectable, Optional } from '@nestjs/common';
 
 import { HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
 import { HermesProspectionService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.service';
 import { type HermesProspectionActor } from 'src/engine/core-modules/hermes-prospection/types/hermes-prospection.types';
 import { type HermesIntakeState } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake-state.dto';
-import { parseHermesIntakeConnections } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.schema';
+import {
+  parseHermesIntakeConnections,
+  type HermesIntakeConnection,
+} from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.schema';
 import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
@@ -13,6 +18,7 @@ export class HermesIntakeStateService {
     private readonly access: HermesProspectionAccessService,
     private readonly config: KovaaLabCRMConfigService,
     private readonly prospection: HermesProspectionService,
+    @Optional() private readonly central?: HermesConnectionsService,
   ) {}
 
   async read(
@@ -21,11 +27,19 @@ export class HermesIntakeStateService {
   ): Promise<HermesIntakeState> {
     await this.access.assertAllowed(actor);
     const checkedAt = new Date().toISOString();
-    let connections;
+    let connections: Record<string, HermesIntakeConnection>;
     try {
-      connections = parseHermesIntakeConnections(
-        this.config.get('HERMES_INTAKE_CONNECTIONS'),
-      );
+      if (this.central) {
+        const resolved = await this.central.resolve(
+          actor.workspaceId,
+          'INTAKE',
+        );
+        connections = resolved ? centralIntakeRecord(resolved) : {};
+      } else {
+        connections = parseHermesIntakeConnections(
+          this.config.get('HERMES_INTAKE_CONNECTIONS'),
+        );
+      }
     } catch {
       return {
         status: 'CONFIGURATION_ERROR',

@@ -51,6 +51,7 @@ const acceptedSchema = z.object({
 type EvolutionMessagesOptions = {
   timeoutMs?: number;
   allowedInternalHosts?: string[];
+  assertCurrent?: () => Promise<void>;
 };
 
 export class EvolutionMessagesAdapter {
@@ -67,6 +68,7 @@ export class EvolutionMessagesAdapter {
     this.#options = {
       timeoutMs: options.timeoutMs ?? 3000,
       allowedInternalHosts: [...(options.allowedInternalHosts ?? [])],
+      assertCurrent: options.assertCurrent ?? (async () => undefined),
     };
     this.#probe = new EvolutionConnectionAdapter(
       serializedConnections,
@@ -171,6 +173,7 @@ export class EvolutionMessagesAdapter {
       this.#options.allowedInternalHosts,
     );
     try {
+      await this.#options.assertCurrent();
       const response = await axios.post<unknown>(
         `${connection.baseUrl}/chat/getBase64FromMediaMessage/${encodeURIComponent(connection.instanceName)}`,
         {
@@ -218,6 +221,7 @@ export class EvolutionMessagesAdapter {
         !(format.mimes as readonly string[]).includes(payload.data.mimetype)
       )
         throw new EvolutionMessageError('MEDIA_CONTENT_UNSUPPORTED');
+      await this.#options.assertCurrent();
       return { bytes, mimeType: payload.data.mimetype };
     } catch (error) {
       if (error instanceof EvolutionMessageError) throw error;
@@ -276,6 +280,7 @@ export class EvolutionMessagesAdapter {
       this.#options.allowedInternalHosts,
     );
     try {
+      await this.#options.assertCurrent();
       const response = await axios.post<unknown>(
         `${connection.baseUrl}/message/${input.media?.kind === 'AUDIO' ? 'sendWhatsAppAudio' : input.media ? 'sendMedia' : 'sendText'}/${encodeURIComponent(connection.instanceName)}`,
         input.media?.kind === 'AUDIO'

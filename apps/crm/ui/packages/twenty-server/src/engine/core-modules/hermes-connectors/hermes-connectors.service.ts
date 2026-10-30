@@ -1,4 +1,6 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { HermesConnectionsService } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
+import { HermesConnectedEvolutionAdapter } from './evolution/hermes-connected-evolution.adapter';
+import { ForbiddenException, Injectable, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
@@ -24,6 +26,7 @@ export class HermesConnectorsService {
     @InjectRepository(RoleTargetEntity)
     private readonly roleTargets: Repository<RoleTargetEntity>,
     private readonly config: KovaaLabCRMConfigService,
+    @Optional() private readonly central?: HermesConnectionsService,
   ) {}
 
   async evolutionConnection(
@@ -31,10 +34,13 @@ export class HermesConnectorsService {
   ): Promise<HermesEvolutionConnectionDTO> {
     await this.assertAllowed(actor);
     try {
-      const adapter = new EvolutionConnectionAdapter(
-        this.config.get('HERMES_EVOLUTION_CONNECTIONS'),
-      );
-      const result = await adapter.probe(actor.workspaceId);
+      const result = this.central
+        ? await new HermesConnectedEvolutionAdapter(
+            this.central,
+          ).connectionState(actor.workspaceId)
+        : await new EvolutionConnectionAdapter(
+            this.config.get('HERMES_EVOLUTION_CONNECTIONS'),
+          ).probe(actor.workspaceId);
 
       return { ...result, checkedAt: new Date(result.checkedAt) };
     } catch {

@@ -29,14 +29,21 @@ const toolSchema = z
   })
   .passthrough();
 type Tool = z.infer<typeof toolSchema>;
-type Options = { timeoutMs?: number; allowedInternalHosts?: string[] };
+type Options = {
+  timeoutMs?: number;
+  allowedInternalHosts?: string[];
+  assertCurrent?: () => Promise<void>;
+};
 
 export class HermesMcpBotAdapter {
   readonly #serializedConnections: string;
   private readonly timeoutMs: number;
   private readonly allowedInternalHosts: string[];
 
-  constructor(serializedConnections: string, options: Options = {}) {
+  constructor(
+    serializedConnections: string,
+    private readonly options: Options = {},
+  ) {
     this.#serializedConnections = serializedConnections;
     this.timeoutMs = options.timeoutMs ?? 8000;
     this.allowedInternalHosts = [...(options.allowedInternalHosts ?? [])];
@@ -88,6 +95,7 @@ export class HermesMcpBotAdapter {
         notification = false,
       ): Promise<unknown> => {
         const id = randomUUID();
+        await this.options.assertCurrent?.();
         const response = await axios.post<Readable>(
           connection.endpoint,
           {
@@ -222,6 +230,7 @@ export class HermesMcpBotAdapter {
         .trim();
       if (!text || text.length > 10_000)
         throw new Error('No bounded MCP draft text');
+      await this.options.assertCurrent?.();
       return { mode: 'DRAFT', status: 'READY', provider: 'HERMES_MCP', text };
     } catch {
       return unavailable;

@@ -1,9 +1,12 @@
+import { HermesConnectionsService } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
+import { centralIntake } from 'src/engine/core-modules/hermes-prospection/intake/hermes-central-intake';
 import {
   BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
+  Optional,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,6 +20,7 @@ import { HermesIntakeReplayService } from 'src/engine/core-modules/hermes-prospe
 import {
   hermesIntakeBodySchema,
   parseHermesIntakeConnections,
+  type HermesIntakeConnection,
 } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.schema';
 import {
   HERMES_INTAKE_MAX_BODY_BYTES,
@@ -36,6 +40,7 @@ export class HermesIntakeService {
     private readonly config: KovaaLabCRMConfigService,
     private readonly replay: HermesIntakeReplayService,
     private readonly prospection: HermesProspectionService,
+    @Optional() private readonly central?: HermesConnectionsService,
   ) {}
 
   async receive(
@@ -49,11 +54,18 @@ export class HermesIntakeService {
         'HERMES_INTAKE_BODY_TOO_LARGE',
         HttpStatus.PAYLOAD_TOO_LARGE,
       );
-    let connections;
+    let connections: Record<string, HermesIntakeConnection>;
+    let assertCurrent: () => Promise<void> = async () => undefined;
     try {
-      connections = parseHermesIntakeConnections(
-        this.config.get('HERMES_INTAKE_CONNECTIONS'),
-      );
+      if (this.central) {
+        const snapshot = await centralIntake(this.central, connectionId);
+        connections = snapshot.connections;
+        assertCurrent = snapshot.assertCurrent;
+      } else {
+        connections = parseHermesIntakeConnections(
+          this.config.get('HERMES_INTAKE_CONNECTIONS'),
+        );
+      }
     } catch {
       throw new ServiceUnavailableException(
         'HERMES_INTAKE_CONFIGURATION_UNAVAILABLE',
@@ -104,6 +116,7 @@ export class HermesIntakeService {
         'HERMES_INTAKE_RATE_LIMITED',
         HttpStatus.TOO_MANY_REQUESTS,
       );
+    await assertCurrent();
     const result = await this.prospection.createBatch(
       {
         workspaceId: connection.workspaceId,

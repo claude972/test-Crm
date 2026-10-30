@@ -6,6 +6,7 @@ import {
   HttpCode,
   Inject,
   Post,
+  Param,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -19,7 +20,13 @@ export const EVOLUTION_WEBHOOK_RECEIVER = Symbol('EVOLUTION_WEBHOOK_RECEIVER');
 export class EvolutionWebhookController {
   constructor(
     @Inject(EVOLUTION_WEBHOOK_RECEIVER)
-    private readonly receiver: EvolutionWebhookReceiver,
+    private readonly receiver: {
+      receive(
+        token: unknown,
+        body: unknown,
+        connectionId?: string,
+      ): ReturnType<EvolutionWebhookReceiver['receive']>;
+    },
   ) {}
 
   @Post()
@@ -37,6 +44,31 @@ export class EvolutionWebhookController {
         if (error.code === 'WEBHOOK_INVALID_EVENT')
           throw new BadRequestException('Evolution webhook event invalid');
       }
+      throw new ServiceUnavailableException(
+        'Evolution webhook ingestion unavailable',
+      );
+    }
+  }
+  @Post(':connectionId')
+  @HttpCode(202)
+  async receiveScoped(
+    @Param('connectionId') connectionId: string,
+    @Headers('x-hermes-evolution-token') token: unknown,
+    @Body() body: unknown,
+  ) {
+    try {
+      return await this.receiver.receive(token, body, connectionId);
+    } catch (error) {
+      if (
+        error instanceof EvolutionMessageError &&
+        error.code === 'WEBHOOK_UNAUTHORIZED'
+      )
+        throw new UnauthorizedException('Evolution webhook rejected');
+      if (
+        error instanceof EvolutionMessageError &&
+        error.code === 'WEBHOOK_INVALID_EVENT'
+      )
+        throw new BadRequestException('Evolution webhook event invalid');
       throw new ServiceUnavailableException(
         'Evolution webhook ingestion unavailable',
       );
