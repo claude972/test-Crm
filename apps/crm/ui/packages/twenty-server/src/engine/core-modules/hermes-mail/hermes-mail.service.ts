@@ -435,7 +435,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     const rootReference =
       mailMessageId(last?.providerMetadata?.references?.[0]) ??
       mailMessageId(conversation.providerConversationId);
-    const transport = await this.smtp.getClient(item.account.id);
+    const transport = await this.smtp.getClient(item.account.id, { timeoutMs: 15000 });
     try {
       const pending = transport.sendMail({
         from: sender,
