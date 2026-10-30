@@ -20,7 +20,12 @@ concurrency:
 jobs:
   source-integrity:
     uses: ./.github/workflows/p0-integrity.yml
+  frontend:
+    uses: ./.github/workflows/p0-frontend-baseline.yml
   backend-build:
+    needs: frontend
     uses: ./.github/workflows/p0-backend-build.yml
     with:
       runtime-smoke: true
+      browser-smoke: true
+      frontend-artifact: ${{ needs.frontend.outputs.bundle-artifact }}

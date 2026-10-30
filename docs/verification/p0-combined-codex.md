@@ -35,3 +35,11 @@ Le premier contrôle runtime (40979175124) a révélé P0-RUNTIME-001 : .swcrc �
 Le helper navigateur et les entrées optionnelles du workflow backend sont maintenant préparés : un futur bundle issu du workflow frontend réutilisable sera téléchargé dans le runner, servi avec l'API réelle jetable, puis contrôlé sur desktop/mobile (accueil, passage au champ e-mail, assets, débordement horizontal). Les captures seront des artefacts CI. Aucun compte ni authentification simulée. Le slot de configuration du seul index.html compilé sera temporairement renseigné pour l'API loopback puis restauré ; les sources frontend ne sont pas éditées.
 
 À ce checkpoint, browser-smoke reste désactivé dans l'orchestrateur tant que le bundle de Claude n'est pas livré : **aucun succès navigateur ou preview n'est revendiqué**. Pré-vérifications des helpers : syntaxe Node, refus effectif hors CI, diff propre et Gitleaks staged sans détection.
+
+## Checkpoint frontend intégré
+
+Checkpoint Claude désigné et relu : dd07d39d0e135b8844ebb1f1cb6fbe08edbde678 (PR #9). Même code applicatif/contrôleur/workflow que 4fe7f40c5 ; seuls les rapports sont ajoutés ensuite. Revue statique et comparaison indépendante des 225 sources avec les originaux : aucune divergence, contrats/icônes/basenames et protocoles du bridge préservés. Rapport partagé publié avant intégration ; source gate initial vert, build encore en attente.
+
+L'orchestrateur appelle maintenant le workflow frontend de Claude, attend son artefact nommé, puis transmet cet artefact au contrôle backend avec browser-smoke activé. Une construction manquante empêche les tests navigateur de démarrer et ne peut pas produire un succès de l'ensemble. Les contrôles de sources/backend initiaux restent disponibles en parallèle.
+
+P0-FRONT-BUILD-001 suit l'échec initial réel (UI dist/theme.cjs absent) et sa correction de chaîne de dépendances. Cette correction doit encore être vérifiée par la CI combinée ; aucune preview ou réussite navigateur n'est revendiquée à ce commit. Le frontend Char et les revues backend restantes sont des travaux distincts encore ouverts.
