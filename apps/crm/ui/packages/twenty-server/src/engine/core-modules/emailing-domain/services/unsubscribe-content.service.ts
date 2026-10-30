@@ -90,6 +90,18 @@ export class UnsubscribeContentService {
       );
     }
 
+    const recipientEmails = batch.recipients.map((recipient) => {
+      const address = getSoleEnvelopeRecipient({ to: [recipient.email] });
+
+      if (address === null) {
+        throw new EmailingDomainDriverException(
+          'A marketing batch recipient must identify exactly one valid email address',
+          EmailingDomainDriverExceptionCode.UNSUBSCRIBE_MULTIPLE_RECIPIENTS,
+        );
+      }
+
+      return address;
+    });
     const htmlUrlTag = `{{${UNSUBSCRIBE_URL_REPLACEMENT_TAGS.html}}}`;
     const textUrlTag = `{{${UNSUBSCRIBE_URL_REPLACEMENT_TAGS.text}}}`;
 
@@ -105,12 +117,12 @@ export class UnsubscribeContentService {
             )
           : batch.template.html,
       },
-      recipients: batch.recipients.map((recipient) => {
+      recipients: batch.recipients.map((recipient, recipientIndex) => {
         const webUrl = buildUnsubscribeWebUrl({
           unsubscribeBaseUrl,
           token: this.unsubscribeTokenService.sign({
             workspaceId: batch.workspaceId,
-            emailAddress: recipient.email,
+            emailAddress: recipientEmails[recipientIndex],
           }),
         });
 

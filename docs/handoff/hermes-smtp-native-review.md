@@ -1,0 +1,19 @@
+# SMTP/native campaign review and unsubscribe identity correction
+
+Reviewed the root integration worktree read-only before the delegated fixes. Line references below identify the reviewed snapshot; later root/backend-review edits can move them.
+
+## Findings
+
+1. **Marketing display-name identity broke effective opt-out.** SMTP driver `sendEmail` accepted one parsed mailbox at lines 107–112, but passed the original `to` string into UnsubscribeContentService at 117–120. The previous `getSoleEnvelopeRecipient` returned the unparsed string at line 15, and UnsubscribeContentService signed it at lines 55–58. UnsubscribeController forwards the verified payload to `unsubscribeFromEverything` at 109–112; MessageSuppressionService only trims/lowercases at 570–571. `Name <Person@Example.test>` would therefore suppress `name <person@example.test>`, which does not equal campaign/import identity `person@example.test`.
+
+   **Fixed in this commit:** the utility parses exactly one mailbox, rejects ambiguous/malformed/CRLF inputs and returns the bare lowercased address. Single-send display headers remain unchanged. Batch tokens use the same canonical identity after whole-batch prevalidation, without changing provider audience values/replacements. Transactional inputs are returned unchanged and produce no marketing token. The native controller and suppression authority remain unchanged.
+
+2. **Existing opposition could be bypassed before reaching SMTP.** EmailingDomainSenderService `selectDeliverableRecipients` lines 299–319 passed original display-name strings to suppression lookup and compared original trim/lowercase strings. This earlier stage also needs canonical mailbox comparison. Root and backend_review were notified; it is outside this commit's ownership. Fixing token identity alone cannot fix that earlier lookup.
+
+3. **An uncertain SMTP outcome was automatically retryable.** SMTP `sendPreparedEmail` lines 174–179 threw driver code UNKNOWN after an unconfirmed transport outcome. Native `resolveCampaignSendFailure` lines 47–52 maps UNKNOWN to `shouldRetry:true`; MessageCampaignDeliveryService lines 450–470 queues the record and rethrows. Therefore a lost reply after DATA could produce a duplicate send. Batch error entries also lost the typed uncertainty signal at SMTP lines 240–245 and native sender mapping 166–172. Batch settlement lines 42–53 converts an error entry into generic FAILED, which is a claimable state. An unconditional finalizer at batch delivery 673–691 can requeue remaining claims after a settlement failure. backend_review owns the separate explicit-uncertainty/quarantine correction; no retry or driver production files were changed here.
+
+4. **SMTP acceptance was not being promoted to deliveredAt in the reviewed native campaign paths.** Single campaign delivery lines 341–350 writes SENT/providerMessageId/sentAt. Batch settlement lines 59–66 does the same. `buildCampaignDeliveryOutcomeUpdate` sets deliveredAt only for explicit provider DELIVERED feedback (26–27). The legacy SMTP result property `deliveredRecipients` represents accepted envelope recipients and is used for billing counts; its name does not prove delivery. No fake delivery feedback event was found in the reviewed SMTP adapter.
+
+## Verification
+
+45 tests pass through the portable targeted Jest config (26 Hermes tests, 19 envelope/content tests). The new tests cover display-name and quoted-comma parsing, case normalization, malformed/multiple mailboxes, CRLF rejection, unchanged bare batch audiences, per-person token identity, full batch prevalidation, and unchanged transactional behavior. These are source/unit checks; no real recipient, transport credential or original database was accessed. Root must still run the compiled CI checkpoint after integrating the independently owned sender/quarantine fixes.
