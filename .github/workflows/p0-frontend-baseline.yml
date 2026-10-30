@@ -68,27 +68,47 @@ jobs:
           node-version: '24'
       - name: Install CRM dependencies from the committed immutable lockfile
         run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
-      - name: Build the shared package the front depends on
-        working-directory: apps/crm/ui/packages/twenty-shared
+      # kovaa-lab-front depends on shared, ui and the renderer, and all three
+      # resolve through "exports" into dist. Building only shared would leave
+      # the front importing directories that do not exist yet.
+      - name: Build the workspace packages the front resolves through dist
         env:
           FORCE_COLOR: '0'
-        run: node ../../node_modules/vite/bin/vite.js build
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          for package in kovaa-lab-shared kovaa-lab-ui kovaa-lab-front-component-renderer; do
+            node .yarn/releases/yarn-4.18.1.cjs nx build "$package" --skip-nx-cache
+          done
+      - name: Verify each dependency emitted something
+        run: |
+          for package in twenty-shared twenty-ui twenty-front-component-renderer; do
+            test -d "packages/$package/dist"
+            test -n "$(find "packages/$package/dist" -type f -size +1k -print -quit)"
+          done
       - name: Generate an isolated front configuration
         working-directory: .
         run: node scripts/local-project.mjs setup
       - name: Compile translation catalogues
         run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
+      # The Vite CLI has already been observed exiting 0 without emitting
+      # anything in this repository (P0-BUILD-001), so the build goes through
+      # the JS API, whose promise rejects on failure.
       - name: Build the front bundle
         working-directory: apps/crm/ui/packages/twenty-front
         env:
           NODE_ENV: production
           NODE_OPTIONS: --max-old-space-size=6144
-        run: node --env-file=../../.runtime/front.env ../../node_modules/vite/bin/vite.js build
-      - name: Verify the emitted artifacts are not empty
+        run: |
+          node --env-file=../../.runtime/front.env --input-type=module \
+            -e 'const { build } = await import("vite"); await build();'
+      # These assertions exist because a zero exit code is not evidence. They
+      # are not to be relaxed to obtain a green run.
+      - name: Verify the emitted bundle is not empty
         working-directory: apps/crm/ui/packages/twenty-front
         run: |
           test -s build/index.html
           test -n "$(find build/assets -name '*.js' -size +1k -print -quit)"
+          grep -q '<div id="root"></div>' build/index.html
       - name: Publish the bundle
         id: publish
         working-directory: apps/crm/ui/packages/twenty-front
