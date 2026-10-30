@@ -110,3 +110,21 @@ export class HermesMailCloneAttachmentInput {
   @Field(() => UUIDScalarType) @IsUUID() sourceAssetId: string;
   @Field(() => UUIDScalarType) @IsUUID() targetConversationId: string;
 }
+
+export type HermesMailAddress = { address: string | null; name: string | null };
+export type HermesMailPage = {
+  state: 'AVAILABLE';
+  folder: string;
+  uidValidity: string;
+  messages: {
+    uid: string;
+    subject: string;
+    from: HermesMailAddress[];
+    to: HermesMailAddress[];
+    cc: HermesMailAddress[];
+    occurredAt: string | null;
+    seen: boolean | null;
+    size: number | null;
+  }[];
+  nextCursor: string | null;
+};

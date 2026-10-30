@@ -12,6 +12,7 @@ import {
   HermesMailMessageInput,
   HermesMailNewDraftInput,
   HermesMailPageInput,
+  type HermesMailPage,
   HermesMailUpdateInput,
 } from 'src/engine/core-modules/hermes-mail/hermes-mail-v4.dto';
 import { HermesMailService } from 'src/engine/core-modules/hermes-mail/hermes-mail.service';
@@ -72,7 +73,7 @@ export class HermesMailResolver {
     @AuthWorkspace() workspace: WorkspaceEntity,
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() userWorkspaceId: string,
-  ) {
+  ): Promise<HermesMailPage> {
     return this.mailbox.page(
       { workspaceId: workspace.id, userId: user.id, userWorkspaceId },
       input,
