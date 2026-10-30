@@ -601,6 +601,25 @@ describe('encrypted workspace connections', () => {
     });
   });
 
+  it('reuses the supplied transaction manager for live grants without a second pool checkout', async () => {
+    const f = fixture();
+    const saved = await f.service.save(actor, evolution);
+    f.access.assertAllowed.mockClear();
+    await f.service.resolve(
+      workspaceId,
+      'EVOLUTION',
+      f.manager as unknown as EntityManager,
+    );
+    expect(f.access.assertAllowed).toHaveBeenCalledWith(actor, f.manager);
+    f.access.assertAllowed.mockClear();
+    await f.service.resolveByConnectionId(
+      saved.connectionId!,
+      'EVOLUTION',
+      f.manager as unknown as EntityManager,
+    );
+    expect(f.access.assertAllowed).toHaveBeenCalledWith(actor, f.manager);
+  });
+
   it('validates bounded intake secrets and never assumes configured implies verified', async () => {
     const f = fixture();
     const input = {

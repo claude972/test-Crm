@@ -398,13 +398,14 @@ export class HermesConnectionsService {
   async resolveByConnectionId(
     connectionId: string,
     kind: HermesConnectionKind,
+    manager?: EntityManager,
   ): Promise<HermesResolvedConnection | null> {
     if (!z.string().uuid().safeParse(connectionId).success) return null;
-    const row = await this.source
+    const row = await (manager ?? this.source)
       .getRepository(HermesConnectionEntity)
       .findOneBy({ connectionId, kind, enabled: true });
     if (!row) return null;
-    const resolved = await this.resolve(row.workspaceId, kind);
+    const resolved = await this.resolve(row.workspaceId, kind, manager);
     return resolved?.connectionId === connectionId ? resolved : null;
   }
 
@@ -412,8 +413,9 @@ export class HermesConnectionsService {
   async resolve(
     workspaceId: string,
     kind: HermesConnectionKind,
+    manager?: EntityManager,
   ): Promise<HermesResolvedConnection | null> {
-    const row = await this.source
+    const row = await (manager ?? this.source)
       .getRepository(HermesConnectionEntity)
       .findOneBy({ workspaceId, kind });
     if (!row?.enabled) return null;
@@ -423,7 +425,7 @@ export class HermesConnectionsService {
       userId: configuration.userId,
       userWorkspaceId: configuration.userWorkspaceId,
     };
-    await this.access.assertAllowed(actor);
+    await this.access.assertAllowed(actor, manager);
     if (kind === 'MAIL') {
       const current = await this.mailbox(
         actor,
@@ -431,15 +433,15 @@ export class HermesConnectionsService {
           connectedAccountId: configuration.settings.connectedAccountId,
           mailbox: configuration.settings.mailbox,
         },
-        this.source.manager,
+        manager ?? this.source.manager,
       );
       if (connectionIdentity(kind, current) !== row.identityHash)
         throw new ServiceUnavailableException('MAIL_IDENTITY_CHANGED');
     }
-    const fresh = await this.source
+    const fresh = await (manager ?? this.source)
       .getRepository(HermesConnectionEntity)
       .findOneBy({ workspaceId, kind });
-    await this.access.assertAllowed(actor);
+    await this.access.assertAllowed(actor, manager);
     if (
       !fresh?.enabled ||
       fresh.connectionId !== row.connectionId ||
