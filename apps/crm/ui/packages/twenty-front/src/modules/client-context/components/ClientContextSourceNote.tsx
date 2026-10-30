@@ -12,10 +12,10 @@ type ClientContextSourceNoteProps = {
 };
 
 // Why a source is showing nothing, said as a reason rather than as an absence.
-// The five non-read states each get their own line: a contract that is not
-// published, a read in progress, a refusal, a workspace with nothing set up
-// and a payload that could not be read are five different facts, and none of
-// them means the client has no Forms response or no appointment.
+// The five non-read states each get their own line: items recorded elsewhere
+// on the record, a read in progress, a refusal, a workspace with nothing set
+// up and a payload that could not be read are five different facts, and none
+// of them means the client has no form response and no appointment.
 export const ClientContextSourceNote = ({
   state,
   sourceName,
@@ -26,21 +26,14 @@ export const ClientContextSourceNote = ({
     case 'read':
       return null;
 
-    case 'awaiting-contract':
-      // The gap is the client's, and the line says so about the client.
+    case 'recorded-in-notes':
+      // Not a wait and not an absence: the items are on this record already,
+      // in its notes, so the line says where to read them instead of
+      // promising a list that will never arrive here.
       return (
-        <>
-          <ProspectionNote>
-            {t`${sourceName} is not read yet: its contract is not published.`}
-          </ProspectionNote>
-          <ProspectionNote>
-            <Trans>
-              Nothing is shown here until the data actually reaches this
-              workspace. Opening the application is navigation, not an
-              integration.
-            </Trans>
-          </ProspectionNote>
-        </>
+        <ProspectionNote>
+          <Trans>Form responses are recorded in CRM notes.</Trans>
+        </ProspectionNote>
       );
 
     case 'loading':

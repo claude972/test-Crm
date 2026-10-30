@@ -13858,7 +13858,7 @@ msgstr "Réponses de formulaire"
 #. js-lingui-id: vR3HFi
 #: src/modules/client-context/components/ClientContextSourceNote.tsx
 msgid "Form responses are recorded in CRM notes."
-msgstr ""
+msgstr "Les réponses aux formulaires sont enregistrées dans les notes du CRM."
 
 #. js-lingui-id: Badu9V
 #: src/modules/client-context/components/ClientContextTimelineSection.tsx
@@ -24466,7 +24466,7 @@ msgstr "Réponse"
 #. placeholder {0}: CLIENT_CONTEXT_FORMS_SOURCE.name
 #: src/modules/client-context/components/ClientFormResponsesSection.tsx
 msgid "Responses from {0} are recorded as notes on this client, and appear under recorded actions."
-msgstr ""
+msgstr "Les réponses de {0} sont enregistrées comme notes sur ce client et apparaissent dans les actions enregistrées."
 
 #. js-lingui-id: X2+a7i
 #: src/modules/client-context/components/ClientFormResponsesSection.tsx

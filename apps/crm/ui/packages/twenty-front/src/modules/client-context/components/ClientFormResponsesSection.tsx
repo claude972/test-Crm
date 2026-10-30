@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useLingui } from '@lingui/react/macro';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
@@ -8,12 +8,6 @@ import { ClientFormResponseCard } from '@/client-context/components/ClientFormRe
 import { CLIENT_CONTEXT_FORMS_SOURCE } from '@/client-context/constants/ClientContextSources';
 import { type ClientContextSourceState } from '@/client-context/types/ClientContextSourceState';
 import { type ClientFormResponse } from '@/client-context/types/ClientFormResponse';
-import { buildClientContextSourceCount } from '@/client-context/utils/buildClientContextSourceCount';
-import {
-  ProspectionCounters,
-  type ProspectionCounter,
-} from '@/prospection/components/ProspectionCounters';
-import { SettingsEmptyPlaceholder } from '@/settings/components/SettingsEmptyPlaceholder';
 
 const StyledList = styled.div`
   display: grid;
@@ -24,32 +18,28 @@ type ClientFormResponsesSectionProps = {
   state: ClientContextSourceState<ClientFormResponse>;
 };
 
-// Forms responses actually received for this client record.
+// Where this client's form responses are, rather than a list of its own.
+//
+// A form response is recorded as a CRM note, so the responses of a record are
+// in the recorded-actions section below and there is no second stream to wait
+// for. The section therefore carries no counter: a figure here would either
+// read as "0 responses", which is false, or as an unknown, which is not true
+// either — the responses are known, they are just counted as notes.
 //
 // Nothing here links to Forms. The integration contract states that a link to
 // another application is navigation and not an integration, so a link next to
-// this list would read as the integration itself. The list shows received
-// items, and when there are none it says which of the six reasons applies.
+// this section would read as the integration itself.
 export const ClientFormResponsesSection = ({
   state,
 }: ClientFormResponsesSectionProps) => {
   const { t } = useLingui();
 
-  const counters: ProspectionCounter[] = [
-    {
-      key: 'responses',
-      label: t`Responses`,
-      count: buildClientContextSourceCount(state),
-    },
-  ];
-
   return (
     <Section.Root>
       <Section.Header
         title={t`Form responses`}
-        description={t`Responses received from ${CLIENT_CONTEXT_FORMS_SOURCE.name} for this client. Received items only.`}
+        description={t`Responses from ${CLIENT_CONTEXT_FORMS_SOURCE.name} are recorded as notes on this client, and appear under recorded actions.`}
       />
-      <ProspectionCounters counters={counters} />
 
       <ClientContextSourceNote
         state={state}
@@ -57,13 +47,7 @@ export const ClientFormResponsesSection = ({
       />
 
       {state.kind === 'read' &&
-        (state.entries.length === 0 ? (
-          // A source that was read and holds nothing. The only case on this
-          // surface where an empty list is a fact rather than an unknown.
-          <SettingsEmptyPlaceholder>
-            <Trans>No response received for this client.</Trans>
-          </SettingsEmptyPlaceholder>
-        ) : (
+        (state.entries.length === 0 ? null : (
           <StyledList>
             {state.entries.map((response) => (
               <ClientFormResponseCard key={response.id} response={response} />
