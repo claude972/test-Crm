@@ -1173,7 +1173,11 @@ export class HermesMessagingService {
   // Called only by server-authenticated provider adapters; no public GraphQL ingest mutation exists.
   async ingest(
     raw: HermesMessagingEvent,
-    options: { suppressAutomation?: boolean; observedOnly?: boolean } = {},
+    options: {
+      suppressAutomation?: boolean;
+      observedOnly?: boolean;
+      assertLive?: (manager?: EntityManager) => Promise<void>;
+    } = {},
   ): Promise<{ conversationId: string; messageId: string; replay: boolean }> {
     const event = this.parse(messagingEventSchema, raw);
     let handle: string;
@@ -1229,6 +1233,7 @@ export class HermesMessagingService {
     const result = await this.transaction(
       event.workspaceId,
       async (manager) => {
+        await options.assertLive?.(manager);
         const workspace = await manager
           .getRepository(WorkspaceEntity)
           .findOneBy({
@@ -1244,6 +1249,7 @@ export class HermesMessagingService {
           id: messageId,
         });
         if (existing) {
+          await options.assertLive?.(manager);
           if (
             existing.contentDigest !== digest ||
             existing.conversationId !== conversationId
@@ -1262,6 +1268,7 @@ export class HermesMessagingService {
               },
               { status: 'ACCEPTED' },
             );
+          await options.assertLive?.(manager);
           return { conversationId, messageId, replay: true };
         }
         const conversations = manager.getRepository(HermesConversationEntity);
@@ -1272,6 +1279,7 @@ export class HermesMessagingService {
         const contactChanged =
           !!conversation && conversation.contactHandle !== handle;
         const at = new Date(event.occurredAt);
+        await options.assertLive?.(manager);
         if (!conversation)
           await conversations.save({
             id: conversationId,
@@ -1291,6 +1299,7 @@ export class HermesMessagingService {
             { workspaceId: event.workspaceId, id: conversationId },
             { lastMessageAt: at },
           );
+        await options.assertLive?.(manager);
         await messages.save({
           id: messageId,
           workspaceId: event.workspaceId,
@@ -1314,9 +1323,11 @@ export class HermesMessagingService {
           errorCode: contactChanged ? 'CONTACT_HANDLE_CHANGED' : null,
           canonicalMessageId: null,
         });
+        await options.assertLive?.(manager);
         return { conversationId, messageId, replay: false };
       },
     );
+    await options.assertLive?.();
     if (
       !options.suppressAutomation &&
       !options.observedOnly &&
