@@ -126,7 +126,7 @@ export const HermesImportBatchForm = ({
   return (
     <Section.Root>
       <Section.Header
-        title={t`Stage a batch`}
+        title={t`Batch to deposit`}
         description={t`JSON rows, ${HERMES_MAX_ROWS_PER_BATCH} per batch at most. A row that fails validation is still staged, with its error.`}
       />
 

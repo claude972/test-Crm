@@ -8,6 +8,7 @@ import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesCampaignDraftForm } from '@/prospection/components/HermesCampaignDraftForm';
+import { HermesCollectionOriginTag } from '@/prospection/components/HermesCollectionOriginTag';
 import { HermesImportRowStatusTag } from '@/prospection/components/HermesImportRowStatusTag';
 import { HermesImportRowsTable } from '@/prospection/components/HermesImportRowsTable';
 import { HermesQualificationForm } from '@/prospection/components/HermesQualificationForm';
@@ -23,6 +24,7 @@ import {
 } from '@/prospection/types/HermesImportRowStatus';
 import { type HermesCapabilities } from '@/prospection/types/HermesImportState';
 import { buildHermesBatchCounts } from '@/prospection/utils/buildHermesCounts';
+import { readHermesCollectionProvenance } from '@/prospection/utils/readHermesCollectionProvenance';
 import {
   isHermesRowQualifiable,
   isHermesRowSelectable,
@@ -81,6 +83,7 @@ export const HermesImportBatchDetail = ({
   );
 
   const counts = buildHermesBatchCounts(batch);
+  const provenance = readHermesCollectionProvenance(batch);
 
   const selectableRows = useMemo(
     () => batch.rows.filter((row) => isHermesRowSelectable(row)),
@@ -161,31 +164,45 @@ export const HermesImportBatchDetail = ({
       <Section.Root>
         <Section.Header
           title={
-            isNonEmptyString(batch.name) ? batch.name : t`Unnamed batch`
+            isNonEmptyString(batch.name) ? batch.name : t`Unnamed collection`
           }
-          description={t`Staged rows, with the status the server gave each one.`}
+          description={t`Where this collection came from, and the status the server gave each row.`}
         />
+        {/* Provenance first: the rows below mean something different
+            depending on the path the collection arrived through. */}
         <StyledProvenance>
-          <dt>{t`Batch id`}</dt>
+          <dt>{t`Origin`}</dt>
           <dd>
-            {isNonEmptyString(batch.externalBatchId) ? (
-              batch.externalBatchId
+            <HermesCollectionOriginTag origin={provenance.origin} />
+          </dd>
+          <dt>{t`Collection id`}</dt>
+          <dd>
+            {isNonEmptyString(provenance.externalBatchId) ? (
+              provenance.externalBatchId
             ) : (
               <StyledMissing>{t`Unknown`}</StyledMissing>
             )}
           </dd>
           <dt>{t`Source`}</dt>
           <dd>
-            {isNonEmptyString(batch.sourceUrl) ? (
-              batch.sourceUrl
+            {isNonEmptyString(provenance.sourceUrl) ? (
+              provenance.sourceUrl
+            ) : (
+              <StyledMissing>{t`Unknown`}</StyledMissing>
+            )}
+          </dd>
+          <dt>{t`Fingerprint`}</dt>
+          <dd>
+            {isNonEmptyString(provenance.fingerprint) ? (
+              provenance.fingerprint
             ) : (
               <StyledMissing>{t`Unknown`}</StyledMissing>
             )}
           </dd>
           <dt>{t`Collected`}</dt>
-          <dd>{formatDate(batch.collectedAt)}</dd>
-          <dt>{t`Staged`}</dt>
-          <dd>{formatDate(batch.createdAt)}</dd>
+          <dd>{formatDate(provenance.collectedAt)}</dd>
+          <dt>{t`Received`}</dt>
+          <dd>{formatDate(provenance.createdAt)}</dd>
         </StyledProvenance>
       </Section.Root>
 
@@ -212,7 +229,9 @@ export const HermesImportBatchDetail = ({
 
       {!batch.areRowsReadable && (
         <ProspectionNote role="alert">
-          <Trans>Rows unreadable: this batch holds an unknown number.</Trans>
+          <Trans>
+            Rows unreadable: this collection holds an unknown number.
+          </Trans>
         </ProspectionNote>
       )}
 
@@ -224,7 +243,7 @@ export const HermesImportBatchDetail = ({
 
       {batch.areRowsReadable && batch.rows.length === 0 && (
         <ProspectionNote>
-          <Trans>No row in this batch.</Trans>
+          <Trans>No row in this collection.</Trans>
         </ProspectionNote>
       )}
 

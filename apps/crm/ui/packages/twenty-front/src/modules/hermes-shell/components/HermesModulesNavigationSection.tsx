@@ -21,7 +21,7 @@ export const HermesModulesNavigationSection = () => {
 
   const labels = {
     dashboard: t`Dashboard`,
-    reception: t`Reception`,
+    reception: t`Hermès collections`,
   };
 
   const icons = {

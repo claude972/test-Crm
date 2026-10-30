@@ -85,7 +85,7 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
         items: [
           {
             key: 'reception',
-            label: t`Reception`,
+            label: t`Hermès collections`,
             to: PROSPECTION_RECEPTION_PATH,
             Icon: IconInbox,
           },
