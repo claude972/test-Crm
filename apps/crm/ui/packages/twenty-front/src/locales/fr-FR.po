@@ -33782,3 +33782,6 @@ msgstr "Politique inchangée : {0}"
 
 msgid "Policy unchanged."
 msgstr "Politique inchangée."
+
+msgid "Insert in my reply"
+msgstr "Insérer dans ma réponse"

@@ -13,6 +13,7 @@ import {
   MESSAGING_INBOX_REPLY_MAX_LENGTH,
   MESSAGING_INBOX_REPLY_MIN_LENGTH,
 } from '@/messaging-inbox/constants/MessagingInboxContract';
+import { useMessagingInboxBotPolicy } from '@/messaging-inbox/hooks/useMessagingInboxBotPolicy';
 import { useMessagingInboxDraftReply } from '@/messaging-inbox/hooks/useMessagingInboxDraftReply';
 import { useMessagingInboxReply } from '@/messaging-inbox/hooks/useMessagingInboxReply';
 
@@ -40,6 +41,11 @@ const StyledSendState = styled.div`
   display: grid;
   gap: ${themeCssVariables.spacing[1]};
   justify-items: start;
+`;
+
+const StyledProposal = styled.p`
+  margin: ${themeCssVariables.spacing[2]} 0;
+  white-space: pre-wrap;
 `;
 
 type MessagingInboxComposerProps = {
@@ -89,6 +95,15 @@ export const MessagingInboxComposer = ({
     dismissDraft,
   } = useMessagingInboxDraftReply();
 
+  // Drafting follows the server's policy. An unreadable policy is not a
+  // permission: the button is closed rather than opened on a guess.
+  const policy = useMessagingInboxBotPolicy(conversationId);
+
+  const mayDraft =
+    policy.read.kind === 'reported' &&
+    policy.read.policy.effectiveMode !== 'OFF' &&
+    policy.read.policy.canDraft;
+
   const onAcceptedRef = useRef(onAccepted);
 
   useEffect(() => {
@@ -110,7 +125,11 @@ export const MessagingInboxComposer = ({
 
   // A proposal fills the textarea exactly once, and only when the bot really
   // proposed one. It lands as a local draft: the send state is untouched.
+  // A proposal that arrives after the bot was stopped is not offered. The
+  // answer may have left before the change; showing it would reopen a door
+  // the policy has closed.
   const proposedText =
+    mayDraft &&
     draftState.kind === 'read' &&
     draftState.draft.mode === 'DRAFT' &&
     draftState.draft.status === 'READY' &&
@@ -118,7 +137,9 @@ export const MessagingInboxComposer = ({
       ? draftState.draft.text
       : null;
 
-  useEffect(() => {
+  // The proposal is never written into the textarea on its own: whatever a
+  // person has already typed is theirs. Inserting it is a separate click.
+  const insertProposal = useCallback(() => {
     if (proposedText === null) {
       return;
     }
@@ -248,6 +269,15 @@ export const MessagingInboxComposer = ({
         {draftState.kind === 'read' && proposedText !== null && (
           <MessagingInboxNote role="status">
             <Trans>Draft proposed. Review it, then send.</Trans>
+            <StyledProposal>{proposedText}</StyledProposal>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={insertProposal}
+            >
+              {t`Insert in my reply`}
+            </Button>
           </MessagingInboxNote>
         )}
 
@@ -307,8 +337,16 @@ export const MessagingInboxComposer = ({
             size="sm"
             startIcon={<IconRobot />}
             loading={draftState.kind === 'requested'}
-            disabled={draftState.kind === 'requested'}
-            onClick={() => requestDraft(conversationId, latestMessageId)}
+            disabled={draftState.kind === 'requested' || !mayDraft}
+            onClick={() => {
+              // Guarded here too: a disabled button is a presentation, not a
+              // rule, and the rule is the server's policy.
+              if (!mayDraft) {
+                return;
+              }
+
+              requestDraft(conversationId, latestMessageId);
+            }}
           >
             {t`Propose a draft`}
           </Button>
