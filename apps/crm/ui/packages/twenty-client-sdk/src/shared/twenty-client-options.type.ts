@@ -1,6 +1,6 @@
-import { type KovaaLab CRMClientRunAs } from './kovaa-lab-client-run-as.type';
+import { type KovaaLabCRMClientRunAs } from './twenty-client-run-as.type';
 
-export type KovaaLab CRMClientOptions = Omit<RequestInit, 'body' | 'headers'> & {
+export type KovaaLabCRMClientOptions = Omit<RequestInit, 'body' | 'headers'> & {
   url?: string;
   headers?: HeadersInit | (() => HeadersInit | Promise<HeadersInit>);
   fetcher?: (
@@ -8,5 +8,5 @@ export type KovaaLab CRMClientOptions = Omit<RequestInit, 'body' | 'headers'> & 
   ) => Promise<unknown>;
   fetch?: typeof globalThis.fetch;
   batch?: unknown;
-  runAs?: KovaaLab CRMClientRunAs;
+  runAs?: KovaaLabCRMClientRunAs;
 };

@@ -7,7 +7,7 @@
       "decorators": true,
       "dynamicImport": true
     },
-    "baseUrl": "./../../",
+    "baseUrl": ".",
     "experimental": {
       "plugins": [
         [

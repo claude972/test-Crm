@@ -1,1 +1,1 @@
-export type KovaaLab CRMClientRunAs = 'user' | 'application';
+export type KovaaLabCRMClientRunAs = 'user' | 'application';

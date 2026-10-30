@@ -96,27 +96,27 @@ const refusedMutationResponse = (message: string) => () =>
   });
 
 describe('Generated client wrapper uploadFile', () => {
-  let KovaaLab CRMClass: GeneratedClientClass;
+  let KovaaLabCRMClass: GeneratedClientClass;
   let cleanup: () => Promise<void>;
 
   const createClient = (fetchMock: ReturnType<typeof vi.fn>) =>
-    new KovaaLab CRMClass({
+    new KovaaLabCRMClass({
       url: CLIENT_URL,
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
   const uploadInvoice = (
-    kovaa-labClient: InstanceType<GeneratedClientClass>,
+    kovaaLabClient: InstanceType<GeneratedClientClass>,
     fileBuffer = Buffer.from('content'),
   ) =>
-    kovaa-labClient.uploadFile({
+    kovaaLabClient.uploadFile({
       fileBuffer,
       filename: 'invoice.pdf',
       fieldMetadataUniversalIdentifier: FIELD_METADATA_UNIVERSAL_IDENTIFIER,
     });
 
   beforeAll(async () => {
-    ({ GeneratedClientClass: KovaaLab CRMClass, cleanup } =
+    ({ GeneratedClientClass: KovaaLabCRMClass, cleanup } =
       await loadGeneratedClientClass());
   });
 

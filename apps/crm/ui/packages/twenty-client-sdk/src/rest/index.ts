@@ -6,9 +6,9 @@ import {
   DEFAULT_FUNCTIONS_URL_NAME,
 } from 'kovaa-lab-shared/application-runtime';
 
-import { type KovaaLab CRMClientRunAs } from '../shared/kovaa-lab-client-run-as.type';
+import { type KovaaLabCRMClientRunAs } from '../shared/twenty-client-run-as.type';
 
-export type { KovaaLab CRMClientRunAs };
+export type { KovaaLabCRMClientRunAs };
 
 const isDefined = <T>(value: T): value is NonNullable<T> =>
   value !== null && value !== undefined;
@@ -18,7 +18,7 @@ export type RestApiClientOptions = {
   token?: string;
   fetch?: typeof globalThis.fetch;
   defaultHeaders?: HeadersInit;
-  runAs?: KovaaLab CRMClientRunAs;
+  runAs?: KovaaLabCRMClientRunAs;
 };
 
 export type RestApiRequestOptions = {
@@ -102,7 +102,7 @@ export class RestApiClient {
   private defaultHeaders: HeadersInit | undefined;
   private fetchImplementation: typeof globalThis.fetch | null;
   private authorizationToken: string | null;
-  private runAs: KovaaLab CRMClientRunAs | undefined;
+  private runAs: KovaaLabCRMClientRunAs | undefined;
   private refreshAccessTokenPromise: Promise<string | null> | null = null;
 
   constructor(options?: RestApiClientOptions) {

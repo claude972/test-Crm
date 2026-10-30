@@ -8,8 +8,8 @@ import { transform } from 'esbuild';
 
 import { buildClientWrapperSource } from '../client-wrapper';
 
-const kovaa-labClientTemplateSource = readFileSync(
-  join(__dirname, '..', 'kovaa-lab-client-template.ts'),
+const kovaaLabClientTemplateSource = readFileSync(
+  join(__dirname, '..', 'twenty-client-template.ts'),
   'utf-8',
 );
 
@@ -88,7 +88,7 @@ export const loadGeneratedClientClass = async (): Promise<{
     join(tmpdir(), 'kovaa-lab-generated-client-'),
   );
 
-  const wrapperSource = buildClientWrapperSource(kovaa-labClientTemplateSource, {
+  const wrapperSource = buildClientWrapperSource(kovaaLabClientTemplateSource, {
     apiClientName: 'MetadataApiClient',
     defaultUrl: '`${process.env.KOVAALAB_API_URL}/metadata`',
     includeUploadFile: true,

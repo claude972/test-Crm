@@ -6,7 +6,7 @@ export const RUNTIME_LIB_NAME = './runtime';
 // introspection (`endpoint`/`useGet`/`headers`), a custom `fetch` import
 // (`fetchImport`) and listr `verbose` output — all of which were dropped when
 // this codegen was vendored, so they are omitted here. The generated client's
-// connection (url/fetch) is provided by the wrapper in kovaa-lab-client-template.ts.
+// connection (url/fetch) is provided by the wrapper in twenty-client-template.ts.
 export interface Config {
   // the schema string (SDL)
   schema?: string;

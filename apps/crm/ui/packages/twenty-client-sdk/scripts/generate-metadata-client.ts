@@ -19,7 +19,7 @@ const TEMPLATE_PATH = path.resolve(
   '..',
   'src',
   'generate',
-  'kovaa-lab-client-template.ts',
+  'twenty-client-template.ts',
 );
 
 const introspectSchema = async (url: string): Promise<string> => {

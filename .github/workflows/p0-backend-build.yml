@@ -1,0 +1,83 @@
+name: P0 backend build
+on:
+  push:
+    branches: [fix/codex-backend-build]
+    paths:
+      - '.github/workflows/p0-backend-build.yml'
+      - 'apps/crm/ui/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p0-backend-build-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FORCE_COLOR: '0'
+      NODE_OPTIONS: --max-old-space-size=4096
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install immutable workspace dependencies
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build shared runtime and declarations
+        id: shared_build
+        working-directory: apps/crm/ui/packages/twenty-shared
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/index.cjs
+          test -s dist/application/index.d.ts
+      - name: Build client SDK runtime and declarations
+        id: sdk_build
+        working-directory: apps/crm/ui/packages/twenty-client-sdk
+        env:
+          NODE_ENV: production
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build(); await build({ configFile: 'vite.metadata.config.ts' });"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/core.cjs
+          test -s dist/metadata.mjs
+          test -s dist/core/index.d.ts
+      - name: Verify generated client authentication and upload behavior
+        id: sdk_tests
+        working-directory: apps/crm/ui/packages/twenty-client-sdk
+        run: node ../../node_modules/vitest/vitest.mjs run src/generate/__tests__/client-wrapper-auth.test.ts src/generate/__tests__/client-wrapper-upload-file.test.ts src/generate/__tests__/stub-generated-client-drift.test.ts --maxWorkers=2
+      - name: Build email runtime and declarations without sending mail
+        id: email_build
+        if: ${{ !cancelled() && steps.sdk_build.outcome == 'success' }}
+        working-directory: apps/crm/ui/packages/twenty-emails
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --outDir dist --rootDir src --composite false --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/index.js
+          test -s dist/index.d.ts
+      - name: Typecheck backend production sources without starting the server
+        id: backend_types
+        if: ${{ !cancelled() && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: node ../../node_modules/.bin/tsgo -p tsconfig.build.json --noEmit --singleThreaded
+      - name: Compile backend and verify executable artifacts without running them
+        id: backend_build
+        if: ${{ !cancelled() && steps.sdk_build.outcome == 'success' && steps.email_build.outcome == 'success' }}
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+          test -s dist/main.js
+          test -s dist/queue-worker/queue-worker.js
+          mkdir -p dist/assets/kovaa-lab-client-sdk
+          cp ../twenty-client-sdk/package.json dist/assets/kovaa-lab-client-sdk/
+          cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
+          test -s dist/assets/kovaa-lab-client-sdk/dist/core.cjs
+          test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
