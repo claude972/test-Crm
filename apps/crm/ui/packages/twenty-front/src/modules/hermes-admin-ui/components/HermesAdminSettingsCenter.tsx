@@ -25,6 +25,7 @@ import {
   type HermesConnectionFormValues,
   type HermesConnectionSaveState,
   type HermesConnectionTestState,
+  type HermesNativeConnectedAccount,
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
 import { shouldDiscardHermesResult } from '@/hermes-admin-ui/utils/hermesAdminWrite';
 import { readHermesActiveCompany } from '@/hermes-admin-ui/utils/hermesCompanyAction';
@@ -57,6 +58,9 @@ type HermesAdminSettingsCenterProps = {
   // being edited. This component never opens it on its own.
   connectionFormSubject: HermesConnectionFormSubject | null;
   connectionFormInitialValues?: HermesConnectionFormValues;
+  // The existing native connected IMAP and SMTP accounts an e-mail link picks
+  // from. Nothing is typed in their place.
+  nativeAccounts?: readonly HermesNativeConnectedAccount[];
   connectionSaveState: HermesConnectionSaveState;
   connectionTestStateByConnectionId: Readonly<
     Record<string, HermesConnectionTestState>
@@ -94,6 +98,7 @@ export const HermesAdminSettingsCenter = ({
   hasWriteInFlight,
   connectionFormSubject,
   connectionFormInitialValues,
+  nativeAccounts,
   connectionSaveState,
   connectionTestStateByConnectionId,
   connectionFormTestState,
@@ -167,6 +172,7 @@ export const HermesAdminSettingsCenter = ({
           subject={connectionFormSubject}
           companyName={activeCompany?.name ?? null}
           initialValues={connectionFormInitialValues}
+          nativeAccounts={nativeAccounts}
           saveState={connectionSaveState}
           testState={connectionFormTestState}
           contextValidity={contextValidity}
