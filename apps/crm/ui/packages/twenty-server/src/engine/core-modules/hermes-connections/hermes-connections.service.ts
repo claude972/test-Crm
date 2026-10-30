@@ -77,6 +77,7 @@ export class HermesConnectionsService {
     @InjectDataSource() private readonly source: DataSource,
     private readonly access: HermesProspectionAccessService,
     private readonly encryption: SecretEncryptionService,
+    private readonly accountEncryption: ConnectedAccountTokenEncryptionService,
   ) {}
 
   private transaction<T>(
@@ -244,13 +245,10 @@ export class HermesConnectionsService {
     )
       throw new BadRequestException('MAIL_ACCOUNT_UNAVAILABLE');
     try {
-      const native = new ConnectedAccountTokenEncryptionService(
-        this.encryption,
-      );
       const protocols = (['IMAP', 'SMTP'] as const).map((protocol) => {
         const encrypted = account.connectionParameters?.[protocol];
         if (!encrypted) throw new Error();
-        const plaintext = native.decryptProtocolPassword({
+        const plaintext = this.accountEncryption.decryptProtocolPassword({
           protocolParams: encrypted,
           workspaceId: actor.workspaceId,
         });
