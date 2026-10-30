@@ -53,6 +53,7 @@ type StoredConfiguration = HermesConnectionConfiguration & {
   userWorkspaceId: string;
 };
 export type HermesResolvedConnection = HermesConnectionConfiguration & {
+  workspaceId: string;
   connectionId: string;
   revision: number;
   userId: string;
