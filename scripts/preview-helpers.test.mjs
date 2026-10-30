@@ -5,7 +5,8 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { createGate, SESSION_MS } from './preview-origin-gate.mjs';
+import { once } from 'node:events';
+import { createGate, SESSION_MS, MAX_SESSION_MS, sessionExpiry } from './preview-origin-gate.mjs';
 import { backendPublicEnvironment, createConfig, prepare, publicOrigin } from './preview-prepare.mjs';
 
 const listen = (server) => new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(`http://127.0.0.1:${server.address().port}`)));
@@ -52,9 +53,28 @@ test('real HTTP gate rejects unauthorized traffic and preserves authenticated AP
 test('rejects public upstreams, excessive lifetimes, and untrusted public origins', () => {
   const secret = randomBytes(32).toString('hex');
   assert.throws(() => createGate({ secret, backendUrl: 'http://example.com' }));
-  assert.throws(() => createGate({ secret, expiresAt: Date.now() + SESSION_MS + 10000 }));
+  assert.throws(() => createGate({ secret, expiresAt: Date.now() + MAX_SESSION_MS + 10000 }));
   for (const value of ['http://test.vercel.app', 'https://vercel.app.evil.test', 'https://user@test.vercel.app', 'https://test.vercel.app/path']) assert.throws(() => publicOrigin(value, 'vercel.app'));
   assert.equal(backendPublicEnvironment('https://isolated-preview.vercel.app').FRONTEND_URL, 'https://isolated-preview.vercel.app');
+});
+
+test('absolute session deadline defaults to 60 minutes and is never extended by public control updates', async () => {
+  const now = Date.now();
+  assert.equal(sessionExpiry(undefined, now), now + SESSION_MS);
+  assert.equal(sessionExpiry(new Date(now + 30_000).toISOString(), now), now + 30_000);
+  for (const value of ['invalid', '123', new Date(now - 1).toISOString(), new Date(now + MAX_SESSION_MS + 1).toISOString()]) assert.throws(() => sessionExpiry(value, now));
+  const directory = await mkdtemp(path.join(tmpdir(), 'p0-preview-expiry-'));
+  const controlFile = path.join(directory, 'control.json');
+  const gate = createGate({ secret: randomBytes(32).toString('hex'), controlFile, expiresAt: Date.now() + 150 });
+  const closed = once(gate, 'close');
+  try {
+    await listen(gate);
+    await writeFile(controlFile, JSON.stringify({ serverUrl: 'https://first.vercel.app', frontendUrl: 'https://first.vercel.app' }));
+    await writeFile(controlFile, JSON.stringify({ serverUrl: 'https://second.vercel.app', frontendUrl: 'https://second.vercel.app' }));
+    await closed;
+    assert.equal(gate.listening, false);
+    assert.ok(Date.now() - now < 2000, 'Control changes must not renew the deadline');
+  } finally { if (gate.listening) await close(gate); await rm(directory, { recursive: true, force: true }); }
 });
 
 test('generates contract routes with env reference only and patches one runtime slot in copied bundle', async () => {

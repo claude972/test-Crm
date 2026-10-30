@@ -6,6 +6,15 @@ import { readFileSync } from 'node:fs';
 import { publicOrigin } from './preview-prepare.mjs';
 
 export const SESSION_MS = 60 * 60 * 1000;
+export const MAX_SESSION_MS = 90 * 60 * 1000;
+
+export function sessionExpiry(value, now = Date.now()) {
+  const expiry = value === undefined ? now + SESSION_MS : Date.parse(value);
+  assert.ok(Number.isFinite(expiry) && expiry > now && expiry <= now + MAX_SESSION_MS,
+    'P0_PREVIEW_EXPIRES_AT must be a future ISO date within 90 minutes');
+  assert.ok(value === undefined || /^\d{4}-\d{2}-\d{2}T/.test(value), 'An ISO expiry date is required');
+  return expiry;
+}
 
 // No private env files, DNS targets, public listeners, or redirects are used.
 export function createGate({ secret, backendUrl = 'http://127.0.0.1:3000', controlFile, expiresAt = Date.now() + SESSION_MS }) {
@@ -15,7 +24,7 @@ export function createGate({ secret, backendUrl = 'http://127.0.0.1:3000', contr
   assert.equal(target.hostname, '127.0.0.1');
   assert.equal(target.pathname, '/');
   assert.ok(!target.username && !target.password && !target.search && !target.hash);
-  assert.ok(expiresAt > Date.now() && expiresAt <= Date.now() + SESSION_MS);
+  assert.ok(expiresAt > Date.now() && expiresAt <= Date.now() + MAX_SESSION_MS);
   const expected = Buffer.from(secret);
   const server = http.createServer((request, response) => {
     response.setHeader('Cache-Control', 'private, no-store');
@@ -72,8 +81,9 @@ export function createGate({ secret, backendUrl = 'http://127.0.0.1:3000', contr
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   assert.ok(process.env.P0_PREVIEW_CONTROL_FILE, 'P0_PREVIEW_CONTROL_FILE is required');
-  const gate = createGate({ secret: process.env.P0_ORIGIN_SECRET, backendUrl: process.env.P0_BACKEND_URL, controlFile: process.env.P0_PREVIEW_CONTROL_FILE });
-  gate.listen(3002, '127.0.0.1', () => console.info('Preview origin gate ready on loopback; expires in 60 minutes'));
+  const expiresAt = sessionExpiry(process.env.P0_PREVIEW_EXPIRES_AT);
+  const gate = createGate({ secret: process.env.P0_ORIGIN_SECRET, backendUrl: process.env.P0_BACKEND_URL, controlFile: process.env.P0_PREVIEW_CONTROL_FILE, expiresAt });
+  gate.listen(3002, '127.0.0.1', () => console.info(`Preview origin gate ready on loopback; expires=${new Date(expiresAt).toISOString()}`));
   gate.on('error', () => { console.error('Preview origin gate failed'); process.exitCode = 1; });
   for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { gate.close(); gate.closeAllConnections(); });
 }
