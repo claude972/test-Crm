@@ -1458,3 +1458,18 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Extension ownership approuvée root : D raccorde centralreader aux connectors/Evolution (préserver changements médias B), MCP adapter et services/configs/events intake, tests correspondants et importunique moduleApp si nécessaire. C conserve tous hermes-mail ; B garde service/mediafix. Branche wiringdistincte après reprise commits B584d7f3e6/e1ca825, commits codeD initiaux restent séparément intégrables.
 - Readers obligatoirement autoritaires et dynamiques : null/erreur après injectionD ne doivent jamais réactiver configurationenv ; recheckrevision/connectionId avant effet, téléchargement média privé et retour. Webhook token/HMAC natifs, SSRF/TLS/replay/opposition conservés ; workspace jamais déduit d'un body non fiable.
 - MigrationD attend artefact/générateurBofficiel2.52, aucune génération concurrente ni manifest écrit à la main. C a confirmé le contrat MAIL resolve/token partagé et implémente le raccordement séparément. Aucun provider configuré/live/capacité vérifiée annoncé par le CRUD seul.
+
+
+### HERMES-V4-PARCOURS-COMPLET-20261030 — revue root, 2026-10-30 22:20 UTC
+
+- HERMES-V4-MEDIA-001 : status verified pour le correctif b246cce75c0d4f2650becf74463dc26ee2a45050 (branche media au checkpoint7e100ebda). Root a relu la propagation du manager et exécuté indépendamment la suite hermes-media.manager-review.spec.ts :3/3PASS, contrôle après attente/révocation sans update et huit managers sans connexion supplémentaire. Cette preuve ciblée ne vaut pas succès PG/runtime/fullbuild.
+- Lot B fixture :7e100ebda ajoute la normalisation du seul default JSONB historique hermesImportState.state, après égalité sémantique PG et égalité de la fonction dans les deux sources. Aucune SQL feature ignorée, aucun entity runtime changé. CI41137043803 en cours.
+- Lot C : bfd819a6a ajoute le workflow natif mail,49tests/5suites annoncés PASS dont deux scénarios SMTP loopback sans destinataire réel. CI41136927616 échoue au typecheck production TS2742 dans hermesMailMessagesV4 : type de retour inféré dépendant du chemin physique imapflow. Root transmet au responsable pour annotation portable ; build non validé.
+- Root a arrêté uniquement les deux scans TSC frontend en cours depuis8–10minutes, dans les worktrees settings/mail de la mission, ainsi que leurs wrappers qui auraient relancé le scan. Parent Claude et autres sessions préservés. Instructions effectivement transmises à la session CLI existante pour tests ciblés puis full checks GitHub, aucun succès TSC local annoncé. Parent reconnaît22:18:33 et relaie à ses agents. Les quatre modules frontend continuent ; le cinquième reviewer Claude a été demandé mais son dispatch n'est pas encore confirmé.
+
+#### HERMES-V4-CONNECTIONS-001 — rotation des connexions relève un arrêt local du bot
+
+- reviewer: root ; assigned agent: codex/connections ; reviewed branch: feat/codex-hermes-v4-connections ; reviewed revision:05747503c15e26a724599f74c34d9f766833b047, confirmé dans5963fd6f2 ; priority:P1 ; status:in_progress.
+- Evidence : revokeGrants parcourt toutes les conversations d'un canal et force botMode MANUAL ; une conversation OFF devient ASSISTED après sauvegarde/révocation de connexion, autorisant de nouveau les brouillons MCP malgré l'arrêt complet demandé.
+- Expected correction : préserver OFF/ASSISTED/MANUAL/INHERIT, révoquer propriétaire et epoch pour toutes, convertir seulement AUTO explicite si nécessaire. Tests rotation et suppression, mode effectif OFF, canDraft=false et canAutoReply=false. Agent confirme et prépare tests natifs, aucun correctif encore déclaré vérifié.
+- Fix commit: en attente ; recheck root pending.
