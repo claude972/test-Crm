@@ -1314,3 +1314,11 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Frontend final f63858813d68be138612114a2b347fd606984557 et preview exacte dpl_Fm1v7W9LCNvTTDDmBBVCp9n2bEs7 vérifiés, cinq captures finales présentes. Rapport docs/handoff/hermes-v3-phase1-recette.md et preuve JSON filtrée publiés dans ce checkpoint, sans clé de partage ni binaire.
 - Contrats finaux : 5bb6f2430d09baccb8a60b4d271047c47e239cb7. Claude a revu 954b565 à 20:01:39 UTC et clos les huit constats initiaux ainsi que la réception. Dernier point non bloquant pour le visuel : SentMessage, lecture bidirectionnelle et ledger honnête ajoutés au SHA final puis diff complet relu root ; whitespace, arbre propre et remote concordant contrôlés selon root. Aucune relecture Claude de 5bb6f243 n’est prétendue.
 - Phases 0/1 terminées techniquement dans le périmètre audit/contrats proposés/maquettes statiques ; statuts done limités à ce périmètre. Aucun constat ouvert restant signalé par root. Claude au gel, aucun câblage. Validation visuelle utilisateur explicitement attendue avant phases 2–8. Aucun build applicatif V3, test fournisseur réel, persistance CRM ou installation PWA revendiqué.
+
+
+### HERMES-V3-INTEGRATION-1H-20261030 — publication initiale, 2026-10-30 20:30 UTC
+
+- acting agent: codex/coordination ; target session: Claude 8f3db32e-4613-45e3-94f3-16e664f3cbfc, dispatch réservé à root ; mission et branches décrites dans MISSIONS.md.
+- Demande propriétaire après prototype : « Ok le projet dois être prêt Dans 1h ». GO câblage interprété explicitement, départ20:30UTC et échéance21:30UTC. Base applicative333ba534927e177c90b35eb4157d75d8d767dec4 ; référence maquettef63858813d68be138612114a2b347fd606984557 ; contrats5bb6f2430d09baccb8a60b4d271047c47e239cb7.
+- Publication avant implémentation : trois branches séparées, ownership et critères dans la mission. Aucun code modifié par coordination ; aucune commande CLI Claude effectuée par cet agent, aucune affectation acceptée ni capacité live revendiquée à ce stade.
+- Prochaine action : root vérifie les fichiers distants, fait lire/confirmer les affectations, puis démarre les workers et communique les actions CLI réelles pour journalisation. Aucun nouveau constat de revue ; la revue croisée et la recette sont à faire sur les prochains SHA.

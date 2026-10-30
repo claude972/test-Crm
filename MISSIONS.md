@@ -490,3 +490,65 @@ Codex relit les maquettes Claude au SHA publié, Claude relit les contrats Codex
 ### Livraison technique des phases 0 et 1
 
 Rapport : [hermes-v3-phase1-recette.md](docs/handoff/hermes-v3-phase1-recette.md) ; [preuve HTTP et captures sans clé de partage](docs/handoff/hermes-v3-phase1-public-proof.json). Les statuts done se limitent à cette livraison documentaire/statique revue ; aucune validation utilisateur implicite, API raccordée, persistance CRM, fournisseur réel ou installation PWA. Claude reste au gel sans câblage ; phases 2–8 après validation visuelle explicite.
+
+
+## Mission: intégration fonctionnelle V3 dans une heure
+
+Mission ID: HERMES-V3-INTEGRATION-1H-20261030
+Coordination branch: missions/p0-stabilization
+Base revision applicative commune: 333ba534927e177c90b35eb4157d75d8d767dec4
+Début: 2026-10-30 20:30 UTC ; échéance demandée: 2026-10-30 21:30 UTC (17:30 Martinique).
+Corrections: CORRECTIONS.md (racine du dépôt).
+
+### Objectif et autorisation
+
+Après le prototype, le propriétaire demande « Ok le projet dois être prêt Dans 1h ». Ce GO autorise le câblage fonctionnel des phases suivantes dans ce délai, en conservant l'interface détaillée V3 f63858813d68be138612114a2b347fd606984557 et les contrats cibles 5bb6f2430d09baccb8a60b4d271047c47e239cb7 comme références. La demande n'autorise ni production, nouvel achat/service payant, envoi réel ni publication de secrets. Original, historique, données et fichiers locaux préservés.
+
+Priorité: parcours utilisable authentification → société → pipeline → messagerie existante connectée → modes MCP. Intégrer les capacités médias complètes si faisables dans le temps, sinon expliciter leur indisponibilité ; aucun faux bouton ni connexion fictive présentée comme réelle. Stack existante uniquement ; références statiques ne sont pas des API implémentées.
+
+### Contrats, dépendances et ownership
+
+AUTO autorise l'automatisation selon politique ; ASSISTED conserve MCP/brouillons mais impose émission humaine ; OFF bloque MCP et émission automatique. Politique société/canal, exception locale restrictive, isolation A/B/C et contrôle serveur des droits requis. Connexions et secrets au centre Réglages. Ne pas inventer de fournisseur connecté, état de persistance ou licence acquise.
+
+Les deux branches d'implémentation partent de la même base applicative ci-dessus ; ne pas y fusionner l'historique documentaire divergent sans coordination. Claude et Codex lisent les fichiers distants, confirment leur affectation et ne revendiquent que leurs fichiers. Les changements de fichiers partagés sont décidés avec root avant édition. Root intègre les SHA exacts et résout les dépendances. Les chemins ownership sont des modules existants à confirmer par lecture du code avant édition, sans restructuration.
+
+### Claude assignment — frontend fonctionnel
+- agent: claude
+- status: pending
+- branch: feat/claude-hermes-v3-live
+- checkout: /Volumes/Stockage/dev/hermes-crm/v3-claude-live
+- assigned session: session Claude existante 8f3db32e-4613-45e3-94f3-16e664f3cbfc ; root coordonne via CLI et évite les doublons.
+- owned files: modules frontend messaging-inbox et navigation/settings UI ; localisation liée à ces écrans. Aucun module backend hermes-messaging, migration ou test backend.
+- deliverables: interface réelle française conforme au prototype V3 ; accès aux fonctions existantes, modes et états serveur correctement présentés ; chargement/vide/erreur/non configuré/disabled/succès applicables ; actions faisables branchées, fonctions indisponibles explicites.
+- acceptance criteria: typecheck/build pertinents ; parcours responsive/clavier et isolation société ; aucune donnée de démonstration présentée comme persistée ; pas de faux succès, secret ou envoi réel. Revue croisée de la branche Codex exacte et rapport requis.
+- verification report: CORRECTIONS.md, section HERMES-V3-INTEGRATION-1H-20261030/claude ; root publie synthèse CLI sur coordination.
+- implementation revision: non livrée à la publication initiale.
+- preview: attendue sur branche intégration privée ; aucune URL privée de partage dans Git.
+- blockers: validation runtime/fournisseur et étendue média à vérifier ; pas de résultat live revendiqué avant preuve.
+
+### Codex assignment — backend et tests
+- agent: codex
+- status: pending
+- branch: feat/codex-hermes-v3-live
+- checkout: /Volumes/Stockage/dev/hermes-crm/v3-codex-live
+- owned files: module backend hermes-messaging, migrations nécessaires et tests backend. Aucun module messaging-inbox frontend ni navigation/settings/localisation.
+- deliverables: modes AUTO/ASSISTED/OFF effectifs côté serveur et isolation ; opérations messagerie/MCP existantes raccordables et contrats compatibles ; migrations minimales si requises avec contrôles de sécurité/accès appropriés. Prioriser réutilisation des services existants.
+- acceptance criteria: tests pertinents droits/sociétés/modes/transitions ; aucun affaiblissement d'autorisation, fuite de secret, envoi réel, migration destructive ou API fictive ; build/typecheck pertinents. Revue croisée de la branche Claude exacte et rapport requis.
+- verification report: CORRECTIONS.md, section HERMES-V3-INTEGRATION-1H-20261030/codex.
+- implementation revision: non livrée à la publication initiale.
+- preview: attendue sur branche intégration privée.
+- blockers: capacité/fournisseur réellement configuré à établir sans divulgation de credentials ; média incomplet doit rester explicite.
+
+### Root — intégration et recette
+- agent: codex (root/integration)
+- status: pending
+- branch: feat/hermes-v3-live-preview
+- checkout: /Volumes/Stockage/dev/hermes-crm/v3-live-integration
+- owned files: intégration des commits validés et éventuels fichiers partagés attribués explicitement ; coordination MISSIONS.md/CORRECTIONS.md par agent coordination uniquement.
+- deliverables: résultat combiné sur SHA exact, checks pertinents et preview privée vérifiée navigateur ; rapport clair des capacités réellement essayées et limites avant échéance.
+- acceptance criteria: SHA distants vérifiés, build/tests pertinents réussis ou blocages explicites, preview accessible et parcours essentiels vérifiés sans envoi réel ; aucun déploiement production.
+- preview: aucune à la publication initiale.
+
+### Revue croisée et livraison
+
+Claude relit Codex, Codex relit Claude sur des checkpoints exacts poussés. Root valide le résultat combiné et la preview privée dans le navigateur. Findings stables, propriétaire, preuve, correction SHA et recheck vont dans CORRECTIONS.md. ready_for_review nécessite livrable/rapport poussé ; done nécessite revue applicable. Échéance ne justifie aucune fausse déclaration de fonctionnement, couverture ou test. Les limites restantes sont listées au résultat final.
