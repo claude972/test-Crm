@@ -552,3 +552,93 @@ Les deux branches d'implémentation partent de la même base applicative ci-dess
 ### Revue croisée et livraison
 
 Claude relit Codex, Codex relit Claude sur des checkpoints exacts poussés. Root valide le résultat combiné et la preview privée dans le navigateur. Findings stables, propriétaire, preuve, correction SHA et recheck vont dans CORRECTIONS.md. ready_for_review nécessite livrable/rapport poussé ; done nécessite revue applicable. Échéance ne justifie aucune fausse déclaration de fonctionnement, couverture ou test. Les limites restantes sont listées au résultat final.
+
+
+## Mission: parcours complet V4, construction et recette réelles
+
+Mission ID: HERMES-V4-PARCOURS-COMPLET-20261030
+Coordination branch: missions/p0-stabilization
+Base applicative commune: baece3a46a6286a933cfc99b22a53ac50c34e498 (correctif i18n5f3c ; arbre backend identique au runtime18cdd, comparaison exacte à conserver).
+Corrections et rapports: CORRECTIONS.md (racine du dépôt).
+
+### Autorisation et objectif
+
+Nouvelle demande propriétaire après21:30UTC : « Augmente les agents c’est pas grave si tu dépasse des que le travail est bien fait ». La contrainte d'une heure est levée ; poursuivre la construction réelle et la recette complète plutôt que clôturer une livraison partielle. L'historique HERMES-V3-INTEGRATION-1H-20261030, le dépassement, les preuves et limites restent conservés. Aucun nouveau consentement n'est requis pour cette poursuite autorisée.
+
+Implémenter les parcours durables du plan V3 phases2–8 : authentification et sociétés ; connexions et politiques centralisées avec contrôles locaux restrictifs ; MCP AUTO/ASSISTED/OFF ; WhatsApp médias entrants/sortants/vocaux ; vraie boîte e-mail ; classement/provenance/qualification et pipeline persistants ; campagnes depuis l'identité SMTP exacte avec droits/licence. Référence visuelle f638 conservée et approuvée selon instruction root. Réutiliser la stack existante et des API prouvées ; aucune connexion fictive, faux succès ou bouton sans effet annoncé comme fonctionnel.
+
+### Gardes et contrats communs
+
+Pas d'application native, nouveau service payant, production, achat ni envoi réel. Aucun credential, URL privée de partage, mot de passe ou transcript brut dans Git. Préserver originaux, données, DB, comptes et historique ; les actions de recette utilisent fixtures isolées et nettoyage contrôlé. Tester sécurité, droits/scopes, isolation A/B/C, révocation, concurrence et transitions en vol. Secrets uniquement serveur, chiffrés selon mécanisme existant ; nouvelles tables application avec RLS/politiques de propriété si applicable, aucune autorisation affaiblie.
+
+ASSISTED garde MCP/brouillons avec émission humaine ; OFF complet bloque MCP et automatisation selon contrat, commandes UI cohérentes et résultat serveur autoritaire. Paramètres/connexions au centre Réglages ; exceptions locales ne peuvent pas élargir le parent. États chargement/vide/erreur/non configuré/disabled/succès et français réellement compilé ; responsive/clavier/labels requis. Capacités fournisseur non configurées restent explicites ; tests synthétiques ne deviennent pas recette live fournisseur.
+
+Le stockage système disponible (environ28Go) accueille les nouveaux worktrees /private/tmp ; éviter les copies sur volume Stockage (environ2Go disponibles). Les worktrees/branches sont isolés et partent de la base exacte. Lecture de mission distante et claim explicite avant édition ; audit/contrats readonly permis pendant publication. Aucun worker ne modifie un fichier attribué à un autre ; interfaces partagées coordonnées via root avant code.
+
+### Lot A — sociétés et hôtes
+- agent: codex (A/tenancy)
+- status: pending
+- branch: feat/codex-hermes-v4-tenancy
+- checkout: /private/tmp/hermes-v4-tenancy
+- owned files: backend auth/domain/client-config/configvariables et tests/migrations strictement scoped à la fonctionnalité tenancy. Pas hermes-messaging/media/mail, pas frontend.
+- deliverables: ajout/bascule société et routage hôte natifs réellement opérationnels en recette, contrôles tenant et configuration runtime cohérents ; résoudre HOUR-TENANT-003 sans contournement d'autorisation.
+- acceptance criteria: parcours création/switch et reconnexion isolés A/B/C ; jetons liés au bon tenant/hôte ; accès intersociété et sessions périmées rejetés ; tests migrations/runtime appropriés, aucun flag fictif ni chemin UI sans backend.
+- dependencies: contrat host/session à publier tôt pour UI settings et intégration ; lot connexions après convergence A/B.
+- implementation revision: non livrée ; verification report: CORRECTIONS.md section mission/tenancy ; preview: attente intégration ; blockers: audit requis.
+
+### Lot B — WhatsApp, médias et contrats messagerie
+- agent: codex (B/media)
+- status: pending
+- branch: feat/codex-hermes-v4-media
+- checkout: /private/tmp/hermes-v4-media
+- owned files: backend hermes-messaging, nouveau hermes-media, Evolution/messages, types/DTO messagerie partagés, migrations et tests correspondants ; propriétaire exclusif DTO messaging. Pas auth/domain ni hermes-mail.
+- deliverables: API concrètes médias entrants/sortants/vocaux avec validation MIME/taille/accès, persistance et téléchargement autorisé, politiques MCP cohérentes ; contrats publiés avant câblage UI.
+- acceptance criteria: réception/lecture/préécoute/annulation et émission testée sans envoi réel, erreurs honnêtes, isolation et URLs/media non divulgués entre tenants ; tests modes/concurrence conservés ; capacités Evolution/version prouvées, pas API inventée.
+- dependencies: coordonner DTO nécessaires au lot mail ; stockage et service connexions existant réutilisés, ne pas dupliquer le service du futur lot connexions.
+- implementation revision: non livrée ; verification report: CORRECTIONS.md section mission/media ; preview: attente intégration ; blockers: fournisseur non configuré à ce stade.
+
+### Lot C — vraie boîte e-mail
+- agent: codex (C/mail)
+- status: pending
+- branch: feat/codex-hermes-v4-mail
+- checkout: /private/tmp/hermes-v4-mail
+- owned files: backend hermes-mail, MIME/folders/SMTPidentity et tests correspondants. Aucun DTO hermes-messaging (propriétaire B), aucun auth/domain ni service connexions du lot futur.
+- deliverables: dossiers, lecture/réponse/répondre à tous/transfert/brouillons/pièces jointes cohérents avec identité de boîte exacte, autorisation et contrat MCP ; APIs documentées avant frontend.
+- acceptance criteria: réception et envoyés ciblent les bons correspondants, brouillons persistants, erreurs mail/permissions explicites ; isolation tenant/boîte et identité SMTP testées ; aucune émission fournisseur réelle ni SMTP fictif.
+- dependencies: coordonner types/DTO avec B, identité/secret avec futur lot connexions ; services existants conservés.
+- implementation revision: non livrée ; verification report: CORRECTIONS.md section mission/mail ; preview: attente intégration ; blockers: fournisseur non configuré à ce stade.
+
+### Lot D — connexions chiffrées, après A/B
+- agent: codex (connections)
+- status: pending
+- branch: feat/codex-hermes-v4-connections
+- checkout: /private/tmp/hermes-v4-connections
+- owned files: service central de connexions CRUD chiffrées MCP/Evolution/IMAP/SMTP et tests attribués après audit/convergence A/B ; aucun démarrage d'implémentation concurrente non coordonné.
+- deliverables: stockage serveur sûr, contrôle droits/société, statut/test connexion honnête et révocation ; raccordement des services B/C sans duplication.
+- acceptance criteria: pas de secret au client/log/Git ; accès limité, valeurs masquées, tests de chiffrement et révocation ; absence de fournisseur configuré explicitement signalée.
+- dependencies: A/B prêts et ownership détaillé confirmé par root avant édition.
+- implementation revision: non livrée ; verification report: CORRECTIONS.md section mission/connections ; preview: attente intégration ; blockers: dépendance A/B.
+
+### Claude — orchestration frontend et lots isolés
+- agent: claude
+- status: pending
+- assigned session: Claude parent8f3db32e-4613-45e3-94f3-16e664f3cbfc ; root le coordonne, pas de doublon du parent.
+- branches: feat/claude-hermes-v4-wa ; feat/claude-hermes-v4-mail ; feat/claude-hermes-v4-settings ; feat/claude-hermes-v4-campaigns.
+- checkouts: /private/tmp/hermes-v4-claude-wa, /private/tmp/hermes-v4-claude-mail, /private/tmp/hermes-v4-claude-settings, /private/tmp/hermes-v4-claude-campaigns.
+- owned files: sous-agent WA possède mediaUI/compositeur WhatsApp ; sous-agent mail possède boîte e-mail ; sous-agent settings possède Réglages/sociétés ; sous-agent campaigns possède prospection/campagnes. Parent attribue les fichiers UI exacts sans chevauchement avant édition ; aucun backend Codex.
+- deliverables: quatre parcours conformes aux maquettes f638, sur API concrètes validées B/C/A/D ; états et capacités réels, français compilé, contrôles modes cohérents. Contrats readonly permis avant API, câblage après signatures confirmées.
+- acceptance criteria: typecheck/build/tests pertinents ; parcours desktop390px/clavier vérifiés ; aucun ID traduction brut, faux succès, connexion fictive ni envoi réel ; médias/brouillons conservés selon règles, sociétés réellement isolées, campagnes liées à vraie boîte/droits/licence.
+- dependencies: APIs concrètes et contrats des lots Codex ; root coordonne interfaces partagées et livraison par checkpoints poussés.
+- implementation revision: non livrée ; verification report: CORRECTIONS.md section mission/claude par sous-lot ; preview: attente intégration ; blockers: APIs/fournisseurs à confirmer.
+
+### Plan de livraison, revues et intégration root
+
+1. Publier mission et claims distants ; audits readonly puis contrats/ownership exacts avant édition.
+2. A/B/C avancent isolément ; Claude délègue les UI disjointes et s'appuie sur contrats prouvés. D démarre seulement après A/B prêts.
+3. Chaque lot pousse des commits ciblés avec tests et limites dans CORRECTIONS.md, puis statut ready_for_review. Les signatures partagées sont validées avant cherry-pick.
+4. Revue croisée Claude↔Codex sur SHA exacts et revue indépendante sécurité/concurrence/tenancy ; findings stables avec responsable, preuve, fix et recheck. done seulement après revue applicable et intégration, jamais sur simple sortie CLI.
+5. Root intègre dans branche/worktree isolés, compile frontend/backend, exécute tests unitaires/natifs/migrations puis runtime de recette et preview Vercel privée ; aucune production. Vérifier SHA frontend servi, arbre backend runtime et sources réellement testées.
+6. Recette navigateur authentifiée en français desktop/mobile, parcours bout en bout persistants A/B/C, messageries/MCP/médias, erreurs/non configuré, prospect→pipeline et campagnes sans envoi réel. Installation PWA seulement déclarée si réellement testée.
+7. Publier preuves filtrées, rapports et limites restantes ; URL de partage privée uniquement au chat. La preview i18n courante continue sur API18stable pendant V4, sans être présentée comme V4 achevée.
+
+Root possède intégration/QA/hosting et coordination ; agent coordination seul édite MISSIONS.md/CORRECTIONS.md, les mises à jour techniques du contrôle preview restent au lot hosting coordonné. Aucun délai artificiel remplace les critères de qualité demandés par le propriétaire.

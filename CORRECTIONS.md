@@ -1403,3 +1403,12 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Evidence: composant consomme la lecture politique V3 mais conserve mutation v1 et ne fournit pas les contrôles OFF/INHERIT/ASSISTED requis. Affichage et commande n'appliquent pas le même contrat.
 - Expected correction: raccorder les vraies mutations V3 avec contrôles et erreurs cohérents ; compositeur OFF désactivé conformément au contrat frontend retenu. Root a demandé le correctif avant gel21:05UTC.
 - Fix commit: aucun vérifié à ce checkpoint ; recheck: pending.
+
+
+### HERMES-V4-PARCOURS-COMPLET-20261030 — publication avant code, 2026-10-30 après21:30UTC
+
+- Nouvelle autorisation propriétaire : « Augmente les agents c’est pas grave si tu dépasse des que le travail est bien fait ». Délai1h levé ; poursuite de construction complète autorisée, sans reconfirmation. Mission1h et retard conservés, aucune clôture partielle déguisée.
+- Baseapp baece3a46a6286a933cfc99b22a53ac50c34e498 avec correctif i18n5f3c ; API/runtime backend18stable et arbre backend identique selon root, comparaison SHA à conserver dans les preuves finales. Preview i18n continue, ne vaut pas V4 achevée.
+- Lots/worktrees/branches/propriétés/dépendances détaillés dans MISSIONS.md. Audits et contrats readonly pendant publication ; implémentation après lecture distante et claim. Aucun worker V4 prétendu accepté/lancé par cette publication ; aucun appel CLI Claude effectué par coordination.
+- Claudes UI répartis par parent en worktrees isolés ; trois lots Codex A/B/C et lot connexions différé après A/B. Aucun service connexions dupliqué ni DTO messaging modifié par lot C. Worktrees /private/tmp pour préserver l'espace Stockage.
+- Prochaine action : root transmet liens distants et fait confirmer chaque claim, publie signatures concrètes puis démarre les lots ; journaliser les commandes CLI réelles et checkpoints. Tous statuts V4 pending jusqu'à preuves de claim ; aucune nouvelle capacité live/test/production annoncée.
