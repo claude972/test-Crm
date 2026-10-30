@@ -1,8 +1,11 @@
 import { useLingui } from '@lingui/react/macro';
-import { IconGauge, IconInbox } from 'kovaa-lab-ui/icon';
+import { IconGauge, IconInbox, IconMessage } from 'kovaa-lab-ui/icon';
 import { useLocation } from 'react-router-dom';
 
-import { buildHermesModuleNavigationItems } from '@/hermes-shell/utils/buildHermesModuleNavigationItems';
+import {
+  type HermesModuleNavigationItem,
+  buildHermesModuleNavigationItems,
+} from '@/hermes-shell/utils/buildHermesModuleNavigationItems';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { NavigationDrawerItem } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerItem';
 import { NavigationDrawerSection } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerSection';
@@ -19,13 +22,15 @@ export const HermesModulesNavigationSection = () => {
     PermissionFlagType.WORKSPACE,
   );
 
-  const labels = {
+  const labels: Record<HermesModuleNavigationItem['key'], string> = {
     dashboard: t`Dashboard`,
+    messaging: t`Messaging`,
     reception: t`Hermès collections`,
   };
 
-  const icons = {
+  const icons: Record<HermesModuleNavigationItem['key'], typeof IconGauge> = {
     dashboard: IconGauge,
+    messaging: IconMessage,
     reception: IconInbox,
   };
 
