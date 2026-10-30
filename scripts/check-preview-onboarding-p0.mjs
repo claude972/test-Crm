@@ -70,7 +70,7 @@ function request(endpoint, query, variables = {}, accessToken, timeoutSeconds = 
   if (accessToken) config.push(`header = ${quote(`Authorization: Bearer ${accessToken}`)}`);
   // The authenticated Vercel CLI manages Deployment Protection. Application
   // credentials and GraphQL variables enter curl only through stdin.
-  const result = spawnSync('vercel', ['curl', endpoint, '--deployment', deployment.origin, '--non-interactive', '--', '--config', '-'], {
+  const result = spawnSync('vercel', ['curl', endpoint, '--deployment', deployment.origin, '--', '--config', '-'], {
     cwd: root, input: `${config.join('\n')}\n`, encoding: 'utf8', timeout: (timeout + 30) * 1000,
     maxBuffer: 4 * 1024 * 1024,
   });
