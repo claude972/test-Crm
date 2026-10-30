@@ -100,11 +100,17 @@ export const MessagingInboxBotModeControl = ({
         )}
       </StyledRow>
 
-      {/* The status is why a request did not change the mode. Shown whenever
-          the server sent one, so asking for AUTO and staying MANUAL reads as
-          an answer rather than as a button that did nothing. */}
+      {/* The status is why a request did not change the mode. Shown only when
+          the server did NOT apply what was asked, so asking for AUTO and
+          staying MANUAL reads as an answer rather than as a button that did
+          nothing — and a success stays silent.
+
+          MANUAL and ACTIVE are this operation's two successes. READY belongs
+          to the draft contract and is never returned here, so testing for it
+          made every success print its own status code. */}
       {control.state.kind === 'settled' &&
-        control.state.status !== 'READY' && (
+        control.state.status !== 'MANUAL' &&
+        control.state.status !== 'ACTIVE' && (
           <MessagingInboxNote role="status">
             {control.state.status === 'NOT_CONFIGURED'
               ? t`Delegation is not set up, so this conversation stays human only.`
