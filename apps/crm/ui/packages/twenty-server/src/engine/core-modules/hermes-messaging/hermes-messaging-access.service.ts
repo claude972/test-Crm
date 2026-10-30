@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { type EntityManager, Repository } from 'typeorm';
 import { HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
 import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-target.entity';
 import { type HermesMessagingActor } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
@@ -12,9 +12,13 @@ export class HermesMessagingAccessService {
     @InjectRepository(RoleTargetEntity)
     private readonly targets: Repository<RoleTargetEntity>,
   ) {}
-  async assertAllowed(actor: HermesMessagingActor): Promise<void> {
-    await this.membershipAccess.assertAllowed(actor);
-    const target = await this.targets.findOne({
+  async assertAllowed(
+    actor: HermesMessagingActor,
+    manager?: EntityManager,
+  ): Promise<void> {
+    await this.membershipAccess.assertAllowed(actor, manager);
+    const targets = manager?.getRepository(RoleTargetEntity) ?? this.targets;
+    const target = await targets.findOne({
       where: {
         workspaceId: actor.workspaceId,
         userWorkspaceId: actor.userWorkspaceId,

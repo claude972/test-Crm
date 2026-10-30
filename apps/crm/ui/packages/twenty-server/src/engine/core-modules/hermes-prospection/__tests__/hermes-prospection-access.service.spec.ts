@@ -1,6 +1,8 @@
 import { ForbiddenException } from '@nestjs/common';
 
-import { IsNull } from 'typeorm';
+import { type EntityManager, IsNull } from 'typeorm';
+import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
+import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-target.entity';
 
 import { HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
 
@@ -124,4 +126,31 @@ describe('Hermes unrestricted workspace-admin boundary', () => {
       );
     },
   );
+  it('keeps membership and role authorization on the supplied transaction connection', async () => {
+    const { service, memberships, roleTargets } = setup();
+    const transactionMemberships = {
+      findOne: jest.fn().mockResolvedValue({ id: actor.userWorkspaceId }),
+    };
+    const transactionTargets = {
+      findOne: jest.fn().mockResolvedValue({ role: unrestrictedRole() }),
+    };
+    const manager = {
+      getRepository: jest.fn((entity) =>
+        entity === UserWorkspaceEntity
+          ? transactionMemberships
+          : transactionTargets,
+      ),
+    };
+    await service.assertAllowed(actor, manager as unknown as EntityManager);
+    expect(manager.getRepository).toHaveBeenCalledWith(UserWorkspaceEntity);
+    expect(manager.getRepository).toHaveBeenCalledWith(RoleTargetEntity);
+    expect(transactionMemberships.findOne).toHaveBeenCalledTimes(1);
+    expect(transactionTargets.findOne).toHaveBeenCalledTimes(1);
+    expect(memberships.findOne).not.toHaveBeenCalled();
+    expect(roleTargets.findOne).not.toHaveBeenCalled();
+    transactionMemberships.findOne.mockResolvedValue(null);
+    await expect(
+      service.assertAllowed(actor, manager as unknown as EntityManager),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
 });
