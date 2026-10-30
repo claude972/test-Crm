@@ -187,9 +187,79 @@ async function checkImportTransactions(requireFromServer, database) {
     },
   );
   try {
-    await dataSource.query(
-      'INSERT INTO "core"."workspace" ("id", "displayName", "activationStatus", "subdomain") VALUES ($1, $3, \'PENDING_CREATION\', $4), ($2, $3, \'PENDING_CREATION\', $5)',
-      [workspaceA, workspaceB, 'Disposable Hermes CI fixture', `hermes-ci-${workspaceA}`, `hermes-ci-${workspaceB}`],
+    const workspaceColumns = new Set([
+      'id',
+      'displayName',
+      'activationStatus',
+      'subdomain',
+      'workspaceCustomApplicationId',
+      'inviteHash',
+    ]);
+    const applicationColumns = new Set([
+      'id',
+      'workspaceId',
+      'universalIdentifier',
+      'name',
+      'sourcePath',
+      'version',
+      'sourceType',
+      'canBeUninstalled',
+    ]);
+    const requiredColumns = await dataSource.query(`
+      SELECT table_name, column_name FROM information_schema.columns
+      WHERE table_schema = 'core' AND table_name IN ('workspace', 'application')
+        AND is_nullable = 'NO' AND column_default IS NULL
+        AND is_identity = 'NO' AND is_generated = 'NEVER'
+    `);
+    for (const column of requiredColumns) {
+      assert.ok(
+        (column.table_name === 'workspace'
+          ? workspaceColumns
+          : applicationColumns
+        ).has(column.column_name),
+        `Fixture must supply required core.${column.table_name}.${column.column_name}`,
+      );
+    }
+    // Native signup creates both sides of these deferred FKs in one transaction.
+    await dataSource.transaction(async (manager) => {
+      for (const workspaceId of [workspaceA, workspaceB]) {
+        const applicationId = randomUUID();
+        await manager.query(
+          `INSERT INTO "core"."workspace"
+            ("id", "displayName", "activationStatus", "subdomain", "workspaceCustomApplicationId", "inviteHash")
+           VALUES ($1, $2, 'PENDING_CREATION', $3, $4, $5)`,
+          [
+            workspaceId,
+            'Disposable Hermes CI fixture',
+            `hermes-ci-${workspaceId}`,
+            applicationId,
+            randomUUID(),
+          ],
+        );
+        await manager.query(
+          `INSERT INTO "core"."application"
+            ("id", "workspaceId", "universalIdentifier", "name", "sourcePath", "version", "sourceType", "canBeUninstalled")
+           VALUES ($1, $2, $1, $3, 'workspace-custom', '1.0.1', 'local', false)`,
+          [applicationId, workspaceId, 'Disposable Hermes custom application'],
+        );
+      }
+    });
+    const linkedWorkspaces = await dataSource.query(
+      `SELECT workspace."id", application."workspaceId" AS "applicationWorkspaceId"
+       FROM "core"."workspace" workspace
+       INNER JOIN "core"."application" application
+         ON application."id" = workspace."workspaceCustomApplicationId"
+       WHERE workspace."id" IN ($1, $2)`,
+      [workspaceA, workspaceB],
+    );
+    assert.equal(
+      linkedWorkspaces.length,
+      2,
+      'Both fixtures must have custom applications',
+    );
+    assert.ok(
+      linkedWorkspaces.every((row) => row.id === row.applicationWorkspaceId),
+      'Each custom application must belong to its own workspace',
     );
     const defaultRow = await dataSource.query(
       `INSERT INTO ${table} ("workspaceId") VALUES ($1) RETURNING "state"`,
@@ -292,6 +362,7 @@ async function checkImportTransactions(requireFromServer, database) {
       'Cascade must not touch another workspace',
     );
     return {
+      workspaceApplicationFixture: 'passed',
       concurrentReplay: 'passed',
       concurrentIndependentImports: 'passed',
       persistence: 'passed',
