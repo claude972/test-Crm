@@ -431,11 +431,18 @@ try {
       await page.goto('http://127.0.0.1:3001/welcome', { waitUntil: 'domcontentloaded' });
       await configResponse;
       const continueWithEmail = page.getByRole('button', { name: 'Continue with Email', exact: true });
-      await continueWithEmail.waitFor({ state: 'visible', timeout: 60_000 });
+      // P1 has provisioned the mono-workspace before opening the browser. Its
+      // password-only native welcome starts directly at Email, unlike empty P0.
+      if (hermesSmoke) {
+        await page.getByPlaceholder('Email', { exact: true }).waitFor({ state: 'visible', timeout: 60_000 });
+        await page.getByRole('button', { name: 'Continue', exact: true }).waitFor({ state: 'visible' });
+      } else {
+        await continueWithEmail.waitFor({ state: 'visible', timeout: 60_000 });
+      }
       await page.screenshot({ path: path.join(screenshots, `${name}-welcome.png`), fullPage: true });
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
       assert.equal(overflow, false, `${name}: horizontal overflow`);
-      await continueWithEmail.click();
+      if (!hermesSmoke) await continueWithEmail.click();
       const email = page.getByPlaceholder('Email', { exact: true });
       await email.waitFor({ state: 'visible' });
       await email.fill('invalid-email');
