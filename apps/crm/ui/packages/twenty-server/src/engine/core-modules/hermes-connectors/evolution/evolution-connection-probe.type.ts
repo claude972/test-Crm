@@ -1,6 +1,6 @@
 export type EvolutionProbeStatus =
   | 'NOT_CONFIGURED'
-  | 'CONNECTED'
+  | 'PROVIDER_REPORTED_OPEN'
   | 'CONNECTING'
   | 'DISCONNECTED'
   | 'UNAVAILABLE';

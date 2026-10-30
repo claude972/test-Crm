@@ -16,9 +16,9 @@ Construire `EvolutionConnectionAdapter(serializedConnections, options?)` exclusi
 
 `probe(workspaceId)` sélectionne uniquement cette entrée, jamais un paramètre d'instance envoyé par le navigateur ; UUID invalide refusé et workspace non configuré = NOT_CONFIGURED sans requête. L'appelant doit avoir **déjà autorisé** ce workspace via les guards et permissions existants : l'adaptateur n'est pas un service d'authentification.
 
-Le seul appel réseau est le GET de statut, sans fetchInstances global, création/connexion/QR/logout ni envoi. CONNECTED exige HTTP 200, objet valide, nom exact de l'instance attendue et `state=open`. `close` = DISCONNECTED, `connecting` = CONNECTING. Toutes les autres formes, erreurs et réponses d'une autre instance restent UNAVAILABLE ; aucune valeur CONNECTED par défaut ni cache d'un ancien succès. Le timestamp est le début du probe. La réponse contient uniquement workspaceId, provider, status, providerState, checkedAt et errorCode ; ni clé, URL, instanceName ou corps d'erreur fournisseur.
+Le seul appel réseau est le GET de statut, sans fetchInstances global, création/connexion/QR/logout ni envoi. PROVIDER_REPORTED_OPEN exige HTTP 200, objet valide, nom exact de l'instance attendue et `state=open`. `close` = DISCONNECTED, `connecting` = CONNECTING. Toutes les autres formes, erreurs et réponses d'une autre instance restent UNAVAILABLE ; aucune valeur de succès par défaut ni cache d'un ancien succès. Le timestamp est le début du probe. La réponse contient uniquement workspaceId, provider, status, providerState, checkedAt et errorCode ; ni clé, URL, instanceName ou corps d'erreur fournisseur.
 
-**CONNECTED décrit uniquement l'état d'instance rapporté par Evolution à cet instant.** Ce n'est pas une preuve d'envoi, de réception, d'association à un compte WhatsApp réel ou d'absence de panne ultérieure. Un canal non WhatsApp configuré à tort chez le fournisseur peut aussi rapporter open ; l'opérateur devra qualifier le type d'instance avant activation. Aucun serveur Evolution réel ni téléphone n'est utilisé dans cette livraison.
+**PROVIDER_REPORTED_OPEN décrit uniquement l'état d'instance rapporté par Evolution à cet instant.** Ce n'est pas une preuve d'envoi, de réception, d'association à un compte WhatsApp réel ou d'absence de panne ultérieure. Un canal non WhatsApp configuré à tort chez le fournisseur peut aussi rapporter open ; l'opérateur devra qualifier le type d'instance avant activation. Aucun serveur Evolution réel ni téléphone n'est utilisé dans cette livraison.
 
 ## Réseau et secrets
 
@@ -32,7 +32,7 @@ Le seul appel réseau est le GET de statut, sans fetchInstances global, créatio
 ```graphql
 enum HermesEvolutionProbeStatus {
   NOT_CONFIGURED
-  CONNECTED
+  PROVIDER_REPORTED_OPEN
   CONNECTING
   DISCONNECTED
   UNAVAILABLE
