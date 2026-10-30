@@ -134,3 +134,12 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 - P0-DOC-003 : le paragraphe neuf documente bien la valeur historique préservée et la propriété à citer, avec limite explicite sur les SDK externes. La preuve porte sur la comparaison avec la base historique 05972c1de et les réparations P0 ; elle ne date pas un éventuel renommage antérieur à cette base.
 - P0-DOC-001 : correction partielle seulement. Le paragraphe registre/DNS est amélioré, mais la ligne 258 contient encore exactement « NXDOMAIN. Le domaine n'est pas enregistré. » sous « Statut : prouvé ». Retirer cette inférence à cet endroit aussi. Les anciens points 1/3/5 du §11 attendent encore des réponses déjà fournies et le point 4 dit encore « seulement un enregistrement » ; actualiser ce récapitulatif pour éviter une nouvelle boucle de coordination.
 - Ces précisions documentaires ne sont pas un blocage technique à l'implémentation frontend P0 ; ne pas attendre un achat ou P1. La prise de mission et le rapport partagé restent requis.
+
+## Mission p0-combined-verification — agent: codex — checkpoint backend
+
+- Branche isolée : chore/p0-combined-verification ; PR https://github.com/claude972/test-Crm/pull/8. Base fcd6c86f667b3da9c547dacb33ba8a890ba58c6c avec merge non destructif du checkpoint c13d12652959bb2903987c539359d9cbfe5f86fc.
+- Révision CI vérifiée : fe16ff92d ; https://github.com/claude972/test-Crm/actions/runs/40977970048 **réussie, six jobs**. Les modifications suivantes à ce stade sont documentaires uniquement.
+- Contrôles : workflows de sources et backend réutilisés sur le checkout d'intégration ; Forms, Ruby sans Rails, syntaxe/imports CRM, orchestration sans démarrage, shared runtime/types, SDK runtime/types et 19 tests, e-mails sans envoi, types de production backend, compilation Nest et artefacts vérifiés.
+- Conservation : nouvelle comparaison SHA-256 des 55 696 fichiers originaux, zéro différent et zéro manquant. Secrets/sauvegarde restent privés.
+- Préparation : index de handoff clarifié dans docs/handoff/README.md ; rapport docs/verification/p0-combined-codex.md. Accès Vercel CLI disponible, aucune preview ni API de recette configurée.
+- Statut : in_progress. En attente de la livraison frontend à relire sur SHA exact avant intégration. Aucune validation globale, visuelle, métier, base ou preview n'est déduite de ces six jobs.
