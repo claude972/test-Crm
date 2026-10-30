@@ -372,6 +372,50 @@ Cherché activement après le correctif worker, plutôt qu'attendu de l'étape C
 
 **Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
 
+## Audit de la surface PWA existante — agent: claude
+
+- périmètre : `apps/crm/ui/packages/twenty-front`, à `6974f96ca`. **Audit seul : aucune implémentation, aucun service worker ajouté, aucun cache conçu.**
+- méthode : délégué à un sous-agent en lecture seule, puis **chaque constat ci-dessous revérifié par mes propres commandes** avant publication. Je ne relaie rien que je n'aie contrôlé.
+
+### Ce qui est sain, vérifié
+
+- **Les 112 icônes déclarées par `public/manifest.json` existent toutes.** Contrôle d'existence exécuté par moi : 112 déclarées, **0 manquante**. Aucune référence locale cassée.
+- **Marque cohérente** : `"KovaaLab CRM"` dans le manifeste, le `<title>` et les métadonnées sociales, conformément à la décision de marque.
+- **Aucun jeton d'authentification persisté** : l'auth passe par cookie.
+
+### Service worker : il n'y en a aucun
+
+Vérifié par moi : `serviceWorker`, `workbox`, `vite-plugin-pwa`, `registerSW`, `VitePWA` ne donnent **aucun résultat** dans `src`, `index.html`, `vite.config.ts` et `package.json`. L'application est donc **installable** (manifeste valide, icônes présentes, `display: standalone`) mais **sans aucune capacité hors ligne**.
+
+**Ce n'est pas une régression** : cela n'a jamais été livré. Et au regard de la contrainte produit, c'est l'état sûr — aucun cache de données authentifiées n'existe parce qu'aucun cache n'existe.
+
+### P0-PWA-001
+- reviewer: claude
+- assigned agent: claude, **mais à ne pas corriger en P0** (voir ci-dessous)
+- reviewed revision: `6974f96ca9c8e9ec770f9ed2c1cb5b9a558b7f6e`
+- evidence, chaîne vérifiée par quatre recherches indépendantes de ma part :
+  1. `src/modules/auth/hooks/useAuth.ts:136` n'appelle à la déconnexion que `clearSessionLocalStorageKeys()`, qui retire **10 clés** de `localStorage` (`clearSessionLocalStorageKeys.ts:3-15`), dont bien `currentUserState` et `currentWorkspaceState`.
+  2. La purge de l'IndexedDB passe par `clearMetadataStoreStorage()`, appelée **uniquement** depuis `clearAllSessionLocalStorageKeys.ts:17`.
+  3. `clearAllSessionLocalStorageKeys()` est appelée **uniquement** depuis `jotaiStore.ts:7`, à l'intérieur de `resetJotaiStore()`.
+  4. `resetJotaiStore` n'a **aucun appelant d'exécution** : la recherche hors tests ne remonte que sa propre définition.
+- effet : après déconnexion, la base IndexedDB du magasin de métadonnées **subsiste sur le poste**. Elle contient le schéma métier du workspace — `objectMetadataItems`, `fieldMetadataItems`, vues, filtres, `pageLayouts` —, non chiffré et lisible par tout script de l'origine. Sur un poste partagé, l'utilisateur suivant peut lire la structure de données du workspace précédent.
+- **pourquoi je ne le corrige pas maintenant, et c'est délibéré** : ce n'est pas un défaut de syntaxe ni un blocage de construction, donc hors du P0 « base constructible ». Surtout, la contrainte produit exige explicitement qu'un cache de données authentifiées ne soit traité **qu'avec une conception explicite de son isolation**. Brancher `resetJotaiStore()` sur la déconnexion serait un patch d'une ligne qui donnerait l'illusion du traitement : il resterait à décider du comportement sur expiration de session, changement de workspace, impersonation et multi-onglets — le magasin est synchronisé entre onglets par `BroadcastChannel`. Cela mérite une décision, pas un réflexe.
+- expected correction: une conception d'isolation du magasin de métadonnées couvrant déconnexion, expiration, changement de workspace et multi-onglets ; puis un point de purge unique réellement appelé. À traiter comme un lot identifié, après la base constructible.
+- status: open, reported by claude
+- fix commit: aucun — non corrigé volontairement
+
+### Observations, explicitement pas des défauts
+
+- **`public/mockServiceWorker.js`** (9 193 octets) est dans `publicDir`, non surchargé dans `vite.config.ts`, donc **copié au build et joignable publiquement**. Vérifié : **aucun code d'exécution ne l'enregistre** (`mockServiceWorker`, `setupWorker`, `msw/browser` ne donnent rien hors tests). Il reste donc inerte. Je le signale comme poids mort exposé, pas comme faille.
+- **`theme_color` et `background_color` du manifeste** (`#000000` et `#ffffff`) ne correspondent pas aux fonds réels du thème clair, et il n'existe qu'une valeur statique sans variante `prefers-color-scheme` alors que le thème est persisté. Effet cosmétique : léger saut de teinte au lancement en mode autonome. **Relève du design, pas de P0**, et la contrainte impose de conserver le design existant.
+- **80 des 112 icônes sont des tuiles Windows 11** que les navigateurs n'exploitent pas via le manifeste, et **aucune icône `purpose: "maskable"`** n'est déclarée — sur Android l'icône est plaquée dans un badge au lieu d'épouser la forme adaptative. Améliorations possibles, aucune urgence, aucune action P0.
+- `scope`, `id`, `description`, `orientation`, `lang` absents du manifeste ; balises iOS standalone absentes. **Jamais livrés, donc pas des régressions.**
+- Hors périmètre signalé sans action : `apps/crm/ui/packages/twenty-companion` est une application **Electron desktop**. Ce n'est pas du natif mobile, et je ne propose aucun portage.
+
+### Non vérifié
+
+Aucune exécution : pas de build, pas de serveur, pas de Lighthouse, aucun audit d'installabilité navigateur — l'installabilité est déduite de la lecture des fichiers. Les en-têtes HTTP réellement servis pour le manifeste ne sont pas contrôlés. Les trois URL externes (`og:image`, `twitter:image`, logo de repli de workspace) n'ont fait l'objet d'**aucune requête réseau** : leur existence reste inconnue, et je ne la déduis pas. Le contenu visuel des 112 PNG n'a pas été regardé.
+
 ## Contrainte web/PWA — prise en compte par Claude
 
 Contrainte de tête de `MISSIONS.md` (`f507ab647`) **lue et intégrée à mon suivi** : web et PWA uniquement, aucune application native iOS/Android, aucun portage Expo/React Native, aucun build natif ni publication store. Aucune de mes livraisons ne s'en écarte, et je l'ai vérifié plutôt que supposé :
