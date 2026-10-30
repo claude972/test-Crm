@@ -7,6 +7,10 @@ import {
   SettingsRouteOutlet,
 } from '@/app/components/SettingsRoutes';
 import { type WorkspaceRouteObject } from '@/app/routing/types/WorkspaceRouteObject';
+import {
+  PROSPECTION_LIST_QUALIFICATION_PATH,
+  PROSPECTION_RECEIVED_LISTS_PATH,
+} from '@/prospection/constants/ProspectionRoutePaths';
 import { RecordIndexSkeletonLoader } from '@/object-record/record-index/components/RecordIndexSkeletonLoader';
 
 const AgentCoreIndexPage = lazy(() =>
@@ -61,6 +65,18 @@ const MobileHomePage = lazy(() =>
   import('~/pages/mobile-home/MobileHomePage').then((module) => ({
     default: module.MobileHomePage,
   })),
+);
+
+const ProspectionReceivedListsPage = lazy(() =>
+  import('~/pages/prospection/ProspectionReceivedListsPage').then((module) => ({
+    default: module.ProspectionReceivedListsPage,
+  })),
+);
+
+const ProspectionListQualificationPage = lazy(() =>
+  import('~/pages/prospection/ProspectionListQualificationPage').then(
+    (module) => ({ default: module.ProspectionListQualificationPage }),
+  ),
 );
 
 const NotFound = lazy(() =>
@@ -166,6 +182,22 @@ export const createWorkspaceRouteObjects = ({
       element: (
         <LazyRoute>
           <MobileHomePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: PROSPECTION_RECEIVED_LISTS_PATH,
+      element: (
+        <LazyRoute>
+          <ProspectionReceivedListsPage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: PROSPECTION_LIST_QUALIFICATION_PATH,
+      element: (
+        <LazyRoute>
+          <ProspectionListQualificationPage />
         </LazyRoute>
       ),
     },
