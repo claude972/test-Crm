@@ -1,0 +1,297 @@
+import { useLingui } from '@lingui/react/macro';
+import { useCallback, useMemo, useState } from 'react';
+
+import { HermesAdminNote } from '@/hermes-admin-ui/components/HermesAdminNote';
+import { HermesAdminSettingsCenter } from '@/hermes-admin-ui/components/HermesAdminSettingsCenter';
+import { type HermesCompanyDraft } from '@/hermes-admin-ui/components/HermesCompanyAddForm';
+import {
+  HERMES_ADMIN_CONTEXT_CURRENT,
+  type HermesAdminContextValidity,
+} from '@/hermes-admin-ui/types/HermesAdminContext';
+import { type HermesConnectionKind } from '@/hermes-admin-ui/types/HermesConnection';
+import {
+  HERMES_CONNECTION_FORM_EMPTY_VALUES,
+  type HermesConnectionFormSubject,
+  type HermesConnectionFormSubmission,
+  type HermesConnectionFormValues,
+  type HermesConnectionTestState,
+} from '@/hermes-admin-ui/types/HermesConnectionForm';
+import { HermesBotPolicySection } from '@/hermes-bot-settings/components/HermesBotPolicySection';
+import { useHermesRuntimeCompanies } from '@/hermes-admin-runtime/hooks/useHermesRuntimeCompanies';
+import { useHermesRuntimeConnections } from '@/hermes-admin-runtime/hooks/useHermesRuntimeConnections';
+import { useHermesRuntimeNativeAccounts } from '@/hermes-admin-runtime/hooks/useHermesRuntimeNativeAccounts';
+import {
+  HERMES_RUNTIME_KIND_BY_UI_KIND,
+  readHermesRuntimeWriteSupport,
+} from '@/hermes-admin-runtime/types/HermesRuntimeConnectionKind';
+
+// No test exists in this contract.
+//
+// The published states are NOT_CONFIGURED and CONFIGURED_UNVERIFIED, and the
+// contract says in as many words that configuration presence is never a
+// connection test: saving sends no provider request, invokes no tool and
+// sends no mail or WhatsApp. So no test operation is called, and every test
+// state stays idle. The alternative — reporting a save as a passed test —
+// would be the false « connected » the contract forbids.
+const NO_TEST_STATE: HermesConnectionTestState = { kind: 'idle' };
+const NO_TEST_STATE_BY_ID: Readonly<Record<string, HermesConnectionTestState>> =
+  {};
+
+// The settings centre, wired to the central connections store, the bot policy
+// operations and the authentication hook's two company methods.
+//
+// This component owns the reads, the writes and the outcomes. The library it
+// renders owns the presentation and decides nothing: every state below was
+// read from a server or is the honest absence of one.
+export const HermesAdminRuntimeSettings = () => {
+  const { t } = useLingui();
+
+  const companies = useHermesRuntimeCompanies();
+  const connections = useHermesRuntimeConnections(companies.activeCompanyId);
+  const { nativeAccounts } = useHermesRuntimeNativeAccounts();
+
+  const [formSubject, setFormSubject] =
+    useState<HermesConnectionFormSubject | null>(null);
+
+  // What the screen holds, and whether it still belongs to the active company.
+  //
+  // A session replaced by the server is an answer, so it becomes a stale
+  // context and the library turns that into a reload request. Nothing is
+  // retried from here, and the state is never cleared on its own: it takes a
+  // reload the operator asks for.
+  const contextValidity = useMemo<HermesAdminContextValidity>(() => {
+    if (companies.isSessionReplaced || connections.isSessionReplaced) {
+      return {
+        kind: 'stale',
+        reason: 'session-replaced',
+        message: null,
+      };
+    }
+
+    return HERMES_ADMIN_CONTEXT_CURRENT;
+  }, [companies.isSessionReplaced, connections.isSessionReplaced]);
+
+  // The non-secret values a form opens on, read from what the server reported
+  // for that kind.
+  //
+  // No secret is ever among them. The server never returns one, so there is
+  // nothing to prefill and nothing that could be echoed back: the secret
+  // control opens empty every time, and leaving it empty keeps the stored
+  // secret untouched. Nothing is written to browser storage on the way,
+  // not even for the length of an edit.
+  const initialValues = useMemo<
+    HermesConnectionFormValues | undefined
+  >(() => {
+    if (formSubject === null || formSubject.mode !== 'edit') {
+      return undefined;
+    }
+
+    const runtimeKind =
+      formSubject.kind === null
+        ? undefined
+        : HERMES_RUNTIME_KIND_BY_UI_KIND[formSubject.kind];
+
+    if (runtimeKind === undefined) {
+      return undefined;
+    }
+
+    const settings =
+      connections.views.find((view) => view.runtimeKind === runtimeKind)
+        ?.settings ?? null;
+
+    const readSetting = (key: string): string => {
+      const value = settings?.[key];
+
+      return typeof value === 'string' ? value : '';
+    };
+
+    if (runtimeKind === 'MAIL') {
+      // The bound native account, and the IMAP FOLDER the server polls —
+      // typically INBOX. The folder is not an address and is not presented as
+      // one; the attached address belongs to the chosen account and is the
+      // server's, never an input.
+      return {
+        ...HERMES_CONNECTION_FORM_EMPTY_VALUES,
+        nativeAccountId: readSetting('connectedAccountId'),
+        imapFolder: readSetting('mailbox'),
+      };
+    }
+
+    if (runtimeKind === 'EVOLUTION') {
+      return {
+        ...HERMES_CONNECTION_FORM_EMPTY_VALUES,
+        label: readSetting('instanceName'),
+        endpoint: readSetting('baseUrl'),
+      };
+    }
+
+    if (runtimeKind === 'MCP') {
+      return {
+        ...HERMES_CONNECTION_FORM_EMPTY_VALUES,
+        label: readSetting('toolName'),
+        endpoint: readSetting('endpoint'),
+      };
+    }
+
+    return HERMES_CONNECTION_FORM_EMPTY_VALUES;
+  }, [connections.views, formSubject]);
+
+  const handleRequestEdit = useCallback(
+    (connectionId: string) => {
+      if (connections.read.kind !== 'reported') {
+        return;
+      }
+
+      const connection = connections.read.connections.find(
+        (candidate) => candidate.id === connectionId,
+      );
+
+      if (connection === undefined) {
+        return;
+      }
+
+      connections.resetWriteState();
+
+      // The revision is passed on exactly as it was read, never repaired. A
+      // connection read without one opens a form that cannot send, and says
+      // so, rather than one that sends a revision made up here.
+      setFormSubject({
+        mode: 'edit',
+        kind: connection.kind,
+        unknownKind: connection.unknownKind,
+        connectionId: connection.id,
+        state: connection.state,
+        hasStoredSecret: connection.hasStoredSecret,
+        revision: connection.revision,
+      });
+    },
+    [connections],
+  );
+
+  const handleRequestCreate = useCallback(
+    (connectionKind: HermesConnectionKind) => {
+      connections.resetWriteState();
+      setFormSubject({ mode: 'create', kind: connectionKind });
+    },
+    [connections],
+  );
+
+  const handleSubmit = useCallback(
+    (submission: HermesConnectionFormSubmission) => {
+      if (formSubject === null) {
+        return;
+      }
+
+      const uiKind = formSubject.kind;
+      const support = readHermesRuntimeWriteSupport(uiKind);
+      const runtimeKind =
+        uiKind === null ? undefined : HERMES_RUNTIME_KIND_BY_UI_KIND[uiKind];
+
+      if (runtimeKind === undefined) {
+        connections.reportUnsupported({ kind: 'no-server-kind' });
+
+        return;
+      }
+
+      connections.save(runtimeKind, support, submission);
+    },
+    [connections, formSubject],
+  );
+
+  const handleRequestDelete = useCallback(
+    (_connectionId: string, expectedRevision: string) => {
+      if (formSubject === null) {
+        return;
+      }
+
+      const uiKind = formSubject.kind;
+      const support = readHermesRuntimeWriteSupport(uiKind);
+      const runtimeKind =
+        uiKind === null ? undefined : HERMES_RUNTIME_KIND_BY_UI_KIND[uiKind];
+
+      if (runtimeKind === undefined) {
+        connections.reportUnsupported({ kind: 'no-server-kind' });
+
+        return;
+      }
+
+      connections.remove(runtimeKind, support, expectedRevision);
+    },
+    [connections, formSubject],
+  );
+
+  const handleRequestAdd = useCallback(
+    (draft: HermesCompanyDraft) => {
+      companies.requestAdd(draft.name);
+    },
+    [companies],
+  );
+
+  const handleRequestReload = useCallback(() => {
+    // A reload the operator asked for, which is the only answer to a replaced
+    // session. Nothing is retried in its place.
+    window.location.reload();
+  }, []);
+
+  const handleCancelForm = useCallback(() => {
+    connections.resetWriteState();
+    setFormSubject(null);
+  }, [connections]);
+
+  return (
+    <>
+      {/* What this build cannot configure, said before the operator tries.
+          These are missing controls on this screen, not server refusals, and
+          nothing is sent for them. */}
+      {connections.writeBlock.kind === 'unsupported' && (
+        <HermesAdminNote role="alert">
+          {connections.writeBlock.support.kind === 'no-server-kind'
+            ? t`Rien n’a été envoyé : ce canal n’a pas de configuration centrale propre. L’envoi de courrier s’appuie sur le compte connecté natif choisi pour la réception, et les formulaires comme les rendez-vous sont des sources d’une collecte signée, pas des connexions distinctes.`
+            : connections.writeBlock.support.detail === 'evolution-two-secrets'
+              ? t`Rien n’a été envoyé : cette connexion attend deux secrets distincts — une clé d’API et un secret de webhook de soixante-quatre caractères hexadécimaux minuscules qui en diffère — et cet écran n’offre qu’un seul champ. En envoyer un seul effacerait l’autre, donc rien ne part. Un second champ de secret est requis dans la bibliothèque.`
+              : t`Rien n’a été envoyé : une collecte signée attend ses sources autorisées et sa limite de requêtes par minute, et cet écran n’offre aucun contrôle pour les choisir. Les choisir à votre place serait décider de votre politique de collecte.`}
+        </HermesAdminNote>
+      )}
+
+      <HermesAdminSettingsCenter
+        companiesRead={companies.companiesRead}
+        membersRead={companies.membersRead}
+        connectionsRead={connections.read}
+        switchCapability={companies.switchCapability}
+        switchState={companies.switchState}
+        addCapability={companies.addCapability}
+        addState={companies.addState}
+        contextValidity={contextValidity}
+        hasWriteInFlight={
+          companies.hasWriteInFlight || connections.hasWriteInFlight
+        }
+        connectionFormSubject={formSubject}
+        connectionFormInitialValues={initialValues}
+        nativeAccounts={nativeAccounts}
+        connectionSaveState={connections.saveState}
+        connectionTestStateByConnectionId={NO_TEST_STATE_BY_ID}
+        connectionFormTestState={NO_TEST_STATE}
+        onRequestSwitchCompany={companies.requestSwitch}
+        onRequestAddCompany={handleRequestAdd}
+        onRequestTestConnection={() => {
+          // Deliberately empty: this contract publishes no connection test,
+          // so there is nothing to call and nothing is inferred from the
+          // button having been pressed.
+        }}
+        onRequestEditConnection={handleRequestEdit}
+        onRequestCreateConnection={handleRequestCreate}
+        onRequestDeleteConnection={handleRequestDelete}
+        onSubmitConnection={handleSubmit}
+        onCancelConnectionForm={handleCancelForm}
+        onRequestReload={handleRequestReload}
+      />
+
+      {/* The company-wide and per-channel bot policy, through the operations
+          that already exist. Saving or removing a connection stops the bot
+          delegations of the affected channel — the form says so before the
+          write — and nothing here offers to resume them: a fresh explicit
+          policy action is required, which is exactly what this section is. */}
+      <HermesBotPolicySection />
+    </>
+  );
+};
