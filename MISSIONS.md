@@ -70,7 +70,7 @@ Conserver les valeurs de formats persistants, clés de dérivation, cookies, mar
 
 ## Claude assignment — p0-frontend-baseline
 - agent: claude
-- status: pending
+- status: in_progress — réclamée par Claude le 29 octobre 2026
 - branch: fix/claude-frontend-baseline
 - deliverables: réparations frontend de syntaxe et chemins en commits ciblés, contrôles pertinents et rapport partagé.
 - owned files: apps/crm/ui/packages/twenty-front et twenty-front-component-renderer ; frontend Char sous apps/crm/bot/app/javascript et templates HTML/ERB nécessaires à ses globals ; apps/crm/bot/package.json uniquement pour les imports registry réparés. Ne pas toucher aux sources backend, types shared, migrations, lockfile CRM, bibliothèque UI importée ou scripts de Codex sans coordination.
@@ -79,6 +79,28 @@ Conserver les valeurs de formats persistants, clés de dérivation, cookies, mar
 - implementation revision: aucun commit pour cette mission à ce stade.
 - preview: aucune à ce stade ; ne pas utiliser la production comme preview.
 - blockers: inventaire livré dans PR #6, SHA 1501776ca799b8ce1720fc330ff04dbf00598b39 ; précisions P0-DOC-001 à 003 à traiter et rapport partagé à publier. Codex confirme la base c0318cf0b33134c4c292affe395009a6bd3b4662 et les décisions techniques de CORRECTIONS.md ; aucun choix de marque/police n'est requis pour cette réparation P0.
+
+### Prise de mission par Claude — 29 octobre 2026
+
+Les deux conditions d'entrée sont remplies avant toute édition de source :
+
+- **Rapport partagé publié** : section « Mission p0-stabilization — agent: claude » de CORRECTIONS.md, dans ce même commit.
+- **Précisions documentaires traitées** : P0-DOC-001, 002 et 003 corrigées sur `chore/claude-frontend-inventory`, commits `ad140e2fa445544e2f59b906067862f13d8eda7e` puis `d2700a7c091861da0ed0951612f21cfd37aa62d8` (ce dernier reprend la relecture Codex `1f4985461` : résidu DNS/registre de la ligne 258, portée de la preuve du marqueur, récapitulatif du § 11).
+
+Paramètres effectifs de la reprise :
+
+- base de départ résolue et consignée : `c0318cf0b33134c4c292affe395009a6bd3b4662`
+- branche d'implémentation : `fix/claude-frontend-baseline`, dans un **worktree distinct** `/Volumes/Stockage/dev/hermes-crm/claude-frontend-baseline`
+- worktree de coordination séparé pour cette branche de missions ; checkout `test-Crm` en lecture seule, HEAD `05972c1de`, non modifié
+
+Nouveaux fichiers pris en propriété au titre de l'extension accordée, enregistrés ici avant édition :
+
+- `scripts/check-frontend-p0.cjs` — contrôleur frontend dédié : parsing, imports internes, et vérification de l'existence réelle des assets avec filtrage raisonné des suffixes Vite
+- `.github/workflows/p0-frontend-baseline.yml` — workflow dédié, déclenché sur la branche d'implémentation, exposant `workflow_call` et un artefact de bundle pour l'intégration combinée de Codex
+
+`scripts/check-crm-p0.cjs`, les workflows backend existants, les sources backend, les types partagés, les migrations, le lockfile CRM et la bibliothèque UI importée **ne sont pas modifiés**. Toute nécessité réelle de toucher au contrôleur partagé sera transmise à Codex sous forme de diff ciblé.
+
+Décisions reçues et appliquées sans nouvel arbitrage : icônes `IconTwentyStar` / `IconTwentyStarFilled` conservées et consommateurs corrigés ; champ serveur `allowRequestsToKovaaLabCRMIcons` suivi tel quel ; marqueur `__kovaa-labHttpResponse` préservé à l'identique ; basenames `Twenty*` conservés ; aucune décision de marque, police, domaine ou contrat P1 n'est attendue pour cette réparation.
 
 ### Prompt de démarrage Claude
 

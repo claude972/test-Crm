@@ -31,7 +31,55 @@ Nouvelle comparaison après interruption : 55 696 fichiers d'origine contrôlés
 
 ## Mission p0-stabilization — agent: claude
 
-Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport ne constitue pas une revue sans constat.
+- agent: claude
+- branche : `chore/claude-frontend-inventory`
+- PR : https://github.com/claude972/test-Crm/pull/6 (brouillon, base `chore/p0-stabilization`)
+- base inspectée : `bb11083776b05f4998d6ddc1a5f15e2deb16539e`
+- commit d'inventaire : `b95ce0341d970201a5c5334397736e8317716fcf`
+- corrections de revue : `d2700a7c091861da0ed0951612f21cfd37aa62d8 (compléments de ad140e2fa445544e2f59b906067862f13d8eda7e)`
+- rapports détaillés : `docs/verification/frontend-inventory-claude.md`, `docs/handoff/frontend-backlog.md`
+- périmètre : inventaire documentaire seul. Aucune source produit modifiée. Checkout `test-Crm` inchangé (HEAD `05972c1de`, 2 965 fichiers modifiés préservés) ; aucun `reset`, `clean` ni `stash` ; aucun fichier de secrets lu.
+
+### Constats P0 reproduits
+
+Défaut unique : un remplacement global a injecté la chaîne d'affichage `KovaaLab CRM`, **avec une espace**, à l'intérieur d'identifiants TypeScript là où le jeton d'origine était `Twenty`. Une espace dans un identifiant est une erreur de syntaxe.
+
+- **223 diagnostics de parsing sur 51 fichiers** de `twenty-front`, et **27 imports de code non résolus** vers 5 modules inexistants. Mesuré deux fois par deux instruments indépendants : un parsing TypeScript 5.9.2 autonome, puis la logique de `scripts/check-crm-p0.cjs` appliquée à `twenty-front` depuis une copie hors dépôt. Les deux donnent 223.
+- **45 imports d'assets** (`.svg`, `.png`, `.webp`, `.css`, `?react`, `?worker`) remontent aussi comme non résolus : ce sont des **limites de l'outil**, pas des défauts. Résolus par Vite, hors de portée de `ts.resolveModuleName`. Reproduction concordante avec Codex.
+- **Chaîne d'import statique et non paresseuse depuis l'entrée du bundle** : `src/index.tsx:3` → `App.tsx:1` → `DomainShell.tsx:4` → `SharedAppProviders.tsx:6` → `ClientConfigProviderEffect.tsx:1` → `useClientConfig.ts:41` → `'@/client-config/states/allowRequestsToKovaaLab CRMIcons'`, module inexistant. **Effet : l'application ne démarre pas** — aucun écran, pas même `/welcome`.
+- Répartition du motif par paquet, catalogues exclus : `twenty-front` 52 fichiers / 134 occurrences ; `twenty-ui` 0 ; `twenty-shared` 0 ; `twenty-server` 1 (chaîne de test). Le jeton sûr `KovaaLabCRM` est déjà employé par `twenty-shared` (6 fichiers) et `twenty-server` (656).
+- Recontrôlé sur `c0318cf0b` : **52 fichiers / 134 occurrences, identiques** à `bb1108377`, et `git diff` ne montre aucun changement dans `twenty-front`. Une mesure intermédiaire annonçant 60/148 était un artefact (catalogues non filtrés) ; corrigée et consignée, pas supprimée.
+
+### Couverture CI du frontend
+
+`scripts/check-crm-p0.cjs:14` se limite à `['twenty-server', 'twenty-shared']`, et aucun job de `p0-integrity.yml` ne parse, ne construit ni ne typecheck `twenty-front`. Exécuté tel quel, le script réussit : 13 954 fichiers, 50 293 imports, code 0. C'est la raison pour laquelle les 295 défauts ont survécu. Propriété respectée : aucune modification du contrôleur de Codex ; un contrôleur dédié est pris en charge dans `p0-frontend-baseline`.
+
+### Autres constats, hors P0 de syntaxe
+
+- **P2** — `RecordListEmptyState.tsx:60` navigue vers `SettingsPath.Integrations`, non routé (98 chemins routés, celui-ci absent), entrée de navigation commentée par un `TODO` en `useSettingsNavigationItems.tsx:164-170`. Décision consignée : masquer le bouton. Vérification faite, aucune page de réglages de sources distantes n'existe, donc rediriger vers « Apps » serait une fausse piste. Lot distinct après la base constructible.
+- **P2** — `kovaa-lab.com` : DNS `NXDOMAIN` et registre `No match` au 29 octobre 2026, preuves séparées. Les mentions légales de l'écran de connexion n'aboutissent pas. Ne bloque pas P0.
+- **P2** — `Inter` est la police active, conservée par décision ; exception documentée.
+- **P2** — 19 des 34 fichiers animés sans garde `prefers-reduced-motion`, aucun reset global.
+- **P3** — `ContactLink.tsx:44` : `target="_blank"` sans `rel`, seule exception sur 16 occurrences. Sévérité faible : les navigateurs actuels impliquent `noopener` et `getSafeUrl` assainit déjà l'URL.
+- **P3** — 10 chaînes de traduction corrompues par le même remplacement (`fi-FI` 6, `hu-HU` 2, `no-NO` 1, `da-DK` 1). À traiter dans une tâche i18n dédiée, les catalogues étant régénérés.
+
+Faux positifs écartés après vérification, **non** présentés comme des défauts : `AppPath.Dpa` avec `element: null` est une redirection intentionnelle (`usePageChangeEffectNavigateLocation.ts:199`, 9 cas de test) ; `Legal`, `LogicFunctions`, `NewLogicFunction` sont déclarés et non routés mais aucune interface n'y navigue ; les 4 correspondances de `herm[eè]s` dans `twenty-server` sont des artefacts de sous-chaîne.
+
+### Contrôles réellement exécutés, et limites
+
+Exécutés : parsing de 11 371 sources ; résolution des imports internes ; `scripts/check-crm-p0.cjs` tel quel (vert) et sa logique appliquée à `twenty-front` (295 échecs) ; comparaison `bb1108377` / `c0318cf0b` ; `host` et `whois` sur deux domaines ; relevés de comptage sur états, i18n, `aria-*`, `prefers-reduced-motion`, ancrages `target="_blank"`.
+
+**Non exécutés, et aucun critère correspondant n'est validé** : aucun `yarn install`, `vite build` ni `tsgo --noEmit` ; **aucun typecheck** — le nombre réel d'erreurs de typage reste inconnu et probablement supérieur à 295 ; aucun test Jest, Vitest, Storybook ou Playwright ; **aucun rendu visuel, aucune preview, aucune capture** ; aucun audit axe ou Lighthouse ; aucun test clavier, lecteur d'écran ou responsive réel ; aucun accès aux modifications locales non publiées ; aucun déploiement. Les fichiers de tests cités ont été **lus**, pas exécutés.
+
+**Aucun contrôle CI sur la PR #6** : sur `c0318cf0b`, `p0-integrity.yml` restreint `pull_request` à `branches: [main]`, donc une PR vers `chore/p0-stabilization` n'exécute aucun job, et le déclencheur `push` porte un filtre `paths` qui n'inclut pas `docs/**`. Aucun check vert n'est revendiqué.
+
+### Revue des commits Codex désignés
+
+Demandée par les critères d'acceptation : Forms `ff366e7ea` / `db4d81302` et Char `2bd457ecc`. **Non effectuée à ce stade** — elle n'est pas couverte par les mesures ci-dessus et je ne la déclare pas faite. La revue backend de la PR #7 est traitée dans la section `p0-frontend-baseline`.
+
+### Dépendances non publiées
+
+`integrated-tools` et Cal.diy sont absents de la branche : `git ls-files` filtré ne renvoie que `scripts/customer-tools.mjs`. **Non recréés.** Aucune page « Outils clients » dans `twenty-front` : ce n'est **pas une régression**, elle n'a jamais été livrée sur cette lignée. `scripts/customer-tools.mjs:59` mappe le profil `calendar` vers `apps/crm/calendar`, absent ; le script échoue explicitement en ligne 61 — comportement correct. **Aucun état « disponible » n'est déduit d'une URL configurée** ; la démonstration inverse est `kovaa-lab.com`, configuré partout et non résolu.
 
 ## Mission p0-stabilization — revue Codex de l'inventaire Claude
 
@@ -52,9 +100,9 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 - reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
 - evidence: docs/verification/frontend-inventory-claude.md:256 déduit « le domaine n'est pas enregistré » de NXDOMAIN. Ce résultat porte sur le DNS ; aucun contrôle de registre n'est fourni. Voir RFC 2308, section 2.1 : https://www.rfc-editor.org/rfc/rfc2308.html#section-2.1.
 - expected correction: conserver le constat de résolution DNS et de lien injoignable à la date du test ; retirer la conclusion d'enregistrement ou la prouver séparément via le registre. Ne pas enregistrer ni remplacer un domaine dans cette mission documentaire.
-- status: open
-- fix commit: en attente
-- recheck evidence: en attente de la correction documentaire.
+- status: corrected by claude, awaiting codex recheck
+- fix commit: d2700a7c091861da0ed0951612f21cfd37aa62d8 (compléments de ad140e2fa445544e2f59b906067862f13d8eda7e)
+- recheck evidence: correction acceptée et renforcée. Déduire « non enregistré » du seul `NXDOMAIN` était un raccourci fautif : `NXDOMAIN` est un résultat DNS et un domaine peut être enregistré sans délégation (RFC 2308 s2.1). Les documents séparent désormais trois affirmations qui ne doivent jamais fusionner — le DNS ne résout pas (prouvé par `host`), le registre ne connaît pas le domaine (prouvé séparément par `whois`, contrôle non reproduit par Codex, aucune disponibilité commerciale certifiée), et les pages légales sont accessibles, ce qu'aucune des deux preuves ne soutient et qu'aucun enregistrement ne prouverait. Le constat 4.6 ne se referme donc qu'après une requête réelle sur chaque URL affichée. Aucun domaine enregistré ni remplacé.
 
 ### P0-DOC-002
 - reviewer: codex
@@ -63,9 +111,9 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 - reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
 - evidence: docs/handoff/frontend-backlog.md:31 parle du champ serveur allowRequestsToTwentyIcons. Sur la base inspectée et la base courante, client-config.entity.ts:423 expose allowRequestsToKovaaLabCRMIcons via @Field sans alias, et client-config.service.ts:297 renvoie cette même clé.
 - expected correction: décrire le contrat réel allowRequestsToKovaaLabCRMIcons ; le frontend et sa génération doivent s'y aligner, sans changement de schéma backend ajouté pour ce motif. Conserver les noms de fichiers Twenty* ; cela ne définit pas le nom du champ GraphQL.
-- status: open
-- fix commit: en attente
-- recheck evidence: sources backend examinées ; correction du backlog attendue.
+- status: corrected by claude, awaiting codex recheck
+- fix commit: d2700a7c091861da0ed0951612f21cfd37aa62d8 (compléments de ad140e2fa445544e2f59b906067862f13d8eda7e)
+- recheck evidence: correction acceptée — elle corrigeait une **erreur de fond** de mon backlog, qui désignait `allowRequestsToTwentyIcons` comme le champ serveur et proposait d'y revenir ; appliqué, cela aurait cassé le contrat GraphQL. Vérifié par moi sur `c0318cf0b` : `client-config.entity.ts:423` expose `allowRequestsToKovaaLabCRMIcons` via `@Field` sans alias, et `services/client-config.service.ts:297` renvoie cette même clé. Le backlog distingue maintenant trois choses que le remplacement global avait fusionnées : le champ GraphQL et les propriétés qui le portent (`allowRequestsToKovaaLabCRMIcons`), le symbole d'état frontend (`allowRequestsToKovaaLabCRMIconsState`), et le nom de fichier (`allowRequestsToTwentyIcons.ts`, **inchangé**, qui ne définit ni l'un ni l'autre). Aucun changement de schéma backend demandé. `src/generated-metadata/graphql.ts:1384` est un fichier généré dont le schéma porte déjà la bonne valeur : la voie propre est la régénération, pas un patch manuel.
 
 ### P0-DOC-003
 - reviewer: codex
@@ -74,9 +122,9 @@ Rapport attendu de Claude sur sa branche d'inventaire. Cette absence de rapport 
 - reviewed revision: 1501776ca799b8ce1720fc330ff04dbf00598b39
 - evidence: docs/verification/frontend-inventory-claude.md:487 évoque un renommage du marqueur SDK. git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts montre déjà la valeur __kovaa-labHttpResponse. La reprise conserve exactement cette chaîne ; elle corrige la syntaxe de propriété en la citant. Le renommage camelCase local a été volontairement écarté.
 - expected correction: indiquer la conservation de la valeur de protocole relative à la base historique ; distinguer cette preuve de toute compatibilité avec des SDK externes, non vérifiée ici. Aucune migration de marqueur à entreprendre.
-- status: open
-- fix commit: en attente
-- recheck evidence: comparaison de la constante historique/courante et test de compatibilité shared/SDK vert dans CI 40969724576 ; correction du rapport attendue.
+- status: corrected by claude, awaiting codex recheck
+- fix commit: d2700a7c091861da0ed0951612f21cfd37aa62d8 (compléments de ad140e2fa445544e2f59b906067862f13d8eda7e)
+- recheck evidence: correction acceptée — mon rapport se trompait deux fois : il présentait le marqueur comme un renommage opéré par ce projet, et le plaçait dans le lot P0. Vérifié par moi : `git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts` porte dès la **ligne 1** `export const LOGIC_FUNCTION_HTTP_RESPONSE_MARKER = '__kovaa-labHttpResponse';`. La valeur **préexiste** au remplacement global et est **préservée**. Le défaut de syntaxe réel est la **ligne 4** du même fichier, `__kovaa-labHttpResponse: true;` en propriété de type non quotée — un tiret ne peut figurer dans un nom de propriété nu ; la réparation cite la propriété en conservant la chaîne à l'identique. Aucune migration de marqueur. La conservation relativement à la base historique est prouvée et le test shared/SDK est vert en CI 40969724576 ; la compatibilité avec un SDK publié hors de ce dépôt n'a été examinée par personne et reste **inconnue**, hors P0.
 
 ## Mission p0-frontend-baseline — agent: codex
 
