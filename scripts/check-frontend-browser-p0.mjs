@@ -163,16 +163,29 @@ async function checkHermesDashboard(page, name) {
     assert.equal(total.contributingStructures, 1);
     assert.equal(total.totalStructures, 1);
   }
-  await page.getByText('All my companies', { exact: true }).first().waitFor({ state: 'visible' });
-  const totalSection = page.getByRole('heading', { name: 'Across your companies', exact: true }).locator('xpath=ancestor::*[@data-align][1]');
-  const activeSection = page.getByRole('heading', { name: `${fixture.workspace.displayName} — active company`, exact: true }).locator('xpath=ancestor::*[@data-align][1]');
-  for (const [section, metrics] of [[totalSection, dashboard.totals], [activeSection, row.metrics]]) {
-    for (const metric of metrics) {
-      const card = section.getByText(labels[metric.key], { exact: true }).locator('..');
-      await card.getByText(new Intl.NumberFormat('en-US').format(metric.value), { exact: true }).first().waitFor({ state: 'visible' });
+  // Existing table primitives expose these hooks; copy and card markup are not
+  // contracts. Column ordering follows the actual metadata totals response.
+  const activeRow = page.getByText(row.structure.displayName, { exact: true }).locator('xpath=ancestor::*[@data-table-row][1]');
+  await activeRow.waitFor({ state: 'visible', timeout: 30_000 });
+  await activeRow.getByText('Current', { exact: true }).waitFor({ state: 'visible' });
+  const headerRow = page.locator('[data-table-row]:has([data-table-header])');
+  assert.equal(await headerRow.count(), 1, 'P1 Hermes smoke: expected one structures table');
+  const table = headerRow.locator('..');
+  const headers = await headerRow.locator('[data-table-header]').allTextContents();
+  assert.equal(headers.length, 5);
+  assert.deepEqual(headers.slice(1).map((value) => value.trim()), dashboard.totals.map(({ key }) => labels[key]));
+  const bodyRows = table.locator('[data-table-row]:not(:has([data-table-header]))');
+  assert.equal(await bodyRows.count(), dashboard.structures.length + 1);
+  const totalRow = bodyRows.first();
+  const metricsByKey = new Map(row.metrics.map((metric) => [metric.key, metric]));
+  for (const [tableRow, metrics] of [[totalRow, dashboard.totals], [activeRow, dashboard.totals.map(({ key }) => metricsByKey.get(key))]]) {
+    const cells = tableRow.locator(':scope > div');
+    assert.equal(await cells.count(), 5);
+    for (const [index, metric] of metrics.entries()) {
+      await cells.nth(index + 1).getByText(new Intl.NumberFormat('en-US').format(metric.value), { exact: true }).first().waitFor({ state: 'visible' });
     }
   }
-  assert.equal(await page.getByText('These figures could not be loaded.', { exact: false }).count(), 0);
+  assert.equal(await page.getByRole('alert').count(), 0, 'P1 Hermes smoke: an error state is displayed');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1), false, `${name}: structures horizontal overflow`);
   await page.screenshot({ path: path.join(screenshots, `${name}-hermes-structures.png`), fullPage: true });
   hermesEvidence.push({ viewport: name, path: STRUCTURES_PATH, workspaceId: fixture.workspace.id, generatedAt: dashboard.generatedAt, totals: dashboard.totals, active: row.structure.isCurrent });
