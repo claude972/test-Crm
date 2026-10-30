@@ -451,7 +451,7 @@ Capacités présentes/proposées/manquantes/non configurées/non testées distin
 
 ### Claude assignment — V3 maquettes détaillées
 - agent: claude
-- status: pending
+- status: in_progress — préparation acceptée ; production détaillée après START root.
 - assigned session: 8f3db32e-4613-45e3-94f3-16e664f3cbfc, propriétaire exclusif ; veilles et autres agents ne dupliquent pas le worker.
 - branch: feat/claude-hermes-v2-ui
 - checkout: /Volumes/Stockage/dev/hermes-crm/v2-claude-maquettes
@@ -460,13 +460,14 @@ Capacités présentes/proposées/manquantes/non configurées/non testées distin
 - deliverables: maquettes détaillées françaises inspirées Pipedrive : WA médias entrants/sortants et vocaux avec enregistrement/préécoute/annulation, vraie boîte e-mail, modes AUTO/ASSISTED/OFF globaux et locaux, centre Réglages, provenance/qualification prospects multicanale, pipeline et campagne SMTP. Démonstration explicitement fictive sans API.
 - acceptance criteria: navigable desktop et 390px ; états chargement/vide/erreur/non configuré/disabled/succès applicables ; clavier/focus/labels/contraste ; capacités simulées identifiées, zéro réseau fournisseur/secret/envoi ; aperçu des pièces jointes/vocaux et validation humaine de brouillon compréhensibles ; captures réelles et rapport des limites ; commit/push strictement dans l’ownership ; pas de câblage avant validation visuelle.
 - verification report: docs/design/hermes-v3/README.md, puis synthèse publiée par root dans CORRECTIONS.md section HERMES-V3-AUDIT-MAQUETTES-20261030/claude.
-- implementation revision: aucune V3 livrée à la publication.
+- implementation revision: aucune maquette V3 livrée à ce checkpoint.
 - preview: aucune V3 vérifiée ; root publie une preview statique isolée après livraison revue.
-- blockers: dispatch/acceptation à constater ; aucun choix visuel détaillé validé. Si aucune piste V2 choisie n’est établie, documenter l’hypothèse réversible sans prétendre à une approbation.
+- dispatch: root a envoyé le prompt en deux étapes via CLI session2418 vers Claude8f3 ; transcript19:08UTC confirme lecture mission80a40e6/prompt/plan/audit, préparation seule jusqu’au START.
+- blockers: aucun choix visuel détaillé validé. Si aucune piste V2 choisie n’est établie, documenter l’hypothèse réversible sans prétendre à une approbation.
 
 ### Codex assignment — V3 audit et contrats
 - agent: codex
-- status: pending
+- status: in_progress — phase 0 documentaire validée ; phase 1 contrats lancée.
 - branch: feat/codex-hermes-v2-core
 - checkout: /Volumes/Stockage/dev/hermes-crm/v2-codex-contracts
 - starting revision: 1c6760cfc
@@ -474,9 +475,9 @@ Capacités présentes/proposées/manquantes/non configurées/non testées distin
 - deliverables: audit source/version/docs officielles et Allowed APIs ; contrats explicitement cibles pour médias/messagerie/MCP et modes ; provenance/qualification/déduplication, pipeline natif, lien boîte exacte SMTP/campagne, droits/licence et critères de recette.
 - acceptance criteria: chemins/lignes/signatures et SHA sources prouvés ; distinguer capacités actuelles et proposées ; ASSISTED et OFF complets distincts ; isolation A/B/C, révocation, concurrence/epochs, transitions en vol et absence de retry aveugle ; API médias/version cible non prouvée reste à définir ; aucun changement code/DB/provider ; limites et vérifications documentaires honnêtes.
 - verification report: trois livrables attribués ci-dessus, puis synthèse publiée par root dans CORRECTIONS.md section HERMES-V3-AUDIT-MAQUETTES-20261030/codex.
-- implementation revision: aucune V3 livrée à la publication.
+- implementation revision: audit phase 0 publié au 095582346e227d627437560c66445e9a9211bcb9 ; contrats phase 1 en préparation.
 - preview: sans objet pour contrats ; aucune recette CRM V3 revendiquée.
-- blockers: versions cibles/connexions/licence à établir sans lecture de secrets ni nouvel achat ; dispatch et revendication réels à consigner.
+- blockers: connexions et version effective runtime non vérifiées ; conditions licence/feature/identité mailbox à confirmer en recette, sans lecture de secrets ni nouvel achat. Phase 0 validée documentairement, aucun live validé.
 
 ### Root — coordination et vérification
 
