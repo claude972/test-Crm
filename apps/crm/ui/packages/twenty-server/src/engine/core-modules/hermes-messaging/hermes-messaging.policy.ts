@@ -61,12 +61,22 @@ export const messagingEventSchema = z
       .min(1)
       .max(512)
       .refine((value) => !/[\x00-\x20\x7f]/.test(value)),
-    text: messagingText,
+    text: z
+      .string()
+      .max(20_000)
+      .refine((value) => !value.includes('\0')),
+    kind: z.enum(['IMAGE', 'VIDEO', 'AUDIO']).optional(),
+    mediaAssetId: z.string().uuid().optional(),
     occurredAt: z.string().datetime({ offset: true }),
     subject: z.string().max(512).optional(),
     providerMetadata: providerMetadataSchema.optional(),
   })
-  .strict();
+  .strict()
+  .refine((event) =>
+    event.kind
+      ? !!event.mediaAssetId
+      : messagingText.safeParse(event.text).success,
+  );
 export const normalizeContactHandle = (
   channel: HermesMessagingChannel,
   value: string,

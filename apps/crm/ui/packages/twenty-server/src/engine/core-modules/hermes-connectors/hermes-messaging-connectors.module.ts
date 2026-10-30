@@ -1,3 +1,4 @@
+import { HermesMediaService } from 'src/engine/core-modules/hermes-media/hermes-media.service';
 import { Module, type OnModuleInit } from '@nestjs/common';
 
 import { EvolutionMessagesAdapter } from 'src/engine/core-modules/hermes-connectors/evolution/messages/evolution-messages.adapter';
@@ -32,15 +33,26 @@ import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/
     },
     {
       provide: EVOLUTION_WEBHOOK_RECEIVER,
-      inject: [KovaaLabCRMConfigService, HermesMessagingService],
+      inject: [
+        KovaaLabCRMConfigService,
+        HermesMessagingService,
+        HermesMediaService,
+        EvolutionMessagesAdapter,
+      ],
       useFactory: (
         config: KovaaLabCRMConfigService,
         inbox: HermesMessagingService,
+        media: HermesMediaService,
+        evolution: EvolutionMessagesAdapter,
       ) =>
         new EvolutionWebhookReceiver(
           config.get('HERMES_EVOLUTION_CONNECTIONS'),
           config.get('HERMES_EVOLUTION_WEBHOOK_SECRETS'),
           (event) => inbox.ingest(event),
+          async (input) => {
+            const content = await evolution.receiveMedia(input);
+            return media.receive({ ...input, ...content });
+          },
         ),
     },
   ],

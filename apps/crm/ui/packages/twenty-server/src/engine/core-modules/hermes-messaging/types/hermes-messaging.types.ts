@@ -20,6 +20,9 @@ export type HermesMessagingProbe = {
     | 'UNAVAILABLE';
   canSend?: boolean;
   canSync?: boolean;
+  canSendMedia?: boolean;
+  canReceiveMedia?: boolean;
+  canRecordVoice?: boolean;
   errorCode?: string;
 };
 export type HermesMessagingSend = {
@@ -29,6 +32,12 @@ export type HermesMessagingSend = {
   contactHandle: string;
   text: string;
   clientRequestId: string;
+  media?: {
+    kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
+    mimeType: string;
+    filename: string;
+    bytes: Buffer;
+  };
 };
 export type HermesMessagingReceipt = {
   providerMessageId: string;
@@ -51,6 +60,8 @@ export type HermesMessagingEvent = {
   occurredAt: string;
   subject?: string;
   providerMetadata?: HermesMessagingProviderMetadata;
+  kind?: 'IMAGE' | 'VIDEO' | 'AUDIO';
+  mediaAssetId?: string;
 };
 export type HermesInboxPageInput = { limit?: number; cursor?: string };
 export type HermesInboxConversationsInput = HermesInboxPageInput & {
@@ -105,4 +116,12 @@ export type HermesMessagingProviderMetadata = {
   mailbox?: string;
   uidValidity?: string | number;
   uid?: number;
+};
+
+export type HermesInboxReplyV3Input = {
+  conversationId: string;
+  clientRequestId: string;
+  kind: 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO';
+  text: string;
+  assetId?: string;
 };
