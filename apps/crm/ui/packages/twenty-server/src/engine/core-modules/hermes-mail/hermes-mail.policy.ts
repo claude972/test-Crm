@@ -108,7 +108,7 @@ export async function parseHermesMail(input: {
     mailMessageId(parsed.inReplyTo) ??
     messageId;
   const date = new Date(
-    String(parsed.date ?? input.internalDate ?? new Date().toISOString()),
+    String(input.internalDate ?? parsed.date ?? new Date().toISOString()),
   );
   const text = (
     parsed.text ??

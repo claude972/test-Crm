@@ -131,6 +131,20 @@ describe('Hermes native mailbox policy', () => {
     expect(first?.providerMetadata?.rfcMessageId).toBe('<reused@example.com>');
     expect(second?.text).toBe('Changed');
   });
+  it('uses authenticated IMAP arrival time before a forged future Date header', async () => {
+    const event = await parseHermesMail({
+      workspaceId,
+      connectionId: 'mail-a',
+      mailbox: 'INBOX',
+      uid: 12,
+      uidValidity: '456',
+      internalDate: '2026-10-29T12:00:00.000Z',
+      source: Buffer.from(
+        'From: person@example.com\r\nDate: Fri, 30 Oct 2037 12:00:00 +0000\r\n\r\nOld incoming message',
+      ),
+    });
+    expect(event?.occurredAt).toBe('2026-10-29T12:00:00.000Z');
+  });
   it('does not execute or retain HTML markup', async () => {
     const event = await parse(
       'From: person@example.com\r\nContent-Type: text/html\r\n\r\n<p>Hello</p><img src="https://example.com/tracker">',
