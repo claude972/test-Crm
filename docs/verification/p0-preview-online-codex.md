@@ -30,3 +30,12 @@ Le premier déploiement du nouveau projet a été automatiquement classé produc
 La protection Vercel est conservée : le propriétaire peut devoir se connecter à son compte Vercel avant la connexion CRM. Les contrôles API utilisent le CLI authentifié du même compte. Le navigateur cloud a vérifié accueil/formulaire ; l'onboarding et le CRUD ci-dessus ont été vérifiés par API, pas par clics dans la preview protégée.
 
 PWA existante conservée : manifeste et icônes servis, mais pas de test d'installation sur appareil ni de mode hors ligne livré. Quick Tunnel ne transporte pas SSE : fonctions temps réel limitées. Les applications Char/Forms et les nouvelles réparations Char de Claude ne sont pas déployées par cette preview CRM. Les constats de confidentialité du cache de métadonnées, les corrections Char restantes et la consolidation Git restent documentés dans CORRECTIONS.md ; cette livraison ne clôt pas tout P0.
+
+
+## Correctif d'accès propriétaire — vérification navigateur réelle
+
+Le propriétaire signale que le lien initial n'aboutit pas au CRM. Ouverture directe reproduite : écran de connexion Vercel. Les tests du CLI authentifié ne suffisaient donc pas à prouver l'accès du destinataire ; cette limite de livraison est corrigée.
+
+Un lien de partage Vercel a été créé via l'API officielle pour le seul déploiement dpl_C3sUicextthEnH2vofmGQVhLzR5r, avec TTL borné à l'expiration de la session. La protection globale du projet reste active. Le jeton de partage est conservé hors Git et transmis au propriétaire dans le chat, jamais dans cette documentation publique.
+
+Test en navigateur initialement sans session Vercel : lien de partage -> accueil CRM -> adresse du compte synthétique -> mot de passe -> connexion réussie -> liste Companies visible avec les cinq sociétés d'exemple. Capture locale preview-signed-in-40988179084.jpg remise au propriétaire. Le compte de démonstration était déjà provisionné par le smoke API ; ce test valide désormais sa connexion et le rendu des données dans la preview déployée, pas seulement l'accueil de l'artefact CI.
