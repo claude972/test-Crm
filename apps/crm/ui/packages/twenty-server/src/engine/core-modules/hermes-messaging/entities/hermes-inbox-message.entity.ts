@@ -55,7 +55,8 @@ export class HermesInboxMessageEntity {
   @Column({ type: 'uuid', nullable: true }) clientRequestId: string | null;
   @Column({ type: 'varchar', length: 16 }) direction: HermesMessagingDirection;
   @Column({ type: 'varchar', length: 24 }) status: HermesMessagingStatus;
-  @Column({type:'jsonb',nullable:true}) providerMetadata:HermesMessagingProviderMetadata|null;
+  @Column({ type: 'jsonb', nullable: true })
+  providerMetadata: HermesMessagingProviderMetadata | null;
   @Column({ type: 'text' }) text: string;
   @Column({ type: 'varchar', length: 64 }) contentDigest: string;
   @Column({ type: 'timestamptz' }) occurredAt: Date;

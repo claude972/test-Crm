@@ -385,6 +385,19 @@ export class HermesMessagingService {
     );
     let mode = input.mode,
       status = mode === 'MANUAL' ? 'MANUAL' : 'ACTIVE';
+    if (
+      mode === 'AUTO' &&
+      (await this.dataSource
+        .getRepository(HermesInboxMessageEntity)
+        .countBy({
+          workspaceId: actor.workspaceId,
+          conversationId: conversation.id,
+          errorCode: 'CONTACT_HANDLE_CHANGED',
+        }))
+    ) {
+      mode = 'MANUAL';
+      status = 'UNAVAILABLE';
+    }
     if (mode === 'AUTO') {
       const adapter = this.registry.get(conversation.channel);
       if (!adapter) {
@@ -596,9 +609,13 @@ export class HermesMessagingService {
         conversationId,
         messageId,
         grant,
-        error instanceof ConflictException
+        error instanceof ConflictException &&
+          error.message === 'BOT_HUMAN_HANDOFF'
           ? 'BOT_HUMAN_HANDOFF'
-          : 'BOT_UNAVAILABLE',
+          : error instanceof ConflictException &&
+              error.message === 'CONVERSATION_CONTACT_REVIEW_REQUIRED'
+            ? 'BOT_CONTACT_REVIEW_REQUIRED'
+            : 'BOT_UNAVAILABLE',
       );
     }
   }
@@ -692,7 +709,7 @@ export class HermesMessagingService {
           channel: event.channel,
           providerConnectionId: event.providerConnectionId,
           providerMessageId: event.providerMessageId,
-        providerMetadata:event.providerMetadata??null,
+          providerMetadata: event.providerMetadata ?? null,
           clientRequestId: null,
           direction: event.direction,
           status: event.direction === 'INBOUND' ? 'RECEIVED' : 'ACCEPTED',
@@ -843,17 +860,15 @@ export class HermesMessagingService {
       )
         throw new ConflictException('BOT_HUMAN_HANDOFF');
     } catch (error) {
-      await this.dataSource
-        .getRepository(HermesInboxMessageEntity)
-        .update(
-          { id, workspaceId: actor.workspaceId },
-          {
-            status: 'FAILED',
-            errorCode: botGrant
-              ? 'BOT_HANDOFF_OR_ACCESS_REVOKED'
-              : 'ACCESS_REVOKED',
-          },
-        );
+      await this.dataSource.getRepository(HermesInboxMessageEntity).update(
+        { id, workspaceId: actor.workspaceId },
+        {
+          status: 'FAILED',
+          errorCode: botGrant
+            ? 'BOT_HANDOFF_OR_ACCESS_REVOKED'
+            : 'ACCESS_REVOKED',
+        },
+      );
       throw error;
     }
     let receipt;
