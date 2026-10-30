@@ -1,5 +1,8 @@
 import {
   Injectable,
+  BadRequestException,
+  Inject,
+  Optional,
   type OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -9,6 +12,10 @@ import { randomUUID } from 'node:crypto';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
 import { IsNull, Raw, Repository } from 'typeorm';
 
+import PostalMime, { type Email } from 'postal-mime';
+import { getSendableEmailHandles } from 'kovaa-lab-shared/utils';
+import { type HermesMediaService } from 'src/engine/core-modules/hermes-media/hermes-media.service';
+import { messagingId } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.policy';
 import { EmailConnectionSecurity } from 'src/engine/core-modules/imap-smtp-caldav-connection/enums/email-connection-security.enum';
 import { HermesMailCursorEntity } from 'src/engine/core-modules/hermes-mail/hermes-mail-cursor.entity';
 import {
@@ -36,9 +43,11 @@ import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { ImapClientProvider } from 'src/modules/messaging/message-import-manager/drivers/imap/providers/imap-client.provider';
+import { sanitizeMailHtml } from 'src/engine/core-modules/hermes-mail/hermes-mail-v4.policy';
+import { getConnectedAccountSendableHandleOrThrow } from 'src/modules/messaging/message-outbound-manager/utils/get-connected-account-sendable-handle-or-throw.util';
 import { SmtpClientProvider } from 'src/modules/messaging/message-import-manager/drivers/smtp/providers/smtp-client.provider';
 
-const MAX_MIME_BYTES = 262144;
+const MAX_MIME_BYTES = 36 * 1024 * 1024;
 const MAX_BATCH = 50;
 const unavailable = () =>
   new ServiceUnavailableException('MAIL_CONNECTION_UNAVAILABLE');
@@ -86,6 +95,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     private readonly inbox: HermesMessagingService,
     private readonly registry: HermesMessagingAdapterRegistry,
     private readonly redis: RedisClientService,
+    @Optional()
+    @Inject('HERMES_MEDIA_SERVICE')
+    private readonly media?: HermesMediaService,
   ) {}
 
   onModuleInit() {
@@ -96,9 +108,10 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     return readHermesMailBindings(this.config.get('HERMES_MAIL_CONNECTIONS'));
   }
 
-  private async connection(workspaceId: string): Promise<{
+  async connection(workspaceId: string): Promise<{
     binding: HermesMailBinding;
     account: ConnectedAccountEntity;
+    actor: HermesMessagingActor;
   } | null> {
     const binding = this.bindings().get(workspaceId);
     if (!binding) return null;
@@ -129,7 +142,11 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       userWorkspaceId: member.id,
       userId: member.userId,
     });
-    return { binding, account };
+    return {
+      binding,
+      account,
+      actor: { workspaceId, userWorkspaceId: member.id, userId: member.userId },
+    };
   }
 
   async probe(workspaceId: string): Promise<HermesMessagingProbe> {
@@ -151,6 +168,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       return {
         status: verified ? 'AVAILABLE' : 'CONFIGURED_UNVERIFIED',
         canSync: true,
+        canComposeRichEmail:
+          verified &&
+          secure(item.account.connectionParameters?.SMTP?.connectionSecurity),
         canSend: secure(
           item.account.connectionParameters?.SMTP?.connectionSecurity,
         ),
@@ -274,40 +294,25 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
         { uid: true, envelope: true, size: true, internalDate: true },
         { uid: true },
       );
-      const small = summaries
-        .filter((entry) => (entry.size ?? MAX_MIME_BYTES + 1) <= MAX_MIME_BYTES)
-        .map((entry) => entry.uid);
-      const bodies = small.length
-        ? await client.fetchAll(
-            small.join(','),
-            {
-              uid: true,
-              source: { maxLength: MAX_MIME_BYTES },
-              internalDate: true,
-            },
-            { uid: true },
-          )
-        : [];
-      const byUid = new Map(bodies.map((entry) => [entry.uid, entry]));
       for (const entry of summaries.sort((a, b) => a.uid - b.uid)) {
-        const body = byUid.get(entry.uid);
-        let source = body?.source;
-        if (!source || (entry.size ?? 0) > MAX_MIME_BYTES) {
+        assertLive();
+        if ((entry.size ?? MAX_MIME_BYTES + 1) > MAX_MIME_BYTES) {
           result.skipped++;
-          const sender = mailAddress(entry.envelope?.from?.[0]?.address);
-          if (!sender) continue;
-          const id = mailMessageId(entry.envelope?.messageId);
-          source = Buffer.from(
-            'From: ' +
-              sender +
-              '\r\n' +
-              (id ? 'Message-ID: ' + id + '\r\n' : '') +
-              'Subject: ' +
-              (entry.envelope?.subject ?? '')
-                .replace(/[\r\n\x00]/g, ' ')
-                .slice(0, 200) +
-              '\r\n\r\n[Email body unavailable or larger than the safe import limit; open the original mailbox.]',
-          );
+          continue;
+        }
+        const body = await client.fetchOne(
+          String(entry.uid),
+          {
+            uid: true,
+            source: { maxLength: MAX_MIME_BYTES },
+            internalDate: true,
+          },
+          { uid: true },
+        );
+        const source = body && body.source;
+        if (!source || source.length > MAX_MIME_BYTES) {
+          result.skipped++;
+          continue;
         }
         let event;
         try {
@@ -320,6 +325,7 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
             uidValidity: validity,
             internalDate: entry.internalDate,
             ownAddress: account.handle,
+            ownAddresses: getSendableEmailHandles(account),
           });
         } catch {
           result.skipped++;
@@ -374,7 +380,16 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
           result.replayed++;
           continue;
         }
-        const saved = await this.inbox.ingest(event);
+        const saved = await this.observe(
+          item.actor,
+          {
+            folder: binding.mailbox,
+            uid: String(entry.uid),
+            uidValidity: validity,
+          },
+          await PostalMime.parse(source),
+          false,
+        );
         if (saved.replay) result.replayed++;
         else result.received++;
       }
@@ -400,7 +415,330 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     }
   }
 
+  async observe(
+    actor: HermesMessagingActor,
+    scope: { folder: string; uid: string; uidValidity: string },
+    parsed: Email,
+    suppressAutomation = true,
+  ) {
+    await this.access.assertAllowed(actor);
+    const item = await this.connection(actor.workspaceId);
+    if (!item) throw unavailable();
+    const event = await parseHermesMail({
+      source: Buffer.alloc(0),
+      parsed,
+      workspaceId: actor.workspaceId,
+      connectionId: item.binding.connectionId,
+      mailbox: scope.folder,
+      uid: Number(scope.uid),
+      uidValidity: scope.uidValidity,
+      ownAddress: item.account.handle,
+      ownAddresses: getSendableEmailHandles(item.account),
+    });
+    if (!event) throw unavailable();
+    const own = new Set(getSendableEmailHandles(item.account).map(mailAddress));
+    if (own.has(mailAddress(parsed.from?.address))) {
+      const external = [...(parsed.to ?? []), ...(parsed.cc ?? [])]
+        .flatMap((address) => address.group ?? [address])
+        .map((address) => mailAddress(address.address))
+        .find((address) => address && !own.has(address));
+      if (!external) throw unavailable();
+      event.contactHandle = external;
+      event.direction = 'OUTBOUND';
+    }
+    const conversationId = messagingId(
+      actor.workspaceId,
+      'EMAIL',
+      item.binding.connectionId,
+      event.providerConversationId,
+    );
+    const attachments = [];
+    let total = 0;
+    for (const [index, attachment] of parsed.attachments.entries()) {
+      const content =
+        typeof attachment.content === 'string'
+          ? Buffer.from(
+              attachment.content,
+              attachment.encoding === 'base64' ? 'base64' : 'utf8',
+            )
+          : Buffer.from(
+              attachment.content instanceof Uint8Array
+                ? attachment.content
+                : new Uint8Array(attachment.content),
+            );
+      const kind = attachment.mimeType.startsWith('image/') ? 'IMAGE' : 'FILE';
+      if (
+        !this.media ||
+        index >= 10 ||
+        total + content.length > 25 * 1024 * 1024
+      ) {
+        attachments.push({
+          index,
+          filename: attachment.filename,
+          mimeType: attachment.mimeType,
+          state: 'UNSUPPORTED',
+        });
+        continue;
+      }
+      try {
+        await this.access.assertAllowed(actor);
+        const asset = await this.media.receive({
+          workspaceId: actor.workspaceId,
+          conversationId,
+          providerConnectionId: item.binding.connectionId,
+          providerMessageId: event.providerMessageId + ':part:' + index,
+          kind,
+          mimeType: attachment.mimeType,
+          bytes: content,
+          filename: attachment.filename ?? 'attachment',
+        });
+        total += content.length;
+        attachments.push({
+          index,
+          assetId: asset.assetId,
+          filename: attachment.filename,
+          mimeType: attachment.mimeType,
+          contentId: attachment.contentId ?? null,
+          state: 'READY',
+        });
+      } catch (error) {
+        if (!(error instanceof BadRequestException)) throw error;
+        attachments.push({
+          index,
+          filename: attachment.filename,
+          mimeType: attachment.mimeType,
+          state: 'UNSUPPORTED',
+        });
+      }
+    }
+    await this.access.assertAllowed(actor);
+    const saved = await this.inbox.ingest(
+      {
+        ...event,
+        kind: 'EMAIL',
+        attachmentIds: attachments.flatMap((attachment) =>
+          attachment.assetId ? [attachment.assetId] : [],
+        ),
+      },
+      {
+        suppressAutomation:
+          suppressAutomation || event.direction === 'OUTBOUND',
+        observedOnly: suppressAutomation || event.direction === 'OUTBOUND',
+      },
+    );
+    return {
+      ...saved,
+      contactHandle: event.contactHandle,
+      direction: event.direction,
+      attachments,
+      providerConnectionId: item.binding.connectionId,
+    };
+  }
+
+  async draftConversation(
+    actor: HermesMessagingActor,
+    input: { clientRequestId: string; contactHandle: string; subject: string },
+  ) {
+    await this.access.assertAllowed(actor);
+    const item = await this.connection(actor.workspaceId);
+    if (!item) throw unavailable();
+    return this.inbox.ensureEmailDraftConversation(actor, {
+      ...input,
+      providerConnectionId: item.binding.connectionId,
+    });
+  }
+
+  async cloneAttachment(
+    actor: HermesMessagingActor,
+    input: {
+      sourceConversationId: string;
+      sourceAssetId: string;
+      targetConversationId: string;
+    },
+  ) {
+    await this.access.assertAllowed(actor);
+    const item = await this.connection(actor.workspaceId);
+    if (!item || !this.media) throw unavailable();
+    for (const id of [input.sourceConversationId, input.targetConversationId]) {
+      if (
+        !(await this.conversations.findOneBy({
+          workspaceId: actor.workspaceId,
+          id,
+          channel: 'EMAIL',
+          providerConnectionId: item.binding.connectionId,
+        }))
+      )
+        throw unavailable();
+    }
+    return this.media.cloneForConversation(actor, input);
+  }
+
+  async draftAttachments(
+    actor: HermesMessagingActor,
+    conversationId: string,
+    attachmentIds: string[],
+  ) {
+    if (!this.media && attachmentIds.length) throw unavailable();
+    if (
+      attachmentIds.length > 10 ||
+      new Set(attachmentIds).size !== attachmentIds.length
+    )
+      throw new BadRequestException('MAIL_INVALID_ATTACHMENTS');
+    const attachments = [];
+    let total = 0;
+    for (const assetId of attachmentIds) {
+      const { bytes, asset } = await this.media!.bytes(actor, {
+        conversationId,
+        assetId,
+      });
+      total += bytes.length;
+      if (total > 25 * 1024 * 1024)
+        throw new BadRequestException('MAIL_ATTACHMENTS_TOO_LARGE');
+      attachments.push({
+        filename: asset.filename,
+        contentType: asset.mimeType,
+        content: bytes,
+      });
+    }
+    return attachments;
+  }
+
+  async replyRich(
+    actor: HermesMessagingActor,
+    input: {
+      conversationId: string;
+      clientRequestId: string;
+      envelope: NonNullable<HermesMessagingSend['email']>;
+      attachmentIds: string[];
+    },
+  ) {
+    await this.access.assertAllowed(actor);
+    const item = await this.connection(actor.workspaceId);
+    const conversation =
+      item &&
+      (await this.conversations.findOneBy({
+        workspaceId: actor.workspaceId,
+        id: input.conversationId,
+        channel: 'EMAIL',
+        providerConnectionId: item.binding.connectionId,
+      }));
+    if (!item || !conversation) throw unavailable();
+    getConnectedAccountSendableHandleOrThrow({
+      connectedAccount: item.account,
+      requestedFromHandle: input.envelope.from,
+    });
+    return this.inbox.replyEmail(actor, input);
+  }
+
+  private async sendRich(
+    input: HermesMessagingSend,
+  ): Promise<HermesMessagingReceipt> {
+    const envelope = input.email;
+    const item = await this.connection(input.workspaceId);
+    if (
+      !envelope ||
+      !item ||
+      item.binding.connectionId !== input.providerConnectionId ||
+      !secure(item.account.connectionParameters?.SMTP?.connectionSecurity)
+    )
+      throw unavailable();
+    const sender = mailAddress(
+      getConnectedAccountSendableHandleOrThrow({
+        connectedAccount: item.account,
+        requestedFromHandle: envelope.from,
+      }),
+    );
+    const recipients = [
+      ...new Set(
+        [...envelope.to, ...envelope.cc, ...envelope.bcc].map(mailAddress),
+      ),
+    ];
+    if (
+      !sender ||
+      !recipients.length ||
+      recipients.some((address) => !address) ||
+      recipients.length > 50
+    )
+      throw unavailable();
+    const conversation = await this.conversations.findOneBy({
+      id: input.conversationId,
+      workspaceId: input.workspaceId,
+      channel: 'EMAIL',
+      providerConnectionId: input.providerConnectionId,
+    });
+    if (!conversation) throw unavailable();
+    const transport = await this.smtp.getClient(item.account.id, {
+      timeoutMs: 15000,
+    });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const fresh = await this.connection(input.workspaceId);
+      if (
+        !fresh ||
+        fresh.account.id !== item.account.id ||
+        fresh.account.updatedAt?.getTime() !== item.account.updatedAt?.getTime()
+      )
+        throw unavailable();
+      const result = await Promise.race([
+        transport.sendMail({
+          from: sender,
+          to: envelope.to,
+          cc: envelope.cc,
+          bcc: envelope.bcc,
+          envelope: { from: sender, to: recipients as string[] },
+          subject: envelope.subject,
+          text: envelope.text,
+          ...(envelope.html ? { html: sanitizeMailHtml(envelope.html) } : {}),
+          inReplyTo: envelope.inReplyTo,
+          references: envelope.references,
+          messageId:
+            '<' + input.clientRequestId + '@' + sender.split('@')[1] + '>',
+          attachments: (input.attachments ?? []).map((attachment) => ({
+            filename: attachment.filename,
+            contentType: attachment.mimeType,
+            content: attachment.bytes,
+            ...(envelope.inlineAttachments?.find(
+              (inline) => inline.assetId === attachment.assetId,
+            )
+              ? {
+                  cid: envelope.inlineAttachments.find(
+                    (inline) => inline.assetId === attachment.assetId,
+                  )!.cid,
+                }
+              : {}),
+          })),
+          disableFileAccess: true,
+          disableUrlAccess: true,
+        }),
+        new Promise<never>((_resolve, reject) => {
+          timer = setTimeout(() => {
+            transport.close();
+            reject(unavailable());
+          }, 30000);
+        }),
+      ]);
+      const accepted = new Set(
+        (result.accepted ?? []).map((address: string | { address: string }) =>
+          mailAddress(typeof address === 'string' ? address : address.address),
+        ),
+      );
+      const id = mailMessageId(result.messageId);
+      if (!id || !recipients.every((address) => accepted.has(address)))
+        throw unavailable();
+      return {
+        providerMessageId: mailProviderId(id),
+        acceptedAt: new Date().toISOString(),
+      };
+    } catch {
+      throw new ServiceUnavailableException('SEND_OUTCOME_UNCONFIRMED');
+    } finally {
+      if (timer) clearTimeout(timer);
+      transport.close();
+    }
+  }
+
   async send(input: HermesMessagingSend): Promise<HermesMessagingReceipt> {
+    if (input.email) return this.sendRich(input);
     const item = await this.connection(input.workspaceId);
     const recipient = mailAddress(input.contactHandle);
     if (
@@ -435,7 +773,9 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     const rootReference =
       mailMessageId(last?.providerMetadata?.references?.[0]) ??
       mailMessageId(conversation.providerConversationId);
-    const transport = await this.smtp.getClient(item.account.id, { timeoutMs: 15000 });
+    const transport = await this.smtp.getClient(item.account.id, {
+      timeoutMs: 15000,
+    });
     try {
       const pending = transport.sendMail({
         from: sender,

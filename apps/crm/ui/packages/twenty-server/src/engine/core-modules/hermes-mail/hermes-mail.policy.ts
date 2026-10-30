@@ -2,6 +2,7 @@ import { isEmail, isUUID } from 'class-validator';
 import { createHash } from 'node:crypto';
 import PostalMime from 'postal-mime';
 
+import { mailThreadKey } from 'src/engine/core-modules/hermes-mail/hermes-mail-v4.policy';
 import { type HermesMessagingEvent } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 
 export type HermesMailBinding = {
@@ -86,6 +87,7 @@ export const mailProviderId = (value: string) =>
 
 export async function parseHermesMail(input: {
   source: Buffer;
+  parsed?: Awaited<ReturnType<typeof PostalMime.parse>>;
   workspaceId: string;
   connectionId: string;
   mailbox: string;
@@ -93,8 +95,14 @@ export async function parseHermesMail(input: {
   uidValidity: string;
   internalDate?: Date | string;
   ownAddress?: string;
+  ownAddresses?: string[];
 }): Promise<HermesMessagingEvent | null> {
-  const parsed = await PostalMime.parse(input.source);
+  const parsed =
+    input.parsed ??
+    (await PostalMime.parse(input.source, {
+      maxNestingDepth: 30,
+      maxHeadersSize: 256 * 1024,
+    }));
   const sender = mailAddress(parsed.from?.address);
   if (!sender) return null;
   const physicalId =
@@ -129,7 +137,11 @@ export async function parseHermesMail(input: {
     direction: 'INBOUND',
     providerConnectionId: input.connectionId,
     providerMessageId: mailProviderId(physicalId),
-    providerConversationId: mailProviderId(thread),
+    providerConversationId:
+      mailThreadKey(
+        parsed,
+        input.ownAddresses ?? (input.ownAddress ? [input.ownAddress] : []),
+      ) ?? mailProviderId(thread),
     contactHandle: sender,
     text: content || '[Email without a text body.]',
     occurredAt: Number.isFinite(date.getTime())

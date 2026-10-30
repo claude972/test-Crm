@@ -3,6 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { HermesMailCursorEntity } from 'src/engine/core-modules/hermes-mail/hermes-mail-cursor.entity';
 import { HermesMailResolver } from 'src/engine/core-modules/hermes-mail/hermes-mail.resolver';
+import { UserRoleModule } from 'src/engine/metadata-modules/user-role/user-role.module';
+import { HermesMessagingPersonService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-person.service';
+import { HermesMailboxService } from 'src/engine/core-modules/hermes-mail/hermes-mailbox.service';
 import { HermesMailService } from 'src/engine/core-modules/hermes-mail/hermes-mail.service';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesInboxMessageEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity';
@@ -24,12 +27,18 @@ import { MessagingSmtpDriverModule } from 'src/modules/messaging/message-import-
       HermesInboxMessageEntity,
     ]),
     HermesMessagingModule,
+    UserRoleModule,
     HermesProspectionModule,
     RedisClientModule,
     MessagingIMAPDriverModule,
     MessagingSmtpDriverModule,
   ],
-  providers: [HermesMailService, HermesMailResolver],
+  providers: [
+    HermesMailService,
+    HermesMailboxService,
+    HermesMailResolver,
+    HermesMessagingPersonService,
+  ],
   exports: [HermesMailService],
 })
 export class HermesMailModule {}
