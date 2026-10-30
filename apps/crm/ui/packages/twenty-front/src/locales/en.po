@@ -29733,3 +29733,984 @@ msgstr "Zoom in"
 #: src/modules/settings/data-model/graph-overview/components/SettingsDataModelOverview.tsx
 msgid "Zoom out"
 msgstr "Zoom out"
+
+#. js-lingui-id: Jkj2bb
+msgid "Connectors"
+msgstr "Connectors"
+
+#. js-lingui-id: JU2OpQ
+msgid "Configured by an administrator"
+msgstr "Configured by an administrator"
+
+#. js-lingui-id: fnbxn5
+msgid "To configure"
+msgstr "To configure"
+
+#. js-lingui-id: 9zb2WA
+msgid "Connecting"
+msgstr "Connecting"
+
+#. js-lingui-id: 0IvJDc
+msgid "Provider: active · sending not tested"
+msgstr "Provider: active · sending not tested"
+
+#. js-lingui-id: ZYnwzF
+msgid "Disconnected"
+msgstr "Disconnected"
+
+#. js-lingui-id: BTVMP0
+msgid "Provider unavailable"
+msgstr "Provider unavailable"
+
+#. js-lingui-id: RLe7Vk
+msgid "Checking…"
+msgstr "Checking…"
+
+#. js-lingui-id: PS2Itk
+msgid "Status unavailable"
+msgstr "Status unavailable"
+
+#. js-lingui-id: bmSMuC
+msgid "Status not reported"
+msgstr "Status not reported"
+
+#. js-lingui-id: NoNiEK
+msgid "Never checked"
+msgstr "Never checked"
+
+#. js-lingui-id: K3I0ih
+msgid "Last checked {lastCheckedDate}"
+msgstr "Last checked {lastCheckedDate}"
+
+#. js-lingui-id: FBSsaj
+msgid "Last check time unknown"
+msgstr "Last check time unknown"
+
+#. js-lingui-id: 7zYguf
+msgid "Reported state"
+msgstr "Reported state"
+
+#. js-lingui-id: TK8eC3
+msgid "Error code"
+msgstr "Error code"
+
+#. js-lingui-id: TOFjAp
+msgid "No connector available"
+msgstr "No connector available"
+
+#. js-lingui-id: vtZ0lQ
+msgid "Messaging"
+msgstr "Messaging"
+
+#. js-lingui-id: nbfdhU
+msgid "Integrations"
+msgstr "Integrations"
+
+#. js-lingui-id: tVBpWY
+msgid "Your authorised companies"
+msgstr "Your authorised companies"
+
+#. js-lingui-id: tWcY2h
+msgid "Some data is unavailable."
+msgstr "Some data is unavailable."
+
+#. js-lingui-id: GdLJZm
+msgid "No access yet. Ask an administrator."
+msgstr "No access yet. Ask an administrator."
+
+#. js-lingui-id: JNqY6D
+msgid "Read-only. Open a company to work in it."
+msgstr "Read-only. Open a company to work in it."
+
+#. js-lingui-id: x6jO53
+msgid "Partial totals: some companies did not answer."
+msgstr "Partial totals: some companies did not answer."
+
+#. js-lingui-id: Ef46ay
+msgid "Across your companies"
+msgstr "Across your companies"
+
+#. js-lingui-id: jOW11U
+msgid "All your companies"
+msgstr "All your companies"
+
+#. js-lingui-id: dx9bCj
+msgid "Not authorised"
+msgstr "Not authorised"
+
+#. js-lingui-id: EcJiTs
+msgid "Sign in required"
+msgstr "Sign in required"
+
+#. js-lingui-id: 7i8j3G
+msgid "Company"
+msgstr "Company"
+
+#. js-lingui-id: 1wdjme
+msgid "People"
+msgstr "People"
+
+#. js-lingui-id: 4MyDFl
+msgid "Opportunities"
+msgstr "Opportunities"
+
+#. js-lingui-id: GtycJ/
+msgid "Tasks"
+msgstr "Tasks"
+
+#. js-lingui-id: gVfVfe
+msgid "Contacts"
+msgstr "Contacts"
+
+#. js-lingui-id: fZ5Vnu
+msgid "Received"
+msgstr "Received"
+
+#. js-lingui-id: 9nmXGe
+msgid "Reception"
+msgstr "Reception"
+
+#. js-lingui-id: neLTkl
+msgid "Received lists"
+msgstr "Received lists"
+
+#. js-lingui-id: gRschJ
+msgid "Qualification"
+msgstr "Qualification"
+
+#. js-lingui-id: jfC/xh
+msgid "Contact"
+msgstr "Contact"
+
+#. js-lingui-id: IBUMsZ
+msgid "Opt-out"
+msgstr "Opt-out"
+
+#. js-lingui-id: CCj/fG
+msgid "With an email"
+msgstr "With an email"
+
+#. js-lingui-id: qd6A2v
+msgid "Without a company"
+msgstr "Without a company"
+
+#. js-lingui-id: /L/+bH
+msgid "Opted out"
+msgstr "Opted out"
+
+#. js-lingui-id: G/KKLK
+msgid "No opt-out"
+msgstr "No opt-out"
+
+#. js-lingui-id: UfnqDf
+msgid "No name"
+msgstr "No name"
+
+#. js-lingui-id: I1OZSQ
+msgid "No email"
+msgstr "No email"
+
+#. js-lingui-id: U10dF2
+msgid "No company"
+msgstr "No company"
+
+#. js-lingui-id: avYp4a
+msgid "Unknown company"
+msgstr "Unknown company"
+
+#. js-lingui-id: m42LZQ
+msgid "Origin not recorded"
+msgstr "Origin not recorded"
+
+#. js-lingui-id: gCyyXQ
+msgid "Opt-outs unavailable."
+msgstr "Opt-outs unavailable."
+
+#. js-lingui-id: 82ZV/M
+msgid "Opt-outs partly checked."
+msgstr "Opt-outs partly checked."
+
+#. js-lingui-id: ql6A7Q
+msgid "No list received yet."
+msgstr "No list received yet."
+
+#. js-lingui-id: rgo+RL
+msgid "No contact in this list."
+msgstr "No contact in this list."
+
+#. js-lingui-id: 92F/Is
+msgid "List not found."
+msgstr "List not found."
+
+#. js-lingui-id: EiHi/v
+msgid "To set up."
+msgstr "To set up."
+
+#. js-lingui-id: bBj7Hs
+msgid "partial"
+msgstr "partial"
+
+#. js-lingui-id: TKvEbZ
+msgid "{0}/{1} checked"
+msgstr "{0}/{1} checked"
+
+#. js-lingui-id: 7p5kLi
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#. js-lingui-id: OqHv82
+msgid "Authorised companies"
+msgstr "Authorised companies"
+
+#. js-lingui-id: HRha/x
+msgid "Main navigation"
+msgstr "Main navigation"
+
+#. js-lingui-id: /cF7Rs
+msgid "Volume"
+msgstr "Volume"
+
+#. js-lingui-id: 67RoFa
+msgid "Pipeline"
+msgstr "Pipeline"
+
+#. js-lingui-id: 3PRxO3
+msgid "Stage"
+msgstr "Stage"
+
+#. js-lingui-id: NRF7pg
+msgid "Close date"
+msgstr "Close date"
+
+#. js-lingui-id: XicmhT
+msgid "Due date"
+msgstr "Due date"
+
+#. js-lingui-id: EBLSzB
+msgid "Opportunities by close date"
+msgstr "Opportunities by close date"
+
+#. js-lingui-id: 4oXaJG
+msgid "Tasks by due date"
+msgstr "Tasks by due date"
+
+#. js-lingui-id: 1IS5l3
+msgid "No opportunity yet."
+msgstr "No opportunity yet."
+
+#. js-lingui-id: Mympcz
+msgid "No task yet."
+msgstr "No task yet."
+
+#. js-lingui-id: G26j+w
+msgid "Not authorised."
+msgstr "Not authorised."
+
+#. js-lingui-id: eNAnHJ
+msgid "To configure."
+msgstr "To configure."
+
+#. js-lingui-id: MEIAzV
+msgid "Unnamed"
+msgstr "Unnamed"
+
+#. js-lingui-id: 9Nz8f+
+msgid "Counts and records read from this workspace."
+msgstr "Counts and records read from this workspace."
+
+#. js-lingui-id: QGW+Uq
+msgid "Prospection"
+msgstr "Prospection"
+
+#. js-lingui-id: HGqMGy
+msgid "Batches"
+msgstr "Batches"
+
+#. js-lingui-id: VdLVWV
+msgid "Staged rows"
+msgstr "Staged rows"
+
+#. js-lingui-id: R/rzJy
+msgid "Batches staged for this workspace, with the status the server gave each row."
+msgstr "Batches staged for this workspace, with the status the server gave each row."
+
+#. js-lingui-id: b7XCB3
+msgid "Staging opens once the reception can be read."
+msgstr "Staging opens once the reception can be read."
+
+#. js-lingui-id: EldJQu
+msgid "Back to the reception"
+msgstr "Back to the reception"
+
+#. js-lingui-id: Mr0W3W
+msgid "Batch not found in this workspace."
+msgstr "Batch not found in this workspace."
+
+#. js-lingui-id: 51WY8q
+msgid "Some batches could not be read and are not listed."
+msgstr "Some batches could not be read and are not listed."
+
+#. js-lingui-id: lIowGj
+msgid "No batch staged yet."
+msgstr "No batch staged yet."
+
+#. js-lingui-id: WFhas/
+msgid "Nothing is sent from here: staging, qualification and drafts only."
+msgstr "Nothing is sent from here: staging, qualification and drafts only."
+
+#. js-lingui-id: 7Kz8Ht
+msgid "Sending stays outside this screen."
+msgstr "Sending stays outside this screen."
+
+#. js-lingui-id: jMRZYf
+msgid "Campaign sending unavailable."
+msgstr "Campaign sending unavailable."
+
+#. js-lingui-id: zg9YXC
+msgid "Sending capability unknown."
+msgstr "Sending capability unknown."
+
+#. js-lingui-id: 1lyQ43
+msgid "Tracking off by default."
+msgstr "Tracking off by default."
+
+#. js-lingui-id: QVpxOf
+msgid "Tracking on by default."
+msgstr "Tracking on by default."
+
+#. js-lingui-id: G3G5Eg
+msgid "Tracking default unknown."
+msgstr "Tracking default unknown."
+
+#. js-lingui-id: rsx3xA
+msgid "Batch"
+msgstr "Batch"
+
+#. js-lingui-id: hL5+/P
+msgid "Rows"
+msgstr "Rows"
+
+#. js-lingui-id: hi3Du/
+msgid "Qualified"
+msgstr "Qualified"
+
+#. js-lingui-id: Jpq3gO
+msgid "Collected"
+msgstr "Collected"
+
+#. js-lingui-id: tLAreY
+msgid "Unnamed batch"
+msgstr "Unnamed batch"
+
+#. js-lingui-id: TlHpRw
+msgid "Unreadable"
+msgstr "Unreadable"
+
+#. js-lingui-id: gg8j3R
+msgid "Staged rows, with the status the server gave each one."
+msgstr "Staged rows, with the status the server gave each one."
+
+#. js-lingui-id: w3Cbnk
+msgid "Batch id"
+msgstr "Batch id"
+
+#. js-lingui-id: sTOAWp
+msgid "Staged"
+msgstr "Staged"
+
+#. js-lingui-id: /dMJ3d
+msgid "Row statuses"
+msgstr "Row statuses"
+
+#. js-lingui-id: SljME3
+msgid "{0} rows could not be read and are not listed."
+msgstr "{0} rows could not be read and are not listed."
+
+#. js-lingui-id: aSkIsO
+msgid "{0} of {1} selectable rows picked."
+msgstr "{0} of {1} selectable rows picked."
+
+#. js-lingui-id: wgNoIs
+msgid "Select all"
+msgstr "Select all"
+
+#. js-lingui-id: G1Hy05
+msgid "Some rows carry a status outside the contract. They are shown as unknown and cannot be acted on."
+msgstr "Some rows carry a status outside the contract. They are shown as unknown and cannot be acted on."
+
+#. js-lingui-id: aSIWmb
+msgid "A conflict row came in under a batch id already used with different content."
+msgstr "A conflict row came in under a batch id already used with different content."
+
+#. js-lingui-id: owuwOc
+msgid "Rows unreadable: this batch holds an unknown number."
+msgstr "Rows unreadable: this batch holds an unknown number."
+
+#. js-lingui-id: SZU4qo
+msgid "No row in this batch."
+msgstr "No row in this batch."
+
+#. js-lingui-id: JHB/Ky
+msgid "Invalid"
+msgstr "Invalid"
+
+#. js-lingui-id: YeRa1Q
+msgid "Suppressed"
+msgstr "Suppressed"
+
+#. js-lingui-id: IInnZo
+msgid "Conflict"
+msgstr "Conflict"
+
+#. js-lingui-id: kWqOio
+msgid "Unknown status"
+msgstr "Unknown status"
+
+#. js-lingui-id: iv2/iu
+msgid "Staged, not qualified yet."
+msgstr "Staged, not qualified yet."
+
+#. js-lingui-id: Cbdqi8
+msgid "Email, company or website rejected. The row is kept with its error."
+msgstr "Email, company or website rejected. The row is kept with its error."
+
+#. js-lingui-id: Uvuyj4
+msgid "Already present in this batch."
+msgstr "Already present in this batch."
+
+#. js-lingui-id: vZSIaA
+msgid "Blocked by the workspace suppression register. Never lifted here."
+msgstr "Blocked by the workspace suppression register. Never lifted here."
+
+#. js-lingui-id: /hIC8Z
+msgid "Company and contact created or reused."
+msgstr "Company and contact created or reused."
+
+#. js-lingui-id: T0FYK/
+msgid "Same batch id, different content."
+msgstr "Same batch id, different content."
+
+#. js-lingui-id: EwYMZD
+msgid "Status outside the contract."
+msgstr "Status outside the contract."
+
+#. js-lingui-id: xSx/i4
+msgid "Pick"
+msgstr "Pick"
+
+#. js-lingui-id: UirGxE
+msgid "Errors"
+msgstr "Errors"
+
+#. js-lingui-id: uFStbI
+msgid "Suppressed: not selectable"
+msgstr "Suppressed: not selectable"
+
+#. js-lingui-id: vHdpLS
+msgid "Unknown status: not selectable"
+msgstr "Unknown status: not selectable"
+
+#. js-lingui-id: /TcKDR
+msgid "Errors unreadable"
+msgstr "Errors unreadable"
+
+#. js-lingui-id: 9oIVqF
+msgid "Stage a batch"
+msgstr "Stage a batch"
+
+#. js-lingui-id: Wx4K2G
+msgid "JSON rows, {0} per batch at most. A row that fails validation is still staged, with its error."
+msgstr "JSON rows, {0} per batch at most. A row that fails validation is still staged, with its error."
+
+#. js-lingui-id: Dh4+Vw
+msgid "Batch name"
+msgstr "Batch name"
+
+#. js-lingui-id: Q842ga
+msgid "Paris trade show, October"
+msgstr "Paris trade show, October"
+
+#. js-lingui-id: cNX22+
+msgid "your-own-reference"
+msgstr "your-own-reference"
+
+#. js-lingui-id: HunfZ1
+msgid "The same id with the same content stages nothing twice."
+msgstr "The same id with the same content stages nothing twice."
+
+#. js-lingui-id: +ztzfF
+msgid "Source URL"
+msgstr "Source URL"
+
+#. js-lingui-id: jCBF0+
+msgid "http or https, without credentials."
+msgstr "http or https, without credentials."
+
+#. js-lingui-id: LnLEKa
+msgid "Collected on"
+msgstr "Collected on"
+
+#. js-lingui-id: e/ccZU
+msgid "Sent as {0}"
+msgstr "Sent as {0}"
+
+#. js-lingui-id: fgU3pJ
+msgid "Sent as an ISO 8601 instant."
+msgstr "Sent as an ISO 8601 instant."
+
+#. js-lingui-id: whJEIN
+msgid "Accepted fields: email, companyName, firstName, lastName, jobTitle, website, phone."
+msgstr "Accepted fields: email, companyName, firstName, lastName, jobTitle, website, phone."
+
+#. js-lingui-id: bT4oFM
+msgid "Or load a JSON file"
+msgstr "Or load a JSON file"
+
+#. js-lingui-id: 3EwJlM
+msgid "{0} rows read."
+msgstr "{0} rows read."
+
+#. js-lingui-id: JBdxJI
+msgid "Retention bound reached: {0} batches are kept per workspace."
+msgstr "Retention bound reached: {0} batches are kept per workspace."
+
+#. js-lingui-id: ZG7G5S
+msgid "Stage batch"
+msgstr "Stage batch"
+
+#. js-lingui-id: 8rYRHQ
+msgid "Staging answer"
+msgstr "Staging answer"
+
+#. js-lingui-id: oAsYfI
+msgid "Batch refused."
+msgstr "Batch refused."
+
+#. js-lingui-id: ii5gVO
+msgid "Already staged: same batch id and same content."
+msgstr "Already staged: same batch id and same content."
+
+#. js-lingui-id: wzK2g4
+msgid "Batch staged."
+msgstr "Batch staged."
+
+#. js-lingui-id: 4TNrOU
+msgid "Batch staged. Replay status unknown."
+msgstr "Batch staged. Replay status unknown."
+
+#. js-lingui-id: 5bFu9M
+msgid "The staged batch could not be read back."
+msgstr "The staged batch could not be read back."
+
+#. js-lingui-id: CK4hR2
+msgid "Batch id required."
+msgstr "Batch id required."
+
+#. js-lingui-id: tdNkhL
+msgid "Batch name required."
+msgstr "Batch name required."
+
+#. js-lingui-id: CJj/h1
+msgid "Source URL required."
+msgstr "Source URL required."
+
+#. js-lingui-id: LsWjfw
+msgid "Source URL must be http or https."
+msgstr "Source URL must be http or https."
+
+#. js-lingui-id: 4PXuZ3
+msgid "Source URL must carry no credentials."
+msgstr "Source URL must carry no credentials."
+
+#. js-lingui-id: YK8oVq
+msgid "Collection date required."
+msgstr "Collection date required."
+
+#. js-lingui-id: b+WtZF
+msgid "Collection date unreadable."
+msgstr "Collection date unreadable."
+
+#. js-lingui-id: bRPGW3
+msgid "Paste at least one row."
+msgstr "Paste at least one row."
+
+#. js-lingui-id: UFLfAQ
+msgid "Rows are not valid JSON."
+msgstr "Rows are not valid JSON."
+
+#. js-lingui-id: YZoWNP
+msgid "Expected a JSON array of rows, or an object with a rows array."
+msgstr "Expected a JSON array of rows, or an object with a rows array."
+
+#. js-lingui-id: 0g07cI
+msgid "{0} rows pasted; {1} per batch at most."
+msgstr "{0} rows pasted; {1} per batch at most."
+
+#. js-lingui-id: wgHfn8
+msgid "Row {0}: expected an object."
+msgstr "Row {0}: expected an object."
+
+#. js-lingui-id: yKIogz
+msgid "Row {0}: email required."
+msgstr "Row {0}: email required."
+
+#. js-lingui-id: zvoUik
+msgid "Row {0}: company name required."
+msgstr "Row {0}: company name required."
+
+#. js-lingui-id: NnyPg4
+msgid "Row {0}: {1} must be text."
+msgstr "Row {0}: {1} must be text."
+
+#. js-lingui-id: 1Cn4w9
+msgid "Row {0}: field {1} is not accepted."
+msgstr "Row {0}: field {1} is not accepted."
+
+#. js-lingui-id: ULNNHd
+msgid "Batch too large: {0} bytes for a {1} byte limit."
+msgstr "Batch too large: {0} bytes for a {1} byte limit."
+
+#. js-lingui-id: SqjdSI
+msgid "Qualify the selected rows"
+msgstr "Qualify the selected rows"
+
+#. js-lingui-id: ncvWZI
+msgid "{0} rows selected, {1} at most."
+msgstr "{0} rows selected, {1} at most."
+
+#. js-lingui-id: TQxrau
+msgid "Professional purpose"
+msgstr "Professional purpose"
+
+#. js-lingui-id: zT40VN
+msgid "Why these companies are being contacted."
+msgstr "Why these companies are being contacted."
+
+#. js-lingui-id: Yf43+g
+msgid "{0} characters, {1} to {2}."
+msgstr "{0} characters, {1} to {2}."
+
+#. js-lingui-id: IHbPhV
+msgid "Privacy notice URL"
+msgstr "Privacy notice URL"
+
+#. js-lingui-id: Q3G+Xc
+msgid "HTTPS only."
+msgstr "HTTPS only."
+
+#. js-lingui-id: Jh7T/K
+msgid "Information method"
+msgstr "Information method"
+
+#. js-lingui-id: fAnLva
+msgid "Contacts already informed"
+msgstr "Contacts already informed"
+
+#. js-lingui-id: 9WSOLK
+msgid "Notice given at first contact"
+msgstr "Notice given at first contact"
+
+#. js-lingui-id: aMFso9
+msgid "Qualify"
+msgstr "Qualify"
+
+#. js-lingui-id: 3fxijv
+msgid "Purpose: {0} characters, {1} needed."
+msgstr "Purpose: {0} characters, {1} needed."
+
+#. js-lingui-id: bctPmw
+msgid "Purpose: {0} characters, {1} at most."
+msgstr "Purpose: {0} characters, {1} at most."
+
+#. js-lingui-id: l1GGXy
+msgid "Privacy notice URL required."
+msgstr "Privacy notice URL required."
+
+#. js-lingui-id: jTjrG0
+msgid "Privacy notice URL must use HTTPS."
+msgstr "Privacy notice URL must use HTTPS."
+
+#. js-lingui-id: N7mZ6n
+msgid "Select at least one row."
+msgstr "Select at least one row."
+
+#. js-lingui-id: Xa1BOm
+msgid "{0} rows selected; {1} at most."
+msgstr "{0} rows selected; {1} at most."
+
+#. js-lingui-id: 4/lzf1
+msgid "{0} rows answered."
+msgstr "{0} rows answered."
+
+#. js-lingui-id: 50pn/+
+msgid "{0} rows need review: see their error in the table."
+msgstr "{0} rows need review: see their error in the table."
+
+#. js-lingui-id: IxWXUE
+msgid "Qualification answer"
+msgstr "Qualification answer"
+
+#. js-lingui-id: Da16C7
+msgid "Qualification refused."
+msgstr "Qualification refused."
+
+#. js-lingui-id: 21DpRr
+msgid "Qualification answered without readable rows."
+msgstr "Qualification answered without readable rows."
+
+#. js-lingui-id: 666oys
+msgid "Draft a campaign"
+msgstr "Draft a campaign"
+
+#. js-lingui-id: WU5EMh
+msgid "{0} qualified rows selected, {1} at most. Nothing is sent."
+msgstr "{0} qualified rows selected, {1} at most. Nothing is sent."
+
+#. js-lingui-id: BzRXvr
+msgid "Campaign name"
+msgstr "Campaign name"
+
+#. js-lingui-id: 3h1WTr
+msgid "October outreach"
+msgstr "October outreach"
+
+#. js-lingui-id: 0gPczG
+msgid "Subject line"
+msgstr "Subject line"
+
+#. js-lingui-id: /NVhwV
+msgid "Create draft"
+msgstr "Create draft"
+
+#. js-lingui-id: 4Oshn5
+msgid "Campaign name required."
+msgstr "Campaign name required."
+
+#. js-lingui-id: cCPwLV
+msgid "Subject required."
+msgstr "Subject required."
+
+#. js-lingui-id: EiuPJB
+msgid "Select at least one qualified row."
+msgstr "Select at least one qualified row."
+
+#. js-lingui-id: D45A2s
+msgid "Draft created. Nothing was sent."
+msgstr "Draft created. Nothing was sent."
+
+#. js-lingui-id: WnQsDz
+msgid "The campaign answered with an unknown status. Open it before doing anything with it."
+msgstr "The campaign answered with an unknown status. Open it before doing anything with it."
+
+#. js-lingui-id: PfoOyS
+msgid "Sending unavailable"
+msgstr "Sending unavailable"
+
+#. js-lingui-id: qXaTIX
+msgid "Sending flag unknown"
+msgstr "Sending flag unknown"
+
+#. js-lingui-id: +5/74G
+msgid "A draft is not a finished campaign: its content and any first-contact notice are still to be written in the campaign editor."
+msgstr "A draft is not a finished campaign: its content and any first-contact notice are still to be written in the campaign editor."
+
+#. js-lingui-id: CbE8Y1
+msgid "Draft answer"
+msgstr "Draft answer"
+
+#. js-lingui-id: LXKt8k
+msgid "Draft refused."
+msgstr "Draft refused."
+
+#. js-lingui-id: DKihcI
+msgid "Campaign drafts unavailable in this workspace."
+msgstr "Campaign drafts unavailable in this workspace."
+
+#. js-lingui-id: /tqgJT
+msgid "Campaign draft capability unknown."
+msgstr "Campaign draft capability unknown."
+
+#. js-lingui-id: hFGare
+msgid "Campaign drafts need the campaign feature turned on."
+msgstr "Campaign drafts need the campaign feature turned on."
+
+#. js-lingui-id: KOw3a+
+msgid "Not authorised: unrestricted workspace administrators only."
+msgstr "Not authorised: unrestricted workspace administrators only."
+
+#. js-lingui-id: qBZ3ro
+msgid "API keys, apps and impersonated sessions are refused."
+msgstr "API keys, apps and impersonated sessions are refused."
+
+#. js-lingui-id: 6FvWsL
+msgid "Same batch id with different content. Use another batch id, or restore the original content."
+msgstr "Same batch id with different content. Use another batch id, or restore the original content."
+
+#. js-lingui-id: bSD4iT
+msgid "no answer"
+msgstr "no answer"
+
+#. js-lingui-id: DNV3Gk
+msgid "unexpected answer"
+msgstr "unexpected answer"
+
+#. js-lingui-id: SBj87r
+msgid "version not supported by this screen"
+msgstr "version not supported by this screen"
+
+#. js-lingui-id: LG3wSm
+msgid "unexpected shape"
+msgstr "unexpected shape"
+
+#. js-lingui-id: mruOri
+msgid "{0}: unknown ({1})."
+msgstr "{0}: unknown ({1})."
+
+#. js-lingui-id: FcrvOk
+msgid "Campaign audiences"
+msgstr "Campaign audiences"
+
+#. js-lingui-id: 6XwtJI
+msgid "Audience lists already qualified for campaigns. Read-only here."
+msgstr "Audience lists already qualified for campaigns. Read-only here."
+
+#. js-lingui-id: FxNQIR
+msgid "Audiences"
+msgstr "Audiences"
+
+#. js-lingui-id: cHfbVT
+msgid "Audience"
+msgstr "Audience"
+
+#. js-lingui-id: 5LNK1J
+msgid "Untitled audience"
+msgstr "Untitled audience"
+
+#. js-lingui-id: UiTk9m
+msgid "No campaign audience yet."
+msgstr "No campaign audience yet."
+
+#. js-lingui-id: y4l5m5
+msgid "Not authorised to read campaign audiences."
+msgstr "Not authorised to read campaign audiences."
+
+#. js-lingui-id: hPLCly
+msgid "Campaign audience"
+msgstr "Campaign audience"
+
+#. js-lingui-id: NSDw/n
+msgid "Already qualified for campaigns. No import origin recorded."
+msgstr "Already qualified for campaigns. No import origin recorded."
+
+#. js-lingui-id: LK4Wb8
+msgid "Not authorised to read this audience."
+msgstr "Not authorised to read this audience."
+
+#. js-lingui-id: 2oOpFT
+msgid "Audience not found."
+msgstr "Audience not found."
+
+#. js-lingui-id: qtompJ
+msgid "No contact in this audience."
+msgstr "No contact in this audience."
+
+#. js-lingui-id: DTfxJ/
+msgid "Suppression register"
+msgstr "Suppression register"
+
+#. js-lingui-id: L/PcPo
+msgid "Suppression register unavailable."
+msgstr "Suppression register unavailable."
+
+#. js-lingui-id: 7qHTKW
+msgid "Suppression register partly read."
+msgstr "Suppression register partly read."
+
+#. js-lingui-id: 30LCyM
+msgid "No entry"
+msgstr "No entry"
+
+#. js-lingui-id: rzh5EN
+msgid "Unsubscribed from every topic"
+msgstr "Unsubscribed from every topic"
+
+#. js-lingui-id: XAkJ0f
+msgid "Unsubscribed from one topic"
+msgstr "Unsubscribed from one topic"
+
+#. js-lingui-id: Bnn6BU
+msgid "Every topic."
+msgstr "Every topic."
+
+#. js-lingui-id: 5mBrpa
+msgid "Limited to one topic."
+msgstr "Limited to one topic."
+
+#. js-lingui-id: 2DyxnB
+msgid "Bounced"
+msgstr "Bounced"
+
+#. js-lingui-id: L4w2KE
+msgid "Tracking refused"
+msgstr "Tracking refused"
+
+#. js-lingui-id: +NyDVh
+msgid "Opens and clicks only. Not a refusal to be contacted."
+msgstr "Opens and clicks only. Not a refusal to be contacted."
+
+#. js-lingui-id: 3PQ7iI
+msgid "Delivery entry."
+msgstr "Delivery entry."
+
+#. js-lingui-id: j/jzzR
+msgid "Unknown entry"
+msgstr "Unknown entry"
+
+#. js-lingui-id: vVFjoI
+msgid "This workspace keeps no more batches. Remove one before staging another."
+msgstr "This workspace keeps no more batches. Remove one before staging another."
+
+#. js-lingui-id: kWy5P+
+msgid "The server answered with a conflict. Check the batch id and its content."
+msgstr "The server answered with a conflict. Check the batch id and its content."
+
+#. js-lingui-id: FGWfcx
+msgid "Ambiguous, archived or inconsistent CRM record. Needs review."
+msgstr "Ambiguous, archived or inconsistent CRM record. Needs review."
+
+#. js-lingui-id: akv0n7
+msgid "A conflict row matches a CRM record that is ambiguous, archived or inconsistent. It needs review before qualification."
+msgstr "A conflict row matches a CRM record that is ambiguous, archived or inconsistent. It needs review before qualification."
+
+#. js-lingui-id: xqrZCF
+msgid "Privacy notice URL must carry no credentials."
+msgstr "Privacy notice URL must carry no credentials."
+
+#. js-lingui-id: fz56ey
+msgid "Campaign name: {0} characters, {1} at most."
+msgstr "Campaign name: {0} characters, {1} at most."
+
+#. js-lingui-id: 9ClAsu
+msgid "Choose how these contacts are informed."
+msgstr "Choose how these contacts are informed."
+
+#. js-lingui-id: jL13Vu
+msgid "Not summed"
+msgstr "Not summed"
+
+#. js-lingui-id: UXmQNN
+msgid "Conflict: either this batch id is already used with different content, or this workspace keeps no more batches."
+msgstr "Conflict: either this batch id is already used with different content, or this workspace keeps no more batches."
+
+#. js-lingui-id: 1pU3xp
+msgid "Subject: {0} characters, {1} at most."
+msgstr "Subject: {0} characters, {1} at most."
+
+#. js-lingui-id: Lih6F6
+msgid "Row {0}: phone of {1} characters, {2} at most."
+msgstr "Row {0}: phone of {1} characters, {2} at most."
+
+#. js-lingui-id: RPUpMd
+msgid "Conflict: this no longer matches the server state. Reload before trying again."
+msgstr "Conflict: this no longer matches the server state. Reload before trying again."
+

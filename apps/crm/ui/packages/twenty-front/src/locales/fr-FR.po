@@ -29739,746 +29739,991 @@ msgstr "Zoom avant"
 msgid "Zoom out"
 msgstr "Zoom arrière"
 
+#. js-lingui-id: Jkj2bb
 msgid "Connectors"
 msgstr "Connecteurs"
 
+#. js-lingui-id: JU2OpQ
 msgid "Configured by an administrator"
 msgstr "Configuration par un administrateur"
 
+#. js-lingui-id: fnbxn5
 msgid "To configure"
 msgstr "À configurer"
 
+#. js-lingui-id: 9zb2WA
 msgid "Connecting"
 msgstr "Connexion en cours"
 
+#. js-lingui-id: 0IvJDc
 msgid "Provider: active · sending not tested"
 msgstr "État du fournisseur : actif · envoi non testé"
 
+#. js-lingui-id: ZYnwzF
 msgid "Disconnected"
 msgstr "Déconnecté"
 
+#. js-lingui-id: BTVMP0
 msgid "Provider unavailable"
 msgstr "Fournisseur indisponible"
 
+#. js-lingui-id: RLe7Vk
 msgid "Checking…"
 msgstr "Vérification…"
 
+#. js-lingui-id: PS2Itk
 msgid "Status unavailable"
 msgstr "État indisponible"
 
+#. js-lingui-id: bmSMuC
 msgid "Status not reported"
 msgstr "État non communiqué"
 
+#. js-lingui-id: NoNiEK
 msgid "Never checked"
 msgstr "Jamais vérifié"
 
+#. js-lingui-id: K3I0ih
 msgid "Last checked {lastCheckedDate}"
 msgstr "Dernière vérification {lastCheckedDate}"
 
+#. js-lingui-id: FBSsaj
 msgid "Last check time unknown"
 msgstr "Date de dernière vérification inconnue"
 
+#. js-lingui-id: 7zYguf
 msgid "Reported state"
 msgstr "État communiqué"
 
+#. js-lingui-id: TK8eC3
 msgid "Error code"
 msgstr "Code d'erreur"
 
+#. js-lingui-id: TOFjAp
 msgid "No connector available"
 msgstr "Aucun connecteur disponible"
 
+#. js-lingui-id: vtZ0lQ
 msgid "Messaging"
 msgstr "Messagerie"
 
+#. js-lingui-id: nbfdhU
 msgid "Integrations"
 msgstr "Intégrations"
 
+#. js-lingui-id: tVBpWY
 msgid "Your authorised companies"
 msgstr "Vos sociétés autorisées"
 
+#. js-lingui-id: tWcY2h
 msgid "Some data is unavailable."
 msgstr "Certaines données sont indisponibles."
 
+#. js-lingui-id: GdLJZm
 msgid "No access yet. Ask an administrator."
 msgstr "Aucun accès pour le moment. Demandez à un administrateur."
 
+#. js-lingui-id: JNqY6D
 msgid "Read-only. Open a company to work in it."
 msgstr "Lecture seule. Ouvrez une société pour y travailler."
 
+#. js-lingui-id: x6jO53
 msgid "Partial totals: some companies did not answer."
 msgstr "Totaux partiels : certaines sociétés n'ont pas répondu."
 
+#. js-lingui-id: Ef46ay
 msgid "Across your companies"
 msgstr "Toutes sociétés confondues"
 
+#. js-lingui-id: jOW11U
 msgid "All your companies"
 msgstr "Toutes vos sociétés"
 
+#. js-lingui-id: dx9bCj
 msgid "Not authorised"
 msgstr "Non autorisé"
 
+#. js-lingui-id: EcJiTs
 msgid "Sign in required"
 msgstr "Connexion requise"
 
+#. js-lingui-id: 7i8j3G
 msgid "Company"
 msgstr "Société"
 
+#. js-lingui-id: 1wdjme
 msgid "People"
 msgstr "Personnes"
 
+#. js-lingui-id: 4MyDFl
 msgid "Opportunities"
 msgstr "Opportunités"
 
+#. js-lingui-id: GtycJ/
 msgid "Tasks"
 msgstr "Tâches"
 
 
+#. js-lingui-id: gVfVfe
 msgid "Contacts"
 msgstr "Contacts"
 
+#. js-lingui-id: fZ5Vnu
 msgid "Received"
 msgstr "Reçue le"
 
+#. js-lingui-id: 9nmXGe
 msgid "Reception"
 msgstr "Réception"
 
+#. js-lingui-id: neLTkl
 msgid "Received lists"
 msgstr "Listes reçues"
 
+#. js-lingui-id: gRschJ
 msgid "Qualification"
 msgstr "Qualification"
 
+#. js-lingui-id: jfC/xh
 msgid "Contact"
 msgstr "Contact"
 
+#. js-lingui-id: IBUMsZ
 msgid "Opt-out"
 msgstr "Opposition"
 
+#. js-lingui-id: CCj/fG
 msgid "With an email"
 msgstr "Avec un e-mail"
 
+#. js-lingui-id: qd6A2v
 msgid "Without a company"
 msgstr "Sans société"
 
+#. js-lingui-id: /L/+bH
 msgid "Opted out"
 msgstr "Opposé"
 
+#. js-lingui-id: G/KKLK
 msgid "No opt-out"
 msgstr "Pas d'opposition"
 
+#. js-lingui-id: UfnqDf
 msgid "No name"
 msgstr "Sans nom"
 
+#. js-lingui-id: I1OZSQ
 msgid "No email"
 msgstr "Sans e-mail"
 
+#. js-lingui-id: U10dF2
 msgid "No company"
 msgstr "Sans société"
 
+#. js-lingui-id: avYp4a
 msgid "Unknown company"
 msgstr "Société inconnue"
 
+#. js-lingui-id: m42LZQ
 msgid "Origin not recorded"
 msgstr "Provenance non enregistrée"
 
+#. js-lingui-id: gCyyXQ
 msgid "Opt-outs unavailable."
 msgstr "Oppositions indisponibles."
 
+#. js-lingui-id: 82ZV/M
 msgid "Opt-outs partly checked."
 msgstr "Oppositions partiellement vérifiées."
 
+#. js-lingui-id: ql6A7Q
 msgid "No list received yet."
 msgstr "Aucune liste reçue."
 
+#. js-lingui-id: rgo+RL
 msgid "No contact in this list."
 msgstr "Aucun contact dans cette liste."
 
+#. js-lingui-id: 92F/Is
 msgid "List not found."
 msgstr "Liste introuvable."
 
+#. js-lingui-id: EiHi/v
 msgid "To set up."
 msgstr "À configurer."
 
+#. js-lingui-id: bBj7Hs
 msgid "partial"
 msgstr "partiel"
 
+#. js-lingui-id: TKvEbZ
 msgid "{0}/{1} checked"
 msgstr "{0}/{1} vérifiés"
 
 
+#. js-lingui-id: 7p5kLi
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
+#. js-lingui-id: OqHv82
 msgid "Authorised companies"
 msgstr "Sociétés autorisées"
 
+#. js-lingui-id: HRha/x
 msgid "Main navigation"
 msgstr "Navigation principale"
 
+#. js-lingui-id: /cF7Rs
 msgid "Volume"
 msgstr "Volume"
 
+#. js-lingui-id: 67RoFa
 msgid "Pipeline"
 msgstr "Pipeline"
 
+#. js-lingui-id: 3PRxO3
 msgid "Stage"
 msgstr "Étape"
 
+#. js-lingui-id: NRF7pg
 msgid "Close date"
 msgstr "Date de clôture"
 
+#. js-lingui-id: XicmhT
 msgid "Due date"
 msgstr "Échéance"
 
+#. js-lingui-id: EBLSzB
 msgid "Opportunities by close date"
 msgstr "Opportunités par date de clôture"
 
+#. js-lingui-id: 4oXaJG
 msgid "Tasks by due date"
 msgstr "Tâches par échéance"
 
+#. js-lingui-id: 1IS5l3
 msgid "No opportunity yet."
 msgstr "Aucune opportunité."
 
+#. js-lingui-id: Mympcz
 msgid "No task yet."
 msgstr "Aucune tâche."
 
+#. js-lingui-id: G26j+w
 msgid "Not authorised."
 msgstr "Non autorisé."
 
+#. js-lingui-id: eNAnHJ
 msgid "To configure."
 msgstr "À configurer."
 
+#. js-lingui-id: MEIAzV
 msgid "Unnamed"
 msgstr "Sans nom"
 
+#. js-lingui-id: 9Nz8f+
 msgid "Counts and records read from this workspace."
 msgstr "Chiffres et données de cet espace de travail."
 
 
+#. js-lingui-id: QGW+Uq
 msgid "Prospection"
 msgstr "Prospection"
 
+#. js-lingui-id: HGqMGy
 msgid "Batches"
 msgstr "Lots"
 
+#. js-lingui-id: VdLVWV
 msgid "Staged rows"
 msgstr "Lignes déposées"
 
+#. js-lingui-id: R/rzJy
 msgid "Batches staged for this workspace, with the status the server gave each row."
 msgstr "Lots déposés pour ce workspace, avec le statut attribué par le serveur à chaque ligne."
 
+#. js-lingui-id: b7XCB3
 msgid "Staging opens once the reception can be read."
 msgstr "Le dépôt s'ouvre dès que la réception est lisible."
 
+#. js-lingui-id: EldJQu
 msgid "Back to the reception"
 msgstr "Retour à la réception"
 
+#. js-lingui-id: Mr0W3W
 msgid "Batch not found in this workspace."
 msgstr "Lot introuvable dans ce workspace."
 
+#. js-lingui-id: 51WY8q
 msgid "Some batches could not be read and are not listed."
 msgstr "Certains lots illisibles ne sont pas affichés."
 
+#. js-lingui-id: lIowGj
 msgid "No batch staged yet."
 msgstr "Aucun lot déposé."
 
+#. js-lingui-id: WFhas/
 msgid "Nothing is sent from here: staging, qualification and drafts only."
 msgstr "Aucun envoi ici : dépôt, qualification et brouillons uniquement."
 
+#. js-lingui-id: 7Kz8Ht
 msgid "Sending stays outside this screen."
 msgstr "L'envoi reste hors de cet écran."
 
+#. js-lingui-id: jMRZYf
 msgid "Campaign sending unavailable."
 msgstr "Envoi de campagne indisponible."
 
+#. js-lingui-id: zg9YXC
 msgid "Sending capability unknown."
 msgstr "Capacité d'envoi inconnue."
 
+#. js-lingui-id: 1lyQ43
 msgid "Tracking off by default."
 msgstr "Pistage désactivé par défaut."
 
+#. js-lingui-id: QVpxOf
 msgid "Tracking on by default."
 msgstr "Pistage activé par défaut."
 
+#. js-lingui-id: G3G5Eg
 msgid "Tracking default unknown."
 msgstr "Valeur par défaut du pistage inconnue."
 
+#. js-lingui-id: rsx3xA
 msgid "Batch"
 msgstr "Lot"
 
+#. js-lingui-id: hL5+/P
 msgid "Rows"
 msgstr "Lignes"
 
+#. js-lingui-id: hi3Du/
 msgid "Qualified"
 msgstr "Qualifiée"
 
+#. js-lingui-id: Jpq3gO
 msgid "Collected"
 msgstr "Collecté le"
 
+#. js-lingui-id: tLAreY
 msgid "Unnamed batch"
 msgstr "Lot sans nom"
 
+#. js-lingui-id: TlHpRw
 msgid "Unreadable"
 msgstr "Illisible"
 
+#. js-lingui-id: gg8j3R
 msgid "Staged rows, with the status the server gave each one."
 msgstr "Lignes déposées, avec le statut attribué par le serveur."
 
+#. js-lingui-id: w3Cbnk
 msgid "Batch id"
 msgstr "Identifiant du lot"
 
+#. js-lingui-id: sTOAWp
 msgid "Staged"
 msgstr "Déposé le"
 
+#. js-lingui-id: /dMJ3d
 msgid "Row statuses"
 msgstr "Statuts des lignes"
 
+#. js-lingui-id: SljME3
 msgid "{0} rows could not be read and are not listed."
 msgstr "{0} lignes illisibles ne sont pas affichées."
 
+#. js-lingui-id: aSkIsO
 msgid "{0} of {1} selectable rows picked."
 msgstr "{0} lignes sélectionnées sur {1} sélectionnables."
 
+#. js-lingui-id: wgNoIs
 msgid "Select all"
 msgstr "Tout sélectionner"
 
+#. js-lingui-id: G1Hy05
 msgid "Some rows carry a status outside the contract. They are shown as unknown and cannot be acted on."
 msgstr "Certaines lignes portent un statut hors contrat. Elles sont affichées comme inconnues et aucune action n'est possible."
 
+#. js-lingui-id: aSIWmb
 msgid "A conflict row came in under a batch id already used with different content."
 msgstr "Une ligne en conflit est arrivée sous un identifiant de lot déjà utilisé avec un contenu différent."
 
+#. js-lingui-id: owuwOc
 msgid "Rows unreadable: this batch holds an unknown number."
 msgstr "Lignes illisibles : le nombre de lignes de ce lot est inconnu."
 
+#. js-lingui-id: SZU4qo
 msgid "No row in this batch."
 msgstr "Aucune ligne dans ce lot."
 
+#. js-lingui-id: JHB/Ky
 msgid "Invalid"
 msgstr "Invalide"
 
+#. js-lingui-id: YeRa1Q
 msgid "Suppressed"
 msgstr "Supprimée"
 
+#. js-lingui-id: IInnZo
 msgid "Conflict"
 msgstr "Conflit"
 
+#. js-lingui-id: kWqOio
 msgid "Unknown status"
 msgstr "Statut inconnu"
 
+#. js-lingui-id: iv2/iu
 msgid "Staged, not qualified yet."
 msgstr "Déposée, pas encore qualifiée."
 
+#. js-lingui-id: Cbdqi8
 msgid "Email, company or website rejected. The row is kept with its error."
 msgstr "Email, société ou site rejeté. La ligne est conservée avec son erreur."
 
+#. js-lingui-id: Uvuyj4
 msgid "Already present in this batch."
 msgstr "Déjà présente dans ce lot."
 
+#. js-lingui-id: vZSIaA
 msgid "Blocked by the workspace suppression register. Never lifted here."
 msgstr "Bloquée par le registre des suppressions du workspace. Jamais levée ici."
 
+#. js-lingui-id: /hIC8Z
 msgid "Company and contact created or reused."
 msgstr "Société et contact créés ou réutilisés."
 
+#. js-lingui-id: T0FYK/
 msgid "Same batch id, different content."
 msgstr "Même identifiant de lot, contenu différent."
 
+#. js-lingui-id: EwYMZD
 msgid "Status outside the contract."
 msgstr "Statut hors contrat."
 
+#. js-lingui-id: xSx/i4
 msgid "Pick"
 msgstr "Choix"
 
+#. js-lingui-id: UirGxE
 msgid "Errors"
 msgstr "Erreurs"
 
+#. js-lingui-id: uFStbI
 msgid "Suppressed: not selectable"
 msgstr "Supprimée : non sélectionnable"
 
+#. js-lingui-id: vHdpLS
 msgid "Unknown status: not selectable"
 msgstr "Statut inconnu : non sélectionnable"
 
+#. js-lingui-id: /TcKDR
 msgid "Errors unreadable"
 msgstr "Erreurs illisibles"
 
+#. js-lingui-id: 9oIVqF
 msgid "Stage a batch"
 msgstr "Déposer un lot"
 
+#. js-lingui-id: Wx4K2G
 msgid "JSON rows, {0} per batch at most. A row that fails validation is still staged, with its error."
 msgstr "Lignes JSON, {0} par lot au maximum. Une ligne invalide est tout de même déposée, avec son erreur."
 
+#. js-lingui-id: Dh4+Vw
 msgid "Batch name"
 msgstr "Nom du lot"
 
+#. js-lingui-id: Q842ga
 msgid "Paris trade show, October"
 msgstr "Salon de Paris, octobre"
 
+#. js-lingui-id: cNX22+
 msgid "your-own-reference"
 msgstr "votre-reference"
 
+#. js-lingui-id: HunfZ1
 msgid "The same id with the same content stages nothing twice."
 msgstr "Le même identifiant avec le même contenu ne dépose rien deux fois."
 
+#. js-lingui-id: +ztzfF
 msgid "Source URL"
 msgstr "URL source"
 
+#. js-lingui-id: jCBF0+
 msgid "http or https, without credentials."
 msgstr "http ou https, sans identifiants."
 
+#. js-lingui-id: LnLEKa
 msgid "Collected on"
 msgstr "Collecté le"
 
+#. js-lingui-id: e/ccZU
 msgid "Sent as {0}"
 msgstr "Envoyé comme {0}"
 
+#. js-lingui-id: fgU3pJ
 msgid "Sent as an ISO 8601 instant."
 msgstr "Envoyé comme instant ISO 8601."
 
+#. js-lingui-id: whJEIN
 msgid "Accepted fields: email, companyName, firstName, lastName, jobTitle, website, phone."
 msgstr "Champs acceptés : email, companyName, firstName, lastName, jobTitle, website, phone."
 
+#. js-lingui-id: bT4oFM
 msgid "Or load a JSON file"
 msgstr "Ou charger un fichier JSON"
 
+#. js-lingui-id: 3EwJlM
 msgid "{0} rows read."
 msgstr "{0} lignes lues."
 
+#. js-lingui-id: JBdxJI
 msgid "Retention bound reached: {0} batches are kept per workspace."
 msgstr "Limite de conservation atteinte : {0} lots conservés par workspace."
 
+#. js-lingui-id: ZG7G5S
 msgid "Stage batch"
 msgstr "Déposer le lot"
 
+#. js-lingui-id: 8rYRHQ
 msgid "Staging answer"
 msgstr "Réponse du dépôt"
 
+#. js-lingui-id: oAsYfI
 msgid "Batch refused."
 msgstr "Lot refusé."
 
+#. js-lingui-id: ii5gVO
 msgid "Already staged: same batch id and same content."
 msgstr "Déjà déposé : même identifiant et même contenu."
 
+#. js-lingui-id: wzK2g4
 msgid "Batch staged."
 msgstr "Lot déposé."
 
+#. js-lingui-id: 4TNrOU
 msgid "Batch staged. Replay status unknown."
 msgstr "Lot déposé. Rejeu inconnu."
 
+#. js-lingui-id: 5bFu9M
 msgid "The staged batch could not be read back."
 msgstr "Le lot déposé n'a pas pu être relu."
 
+#. js-lingui-id: CK4hR2
 msgid "Batch id required."
 msgstr "Identifiant de lot requis."
 
+#. js-lingui-id: tdNkhL
 msgid "Batch name required."
 msgstr "Nom de lot requis."
 
+#. js-lingui-id: CJj/h1
 msgid "Source URL required."
 msgstr "URL source requise."
 
+#. js-lingui-id: LsWjfw
 msgid "Source URL must be http or https."
 msgstr "L'URL source doit être en http ou https."
 
+#. js-lingui-id: 4PXuZ3
 msgid "Source URL must carry no credentials."
 msgstr "L'URL source ne doit porter aucun identifiant."
 
+#. js-lingui-id: YK8oVq
 msgid "Collection date required."
 msgstr "Date de collecte requise."
 
+#. js-lingui-id: b+WtZF
 msgid "Collection date unreadable."
 msgstr "Date de collecte illisible."
 
+#. js-lingui-id: bRPGW3
 msgid "Paste at least one row."
 msgstr "Collez au moins une ligne."
 
+#. js-lingui-id: UFLfAQ
 msgid "Rows are not valid JSON."
 msgstr "Les lignes ne sont pas du JSON valide."
 
+#. js-lingui-id: YZoWNP
 msgid "Expected a JSON array of rows, or an object with a rows array."
 msgstr "Tableau JSON de lignes attendu, ou objet contenant un tableau rows."
 
+#. js-lingui-id: 0g07cI
 msgid "{0} rows pasted; {1} per batch at most."
 msgstr "{0} lignes collées ; {1} par lot au maximum."
 
+#. js-lingui-id: wgHfn8
 msgid "Row {0}: expected an object."
 msgstr "Ligne {0} : objet attendu."
 
+#. js-lingui-id: yKIogz
 msgid "Row {0}: email required."
 msgstr "Ligne {0} : email requis."
 
+#. js-lingui-id: zvoUik
 msgid "Row {0}: company name required."
 msgstr "Ligne {0} : nom de société requis."
 
+#. js-lingui-id: NnyPg4
 msgid "Row {0}: {1} must be text."
 msgstr "Ligne {0} : {1} doit être du texte."
 
+#. js-lingui-id: 1Cn4w9
 msgid "Row {0}: field {1} is not accepted."
 msgstr "Ligne {0} : le champ {1} n'est pas accepté."
 
+#. js-lingui-id: ULNNHd
 msgid "Batch too large: {0} bytes for a {1} byte limit."
 msgstr "Lot trop volumineux : {0} octets pour une limite de {1} octets."
 
+#. js-lingui-id: SqjdSI
 msgid "Qualify the selected rows"
 msgstr "Qualifier les lignes sélectionnées"
 
+#. js-lingui-id: ncvWZI
 msgid "{0} rows selected, {1} at most."
 msgstr "{0} lignes sélectionnées, {1} au maximum."
 
+#. js-lingui-id: TQxrau
 msgid "Professional purpose"
 msgstr "Motif professionnel"
 
+#. js-lingui-id: zT40VN
 msgid "Why these companies are being contacted."
 msgstr "Pourquoi ces sociétés sont contactées."
 
+#. js-lingui-id: Yf43+g
 msgid "{0} characters, {1} to {2}."
 msgstr "{0} caractères, de {1} à {2}."
 
+#. js-lingui-id: IHbPhV
 msgid "Privacy notice URL"
 msgstr "URL d'information"
 
+#. js-lingui-id: Q3G+Xc
 msgid "HTTPS only."
 msgstr "HTTPS uniquement."
 
+#. js-lingui-id: Jh7T/K
 msgid "Information method"
 msgstr "Méthode d'information"
 
+#. js-lingui-id: fAnLva
 msgid "Contacts already informed"
 msgstr "Contacts déjà informés"
 
+#. js-lingui-id: 9WSOLK
 msgid "Notice given at first contact"
 msgstr "Information au premier contact"
 
+#. js-lingui-id: aMFso9
 msgid "Qualify"
 msgstr "Qualifier"
 
+#. js-lingui-id: 3fxijv
 msgid "Purpose: {0} characters, {1} needed."
 msgstr "Motif : {0} caractères, {1} requis."
 
+#. js-lingui-id: bctPmw
 msgid "Purpose: {0} characters, {1} at most."
 msgstr "Motif : {0} caractères, {1} au maximum."
 
+#. js-lingui-id: l1GGXy
 msgid "Privacy notice URL required."
 msgstr "URL d'information requise."
 
+#. js-lingui-id: jTjrG0
 msgid "Privacy notice URL must use HTTPS."
 msgstr "L'URL d'information doit être en HTTPS."
 
+#. js-lingui-id: N7mZ6n
 msgid "Select at least one row."
 msgstr "Sélectionnez au moins une ligne."
 
+#. js-lingui-id: Xa1BOm
 msgid "{0} rows selected; {1} at most."
 msgstr "{0} lignes sélectionnées ; {1} au maximum."
 
+#. js-lingui-id: 4/lzf1
 msgid "{0} rows answered."
 msgstr "{0} lignes renvoyées."
 
+#. js-lingui-id: 50pn/+
 msgid "{0} rows need review: see their error in the table."
 msgstr "{0} lignes à revoir : leur erreur figure dans le tableau."
 
+#. js-lingui-id: IxWXUE
 msgid "Qualification answer"
 msgstr "Réponse de la qualification"
 
+#. js-lingui-id: Da16C7
 msgid "Qualification refused."
 msgstr "Qualification refusée."
 
+#. js-lingui-id: 21DpRr
 msgid "Qualification answered without readable rows."
 msgstr "La qualification a répondu sans lignes lisibles."
 
+#. js-lingui-id: 666oys
 msgid "Draft a campaign"
 msgstr "Brouillon de campagne"
 
+#. js-lingui-id: WU5EMh
 msgid "{0} qualified rows selected, {1} at most. Nothing is sent."
 msgstr "{0} lignes qualifiées sélectionnées, {1} au maximum. Aucun envoi."
 
+#. js-lingui-id: BzRXvr
 msgid "Campaign name"
 msgstr "Nom de la campagne"
 
+#. js-lingui-id: 3h1WTr
 msgid "October outreach"
 msgstr "Prospection d'octobre"
 
+#. js-lingui-id: 0gPczG
 msgid "Subject line"
 msgstr "Ligne d'objet"
 
+#. js-lingui-id: /NVhwV
 msgid "Create draft"
 msgstr "Créer le brouillon"
 
+#. js-lingui-id: 4Oshn5
 msgid "Campaign name required."
 msgstr "Nom de campagne requis."
 
+#. js-lingui-id: cCPwLV
 msgid "Subject required."
 msgstr "Objet requis."
 
+#. js-lingui-id: EiuPJB
 msgid "Select at least one qualified row."
 msgstr "Sélectionnez au moins une ligne qualifiée."
 
+#. js-lingui-id: D45A2s
 msgid "Draft created. Nothing was sent."
 msgstr "Brouillon créé. Rien n'a été envoyé."
 
+#. js-lingui-id: WnQsDz
 msgid "The campaign answered with an unknown status. Open it before doing anything with it."
 msgstr "La campagne a répondu avec un statut inconnu. Ouvrez-la avant toute suite."
 
+#. js-lingui-id: PfoOyS
 msgid "Sending unavailable"
 msgstr "Envoi indisponible"
 
+#. js-lingui-id: qXaTIX
 msgid "Sending flag unknown"
 msgstr "Indicateur d'envoi inconnu"
 
+#. js-lingui-id: +5/74G
 msgid "A draft is not a finished campaign: its content and any first-contact notice are still to be written in the campaign editor."
 msgstr "Un brouillon n'est pas une campagne finie : son contenu et l'éventuelle information de premier contact restent à écrire dans l'éditeur de campagne."
 
+#. js-lingui-id: CbE8Y1
 msgid "Draft answer"
 msgstr "Réponse du brouillon"
 
+#. js-lingui-id: LXKt8k
 msgid "Draft refused."
 msgstr "Brouillon refusé."
 
+#. js-lingui-id: DKihcI
 msgid "Campaign drafts unavailable in this workspace."
 msgstr "Brouillons de campagne indisponibles dans ce workspace."
 
+#. js-lingui-id: /tqgJT
 msgid "Campaign draft capability unknown."
 msgstr "Capacité de brouillon de campagne inconnue."
 
+#. js-lingui-id: hFGare
 msgid "Campaign drafts need the campaign feature turned on."
 msgstr "Les brouillons de campagne exigent la fonctionnalité campagne activée."
 
+#. js-lingui-id: KOw3a+
 msgid "Not authorised: unrestricted workspace administrators only."
 msgstr "Non autorisé : administrateurs de workspace non restreints uniquement."
 
+#. js-lingui-id: qBZ3ro
 msgid "API keys, apps and impersonated sessions are refused."
 msgstr "Clés d'API, apps et sessions impersonnées sont refusées."
 
+#. js-lingui-id: 6FvWsL
 msgid "Same batch id with different content. Use another batch id, or restore the original content."
 msgstr "Même identifiant de lot, contenu différent. Changez l'identifiant ou rétablissez le contenu d'origine."
 
+#. js-lingui-id: bSD4iT
 msgid "no answer"
 msgstr "aucune réponse"
 
+#. js-lingui-id: DNV3Gk
 msgid "unexpected answer"
 msgstr "réponse inattendue"
 
+#. js-lingui-id: SBj87r
 msgid "version not supported by this screen"
 msgstr "version non prise en charge par cet écran"
 
+#. js-lingui-id: LG3wSm
 msgid "unexpected shape"
 msgstr "forme inattendue"
 
+#. js-lingui-id: mruOri
 msgid "{0}: unknown ({1})."
 msgstr "{0} : inconnu ({1})."
 
+#. js-lingui-id: FcrvOk
 msgid "Campaign audiences"
 msgstr "Audiences de campagnes"
 
+#. js-lingui-id: 6XwtJI
 msgid "Audience lists already qualified for campaigns. Read-only here."
 msgstr "Listes d'audience déjà qualifiées pour les campagnes. Lecture seule ici."
 
+#. js-lingui-id: FxNQIR
 msgid "Audiences"
 msgstr "Audiences"
 
+#. js-lingui-id: cHfbVT
 msgid "Audience"
 msgstr "Audience"
 
+#. js-lingui-id: 5LNK1J
 msgid "Untitled audience"
 msgstr "Audience sans nom"
 
+#. js-lingui-id: UiTk9m
 msgid "No campaign audience yet."
 msgstr "Aucune audience de campagne."
 
+#. js-lingui-id: y4l5m5
 msgid "Not authorised to read campaign audiences."
 msgstr "Lecture des audiences de campagnes non autorisée."
 
+#. js-lingui-id: hPLCly
 msgid "Campaign audience"
 msgstr "Audience de campagne"
 
+#. js-lingui-id: NSDw/n
 msgid "Already qualified for campaigns. No import origin recorded."
 msgstr "Déjà qualifiée pour les campagnes. Aucune origine d'import enregistrée."
 
+#. js-lingui-id: LK4Wb8
 msgid "Not authorised to read this audience."
 msgstr "Lecture de cette audience non autorisée."
 
+#. js-lingui-id: 2oOpFT
 msgid "Audience not found."
 msgstr "Audience introuvable."
 
+#. js-lingui-id: qtompJ
 msgid "No contact in this audience."
 msgstr "Aucun contact dans cette audience."
 
+#. js-lingui-id: DTfxJ/
 msgid "Suppression register"
 msgstr "Registre des suppressions"
 
+#. js-lingui-id: L/PcPo
 msgid "Suppression register unavailable."
 msgstr "Registre des suppressions indisponible."
 
+#. js-lingui-id: 7qHTKW
 msgid "Suppression register partly read."
 msgstr "Registre des suppressions partiellement lu."
 
+#. js-lingui-id: 30LCyM
 msgid "No entry"
 msgstr "Aucune entrée"
 
+#. js-lingui-id: rzh5EN
 msgid "Unsubscribed from every topic"
 msgstr "Désinscrit de tous les thèmes"
 
+#. js-lingui-id: XAkJ0f
 msgid "Unsubscribed from one topic"
 msgstr "Désinscrit d'un thème"
 
+#. js-lingui-id: Bnn6BU
 msgid "Every topic."
 msgstr "Tous les thèmes."
 
+#. js-lingui-id: 5mBrpa
 msgid "Limited to one topic."
 msgstr "Limité à un thème."
 
+#. js-lingui-id: 2DyxnB
 msgid "Bounced"
 msgstr "Échec de remise"
 
+#. js-lingui-id: L4w2KE
 msgid "Tracking refused"
 msgstr "Pistage refusé"
 
+#. js-lingui-id: +NyDVh
 msgid "Opens and clicks only. Not a refusal to be contacted."
 msgstr "Ouvertures et clics seulement. Pas un refus d'être contacté."
 
+#. js-lingui-id: 3PQ7iI
 msgid "Delivery entry."
 msgstr "Entrée de délivrabilité."
 
+#. js-lingui-id: j/jzzR
 msgid "Unknown entry"
 msgstr "Entrée inconnue"
 
 
+#. js-lingui-id: vVFjoI
 msgid "This workspace keeps no more batches. Remove one before staging another."
 msgstr "Ce workspace ne conserve pas plus de lots. Supprimez-en un avant d'en déposer un autre."
 
+#. js-lingui-id: kWy5P+
 msgid "The server answered with a conflict. Check the batch id and its content."
 msgstr "Le serveur a répondu par un conflit. Vérifiez l'identifiant du lot et son contenu."
 
+#. js-lingui-id: FGWfcx
 msgid "Ambiguous, archived or inconsistent CRM record. Needs review."
 msgstr "Fiche CRM ambiguë, archivée ou incohérente. À revoir."
 
+#. js-lingui-id: akv0n7
 msgid "A conflict row matches a CRM record that is ambiguous, archived or inconsistent. It needs review before qualification."
 msgstr "Une ligne en conflit correspond à une fiche CRM ambiguë, archivée ou incohérente. Elle doit être revue avant qualification."
 
+#. js-lingui-id: xqrZCF
 msgid "Privacy notice URL must carry no credentials."
 msgstr "L'URL d'information ne doit porter aucun identifiant."
 
+#. js-lingui-id: fz56ey
 msgid "Campaign name: {0} characters, {1} at most."
 msgstr "Nom de campagne : {0} caractères, {1} au maximum."
 
 
+#. js-lingui-id: 9ClAsu
 msgid "Choose how these contacts are informed."
 msgstr "Choisissez comment ces contacts sont informés."
 
 
+#. js-lingui-id: jL13Vu
 msgid "Not summed"
 msgstr "Non totalisé"
 
 
+#. js-lingui-id: UXmQNN
 msgid "Conflict: either this batch id is already used with different content, or this workspace keeps no more batches."
 msgstr "Conflit : soit cet identifiant de lot est déjà utilisé avec un contenu différent, soit ce workspace ne conserve pas plus de lots."
 
+#. js-lingui-id: 1pU3xp
 msgid "Subject: {0} characters, {1} at most."
 msgstr "Objet : {0} caractères, {1} au maximum."
 
+#. js-lingui-id: Lih6F6
 msgid "Row {0}: phone of {1} characters, {2} at most."
 msgstr "Ligne {0} : téléphone de {1} caractères, {2} au maximum."
 
 
+#. js-lingui-id: RPUpMd
 msgid "Conflict: this no longer matches the server state. Reload before trying again."
 msgstr "Conflit : cela ne correspond plus à l'état du serveur. Rechargez avant de réessayer."
 
