@@ -15,7 +15,10 @@ import { AuthUserWorkspaceId } from 'src/engine/decorators/auth/auth-user-worksp
 import { AuthPrincipalGuard } from 'src/engine/guards/auth-principal.guard';
 
 import { type HermesConnectionKind } from './hermes-connection.entity';
-import { HermesConnectionsService } from './hermes-connections.service';
+import {
+  HermesConnectionsService,
+  type HermesConnectionView,
+} from './hermes-connections.service';
 
 @InputType()
 export class HermesConnectionScopeInput {
@@ -61,7 +64,7 @@ export class HermesConnectionsResolver {
     @AuthWorkspace() workspace: WorkspaceEntity,
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() userWorkspaceId: string,
-  ) {
+  ): Promise<HermesConnectionView[]> {
     return this.connections.list({
       workspaceId: workspace.id,
       userId: user.id,
@@ -75,7 +78,7 @@ export class HermesConnectionsResolver {
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() userWorkspaceId: string,
     @Args('input') input: HermesConnectionSaveInput,
-  ) {
+  ): Promise<HermesConnectionView> {
     return this.connections.save(
       { workspaceId: workspace.id, userId: user.id, userWorkspaceId },
       input,
@@ -88,7 +91,7 @@ export class HermesConnectionsResolver {
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() userWorkspaceId: string,
     @Args('input') input: HermesConnectionScopeInput,
-  ) {
+  ): Promise<HermesConnectionView> {
     return this.connections.remove(
       { workspaceId: workspace.id, userId: user.id, userWorkspaceId },
       input,

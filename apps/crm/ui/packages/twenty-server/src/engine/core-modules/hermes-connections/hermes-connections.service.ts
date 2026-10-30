@@ -118,7 +118,8 @@ export class HermesConnectionsService {
         await conversations.update(
           { workspaceId: actor.workspaceId, id: conversation.id },
           {
-            botMode: 'MANUAL',
+            botMode:
+              conversation.botMode === 'AUTO' ? 'MANUAL' : conversation.botMode,
             botOwnerUserWorkspaceId: null,
             botModeUpdatedAt: new Date(
               Math.max(
