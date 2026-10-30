@@ -1,11 +1,11 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { bannerTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/bannerTest';
-import { expectSkeletonRoundCorners } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectSkeletonRoundCorners';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { bannerTest } from '@/__stories__/twenty-ui-gallery/utils/bannerTest';
+import { expectSkeletonRoundCorners } from '@/__stories__/twenty-ui-gallery/utils/expectSkeletonRoundCorners';
 
-export const calloutTest: KovaaLab CRMUiGalleryPlayFunction = async (context) => {
+export const calloutTest: KovaaLabCRMUiGalleryPlayFunction = async (context) => {
   await bannerTest(context);
   await expectSkeletonRoundCorners(context.canvasElement);
   const canvas = within(context.canvasElement);

@@ -10,7 +10,7 @@ import {
 } from 'kovaa-lab-ui/primitives/surfaces';
 import { Heading, Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const ROOT_PROPS = {
   id: 'display-card',
@@ -50,7 +50,7 @@ const CardComposition = () => {
   const [nativeTarget, setNativeTarget] = useState('');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Card composition">
+    <KovaaLabCRMUiGalleryCard title="Card composition">
       <Card.Root
         id={ROOT_PROPS.id}
         title={ROOT_PROPS.title}
@@ -161,7 +161,7 @@ const CardComposition = () => {
       <Text aria-label="Card link activations">{linkActivations}</Text>
       <Text aria-label="Account follows">{follows}</Text>
       <Text aria-label="Card native target">{nativeTarget}</Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

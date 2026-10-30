@@ -5,7 +5,7 @@ import { Dropdown } from 'kovaa-lab-ui/components/navigation';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const OVERSIZED_PORTAL_EXTENT = 4000;
 const OVERSIZED_PORTAL_OFFSET = -1000;
@@ -21,7 +21,7 @@ const PortalsExample = () => {
   const [actionCount, setActionCount] = useState(0);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Portals">
+    <KovaaLabCRMUiGalleryCard title="Portals">
       <Dropdown.Root type="menu">
         <Dropdown.Trigger render={<Button>Open menu</Button>} />
         <Dropdown.Content>
@@ -69,7 +69,7 @@ const PortalsExample = () => {
           </Button>,
           document.body,
         )}
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

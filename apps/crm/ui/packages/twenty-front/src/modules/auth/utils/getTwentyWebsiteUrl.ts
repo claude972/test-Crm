@@ -6,11 +6,11 @@ import {
 
 const KOVAALAB_WEBSITE_HREF = 'https://kovaa-lab.com';
 
-type KovaaLab CRMWebsitePage = 'terms' | 'privacy-policy';
+type KovaaLabCRMWebsitePage = 'terms' | 'privacy-policy';
 
-export const getKovaaLab CRMWebsiteUrl = (
+export const getKovaaLabCRMWebsiteUrl = (
   locale: string,
-  page: KovaaLab CRMWebsitePage,
+  page: KovaaLabCRMWebsitePage,
 ): string => {
   const language = new Intl.Locale(locale).language;
 

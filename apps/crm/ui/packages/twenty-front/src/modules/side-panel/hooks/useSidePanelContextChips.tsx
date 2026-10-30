@@ -3,7 +3,7 @@ import { SidePanelContextRecordChipAvatars } from '@/side-panel/components/SideP
 import { useSidePanelHistory } from '@/side-panel/hooks/useSidePanelHistory';
 import { sidePanelNavigationStackState } from '@/side-panel/states/sidePanelNavigationStackState';
 import { getRecordShowParamsFromPath } from '@/side-panel/routing/utils/getRecordShowParamsFromPath';
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { objectMetadataItemsSelector } from '@/object-metadata/states/objectMetadataItemsSelector';
 import { recordStoreIdentifiersFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreIdentifiersSelector';
 import { recordStoreRecordsSelector } from '@/object-record/record-store/states/selectors/recordStoreRecordsSelector';
@@ -22,8 +22,8 @@ export const useSidePanelContextChips = () => {
     sidePanelNavigationStackState,
   );
 
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
 
   const objectMetadataItems = useAtomStateValue(objectMetadataItemsSelector);
@@ -48,7 +48,7 @@ export const useSidePanelContextChips = () => {
     recordStoreIdentifiersFamilySelector,
     {
       recordIds: allRecordIds,
-      allowRequestsToKovaaLab CRMIcons,
+      allowRequestsToKovaaLabCRMIcons,
     },
   );
   const records = useAtomFamilySelectorValue(recordStoreRecordsSelector, {

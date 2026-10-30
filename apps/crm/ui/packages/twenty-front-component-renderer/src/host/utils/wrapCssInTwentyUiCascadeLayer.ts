@@ -1,11 +1,11 @@
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined, isNonEmptyArray } from 'kovaa-lab-shared/utils';
 
-import { KOVAALAB_UI_CASCADE_LAYER_NAME } from '@/host/constants/KovaaLab CRMUiCascadeLayerName';
-import { getCssImportRuleInKovaaLab CRMUiCascadeLayer } from '@/host/utils/getCssImportRuleInKovaaLab CRMUiCascadeLayer';
-import { getKovaaLab CRMUiCascadeLayerName } from '@/host/utils/getKovaaLab CRMUiCascadeLayerName';
+import { KOVAALAB_UI_CASCADE_LAYER_NAME } from '@/host/constants/TwentyUiCascadeLayerName';
+import { getCssImportRuleInKovaaLabCRMUiCascadeLayer } from '@/host/utils/getCssImportRuleInTwentyUiCascadeLayer';
+import { getKovaaLabCRMUiCascadeLayerName } from '@/host/utils/getTwentyUiCascadeLayerName';
 
-export const wrapCssInKovaaLab CRMUiCascadeLayer = (cssText: string): string => {
+export const wrapCssInKovaaLabCRMUiCascadeLayer = (cssText: string): string => {
   const parsingDocument = document.implementation.createHTMLDocument('');
   const styleElement = parsingDocument.createElement('style');
   styleElement.textContent = cssText;
@@ -35,23 +35,23 @@ export const wrapCssInKovaaLab CRMUiCascadeLayer = (cssText: string): string => 
 
     if (cssRule instanceof CSSImportRule) {
       flushRulesToWrap();
-      layeredRules.push(getCssImportRuleInKovaaLab CRMUiCascadeLayer(cssRule));
+      layeredRules.push(getCssImportRuleInKovaaLabCRMUiCascadeLayer(cssRule));
       continue;
     }
 
     if (cssRule instanceof CSSLayerStatementRule) {
       flushRulesToWrap();
-      const layerNames = cssRule.nameList.map(getKovaaLab CRMUiCascadeLayerName);
+      const layerNames = cssRule.nameList.map(getKovaaLabCRMUiCascadeLayerName);
       layeredRules.push(`@layer ${layerNames.join(', ')};`);
       continue;
     }
 
-    const isKovaaLab CRMUiLayerBlock =
+    const isKovaaLabCRMUiLayerBlock =
       cssRule instanceof CSSLayerBlockRule &&
       isNonEmptyString(cssRule.name) &&
-      getKovaaLab CRMUiCascadeLayerName(cssRule.name) === cssRule.name;
+      getKovaaLabCRMUiCascadeLayerName(cssRule.name) === cssRule.name;
 
-    if (cssRule instanceof CSSNamespaceRule || isKovaaLab CRMUiLayerBlock) {
+    if (cssRule instanceof CSSNamespaceRule || isKovaaLabCRMUiLayerBlock) {
       flushRulesToWrap();
       layeredRules.push(cssRule.cssText);
       continue;

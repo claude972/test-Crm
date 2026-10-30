@@ -16,11 +16,11 @@ import {
 } from './generated-client-test-helpers';
 
 describe('Generated client wrapper auth behavior', () => {
-  let KovaaLab CRMClass: GeneratedClientClass;
+  let KovaaLabCRMClass: GeneratedClientClass;
   let cleanup: () => Promise<void>;
 
   beforeAll(async () => {
-    ({ GeneratedClientClass: KovaaLab CRMClass, cleanup } =
+    ({ GeneratedClientClass: KovaaLabCRMClass, cleanup } =
       await loadGeneratedClientClass());
   });
 
@@ -55,13 +55,13 @@ describe('Generated client wrapper auth behavior', () => {
       },
     );
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
       ...clientOptions,
     });
 
-    await kovaa-labClient.query({ record: { id: true } });
+    await kovaaLabClient.query({ record: { id: true } });
 
     return capturedAuthorizationHeaders;
   };
@@ -103,7 +103,7 @@ describe('Generated client wrapper auth behavior', () => {
 
   it('should build outside a logic function run', () => {
     expect(
-      () => new KovaaLab CRMClass({ url: 'https://example.com/graphql' }),
+      () => new KovaaLabCRMClass({ url: 'https://example.com/graphql' }),
     ).not.toThrow();
   });
 
@@ -127,12 +127,12 @@ describe('Generated client wrapper auth behavior', () => {
       },
     );
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
-    await kovaa-labClient.query({ record: { id: true } });
+    await kovaaLabClient.query({ record: { id: true } });
 
     expect(capturedAuthorizationHeaders).toEqual(['Bearer application-token']);
   });
@@ -156,12 +156,12 @@ describe('Generated client wrapper auth behavior', () => {
       },
     );
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
-    await kovaa-labClient.query({ record: { id: true } });
+    await kovaaLabClient.query({ record: { id: true } });
 
     expect(capturedAuthorizationHeaders).toEqual([
       'Bearer legacy-api-key-token',
@@ -205,12 +205,12 @@ describe('Generated client wrapper auth behavior', () => {
       },
     );
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
-    const queryResult = await kovaa-labClient.query({ record: { id: true } });
+    const queryResult = await kovaaLabClient.query({ record: { id: true } });
 
     expect(queryResult).toEqual({ data: { record: { id: 'record-id' } } });
     expect(requestAccessTokenRefresh).toHaveBeenCalledTimes(1);
@@ -259,14 +259,14 @@ describe('Generated client wrapper auth behavior', () => {
       },
     );
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
     await Promise.all([
-      kovaa-labClient.query({ record: { id: true } }),
-      kovaa-labClient.query({ record: { id: true } }),
+      kovaaLabClient.query({ record: { id: true } }),
+      kovaaLabClient.query({ record: { id: true } }),
     ]);
 
     expect(requestAccessTokenRefresh).toHaveBeenCalledTimes(1);
@@ -333,12 +333,12 @@ describe('Generated client wrapper auth behavior', () => {
       },
     );
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
-    const uploadResult = await kovaa-labClient.uploadFile({
+    const uploadResult = await kovaaLabClient.uploadFile({
       fileBuffer: Buffer.from('content'),
       filename: 'test.txt',
       fieldMetadataUniversalIdentifier: 'field-uuid',
@@ -375,12 +375,12 @@ describe('Generated client wrapper auth behavior', () => {
       });
     });
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
-    await expect(kovaa-labClient.query({ record: { id: true } })).rejects.toThrow(
+    await expect(kovaaLabClient.query({ record: { id: true } })).rejects.toThrow(
       'Unauthorized',
     );
     expect(requestAccessTokenRefresh).toHaveBeenCalledTimes(1);
@@ -413,12 +413,12 @@ describe('Generated client wrapper auth behavior', () => {
       });
     });
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
-    await expect(kovaa-labClient.query({ record: { id: true } })).rejects.toThrow(
+    await expect(kovaaLabClient.query({ record: { id: true } })).rejects.toThrow(
       'Unauthorized',
     );
     expect(requestAccessTokenRefresh).toHaveBeenCalledTimes(1);
@@ -436,12 +436,12 @@ describe('Generated client wrapper auth behavior', () => {
       });
     });
 
-    const kovaa-labClient = new KovaaLab CRMClass({
+    const kovaaLabClient = new KovaaLabCRMClass({
       url: 'https://example.com/graphql',
       fetch: fetchMock as unknown as typeof globalThis.fetch,
     });
 
-    await expect(kovaa-labClient.query({ record: { id: true } })).rejects.toThrow(
+    await expect(kovaaLabClient.query({ record: { id: true } })).rejects.toThrow(
       'Unauthorized',
     );
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -470,11 +470,11 @@ describe('Generated client wrapper auth behavior', () => {
     globalThis.fetch = fetchMock;
 
     try {
-      const kovaa-labClient = new KovaaLab CRMClass({
+      const kovaaLabClient = new KovaaLabCRMClass({
         url: 'https://example.com/graphql',
       });
 
-      await kovaa-labClient.query({ record: { id: true } });
+      await kovaaLabClient.query({ record: { id: true } });
 
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(capturedFetchThisValues).toEqual([globalThis]);

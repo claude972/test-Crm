@@ -42,7 +42,7 @@ describe('buildMcpConfig', () => {
   it('builds the remote MCP JSON config', () => {
     expect(JSON.parse(buildMcpConfig(mcpServerUrl))).toEqual({
       mcpServers: {
-        kovaa-lab: {
+        'kovaa-lab': {
           url: mcpServerUrl,
           headers: {
             Authorization: 'Bearer <YOUR_API_KEY>',

@@ -3,12 +3,12 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Callout } from 'kovaa-lab-ui/components/feedback';
 import { ListItem } from 'kovaa-lab-ui/primitives/navigation';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const LabelOverrides = () => {
   const [isSuppliedVisible, setIsSuppliedVisible] = useState(true);
   return (
-    <KovaaLab CRMUiGalleryCard title="Label overrides">
+    <KovaaLabCRMUiGalleryCard title="Label overrides">
       <Callout status="info" title="Default notice" onDismiss={() => {}} />
       {isSuppliedVisible && (
         <Callout
@@ -25,7 +25,7 @@ const LabelOverrides = () => {
       <ListItem shortcut={[['G'], ['L']]} shortcutJoinLabel="next">
         Sequential shortcut
       </ListItem>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

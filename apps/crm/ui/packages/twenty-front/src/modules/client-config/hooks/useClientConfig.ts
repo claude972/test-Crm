@@ -38,7 +38,7 @@ import { useCallback } from 'react';
 import { clientConfigApiStatusState } from '@/client-config/states/clientConfigApiStatusState';
 import { getClientConfig } from '@/client-config/utils/getClientConfig';
 import { getInitialClientConfig } from '@/client-config/utils/getInitialClientConfig';
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { ENTERPRISE_INSTANCE_TYPE } from 'kovaa-lab-shared/constants';
@@ -129,8 +129,8 @@ export const useClientConfig = (): UseClientConfigResult => {
     isImapSmtpCaldavEnabledState,
   );
 
-  const setAllowRequestsToKovaaLab CRMIcons = useSetAtomState(
-    allowRequestsToKovaaLab CRMIconsState,
+  const setAllowRequestsToKovaaLabCRMIcons = useSetAtomState(
+    allowRequestsToKovaaLabCRMIconsState,
   );
 
   const setIsCloudflareIntegrationEnabled = useSetAtomState(
@@ -245,7 +245,7 @@ export const useClientConfig = (): UseClientConfigResult => {
         setIsEmailingDomainInDemoMode(
           clientConfig?.isEmailingDomainInDemoMode ?? false,
         );
-        setAllowRequestsToKovaaLab CRMIcons(clientConfig?.allowRequestsToKovaaLab CRMIcons);
+        setAllowRequestsToKovaaLabCRMIcons(clientConfig?.allowRequestsToKovaaLabCRMIcons);
         setIsCloudflareIntegrationEnabled(
           clientConfig?.isCloudflareIntegrationEnabled,
         );
@@ -312,7 +312,7 @@ export const useClientConfig = (): UseClientConfigResult => {
       setIsMicrosoftMessagingEnabled,
       setSentryConfig,
       setSupportChat,
-      setAllowRequestsToKovaaLab CRMIcons,
+      setAllowRequestsToKovaaLabCRMIcons,
     ],
   );
 

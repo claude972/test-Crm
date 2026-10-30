@@ -2,7 +2,7 @@ import { useLingui } from '@lingui/react/macro';
 import { IconPlus } from 'kovaa-lab-ui/icon';
 
 import { useOpenAskAiPageWithPreprompt } from '@/ai/hooks/useOpenAskAiPageWithPreprompt';
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { serializeMentionTagAsAdvancedTextEditorDocument } from '@/mention/utils/serializeMentionTagAsAdvancedTextEditorDocument';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { recordStoreIdentifierFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreIdentifierFamilySelector';
@@ -20,12 +20,12 @@ export const WidgetActionChatThreadCreate = () => {
   const { objectMetadataItem } = useObjectMetadataItem({
     objectNameSingular: targetRecord.targetObjectNameSingular,
   });
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
   const recordIdentifier = useAtomFamilySelectorValue(
     recordStoreIdentifierFamilySelector,
-    { recordId: targetRecord.id, allowRequestsToKovaaLab CRMIcons },
+    { recordId: targetRecord.id, allowRequestsToKovaaLabCRMIcons },
   );
   const { openAskAiPageWithPreprompt } = useOpenAskAiPageWithPreprompt();
 

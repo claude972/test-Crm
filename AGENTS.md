@@ -48,3 +48,8 @@
 - No task is cross-verified until the other agent has reviewed the exact revision, recorded findings and relevant checks, and verified the combined result when available.
 
 - Current shared coordination: fetch `missions/p0-stabilization` and read its root `MISSIONS.md` and `CORRECTIONS.md` before starting. Preserve existing assignments and findings. Publish the shared verification report in CORRECTIONS.md before marking an assignment ready_for_review. Do not duplicate already claimed work.
+
+## Product target
+
+- Owner decision, 29 October 2026: web and PWA only, including responsive mobile web.
+- Preserve the existing web stack. Native iOS/Android applications, Expo/React Native ports and app-store releases are outside this project's scope.

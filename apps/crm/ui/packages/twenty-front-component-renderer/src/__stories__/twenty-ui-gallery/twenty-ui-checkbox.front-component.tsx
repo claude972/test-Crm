@@ -4,7 +4,7 @@ import { Checkbox } from 'kovaa-lab-ui/primitives/input';
 
 import { isDefined } from 'kovaa-lab-ui/utilities';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const CheckboxExample = () => {
   const [checked, setChecked] = useState(false);
@@ -16,7 +16,7 @@ const CheckboxExample = () => {
   const [composition, setComposition] = useState('pending');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Checkbox">
+    <KovaaLabCRMUiGalleryCard title="Checkbox">
       <Checkbox.Root
         ref={rootRef}
         inputRef={inputRef}
@@ -65,7 +65,7 @@ const CheckboxExample = () => {
         Selection: {checked ? 'selected' : 'unselected'}; Changes: {changeCount}
         ; Composition: {composition}
       </p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

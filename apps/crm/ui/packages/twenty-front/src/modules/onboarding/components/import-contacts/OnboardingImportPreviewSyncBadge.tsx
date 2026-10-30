@@ -49,7 +49,7 @@ const StyledDivider = styled.div`
   width: 1px;
 `;
 
-const StyledKovaaLab CRMLogo = styled.img`
+const StyledKovaaLabCRMLogo = styled.img`
   border-radius: ${themeCssVariables.border.radius.xs};
   height: ${SYNC_BADGE_LOGO_SIZE}px;
   width: ${SYNC_BADGE_LOGO_SIZE}px;
@@ -69,7 +69,7 @@ export const OnboardingImportPreviewSyncBadge = () => {
           color={themeCssVariables.font.color.tertiary}
         />
       </StyledArrow>
-      <StyledKovaaLab CRMLogo src="/images/integrations/kovaa-lab-logo.svg" alt="" />
+      <StyledKovaaLabCRMLogo src="/images/integrations/kovaa-lab-logo.svg" alt="" />
     </StyledBadge>
   );
 };

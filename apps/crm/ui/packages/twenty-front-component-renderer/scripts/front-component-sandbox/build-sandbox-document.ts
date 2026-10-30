@@ -32,12 +32,31 @@ const buildSandboxDocument = async (): Promise<void> => {
     configFile: false,
     root: projectRoot,
     resolve: {
-      alias: {
-        '@/': path.resolve(projectRoot, 'src') + '/',
-      },
+      tsconfigPaths: true,
+      alias: [
+        { find: /^@\//, replacement: path.resolve(projectRoot, 'src') + '/' },
+      ],
     },
     worker: {
-      plugins: () => [createDomutilsStubPlugin()],
+      // Vite builds a worker bundle by calling rollup with exactly the plugins
+      // this function returns, so the parent config's alias plugin is not in
+      // that pipeline. The worker needs its own resolver for '@/' or the
+      // generated remote-elements entry cannot find its internal imports.
+      plugins: () => [
+        createDomutilsStubPlugin(),
+        {
+          name: 'resolve-renderer-source',
+          async resolveId(source) {
+            if (source.startsWith('@/')) {
+              return this.resolve(
+                path.resolve(projectRoot, 'src', source.slice(2)),
+                undefined,
+                { skipSelf: true },
+              );
+            }
+          },
+        },
+      ],
     },
     define: {
       'process.env.NODE_ENV': JSON.stringify('production'),

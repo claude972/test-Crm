@@ -2,16 +2,16 @@ import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { ListItem } from 'kovaa-lab-ui/primitives/navigation';
 import { ThemeProvider } from 'kovaa-lab-ui/theme';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
-import { ListItemButtonExample } from '@/__stories__/kovaa-lab-ui-gallery/list-item-button-example';
-import { ListItemOwnerExample } from '@/__stories__/kovaa-lab-ui-gallery/list-item-owner-example';
-import { ListItemPopupOwnerExample } from '@/__stories__/kovaa-lab-ui-gallery/list-item-popup-owner-example';
-import { ListItemPresentationExample } from '@/__stories__/kovaa-lab-ui-gallery/list-item-presentation-example';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
+import { ListItemButtonExample } from '@/__stories__/twenty-ui-gallery/list-item-button-example';
+import { ListItemOwnerExample } from '@/__stories__/twenty-ui-gallery/list-item-owner-example';
+import { ListItemPopupOwnerExample } from '@/__stories__/twenty-ui-gallery/list-item-popup-owner-example';
+import { ListItemPresentationExample } from '@/__stories__/twenty-ui-gallery/list-item-presentation-example';
 
 const OVERFLOW_ROW_STYLE = { width: 160 };
 
 const ListItemExample = () => (
-  <KovaaLab CRMUiGalleryCard title="ListItem">
+  <KovaaLabCRMUiGalleryCard title="ListItem">
     <ListItemButtonExample />
     <ListItemOwnerExample />
     <ListItemPresentationExample />
@@ -21,7 +21,7 @@ const ListItemExample = () => (
         A long workspace preference that overflows its row
       </ListItem>
     </ThemeProvider>
-  </KovaaLab CRMUiGalleryCard>
+  </KovaaLabCRMUiGalleryCard>
 );
 
 export default defineFrontComponent({

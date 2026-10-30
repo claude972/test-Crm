@@ -14,8 +14,9 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  group: p0-integrity-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 permissions:
   contents: read

@@ -1150,7 +1150,7 @@ export interface ClientConfig {
     aiEvaluationModels: ClientAiEvaluationModelConfig[]
     aiModelTiers: ClientAiModelTierConfig[]
     aiModels: ClientAiModelConfig[]
-    allowRequestsToKovaaLab CRMIcons: Scalars['Boolean']
+    allowRequestsToKovaaLabCRMIcons: Scalars['Boolean']
     analyticsEnabled: Scalars['Boolean']
     api: ApiConfig
     appVersion?: Scalars['String']
@@ -5361,7 +5361,7 @@ export interface ClientConfigGenqlSelection{
     aiEvaluationModels?: ClientAiEvaluationModelConfigGenqlSelection
     aiModelTiers?: ClientAiModelTierConfigGenqlSelection
     aiModels?: ClientAiModelConfigGenqlSelection
-    allowRequestsToKovaaLab CRMIcons?: boolean | number
+    allowRequestsToKovaaLabCRMIcons?: boolean | number
     analyticsEnabled?: boolean | number
     api?: ApiConfigGenqlSelection
     appVersion?: boolean | number

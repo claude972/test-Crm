@@ -2,7 +2,24 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": ".",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "src/engine/metadata-modules/front-component/constants/seed-project"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "@types/express.d.ts"
+  ]
 }

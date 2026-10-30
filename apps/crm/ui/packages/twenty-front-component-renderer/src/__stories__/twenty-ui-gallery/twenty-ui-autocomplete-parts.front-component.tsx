@@ -4,7 +4,7 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { Autocomplete, Button } from 'kovaa-lab-ui/primitives/input';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 type Person = { identifier: string; name: string };
 type PeopleGroup = { label: string; items: readonly Person[] };
@@ -36,7 +36,7 @@ const AutocompletePartsExample = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Autocomplete parts">
+    <KovaaLabCRMUiGalleryCard title="Autocomplete parts">
       <Autocomplete.Root
         items={PEOPLE_GROUPS}
         itemToStringValue={(person) => person.name}
@@ -147,7 +147,7 @@ const AutocompletePartsExample = () => {
       <Text role="status" aria-label="Owner selection">
         {selectedPerson}; Selections: {selections}
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

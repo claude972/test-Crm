@@ -2,10 +2,10 @@ import { type Expect, type HasAllProperties } from 'kovaa-lab-shared/testing';
 import { describe, expect, it } from 'vitest';
 
 import { CoreApiClient } from '../../core/generated/index';
-import { type KovaaLab CRMGeneratedClientOptions } from '../kovaa-lab-client-template';
+import { type KovaaLabCRMGeneratedClientOptions } from '../twenty-client-template';
 
 type StubOptions = NonNullable<ConstructorParameters<typeof CoreApiClient>[0]>;
-type GeneratedOptions = NonNullable<KovaaLab CRMGeneratedClientOptions>;
+type GeneratedOptions = NonNullable<KovaaLabCRMGeneratedClientOptions>;
 
 type _StubHasEveryGeneratedOption = Expect<
   HasAllProperties<StubOptions, GeneratedOptions>

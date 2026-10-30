@@ -5,8 +5,8 @@ import {
   INTERACTION_TIMEOUT,
   MOUNT_TIMEOUT,
 } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { waitForGeometryTrackerToIdle } from '@/__stories__/kovaa-lab-ui-gallery/utils/waitForGeometryTrackerToIdle';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { waitForGeometryTrackerToIdle } from '@/__stories__/twenty-ui-gallery/utils/waitForGeometryTrackerToIdle';
 
 const revealRowInRenderer = async (renderer: HTMLElement) => {
   await userEvent.click(
@@ -17,7 +17,7 @@ const revealRowInRenderer = async (renderer: HTMLElement) => {
 const readInnerScroller = (renderer: HTMLElement) =>
   within(renderer).getByRole('region', { name: 'Inner scroller' });
 
-export const scrollInstancesTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const scrollInstancesTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

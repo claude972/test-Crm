@@ -11,7 +11,7 @@ import {
   type InputVariant,
 } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const FieldControls = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,7 +26,7 @@ const FieldControls = () => {
   const [reportedValues, setReportedValues] = useState('');
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Field and text controls">
+    <KovaaLabCRMUiGalleryCard title="Field and text controls">
       <Field.Root name="notifications">
         <Field.Label>Notifications</Field.Label>
         <RadioGroup defaultValue="important">
@@ -152,7 +152,7 @@ const FieldControls = () => {
         Read values
       </Button>
       <p data-testid="reported-values">{reportedValues}</p>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

@@ -1,6 +1,6 @@
-import { getKovaaLab CRMWebsiteUrl } from '@/auth/utils/getKovaaLab CRMWebsiteUrl';
+import { getKovaaLabCRMWebsiteUrl } from '@/auth/utils/getTwentyWebsiteUrl';
 
-describe('getKovaaLab CRMWebsiteUrl', () => {
+describe('getKovaaLabCRMWebsiteUrl', () => {
   it.each([
     ['ar-SA', 'ar'],
     ['cs-CZ', 'cs'],
@@ -18,17 +18,17 @@ describe('getKovaaLab CRMWebsiteUrl', () => {
     ['zh-CN', 'zh'],
     ['zh-TW', 'zh'],
   ])('uses the localized KovaaLab CRM website path for %s', (locale, language) => {
-    expect(getKovaaLab CRMWebsiteUrl(locale, 'privacy-policy')).toBe(
+    expect(getKovaaLabCRMWebsiteUrl(locale, 'privacy-policy')).toBe(
       `https://kovaa-lab.com/${language}/privacy-policy`,
     );
   });
 
   it('uses the default KovaaLab CRM website path for English', () => {
-    expect(getKovaaLab CRMWebsiteUrl('en', 'terms')).toBe('https://kovaa-lab.com/terms');
+    expect(getKovaaLabCRMWebsiteUrl('en', 'terms')).toBe('https://kovaa-lab.com/terms');
   });
 
   it('uses English for the pseudo locale', () => {
-    expect(getKovaaLab CRMWebsiteUrl('pseudo-en', 'terms')).toBe(
+    expect(getKovaaLabCRMWebsiteUrl('pseudo-en', 'terms')).toBe(
       'https://kovaa-lab.com/terms',
     );
   });

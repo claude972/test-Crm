@@ -5,11 +5,11 @@ import { expectElementWithinScrollport } from '@/__stories__/shared/test-utils/m
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { readScrollportRectangle } from '@/__stories__/shared/test-utils/readScrollportRectangle';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 
 const EDGE_TOLERANCE = 1;
 
-export const scrollRtlRevealTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const scrollRtlRevealTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

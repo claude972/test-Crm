@@ -1,4 +1,4 @@
-import type { KovaaLab CRMClientRunAs } from '../shared/kovaa-lab-client-run-as.type';
+import type { KovaaLabCRMClientRunAs } from '../shared/twenty-client-run-as.type';
 
 // Ambient stubs for the genql-generated code this template is injected into.
 // __STRIPPED_DURING_INJECTION_START__
@@ -37,8 +37,8 @@ const APP_APPLICATION_ACCESS_TOKEN_ENV_KEY =
   'KOVAALAB_APP_APPLICATION_ACCESS_TOKEN';
 const API_KEY_ENV_KEY = 'KOVAALAB_API_KEY';
 
-export type KovaaLab CRMGeneratedClientOptions = ClientOptions & {
-  runAs?: KovaaLab CRMClientRunAs;
+export type KovaaLabCRMGeneratedClientOptions = ClientOptions & {
+  runAs?: KovaaLabCRMClientRunAs;
 };
 
 type ProcessEnvironment = Record<string, string | undefined>;
@@ -149,14 +149,14 @@ const hasAuthenticationErrorInGraphqlPayload = (
   });
 };
 
-const defaultOptions: KovaaLab CRMGeneratedClientOptions = {
+const defaultOptions: KovaaLabCRMGeneratedClientOptions = {
   url: '__KOVAALAB_DEFAULT_URL__',
   headers: {
     'Content-Type': 'application/json',
   },
 };
 
-export class KovaaLab CRMGeneratedClient {
+export class KovaaLabCRMGeneratedClient {
   private client: Client;
   private url: string;
   private requestOptions: RequestInit;
@@ -165,8 +165,8 @@ export class KovaaLab CRMGeneratedClient {
   private authorizationToken: string | null;
   private refreshAccessTokenPromise: Promise<string | null> | null = null;
 
-  constructor(options?: KovaaLab CRMGeneratedClientOptions) {
-    const merged: KovaaLab CRMGeneratedClientOptions = {
+  constructor(options?: KovaaLabCRMGeneratedClientOptions) {
+    const merged: KovaaLabCRMGeneratedClientOptions = {
       ...defaultOptions,
       ...options,
     };

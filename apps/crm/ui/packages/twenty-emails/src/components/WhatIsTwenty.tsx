@@ -2,11 +2,11 @@ import { type I18n } from '@lingui/core';
 import { MainText } from 'src/components/MainText';
 import { SubTitle } from 'src/components/SubTitle';
 
-type WhatIsKovaaLab CRMProps = {
+type WhatIsKovaaLabCRMProps = {
   i18n: I18n;
 };
 
-export const WhatIsKovaaLab CRM = ({ i18n }: WhatIsKovaaLab CRMProps) => {
+export const WhatIsKovaaLabCRM = ({ i18n }: WhatIsKovaaLabCRMProps) => {
   return (
     <>
       <SubTitle value={i18n._('What is KovaaLab CRM?')} />

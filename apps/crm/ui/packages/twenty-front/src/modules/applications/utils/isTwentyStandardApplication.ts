@@ -5,7 +5,7 @@ type ApplicationLike = {
   universalIdentifier?: string | null;
 };
 
-export const isKovaaLab CRMStandardApplication = (
+export const isKovaaLabCRMStandardApplication = (
   application: ApplicationLike | null | undefined,
 ): boolean =>
   isDefined(application?.universalIdentifier) &&

@@ -21,7 +21,7 @@ import { recordStoreFamilyState } from '@/object-record/record-store/states/reco
 import { useAtomFamilyStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomFamilyStateValue';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { frontComponentsSelector } from '@/front-components/states/frontComponentsSelector';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
@@ -105,8 +105,8 @@ export const EventRow = ({
 }: EventRowProps) => {
   const currentWorkspaceMember = useAtomStateValue(currentWorkspaceMemberState);
 
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
 
   const { recordId } = useContext(TimelineActivityContext);
@@ -165,7 +165,7 @@ export const EventRow = ({
   const labelIdentifier = getObjectRecordIdentifier({
     objectMetadataItem: mainObjectMetadataItem,
     record: recordStore,
-    allowRequestsToKovaaLab CRMIcons,
+    allowRequestsToKovaaLabCRMIcons,
   });
 
   const authorFullName = getTimelineActivityAuthorFullName(

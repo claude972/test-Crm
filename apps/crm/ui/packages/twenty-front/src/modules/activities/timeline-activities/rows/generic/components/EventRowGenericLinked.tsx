@@ -12,7 +12,7 @@ import {
   StyledEventRowContent,
   StyledEventRowLinkedRecord,
 } from '@/activities/timeline-activities/rows/components/EventRowStyles';
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { recordStoreIdentifierFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreIdentifierFamilySelector';
 import { useOpenRecordInSidePanel } from '@/side-panel/hooks/useOpenRecordInSidePanel';
 import { SidePanelSearchRecordPreviewCard } from '@/side-panel/pages/search/components/SidePanelSearchRecordPreviewCard';
@@ -35,14 +35,14 @@ export const EventRowGenericLinked = ({
   const { openRecordInSidePanel } = useOpenRecordInSidePanel();
   const [isOpen, setIsOpen] = useState(false);
 
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
   const linkedRecordIdentifier = useAtomFamilySelectorValue(
     recordStoreIdentifierFamilySelector,
     {
       recordId: event.linkedRecordId ?? '',
-      allowRequestsToKovaaLab CRMIcons,
+      allowRequestsToKovaaLabCRMIcons,
     },
   );
 

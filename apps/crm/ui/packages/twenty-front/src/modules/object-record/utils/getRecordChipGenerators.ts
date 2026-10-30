@@ -17,7 +17,7 @@ import { FieldMetadataType } from '~/generated-metadata/graphql';
 
 export const getRecordChipGenerators = (
   objectMetadataItems: EnrichedObjectMetadataItem[],
-  allowRequestsToKovaaLab CRMIcons?: boolean,
+  allowRequestsToKovaaLabCRMIcons?: boolean,
 ) => {
   const chipGeneratorPerObjectPerField: ChipGeneratorPerObjectNameSingularPerFieldName =
     {};
@@ -90,7 +90,7 @@ export const getRecordChipGenerators = (
                   objectMetadataItemToUse.nameSingular,
                   record,
                   imageIdentifierFieldMetadataToUse,
-                  allowRequestsToKovaaLab CRMIcons,
+                  allowRequestsToKovaaLabCRMIcons,
                 ),
                 avatarShape,
                 isLabelIdentifier,

@@ -7,7 +7,7 @@ import { uncapitalize } from 'kovaa-lab-shared/utils';
 
 type RecordStoreIdentifierFamilyKey = {
   recordId: string;
-  allowRequestsToKovaaLab CRMIcons: boolean;
+  allowRequestsToKovaaLabCRMIcons: boolean;
 };
 
 export const recordStoreIdentifierFamilySelector = createAtomFamilySelector<
@@ -18,7 +18,7 @@ export const recordStoreIdentifierFamilySelector = createAtomFamilySelector<
   get:
     ({
       recordId,
-      allowRequestsToKovaaLab CRMIcons,
+      allowRequestsToKovaaLabCRMIcons,
     }: RecordStoreIdentifierFamilyKey) =>
     ({ get }) => {
       const recordFromStore = get(recordStoreFamilyState, recordId);
@@ -39,7 +39,7 @@ export const recordStoreIdentifierFamilySelector = createAtomFamilySelector<
       return getObjectRecordIdentifier({
         objectMetadataItem: objectMetadataItem,
         record: recordFromStore,
-        allowRequestsToKovaaLab CRMIcons,
+        allowRequestsToKovaaLabCRMIcons,
       });
     },
 });

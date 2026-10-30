@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "typescript", "import", "unicorn"],
-  "jsPlugins": ["../kovaa-lab-oxlint-rules/dist/oxlint-plugin.mjs"],
+  "jsPlugins": ["../twenty-oxlint-rules/dist/oxlint-plugin.mjs"],
   "categories": {
     "correctness": "off"
   },

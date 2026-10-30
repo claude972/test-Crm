@@ -1,10 +1,10 @@
 import { defineFrontComponent } from 'kovaa-lab-sdk/define';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const DisplayHelpers = () => (
-  <KovaaLab CRMUiGalleryCard title="Text and display helpers">
+  <KovaaLabCRMUiGalleryCard title="Text and display helpers">
     <Text render={<p />} truncate style={{ width: 160 }}>
       A long account name that should truncate
     </Text>
@@ -18,7 +18,7 @@ const DisplayHelpers = () => (
     <Text truncate>1234.5</Text>
     <Text truncate>{'{"active":true}'}</Text>
     <Text truncate>Account description</Text>
-  </KovaaLab CRMUiGalleryCard>
+  </KovaaLabCRMUiGalleryCard>
 );
 
 export default defineFrontComponent({

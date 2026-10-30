@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import { getFrontComponentBuildPlugins } from 'kovaa-lab-sdk/front-component-renderer/build';
 
-import kovaa-labUiPackageJson from '../../../kovaa-lab-ui/package.json';
+import kovaaLabUiPackageJson from '../../../twenty-ui/package.json';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const storiesDir = path.resolve(dirname, '../../src/__stories__');
@@ -28,29 +28,29 @@ const SOURCE_SCAN_ROOTS = [
 
 const rootNodeModules = path.resolve(dirname, '../../../../node_modules');
 
-const kovaa-labUiIndividualDir = path.resolve(
+const kovaaLabUiIndividualDir = path.resolve(
   dirname,
-  '../../../kovaa-lab-ui/dist/individual',
+  '../../../twenty-ui/dist/individual',
 );
 
-const kovaa-labUiIndividualIndex = path.join(
-  kovaa-labUiIndividualDir,
+const kovaaLabUiIndividualIndex = path.join(
+  kovaaLabUiIndividualDir,
   'individual-entry.js',
 );
 
 const sdkDefineIndex = path.resolve(
   dirname,
-  '../../../kovaa-lab-sdk/dist/define/index.mjs',
+  '../../../twenty-sdk/dist/define/index.mjs',
 );
 
 const sdkFrontComponentIndex = path.resolve(
   dirname,
-  '../../../kovaa-lab-sdk/dist/front-component/index.mjs',
+  '../../../twenty-sdk/dist/front-component/index.mjs',
 );
 
-const kovaa-labSharedIndividualDir = path.resolve(
+const kovaaLabSharedIndividualDir = path.resolve(
   dirname,
-  '../../../kovaa-lab-shared/dist/individual',
+  '../../../twenty-shared/dist/individual',
 );
 
 const KOVAALAB_SHARED_SUBMODULES = [
@@ -67,24 +67,24 @@ const KOVAALAB_SHARED_SUBMODULES = [
   'workspace',
 ];
 
-const kovaa-labSharedAliases = Object.fromEntries(
+const kovaaLabSharedAliases = Object.fromEntries(
   KOVAALAB_SHARED_SUBMODULES.map((submodule) => [
     `kovaa-lab-shared/${submodule}`,
-    path.join(kovaa-labSharedIndividualDir, submodule, 'index.js'),
+    path.join(kovaaLabSharedIndividualDir, submodule, 'index.js'),
   ]),
 );
 
-const kovaa-labUiSubmodules = Object.keys(kovaa-labUiPackageJson.exports)
+const kovaaLabUiSubmodules = Object.keys(kovaaLabUiPackageJson.exports)
   .filter((subpath) => subpath !== '.' && !subpath.endsWith('.css'))
   .map((subpath) => subpath.slice(2));
 
-const kovaa-labUiAliases = {
-  'kovaa-lab-ui/style.css': path.join(kovaa-labUiIndividualDir, 'kovaa-lab-ui.css'),
-  'kovaa-lab-ui': kovaa-labUiIndividualIndex,
+const kovaaLabUiAliases = {
+  'kovaa-lab-ui/style.css': path.join(kovaaLabUiIndividualDir, 'kovaa-lab-ui.css'),
+  'kovaa-lab-ui': kovaaLabUiIndividualIndex,
   ...Object.fromEntries(
-    kovaa-labUiSubmodules.map((submodule) => [
+    kovaaLabUiSubmodules.map((submodule) => [
       `kovaa-lab-ui/${submodule}`,
-      path.join(kovaa-labUiIndividualDir, submodule, 'index.js'),
+      path.join(kovaaLabUiIndividualDir, submodule, 'index.js'),
     ]),
   ),
 };
@@ -94,8 +94,8 @@ const storyAlias = {
   'react-dom': path.join(rootNodeModules, 'react-dom'),
   'kovaa-lab-sdk/define': sdkDefineIndex,
   'kovaa-lab-sdk/front-component': sdkFrontComponentIndex,
-  ...kovaa-labUiAliases,
-  ...kovaa-labSharedAliases,
+  ...kovaaLabUiAliases,
+  ...kovaaLabSharedAliases,
 };
 
 const ENTRY_POINT_PATTERN = /\.front-component\.tsx$/;

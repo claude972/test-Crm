@@ -4,7 +4,7 @@ import { getCustomApplicationDescription } from '@/applications/utils/getCustomA
 import { getCustomApplicationReadme } from '@/applications/utils/getCustomApplicationReadme';
 import { getStandardApplicationDescription } from '@/applications/utils/getStandardApplicationDescription';
 import { getStandardApplicationReadme } from '@/applications/utils/getStandardApplicationReadme';
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 import { isWorkspaceCustomApplication } from '@/applications/utils/isWorkspaceCustomApplication';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { SettingsApplicationInstallPermissionValidationModal } from '@/marketplace/components/SettingsApplicationInstallPermissionValidationModal';
@@ -121,7 +121,7 @@ export const SettingsAvailableApplicationDetails = () => {
   );
 
   const getBuiltInApplicationContent = () => {
-    if (isKovaaLab CRMStandardApplication(installedApplication)) {
+    if (isKovaaLabCRMStandardApplication(installedApplication)) {
       return {
         description: getStandardApplicationDescription(),
         readme: getStandardApplicationReadme(),

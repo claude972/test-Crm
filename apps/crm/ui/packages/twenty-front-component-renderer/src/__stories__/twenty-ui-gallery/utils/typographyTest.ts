@@ -1,9 +1,9 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { galleryRenderTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/galleryRenderTests';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { galleryRenderTest } from '@/__stories__/twenty-ui-gallery/utils/galleryRenderTests';
 
-export const typographyTest: KovaaLab CRMUiGalleryPlayFunction = async (context) => {
+export const typographyTest: KovaaLabCRMUiGalleryPlayFunction = async (context) => {
   await galleryRenderTest(context);
   const canvas = within(context.canvasElement);
   const paragraph = canvas.getByTitle('Clamped paragraph');

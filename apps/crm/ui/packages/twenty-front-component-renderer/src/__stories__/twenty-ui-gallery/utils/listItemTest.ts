@@ -3,15 +3,15 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
 import { INTERACTION_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { listItemButtonTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/listItemButtonTest';
-import { listItemOwnerTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/listItemOwnerTest';
-import { listItemPopupOwnerTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/listItemPopupOwnerTest';
-import { listItemPresentationTest } from '@/__stories__/kovaa-lab-ui-gallery/utils/listItemPresentationTest';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { listItemButtonTest } from '@/__stories__/twenty-ui-gallery/utils/listItemButtonTest';
+import { listItemOwnerTest } from '@/__stories__/twenty-ui-gallery/utils/listItemOwnerTest';
+import { listItemPopupOwnerTest } from '@/__stories__/twenty-ui-gallery/utils/listItemPopupOwnerTest';
+import { listItemPresentationTest } from '@/__stories__/twenty-ui-gallery/utils/listItemPresentationTest';
 
 const OVERFLOW_LABEL = 'A long workspace preference that overflows its row';
 
-export const listItemTest: KovaaLab CRMUiGalleryPlayFunction = async (context) => {
+export const listItemTest: KovaaLabCRMUiGalleryPlayFunction = async (context) => {
   const { canvasElement } = context;
   const user = userEvent.setup();
   const canvas = within(canvasElement);

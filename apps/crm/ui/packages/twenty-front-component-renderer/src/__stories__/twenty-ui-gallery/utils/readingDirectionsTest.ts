@@ -2,9 +2,9 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { MOUNT_TIMEOUT } from '@/__stories__/shared/test-utils/timeouts';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
 
-export const readingDirectionsTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const readingDirectionsTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

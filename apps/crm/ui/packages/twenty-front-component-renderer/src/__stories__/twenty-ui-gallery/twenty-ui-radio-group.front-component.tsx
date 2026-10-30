@@ -5,7 +5,7 @@ import { Radio, RadioGroup } from 'kovaa-lab-ui/primitives/input';
 import { DirectionProvider } from 'kovaa-lab-ui/primitives/layout';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const RadioGroupExample = () => {
   const [frequency, setFrequency] = useState('weekly');
@@ -24,7 +24,7 @@ const RadioGroupExample = () => {
   const cardInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Radio group">
+    <KovaaLabCRMUiGalleryCard title="Radio group">
       <form id="digest-preferences" aria-label="Digest preferences">
         <RadioGroup
           name="digest"
@@ -140,7 +140,7 @@ const RadioGroupExample = () => {
       <Text>
         View: {view}; Changes: {viewChanges}
       </Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

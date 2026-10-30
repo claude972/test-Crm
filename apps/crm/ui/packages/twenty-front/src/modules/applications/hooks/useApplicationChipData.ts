@@ -4,7 +4,7 @@ import {
 } from '@/applications/hooks/useApplicationAvatarColors';
 import { getApplicationDisplayName } from '@/applications/utils/getApplicationDisplayName';
 import { getCustomApplicationLogoUrl } from '@/applications/utils/getCustomApplicationLogoUrl';
-import { isKovaaLab CRMStandardApplication } from '@/applications/utils/isKovaaLab CRMStandardApplication';
+import { isKovaaLabCRMStandardApplication } from '@/applications/utils/isTwentyStandardApplication';
 import { isWorkspaceCustomApplication } from '@/applications/utils/isWorkspaceCustomApplication';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
@@ -52,7 +52,7 @@ export const useApplicationChipData = ({
     };
   }
 
-  const isStandard = isKovaaLab CRMStandardApplication(application);
+  const isStandard = isKovaaLabCRMStandardApplication(application);
 
   const isCustom = isWorkspaceCustomApplication(application, currentWorkspace);
 

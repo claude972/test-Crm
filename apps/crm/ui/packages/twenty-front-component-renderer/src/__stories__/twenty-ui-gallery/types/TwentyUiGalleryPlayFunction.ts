@@ -1,5 +1,5 @@
-import { type KovaaLab CRMUiGalleryStory } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryStory';
+import { type KovaaLabCRMUiGalleryStory } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryStory';
 
-export type KovaaLab CRMUiGalleryPlayFunction = NonNullable<
-  KovaaLab CRMUiGalleryStory['play']
+export type KovaaLabCRMUiGalleryPlayFunction = NonNullable<
+  KovaaLabCRMUiGalleryStory['play']
 >;

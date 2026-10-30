@@ -1,4 +1,4 @@
-import { allowRequestsToKovaaLab CRMIconsState } from '@/client-config/states/allowRequestsToKovaaLab CRMIcons';
+import { allowRequestsToKovaaLabCRMIconsState } from '@/client-config/states/allowRequestsToTwentyIcons';
 import { useLabelIdentifierFieldMetadataItem } from '@/object-metadata/hooks/useLabelIdentifierFieldMetadataItem';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useIsRecordFieldReadOnly } from '@/object-record/read-only/hooks/useIsRecordFieldReadOnly';
@@ -21,15 +21,15 @@ export const useRecordIdentifierTitle = ({
   objectNameSingular,
   objectRecordId,
 }: UseRecordIdentifierTitleParams) => {
-  const allowRequestsToKovaaLab CRMIcons = useAtomStateValue(
-    allowRequestsToKovaaLab CRMIconsState,
+  const allowRequestsToKovaaLabCRMIcons = useAtomStateValue(
+    allowRequestsToKovaaLabCRMIconsState,
   );
 
   const recordIdentifier = useAtomFamilySelectorValue(
     recordStoreIdentifierFamilySelector,
     {
       recordId: objectRecordId,
-      allowRequestsToKovaaLab CRMIcons,
+      allowRequestsToKovaaLabCRMIcons,
     },
   );
 

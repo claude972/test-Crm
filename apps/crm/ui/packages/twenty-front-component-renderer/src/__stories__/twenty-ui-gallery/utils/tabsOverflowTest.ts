@@ -3,8 +3,8 @@ import { expect, userEvent, within } from 'storybook/test';
 import { errorHandler } from '@/__stories__/shared/test-utils/createFrontComponentStoryMeta';
 import { expectFocusedElementWithinScrollport } from '@/__stories__/shared/test-utils/matchers/expectFocusedElementWithinScrollport';
 import { expectFrontComponentMounted } from '@/__stories__/shared/test-utils/matchers/expectFrontComponentMounted';
-import { type KovaaLab CRMUiGalleryPlayFunction } from '@/__stories__/kovaa-lab-ui-gallery/types/KovaaLab CRMUiGalleryPlayFunction';
-import { expectScrollPositionStable } from '@/__stories__/kovaa-lab-ui-gallery/utils/expectScrollPositionStable';
+import { type KovaaLabCRMUiGalleryPlayFunction } from '@/__stories__/twenty-ui-gallery/types/TwentyUiGalleryPlayFunction';
+import { expectScrollPositionStable } from '@/__stories__/twenty-ui-gallery/utils/expectScrollPositionStable';
 
 const TAB_LISTS = [
   { label: 'Sections', isRightToLeft: false },
@@ -23,7 +23,7 @@ const expectTabFocusedWithinList = ({
     findScrollContainer: () => tabList,
   });
 
-export const tabsOverflowTest: KovaaLab CRMUiGalleryPlayFunction = async ({
+export const tabsOverflowTest: KovaaLabCRMUiGalleryPlayFunction = async ({
   canvasElement,
 }) => {
   const canvas = within(canvasElement);

@@ -4,8 +4,8 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 import { Avatar } from 'kovaa-lab-ui/primitives/data-display';
 import { Button, Input } from 'kovaa-lab-ui/primitives/input';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
-import { AVATAR_IMAGE_FIXTURE } from '@/__stories__/kovaa-lab-ui-gallery/constants/AvatarImageFixture';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
+import { AVATAR_IMAGE_FIXTURE } from '@/__stories__/twenty-ui-gallery/constants/AvatarImageFixture';
 
 const AvatarImageExample = () => {
   const [source, setSource] = useState<string>(
@@ -20,7 +20,7 @@ const AvatarImageExample = () => {
   const [isSourceSetOnly, setIsSourceSetOnly] = useState(false);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Avatar image loading">
+    <KovaaLabCRMUiGalleryCard title="Avatar image loading">
       {isMounted && (
         <Avatar.Root
           aria-label="Profile avatar"
@@ -100,7 +100,7 @@ const AvatarImageExample = () => {
       <output aria-label="Avatar activations">{activations}</output>
       <output aria-label="Avatar image loading status">{loadingStatus}</output>
       <output aria-label="Avatar image load events">{imageLoads}</output>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

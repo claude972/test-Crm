@@ -48,7 +48,7 @@ export const buildMcpSetupCategories = ({
         badge: t`Official app`,
         description: t`Open KovaaLab CRM's official ChatGPT integration for your workspace.`,
         ctaLabel: t`Open`,
-        href: MCP_SETUP.chatGptKovaaLab CRMAppUrl,
+        href: MCP_SETUP.chatGptKovaaLabCRMAppUrl,
         logo: <McpClientLogo src={OpenAiLogo} invertInDarkMode />,
       },
       {

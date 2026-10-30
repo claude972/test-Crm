@@ -5,7 +5,7 @@ import { ResizeHandle } from 'kovaa-lab-ui/primitives/layout';
 import { Card } from 'kovaa-lab-ui/primitives/surfaces';
 import { Text } from 'kovaa-lab-ui/primitives/typography';
 
-import { KovaaLab CRMUiGalleryCard } from '@/__stories__/shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '@/__stories__/shared/front-components/twenty-ui-gallery-card';
 
 const ResizeHandleExample = () => {
   const edgeRegionId = useId();
@@ -21,7 +21,7 @@ const ResizeHandleExample = () => {
   const [isEdgeVisible, setIsEdgeVisible] = useState(true);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Panel resize handle interactions">
+    <KovaaLabCRMUiGalleryCard title="Panel resize handle interactions">
       <Card.Root
         id={edgeRegionId}
         style={{ width: edgeSize, height: 100, position: 'relative' }}
@@ -72,7 +72,7 @@ const ResizeHandleExample = () => {
         <Text>Gap size: {gapSize}</Text>
       </Card.Root>
       <Text>Committed gap: {committedGapSize}</Text>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

@@ -65,7 +65,7 @@ export const mockedClientConfig: ClientConfig = {
   isImapSmtpCaldavEnabled: false,
   isTwoFactorAuthenticationEnabled: false,
   isEmailingDomainInDemoMode: false,
-  allowRequestsToKovaaLab CRMIcons: true,
+  allowRequestsToKovaaLabCRMIcons: true,
   isCloudflareIntegrationEnabled: false,
   isClickHouseConfigured: false,
   isWorkspaceSchemaDDLLocked: false,

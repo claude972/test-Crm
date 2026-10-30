@@ -5,7 +5,7 @@ import { Button } from 'kovaa-lab-ui/primitives/input';
 import { ThemeProvider } from 'kovaa-lab-ui/theme';
 import 'kovaa-lab-ui/style.css';
 
-import { KovaaLab CRMUiGalleryCard } from '../shared/front-components/kovaa-lab-ui-gallery-card';
+import { KovaaLabCRMUiGalleryCard } from '../shared/front-components/twenty-ui-gallery-card';
 
 const INITIAL_TARGETS = ['Alpha', 'Bravo', 'Charlie', 'Delta'];
 const REVIEWERS = ['Morgan', 'Taylor'];
@@ -18,7 +18,7 @@ const OverflowingListExample = () => {
   const [isMeasuredListMounted, setIsMeasuredListMounted] = useState(true);
 
   return (
-    <KovaaLab CRMUiGalleryCard title="Overflowing list">
+    <KovaaLabCRMUiGalleryCard title="Overflowing list">
       <ThemeProvider colorScheme="light" applyToRoot={false}>
         <div
           onClick={() => setHostActivations((count) => count + 1)}
@@ -74,7 +74,7 @@ const OverflowingListExample = () => {
       </Button>
       <output aria-label="Selected target">{selectedTarget}</output>
       <output aria-label="Host activations">{hostActivations}</output>
-    </KovaaLab CRMUiGalleryCard>
+    </KovaaLabCRMUiGalleryCard>
   );
 };
 

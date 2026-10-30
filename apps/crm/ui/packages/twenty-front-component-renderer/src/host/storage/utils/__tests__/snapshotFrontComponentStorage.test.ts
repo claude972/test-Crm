@@ -52,7 +52,7 @@ describe('snapshotFrontComponentStorage', () => {
       serializedValue: '2',
     });
 
-    window.localStorage.setItem('unrelatedKovaaLab CRMKey', 'value');
+    window.localStorage.setItem('unrelatedKovaaLabCRMKey', 'value');
 
     expect(window.localStorage.getItem(`${NAMESPACE}theme`)).toBe('"dark"');
     expect(window.sessionStorage.getItem(`${NAMESPACE}visits`)).toBe('2');
