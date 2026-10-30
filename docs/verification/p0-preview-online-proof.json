@@ -1,0 +1,52 @@
+{
+  "deploymentUrl": "https://hermes-crm-p0-preview-mjgvbtc3d-brafas-projects.vercel.app",
+  "runId": "40988179084",
+  "sha": "35785637057a4abb1fea9fc1f7fe427ac87cf2cc",
+  "expiresAt": "2026-10-30T02:55:40.490Z",
+  "startedAt": "2026-10-30T02:03:24.714Z",
+  "status": "passed",
+  "steps": [
+    {
+      "name": "public_configuration",
+      "status": "passed"
+    },
+    {
+      "name": "private_credentials",
+      "status": "passed"
+    },
+    {
+      "name": "post_activation_signin",
+      "status": "passed"
+    },
+    {
+      "name": "skip_email_connection",
+      "status": "passed"
+    },
+    {
+      "name": "save_and_verify_demo_profile",
+      "status": "passed"
+    },
+    {
+      "name": "skip_invitations_without_recipients",
+      "status": "passed"
+    },
+    {
+      "name": "verify_onboarding_completed",
+      "status": "passed"
+    },
+    {
+      "name": "company_create_and_read",
+      "status": "passed"
+    },
+    {
+      "name": "company_update_and_read",
+      "status": "passed"
+    },
+    {
+      "name": "company_delete_and_verify",
+      "status": "passed"
+    }
+  ],
+  "syntheticRecordId": "8d49ec6e-e66f-477e-8888-59fcb1dc704d",
+  "finishedAt": "2026-10-30T02:03:54.683Z"
+}

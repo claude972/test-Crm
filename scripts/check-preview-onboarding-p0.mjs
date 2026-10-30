@@ -10,12 +10,14 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const options = {};
 const keys = ['url', 'run-id', 'run-metadata', 'credentials', 'result'];
-assert.equal(args.length, keys.length * 2, 'Provide URL, run-id, run-metadata, credentials and result');
+assert.ok([keys.length * 2, (keys.length + 1) * 2].includes(args.length), 'Provide URL, run-id, run-metadata, credentials and result');
 for (let index = 0; index < args.length; index += 2) {
   const key = args[index].replace(/^--/, '');
-  assert.ok(args[index].startsWith('--') && keys.includes(key) && !Object.hasOwn(options, key), 'Invalid or duplicate option');
+  assert.ok(args[index].startsWith('--') && [...keys, 'resume'].includes(key) && !Object.hasOwn(options, key), 'Invalid or duplicate option');
   options[key] = args[index + 1];
 }
+assert.ok(options.resume === undefined || options.resume === 'true', 'Resume must explicitly be true');
+const resume = options.resume === 'true';
 const deployment = new URL(options.url);
 assert.equal(deployment.protocol, 'https:');
 assert.ok(deployment.hostname.endsWith('.vercel.app'), 'Only an isolated Vercel deployment is allowed');
@@ -50,6 +52,7 @@ let companyAttempted = false;
 let companyDeleted = false;
 const companyId = randomUUID();
 const companyName = `P0 synthetic ${options['run-id']} ${randomBytes(4).toString('hex')}`;
+report.syntheticRecordId = companyId;
 let currentStep = 'preflight';
 const quote = (value) => `"${String(value).replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\r', '\\r').replaceAll('\n', '\\n')}"`;
 function failure(code) { const error = new Error(code); error.safeCode = code; return error; }
@@ -92,8 +95,12 @@ async function step(name, operation) {
   console.info(`P0 preview smoke: ${name} passed`);
   return result;
 }
-const COMPANY_QUERY = 'query P0Company($filter: CompanyFilterInput!) { company(filter: $filter) { id name } }';
-const findCompany = () => request('/graphql', COMPANY_QUERY, { filter: { id: { eq: companyId } } }, token).company;
+const COMPANY_QUERY = 'query P0Companies($filter: CompanyFilterInput) { companies(filter: $filter, first: 2) { edges { node { id name } } } }';
+const findCompany = () => {
+  const edges = request('/graphql', COMPANY_QUERY, { filter: { id: { eq: companyId } } }, token).companies.edges;
+  assert.ok(Array.isArray(edges) && edges.length <= 1);
+  return edges[0]?.node ?? null;
+};
 
 try {
   await step('public_configuration', () => {
@@ -105,38 +112,66 @@ try {
     assert.equal(new URL(config.serverUrl).origin, deployment.origin);
   });
   const email = `preview-${options['run-id']}@example.com`;
-  const password = randomBytes(24).toString('base64url');
+  let password;
   assert.match(email, /^preview-\d{8,20}@example\.com$/);
   currentStep = 'private_credentials';
-  const credentials = await open(options.credentials, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
-  try {
-    await credentials.writeFile(JSON.stringify({ deploymentUrl: deployment.origin, runId: options['run-id'], expiresAt: metadata.expiresAt, email, password }));
-  } finally { await credentials.close(); }
+  if (resume) {
+    const credentials = await open(options.credentials, constants.O_RDONLY | constants.O_NOFOLLOW);
+    try {
+      assert.equal((await credentials.stat()).mode & 0o077, 0);
+      const saved = JSON.parse(await credentials.readFile('utf8'));
+      assert.equal(saved.deploymentUrl, deployment.origin);
+      assert.equal(saved.runId, options['run-id']);
+      assert.equal(saved.email, email);
+      password = saved.password;
+      assert.ok(typeof password === 'string' && password.length >= 8 && password.length <= 50);
+    } finally { await credentials.close(); }
+  } else {
+    password = randomBytes(24).toString('base64url');
+    const credentials = await open(options.credentials, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+    try {
+      await credentials.writeFile(JSON.stringify({ deploymentUrl: deployment.origin, runId: options['run-id'], expiresAt: metadata.expiresAt, email, password }));
+    } finally { await credentials.close(); }
+  }
   report.steps.push({ name: 'private_credentials', status: 'passed' });
-  await step('fresh_synthetic_signup', () => {
-    const data = request('/metadata', `mutation P0SignUp($email:String!,$password:String!) {
-      signUp(email:$email,password:$password) { tokens { accessOrWorkspaceAgnosticToken { token } } }
-    }`, { email, password });
-    token = data.signUp.tokens.accessOrWorkspaceAgnosticToken.token;
-    assert.ok(typeof token === 'string' && token.length > 20);
-  });
-  const workspace = await step('create_workspace', () => request('/metadata', `mutation P0Workspace($input:SignUpInNewWorkspaceInput) {
-    signUpInNewWorkspace(input:$input) { loginToken { token } workspace { id workspaceUrls { subdomainUrl customUrl } } }
-  }`, { input: { displayName: `Recette P0 ${options['run-id']}` } }, token).signUpInNewWorkspace);
-  assert.equal(new URL(workspace.workspace.workspaceUrls.customUrl ?? workspace.workspace.workspaceUrls.subdomainUrl).origin, deployment.origin);
-  await step('workspace_login_exchange', () => {
-    const data = request('/metadata', `mutation P0Login($loginToken:String!,$origin:String!) {
+  if (!resume) {
+    await step('fresh_synthetic_signup', () => {
+      const data = request('/metadata', `mutation P0SignUp($email:String!,$password:String!) {
+        signUp(email:$email,password:$password) { tokens { accessOrWorkspaceAgnosticToken { token } } }
+      }`, { email, password });
+      token = data.signUp.tokens.accessOrWorkspaceAgnosticToken.token;
+      assert.ok(typeof token === 'string' && token.length > 20);
+    });
+    const workspace = await step('create_workspace', () => request('/metadata', `mutation P0Workspace($input:SignUpInNewWorkspaceInput) {
+      signUpInNewWorkspace(input:$input) { loginToken { token } workspace { id workspaceUrls { subdomainUrl customUrl } } }
+    }`, { input: { displayName: `Recette P0 ${options['run-id']}` } }, token).signUpInNewWorkspace);
+    assert.equal(new URL(workspace.workspace.workspaceUrls.customUrl ?? workspace.workspace.workspaceUrls.subdomainUrl).origin, deployment.origin);
+    await step('workspace_login_exchange', () => {
+      const data = request('/metadata', `mutation P0Login($loginToken:String!,$origin:String!) {
+        getAuthTokensFromLoginToken(loginToken:$loginToken,origin:$origin) { tokens { accessOrWorkspaceAgnosticToken { token } } }
+      }`, { loginToken: workspace.loginToken.token, origin: deployment.origin });
+      token = data.getAuthTokensFromLoginToken.tokens.accessOrWorkspaceAgnosticToken.token;
+      assert.ok(typeof token === 'string' && token.length > 20);
+    });
+    await step('activate_workspace', () => {
+      const data = request('/metadata', `mutation P0Activate($input:ActivateWorkspaceInput!) {
+        activateWorkspace(data:$input) { id activationStatus }
+      }`, { input: {} }, token, 180);
+      assert.equal(data.activateWorkspace.id, workspace.workspace.id);
+      assert.ok(['CREATED', 'ACTIVE'].includes(data.activateWorkspace.activationStatus));
+    });
+  }
+  // A token issued before activation has no workspaceMemberId. Obtain the same
+  // post-activation session a user receives when signing into an existing space.
+  await step('post_activation_signin', () => {
+    const login = request('/metadata', `mutation P0ResumeLogin($email:String!,$password:String!,$origin:String!) {
+      getLoginTokenFromCredentials(email:$email,password:$password,origin:$origin) { loginToken { token } }
+    }`, { email, password, origin: deployment.origin });
+    const exchanged = request('/metadata', `mutation P0ResumeExchange($loginToken:String!,$origin:String!) {
       getAuthTokensFromLoginToken(loginToken:$loginToken,origin:$origin) { tokens { accessOrWorkspaceAgnosticToken { token } } }
-    }`, { loginToken: workspace.loginToken.token, origin: deployment.origin });
-    token = data.getAuthTokensFromLoginToken.tokens.accessOrWorkspaceAgnosticToken.token;
+    }`, { loginToken: login.getLoginTokenFromCredentials.loginToken.token, origin: deployment.origin });
+    token = exchanged.getAuthTokensFromLoginToken.tokens.accessOrWorkspaceAgnosticToken.token;
     assert.ok(typeof token === 'string' && token.length > 20);
-  });
-  await step('activate_workspace', () => {
-    const data = request('/metadata', `mutation P0Activate($input:ActivateWorkspaceInput!) {
-      activateWorkspace(data:$input) { id activationStatus }
-    }`, { input: {} }, token, 180);
-    assert.equal(data.activateWorkspace.id, workspace.workspace.id);
-    assert.ok(['CREATED', 'ACTIVE'].includes(data.activateWorkspace.activationStatus));
   });
   await step('skip_email_connection', () => {
     const data = request('/metadata', 'mutation { skipSyncEmailOnboardingStep(isAutoSkipped:true) { success } }', {}, token);
