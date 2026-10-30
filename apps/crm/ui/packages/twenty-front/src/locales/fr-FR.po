@@ -1629,6 +1629,11 @@ msgstr "Erreur 500 - {duration}ms"
 msgid "90 days"
 msgstr "90 jours"
 
+#. js-lingui-id: 9hSRGC
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "A channel cannot allow more than the company setting, so nothing was written."
+msgstr "Un canal ne peut pas autoriser plus que le réglage de la société : rien n’a été écrit."
+
 #. js-lingui-id: aSIWmb
 #~ msgid "A conflict row came in under a batch id already used with different content."
 #~ msgstr "Une ligne en conflit est arrivée sous un identifiant de lot déjà utilisé avec un contenu différent."
@@ -1699,6 +1704,11 @@ msgstr "Un enregistreur rejoindra la réunion lorsqu'elle commencera."
 #: src/pages/settings/developers/api-keys/SettingsDevelopersApiKeyDetail.tsx
 msgid "A role must be selected for the API key"
 msgstr "Un rôle doit être sélectionné pour la clé API"
+
+#. js-lingui-id: HfHM79
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "A scope was reported without a name. It is left untouched."
+msgstr "Un périmètre a été rapporté sans nom. Il est laissé tel quel."
 
 #. js-lingui-id: yfuxL8
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
@@ -4585,6 +4595,11 @@ msgstr ""
 msgid "Attachments"
 msgstr "Pièces jointes"
 
+#. js-lingui-id: woSGXk
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Attachments and formatting unavailable"
+msgstr "Pièces jointes et mise en forme indisponibles"
+
 #. js-lingui-id: 9SZT4E
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionCreateCalendarEvent.tsx
 msgid "Attendees"
@@ -4750,6 +4765,7 @@ msgstr "Mise à niveau automatique"
 
 #. js-lingui-id: Dnn2XG
 #: src/modules/ai/components/AiModelPicker.tsx
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
 #: src/modules/prospection/components/HermesCollectionOriginTag.tsx
 #: src/pages/settings/ai/components/SettingsAiModelsTab.tsx
 msgid "Automatic"
@@ -5219,10 +5235,35 @@ msgstr "Bordure"
 msgid "Border color"
 msgstr "Couleur de la bordure"
 
+#. js-lingui-id: ssXtAw
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Bot drafts, you send"
+msgstr "Le bot propose, vous envoyez"
+
 #. js-lingui-id: l2ldp6
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Bot may reply once to new messages"
-msgstr "Le bot peut répondre une fois aux nouveaux messages"
+#~ msgid "Bot may reply once to new messages"
+#~ msgstr "Le bot peut répondre une fois aux nouveaux messages"
+
+#. js-lingui-id: HK+303
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Bot mode unknown"
+msgstr "Mode du bot inconnu"
+
+#. js-lingui-id: or+ujb
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "Bot replies"
+msgstr "Réponses du bot"
+
+#. js-lingui-id: ybRCaT
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Bot replies on its own"
+msgstr "Le bot répond seul"
+
+#. js-lingui-id: oLeWyA
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Bot stopped"
+msgstr "Bot arrêté"
 
 #. js-lingui-id: njBeMm
 #: src/modules/side-panel/pages/page-layout/utils/getChartAxisNameDisplayOptions.ts
@@ -6035,6 +6076,17 @@ msgstr "Changer le mot de passe"
 msgid "Change Password"
 msgstr "Changer le mot de passe"
 
+#. js-lingui-id: pJaDob
+#. placeholder {0}: policy.writeState.message
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Change refused: {0}"
+msgstr "Changement refusé : {0}"
+
+#. js-lingui-id: MAESPy
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Change refused."
+msgstr "Changement refusé."
+
 #. js-lingui-id: 98W3AT
 #: src/modules/ai/components/AiChatThreadStatusField.tsx
 msgid "Change status in {scopeLabel}"
@@ -6423,6 +6475,11 @@ msgstr "Choisissez les champs utilisés lors de la recherche d’enregistrements
 #: src/modules/settings/security/components/SettingsSecuritySettings.tsx
 msgid "Choose which profile fields users with the Edit Profile permission can modify"
 msgstr ""
+
+#. js-lingui-id: wCbxuJ
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "Choose who answers: the bot on its own, the bot as a drafter with a human sending, or humans only. Each channel can be stricter than the company setting."
+msgstr "Choisissez qui répond : le bot seul, le bot qui propose et un humain qui envoie, ou les humains seulement. Chaque canal peut être plus strict que le réglage de la société."
 
 #. js-lingui-id: 22LF79
 #: src/modules/settings/app-preferences/components/SettingsAppPreferencesAppsSection.tsx
@@ -9552,29 +9609,28 @@ msgstr "Retardé"
 
 #. js-lingui-id: 4WWsm3
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Delegation is not set up, so this conversation stays human only."
-msgstr "La délégation n'est pas configurée, cette conversation reste humaine uniquement."
+#~ msgid "Delegation is not set up, so this conversation stays human only."
+#~ msgstr "La délégation n'est pas configurée, cette conversation reste humaine uniquement."
 
 #. js-lingui-id: /sTCnn
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Delegation is unavailable, so this conversation stays human only."
-msgstr "La délégation est indisponible, cette conversation reste humaine uniquement."
+#~ msgid "Delegation is unavailable, so this conversation stays human only."
+#~ msgstr "La délégation est indisponible, cette conversation reste humaine uniquement."
 
 #. js-lingui-id: YXc5d1
-#. placeholder {0}: control.state.message
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Delegation unchanged: {0}"
-msgstr "Délégation inchangée : {0}"
+#~ msgid "Delegation unchanged: {0}"
+#~ msgstr "Délégation inchangée : {0}"
 
 #. js-lingui-id: QGWL/S
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Delegation unchanged."
-msgstr "Délégation inchangée."
+#~ msgid "Delegation unchanged."
+#~ msgstr "Délégation inchangée."
 
 #. js-lingui-id: VvwObb
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Delegation unknown"
-msgstr "Délégation inconnue"
+#~ msgid "Delegation unknown"
+#~ msgstr "Délégation inconnue"
 
 #. js-lingui-id: HNlEFZ
 #: src/modules/metadata-error-handler/hooks/useMetadataErrorHandler.ts
@@ -10593,6 +10649,11 @@ msgstr "Brouillon d'e-mail"
 msgid "Draft Email"
 msgstr "Brouillon d'e-mail"
 
+#. js-lingui-id: qZXZqy
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "Draft only"
+msgstr "Brouillon seulement"
+
 #. js-lingui-id: OkdleH
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 msgid "Draft proposed. Review it, then send."
@@ -10637,6 +10698,11 @@ msgstr "La génération de brouillon n'est pas configurée."
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 msgid "Drafting unavailable."
 msgstr "Génération de brouillon indisponible."
+
+#. js-lingui-id: qsmy51
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Drafts only"
+msgstr "Brouillons seulement"
 
 #. js-lingui-id: XKUtpI
 #: src/modules/activities/files/components/DropZone.tsx
@@ -11058,6 +11124,7 @@ msgstr "sinon si"
 
 #. js-lingui-id: O3oNi5
 #: src/modules/auth/sign-in-up/components/internal/SignInUpEmailField.tsx
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxChannelTabs.tsx
 #: src/modules/object-record/object-filter-dropdown/constants/ActorSourceFilterOptions.ts
 #: src/modules/object-record/record-field/ui/form-types/components/FormEmailsFieldInput.tsx
@@ -11875,6 +11942,12 @@ msgstr "Entrées ({0}, dernière itération uniquement)"
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowRunStepLogsEntries.tsx
 msgid "Entries ({0})"
 msgstr "Entrées ({0})"
+
+#. js-lingui-id: roBCWO
+#. placeholder {0}: read.unreadableEntryCount
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "Entries left out because they could not be read: {0}"
+msgstr "Entrées écartées faute d’avoir pu être lues : {0}"
 
 #. js-lingui-id: VIwCaD
 #: src/modules/client-context/components/ClientContextTimelineSection.tsx
@@ -13778,6 +13851,11 @@ msgstr "Dossiers"
 msgid "Follow for me"
 msgstr ""
 
+#. js-lingui-id: Q7YABa
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Follow the company"
+msgstr "Suivre la société"
+
 #. js-lingui-id: Ovfdx1
 #: src/pages/settings/communications/SettingsWorkspaceCommunicationGroupChannelDetail.tsx
 #~ msgid "Follow the guide for your email provider."
@@ -13792,6 +13870,11 @@ msgstr "Suivez-nous sur X"
 #: src/modules/ai/components/AiChatThreadFollowersField.tsx
 msgid "Following"
 msgstr "Suivi"
+
+#. js-lingui-id: qbmkow
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyModeTag.tsx
+msgid "Follows the company setting"
+msgstr "Suit le réglage de la société"
 
 #. js-lingui-id: M0vOQ6
 #: src/modules/ai/components/AiModelPicker.tsx
@@ -15010,8 +15093,8 @@ msgstr "Saisie humaine"
 
 #. js-lingui-id: XmtDQU
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Human only"
-msgstr "Humain uniquement"
+#~ msgid "Human only"
+#~ msgstr "Humain uniquement"
 
 #. js-lingui-id: mkWad2
 #: src/modules/localization/hooks/useLocaleOptions.ts
@@ -15413,6 +15496,11 @@ msgstr "Inclure les e-mails où tous les participants partagent le même domaine
 msgid "Included"
 msgstr "Inclus"
 
+#. js-lingui-id: RqPK8j
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Incoming media unavailable"
+msgstr "Médias entrants indisponibles"
+
 #. js-lingui-id: mtGDyy
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceBillingContent.tsx
 #: src/modules/settings/billing/components/SettingsBillingSubscriptionInfo.tsx
@@ -15566,6 +15654,11 @@ msgstr "Insérez une entrée JSON, puis appuyez sur \"Exécuter la fonction\"."
 #: src/modules/workflow/workflow-diagram/workflow-edges/components/WorkflowDiagramDefaultEdgeEditable.tsx
 msgid "Insert action"
 msgstr "Insérer une action"
+
+#. js-lingui-id: glir2H
+#: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
+msgid "Insert in my reply"
+msgstr "Insérer dans ma réponse"
 
 #. js-lingui-id: CoIXZj
 #: src/modules/activities/emails/components/CampaignVariablePicker.tsx
@@ -16873,8 +16966,8 @@ msgstr "Permettre aux utilisateurs de restreindre et de partager des enregistrem
 
 #. js-lingui-id: J7vW3+
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Let the bot reply"
-msgstr "Laisser le bot répondre"
+#~ msgid "Let the bot reply"
+#~ msgstr "Laisser le bot répondre"
 
 #. js-lingui-id: HRo4g8
 #: src/modules/settings/members/components/MemberTwoFactorAuthenticationRecoverySection.tsx
@@ -17355,6 +17448,7 @@ msgstr "Chargement..."
 #. js-lingui-id: Pwqkdw
 #: src/modules/ai/utils/getAiChatUsageLabel.ts
 #: src/modules/client-context/components/ClientContextSourceNote.tsx
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesMetricValue.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesObjectRecordListSection.tsx
 #: src/modules/hermes-shell/dashboard/components/HermesPipelineSection.tsx
@@ -17577,6 +17671,7 @@ msgid "Mail Account"
 msgstr "Compte de messagerie"
 
 #. js-lingui-id: HRha/x
+#: src/modules/hermes-shell/components/HermesShellLayout.tsx
 #: src/modules/hermes-shell/components/HermesSidebar.tsx
 msgid "Main navigation"
 msgstr "Navigation principale"
@@ -18154,6 +18249,7 @@ msgstr "Messages indisponibles."
 
 #. js-lingui-id: vtZ0lQ
 #: src/modules/connectors/constants/EvolutionWhatsappConnector.ts
+#: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
 #: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
 #: src/pages/messaging/MessagingInboxPage.tsx
 msgid "Messaging"
@@ -18298,6 +18394,17 @@ msgstr "Mobile"
 #: src/pages/settings/ai/components/SettingsAiModelTiersPreview.tsx
 msgid "Mode"
 msgstr "Mode"
+
+#. js-lingui-id: dZzwn0
+#. placeholder {0}: policy.unknownMode
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyModeTag.tsx
+msgid "Mode not recognised: {0}"
+msgstr "Mode non reconnu : {0}"
+
+#. js-lingui-id: cLWO6x
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyModeTag.tsx
+msgid "Mode unknown"
+msgstr "Mode inconnu"
 
 #. js-lingui-id: scu3wk
 #: src/modules/ai/components/AiModelTierInformationButton.tsx
@@ -19629,10 +19736,20 @@ msgstr "Aucun enregistrement supprimé correspondant aux critères de filtre n'a
 msgid "No description available for this application"
 msgstr "Aucune description disponible pour cette application"
 
+#. js-lingui-id: 3kVgd0
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyModeTag.tsx
+msgid "No draft and no bot call"
+msgstr "Aucun brouillon ni appel au bot"
+
 #. js-lingui-id: wK/FR7
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 msgid "No draft came back."
 msgstr "Aucun brouillon renvoyé."
+
+#. js-lingui-id: PAcTy9
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "No drafts on this conversation"
+msgstr "Aucun brouillon sur cette conversation"
 
 #. js-lingui-id: I1OZSQ
 #: src/modules/prospection/components/CampaignAudienceMembersTable.tsx
@@ -20447,8 +20564,13 @@ msgstr "Non autorisé"
 
 #. js-lingui-id: jd5twm
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Not authorised to change delegation."
-msgstr "Non autorisé à changer la délégation."
+#~ msgid "Not authorised to change delegation."
+#~ msgstr "Non autorisé à changer la délégation."
+
+#. js-lingui-id: dA4TMN
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "Not authorised to change this policy."
+msgstr "Vous n’êtes pas autorisé à modifier cette politique."
 
 #. js-lingui-id: KMrlq0
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
@@ -20714,6 +20836,11 @@ msgstr "Rien à afficher"
 msgid "Nothing to suggest here."
 msgstr "Rien à suggérer ici."
 
+#. js-lingui-id: jGEDlI
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "Nothing was sent: this policy was read without its revision, and a change without one could overwrite someone else's decision. Reload and try again."
+msgstr "Rien n’a été envoyé : cette politique a été lue sans sa révision, et un changement sans elle pourrait écraser la décision d’une autre personne. Rechargez puis réessayez."
+
 #. js-lingui-id: 9WSOLK
 #: src/modules/prospection/components/HermesQualificationForm.tsx
 msgid "Notice given at first contact"
@@ -20950,6 +21077,11 @@ msgstr "Prospection d'octobre"
 #: src/modules/settings/admin-panel/health-status/components/SettingsAdminQueueJobsTable.tsx
 msgid "of"
 msgstr "de"
+
+#. js-lingui-id: az8lvo
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "Off"
+msgstr "Arrêt complet"
 
 #. js-lingui-id: KNz3EF
 #: src/pages/not-found/NotFound.tsx
@@ -22545,6 +22677,20 @@ msgstr "après-midi"
 #: src/modules/settings/billing/constants/UsageLimitUnitLabels.ts
 msgid "points"
 msgstr "points"
+
+#. js-lingui-id: bTaDOg
+#. placeholder {0}: policy.writeState.message
+#. placeholder {0}: writeState.message
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Policy unchanged: {0}"
+msgstr "Politique inchangée : {0}"
+
+#. js-lingui-id: Dg62mY
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Policy unchanged."
+msgstr "Politique inchangée."
 
 #. js-lingui-id: trnWaw
 #: src/modules/localization/hooks/useLocaleOptions.ts
@@ -25141,6 +25287,17 @@ msgstr "Enregistrer les paramètres"
 msgid "Save your changes first"
 msgstr "Enregistrez d'abord vos modifications"
 
+#. js-lingui-id: mmYVfA
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "Saved."
+msgstr "Enregistré."
+
+#. js-lingui-id: fJjnul
+#. placeholder {0}: writeState.mode
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "Saved. The server applied: {0}"
+msgstr "Enregistré. Le serveur a appliqué : {0}"
+
 #. js-lingui-id: w9O5DJ
 #: src/pages/settings/developers/tabs/SettingsDevelopersCliTab.tsx
 msgid "Scaffold an app, register it in this workspace and sync your changes as you code."
@@ -25198,6 +25355,12 @@ msgstr "Nom du schéma"
 #: src/modules/settings/unsubscribers/components/SettingsUnsubscribersList.tsx
 msgid "Scope"
 msgstr "Périmètre"
+
+#. js-lingui-id: WrRK/y
+#. placeholder {0}: policy.unknownScope
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "Scope not recognised: {0}. It is left untouched."
+msgstr "Périmètre non reconnu : {0}. Il est laissé tel quel."
 
 #. js-lingui-id: N/rFzD
 #: src/pages/settings/applications/tabs/SettingsApplicationRegistrationOAuthTab.tsx
@@ -26361,6 +26524,11 @@ msgstr "Envoi de l'e-mail"
 msgid "Sending flag unknown"
 msgstr "Indicateur d'envoi inconnu"
 
+#. js-lingui-id: R9W1v1
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Sending media unavailable"
+msgstr "Envoi de médias indisponible"
+
 #. js-lingui-id: asU5VT
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/HttpRequestExecutionResult.tsx
 msgid "Sending request..."
@@ -27293,6 +27461,11 @@ msgstr "Certains messages n'ont pas pu être lus et ne sont pas listés."
 msgid "Some rows carry a status outside the contract. They are shown as unknown and cannot be acted on."
 msgstr "Certaines lignes portent un statut hors contrat. Elles sont affichées comme inconnues et aucune action n'est possible."
 
+#. js-lingui-id: JGy5l3
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "Someone changed this policy first, so nothing was written. Reload and try again."
+msgstr "Quelqu’un a modifié cette politique avant vous : rien n’a été écrit. Rechargez puis réessayez."
+
 #. js-lingui-id: 2c+W2z
 #: src/modules/ai/components/AiChatSnoozeMenu.tsx
 msgid "Someone replies"
@@ -27807,6 +27980,11 @@ msgstr "Arrêter l'enregistrement pour {applicationName}"
 #: src/modules/ai/components/internal/SendMessageButton.tsx
 msgid "Stop response"
 msgstr "Arrêter la réponse"
+
+#. js-lingui-id: gQfc/0
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Stop the bot"
+msgstr "Arrêter le bot"
 
 #. js-lingui-id: NnvXp5
 #: src/modules/workflow/workflow-diagram/utils/getWorkflowRunStatusTagProps.ts
@@ -28503,8 +28681,8 @@ msgstr "Tableau, Kanban, Calendrier"
 
 #. js-lingui-id: yqwjpd
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "Take over"
-msgstr "Reprendre la main"
+#~ msgid "Take over"
+#~ msgstr "Reprendre la main"
 
 #. js-lingui-id: DBxdLI
 #: src/pages/settings/applications/components/SettingsClaimApplicationSection.tsx
@@ -28736,6 +28914,26 @@ msgstr "La valeur booléenne false."
 msgid "The boolean value true."
 msgstr "La valeur booléenne true."
 
+#. js-lingui-id: YLzVYU
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyModeTag.tsx
+msgid "The bot drafts, a human sends"
+msgstr "Le bot propose, un humain envoie"
+
+#. js-lingui-id: fp4zAi
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyModeTag.tsx
+msgid "The bot may reply on its own"
+msgstr "Le bot peut répondre seul"
+
+#. js-lingui-id: bn00Be
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "The bot policy could not be read, so it cannot be changed here. Replying by hand still works."
+msgstr "La politique du bot n’a pas pu être lue, elle ne peut donc pas être modifiée ici. Répondre à la main reste possible."
+
+#. js-lingui-id: 7Z/6db
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "The bot policy could not be read, so it is unknown. Reload to try again."
+msgstr "La politique du bot n’a pas pu être lue : elle est inconnue. Rechargez pour réessayer."
+
 #. js-lingui-id: VsxjzF
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
 msgid "The call recording could not be processed."
@@ -28760,6 +28958,14 @@ msgstr "Le code permet à {memberName} de se connecter une fois à cet espace de
 #: src/modules/prospection/components/HermesCollectionOriginTag.tsx
 msgid "The collection contract carries no origin yet."
 msgstr "Le contrat de collecte ne porte pas encore d'origine."
+
+#. js-lingui-id: wFWxCF
+#~ msgid "The company settings keep the bot assisted: it may draft, and you send."
+#~ msgstr "Les réglages de la société gardent le bot assisté : il propose, vous envoyez."
+
+#. js-lingui-id: k+uIVL
+#~ msgid "The company settings stop the bot on this channel. Replies stay human."
+#~ msgstr "Les réglages de la société arrêtent le bot sur ce canal. Les réponses restent humaines."
 
 #. js-lingui-id: aXzQ65
 #: src/modules/ai/components/AiChatCompactionIndicator.tsx
@@ -28963,15 +29169,24 @@ msgstr ""
 #~ msgstr "Le serveur a répondu par un conflit. Vérifiez l'identifiant du lot et son contenu."
 
 #. js-lingui-id: jb87WL
-#. placeholder {0}: control.state.status
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
-msgid "The server answered: {0}"
-msgstr "Le serveur a répondu : {0}"
+#~ msgid "The server answered: {0}"
+#~ msgstr "Le serveur a répondu : {0}"
+
+#. js-lingui-id: ECqnX0
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "The server reported no bot policy for this company."
+msgstr "Le serveur n’a rapporté aucune politique de bot pour cette société."
 
 #. js-lingui-id: MUCB63
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 msgid "The server took the reply."
 msgstr "Le serveur a pris la réponse."
+
+#. js-lingui-id: SuYp1Z
+#: src/modules/hermes-bot-settings/components/HermesBotPolicyRow.tsx
+msgid "The server's answer could not be read, so this change is unconfirmed. Reload to see what it kept."
+msgstr "La réponse du serveur n’a pas pu être lue : ce changement n’est pas confirmé. Rechargez pour voir ce qui a été retenu."
 
 #. js-lingui-id: hKKMk0
 #: src/pages/settings/communications/SettingsWorkspaceCommunicationGroupChannelDetail.tsx
@@ -32290,6 +32505,11 @@ msgstr "Visualiser"
 msgid "Visualize data model"
 msgstr "Visualiser le modèle de données"
 
+#. js-lingui-id: bhf/gu
+#: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
+msgid "Voice messages unavailable"
+msgstr "Messages vocaux indisponibles"
+
 #. js-lingui-id: /cF7Rs
 #: src/modules/hermes-shell/dashboard/components/HermesVolumeSection.tsx
 msgid "Volume"
@@ -32689,9 +32909,10 @@ msgstr "WhatsApp"
 
 #. js-lingui-id: 2+ExvJ
 #: src/modules/connectors/constants/EvolutionWhatsappConnector.ts
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxChannelTabs.tsx
 msgid "WhatsApp"
-msgstr ""
+msgstr "WhatsApp"
 
 #. js-lingui-id: 1ZF9KQ
 #: src/modules/client-context/components/ClientContextTimelineSection.tsx
@@ -32795,6 +33016,11 @@ msgstr "La conversation avec le destinataire dans laquelle cette étape écrit"
 #: src/modules/settings/data-model/object-details/components/tabs/ObjectSettings.tsx
 msgid "Who a record of {objectLabel} can be shared with. Roles still decide what people see by default."
 msgstr "Avec qui un enregistrement de {objectLabel} peut être partagé. Les rôles déterminent toujours ce que les personnes voient par défaut."
+
+#. js-lingui-id: +WRUiv
+#: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+msgid "Whole company"
+msgstr "Toute la société"
 
 #. js-lingui-id: 9y+sLE
 #: src/modules/workflow/workflow-variables/utils/getWorkflowVariableSpecialItems.ts
@@ -33725,63 +33951,3 @@ msgstr "Zoom avant"
 #: src/modules/settings/data-model/graph-overview/components/SettingsDataModelOverview.tsx
 msgid "Zoom out"
 msgstr "Zoom arrière"
-
-msgid "Incoming media unavailable"
-msgstr "Médias entrants indisponibles"
-
-msgid "Sending media unavailable"
-msgstr "Envoi de médias indisponible"
-
-msgid "Voice messages unavailable"
-msgstr "Messages vocaux indisponibles"
-
-msgid "Attachments and formatting unavailable"
-msgstr "Pièces jointes et mise en forme indisponibles"
-
-msgid "The company settings stop the bot on this channel. Replies stay human."
-msgstr "Les réglages de la société arrêtent le bot sur ce canal. Les réponses restent humaines."
-
-msgid "The company settings keep the bot assisted: it may draft, and you send."
-msgstr "Les réglages de la société gardent le bot assisté : il propose, vous envoyez."
-
-msgid "Bot replies on its own"
-msgstr "Le bot répond seul"
-
-msgid "Bot drafts, you send"
-msgstr "Le bot propose, vous envoyez"
-
-msgid "Bot stopped"
-msgstr "Bot arrêté"
-
-msgid "Bot mode unknown"
-msgstr "Mode du bot inconnu"
-
-msgid "No drafts on this conversation"
-msgstr "Aucun brouillon sur cette conversation"
-
-msgid "Follow the company"
-msgstr "Suivre la société"
-
-msgid "Drafts only"
-msgstr "Brouillons seulement"
-
-msgid "Stop the bot"
-msgstr "Arrêter le bot"
-
-msgid "The bot policy could not be read, so it cannot be changed here. Replying by hand still works."
-msgstr "La politique du bot n’a pas pu être lue, elle ne peut donc pas être modifiée ici. Répondre à la main reste possible."
-
-msgid "Change refused: {0}"
-msgstr "Changement refusé : {0}"
-
-msgid "Change refused."
-msgstr "Changement refusé."
-
-msgid "Policy unchanged: {0}"
-msgstr "Politique inchangée : {0}"
-
-msgid "Policy unchanged."
-msgstr "Politique inchangée."
-
-msgid "Insert in my reply"
-msgstr "Insérer dans ma réponse"
