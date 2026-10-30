@@ -17,15 +17,18 @@ git show origin/missions/p0-stabilization:MISSIONS.md
 git show origin/missions/p0-stabilization:CORRECTIONS.md
 ```
 
-## Mission active
+## Missions P0 courantes
 
-- Claude : [inventaire frontend P0](claude-frontend-p0.md).
-- Codex : [stabilisation P0](../stabilization/p0-status.md).
-- Branche de transmission : `chore/p0-stabilization`.
-- Base historique : `05972c1de4861566f8bbd0ed71dcf6dffd4cbdb6`.
-- Branches prévues : `chore/claude-frontend-inventory`, puis `feat/claude-client-tools-ui` et `feat/codex-client-tools-api` après validation de la base.
+Les statuts effectifs se lisent dans les deux fichiers racine de `missions/p0-stabilization`, après fetch explicite. Ne pas attendre une réponse ancienne d'issue si CORRECTIONS.md contient déjà la décision.
 
-La publication GitHub ne déclenche pas à elle seule une session Claude. Un agent ou une veille doit être actif séparément et lire la bonne branche. Vérifier les prises en charge existantes avant de relancer la même mission.
+- Inventaire Claude : PR #6, branche `chore/claude-frontend-inventory` ; dernière révision connue au relais `71350185373ed7b8a57a15fc579a870a3fc19b6d`. Les précisions P0-DOC-001/002/003 et le rapport partagé doivent être livrés avant sa prise de mission suivante.
+- Réparation frontend Claude : mission `p0-frontend-baseline`, branche `fix/claude-frontend-baseline`, base commune `c0318cf0b33134c4c292affe395009a6bd3b4662`. Reprise P0 de syntaxe/imports, sans refonte ni Outils clients.
+- Checkpoint backend Codex : PR #7, branche `fix/codex-backend-build` ; code `79305ae2e63e72456e3c5b78ae5ced483d951557`, tête documentaire `c13d12652959bb2903987c539359d9cbfe5f86fc`. CI backend verte, revue Claude encore requise.
+- Vérification combinée Codex : PR #8, branche `chore/p0-combined-verification`. Intégration isolée et contrôles en ligne ; aucune validation globale déduite de la seule CI backend.
+
+La publication GitHub ne démarre pas un agent. Une session réelle a été chargée de l'exécution frontend après le relais de l'inventaire ; vérifier son activité et les prises de mission avant toute relance. Ne pas lancer une deuxième implémentation.
+
+La base historique `05972c1de4861566f8bbd0ed71dcf6dffd4cbdb6` et les consignes d'inventaire restent un historique. Les branches P1 `feat/claude-client-tools-ui` et `feat/codex-client-tools-api` ne sont pas une tâche à démarrer pendant P0. Le contrat P1 et l'achat du domaine ne bloquent pas la réparation de la syntaxe.
 
 ## Transmission et revue
 

@@ -11,3 +11,11 @@ Accès Vercel CLI vérifié ; aucun projet CRM P0 existant identifié dans l'éq
 ## Résultats
 
 En attente de la CI d'intégration et de la livraison frontend. Ce document ne constitue pas une validation globale, fonctionnelle ou visuelle.
+
+## Conservation des originaux
+
+Recontrôle SHA-256 depuis le manifeste privé de sauvegarde, après création de la branche d'intégration : 55 696 fichiers contrôlés, zéro différent, zéro manquant. La sauvegarde et son manifeste restent privés et ne sont pas publiés.
+
+## Contrôles de cette préparation
+
+`git diff --check` réussi ; Gitleaks sur les changements staged sans détection. Première CI combinée : https://github.com/claude972/test-Crm/actions/runs/40977970048 (résultat en attente au moment de cette note).
