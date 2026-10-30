@@ -1,0 +1,68 @@
+name: Hermes mail verification
+on:
+  push:
+    branches: [feat/codex-hermes-v4-mail]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hermes-mail-verification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FORCE_COLOR: "0"
+      NODE_OPTIONS: --max-old-space-size=4096
+      EMAIL_DRIVER: logger
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install immutable workspace dependencies
+        working-directory: apps/crm/ui
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build shared, client SDK and email dependencies without provider traffic
+        working-directory: apps/crm/ui
+        run: |
+          set -eu
+          for package in twenty-shared twenty-client-sdk twenty-emails; do
+            (
+              cd "packages/$package"
+              node --input-type=module -e "const { build } = await import('vite'); await build();"
+              if test "$package" = twenty-client-sdk; then
+                node --input-type=module -e "const { build } = await import('vite'); await build({ configFile: 'vite.metadata.config.ts' });"
+              fi
+              node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --composite false --singleThreaded
+              node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+            )
+          done
+      - name: Typecheck and compile feature production sources
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          node ../../node_modules/.bin/tsgo -p tsconfig.build.json --noEmit --singleThreaded
+          node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+      - name: Install native SDK assets for isolated unit imports
+        run: |
+          set -eu
+          destination="apps/crm/ui/packages/twenty-server/dist/assets/kovaa-lab-client-sdk"
+          mkdir -p "$destination"
+          cp apps/crm/ui/packages/twenty-client-sdk/package.json "$destination/"
+          cp -r apps/crm/ui/packages/twenty-client-sdk/dist "$destination/dist"
+      - name: Remove only tracked test environment fixtures in the disposable checkout
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          git ls-files --error-unmatch apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server >/dev/null
+          git diff --quiet HEAD -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+          rm -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+      - name: Verify mailbox security and native SMTP against an isolated loopback fixture
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          mapfile -t suites < <(find src/engine/core-modules/hermes-mail/__tests__ -name '*.spec.ts' -type f | sort)
+          node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath "${suites[@]}"

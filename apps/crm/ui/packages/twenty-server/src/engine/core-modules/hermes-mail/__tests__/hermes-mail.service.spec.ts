@@ -1,3 +1,4 @@
+beforeEach(() => jest.useRealTimers());
 jest.mock('src/engine/core-modules/hermes-media/hermes-media.service', () => ({
   HermesMediaService: class {},
 }));
