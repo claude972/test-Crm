@@ -445,6 +445,174 @@ export class HermesMailboxService {
     );
   }
 
+  private async sentCopy(
+    actor: HermesMessagingActor,
+    input: {
+      id: string;
+      conversationId: string;
+      status: string;
+    },
+    envelope: ReturnType<typeof planMailEnvelope>,
+    clientRequestId: string,
+    attachmentIds: string[],
+  ) {
+    if (input.status !== 'ACCEPTED')
+      return { ...input, sentCopy: { state: 'NOT_ACCEPTED' } };
+    try {
+      const sentCopy = await this.session(actor, async (client, item) => {
+        const sent = (await client.list()).find(
+          (folder) =>
+            folder.specialUse === '\\Sent' && !folder.flags.has('\\Noselect'),
+        );
+        if (!sent)
+          return { state: 'UNAVAILABLE', reason: 'MAIL_SENT_FOLDER_NOT_FOUND' };
+        return this.locked(client, actor, { folder: sent.path }, async () => {
+          const uidValidity = String(
+            client.mailbox && client.mailbox.uidValidity,
+          );
+          const attachments = await this.mail.draftAttachments(
+            actor,
+            input.conversationId,
+            attachmentIds,
+          );
+          const signature = mailContentSignature(
+            envelope,
+            attachments.map((file) => ({
+              filename: file.filename,
+              mimeType: file.contentType,
+              bytes: file.content,
+            })),
+          );
+          const messageId =
+            '<' + clientRequestId + '@' + envelope.from.split('@')[1] + '>';
+          const checkpoint = (
+            action: 'RESERVE' | 'UNCONFIRMED' | 'SAVED',
+            scope?: { uid: string; mimeSha256: string },
+          ) =>
+            this.mail.recordSentCopy(
+              actor,
+              {
+                messageId: input.id,
+                conversationId: input.conversationId,
+                clientRequestId,
+                connectionId: item.binding.connectionId,
+                connectionRevision: item.revision,
+                accountId: item.account.id,
+                accountRevision: item.account.updatedAt?.getTime(),
+                action,
+                rfcMessageId: messageId,
+                ...(scope
+                  ? { scope: { folder: sent.path, uidValidity, ...scope } }
+                  : {}),
+              },
+              () => this.alive(client),
+            );
+          const found = await client.search(
+            { header: { 'message-id': messageId } },
+            { uid: true },
+          );
+          if (Array.isArray(found) && found.length > 20)
+            return { state: 'UNCONFIRMED', reason: 'MAIL_SENT_MATCH_LIMIT' };
+          let scope: { uid: string; mimeSha256: string } | undefined;
+          for (const uid of Array.isArray(found) ? found : []) {
+            const source = await this.source(client, {
+              folder: sent.path,
+              uid: String(uid),
+              uidValidity,
+            });
+            if (
+              source.messageId === messageId &&
+              (mailParsedContentSignature(source) === signature ||
+                (!source.bcc?.length &&
+                  mailParsedContentSignature(source) ===
+                    mailContentSignature(
+                      { ...envelope, bcc: [] },
+                      attachments.map((file) => ({
+                        filename: file.filename,
+                        mimeType: file.contentType,
+                        bytes: file.content,
+                      })),
+                    )))
+            )
+              scope = { uid: String(uid), mimeSha256: source.mimeSha256 };
+          }
+          const replay = !!scope;
+          if (!scope) {
+            const reserved = await checkpoint('RESERVE');
+            if (!reserved.appendAllowed)
+              return { state: 'UNCONFIRMED', reason: 'MAIL_SENT_SEARCH_ONLY' };
+            const compiled = new MailComposer({
+              ...envelope,
+              messageId,
+              attachments,
+              disableFileAccess: true,
+              disableUrlAccess: true,
+            }).compile();
+            compiled.keepBcc = true;
+            const raw = await compiled.build();
+            await this.current(actor, client);
+            let result;
+            try {
+              result = await client.append(sent.path, raw, ['\\Seen']);
+            } catch {
+              await checkpoint('UNCONFIRMED');
+              return {
+                state: 'UNCONFIRMED',
+                reason: 'MAIL_SENT_APPEND_UNCONFIRMED',
+              };
+            }
+            if (
+              !result ||
+              !result.uid ||
+              String(result.uidValidity) !== uidValidity
+            ) {
+              await checkpoint('UNCONFIRMED');
+              return {
+                state: 'UNCONFIRMED',
+                reason: 'MAIL_SENT_APPEND_UNCONFIRMED',
+              };
+            }
+            await this.current(actor, client);
+            const actual = await this.source(client, {
+              folder: sent.path,
+              uid: String(result.uid),
+              uidValidity,
+            });
+            if (
+              actual.messageId !== messageId ||
+              mailParsedContentSignature(actual) !== signature
+            )
+              return {
+                state: 'UNCONFIRMED',
+                reason: 'MAIL_SENT_CONTENT_CHANGED',
+              };
+            scope = { uid: String(result.uid), mimeSha256: actual.mimeSha256 };
+          }
+          await this.current(actor, client);
+          await checkpoint('SAVED', scope);
+          return {
+            state: 'SAVED',
+            replay,
+            folder: sent.path,
+            uidValidity,
+            uid: scope.uid,
+          };
+        });
+      });
+      return { ...input, sentCopy };
+    } catch {
+      // The durable ledger has already accepted this send. Failed storage of
+      // its native copy must never trigger another SMTP attempt.
+      return {
+        ...input,
+        sentCopy: {
+          state: 'UNCONFIRMED',
+          reason: 'MAIL_SENT_COPY_UNCONFIRMED',
+        },
+      };
+    }
+  }
+
   async send(actor: HermesMessagingActor, input: HermesMailComposeInput) {
     if (!input.clientRequestId)
       throw new BadRequestException('MAIL_REQUEST_ID_REQUIRED');
@@ -482,11 +650,18 @@ export class HermesMailboxService {
         return { envelope, conversationId };
       }),
     );
-    return this.mail.replyRich(actor, {
+    const result = await this.mail.replyRich(actor, {
       ...planned,
       clientRequestId: input.clientRequestId,
       attachmentIds: input.attachmentIds ?? [],
     });
+    return this.sentCopy(
+      actor,
+      result,
+      planned.envelope,
+      input.clientRequestId,
+      input.attachmentIds ?? [],
+    );
   }
 
   async sendNew(actor: HermesMessagingActor, input: HermesMailNewDraftInput) {
@@ -522,11 +697,18 @@ export class HermesMailboxService {
             throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
           return { envelope, conversationId: conversation.id };
         });
-        return this.mail.replyRich(actor, {
+        const result = await this.mail.replyRich(actor, {
           ...planned,
-          clientRequestId: input.clientRequestId,
+          clientRequestId: input.clientRequestId!,
           attachmentIds: input.attachmentIds ?? [],
         });
+        return this.sentCopy(
+          actor,
+          result,
+          planned.envelope,
+          input.clientRequestId!,
+          input.attachmentIds ?? [],
+        );
       },
     );
   }
@@ -579,6 +761,8 @@ export class HermesMailboxService {
             { uid: true },
           );
           const old = Array.isArray(found) ? found.sort((a, b) => a - b) : [];
+          if (old.length > 20)
+            throw new ConflictException('MAIL_DRAFT_MATCH_LIMIT');
           let latestRevision: string | null = null;
           for (const uid of old) {
             await this.current(actor, client);

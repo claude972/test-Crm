@@ -899,3 +899,189 @@ it('HERMES-V4-MAIL-003 observes Sent Bcc-only under the own mailbox contact with
     'private@example.org',
   );
 });
+
+it('reserves native Sent-copy attempts durably on an accepted canonical receipt and never upgrades an unconfirmed send', async () => {
+  const f = fixture();
+  const requestId = 'e4d16125-1299-4b15-aa57-d193a423b4e9';
+  const rfcMessageId = '<' + requestId + '@example.com>';
+  const canonical = {
+    id: 'canonical-receipt',
+    workspaceId,
+    conversationId,
+    channel: 'EMAIL',
+    status: 'ACCEPTED',
+    providerConnectionId: 'company-inbox',
+    providerMessageId: rfcMessageId,
+    providerMetadata: {},
+  };
+  const reserved = {
+    ...canonical,
+    id: 'reserved',
+    canonicalMessageId: canonical.id,
+    clientRequestId: requestId,
+  };
+  const repository = {
+    findOneBy: jest.fn(
+      async (where: Record<string, unknown>) =>
+        [reserved, canonical].find((row) =>
+          Object.entries(where).every(
+            ([key, value]) => row[key as keyof typeof row] === value,
+          ),
+        ) ?? null,
+    ),
+    update: jest.fn(
+      async (_where: unknown, value: { providerMetadata: unknown }) => {
+        canonical.providerMetadata = value.providerMetadata as {};
+        return { affected: 1 };
+      },
+    ),
+  };
+  const manager = {
+    query: jest.fn(),
+    getRepository: (target: { name: string }) =>
+      target.name === 'HermesInboxMessageEntity'
+        ? repository
+        : {
+            findOne: async () =>
+              target.name === 'ConnectedAccountEntity'
+                ? f.account
+                : { id: memberId, userId, workspaceId },
+          },
+  };
+  Object.assign(f.messages, {
+    manager: {
+      transaction: async (run: (value: unknown) => unknown) => run(manager),
+    },
+  });
+  const input = {
+    messageId: reserved.id,
+    conversationId,
+    clientRequestId: requestId,
+    connectionId: 'company-inbox',
+    connectionRevision: (await f.service.connection(workspaceId))!.revision,
+    accountId,
+    rfcMessageId,
+  };
+  expect(
+    await f.service.recordSentCopy(
+      actor,
+      { ...input, action: 'RESERVE' },
+      () => {},
+    ),
+  ).toEqual({ appendAllowed: true });
+  expect(canonical.providerMetadata).toEqual({ sentCopyState: 'PENDING' });
+  expect(
+    await f.service.recordSentCopy(
+      actor,
+      { ...input, action: 'RESERVE' },
+      () => {},
+    ),
+  ).toEqual({ appendAllowed: false });
+  await f.service.recordSentCopy(
+    actor,
+    { ...input, action: 'UNCONFIRMED' },
+    () => {},
+  );
+  expect(
+    await f.service.recordSentCopy(
+      actor,
+      { ...input, action: 'RESERVE' },
+      () => {},
+    ),
+  ).toEqual({ appendAllowed: false });
+  await f.service.recordSentCopy(
+    actor,
+    {
+      ...input,
+      action: 'SAVED',
+      scope: {
+        folder: 'Sent',
+        uid: '50',
+        uidValidity: '123',
+        mimeSha256: 'a'.repeat(64),
+      },
+    },
+    () => {},
+  );
+  expect(canonical).toMatchObject({
+    status: 'ACCEPTED',
+    providerMetadata: {
+      sentCopyState: 'SAVED',
+      uid: 50,
+      mimeSha256: 'a'.repeat(64),
+    },
+  });
+  reserved.status = 'UNCONFIRMED';
+  await expect(
+    f.service.recordSentCopy(
+      actor,
+      {
+        ...input,
+        action: 'SAVED',
+        scope: {
+          folder: 'Sent',
+          uid: '51',
+          uidValidity: '123',
+          mimeSha256: 'b'.repeat(64),
+        },
+      },
+      () => {},
+    ),
+  ).rejects.toThrow('MAIL_CONNECTION_UNAVAILABLE');
+  expect(canonical).toMatchObject({
+    status: 'ACCEPTED',
+    providerMetadata: { uid: 50 },
+  });
+});
+
+it('reads a proven native Sent MIME copy through its accepted canonical receipt without creating another message or private asset', async () => {
+  const media = {
+    receive: jest.fn(),
+    attachment: jest.fn(async () => ({
+      assetId: 'asset',
+      filename: 'fixture.pdf',
+    })),
+  };
+  const f = fixture(undefined, media);
+  f.messages.findOne.mockResolvedValue({
+    id: 'accepted-canonical',
+    conversationId,
+    providerMessageId: '<receipt@example.com>',
+    direction: 'OUTBOUND',
+    providerMetadata: { mimeSha256: 'a'.repeat(64), sentCopyState: 'SAVED' },
+    attachmentIds: ['asset'],
+    conversation: {
+      contactHandle: 'client@example.com',
+      providerConversationId: 'draft:original',
+    },
+  } as never);
+  const result = await f.service.observe(
+    actor,
+    { folder: 'Sent', uid: '50', uidValidity: '123' },
+    {
+      headers: [],
+      headerLines: [],
+      attachments: [],
+      from: { name: '', address: 'inbox@example.com' },
+      to: [{ name: '', address: 'client@example.com' }],
+      messageId: '<receipt@example.com>',
+      text: 'Hello',
+    },
+    true,
+    () => {},
+    'a'.repeat(64),
+  );
+  expect(result).toMatchObject({
+    conversationId,
+    messageId: 'accepted-canonical',
+    replay: true,
+    attachments: [{ assetId: 'asset' }],
+  });
+  expect(f.inbox.ingest).not.toHaveBeenCalled();
+  expect(media.receive).not.toHaveBeenCalled();
+  expect(media.attachment).toHaveBeenCalledWith(
+    workspaceId,
+    'asset',
+    conversationId,
+  );
+});

@@ -23,6 +23,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Free only unused preinstalled SDKs on the fresh GitHub-hosted runner
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          df -h .
+          for unused_sdk_path in /usr/local/lib/android /opt/ghc /usr/share/dotnet; do
+            case "$unused_sdk_path" in
+              /usr/local/lib/android|/opt/ghc|/usr/share/dotnet) sudo rm -rf -- "$unused_sdk_path" ;;
+              *) exit 1 ;;
+            esac
+          done
+          df -h .
+      - name: Validate disposable fixture drift and media SQL guards
+        run: node --test scripts/check-hermes-media-migration-ci.test.mjs
       - name: Install immutable workspace dependencies
         working-directory: apps/crm/ui
         run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
