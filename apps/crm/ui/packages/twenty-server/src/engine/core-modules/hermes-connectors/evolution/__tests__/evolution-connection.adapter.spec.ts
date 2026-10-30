@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { Agent as HttpsAgent } from 'node:https';
 import {
   createServer,
   type IncomingMessage,
@@ -269,11 +270,21 @@ describe('EvolutionConnectionAdapter with a synthetic loopback HTTP provider', (
         allowedInternalHosts: [hostname],
         timeoutMs: 100,
       });
-      expect(await client.probe(WORKSPACE_A)).toMatchObject({
-        status: 'UNAVAILABLE',
-        errorCode: 'REQUEST_FAILED',
-      });
-      expect(requests).toHaveLength(0);
+      const connect = jest
+        .spyOn(HttpsAgent.prototype, 'createConnection')
+        .mockImplementation(() => {
+          throw new Error('Metadata network access must never start');
+        });
+      try {
+        expect(await client.probe(WORKSPACE_A)).toMatchObject({
+          status: 'UNAVAILABLE',
+          errorCode: 'REQUEST_FAILED',
+        });
+        expect(connect).not.toHaveBeenCalled();
+        expect(requests).toHaveLength(0);
+      } finally {
+        connect.mockRestore();
+      }
     },
   );
 
