@@ -145,7 +145,7 @@ export default {
     :dir="isRTL ? 'rtl' : 'ltr'"
   >
     <ImpersonationBanner />
-    <UpdateBanner :latest-kovaa-lab-version="latestChatwootVersion" />
+    <UpdateBanner :latest-chatwoot-version="latestChatwootVersion" />
     <StatusBanner />
     <template v-if="currentAccountId">
       <PendingEmailVerificationBanner v-if="hideOnOnboardingView" />
