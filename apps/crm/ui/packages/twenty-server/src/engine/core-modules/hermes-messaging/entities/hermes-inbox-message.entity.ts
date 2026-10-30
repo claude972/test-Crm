@@ -23,11 +23,10 @@ import {
   ['workspaceId', 'channel', 'providerConnectionId', 'providerMessageId'],
   { unique: true, where: '"providerMessageId" IS NOT NULL' },
 )
-@Index(
-  'IDX_HERMES_MESSAGE_CLIENT',
-  ['workspaceId', 'conversationId', 'clientRequestId'],
-  { unique: true, where: '"clientRequestId" IS NOT NULL' },
-)
+@Index('IDX_HERMES_MESSAGE_CLIENT', ['workspaceId', 'clientRequestId'], {
+  unique: true,
+  where: '"clientRequestId" IS NOT NULL',
+})
 @Index('IDX_HERMES_MESSAGE_INBOX', [
   'workspaceId',
   'conversationId',
