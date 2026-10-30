@@ -1248,3 +1248,36 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: fixtures locales en cours, non commitées, pas de SHA final.
 - Evidence communiquée par root : réception rc-803 pending sans affaire mais op-2 déjà liée. Les données de démonstration contredisent la séparation qualification/affaire annoncée.
 - Expected correction: réconcilier statut de qualification et relations réception/prospect/affaire dans les fixtures ; vérifier les liens entre inbox, fiche, pipeline et campagne sans transformer toute réception en opportunité. Fix commit: aucun observé ; recheck: pending.
+
+
+### HERMES-V3-AUDIT-MAQUETTES-20261030 — checkpoint prototype f3aa et corrections, 2026-10-30 19:45 UTC
+
+- Checkpoint Claude publié : f3aa01dbd4214780d68eec533c927412dd87128b sur feat/claude-hermes-v2-ui,18fichiers exclusivement docs/design/hermes-v3. V2/apps intacts et arbre propre au checkpoint selon vérification root. Prototype toujours en correction ; aucun GO déploiement, aucune preview V3 publiée ni CRM/provider/runtime raccordé.
+- CLI root/session2418 vers session Claude exclusive8f3 : relecture déléguée readonly effectivement lancée par Claude à19:32:18UTC, démarrage confirmé19:32:19UTC ; rapport encore attendu. Identifiants internes et transcript non publiés. Demandes de correction007–009 envoyées par root en deux étapes ; aucun fix observé à ce checkpoint.
+- CUA local root : application ouverte, vues WhatsApp et vraie forme de boîte e-mail rendues ; ASSISTED permet brouillon insérable, OFF désactive brouillon et conserve réponse humaine ; vidéo locale durée5.055s, readyState4, Space donne paused=false ; vocal affiche bouton pause après lecture. Ces contrôles concernent des fixtures locales, pas un fournisseur connecté.
+- Revue indépendante du SHA f3aa : quatre JS passent node --check, diff des18fichiers, héritage des modes, filtres et absence de réseau fournisseur contrôlés. Anciens001/002/003 et point audio déclarés corrigés par revue statique du checkpoint ; revue navigateur finale reste limitée aux interactions ci-dessus.
+- Mise à jour V3-DESIGN-001/002/003 : status fixed_pending_review au f3aa01dbd4214780d68eec533c927412dd87128b, corrections statiques confirmées ; ne pas confondre avec une recette finale de tous les retours/avance, mutations locales et liens CRM. Point audio : corrections de rejet play()/cleanup revues statiquement et lecture locale observée, couverture runtime exhaustive non revendiquée.
+
+#### V3-DESIGN-004 — brouillon humain perdu au changement de mode
+- reviewer: root/CUA ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: f3aa01dbd4214780d68eec533c927412dd87128b ; status: fixed_pending_review.
+- Evidence: CUA initial a montré perte du brouillon humain lors du changement de mode. Fix au checkpoint f3aa annoncé/préservé ; recheck final root encore à faire. Expected correction: conserver la saisie humaine tout en invalidant correctement les suggestions interdites. Fix commit: f3aa01dbd4214780d68eec533c927412dd87128b ; recheck: pending.
+
+#### V3-DESIGN-005 — commande de mode mail absente et réponse limitée aux toasts
+- reviewer: root/CUA ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: f3aa01dbd4214780d68eec533c927412dd87128b ; status: fixed_pending_review.
+- Evidence: mode par fil mail absent et Reply limité à des toasts avant correctif. Éditeur et commande locale ajoutés au f3aa ; vérifier interaction finale et destinataires. Fix commit: f3aa01dbd4214780d68eec533c927412dd87128b ; recheck: pending.
+
+#### V3-DESIGN-006 — libellés français, politique compacte et KPI dérivés
+- reviewer: root/CUA ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: f3aa01dbd4214780d68eec533c927412dd87128b ; status: fixed_pending_review.
+- Evidence: ajustements demandés sur libellés français, présentation compacte de politique et KPI dérivés des fixtures. Correctifs intégrés au checkpoint f3aa ; vérification finale attendue. Fix commit: f3aa01dbd4214780d68eec533c927412dd87128b ; recheck: pending.
+
+#### V3-DESIGN-007 — Enregistrer brouillon annonce une conservation sans dossier mémoire
+- reviewer: revue indépendante f3aa ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: f3aa01dbd4214780d68eec533c927412dd87128b ; status: open.
+- Evidence communiquée par root : app.js900–905 annonce la conservation du brouillon sans l’inscrire au dossier mémoire. Expected correction: conserver réellement le brouillon dans les données de démonstration et le rendre retrouvable dans Brouillons ; message clair sur durée limitée à la session. Fix commit: aucun observé ; recheck: pending.
+
+#### V3-DESIGN-008 — déplacement d’étape effacé par navigation
+- reviewer: revue indépendante f3aa ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: f3aa01dbd4214780d68eec533c927412dd87128b ; status: open.
+- Evidence communiquée par root : app-crm.js327–332 prépare un état UI puis aller le purge, sans effet de déplacement. Expected correction: appliquer la transition de démonstration ou conserver correctement son éditeur avant navigation, vérifier étape et compteurs après retour. Aucune persistance backend prétendue. Fix commit: aucun observé ; recheck: pending.
+
+#### V3-DESIGN-009 — réponse depuis Envoyés adressée à sa propre boîte
+- reviewer: revue indépendante f3aa ; assigned agent: claude ; reviewed branch: feat/claude-hermes-v2-ui ; reviewed revision: f3aa01dbd4214780d68eec533c927412dd87128b ; status: open.
+- Evidence communiquée par root : app.js764–775 et fixture donnees.js248 conduisent Reply depuis Envoyés vers l’adresse de sa propre boîte. Expected correction: calculer le correspondant selon direction du message et identité mailbox ; vérifier répondre/tous/transférer sur réception et envoyés. Fix commit: aucun observé ; recheck: pending.
