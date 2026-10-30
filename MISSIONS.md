@@ -586,6 +586,17 @@ Le stockage système disponible (environ28Go) accueille les nouveaux worktrees /
 - dependencies: contrat host/session à publier tôt pour UI settings et intégration ; lot connexions après convergence A/B.
 - implementation revision: non livrée ; verification report: CORRECTIONS.md section mission/tenancy ; preview: attente intégration ; blockers: audit requis.
 
+#### Extension Lot A — couture frontend d’authentification (claim confirmé)
+
+- autorisation: root et Claude parent, ACK transfert22:39:48UTC le30octobre2026 ; lecture distante de la mission confirmée par codex A avant édition.
+- agent/status: codex (A/auth frontend), in_progress à22:41UTC ; extension d’ownership coordonnée, pas un second orchestrateur frontend.
+- branch/checkout: feat/codex-hermes-v4-auth-frontend ; /private/tmp/hermes-v4-auth-frontend ; base applicative baece3a46a6286a933cfc99b22a53ac50c34e498.
+- owned files: modules frontend auth/**, couture native LOGIN/SSO et consommation de capacité clientConfig liée au parcours société. users/hooks/useLoadCurrentUser.ts reste en attente d’ACK explicite root/Claude avant toute édition de ce fichier partagé.
+- exclusivité conservée Claude: modules/apollo/**, routage/AppPath, hooks/types Hermès, catalogues/locales et montages UI. Aucun de ces fichiers ne sera édité par codex A ; contrat de contexte d’opération/bootstrap à coordonner avant câblage.
+- deliverables: connexion native agnostique puis LOGIN lié ; rédemption du workspaceLoginToken SSO optionnel avant navigation ; bascule sans affichage optimiste, intention société immuable et résultats A tardifs écartés sous B ; ne jamais rejouer une mutation SESSION_SUPERSEDED (subCode natif GraphQL).
+- dépendances/preuves: backend73224a014e8d8f0a0a73308acd6552cdf29db6c1 en CI finale ; checkpoint82f3b0f14 a réussi TypeScript/Nest et parcours HTTP/PostgreSQL natif. Preview-mode82dd63e51 est un lot source séparé, sans activation runtime. Test-only75e80fe19 renforce les assertions zéro-écriture, à exécuter dans CI combinée et non déclaré passé à ce stade.
+- gardes: aucune modification de l’original, DB/env/runtime de preview stable, fournisseur réel, nouvelle permission ou JWT/store personnalisé. Tests ciblés et build cloud ; pas de TSC local complet. Rapport final CORRECTIONS.md sous contrôle root après restitution de la coordination.
+
 ### Lot B — WhatsApp, médias et contrats messagerie
 - agent: codex (B/media)
 - status: in_progress — claim distant a368 confirmé ; checkpoint e1ca825b9062e262026a8d3f77288a6de9affbff poussé, migration PostgreSQL/revue encore attendues.
