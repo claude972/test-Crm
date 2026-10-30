@@ -1,3 +1,5 @@
+import { HermesProspectionModule } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.module';
+import { StructureDashboardModule } from 'src/engine/core-modules/workspace/structure-dashboard/structure-dashboard.module';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, HttpAdapterHost } from '@nestjs/core';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
@@ -88,6 +90,8 @@ import { FileApiModule } from './file/file-api.module';
     EnvironmentModule,
     KovaaLabCRMConfigModule.forRoot(),
     HealthModule,
+    HermesProspectionModule,
+    StructureDashboardModule,
     AuthModule,
     BillingModule,
     BillingWebhookModule,

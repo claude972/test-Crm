@@ -1,3 +1,5 @@
+import { HermesProspectionModule } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.module';
+import { StructureDashboardModule } from 'src/engine/core-modules/workspace/structure-dashboard/structure-dashboard.module';
 import { type YogaDriverConfig } from '@graphql-yoga/nestjs';
 import * as Sentry from '@sentry/node';
 import GraphQLJSON from 'graphql-type-json';
@@ -36,7 +38,12 @@ export const metadataModuleFactory = async (
 ): Promise<YogaDriverConfig> => {
   const config: YogaDriverConfig = {
     autoSchemaFile: true,
-    include: [MetadataGraphQLApiModule, ModulesModule],
+    include: [
+      MetadataGraphQLApiModule,
+      ModulesModule,
+      HermesProspectionModule,
+      StructureDashboardModule,
+    ],
     resolverSchemaScope: 'metadata',
     buildSchemaOptions: {
       orphanedTypes: [ClientConfig],
