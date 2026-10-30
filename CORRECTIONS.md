@@ -840,3 +840,10 @@ Les API/versions et l'existence du service Hermès doivent être inspectées ava
 Refonte moderne ajoutée en parallèle des connecteurs. Skill frontend-design retenu ; référence visuelle et thème demandés au propriétaire conformément à DESIGN.md, sans imposer une direction. Audit technique/parcours autorisé pendant cette attente, aucune nouvelle interface générée.
 
 Prompt dédié docs/handoff/hermes-redesign-claude-prompt.md ; prompt des connecteurs corrigé pour retirer la conservation stricte de l'interface désormais dépassée. Claude conserve une seule branche frontend pour éviter les éditions concurrentes des mêmes écrans ; propriété des tokens étendue et à déclarer par fichier. Codex conserve le backend. Priorités : navigation et fiches clients, conversations, pipeline, agenda/formulaires et réglages. Aucun build, prototype ou rendu de refonte encore revendiqué.
+
+
+## hermes-redesign-p1 — référence Monday validée par le propriétaire
+
+Choix explicite « Monday » après les captures visuelles. Prompt de refonte actualisé : référence officielle et image choisie, thème clair de départ, tableaux structurés, statuts colorés sémantiques, navigation et dashboard. La dépendance de référence est levée ; ne pas demander une nouvelle validation des choix de détail conformes. L'identité reste Hermès, les actifs de marque Monday ne sont pas copiés. Le mécanisme de thème existant est préservé ; aucune nouvelle variante sombre livrée n'est revendiquée.
+
+Prompt des connecteurs et mission réconciliés pour supprimer l'ancienne attente de référence. Premier lot frontend : cadre/navigation/liste et fiche client ; backend distinct. Ce changement documente la décision, sans prétendre que l'interface a déjà été modifiée ni que Claude a terminé sa nouvelle mission.

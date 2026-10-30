@@ -2,9 +2,13 @@
 Réaliser en parallèle des connecteurs une refonte moderne de Hermès CRM, avec une identité propre et des parcours cohérents pour les contacts, conversations, opportunités, formulaires et rendez-vous. Le socle Twenty reste technique ; la livraison doit apporter une amélioration réelle de navigation et d'utilisation, au-delà d'un changement de logo ou de couleur.
 </objectif>
 
-<reference_a_obtenir>
-La référence visuelle et le thème sont demandés au propriétaire ; sa réponse n'est pas encore reçue à la rédaction. DESIGN.md impose : « Before starting any new visual direction, ask for a visual reference ». Ne pas choisir de palette, police, composition visuelle ou maquette nouvelle avant cette réponse. En attendant, avancer sur l'audit de l'existant, l'inventaire des composants, les parcours et les contrats. Ne pas demander une deuxième fois une préférence déjà fournie dans le fil ou la mission.
-</reference_a_obtenir>
+<reference_validee>
+Le propriétaire a choisi Monday parmi les captures présentées. Cette référence est désormais validée : il n'est plus nécessaire de lui demander de choisir une direction visuelle.
+Source : https://support.monday.com/hc/es/articles/4409464697618-Empieza-a-usar-monday-CRM
+Capture choisie : https://support.monday.com/hc/article_attachments/24785596876178
+Partir du thème clair de la capture, avec une navigation latérale lisible, des tableaux structurés, des statuts colorés, un pipeline visuel et un tableau de bord opérationnel. Les couleurs multiples servent les statuts et séries métier ; conserver une couleur principale pour les actions, conformément à DESIGN.md. Ne pas reproduire les logos, contenus ou actifs de marque de Monday : créer l'identité Hermès sur cette référence.
+Conserver le mécanisme de thème existant sans prétendre qu'un nouveau thème sombre a été livré. L'absence de choix explicite sur une variante sombre ne bloque pas le premier lot clair. Vérifier la typographie disponible/licenciée selon DESIGN.md avant tout changement de police.
+</reference_validee>
 
 <contexte_et_propriete>
 Dépôt claude972/test-Crm. Lire AGENTS.md, DESIGN.md, CLAUDE.md, les règles des sous-projets, puis MISSIONS.md et CORRECTIONS.md après fetch explicite de missions/p0-stabilization.
@@ -17,7 +21,7 @@ Conserver React/Vite/Linaria/Jotai/Lingui et les mécanismes de navigation et de
 
 <travail>
 1. Inspecter le CRM existant dans le navigateur et les composants, thèmes, routes et états réellement disponibles. Distinguer défauts d'ergonomie prouvés et choix esthétiques. Publier un inventaire court des écrans et fichiers concernés avant édition.
-2. Dès réception de la référence, la consigner avec les préférences de thème. Lire la référence et proposer une direction courte ancrée dans les usages Hermès : couleurs/tokens, typographie disponible et licenciée, hiérarchie, densité, navigation et interactions. Suivre DESIGN.md et le skill frontend-design ; justifier les adaptations à ce CRM. Ne pas ajouter de validation répétitive pour les choix de détail conformes à la référence.
+2. Utiliser la référence Monday validée et le thème clair de départ. Lire la référence et publier une direction courte ancrée dans les usages Hermès : couleurs/tokens, typographie disponible et licenciée, hiérarchie, densité, navigation et interactions. Suivre DESIGN.md et le skill frontend-design ; justifier les adaptations à ce CRM. Ne pas ajouter de validation répétitive pour les choix de détail conformes à la référence.
 3. Refondre progressivement le cadre commun : navigation, barre d'actions, recherche existante, en-têtes de pages, tableaux, filtres, panneaux, formulaires et états. Réutiliser les composants et tokens plutôt que superposer un thème CSS global fragile.
 4. Structurer les parcours métier :
    - accueil opérationnel : suivis et actions du jour, alimentés par des données réelles ; indicateurs indisponibles signalés, jamais inventés ;
