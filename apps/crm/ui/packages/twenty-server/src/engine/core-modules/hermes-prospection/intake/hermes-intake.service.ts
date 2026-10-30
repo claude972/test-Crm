@@ -59,7 +59,10 @@ export class HermesIntakeService {
         'HERMES_INTAKE_CONFIGURATION_UNAVAILABLE',
       );
     }
-    const connection = Object.hasOwn(connections, connectionId)
+    const connection = Object.prototype.hasOwnProperty.call(
+      connections,
+      connectionId,
+    )
       ? connections[connectionId]
       : undefined;
     if (
