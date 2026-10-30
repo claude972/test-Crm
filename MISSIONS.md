@@ -164,3 +164,14 @@ Mission ID: p0-combined-verification
 - dependencies: livraison frontend Claude ; pas de doublon d'implémentation. Session frontend d'exécution réelle 8f3db32e, copie contextuelle de l'inventaire idle 0dd6de46, mise en route directe autorisée par le propriétaire.
 - preview: non disponible à cette prise de mission ; accès Vercel CLI vérifié, aucun projet CRM P0 existant identifié dans l'équipe courante.
 - blockers: frontend non livré à ce stade ; aucun backend de preview sans données n'est encore configuré. Un frontend statique seul ne sera pas présenté comme CRM opérationnel.
+
+## Mission p0-preview-session — preview web/PWA temporaire
+- agent: codex
+- status: in_progress
+- branch: chore/p0-preview-session
+- base revision: c96b7eea6cf316c0e1841f13b203e7731aaef4f1
+- objective: livrer une preview Vercel avec API réelle isolée, PG/Redis jetables, durée bornée et protection d'origine ; aucun service/donnée de production, achat ou natif.
+- owned files: workflow de session preview, scripts preview-* et rapport docs/verification/preview-* ; aucune source frontend métier.
+- delegation: preview_hosting code gate/staging/routes ; backend_review code superviseur backend et worker ; root intègre/relit et code orchestration cloud. Revues croisées des helpers effectuées, trois corrections de lifecycle/contrat appliquées avant intégration.
+- deliverables: build/artifact exact, session bornée, URL web/PWA protégée testée avec vrai backend, date d'expiration et limites explicites ; rapport partagé avant ready_for_review.
+- blockers: CI navigateur complète encore en cours ; orchestration de session et déploiement preview à effectuer. Pas de serveur existant, secrets privés ou original à utiliser.
