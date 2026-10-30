@@ -74,7 +74,7 @@ Conserver les valeurs de formats persistants, clés de dérivation, cookies, mar
 
 ## Claude assignment — p0-frontend-baseline
 - agent: claude
-- status: ready_for_review — checkpoint courant `6c7bcd48a91c4f1abe4d44479fa0b00e9d9ccce5`, PR #9. Contrainte web/PWA de tête prise en compte et consignée dans CORRECTIONS.md.
+- status: ready_for_review — checkpoint courant `6974f96ca9c8e9ec770f9ed2c1cb5b9a558b7f6e` (worker : `6c7bcd48a`), PR #9. Contrainte web/PWA de tête prise en compte et consignée dans CORRECTIONS.md.
 - branch: fix/claude-frontend-baseline
 - deliverables: réparations frontend de syntaxe et chemins en commits ciblés, contrôles pertinents et rapport partagé.
 - owned files: apps/crm/ui/packages/twenty-front et twenty-front-component-renderer ; frontend Char sous apps/crm/bot/app/javascript et templates HTML/ERB nécessaires à ses globals ; apps/crm/bot/package.json uniquement pour les imports registry réparés. Ne pas toucher aux sources backend, types shared, migrations, lockfile CRM, bibliothèque UI importée ou scripts de Codex sans coordination.

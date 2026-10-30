@@ -346,6 +346,32 @@ Deux ajouts que je relève comme **justes** : l'insertion de `node --check dist/
 
 **Limites** : je n'ai ni exécuté la CI, ni construit le SDK, ni lancé ses tests. Je confirme la cohérence des trois fichiers sur lecture des sources et la résolution effective des cibles. Rien de plus.
 
+## Répartition des sous-agents Claude — 29 octobre 2026
+
+Délégation lancée sur instruction explicite du propriétaire, avec propriété de fichiers **disjointe par construction** : mes deux sous-agents sont en **lecture seule stricte**, ce qui garantit l'absence de conflit avec mon propre travail et l'impossibilité de modifier les originaux. Interdictions posées dans leurs consignes : aucune écriture de fichier, aucun commit, aucun `reset/clean/stash`, aucune lecture de `.env` ou `.runtime`, périmètre web/PWA exclusivement, aucune proposition d'implémentation.
+
+| Sous-agent | Objet | Écriture |
+| --- | --- | --- |
+| Audit PWA | Surface PWA existante de `twenty-front` : manifeste, balises d'`index.html`, existence réelle des icônes référencées, présence ou absence de service worker, repérage d'un éventuel cache de données authentifiées. **Audit seul, aucune implémentation, aucun cache à concevoir.** | aucune |
+| Revue contrats Char | Désaccords démontrables frontend/backend dans Char : clés de payload jbuilder, globals `window.*` producteur/consommateur, noms de cookies et en-têtes, assertions de test devenues vides de sens. | aucune |
+
+Pendant leur exécution, je traite moi-même le blocage worker et les configurations Vite. Aucun de leurs périmètres ne recoupe les fichiers que je modifie. **Je reste responsable de la cohérence et de la publication** : leurs constats ne seront consignés ici qu'après vérification de ma part, et je ne publierai aucun résultat que je n'ai pas contrôlé.
+
+## Mission p0-frontend-baseline — alignement des configurations Vite, agent: claude
+
+- **SHA : `6974f96ca9c8e9ec770f9ed2c1cb5b9a558b7f6e`**, deux fichiers, 5 insertions et 5 suppressions
+
+Cherché activement après le correctif worker, plutôt qu'attendu de l'étape CI suivante.
+
+`twenty-front-component-renderer/vite.config.ts` portait **les deux moitiés** du même défaut : un `cacheDir` pointant vers un répertoire rebrandé inexistant, et `resolve.alias` dans la forme objet à clé terminée par un slash. Il est désormais en forme regex et **octet pour octet identique à l'original**. `twenty-front/vite.config.ts` portait le même défaut de `cacheDir` en ligne 106.
+
+**Deux écarts avec les originaux délibérément NON reprises**, parce que les copier serait une faute :
+
+1. Les originaux ajoutent `REACT_APP_CHAR_URL`, `REACT_APP_FORMS_URL` et `REACT_APP_CAL_DIY_URL`. Ces variables appartiennent à « Outils clients », **explicitement hors P0**. Elles restent dehors.
+2. Les originaux importent `createWywProfilingPlugin` depuis `./scripts/createWywProfilingPlugin`, ma branche depuis `kovaa-lab-shared/vite`. **Vérifié avant de conclure** : `twenty-shared` exporte bien `./vite` et `src/vite/createWywProfilingPlugin.ts` y existe. Ma branche porte donc l'emplacement refactorisé et l'original l'ancien emplacement local : m'aligner sur l'original serait une **régression**. C'est précisément pourquoi une reprise aveugle des originaux est à écarter.
+
+**Observation hors de mon périmètre, transmise sans y toucher :** deux `cacheDir` rebrandés subsistent, `twenty-cli/vite.config.ts:31` et `twenty-client-sdk/vite.config.ts:15` plus `vite.metadata.config.ts:13`. Celui de `client-sdk` est **déjà réparé sur la branche de Codex** (`47d74f725`) et n'apparaît chez moi que parce que ma base est antérieure. Celui de `twenty-cli` ne semble pas couvert. Impact faible — un `cacheDir` ne fait que déplacer le cache de Vite —, mais autant le traiter dans le même passage. Aucun doublon de ma part.
+
 ## Contrainte web/PWA — prise en compte par Claude
 
 Contrainte de tête de `MISSIONS.md` (`f507ab647`) **lue et intégrée à mon suivi** : web et PWA uniquement, aucune application native iOS/Android, aucun portage Expo/React Native, aucun build natif ni publication store. Aucune de mes livraisons ne s'en écarte, et je l'ai vérifié plutôt que supposé :
@@ -359,7 +385,9 @@ Conséquence pour le backlog : les éléments P1 « Outils clients » restent sp
 
 ## Mission p0-frontend-baseline — correctif renderer sandbox, agent: claude
 
-- **SHA prêt à revue : `6c7bcd48a91c4f1abe4d44479fa0b00e9d9ccce5`**, branche `fix/claude-frontend-baseline`, PR #9
+- **SHA worker prêt à revue : `6c7bcd48a91c4f1abe4d44479fa0b00e9d9ccce5`** (correctif du résolveur worker, intégré isolément par Root sous `bad53ac26`)
+- **Checkpoint courant, surensemble prêt à revue : `6974f96ca9c8e9ec770f9ed2c1cb5b9a558b7f6e`** — ajoute l'alignement des deux configurations Vite que je possède
+- branche `fix/claude-frontend-baseline`, PR #9
 - périmètre : `twenty-front-component-renderer/scripts/front-component-sandbox/build-sandbox-document.ts`, **un seul fichier**, 23 insertions et 4 suppressions
 - affectation vérifiée avant édition : le renderer est mon paquet dans `p0-frontend-baseline / claude` ; aucun chevauchement avec `fix/codex-backend-build` ni avec la branche de vérification combinée. Pas de doublon.
 
