@@ -74,6 +74,7 @@ export const mailAddress = (value: unknown): string | null =>
 
 export const mailMessageId = (value: unknown): string | null =>
   typeof value === 'string' &&
+  Buffer.byteLength(value.trim(), 'utf8') <= 998 &&
   /^<[^<>\s\x00-\x1f\x7f]{1,900}>$/.test(value.trim())
     ? value.trim()
     : null;

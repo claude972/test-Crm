@@ -68,6 +68,7 @@ describe('Hermes native mailbox policy', () => {
     expect(mailAddress('Name <a@example.com>')).toBeNull();
     expect(mailAddress(' A@Example.com ')).toBe('a@example.com');
     expect(mailMessageId('<x@example.com>\r\nBcc:x')).toBeNull();
+    expect(mailMessageId('<' + 'é'.repeat(600) + '@example.com>')).toBeNull();
   });
   it('preserves real Message-ID and earliest References for threading', async () => {
     const event = await parse(
