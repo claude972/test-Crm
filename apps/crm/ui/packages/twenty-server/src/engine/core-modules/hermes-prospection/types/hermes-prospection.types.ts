@@ -40,6 +40,9 @@ export type HermesImportBatch = {
   collectedAt: string;
   createdAt: string;
   createdByUserId: string;
+  origin?:
+    | { kind: 'MANUAL' }
+    | { kind: 'SIGNED_INTAKE'; connectionId: string; receivedAt: string };
   rows: HermesImportRow[];
 };
 

@@ -65,6 +65,7 @@ export class HermesProspectionService {
   async createBatch(
     actor: HermesProspectionActor,
     input: HermesCreateImportBatchInput,
+    signedIntake?: { connectionId: string },
   ) {
     return this.states.mutate(actor, async (state) => {
       const batch = buildHermesImportBatch({
@@ -80,6 +81,17 @@ export class HermesProspectionService {
         throw new ConflictException(
           error instanceof Error ? error.message : 'IMPORT_CONFLICT',
         );
+      }
+      if (!result.replay) {
+        // Only the authenticated server-to-server intake caller supplies this
+        // internal argument; GraphQL DTOs expose no origin/provenance field.
+        result.batch.origin = signedIntake
+          ? {
+              kind: 'SIGNED_INTAKE',
+              connectionId: signedIntake.connectionId,
+              receivedAt: result.batch.createdAt,
+            }
+          : { kind: 'MANUAL' };
       }
       await this.applySuppressions(actor.workspaceId, result.batch.rows);
 

@@ -90,6 +90,33 @@ const setup = () => {
 };
 
 describe('Hermes suppression and qualification bridge', () => {
+  it('stamps signed intake provenance only on creation and never upgrades manual replays', async () => {
+    const { service } = setup();
+    const manual = await service.createBatch(actor, input);
+    expect(manual.batch.origin).toEqual({ kind: 'MANUAL' });
+    const manualReplay = await service.createBatch(actor, input, {
+      connectionId: 'trusted-connection',
+    });
+    expect(manualReplay.replay).toBe(true);
+    expect(manualReplay.batch.origin).toEqual({ kind: 'MANUAL' });
+    const automatic = await service.createBatch(
+      actor,
+      { ...input, externalBatchId: 'automatic-id' },
+      { connectionId: 'trusted-connection' },
+    );
+    expect(automatic.batch.origin).toEqual({
+      kind: 'SIGNED_INTAKE',
+      connectionId: 'trusted-connection',
+      receivedAt: automatic.batch.createdAt,
+    });
+    const automaticReplay = await service.createBatch(actor, {
+      ...input,
+      externalBatchId: 'automatic-id',
+    });
+    expect(automaticReplay.replay).toBe(true);
+    expect(automaticReplay.batch.origin).toEqual(automatic.batch.origin);
+  });
+
   it('rechecks native workspace-scoped opposition on every reimport', async () => {
     const { service, suppressions } = setup();
 
@@ -310,54 +337,45 @@ describe('Hermes suppression and qualification bridge', () => {
       );
       const listId = v5('list', campaignId);
       const campaigns = {
-        findOne: jest
-          .fn()
-          .mockResolvedValue({
-            id: campaignId,
-            listId:
-              scenario === 'different-list-id' ? 'unrelated-list' : listId,
-            status: 'DRAFT',
-          }),
+        findOne: jest.fn().mockResolvedValue({
+          id: campaignId,
+          listId: scenario === 'different-list-id' ? 'unrelated-list' : listId,
+          status: 'DRAFT',
+        }),
         insert: jest.fn(),
       };
       const people = {
-        find: jest
-          .fn()
-          .mockResolvedValue([
-            {
-              id: row.personId,
-              emails: { primaryEmail: row.email },
-              deletedAt: scenario === 'archived-person' ? new Date() : null,
-            },
-          ]),
+        find: jest.fn().mockResolvedValue([
+          {
+            id: row.personId,
+            emails: { primaryEmail: row.email },
+            deletedAt: scenario === 'archived-person' ? new Date() : null,
+          },
+        ]),
         insert: jest.fn(),
       };
       const lists = {
-        findOne: jest
-          .fn()
-          .mockResolvedValue({
-            id: listId,
-            deletedAt: scenario === 'archived-list' ? new Date() : null,
-          }),
+        findOne: jest.fn().mockResolvedValue({
+          id: listId,
+          deletedAt: scenario === 'archived-list' ? new Date() : null,
+        }),
         insert: jest.fn(),
       };
       const members = {
-        find: jest
-          .fn()
-          .mockResolvedValue(
-            scenario === 'missing-member'
-              ? []
-              : scenario === 'duplicate-member'
-                ? [{ personId: row.personId }, { personId: row.personId }]
-                : [
-                    {
-                      personId:
-                        scenario === 'replaced-member'
-                          ? 'unexpected-person'
-                          : row.personId,
-                    },
-                  ],
-          ),
+        find: jest.fn().mockResolvedValue(
+          scenario === 'missing-member'
+            ? []
+            : scenario === 'duplicate-member'
+              ? [{ personId: row.personId }, { personId: row.personId }]
+              : [
+                  {
+                    personId:
+                      scenario === 'replaced-member'
+                        ? 'unexpected-person'
+                        : row.personId,
+                  },
+                ],
+        ),
         insert: jest.fn(),
       };
 

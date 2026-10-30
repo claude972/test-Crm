@@ -111,6 +111,7 @@ export class HermesIntakeService {
         userWorkspaceId: connection.operatorUserWorkspaceId,
       },
       input,
+      { connectionId },
     );
     return {
       batchId: result.batch.id,
