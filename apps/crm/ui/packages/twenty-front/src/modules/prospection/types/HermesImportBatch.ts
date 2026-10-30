@@ -36,6 +36,14 @@ export type HermesImportBatch = {
   collectedAt: string | null;
   createdAt: string | null;
   createdByUserId: string | null;
+  // The server's origin discriminator, flattened on read. 'MANUAL' or
+  // 'SIGNED_INTAKE'; null on a batch staged before it was recorded, which is
+  // unknown and not manual. The two fields below exist only for SIGNED_INTAKE.
+  originKind: string | null;
+  originConnectionId: string | null;
+  // The server's own marker for when the entry point took it. Never derived
+  // from collectedAt, which the caller supplies and could forge.
+  originReceivedAt: string | null;
   rows: HermesImportRow[];
   // False when the payload carried no readable rows array: the batch then has
   // an unknown number of rows, not zero.

@@ -1,23 +1,26 @@
 import { type HermesImportBatch } from '@/prospection/types/HermesImportBatch';
-import { type HermesCollectionProvenance } from '@/prospection/types/HermesCollectionOrigin';
+import {
+  type HermesCollectionProvenance,
+  readHermesCollectionOriginKind,
+} from '@/prospection/types/HermesCollectionOrigin';
 
 // The provenance of one collection, gathered from the batch fields the
 // contract does publish.
 //
-// `origin` is deliberately hard-coded to null and read from nothing. The
-// published HermesImportBatch carries id, externalBatchId, fingerprint, name,
-// sourceUrl, collectedAt, createdAt, createdByUserId and rows — and no origin
-// discriminator. Reading a field name that is not in the contract would be
-// guessing one, and inferring the origin from createdByUserId or from the
-// presence of a sourceUrl would be inventing a rule the server never stated.
+// `origin` is now published on the batch as {kind:'MANUAL'} or
+// {kind:'SIGNED_INTAKE', connectionId, receivedAt}, and is read from there and
+// from nowhere else. A batch staged before the server recorded one carries no
+// origin and stays null — absent is UNKNOWN, not manual.
 //
-// This function is the single place to change when the contract publishes a
-// discriminator. Everything above it already renders a null origin as "origin
-// not published".
+// It is never inferred: not from createdByUserId, not from the presence of a
+// sourceUrl, and above all not from any prefix or name, which a caller
+// supplies and could therefore forge.
 export const readHermesCollectionProvenance = (
   batch: HermesImportBatch,
 ): HermesCollectionProvenance => ({
-  origin: null,
+  origin: readHermesCollectionOriginKind(batch.originKind),
+  intakeConnectionId: batch.originConnectionId,
+  intakeReceivedAt: batch.originReceivedAt,
   sourceUrl: batch.sourceUrl,
   externalBatchId: batch.externalBatchId,
   fingerprint: batch.fingerprint,

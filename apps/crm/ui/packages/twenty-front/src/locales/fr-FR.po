@@ -1207,8 +1207,8 @@ msgstr "{sourceCount} types de source"
 
 #. js-lingui-id: P0YkpE
 #: src/modules/client-context/components/ClientContextSourceNote.tsx
-msgid "{sourceName} is not read yet: its contract is not published."
-msgstr "{sourceName} n'est pas encore lu : son contrat n'est pas publié."
+#~ msgid "{sourceName} is not read yet: its contract is not published."
+#~ msgstr "{sourceName} n'est pas encore lu : son contrat n'est pas publié."
 
 #. js-lingui-id: 99Oypu
 #: src/modules/client-context/components/ClientContextSourceNote.tsx
@@ -13855,6 +13855,11 @@ msgstr "Réponse de formulaire"
 msgid "Form responses"
 msgstr "Réponses de formulaire"
 
+#. js-lingui-id: vR3HFi
+#: src/modules/client-context/components/ClientContextSourceNote.tsx
+msgid "Form responses are recorded in CRM notes."
+msgstr ""
+
 #. js-lingui-id: Badu9V
 #: src/modules/client-context/components/ClientContextTimelineSection.tsx
 msgid "Form responses, appointments and recorded actions actually received for this client, newest first."
@@ -20030,8 +20035,8 @@ msgstr "Aucune réponse du serveur"
 
 #. js-lingui-id: sDkqeJ
 #: src/modules/client-context/components/ClientFormResponsesSection.tsx
-msgid "No response received for this client."
-msgstr "Aucune réponse reçue pour ce client."
+#~ msgid "No response received for this client."
+#~ msgstr "Aucune réponse reçue pour ce client."
 
 #. js-lingui-id: Ev2r9A
 #: src/modules/activities/emails/recipients/components/EmailRecipientSuggestionsDropdownContent.tsx
@@ -20691,8 +20696,8 @@ msgstr "Aucun envoi ici : dépôt, qualification et brouillons uniquement."
 
 #. js-lingui-id: CXcAxo
 #: src/modules/client-context/components/ClientContextSourceNote.tsx
-msgid "Nothing is shown here until the data actually reaches this workspace. Opening the application is navigation, not an integration."
-msgstr "Rien n'est affiché ici tant que la donnée n'atteint pas réellement cet espace de travail. Ouvrir l'application est une navigation, pas une intégration."
+#~ msgid "Nothing is shown here until the data actually reaches this workspace. Opening the application is navigation, not an integration."
+#~ msgstr "Rien n'est affiché ici tant que la donnée n'atteint pas réellement cet espace de travail. Ouvrir l'application est une navigation, pas une intégration."
 
 #. js-lingui-id: 1cReeE
 #: src/modules/client-context/components/ClientContextTimelineSection.tsx
@@ -24454,14 +24459,19 @@ msgstr "Réponse"
 
 #. js-lingui-id: +skAxO
 #: src/modules/client-context/components/ClientFormResponsesSection.tsx
-msgid "Responses"
-msgstr "Réponses"
+#~ msgid "Responses"
+#~ msgstr "Réponses"
 
-#. js-lingui-id: X2+a7i
+#. js-lingui-id: 1l//dt
 #. placeholder {0}: CLIENT_CONTEXT_FORMS_SOURCE.name
 #: src/modules/client-context/components/ClientFormResponsesSection.tsx
-msgid "Responses received from {0} for this client. Received items only."
-msgstr "Réponses reçues de {0} pour ce client. Uniquement les éléments reçus."
+msgid "Responses from {0} are recorded as notes on this client, and appear under recorded actions."
+msgstr ""
+
+#. js-lingui-id: X2+a7i
+#: src/modules/client-context/components/ClientFormResponsesSection.tsx
+#~ msgid "Responses received from {0} for this client. Received items only."
+#~ msgstr "Réponses reçues de {0} pour ce client. Uniquement les éléments reçus."
 
 #. js-lingui-id: WHiaOl
 #: src/modules/settings/developers/components/PlaygroundSetupForm.tsx
