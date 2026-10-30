@@ -13,8 +13,17 @@ on:
       - 'apps/crm/ui/packages/twenty-front-component-renderer/**'
       - 'apps/crm/ui/packages/twenty-ui/**'
       - 'apps/crm/ui/packages/twenty-shared/**'
+  # Same paths filter as push, so a documentation-only commit does not start a
+  # fresh build and cancel a running one over identical application code.
   pull_request:
     branches: [chore/p0-stabilization, main]
+    paths:
+      - '.github/workflows/p0-frontend-baseline.yml'
+      - 'scripts/check-frontend-p0.cjs'
+      - 'apps/crm/ui/packages/twenty-front/**'
+      - 'apps/crm/ui/packages/twenty-front-component-renderer/**'
+      - 'apps/crm/ui/packages/twenty-ui/**'
+      - 'apps/crm/ui/packages/twenty-shared/**'
   # Exposed so Codex's combined verification can call this without duplicating it.
   workflow_call:
     outputs:
@@ -48,10 +57,14 @@ jobs:
           HERMES_CHECK_MODULES: ${{ runner.temp }}/frontend-p0
         run: node scripts/check-frontend-p0.cjs
 
-  # Produces the artifact Codex's combined verification consumes. Heavier and,
-  # unlike the gate above, not yet proven in CI: see
-  # docs/verification/frontend-baseline-claude.md for exactly what was and was
-  # not verified locally.
+  # Produces the artifact Codex's combined verification consumes.
+  #
+  # Known to fail on base c0318cf0b, and deliberately left failing rather than
+  # masked: Nx pulls kovaa-lab-client-sdk into the renderer's build, and that
+  # package still carries the defects repaired in ed80da151. Those repairs are
+  # Codex's and are not recreated here. The combined build in PR #8 holds them,
+  # so the real bundle proof belongs there. Run 40981738957 shows shared and ui
+  # building green and the chain stopping at kovaa-lab-client-sdk:build.
   frontend-bundle:
     runs-on: ubuntu-latest
     timeout-minutes: 40
