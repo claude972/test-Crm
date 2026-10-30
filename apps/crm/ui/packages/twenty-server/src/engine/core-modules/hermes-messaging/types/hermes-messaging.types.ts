@@ -84,7 +84,18 @@ export type HermesMessagingBotAdapter = {
   }): Promise<HermesMessagingBotResult>;
 };
 
-export type HermesBotMode = 'MANUAL' | 'AUTO';
+export type HermesBotPolicyMode = 'AUTO' | 'ASSISTED' | 'OFF';
+export type HermesBotPolicyScope = 'WORKSPACE' | HermesMessagingChannel;
+export type HermesBotMode = 'MANUAL' | HermesBotPolicyMode | 'INHERIT';
+export type HermesConversationBotPolicy = {
+  conversationId: string;
+  localMode: string;
+  effectiveMode: HermesBotPolicyMode;
+  reason: string;
+  revision: string;
+  canDraft: boolean;
+  canAutoReply: boolean;
+};
 
 export type HermesMessagingProviderMetadata = {
   rfcMessageId?: string;

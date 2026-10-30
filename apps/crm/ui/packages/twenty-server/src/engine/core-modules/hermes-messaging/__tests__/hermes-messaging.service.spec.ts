@@ -3,6 +3,7 @@ import { FindOperator, type DataSource } from 'typeorm';
 import { randomUUID } from 'node:crypto';
 import { HermesMessagingService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging.service';
 import { HermesMessagingAdapterRegistry } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-adapter.registry';
+import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesInboxMessageEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-inbox-message.entity';
 import {
@@ -86,7 +87,10 @@ const setup = () => {
       }),
       save: jest.fn(async (row: Row) => {
         const saved = { ...row };
-        rows.set(String(row.id), saved);
+        rows.set(
+          row.id ? String(row.id) : `${row.workspaceId}:${row.scope}`,
+          saved,
+        );
         return saved;
       }),
       update: jest.fn(async (criteria: Row, update: Row) => {
@@ -197,6 +201,13 @@ const setup = () => {
     userId: actor.userId,
     deletedAt: null,
   });
+  table(HermesBotPolicyEntity.name).set(`${A}:WORKSPACE`, {
+    workspaceId: A,
+    scope: 'WORKSPACE',
+    mode: 'AUTO',
+    updatedAt: new Date('2026-10-30T00:00:00.000Z'),
+    updatedByUserWorkspaceId: actor.userWorkspaceId,
+  });
   let allowed = true;
   const access = {
     assertAllowed: jest.fn(async (candidate: HermesMessagingActor) => {
@@ -244,6 +255,341 @@ const setup = () => {
 };
 
 describe('persistent messaging service contract', () => {
+  const readyBot = () =>
+    jest.fn().mockResolvedValue({
+      mode: 'DRAFT',
+      status: 'READY',
+      provider: 'HERMES_MCP',
+      text: 'Suggestion',
+    });
+  const setParent = async (
+    service: HermesMessagingService,
+    scope: 'WORKSPACE' | 'WHATSAPP' | 'EMAIL',
+    mode: 'AUTO' | 'ASSISTED' | 'OFF',
+  ) => {
+    const policies = await service.workspaceBotPolicies(actor);
+    return service.setWorkspaceBotPolicy(actor, {
+      scope,
+      mode,
+      expectedRevision: policies.find((policy) => policy.scope === scope)!
+        .revision,
+    });
+  };
+  const setLocal = async (
+    service: HermesMessagingService,
+    conversationId: string,
+    mode: 'INHERIT' | 'AUTO' | 'ASSISTED' | 'OFF',
+    delegateAuto?: boolean,
+  ) => {
+    const policy = await service.conversationBotPolicy(actor, {
+      conversationId,
+    });
+    return service.setConversationBotPolicy(actor, {
+      conversationId,
+      mode,
+      expectedRevision: policy.revision,
+      ...(delegateAuto === undefined ? {} : { delegateAuto }),
+    });
+  };
+
+  it('defaults an unconfigured workspace to ASSISTED and never delegates AUTO implicitly', async () => {
+    const { service, registry, table, send } = setup();
+    table(HermesBotPolicyEntity.name).clear();
+    registry.registerBot({ draftReply: readyBot() });
+    const incoming = await service.ingest(event);
+    expect(
+      await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).toMatchObject({
+      localMode: 'INHERIT',
+      effectiveMode: 'ASSISTED',
+      canDraft: true,
+      canAutoReply: false,
+    });
+    await expect(
+      setLocal(service, incoming.conversationId, 'AUTO', true),
+    ).rejects.toThrow('BOT_POLICY_RESTRICTION');
+    await expect(
+      service.setBotMode(actor, {
+        conversationId: incoming.conversationId,
+        mode: 'AUTO',
+      }),
+    ).rejects.toThrow('BOT_POLICY_RESTRICTION');
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('keeps MANUAL compatible with assisted drafts and never auto-sends in ASSISTED', async () => {
+    const { service, registry, send, table } = setup();
+    const draftReply = readyBot();
+    registry.registerBot({ draftReply });
+    const incoming = await service.ingest(event);
+    await service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'MANUAL',
+    });
+    expect(
+      await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).toMatchObject({ localMode: 'ASSISTED', effectiveMode: 'ASSISTED' });
+    expect(
+      (
+        await service.draftReply(actor, {
+          conversationId: incoming.conversationId,
+          messageId: incoming.messageId,
+        })
+      ).status,
+    ).toBe('READY');
+    expect(
+      table(HermesConversationEntity.name).get(incoming.conversationId)
+        ?.botMode,
+    ).toBe('MANUAL');
+    await service.ingest({
+      ...event,
+      providerMessageId: 'assisted-new',
+      occurredAt: new Date(Date.now() + 1).toISOString(),
+    });
+    expect(draftReply).toHaveBeenCalledTimes(1);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('OFF blocks all new MCP work but preserves a distinct human reply', async () => {
+    const { service, registry, send } = setup();
+    const draftReply = readyBot();
+    registry.registerBot({ draftReply });
+    const incoming = await service.ingest(event);
+    expect(
+      await setLocal(service, incoming.conversationId, 'OFF'),
+    ).toMatchObject({
+      effectiveMode: 'OFF',
+      canDraft: false,
+      canAutoReply: false,
+    });
+    await expect(
+      service.draftReply(actor, {
+        conversationId: incoming.conversationId,
+        messageId: incoming.messageId,
+      }),
+    ).rejects.toThrow('BOT_POLICY_OFF');
+    await service.ingest({ ...event, providerMessageId: 'off-new' });
+    expect(draftReply).not.toHaveBeenCalled();
+    await service.reply(actor, {
+      conversationId: incoming.conversationId,
+      clientRequestId: randomUUID(),
+      text: 'Réponse humaine',
+    });
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it('requires explicit delegation for INHERIT resolving to AUTO and never drafts backlog on activation', async () => {
+    const { service, registry, send } = setup();
+    const draftReply = readyBot();
+    registry.registerBot({ draftReply });
+    const incoming = await service.ingest(event);
+    await expect(
+      setLocal(service, incoming.conversationId, 'INHERIT'),
+    ).rejects.toThrow('BOT_DELEGATION_REQUIRED');
+    expect(
+      await setLocal(service, incoming.conversationId, 'INHERIT', true),
+    ).toMatchObject({ effectiveMode: 'AUTO', canAutoReply: true });
+    expect(draftReply).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+    await service.ingest({
+      ...event,
+      providerMessageId: 'delegated-new',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it('restricts child policies and refuses stale concurrent local and global writes', async () => {
+    const { service } = setup();
+    const incoming = await service.ingest(event);
+    const old = await service.conversationBotPolicy(actor, {
+      conversationId: incoming.conversationId,
+    });
+    const policies = await service.workspaceBotPolicies(actor);
+    await setParent(service, 'WORKSPACE', 'ASSISTED');
+    await expect(
+      service.setConversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+        mode: 'OFF',
+        expectedRevision: old.revision,
+      }),
+    ).rejects.toThrow('BOT_POLICY_STALE');
+    await expect(
+      service.setWorkspaceBotPolicy(actor, {
+        scope: 'WORKSPACE',
+        mode: 'AUTO',
+        expectedRevision: policies[0].revision,
+      }),
+    ).rejects.toThrow('BOT_POLICY_STALE');
+    await expect(setParent(service, 'WHATSAPP', 'AUTO')).rejects.toThrow(
+      'BOT_POLICY_RESTRICTION',
+    );
+    await expect(
+      setLocal(service, incoming.conversationId, 'AUTO', true),
+    ).rejects.toThrow('BOT_POLICY_RESTRICTION');
+    await setParent(service, 'WHATSAPP', 'OFF');
+    expect(
+      await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).toMatchObject({ effectiveMode: 'OFF', reason: 'CHANNEL_POLICY' });
+  });
+
+  it('invalidates in-flight drafts on OFF and refuses their stale suggestion result', async () => {
+    const { service, registry, send } = setup();
+    const incoming = await service.ingest(event);
+    let enter!: () => void, release!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      enter = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    registry.registerBot({
+      draftReply: async () => {
+        enter();
+        await gate;
+        return {
+          mode: 'DRAFT',
+          status: 'READY',
+          provider: 'HERMES_MCP',
+          text: 'Late draft',
+        };
+      },
+    });
+    const pending = service.draftReply(actor, {
+      conversationId: incoming.conversationId,
+      messageId: incoming.messageId,
+    });
+    const rejected = expect(pending).rejects.toThrow('BOT_POLICY_STALE');
+    await entered;
+    await setLocal(service, incoming.conversationId, 'OFF');
+    release();
+    await rejected;
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('parent changes cancel an in-flight auto reply and relaxation does not resurrect the old grant', async () => {
+    const { service, registry, send } = setup();
+    const incoming = await service.ingest(event);
+    let enter!: () => void, release!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      enter = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const draftReply = jest.fn(async () => {
+      enter();
+      await gate;
+      return {
+        mode: 'DRAFT' as const,
+        status: 'READY' as const,
+        provider: 'HERMES_MCP' as const,
+        text: 'Late auto',
+      };
+    });
+    registry.registerBot({ draftReply });
+    await setLocal(service, incoming.conversationId, 'AUTO', true);
+    const processing = service.ingest({
+      ...event,
+      providerMessageId: 'parent-race',
+      occurredAt: new Date(Date.now() + 10).toISOString(),
+    });
+    await entered;
+    await setParent(service, 'WORKSPACE', 'OFF');
+    await setParent(service, 'WORKSPACE', 'AUTO');
+    release();
+    await processing;
+    await service.ingest({
+      ...event,
+      providerMessageId: 'after-relaxation',
+      occurredAt: new Date(Date.now() + 20).toISOString(),
+    });
+    expect(send).not.toHaveBeenCalled();
+    expect(draftReply).toHaveBeenCalledTimes(1);
+    expect(
+      await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).toMatchObject({ canAutoReply: false });
+  });
+
+  it('isolates policies and conversations from other workspaces and rechecks revoked readers', async () => {
+    const { service, registry, table, revoke } = setup();
+    registry.registerBot({ draftReply: readyBot() });
+    const incoming = await service.ingest({ ...event, workspaceId: B });
+    await expect(
+      service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).rejects.toThrow('CONVERSATION_NOT_FOUND');
+    await expect(
+      setLocal(service, incoming.conversationId, 'OFF'),
+    ).rejects.toThrow('CONVERSATION_NOT_FOUND');
+    await setParent(service, 'WORKSPACE', 'OFF');
+    expect(
+      [...table(HermesBotPolicyEntity.name).values()].every(
+        (row) => row.workspaceId === A,
+      ),
+    ).toBe(true);
+    revoke();
+    await expect(service.workspaceBotPolicies(actor)).rejects.toThrow(
+      'ACCESS_DENIED',
+    );
+    await expect(setParent(service, 'WORKSPACE', 'AUTO')).rejects.toThrow(
+      'ACCESS_DENIED',
+    );
+  });
+
+  it('cannot use the legacy setter to lift local OFF or delegate a contact conflict', async () => {
+    const { service, registry } = setup();
+    registry.registerBot({ draftReply: readyBot() });
+    const incoming = await service.ingest(event);
+    await setLocal(service, incoming.conversationId, 'OFF');
+    for (const mode of ['MANUAL', 'AUTO'] as const)
+      await expect(
+        service.setBotMode(actor, {
+          conversationId: incoming.conversationId,
+          mode,
+        }),
+      ).rejects.toThrow('BOT_POLICY_RESTRICTION');
+    await setLocal(service, incoming.conversationId, 'ASSISTED');
+    await service.ingest({
+      ...event,
+      providerMessageId: 'changed-contact',
+      contactHandle: '596696654321@s.whatsapp.net',
+    });
+    await expect(
+      setLocal(service, incoming.conversationId, 'AUTO', true),
+    ).rejects.toThrow('CONVERSATION_CONTACT_REVIEW_REQUIRED');
+  });
+  it('fails closed on unknown stored policy values', async () => {
+    const { service, registry, table } = setup();
+    registry.registerBot({ draftReply: readyBot() });
+    const incoming = await service.ingest(event);
+    table(HermesBotPolicyEntity.name).get(`${A}:WORKSPACE`)!.mode = 'UNKNOWN';
+    expect(
+      await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      }),
+    ).toMatchObject({
+      effectiveMode: 'OFF',
+      reason: 'BOT_POLICY_INVALID',
+      canDraft: false,
+      canAutoReply: false,
+    });
+    await expect(
+      service.draftReply(actor, {
+        conversationId: incoming.conversationId,
+        messageId: incoming.messageId,
+      }),
+    ).rejects.toThrow('BOT_POLICY_OFF');
+  });
   it('replays the provider identity without duplication and rejects changed content', async () => {
     const { service, table } = setup();
     const first = await service.ingest(event);
@@ -602,14 +948,12 @@ describe('persistent messaging service contract', () => {
       personMatchStatus: 'AMBIGUOUS',
     });
     expect(people.match).not.toHaveBeenCalled();
-    const draftReply = jest
-      .fn()
-      .mockResolvedValue({
-        mode: 'DRAFT',
-        status: 'READY',
-        provider: 'HERMES_MCP',
-        text: 'Do not send',
-      });
+    const draftReply = jest.fn().mockResolvedValue({
+      mode: 'DRAFT',
+      status: 'READY',
+      provider: 'HERMES_MCP',
+      text: 'Do not send',
+    });
     registry.registerBot({ draftReply });
     expect(
       await service.setBotMode(actor, {
@@ -671,13 +1015,13 @@ describe('persistent messaging service contract', () => {
     ).toBe('ACCEPTED');
   });
 
-  it('keeps default manual and refuses AUTO when MCP is not configured', async () => {
+  it('keeps default inherited assistance and refuses AUTO when MCP is not configured', async () => {
     const { service, table, send } = setup();
     const incoming = await service.ingest(event);
     expect(
       table(HermesConversationEntity.name).get(incoming.conversationId)
         ?.botMode,
-    ).toBe('MANUAL');
+    ).toBe('INHERIT');
     expect(
       await service.setBotMode(actor, {
         conversationId: incoming.conversationId,
@@ -731,7 +1075,7 @@ describe('persistent messaging service contract', () => {
     let calls = 0;
     registry.registerBot({
       draftReply: async () => {
-        if (++calls > 1) {
+        if (++calls >= 1) {
           started();
           await gate;
         }
@@ -837,7 +1181,7 @@ describe('persistent messaging service contract', () => {
     let calls = 0;
     registry.registerBot({
       draftReply: async () => {
-        if (++calls === 2) {
+        if (++calls === 1) {
           started();
           await gate;
         }
@@ -927,7 +1271,7 @@ describe('persistent messaging service contract', () => {
     });
     const server = createServer(async (request, response) => {
       if (request.url === '/draft') {
-        if (++proposed === 2) {
+        if (++proposed === 1) {
           entered();
           await gate;
         }
@@ -991,7 +1335,7 @@ describe('persistent messaging service contract', () => {
       });
       release();
       await processing;
-      expect(proposed).toBe(2);
+      expect(proposed).toBe(1);
       expect(posted).toBe(0);
     } finally {
       release();
