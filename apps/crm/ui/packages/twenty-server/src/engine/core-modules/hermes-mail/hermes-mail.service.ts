@@ -537,6 +537,21 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       if (!external) botUnavailableReason = 'MAIL_PRIVATE_OR_SELF_RECIPIENT';
       event.direction = 'OUTBOUND';
     }
+    // Native drafts carry a stable UUID identity; recipient edits must not
+    // create a second canonical conversation when the saved MIME is opened.
+    const draft = /^<hermes-draft-([a-f0-9-]{36})@[^<>\s]+>$/i.exec(
+      parsed.messageId ?? '',
+    );
+    if (draft && event.direction === 'OUTBOUND') {
+      const existing = await this.conversations.findOneBy({
+        workspaceId: actor.workspaceId,
+        channel: 'EMAIL',
+        providerConnectionId: item.binding.connectionId,
+        providerConversationId: `draft:${draft[1].toLowerCase()}`,
+      });
+      if (existing?.contactHandle === event.contactHandle)
+        event.providerConversationId = existing.providerConversationId;
+    }
     if (mimeSha256) {
       const known = await this.messages.findOne({
         where: {
@@ -657,17 +672,62 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     };
   }
 
+  async withDraftLock<T>(
+    actor: HermesMessagingActor,
+    draftId: string,
+    run: () => Promise<T>,
+  ): Promise<T> {
+    await this.access.assertAllowed(actor);
+    const item = await this.connection(actor.workspaceId);
+    if (!item) throw unavailable();
+    const redis = this.redis.getClient();
+    const key = `hermes-mail-draft:${actor.workspaceId}:${item.binding.connectionId}:${draftId}`;
+    const token = randomUUID();
+    if ((await redis.set(key, token, 'PX', 60000, 'NX')) !== 'OK')
+      throw new ConflictException('MAIL_DRAFT_BUSY');
+    try {
+      return await run();
+    } finally {
+      await redis.eval(
+        'if redis.call("get",KEYS[1]) == ARGV[1] then return redis.call("del",KEYS[1]) else return 0 end',
+        1,
+        key,
+        token,
+      );
+    }
+  }
+
   async draftConversation(
     actor: HermesMessagingActor,
     input: { clientRequestId: string; contactHandle: string; subject: string },
+    assertDeadline: () => void = () => {},
+    allowUnsentUpdate = false,
   ) {
     await this.access.assertAllowed(actor);
     const item = await this.connection(actor.workspaceId);
     if (!item) throw unavailable();
-    return this.inbox.ensureEmailDraftConversation(actor, {
-      ...input,
-      providerConnectionId: item.binding.connectionId,
-    });
+    const assertLive = async (manager?: EntityManager) => {
+      assertDeadline();
+      await this.access.assertAllowed(actor, manager);
+      const fresh = await this.connection(actor.workspaceId, manager);
+      if (
+        !fresh ||
+        fresh.binding.connectionId !== item.binding.connectionId ||
+        fresh.revision !== item.revision ||
+        fresh.account.id !== item.account.id ||
+        fresh.account.updatedAt?.getTime() !== item.account.updatedAt?.getTime()
+      )
+        throw new ServiceUnavailableException('MAIL_CONNECTION_CHANGED');
+      assertDeadline();
+    };
+    return this.inbox.ensureEmailDraftConversation(
+      actor,
+      {
+        ...input,
+        providerConnectionId: item.binding.connectionId,
+      },
+      { allowUnsentUpdate, assertLive },
+    );
   }
 
   async cloneAttachment(

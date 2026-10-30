@@ -14,6 +14,7 @@ jest.mock(
   'src/modules/messaging/message-import-manager/drivers/imap/providers/imap-client.provider',
   () => ({ ImapClientProvider: class {} }),
 );
+import PostalMime from 'postal-mime';
 import { HermesMailboxService } from 'src/engine/core-modules/hermes-mail/hermes-mailbox.service';
 const actor = {
   workspaceId: 'f2c96b7b-f314-4561-9b5c-0011cfe03fd0',
@@ -67,6 +68,10 @@ function fixture() {
   const access = { assertAllowed: jest.fn(async () => undefined) };
   const mail = {
     connection: jest.fn(async () => item),
+    withDraftLock: jest.fn(
+      async (_actor: unknown, _draftId: string, run: () => Promise<unknown>) =>
+        run(),
+    ),
     draftAttachments: jest.fn(
       async (_actor: unknown, _conversationId: string, ids: string[]) => {
         if (ids.length) throw new Error('MEDIA_SCOPE_INVALID');
@@ -247,6 +252,7 @@ it('creates a Bcc-only mail with an own mailbox canonical contact and no hidden 
   expect(f.mail.draftConversation).toHaveBeenCalledWith(
     actor,
     expect.objectContaining({ contactHandle: 'me@example.com' }),
+    expect.any(Function),
   );
   expect(JSON.stringify(f.mail.draftConversation.mock.calls)).not.toContain(
     'hidden@example.org',
@@ -258,6 +264,132 @@ it('creates a Bcc-only mail with an own mailbox canonical contact and no hidden 
         to: [],
         bcc: ['hidden@example.org'],
       }),
+    }),
+  );
+});
+
+it('persists an empty native draft, replays it, replaces edited content recoverably, and keeps attachment scope and send request separate', async () => {
+  const f = fixture();
+  const draftId = 'e4d16125-1299-4b15-aa57-d193a423b4e6';
+  let nextUid = 50;
+  let selectedFolder = 'Drafts';
+  const native = new Map<number, { folder: string; raw: Buffer }>();
+  f.client.list.mockImplementation(async () =>
+    ['INBOX', 'Drafts', 'Trash'].map((path) => ({
+      path,
+      name: path,
+      flags: new Set<string>(),
+      specialUse:
+        path === 'Drafts' ? '\\Drafts' : path === 'Trash' ? '\\Trash' : '',
+    })),
+  );
+  f.imap.getClient.mockImplementation(async () => ({ ...f.client }) as never);
+  f.client.getMailboxLock.mockImplementation(async (path?: string) => {
+    selectedFolder = path ?? 'Drafts';
+    return { release: f.release };
+  });
+  f.client.search.mockImplementation(async () =>
+    [...native.entries()]
+      .filter(([, value]) => value.folder === selectedFolder)
+      .map(([uid]) => uid),
+  );
+  f.client.fetchOne.mockImplementation(async (value, query) => {
+    const uid = Number(value);
+    const row = native.get(uid);
+    return row
+      ? ({
+          uid,
+          size: row.raw.length,
+          ...(query.source ? { source: row.raw } : {}),
+        } as never)
+      : (false as never);
+  });
+  f.client.append.mockImplementation(async (path?: string, raw?: Buffer) => {
+    const uid = ++nextUid;
+    native.set(uid, { folder: path!, raw: raw! });
+    return { uid, uidValidity: 123n };
+  });
+  f.client.messageMove.mockImplementation(
+    async (uids?: string, target?: string) => {
+      for (const id of uids!.split(','))
+        native.get(Number(id))!.folder = target!;
+      return { uidMap: new Map() };
+    },
+  );
+  const empty = {
+    draftId,
+    from: 'me@example.com',
+    subject: '',
+    text: '',
+    to: [],
+  };
+  const first = await f.service.createDraft(actor, empty);
+  expect(first).toMatchObject({
+    state: 'SAVED',
+    draftId,
+    conversationId: 'canonical',
+    uidValidity: '123',
+  });
+  const replay = await f.service.createDraft(actor, empty);
+  expect(replay).toMatchObject({
+    replay: true,
+    uid: first.uid,
+    draftRevision: first.draftRevision,
+  });
+  expect(f.client.append).toHaveBeenCalledTimes(1);
+  const edited = {
+    ...empty,
+    to: ['new@example.org'],
+    subject: 'Edited',
+    text: 'Hello',
+    draftRevision: first.draftRevision,
+  };
+  const second = await f.service.createDraft(actor, edited);
+  expect(second).toMatchObject({ state: 'SAVED', conversationId: 'canonical' });
+  expect(second.uid).not.toBe(first.uid);
+  expect(native.get(Number(first.uid))?.folder).toBe('Trash');
+  await expect(f.service.createDraft(actor, edited)).rejects.toThrow(
+    'MAIL_DRAFT_REVISION_CONFLICT',
+  );
+  f.mail.draftAttachments.mockResolvedValue([
+    {
+      filename: 'fixture.pdf',
+      contentType: 'application/pdf',
+      content: Buffer.from('%PDF-1.7'),
+    },
+  ] as never);
+  const third = await f.service.createDraft(actor, {
+    ...edited,
+    draftRevision: second.draftRevision,
+    attachmentIds: ['e4d16125-1299-4b15-aa57-d193a423b4e8'],
+  });
+  const parsed = await PostalMime.parse(native.get(Number(third.uid))!.raw);
+  expect(parsed.to?.[0].address).toBe('new@example.org');
+  expect(parsed.attachments).toHaveLength(1);
+  expect(f.mail.draftAttachments).toHaveBeenLastCalledWith(actor, 'canonical', [
+    'e4d16125-1299-4b15-aa57-d193a423b4e8',
+  ]);
+  expect(f.mail.replyRich).not.toHaveBeenCalled();
+  expect(f.mail.draftConversation).toHaveBeenCalledWith(
+    actor,
+    expect.objectContaining({
+      clientRequestId: draftId,
+      contactHandle: 'new@example.org',
+    }),
+    expect.any(Function),
+    true,
+  );
+  const sendRequestId = 'e4d16125-1299-4b15-aa57-d193a423b4e9';
+  await f.service.sendNew(actor, {
+    ...edited,
+    draftRevision: third.draftRevision,
+    clientRequestId: sendRequestId,
+  });
+  expect(f.mail.replyRich).toHaveBeenCalledWith(
+    actor,
+    expect.objectContaining({
+      conversationId: 'canonical',
+      clientRequestId: sendRequestId,
     }),
   );
 });

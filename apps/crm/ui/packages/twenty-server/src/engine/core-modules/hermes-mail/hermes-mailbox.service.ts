@@ -27,6 +27,8 @@ import {
   MAIL_MAX_SOURCE_BYTES,
   mailAddresses,
   mailHeader,
+  mailContentSignature,
+  mailParsedContentSignature,
   mailThreadKey,
   planMailEnvelope,
   sanitizeMailHtml,
@@ -490,97 +492,185 @@ export class HermesMailboxService {
   async sendNew(actor: HermesMessagingActor, input: HermesMailNewDraftInput) {
     if (!input.clientRequestId)
       throw new BadRequestException('MAIL_REQUEST_ID_REQUIRED');
-    const planned = await this.session(actor, async (client, item) => {
-      const envelope = planMailEnvelope({
-        ...input,
-        mode: 'NEW',
-        source: {
-          headers: [],
-          headerLines: [],
-          attachments: [],
-          subject: input.subject,
-        },
-        ownAddresses: getSendableEmailHandles(item.account),
-      });
-      await this.current(actor, client);
-      const conversation = await this.mail.draftConversation(actor, {
-        clientRequestId: input.clientRequestId!,
-        contactHandle: envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
-        subject: envelope.subject,
-      });
-      if (input.conversationId && input.conversationId !== conversation.id)
-        throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
-      return { envelope, conversationId: conversation.id };
-    });
-    return this.mail.replyRich(actor, {
-      ...planned,
-      clientRequestId: input.clientRequestId,
-      attachmentIds: input.attachmentIds ?? [],
-    });
+    return this.mail.withDraftLock(
+      actor,
+      input.draftId ?? input.clientRequestId,
+      async () => {
+        const planned = await this.session(actor, async (client, item) => {
+          const envelope = planMailEnvelope({
+            ...input,
+            mode: 'NEW',
+            source: {
+              headers: [],
+              headerLines: [],
+              attachments: [],
+              subject: input.subject,
+            },
+            ownAddresses: getSendableEmailHandles(item.account),
+          });
+          await this.current(actor, client);
+          const conversation = await this.mail.draftConversation(
+            actor,
+            {
+              clientRequestId: input.draftId ?? input.clientRequestId!,
+              contactHandle: envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
+              subject: envelope.subject,
+            },
+            () => this.alive(client),
+          );
+          if (input.conversationId && input.conversationId !== conversation.id)
+            throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
+          return { envelope, conversationId: conversation.id };
+        });
+        return this.mail.replyRich(actor, {
+          ...planned,
+          clientRequestId: input.clientRequestId,
+          attachmentIds: input.attachmentIds ?? [],
+        });
+      },
+    );
   }
 
   async createDraft(
     actor: HermesMessagingActor,
     input: HermesMailNewDraftInput,
   ) {
-    if (!input.clientRequestId)
-      throw new BadRequestException('MAIL_REQUEST_ID_REQUIRED');
-    return this.session(actor, async (client, item) => {
-      const envelope = planMailEnvelope({
-        ...input,
-        mode: 'NEW',
-        source: {
-          headers: [],
-          headerLines: [],
-          attachments: [],
-          subject: input.subject,
-        },
-        ownAddresses: getSendableEmailHandles(item.account),
-      });
-      await this.current(actor, client);
-      const conversation = await this.mail.draftConversation(actor, {
-        clientRequestId: input.clientRequestId!,
-        contactHandle: envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
-        subject: envelope.subject,
-      });
-      if (input.conversationId && input.conversationId !== conversation.id)
-        throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
-      const attachments = await this.mail.draftAttachments(
-        actor,
-        conversation.id,
-        input.attachmentIds ?? [],
-      );
-      const drafts = (await client.list()).find(
-        (folder) =>
-          folder.specialUse === '\\Drafts' && !folder.flags.has('\\Noselect'),
-      );
-      if (!drafts) throw new NotFoundException('MAIL_DRAFTS_FOLDER_NOT_FOUND');
-      const compiled = new MailComposer({
-        ...envelope,
-        messageId:
-          '<hermes-draft-' +
-          input.clientRequestId +
-          '@' +
-          envelope.from.split('@')[1] +
-          '>',
-        attachments,
-        disableFileAccess: true,
-        disableUrlAccess: true,
-      }).compile();
-      compiled.keepBcc = true;
-      const raw = await compiled.build();
-      await this.current(actor, client);
-      const result = await client.append(drafts.path, raw, ['\\Draft']);
-      if (!result)
-        throw new ServiceUnavailableException('MAIL_DRAFT_NOT_SAVED');
-      return {
-        state: 'SAVED',
-        conversationId: conversation.id,
-        folder: drafts.path,
-        uid: result.uid ? String(result.uid) : null,
-        uidValidity: result.uidValidity ? String(result.uidValidity) : null,
-      };
-    });
+    const draftId = input.draftId ?? input.clientRequestId;
+    if (!draftId) throw new BadRequestException('MAIL_DRAFT_ID_REQUIRED');
+    return this.mail.withDraftLock(actor, draftId, () =>
+      this.session(actor, async (client, item) => {
+        const envelope = planMailEnvelope(
+          {
+            ...input,
+            mode: 'NEW',
+            source: {
+              headers: [],
+              headerLines: [],
+              attachments: [],
+              subject: input.subject,
+            },
+            ownAddresses: getSendableEmailHandles(item.account),
+          },
+          { allowEmptyRecipients: true },
+        );
+        const listed = await client.list();
+        const drafts = listed.find(
+          (folder) =>
+            folder.specialUse === '\\Drafts' && !folder.flags.has('\\Noselect'),
+        );
+        if (!drafts)
+          throw new NotFoundException('MAIL_DRAFTS_FOLDER_NOT_FOUND');
+        const trash = listed.find(
+          (folder) =>
+            folder.specialUse === '\\Trash' && !folder.flags.has('\\Noselect'),
+        );
+        return this.locked(client, actor, { folder: drafts.path }, async () => {
+          const validity = String(client.mailbox && client.mailbox.uidValidity);
+          if (!/^\d{1,32}$/.test(validity))
+            throw new ConflictException('MAIL_UID_VALIDITY_CHANGED');
+          const messageId =
+            '<hermes-draft-' +
+            draftId +
+            '@' +
+            envelope.from.split('@')[1] +
+            '>';
+          const found = await client.search(
+            { header: { 'message-id': messageId } },
+            { uid: true },
+          );
+          const old = Array.isArray(found) ? found.sort((a, b) => a - b) : [];
+          let latestRevision: string | null = null;
+          for (const uid of old) {
+            await this.current(actor, client);
+            const source = await this.source(client, {
+              folder: drafts.path,
+              uid: String(uid),
+              uidValidity: validity,
+            });
+            if (
+              source.messageId !== messageId ||
+              mailAddress(source.from?.address) !== envelope.from
+            )
+              throw new ConflictException('MAIL_DRAFT_IDENTITY_CONFLICT');
+            latestRevision = mailParsedContentSignature(source);
+          }
+          if (input.draftRevision && input.draftRevision !== latestRevision)
+            throw new ConflictException('MAIL_DRAFT_REVISION_CONFLICT');
+          const conversation = await this.mail.draftConversation(
+            actor,
+            {
+              clientRequestId: draftId,
+              contactHandle: envelope.to[0] ?? envelope.cc[0] ?? envelope.from,
+              subject: envelope.subject,
+            },
+            () => this.alive(client),
+            true,
+          );
+          if (input.conversationId && input.conversationId !== conversation.id)
+            throw new ConflictException('MAIL_CONVERSATION_MISMATCH');
+          const attachments = await this.mail.draftAttachments(
+            actor,
+            conversation.id,
+            input.attachmentIds ?? [],
+          );
+          const draftRevision = mailContentSignature(
+            envelope,
+            attachments.map((file) => ({
+              filename: file.filename,
+              mimeType: file.contentType,
+              bytes: file.content,
+            })),
+          );
+          if (latestRevision === draftRevision && old.length)
+            return {
+              state: 'SAVED',
+              replay: true,
+              draftId,
+              draftRevision,
+              conversationId: conversation.id,
+              folder: drafts.path,
+              uid: String(old[old.length - 1]),
+              uidValidity: validity,
+            };
+          if (old.length && !trash)
+            throw new ConflictException('MAIL_DRAFT_REPLACE_UNAVAILABLE');
+          const compiled = new MailComposer({
+            ...envelope,
+            messageId,
+            attachments,
+            disableFileAccess: true,
+            disableUrlAccess: true,
+          }).compile();
+          compiled.keepBcc = true;
+          const raw = await compiled.build();
+          await this.current(actor, client);
+          const result = await client.append(drafts.path, raw, ['\\Draft']);
+          if (!result || !result.uid || String(result.uidValidity) !== validity)
+            throw new ServiceUnavailableException(
+              'MAIL_DRAFT_SAVE_UNCONFIRMED',
+            );
+          await this.current(actor, client);
+          if (
+            old.length &&
+            !(await client.messageMove(old.join(','), trash!.path, {
+              uid: true,
+            }))
+          )
+            throw new ConflictException('MAIL_DRAFT_REPLACE_UNCONFIRMED');
+          await this.current(actor, client);
+          return {
+            state: 'SAVED',
+            replay: false,
+            draftId,
+            draftRevision,
+            conversationId: conversation.id,
+            folder: drafts.path,
+            uid: String(result.uid),
+            uidValidity: validity,
+          };
+        });
+      }),
+    );
   }
 
   async compose(
