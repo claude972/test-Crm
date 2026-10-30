@@ -620,6 +620,47 @@ describe('encrypted workspace connections', () => {
     expect(f.access.assertAllowed).toHaveBeenCalledWith(actor, f.manager);
   });
 
+  it('checks a workspace transaction revision through only its native query callback', async () => {
+    const f = fixture();
+    const saved = await f.service.save(actor, evolution);
+    const expected = {
+      connectionId: saved.connectionId!,
+      revision: saved.revision,
+    };
+    const query = jest.fn(async (sql: string, _parameters?: unknown[]) =>
+      sql.startsWith('SELECT "revision"')
+        ? [{ ...expected, enabled: true }]
+        : [],
+    );
+    await f.service.assertRevisionViaQuery(
+      workspaceId,
+      'EVOLUTION',
+      expected,
+      query,
+    );
+    expect(query).toHaveBeenLastCalledWith(
+      'SELECT "revision", "connectionId", "enabled" FROM core."hermesConnection" WHERE "workspaceId" = $1 AND "kind" = $2 LIMIT 1',
+      [workspaceId, 'EVOLUTION'],
+    );
+    const changed = async () => [{ ...expected, revision: 2, enabled: true }];
+    await expect(
+      f.service.assertRevisionViaQuery(
+        workspaceId,
+        'EVOLUTION',
+        expected,
+        changed,
+      ),
+    ).rejects.toThrow('CONNECTION_REVISION_CONFLICT');
+    await expect(
+      f.service.assertRevisionViaQuery(
+        workspaceId,
+        'EVOLUTION',
+        expected,
+        async () => [],
+      ),
+    ).rejects.toThrow('CONNECTION_REVISION_CONFLICT');
+  });
+
   it('validates bounded intake secrets and never assumes configured implies verified', async () => {
     const f = fixture();
     const input = {

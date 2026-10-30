@@ -388,6 +388,32 @@ export class HermesConnectionsService {
     });
   }
 
+  async assertRevisionViaQuery(
+    workspaceId: string,
+    kind: HermesConnectionKind,
+    expected: { connectionId: string; revision: number },
+    query: (
+      sql: string,
+      parameters?: unknown[],
+    ) => Promise<Record<string, unknown>[]>,
+  ) {
+    await query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [
+      `hermes-messaging:${workspaceId}`,
+    ]);
+    const rows = await query(
+      'SELECT "revision", "connectionId", "enabled" FROM core."hermesConnection" WHERE "workspaceId" = $1 AND "kind" = $2 LIMIT 1',
+      [workspaceId, kind],
+    );
+    const row = rows[0];
+    if (
+      !row ||
+      row.enabled !== true ||
+      row.connectionId !== expected.connectionId ||
+      row.revision !== expected.revision
+    )
+      throw new ConflictException('CONNECTION_REVISION_CONFLICT');
+  }
+
   async workspaceIds(kind: HermesConnectionKind): Promise<string[]> {
     const rows = await this.source
       .getRepository(HermesConnectionEntity)
