@@ -14,7 +14,15 @@ Les trois premiers éléments sont un seul et même défaut vu sous trois angles
 
 Portée : 52 fichiers, 134 occurrences du motif `KovaaLab CRM` collé à un caractère d'identifiant ; 223 diagnostics de syntaxe sur 51 fichiers.
 
-Méthode imposée : **renommage ciblé, symbole par symbole**. Pas de remplacement global — c'en est précisément la conséquence. Le jeton sûr existe déjà dans le dépôt (`KovaaLabCRM`, employé par `twenty-shared` et `twenty-server`), mais pour les symboles du § A3 la cible correcte est le nom `Twenty*` d'origine, parce que c'est lui qui est exporté par le paquet fournisseur.
+Méthode imposée : **renommage ciblé, symbole par symbole**. Pas de remplacement global — c'en est précisément la conséquence.
+
+La cible dépend de qui définit le nom, et il n'y a pas de règle unique :
+
+- **un contrat serveur le définit** → suivre le contrat. C'est le cas de `allowRequestsToKovaaLabCRMIcons` (voir plus bas, correction P0-DOC-002).
+- **un paquet fournisseur l'exporte** → suivre l'export. C'est le cas des icônes du § A3, qui restent `IconTwentyStar` / `IconTwentyStarFilled`.
+- **le frontend est seul propriétaire** → jeton sûr `KovaaLabCRM`, sans espace, tel qu'employé par `twenty-shared` et `twenty-server`.
+
+Dans tous les cas, **les noms de fichiers `Twenty*` sont conservés** : un basename ne définit ni un champ GraphQL ni un symbole exporté.
 
 Symboles concernés :
 
@@ -28,7 +36,26 @@ Symboles concernés :
 | espace de noms `KovaaLab CRMIcons` | `src/modules/page-layout/widgets/components/__tests__/RecordPageAddWidgetSection.test.tsx:4`, `src/modules/side-panel/pages/page-layout/components/__tests__/SidePanelPageLayoutRecordPageWidgetTypeSelect.test.tsx:17` |
 | clé d'objet non quotée `kovaa-lab:` | `src/modules/settings/mcp/utils/__tests__/mcpSetup.test.ts:45` |
 
-Attention particulière à `src/generated-metadata/graphql.ts:1384` : fichier **généré**. Le nom de champ y vient du schéma GraphQL. Le corriger à la main serait écrasé à la prochaine génération. **Le champ `allowRequestsToTwentyIcons` côté schéma appartient à Codex** : à coordonner, pas à patcher côté front.
+**Correction P0-DOC-002, demandée par Codex et acceptée — elle corrige une erreur de fond de ce backlog.** Ma rédaction initiale désignait `allowRequestsToTwentyIcons` comme le champ serveur et proposait d'y revenir. C'était faux, et l'appliquer aurait **cassé le contrat GraphQL**.
+
+Contrat réel, vérifié par moi sur la base `c0318cf0b` :
+
+| Source | Ligne | Contenu |
+| --- | --- | --- |
+| `twenty-server/src/engine/core-modules/client-config/client-config.entity.ts` | 423 | `allowRequestsToKovaaLabCRMIcons: boolean;` — `@Field` sans alias |
+| `twenty-server/src/engine/core-modules/client-config/services/client-config.service.ts` | 297 | `allowRequestsToKovaaLabCRMIcons: this.kovaaLabConfigService.get(` |
+
+**Le nom de champ exposé est donc `allowRequestsToKovaaLabCRMIcons`**, sans espace. Le frontend doit s'y aligner ; **aucun changement de schéma backend n'est à demander pour ce motif**.
+
+Il faut par conséquent distinguer trois choses que le remplacement global avait fusionnées :
+
+| Élément | Valeur cible | Pourquoi |
+| --- | --- | --- |
+| Champ GraphQL et propriétés qui le portent | `allowRequestsToKovaaLabCRMIcons` | contrat serveur existant, à ne pas modifier |
+| Symbole d'état frontend | `allowRequestsToKovaaLabCRMIconsState` | cohérence avec le champ |
+| **Nom de fichier** | `allowRequestsToTwentyIcons.ts` — **inchangé** | les basenames `Twenty*` sont conservés par décision Codex ; un nom de fichier ne définit pas un nom de champ GraphQL |
+
+Attention particulière à `src/generated-metadata/graphql.ts:1384` : fichier **généré**. Le nom de champ y vient du schéma, qui porte déjà la bonne valeur ; l'écart n'est donc que l'espace injectée. La voie propre est la régénération depuis le schéma, pas un patch manuel.
 
 Critère d'acceptation : les 11 371 fichiers `.ts`/`.tsx` de `twenty-front/src` passent le parsing sans diagnostic ; aucun identifiant du dépôt ne contient d'espace.
 
@@ -40,7 +67,7 @@ Cinq spécificateurs à ramener vers les fichiers réels, qui ont gardé leur ba
 
 | Spécificateur à corriger | Occurrences | Cible réelle |
 | --- | --- | --- |
-| `@/client-config/states/allowRequestsToKovaaLab CRMIcons` | 13 | `allowRequestsToTwentyIcons` |
+| `@/client-config/states/allowRequestsToKovaaLab CRMIcons` | 13 | `allowRequestsToTwentyIcons` (le **fichier** garde son basename) |
 | `@/applications/utils/isKovaaLab CRMStandardApplication` | 8 | `isTwentyStandardApplication` |
 | `@/auth/utils/getKovaaLab CRMWebsiteUrl` | 2 | `getTwentyWebsiteUrl` |
 | `@/settings/developers/constants/KovaaLab CRMCliCreateAppCommands` | 2 | `TwentyCliCreateAppCommands` |
@@ -54,12 +81,11 @@ Critère d'acceptation : 0 import interne non résolu dans `twenty-front`, hors 
 
 `twenty-ui` exporte `IconTwentyStar` et `IconTwentyStarFilled` (`src/icon/index.ts:32-33`) ; `twenty-front` importe `IconKovaaLab CRMStar` (`SettingsObjectFieldDataType.tsx:8`) et `IconKovaaLab CRMStarFilled` (`RatingInput.tsx:8`).
 
-**Retirer l'espace ne suffit pas** : `IconKovaaLabCRMStar` n'existe pas non plus. Deux options, à trancher avec Codex :
+**Retirer l'espace ne suffit pas** : `IconKovaaLabCRMStar` n'existe pas non plus.
 
-1. ramener les deux imports du front à `IconTwentyStar` / `IconTwentyStarFilled` — minimal, sans effet de bord ;
-2. renommer les icônes dans `twenty-ui` et aligner tous les consommateurs — cohérent avec le reste du rebranding, mais touche la bibliothèque UI et ses actifs `twenty-star.svg` / `twenty-star-filled.svg`.
+> **Décision Codex acquise (CORRECTIONS.md, synchronisation du 29 octobre 2026) : conserver `IconTwentyStar` et `IconTwentyStarFilled` tels qu'exportés par la bibliothèque UI. Corriger les consommateurs, pas renommer la bibliothèque. Les basenames `Twenty*` sont conservés.**
 
-Recommandation : l'option 1 pour le lot P0, l'option 2 plus tard si une mission de rebranding est décidée.
+La réparation consiste donc à ramener les deux imports de `twenty-front` à `IconTwentyStar` / `IconTwentyStarFilled`. L'autre voie — renommer les icônes dans `twenty-ui` et aligner tous les consommateurs — est **écartée** : elle toucherait la bibliothèque importée et ses actifs `twenty-star.svg` / `twenty-star-filled.svg`, hors périmètre P0.
 
 Critère d'acceptation : tout symbole importé par `twenty-front` depuis `kovaa-lab-ui` et `kovaa-lab-shared` existe dans le paquet exportateur.
 
@@ -131,7 +157,7 @@ Vérification : avec un objet distant et une liste vide, constater que le texte 
 
 **Ce n'est pas un correctif frontend seul** : il faut soit enregistrer un domaine, soit choisir des cibles réelles, soit masquer les entrées concernées.
 
-**La décision de marque est prise (B0) et elle débloque l'option la plus simple.** Contrôle `whois` du 29 octobre 2026 : `kovaa-lab.com` et `kovaalab.com` sont **tous deux non enregistrés, donc disponibles**. Or `kovaa-lab.com` est exactement ce que le code attend déjà, dans chacune des références ci-dessus.
+**La décision de marque est prise (B0) et elle oriente l'option la plus simple.** Trois preuves à ne pas confondre, au 29 octobre 2026 (correction **P0-DOC-001**) : `host` donne `NXDOMAIN` sur `kovaa-lab.com`, donc **le DNS ne résout pas** ; `whois` donne `No match` sur `kovaa-lab.com` et `kovaalab.com`, donc **le registre ne les connaît pas** — preuve distincte, non reproduite par Codex, qui ne certifie aucune disponibilité commerciale ; et **rien de tout cela ne prouve que les pages légales seront accessibles**, ce qu'aucun enregistrement ne prouve non plus. Or `kovaa-lab.com` est exactement ce que le code attend déjà, dans chacune des références ci-dessus.
 
 > **Décidé le 29 octobre 2026, l'utilisateur ayant demandé d'appliquer la recommandation : option 1 — `kovaa-lab.com` est le domaine retenu.**
 >
@@ -150,11 +176,16 @@ Trois options avaient été évaluées, par ordre de coût croissant côté code
 | Enregistrer `kovaa-lab.com` | **utilisateur** (achat) | aucun |
 | Publier `/terms` et `/privacy-policy` | utilisateur ou Codex | aucun |
 | Faire résoudre `docs.kovaa-lab.com` | utilisateur ou Codex | aucun |
+| **Contrôler l'accessibilité réelle de chaque URL affichée** | utilisateur ou Codex | aucun |
 | Donner une cible réelle à l'aperçu social | Codex | `index.html:19`, `:26` |
+
+La quatrième ligne est la seule qui referme le constat. Enregistrer le domaine ne prouve pas que les pages existent ; seule une requête réelle sur chaque URL le prouvera.
 
 Seul le dernier point touche du code. L'aperçu social pointe vers le dépôt GitHub `kovaa-lab/kovaa-lab`, en 404 : il demande une cible propre, soit un chemin sur le domaine une fois enregistré, soit une image servie depuis le dépôt réel.
 
-**Tant que le domaine n'est pas enregistré, le constat 4.6 reste ouvert** et les mentions légales de l'écran de connexion n'aboutissent pas. La décision ne le referme pas ; seul l'enregistrement le fera.
+**Le constat 4.6 reste ouvert** et les mentions légales de l'écran de connexion n'aboutissent pas. Ni la décision, ni l'enregistrement seul ne le referment : il faut un contrôle d'accessibilité des pages réellement servies.
+
+**Rien de cet élément ne bloque la réparation frontend P0** — ni le DNS, ni le registre, ni un achat n'intervient dans le parsing ou la construction.
 
 Critère d'acceptation : tout lien externe affiché résout, ou l'entrée qui le porte est masquée — à l'exception des mentions légales, qui doivent résoudre.
 

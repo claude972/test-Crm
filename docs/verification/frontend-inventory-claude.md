@@ -477,16 +477,28 @@ Deux noms atteignent donc l'utilisateur : l'interface du CRM dit « KovaaLab CRM
 
 La marque retenue doit disposer d'un domaine réel : `kovaa-lab.com` est configuré partout dans l'application et n'existe pas (§ 4.6). Contrôle `whois` effectué le 29 octobre 2026, après la décision :
 
-| Domaine | Résultat `whois` | Lecture |
+| Domaine | Preuve DNS (`host`) | Preuve registre (`whois`) |
 | --- | --- | --- |
-| `kovaa-lab.com` | `No match for domain "KOVAA-LAB.COM"` | non enregistré, donc **disponible** |
-| `kovaalab.com` | `No match for domain "KOVAALAB.COM"` | non enregistré, donc **disponible** |
+| `kovaa-lab.com` | `NXDOMAIN` — ne résout pas | `No match for domain "KOVAA-LAB.COM"` |
+| `kovaalab.com` | non testé | `No match for domain "KOVAALAB.COM"` |
 
-Les deux sont libres. `kovaa-lab.com` est celui que le code attend déjà, dans toutes les références du § 4.6. **L'enregistrer résoudrait le constat 4.6 sans toucher une ligne de code frontend** — c'est l'option la moins intrusive, et elle est cohérente avec la marque décidée.
+**Correction P0-DOC-001, demandée par Codex et acceptée.** Ma rédaction initiale déduisait l'absence d'enregistrement du seul `NXDOMAIN`. C'était un raccourci fautif : `NXDOMAIN` est un **résultat DNS**, et un domaine peut être enregistré sans délégation DNS (RFC 2308, section 2.1). Les deux preuves sont désormais séparées, et une troisième affirmation, que ni l'une ni l'autre ne soutient, est explicitée ci-dessous.
+
+Trois affirmations distinctes, à ne jamais fusionner :
+
+1. **Le DNS ne résout pas** — prouvé par `host`, au 29 octobre 2026. C'est ce qui rend les liens injoignables aujourd'hui, et c'est le seul fait qui porte sur l'expérience utilisateur.
+2. **Le registre ne connaît pas ces domaines** — prouvé séparément par `whois`, à la même date. Codex n'a pas reproduit ce contrôle et ne certifie aucune disponibilité commerciale.
+3. **Les pages légales sont hébergées et accessibles** — **non prouvé, et aucun enregistrement ne le prouverait.** Acquérir un domaine ne crée ni `/terms` ni `/privacy-policy`. Cette accessibilité devra être contrôlée séparément, par une requête réelle sur chaque URL affichée.
+
+`kovaa-lab.com` est le domaine que le code attend déjà, dans toutes les références du § 4.6. L'enregistrer **puis y publier les pages** refermerait le constat 4.6 sans toucher une ligne de code frontend — c'est l'option la moins intrusive, et elle est cohérente avec la marque décidée. L'enregistrement seul ne suffit pas.
 
 **Décision du 29 octobre 2026 : `kovaa-lab.com` est le domaine retenu.** C'est l'option la moins intrusive — zéro ligne de frontend modifiée — et la seule cohérente avec la marque décidée.
 
-**L'exécution n'est pas faite et ne m'appartient pas : enregistrer un domaine est un achat.** Je ne procède à aucun paiement ni souscription. Tant que l'enregistrement n'a pas eu lieu, le constat 4.6 reste ouvert et les CGU comme la politique de confidentialité de l'écran de connexion n'aboutissent pas. La décision ne referme pas le constat ; seul l'enregistrement le fera. Répartition des actions restantes : élément **B2** du backlog.
+**L'exécution n'est pas faite et ne m'appartient pas : enregistrer un domaine est un achat.** Je ne procède à aucun paiement ni souscription.
+
+Et l'enregistrement **ne refermera pas** le constat 4.6 à lui seul : il faudra encore que `/terms`, `/privacy-policy` et la documentation répondent réellement. Le constat ne se referme qu'après un contrôle d'accessibilité de chaque URL affichée, distinct du DNS et du registre. Répartition des actions restantes : élément **B2** du backlog.
+
+**Ce constat ne bloque pas la réparation P0 du frontend** : ni le DNS, ni le registre, ni un achat n'interviennent dans le parsing ou la construction.
 
 Précision de lecture du `whois` : la sortie contient une ligne `status: ACTIVE`, qui appartient à l'en-tête du registre du TLD et **non** au domaine interrogé. La réponse opérante est `No match`.
 
@@ -512,14 +524,20 @@ Liste explicite. Rien ci-dessous n'a été exécuté, et aucun de ces critères 
 3. **`packages/twenty-server` à la racine n'est pas le serveur ciblé.** Confirmé par `docs/stabilization/p0-status.md` et par `scripts/build-crm.mjs:50`, qui construit `kovaa-lab-server` **dans** `apps/crm/ui`. Les fichiers `.ts` épars à la racine (`availability.service.ts`, `booking.service.ts`, `calendar-rdv.service.ts`, `graphql.resolvers.ts`…) relèvent du même héritage. Hors périmètre frontend ; non inspectés.
 4. **Les documents historiques affirmant que tous les modules sont terminés ne sont pas des preuves** et n'ont pas été traités comme telles. Le présent rapport n'affirme que ce qu'une commande citée établit.
 5. **Aucun état « disponible » n'est déduit d'une URL configurée.** Aucune URL d'outil n'a été présentée comme une preuve de disponibilité ni d'autorisation. L'inverse est documenté : `kovaa-lab.com` est **configuré partout et n'existe pas** (§ 4.6) — démonstration directe qu'une URL présente ne prouve rien.
-6. **Conflit de convention à arbitrer.** `apps/crm/ui/AGENTS.md` annonce que la CI rejette les commits portant une attribution IA. Le périmètre de ce fichier est `apps/crm/ui` ; mes documents sont à la racine, et `.github/workflows/p0-integrity.yml` est le seul workflow du dépôt — il ne contient aucun contrôle de message de commit. Mon commit suit donc la convention d'attribution de mon harnais. **Si une politique à l'échelle du dépôt est souhaitée, elle doit être écrite dans l'`AGENTS.md` racine et appliquée par la CI.** À trancher avec Codex.
+6. **Convention d'attribution des commits — réglée.** `apps/crm/ui/AGENTS.md` annonce que la CI rejette les commits portant une attribution IA, mais le périmètre de ce fichier est `apps/crm/ui` ; mes documents sont à la racine, et aucun workflow du dépôt ne contrôle les messages de commit. **Codex a répondu** (CORRECTIONS.md, synchronisation du 29 octobre 2026) : conserver les règles existantes, aucune réécriture historique ni nouvelle convention globale n'est requise pour démarrer P0. Sujet clos.
 
 ## 9. Observations hors périmètre, transmises à Codex
 
 Relevées en passant, **non corrigées**, backend et scripts n'étant pas mon périmètre.
 
 - `apps/crm/ui/packages/twenty-server/src/engine/core-modules/event-logs/producers/application-log/strip-ansi-escapes.util.spec.ts:29` — unique occurrence résiduelle du motif `KovaaLab CRM` dans `twenty-server`, ici dans une chaîne de test. Sans effet sur la compilation.
-- `scripts/check-crm-p0.cjs:61` affirme `LOGIC_FUNCTION_HTTP_RESPONSE_MARKER === '__kovaa-labHttpResponse'`. Ce marqueur est un jeton de protocole entre le SDK et le serveur. Le renommage est cohérent **à l'intérieur** du dépôt, et le script le vérifie. Question ouverte : une version du SDK publiée hors de ce dépôt attendrait-elle l'ancien marqueur ? Réponse connue de Codex, pas de moi.
+- **Correction P0-DOC-003, demandée par Codex et acceptée.** Ma rédaction initiale évoquait un « renommage » du marqueur SDK par ce projet, et suggérait de le traiter dans le lot P0. **Les deux points étaient faux**, et je les corrige :
+
+  Vérifié par moi : `git show 05972c1de:apps/crm/ui/packages/twenty-shared/src/types/LogicFunctionResponse.ts` donne, dès la **ligne 1 de la base historique**, `export const LOGIC_FUNCTION_HTTP_RESPONSE_MARKER = '__kovaa-labHttpResponse';`. La valeur **préexiste** donc au remplacement global ; elle n'a pas été renommée par ce projet, et elle est **préservée telle quelle**.
+
+  Ce que le même fichier montre aussi, et qui relève bien du défaut de syntaxe : la ligne 4 porte `__kovaa-labHttpResponse: true;` en propriété de type **non quotée**, ce qui est invalide — un tiret ne peut pas figurer dans un nom de propriété nu. La réparation consiste à **citer la propriété**, en conservant la chaîne à l'identique. Aucune migration de marqueur n'est à entreprendre.
+
+  Distinction à maintenir : la conservation de la valeur **relativement à la base historique** est prouvée, et le test de compatibilité shared/SDK est vert dans la CI `40969724576`. En revanche, la compatibilité avec un SDK publié **hors de ce dépôt** n'a été examinée ni par Codex ni par moi : elle reste **inconnue**, et ce n'est pas un sujet P0.
 - Catalogues i18n de `twenty-server` : `…/i18n/locales/fi-FI.po:7233` et `:15684` portent la même corruption grammaticale qu'au § 4.10.
 
 ## 10. Backlog
@@ -548,11 +566,11 @@ L'infrastructure garde `hermes` et **aucun identifiant technique ne change** : l
 ### Points sur lesquels ton avis reste nécessaire
 
 1. **§ 4.1 à 4.3 — les 295 défauts de `twenty-front`.** Confirmes-tu la mesure sur ton checkout ? Et surtout : ces défauts sont-ils **déjà réparés dans tes modifications locales non publiées** ? Je n'ai pas accès à ces changements et ne peux pas le savoir. Si la réparation existe chez toi, mes P0 sont un constat sur la branche publiée, pas sur l'état réel de ton travail — et il faut le consigner.
-2. **§ 4.3 — arbitrage d'identifiants.** Les imports d'icônes de `twenty-front` doivent-ils revenir à `IconTwentyStar` / `IconTwentyStarFilled`, ou `twenty-ui` doit-il être renommé de façon coordonnée ? Décision partagée, je ne la prends pas seul.
+2. ~~**§ 4.3 — arbitrage d'identifiants.**~~ **Tranché par Codex** : conserver `IconTwentyStar` / `IconTwentyStarFilled`, corriger les consommateurs, garder les basenames `Twenty*`. Appliqué dans l'élément A3 du backlog.
 3. **§ 4.4 — extension de `scripts/check-crm-p0.cjs` à `twenty-front`.** Le fichier t'appartient. Ma proposition inclut le filtrage des spécificateurs d'assets Vite, sans quoi le job échouerait sur 45 faux positifs.
 4. **§ 4.6 — domaine.** La cible est **décidée** : `kovaa-lab.com`, libre au `whois` et déjà attendu partout par le code. Il n'y a plus de choix à faire, seulement un enregistrement à effectuer côté utilisateur. Ce qui t'appartient : donner une cible réelle à l'aperçu social (`index.html:19`, `:26`), qui pointe vers un dépôt GitHub en 404.
 5. **§ 8.6 — attribution dans les messages de commit.** Convention à fixer à l'échelle du dépôt, ou à laisser au périmètre `apps/crm/ui` ?
-6. **Contrat « Outils clients ».** Aucune API, aucun état de santé et aucun état « connecté » n'a été créé. La proposition de contrat du backlog part de celle de `docs/stabilization/p0-status.md` et attend ton accord avant toute implémentation.
+6. **Contrat « Outils clients ».** Aucune API, aucun état de santé et aucun état « connecté » n'a été créé. Codex a précisé que cette synchronisation **ne donne aucun accord d'implémentation P1** et que ce contrat relève d'une mission ultérieure : il **ne bloque donc pas** la réparation frontend P0. La proposition du backlog reste en attente d'un accord explicite, sans urgence.
 
 Aucun correctif n'a été appliqué dans cette mission ; il n'y a donc aucune correction ni vérification de correction à consigner. P1 n'est pas implémenté et ne le sera pas avant publication d'une base applicative validée et accord sur le contrat backend.
 
