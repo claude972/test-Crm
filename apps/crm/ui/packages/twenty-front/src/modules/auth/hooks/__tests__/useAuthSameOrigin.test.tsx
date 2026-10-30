@@ -5,6 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import { type DocumentNode, Kind } from 'graphql';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { currentUserState } from '@/auth/states/currentUserState';
+import {
+  signInUpStepState,
+  SignInUpStep,
+} from '@/auth/states/signInUpStepState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { getSessionGeneration } from '@/auth/utils/getSessionGeneration';
 import { rotateSessionGeneration } from '@/auth/utils/rotateSessionGeneration';
@@ -146,6 +150,62 @@ describe('same-origin native authentication and workspace transition', () => {
     });
     expect(mockNativeSignIn).toHaveBeenCalledTimes(1);
     expect(mockCredentials).not.toHaveBeenCalled();
+  });
+  it.each(['returned', 'rejected'])(
+    'preserves the native email verification step for a %s signIn error',
+    async (delivery) => {
+      const error = Object.assign(new Error('Email not verified'), {
+        code: 'EMAIL_NOT_VERIFIED',
+      });
+      if (delivery === 'returned')
+        mockNativeSignIn.mockResolvedValue({ error });
+      else mockNativeSignIn.mockRejectedValue(error);
+      const { result } = render();
+      await act(async () => {
+        await expect(
+          result.current.signInWithCredentials(
+            'synthetic@example.test',
+            'synthetic-password',
+          ),
+        ).rejects.toBe(error);
+      });
+      expect(jotaiStore.get(signInUpStepState.atom)).toBe(
+        SignInUpStep.EmailVerification,
+      );
+      expect(mockLoadCurrentUser).not.toHaveBeenCalled();
+    },
+  );
+  it('does not let a delayed email-verification error change a newer session flow', async () => {
+    let reject!: (error: Error) => void;
+    mockNativeSignIn.mockReturnValue(
+      new Promise((_resolve, rejectPromise) => {
+        reject = rejectPromise;
+      }),
+    );
+    const { result } = render();
+    const pending = result.current.signInWithCredentials(
+      'synthetic@example.test',
+      'synthetic-password',
+    );
+    rotateSessionGeneration();
+    jotaiStore.set(signInUpStepState.atom, SignInUpStep.WorkspaceSelection);
+    reject(
+      Object.assign(new Error('Email not verified'), {
+        code: 'EMAIL_NOT_VERIFIED',
+      }),
+    );
+    await expect(pending).rejects.toMatchObject({
+      errors: [
+        expect.objectContaining({
+          extensions: expect.objectContaining({
+            subCode: 'SESSION_SUPERSEDED',
+          }),
+        }),
+      ],
+    });
+    expect(jotaiStore.get(signInUpStepState.atom)).toBe(
+      SignInUpStep.WorkspaceSelection,
+    );
   });
   it('verifies B with an immutable bootstrap context before purge/reload, without committing a B UI', async () => {
     let finish!: (value: unknown) => void;
