@@ -13,22 +13,39 @@ describe('readHermesCallFailure', () => {
     expect(readHermesCallFailure({ code: 'FORBIDDEN' }).kind).toBe('denied');
   });
 
-  // The defect this replaces: the retention bound answers 409 too, and calling
-  // it "same batch id" sent someone to change an id that was never involved.
-  it('separates the retention bound from a batch id conflict', () => {
+  // Both documented causes reach the client as the same answer: the server's
+  // exception converter emits extensions.code = CONFLICT with no subCode for
+  // the retention bound as well as for a reused batch id. These two cases are
+  // the real wire shape, not a simulated named code.
+  it('reads a reused batch id as a conflict', () => {
     expect(
-      readHermesCallFailure({ code: 'IMPORT_BATCH_LIMIT_REACHED' }).kind,
-    ).toBe('retention-limit');
+      readHermesCallFailure({
+        code: 'CONFLICT',
+        message: 'Import batch already exists with different content',
+      }).kind,
+    ).toBe('conflict');
   });
 
-  it('does not read the retention bound as a plain conflict', () => {
+  it('reads a full workspace as the same conflict, because the wire gives no way to tell them apart', () => {
     expect(
-      readHermesCallFailure({ code: 'IMPORT_BATCH_LIMIT_REACHED' }).kind,
-    ).not.toBe('conflict');
+      readHermesCallFailure({
+        code: 'CONFLICT',
+        message: 'IMPORT_BATCH_LIMIT_REACHED',
+      }).kind,
+    ).toBe('conflict');
   });
 
-  it('keeps an unattributed conflict as a conflict', () => {
-    expect(readHermesCallFailure({ code: 'CONFLICT' }).kind).toBe('conflict');
+  it('does not invent a cause from the server message', () => {
+    const quota = readHermesCallFailure({
+      code: 'CONFLICT',
+      message: 'IMPORT_BATCH_LIMIT_REACHED',
+    });
+    const reusedId = readHermesCallFailure({
+      code: 'CONFLICT',
+      message: 'Import batch already exists with different content',
+    });
+
+    expect(quota.kind).toBe(reusedId.kind);
   });
 
   it('reads a rejected input as such', () => {

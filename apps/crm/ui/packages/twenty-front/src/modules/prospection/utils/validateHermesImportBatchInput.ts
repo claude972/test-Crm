@@ -1,5 +1,6 @@
 import {
   HERMES_IMPORT_ROW_FIELDS,
+  HERMES_MAX_IMPORT_ROW_PHONE_LENGTH,
   HERMES_MAX_ROWS_PER_BATCH,
   HERMES_MAX_STATE_BYTES,
 } from '@/prospection/constants/HermesContractLimits';
@@ -174,27 +175,30 @@ export const readHermesImportRowsText = (rowsText: string): ReadRowsResult => {
     const website = readField('website');
     const phone = readField('phone');
 
-    if (companyName === null) {
+    // A phone the input type refuses is not staged: it makes the server
+    // reject the whole batch, so it is the one row field that has to be
+    // caught here rather than sent and reported per row.
+    if (phone !== null && phone.length > HERMES_MAX_IMPORT_ROW_PHONE_LENGTH) {
       issues.push({
-        key: `row-${row}-company`,
-        code: 'row-company-required',
+        key: `row-${row}-phone`,
+        code: 'row-phone-too-long',
         row,
+        count: phone.length,
+        limit: HERMES_MAX_IMPORT_ROW_PHONE_LENGTH,
       });
     }
 
-    // An empty email does NOT block the batch. The contract is explicit that
-    // rows are staged even when their email validation fails, with the error
-    // returned per row, so refusing it here would hide a row the server would
-    // have kept and marked invalid.
-    if (companyName === null) {
-      return;
-    }
+    // Neither an empty email nor an empty company blocks the batch. The
+    // contract is explicit that rows are staged even when their email,
+    // company or website validation fails, with the error returned per row,
+    // so refusing either here hid a row the server would have kept and marked
+    // invalid. Raw reception is the point: the server decides what is usable.
 
     // Only the fields the input type declares travel, and an absent optional
     // field is left out rather than sent as an empty string.
     rows.push({
       email: email ?? '',
-      companyName,
+      companyName: companyName ?? '',
       ...(firstName !== null ? { firstName } : {}),
       ...(lastName !== null ? { lastName } : {}),
       ...(jobTitle !== null ? { jobTitle } : {}),

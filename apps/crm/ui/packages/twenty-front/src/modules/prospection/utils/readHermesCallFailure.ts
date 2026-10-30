@@ -8,14 +8,14 @@ import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
 // administrator permissions and refuses API keys, apps and impersonated
 // sessions.
 //
-// A 409 is NOT always the idempotency answer: the retention bound answers 409
-// too, so the two are separated and an unattributed conflict says only that it
-// is a conflict. Claiming "same batch id" for a full workspace would send
-// someone to change an id that was never the problem.
+// 'conflict' is deliberately one kind and not two. The server's exception
+// converter turns IMPORT_BATCH_LIMIT_REACHED into extensions.code = CONFLICT
+// with no subCode, so a full workspace and a reused batch id arrive on the
+// wire as the same generic answer. There is nothing here to tell them apart,
+// and a kind per cause would only let the screen assert one it cannot know.
 export type HermesCallFailureKind =
   | 'none'
   | 'denied'
-  | 'retention-limit'
   | 'conflict'
   | 'rejected-input'
   | 'failed';
@@ -42,12 +42,6 @@ export const readHermesCallFailure = (error: unknown): HermesCallFailure => {
 
   if (isGraphqlErrorOfType(error, 'FORBIDDEN')) {
     return { kind: 'denied', message };
-  }
-
-  // Checked before CONFLICT: this one is also a 409, and it is the answer that
-  // carries its own named code.
-  if (isGraphqlErrorOfType(error, 'IMPORT_BATCH_LIMIT_REACHED')) {
-    return { kind: 'retention-limit', message };
   }
 
   if (isGraphqlErrorOfType(error, 'CONFLICT')) {

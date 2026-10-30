@@ -49,7 +49,7 @@ export const HermesIssueList = ({ issues }: HermesIssueListProps) => {
       'rows-not-array': t`Expected a JSON array of rows, or an object with a rows array.`,
       'rows-too-many': t`${i18n.number(count)} rows pasted; ${i18n.number(limit)} per batch at most.`,
       'row-not-an-object': t`Row ${i18n.number(row)}: expected an object.`,
-      'row-company-required': t`Row ${i18n.number(row)}: company name required.`,
+      'row-phone-too-long': t`Row ${i18n.number(row)}: phone of ${i18n.number(count)} characters, ${i18n.number(limit)} at most.`,
       'row-field-not-a-string': t`Row ${i18n.number(row)}: ${field} must be text.`,
       'row-unknown-field': t`Row ${i18n.number(row)}: field ${field} is not accepted.`,
       'state-too-large': t`Batch too large: ${i18n.number(count)} bytes for a ${i18n.number(limit)} byte limit.`,
@@ -64,6 +64,7 @@ export const HermesIssueList = ({ issues }: HermesIssueListProps) => {
       'draft-name-required': t`Campaign name required.`,
       'draft-name-too-long': t`Campaign name: ${i18n.number(count)} characters, ${i18n.number(limit)} at most.`,
       'draft-subject-required': t`Subject required.`,
+      'draft-subject-too-long': t`Subject: ${i18n.number(count)} characters, ${i18n.number(limit)} at most.`,
       'no-qualified-row-selected': t`Select at least one qualified row.`,
     };
 

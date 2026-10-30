@@ -14,7 +14,7 @@ export type HermesIssueCode =
   | 'rows-not-array'
   | 'rows-too-many'
   | 'row-not-an-object'
-  | 'row-company-required'
+  | 'row-phone-too-long'
   | 'row-field-not-a-string'
   | 'row-unknown-field'
   | 'state-too-large'
@@ -29,6 +29,7 @@ export type HermesIssueCode =
   | 'draft-name-required'
   | 'draft-name-too-long'
   | 'draft-subject-required'
+  | 'draft-subject-too-long'
   | 'no-qualified-row-selected';
 
 export type HermesInputIssue = {
