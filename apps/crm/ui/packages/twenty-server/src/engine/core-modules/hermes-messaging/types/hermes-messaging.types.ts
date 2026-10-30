@@ -115,6 +115,7 @@ export type HermesConversationBotPolicy = {
 };
 
 export type HermesMessagingProviderMetadata = {
+  mimeSha256?: string;
   rfcMessageId?: string;
   inReplyTo?: string;
   references?: string[];
