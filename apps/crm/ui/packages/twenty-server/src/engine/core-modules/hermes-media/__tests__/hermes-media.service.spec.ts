@@ -359,3 +359,58 @@ describe('Hermes media authorization, quarantine and revocation', () => {
     expect(stream.destroyed).toBe(true);
   });
 });
+
+describe('server-only media ingress snapshot boundary', () => {
+  it('stops after native bytes were awaited if the connection or deadline was revoked', async () => {
+    const h = harness();
+    let live = true;
+    let seenManager: unknown;
+    h.uploads.receiveFileStream.mockImplementation(async () => {
+      live = false;
+    });
+    const assertLive = jest.fn(async (manager?: unknown) => {
+      if (seenManager) expect(manager).toBe(seenManager);
+      else seenManager = manager;
+      if (!live) throw new Error('CONNECTION_OR_DEADLINE_REVOKED');
+    });
+    await expect(
+      h.service.receive(
+        {
+          workspaceId: actor.workspaceId,
+          conversationId,
+          providerConnectionId: 'evolution:fixture',
+          providerMessageId: 'guarded-inbound',
+          kind: 'IMAGE',
+          mimeType: 'image/png',
+          bytes,
+        },
+        { assertLive },
+      ),
+    ).rejects.toThrow('CONNECTION_OR_DEADLINE_REVOKED');
+    expect(h.uploads.completeFileUpload).not.toHaveBeenCalled();
+    expect(h.assets.save).not.toHaveBeenCalled();
+    expect(assertLive).toHaveBeenCalled();
+  });
+  it('rejects a stale snapshot before allocating any native file', async () => {
+    const h = harness();
+    const assertLive = jest.fn(async () => {
+      throw new Error('CONNECTION_REVOKED');
+    });
+    await expect(
+      h.service.receive(
+        {
+          workspaceId: actor.workspaceId,
+          conversationId,
+          providerConnectionId: 'evolution:fixture',
+          providerMessageId: 'guarded-inbound',
+          kind: 'IMAGE',
+          mimeType: 'image/png',
+          bytes,
+        },
+        { assertLive },
+      ),
+    ).rejects.toThrow('CONNECTION_REVOKED');
+    expect(h.uploads.createFileUpload).not.toHaveBeenCalled();
+    expect(h.assets.save).not.toHaveBeenCalled();
+  });
+});

@@ -243,6 +243,7 @@ const setup = (media?: Record<string, unknown>) => {
   return {
     service,
     tables,
+    manager,
     dataSource,
     send,
     registry,
@@ -2148,5 +2149,74 @@ describe('New mail drafts have a real scoped conversation without a fabricated m
     await expect(
       h.service.ensureEmailDraftConversation(actor, input),
     ).rejects.toThrow('ACCESS_DENIED');
+  });
+});
+
+describe('server-only ingress snapshot boundary', () => {
+  it('rechecks the trusted connection snapshot after the advisory lock before any ledger write', async () => {
+    const h = setup();
+    let live = true;
+    let release: () => void = () => {},
+      start: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      }),
+      started = new Promise<void>((resolve) => {
+        start = resolve;
+      });
+    h.manager.query.mockImplementation(async () => {
+      start();
+      await gate;
+      return [];
+    });
+    const assertLive = jest.fn(async (manager?: unknown) => {
+      expect(manager).toBe(h.manager);
+      if (!live) throw new Error('CONNECTION_REVOKED');
+    });
+    const pending = h.service.ingest(event, {
+      suppressAutomation: true,
+      assertLive,
+    });
+    const rejected = expect(pending).rejects.toThrow('CONNECTION_REVOKED');
+    await Promise.race([
+      started,
+      rejected.then(() => {
+        throw new Error('NO_LOCK_GATE');
+      }),
+    ]);
+    live = false;
+    release();
+    await rejected;
+    expect(h.table(HermesConversationEntity.name).size).toBe(0);
+    expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
+    expect(h.send).not.toHaveBeenCalled();
+    expect(assertLive).toHaveBeenCalledWith(h.manager);
+  });
+  it('rolls back a message when the snapshot is revoked while the final insert was awaited', async () => {
+    const h = setup();
+    let live = true;
+    const repository = h.manager.getRepository;
+    h.manager.getRepository = (target) => {
+      const result = repository(target);
+      if (target === HermesInboxMessageEntity) {
+        const save = result.save;
+        result.save = jest.fn(async (row) => {
+          const saved = await save(row);
+          live = false;
+          return saved;
+        });
+      }
+      return result;
+    };
+    const assertLive = jest.fn(async (manager?: unknown) => {
+      expect(manager).toBe(h.manager);
+      if (!live) throw new Error('CONNECTION_REVOKED');
+    });
+    await expect(
+      h.service.ingest(event, { suppressAutomation: true, assertLive }),
+    ).rejects.toThrow('CONNECTION_REVOKED');
+    expect(h.table(HermesConversationEntity.name).size).toBe(0);
+    expect(h.table(HermesInboxMessageEntity.name).size).toBe(0);
+    expect(h.send).not.toHaveBeenCalled();
   });
 });
