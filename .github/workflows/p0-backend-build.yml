@@ -52,13 +52,13 @@ jobs:
       run:
         working-directory: apps/crm/ui
     steps:
+      - uses: actions/checkout@v4
       - name: Validate the requested browser checkpoint
         if: ${{ inputs.browser-smoke }}
         env:
           P0_RUNTIME_SMOKE: ${{ inputs.runtime-smoke }}
           P0_FRONTEND_ARTIFACT: ${{ inputs.frontend-artifact }}
         run: test "$P0_RUNTIME_SMOKE" = true && test -n "$P0_FRONTEND_ARTIFACT"
-      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
