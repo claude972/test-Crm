@@ -238,6 +238,7 @@ export class HermesMessagingService {
       raw,
     );
     return this.transaction(actor.workspaceId, async (manager) => {
+      await this.access.assertAllowed(actor, manager);
       const policies = await this.workspaceBotPoliciesWithManager(
         actor.workspaceId,
         manager,
@@ -304,6 +305,7 @@ export class HermesMessagingService {
       raw,
     );
     return this.transaction(actor.workspaceId, async (manager) => {
+      await this.access.assertAllowed(actor, manager);
       const repository = manager.getRepository(HermesConversationEntity);
       const current = await repository.findOneBy({
         workspaceId: actor.workspaceId,
@@ -648,11 +650,13 @@ export class HermesMessagingService {
       actor.workspaceId,
       input.conversationId,
     );
+    const activationPolicy = await this.botPolicy({
+      ...conversation,
+      botMode: 'AUTO',
+    });
     if (
       conversation.botMode === 'OFF' ||
-      (input.mode === 'AUTO' &&
-        (await this.botPolicy({ ...conversation, botMode: 'AUTO' }))
-          .effectiveMode !== 'AUTO')
+      (input.mode === 'AUTO' && activationPolicy.effectiveMode !== 'AUTO')
     )
       throw new ConflictException('BOT_POLICY_RESTRICTION');
     let mode = input.mode,
@@ -699,12 +703,19 @@ export class HermesMessagingService {
     }
     await this.access.assertAllowed(actor);
     return this.transaction(actor.workspaceId, async (manager) => {
+      await this.access.assertAllowed(actor, manager);
       const repository = manager.getRepository(HermesConversationEntity);
       const current = await repository.findOneBy({
         workspaceId: actor.workspaceId,
         id: conversation.id,
       });
       if (!current) throw new NotFoundException('CONVERSATION_NOT_FOUND');
+      if (
+        input.mode === 'AUTO' &&
+        (await this.botPolicy({ ...current, botMode: 'AUTO' }, manager))
+          .revision !== activationPolicy.revision
+      )
+        throw new ConflictException('BOT_HUMAN_HANDOFF');
       if (current.botMode === 'OFF')
         throw new ConflictException('BOT_POLICY_RESTRICTION');
       if (

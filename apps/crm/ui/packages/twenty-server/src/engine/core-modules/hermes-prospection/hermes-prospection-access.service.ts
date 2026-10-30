@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { WorkspaceActivationStatus } from 'kovaa-lab-shared/workspace';
-import { IsNull, Repository } from 'typeorm';
+import { type EntityManager, IsNull, Repository } from 'typeorm';
 
 import { type HermesProspectionActor } from 'src/engine/core-modules/hermes-prospection/types/hermes-prospection.types';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -17,8 +17,15 @@ export class HermesProspectionAccessService {
     private readonly roleTargets: Repository<RoleTargetEntity>,
   ) {}
 
-  async assertAllowed(actor: HermesProspectionActor): Promise<void> {
-    const membership = await this.memberships.findOne({
+  async assertAllowed(
+    actor: HermesProspectionActor,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const memberships =
+      manager?.getRepository(UserWorkspaceEntity) ?? this.memberships;
+    const roleTargets =
+      manager?.getRepository(RoleTargetEntity) ?? this.roleTargets;
+    const membership = await memberships.findOne({
       where: {
         id: actor.userWorkspaceId,
         workspaceId: actor.workspaceId,
@@ -35,7 +42,7 @@ export class HermesProspectionAccessService {
 
     if (!membership) throw new ForbiddenException('PROSPECTION_ACCESS_DENIED');
 
-    const target = await this.roleTargets.findOne({
+    const target = await roleTargets.findOne({
       where: { userWorkspaceId: membership.id, workspaceId: actor.workspaceId },
       relations: {
         role: {

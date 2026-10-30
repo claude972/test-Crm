@@ -1,3 +1,5 @@
+import { type EntityManager } from 'typeorm';
+import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-target.entity';
 import { HermesMessagingAccessService } from 'src/engine/core-modules/hermes-messaging/hermes-messaging-access.service';
 jest.mock(
   'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service',
@@ -61,5 +63,23 @@ describe('fresh inbox administrator boundary', () => {
       where: { workspaceId: 'a', userWorkspaceId: 'm' },
       relations: { role: { objectPermissions: true } },
     });
+  });
+  it('uses the supplied transaction for role queries and passes it to the live membership guard', async () => {
+    const { service, membership, targets } = setup(null);
+    const transactionTargets = {
+      findOne: jest
+        .fn()
+        .mockResolvedValue({
+          role: { workspaceId: 'a', objectPermissions: [] },
+        }),
+    };
+    const manager = {
+      getRepository: jest.fn().mockReturnValue(transactionTargets),
+    };
+    await service.assertAllowed(actor, manager as unknown as EntityManager);
+    expect(membership.assertAllowed).toHaveBeenCalledWith(actor, manager);
+    expect(manager.getRepository).toHaveBeenCalledWith(RoleTargetEntity);
+    expect(transactionTargets.findOne).toHaveBeenCalledTimes(1);
+    expect(targets.findOne).not.toHaveBeenCalled();
   });
 });

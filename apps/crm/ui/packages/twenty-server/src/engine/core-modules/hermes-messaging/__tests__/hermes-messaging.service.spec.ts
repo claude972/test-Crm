@@ -604,6 +604,108 @@ describe('persistent messaging service contract', () => {
     ).rejects.toThrow('BOT_POLICY_RESTRICTION');
     expect(probe).not.toHaveBeenCalled();
   });
+  it.each(['LOCAL', 'WORKSPACE', 'LEGACY'] as const)(
+    'rechecks %s policy authorization after waiting for the serialized lock',
+    async (scope) => {
+      const { service, dataSource, access, revoke, table } = setup();
+      const incoming = await service.ingest(event);
+      const local = await service.conversationBotPolicy(actor, {
+        conversationId: incoming.conversationId,
+      });
+      const policies = await service.workspaceBotPolicies(actor);
+      let entered!: () => void, release!: () => void, queued!: () => void;
+      const locked = new Promise<void>((resolve) => {
+        entered = resolve;
+      });
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const queuedWrite = new Promise<void>((resolve) => {
+        queued = resolve;
+      });
+      const blocker = dataSource.transaction(async () => {
+        entered();
+        await gate;
+      });
+      await locked;
+      const transaction = dataSource.transaction.bind(dataSource);
+      dataSource.transaction = (work) => {
+        queued();
+        return transaction(work);
+      };
+      const before = structuredClone([
+        ...table(HermesBotPolicyEntity.name).entries(),
+      ]);
+      const pending =
+        scope === 'LOCAL'
+          ? service.setConversationBotPolicy(actor, {
+              conversationId: incoming.conversationId,
+              mode: 'OFF',
+              expectedRevision: local.revision,
+            })
+          : scope === 'WORKSPACE'
+            ? service.setWorkspaceBotPolicy(actor, {
+                scope: 'WORKSPACE',
+                mode: 'OFF',
+                expectedRevision: policies[0].revision,
+              })
+            : service.setBotMode(actor, {
+                conversationId: incoming.conversationId,
+                mode: 'MANUAL',
+              });
+      const rejected = expect(pending).rejects.toThrow('ACCESS_DENIED');
+      await queuedWrite;
+      revoke();
+      release();
+      await blocker;
+      await rejected;
+      expect(
+        (
+          access.assertAllowed.mock.calls.at(-1) as unknown as [
+            unknown,
+            unknown,
+          ]
+        )?.[1],
+      ).toHaveProperty('getRepository');
+      expect([...table(HermesBotPolicyEntity.name).entries()]).toEqual(before);
+      expect(
+        table(HermesConversationEntity.name).get(incoming.conversationId)
+          ?.botMode,
+      ).toBe('INHERIT');
+    },
+  );
+
+  it('does not restore a legacy delegation after OFF and AUTO parent changes during its probe', async () => {
+    const { service, registry, table } = setup();
+    const incoming = await service.ingest(event);
+    registry.registerBot({ draftReply: readyBot() });
+    let entered!: () => void, release!: () => void;
+    const probing = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    registry.get('WHATSAPP')!.probe = async () => {
+      entered();
+      await gate;
+      return { status: 'AVAILABLE' };
+    };
+    const pending = service.setBotMode(actor, {
+      conversationId: incoming.conversationId,
+      mode: 'AUTO',
+    });
+    const rejected = expect(pending).rejects.toThrow('BOT_HUMAN_HANDOFF');
+    await probing;
+    await setParent(service, 'WORKSPACE', 'OFF');
+    await setParent(service, 'WORKSPACE', 'AUTO');
+    release();
+    await rejected;
+    expect(
+      table(HermesConversationEntity.name).get(incoming.conversationId)
+        ?.botOwnerUserWorkspaceId,
+    ).toBeNull();
+  });
   it('replays the provider identity without duplication and rejects changed content', async () => {
     const { service, table } = setup();
     const first = await service.ingest(event);
