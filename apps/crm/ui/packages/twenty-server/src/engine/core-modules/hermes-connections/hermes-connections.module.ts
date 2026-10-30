@@ -7,6 +7,8 @@ import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-target.entity';
 
+import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
+import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { HermesConnectionEntity } from './hermes-connection.entity';
 import { HermesConnectionsResolver } from './hermes-connections.resolver';
 import { HermesConnectionsService } from './hermes-connections.service';
@@ -17,6 +19,8 @@ import { HermesConnectionsService } from './hermes-connections.service';
     SecretEncryptionModule,
     TypeOrmModule.forFeature([
       HermesConnectionEntity,
+      HermesConversationEntity,
+      HermesBotPolicyEntity,
       UserWorkspaceEntity,
       RoleTargetEntity,
       ConnectedAccountEntity,

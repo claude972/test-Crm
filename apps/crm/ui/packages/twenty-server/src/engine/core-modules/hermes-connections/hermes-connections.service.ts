@@ -16,6 +16,8 @@ import { SecretEncryptionService } from 'src/engine/core-modules/secret-encrypti
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { resolveAndValidateHostname } from 'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
+import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
+import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
 import { EmailConnectionSecurity } from 'src/engine/core-modules/imap-smtp-caldav-connection/enums/email-connection-security.enum';
 
 import {
@@ -81,10 +83,66 @@ export class HermesConnectionsService {
     return this.source.transaction(async (manager) => {
       await manager.query(
         'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+        [`hermes-messaging:${workspaceId}`],
+      );
+      await manager.query(
+        'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
         [`hermes-connections:${workspaceId}`],
       );
       return action(manager);
     });
+  }
+
+  private async revokeGrants(
+    actor: HermesMessagingActor,
+    kind: HermesConnectionKind,
+    manager: EntityManager,
+  ) {
+    const channels =
+      kind === 'EVOLUTION'
+        ? ['WHATSAPP']
+        : kind === 'MAIL'
+          ? ['EMAIL']
+          : kind === 'MCP'
+            ? ['WHATSAPP', 'EMAIL']
+            : [];
+    const conversations = manager.getRepository(HermesConversationEntity);
+    const policies = manager.getRepository(HermesBotPolicyEntity);
+    for (const channel of channels) {
+      const current = await conversations.findBy({
+        workspaceId: actor.workspaceId,
+        channel: channel as 'WHATSAPP' | 'EMAIL',
+      });
+      for (const conversation of current) {
+        await conversations.update(
+          { workspaceId: actor.workspaceId, id: conversation.id },
+          {
+            botMode: 'MANUAL',
+            botOwnerUserWorkspaceId: null,
+            botModeUpdatedAt: new Date(
+              Math.max(
+                Date.now(),
+                (conversation.botModeUpdatedAt?.getTime() ?? 0) + 1,
+              ),
+            ),
+          },
+        );
+      }
+      const scope = channel as 'WHATSAPP' | 'EMAIL';
+      const policy = await policies.findOneBy({
+        workspaceId: actor.workspaceId,
+        scope,
+      });
+      await policies.save({
+        workspaceId: actor.workspaceId,
+        scope,
+        mode: policy?.mode ?? 'INHERIT',
+        updatedAt: new Date(
+          Math.max(Date.now(), (policy?.updatedAt?.getTime() ?? 0) + 1),
+        ),
+        updatedByUserWorkspaceId: actor.userWorkspaceId,
+      });
+    }
   }
 
   private decrypt(row: HermesConnectionEntity): StoredConfiguration {
@@ -294,6 +352,7 @@ export class HermesConnectionsService {
         updatedAt: new Date(),
         updatedByUserWorkspaceId: actor.userWorkspaceId,
       });
+      await this.revokeGrants(actor, input.kind, manager);
       await repository.save(updated);
       return this.view(updated);
     });
@@ -321,6 +380,7 @@ export class HermesConnectionsService {
       row.revision++;
       row.updatedAt = new Date();
       row.updatedByUserWorkspaceId = actor.userWorkspaceId;
+      await this.revokeGrants(actor, row.kind, manager);
       await repository.save(row);
       return this.view(row);
     });
