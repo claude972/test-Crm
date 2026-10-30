@@ -98,7 +98,7 @@ describe('EvolutionConnectionAdapter with a synthetic loopback HTTP provider', (
   });
 
   it.each([
-    ['open', 'CONNECTED'],
+    ['open', 'PROVIDER_REPORTED_OPEN'],
     ['close', 'DISCONNECTED'],
     ['connecting', 'CONNECTING'],
   ])('maps only a real valid %s response to %s', async (state, status) => {
@@ -230,7 +230,9 @@ describe('EvolutionConnectionAdapter with a synthetic loopback HTTP provider', (
 
   it('does not retain a stale connected state after the provider fails', async () => {
     const client = adapter();
-    expect((await client.probe(WORKSPACE_A)).status).toBe('CONNECTED');
+    expect((await client.probe(WORKSPACE_A)).status).toBe(
+      'PROVIDER_REPORTED_OPEN',
+    );
     handler = (_request, response) => {
       response.statusCode = 503;
       response.end();
@@ -246,7 +248,9 @@ describe('EvolutionConnectionAdapter with a synthetic loopback HTTP provider', (
       await new EvolutionConnectionAdapter(config()).probe(WORKSPACE_A),
     ).toMatchObject({ status: 'UNAVAILABLE', errorCode: 'REQUEST_FAILED' });
     expect(requests).toHaveLength(0);
-    expect((await adapter().probe(WORKSPACE_A)).status).toBe('CONNECTED');
+    expect((await adapter().probe(WORKSPACE_A)).status).toBe(
+      'PROVIDER_REPORTED_OPEN',
+    );
   });
 
   it('blocks private DNS resolution without a host exception', async () => {

@@ -22,7 +22,7 @@ const STATUS_BY_STATE: Record<
   'open' | 'close' | 'connecting',
   EvolutionProbeStatus
 > = {
-  open: 'CONNECTED',
+  open: 'PROVIDER_REPORTED_OPEN',
   close: 'DISCONNECTED',
   connecting: 'CONNECTING',
 };
