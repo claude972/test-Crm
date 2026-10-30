@@ -140,6 +140,11 @@ export const useHermesWorkspaceBotPolicies = (): HermesWorkspaceBotPolicies => {
             // An unreadable answer is not a success. The rows keep showing
             // whatever the server last reported.
             setWriteState({ kind: 'unconfirmed', scope });
+          } else if (payload.value.scope !== scope) {
+            // An answer that names another scope is not this row's success.
+            // Counting it would mark a row saved on the strength of a change
+            // made somewhere else.
+            setWriteState({ kind: 'unconfirmed', scope });
           } else {
             // The mode that comes back, never the one that was asked for. An
             // unrecognised mode is kept verbatim for the same reason, and no
