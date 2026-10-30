@@ -1,8 +1,12 @@
+import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
+import { HermesConnectionsService } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
+import { centralIntake } from 'src/engine/core-modules/hermes-prospection/intake/hermes-central-intake';
 import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
+  Optional,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,7 +21,10 @@ import { buildSystemAuthContext } from 'src/engine/core-modules/auth/utils/build
 import { HermesProspectionAccessService } from 'src/engine/core-modules/hermes-prospection/hermes-prospection-access.service';
 import { type HermesProspectionActor } from 'src/engine/core-modules/hermes-prospection/types/hermes-prospection.types';
 import { HermesIntakeReplayService } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake-replay.service';
-import { parseHermesIntakeConnections } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.schema';
+import {
+  parseHermesIntakeConnections,
+  type HermesIntakeConnection,
+} from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.schema';
 import { verifyHermesIntakeSignature } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake-signature';
 import { type HermesIntakeHeaders } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.service';
 import {
@@ -53,6 +60,7 @@ export class HermesEventService {
     private readonly suppressions: MessageSuppressionService,
     @InjectRepository(WorkspaceEntity)
     private readonly workspaces: Repository<WorkspaceEntity>,
+    @Optional() private readonly central?: HermesConnectionsService,
   ) {}
 
   async receive(
@@ -63,11 +71,22 @@ export class HermesEventService {
   ) {
     if (!body || body.length > 64_000)
       throw new BadRequestException('HERMES_EVENT_PAYLOAD_INVALID');
-    let connections;
+    let connections: Record<string, HermesIntakeConnection>;
+    let assertCurrent: () => Promise<void> = async () => undefined;
+    let assertRevisionViaQuery:
+      | ((query: WorkspaceTransactionScope['executeRawQuery']) => Promise<void>)
+      | undefined;
     try {
-      connections = parseHermesIntakeConnections(
-        this.config.get('HERMES_INTAKE_CONNECTIONS'),
-      );
+      if (this.central) {
+        const snapshot = await centralIntake(this.central, connectionId);
+        connections = snapshot.connections;
+        assertCurrent = snapshot.assertCurrent;
+        assertRevisionViaQuery = snapshot.assertRevisionViaQuery;
+      } else {
+        connections = parseHermesIntakeConnections(
+          this.config.get('HERMES_INTAKE_CONNECTIONS'),
+        );
+      }
     } catch {
       throw new ServiceUnavailableException(
         'HERMES_EVENT_CONFIGURATION_UNAVAILABLE',
@@ -116,13 +135,24 @@ export class HermesEventService {
       userWorkspaceId: connection.operatorUserWorkspaceId,
     };
     await this.access.assertAllowed(actor);
-    return this.record(actor, connectionId, event);
+    await assertCurrent();
+    return this.record(
+      actor,
+      connectionId,
+      event,
+      assertCurrent,
+      assertRevisionViaQuery,
+    );
   }
 
   private async record(
     actor: HermesProspectionActor,
     connectionId: string,
     event: HermesBridgeEvent,
+    assertCurrent: () => Promise<void> = async () => undefined,
+    assertRevisionViaQuery?: (
+      query: WorkspaceTransactionScope['executeRawQuery'],
+    ) => Promise<void>,
   ) {
     const workspace = await this.workspaces.findOneBy({
       id: actor.workspaceId,
@@ -139,7 +169,14 @@ export class HermesEventService {
             'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
             [`hermes-events:${actor.workspaceId}`],
           );
+          const assertLive = () =>
+            assertRevisionViaQuery
+              ? assertRevisionViaQuery(
+                  transaction.executeRawQuery.bind(transaction),
+                )
+              : assertCurrent();
           await this.access.assertAllowed(actor);
+          await assertLive();
           const blocked = await this.suppressions.findApplicableSuppressions({
             workspaceId: actor.workspaceId,
             emailAddresses: [event.contact.email],
@@ -323,6 +360,8 @@ export class HermesEventService {
               throw new ConflictException(
                 'HERMES_EVENT_REPLAY_REQUIRES_REVIEW',
               );
+            await this.access.assertAllowed(actor);
+            await assertLive();
             return {
               personId: person.id,
               noteId,
@@ -476,6 +515,8 @@ export class HermesEventService {
               });
             }
           }
+          await this.access.assertAllowed(actor);
+          await assertLive();
           return {
             personId: personId,
             noteId,

@@ -8,7 +8,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import { MessageCampaignStatus } from 'kovaa-lab-shared/types';
 import { v5 } from 'uuid';
-import { In } from 'typeorm';
+import { In, type EntityManager } from 'typeorm';
 
 import {
   HermesCreateCampaignDraftInput,
@@ -65,9 +65,19 @@ export class HermesProspectionService {
   async createBatch(
     actor: HermesProspectionActor,
     input: HermesCreateImportBatchInput,
-    signedIntake?: { connectionId: string },
+    signedIntake?: {
+      connectionId: string;
+      assertLive?: (manager?: EntityManager) => Promise<void>;
+    },
   ) {
-    return this.states.mutate(actor, async (state) => {
+    return this.states.mutate(actor, async (state, manager) => {
+      if (signedIntake?.assertLive) {
+        await manager.query(
+          'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+          [`hermes-messaging:${actor.workspaceId}`],
+        );
+        await signedIntake.assertLive(manager);
+      }
       const batch = buildHermesImportBatch({
         ...input,
         userId: actor.userId,
@@ -95,6 +105,7 @@ export class HermesProspectionService {
       }
       await this.applySuppressions(actor.workspaceId, result.batch.rows);
 
+      await signedIntake?.assertLive?.(manager);
       return result;
     });
   }

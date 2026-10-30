@@ -6,6 +6,7 @@ import { type SecretEncryptionRotationHandler } from 'src/database/commands/secr
 import { ApplicationRegistrationVariableEntity } from 'src/engine/core-modules/application/application-registration-variable/application-registration-variable.entity';
 import { ApplicationVariableEntity } from 'src/engine/core-modules/application/application-variable/application-variable.entity';
 import { UserApplicationVariableValueEntity } from 'src/engine/core-modules/application/application-variable/user-application-variable-value.entity';
+import { HermesConnectionEntity } from 'src/engine/core-modules/hermes-connections/hermes-connection.entity';
 import { SigningKeyEntity } from 'src/engine/core-modules/jwt/entities/signing-key.entity';
 import { type ExtractEncryptedColumns } from 'src/engine/core-modules/secret-encryption/branded-strings/extract-encrypted-columns.type';
 import { TwoFactorAuthenticationMethodEntity } from 'src/engine/core-modules/two-factor-authentication/entities/two-factor-authentication-method.entity';
@@ -27,9 +28,9 @@ type SecretEncryptionRotationRegistryShape<R> = {
     ? {
         entity: E;
         columnSiteNames: {
-          [
-            K in ExtractEncryptedColumns<InstanceType<E>>
-          ]: ColumnRotationSiteMetadata<E>;
+          [K in ExtractEncryptedColumns<
+            InstanceType<E>
+          >]: ColumnRotationSiteMetadata<E>;
         };
       }
     : never;
@@ -92,6 +93,18 @@ export const SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES = defineRotationRegistry({
       },
     },
   },
+  HermesConnectionEntity: {
+    entity: HermesConnectionEntity,
+    columnSiteNames: {
+      configuration: {
+        siteName: 'hermes-connection-configuration',
+        customHandler: undefined,
+        isWorkspaceScoped: true,
+        extraWhere: undefined,
+        workspaceCacheKeyNames: [],
+      },
+    },
+  },
   SigningKeyEntity: {
     entity: SigningKeyEntity,
     columnSiteNames: {
@@ -144,9 +157,7 @@ export const SECRET_ENCRYPTION_ROTATION_UNTYPED_SITE_ENTRIES = {
 >;
 
 type RegistryColumnMetadataUnion = {
-  [
-    N in keyof typeof SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES
-  ]: (typeof SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES)[N]['columnSiteNames'][keyof (typeof SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES)[N]['columnSiteNames']];
+  [N in keyof typeof SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES]: (typeof SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES)[N]['columnSiteNames'][keyof (typeof SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES)[N]['columnSiteNames']];
 }[keyof typeof SECRET_ENCRYPTION_ROTATION_SITE_ENTRIES];
 
 type TypedSiteNameUnion = RegistryColumnMetadataUnion['siteName'];

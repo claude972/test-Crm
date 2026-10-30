@@ -73,6 +73,10 @@ export class EvolutionWebhookReceiver {
     serializedSecrets: string,
     ingest: EvolutionIngest,
     private readonly receiveMedia?: EvolutionReceiveMedia,
+    private readonly context: {
+      connectionId?: string;
+      assertCurrent?: () => Promise<void>;
+    } = {},
   ) {
     this.#connections = parseEvolutionConnections(serializedConnections);
     try {
@@ -168,9 +172,10 @@ export class EvolutionWebhookReceiver {
     if (envelope.data.event === 'send.message' && !data.key.fromMe)
       throw new EvolutionMessageError('WEBHOOK_INVALID_EVENT');
 
-    const providerConnectionId = evolutionProviderConnectionId(
-      this.#connections[workspaceId],
-    );
+    const providerConnectionId =
+      this.context.connectionId ??
+      evolutionProviderConnectionId(this.#connections[workspaceId]);
+    await this.context.assertCurrent?.();
     const media = kind
       ? await this.receiveMedia!({
           workspaceId,
@@ -189,12 +194,11 @@ export class EvolutionWebhookReceiver {
       : undefined;
     // Durable duplicate handling belongs to the core's unique provider ledger,
     // never to a per-process cache that loses entries on restart.
+    await this.context.assertCurrent?.();
     const result = await this.#ingest({
       workspaceId,
       channel: 'WHATSAPP',
-      providerConnectionId: evolutionProviderConnectionId(
-        this.#connections[workspaceId],
-      ),
+      providerConnectionId,
       providerMessageId: data.key.id,
       providerConversationId: data.key.remoteJid,
       direction: data.key.fromMe ? 'OUTBOUND' : 'INBOUND',
