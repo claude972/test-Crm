@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { lstatSync, realpathSync } from "node:fs";
+import { lstatSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -172,6 +173,7 @@ export const runIntegration = async () => {
   if (!suites.length) suites.push(DEFAULT_SUITE);
   validateIntegrationSuitePaths(suites, cwd);
   const jest = path.resolve(cwd, "../../node_modules/jest/bin/jest.js");
+  const integrationReport = path.join(tmpdir(), `hermes-jest-${process.pid}.json`);
   for (const file of [
     jest,
     "dist/database/scripts/truncate-db.js",
@@ -234,11 +236,22 @@ export const runIntegration = async () => {
         process.off("SIGINT", stop);
         process.off("SIGTERM", stop);
         kill("SIGKILL");
+        let failures = "";
+        if (stage === "selected native integration suites" && exists(integrationReport)) {
+          try {
+            const report = JSON.parse(readFileSync(integrationReport, "utf8"));
+            failures = report.testResults
+              .filter((suite) => suite.status === "failed")
+              .map((suite) => `${path.relative(cwd, suite.name)}\n${suite.message}`)
+              .join("\n");
+          } catch { failures = "Jest diagnostic report could not be read"; }
+          finally { rmSync(integrationReport, { force: true }); }
+        }
         if (code === 0) resolve();
         else
           reject(
             new Error(
-              `${stage} failed (${code ?? "signal"})\n${redact(output).slice(-16_000)}`,
+              `${stage} failed (${code ?? "signal"})\n${redact(failures).slice(0, 12_000)}\n${redact(output).slice(-4_000)}`,
             ),
           );
       });
@@ -277,6 +290,10 @@ export const runIntegration = async () => {
       "--config",
       "./jest-integration.config.ts",
       "--runInBand",
+      "--silent",
+      "--json",
+      "--outputFile",
+      integrationReport,
       "--runTestsByPath",
       ...suites,
     ],
