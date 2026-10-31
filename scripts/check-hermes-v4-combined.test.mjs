@@ -230,13 +230,23 @@ test("the campaign mailbox suite is isolated and asks for SMTP explicitly", () =
   const legacy = buildIntegrationChildEnvironment({}, "synthetic-secret");
   assert.equal(legacy.EMAILING_DOMAIN_DRIVER, "LOG");
   assert.equal(legacy.IMAP_SMTP_ALLOW_SELF_SIGNED, undefined);
+  assert.equal(legacy.OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS, undefined);
 
   const mailbox = buildIntegrationChildEnvironment({}, "synthetic-secret", {
     emailingDomainDriver: "SMTP",
     allowSelfSignedSmtp: true,
+    allowedInternalHosts: ["localhost", "127.0.0.1"],
   });
   assert.equal(mailbox.EMAILING_DOMAIN_DRIVER, "SMTP");
   assert.equal(mailbox.IMAP_SMTP_ALLOW_SELF_SIGNED, "true");
+  assert.equal(
+    mailbox.OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS,
+    "localhost,127.0.0.1",
+  );
+  // Database-backed config stays off in this stage: a stored value could shadow
+  // the driver or the self-signed switch, and the suite would quietly prove
+  // something other than what it claims.
+  assert.equal(mailbox.IS_CONFIG_VARIABLES_IN_DB_ENABLED, "false");
 
   // A driver nobody vetted, and self-signed acceptance while mail goes nowhere
   // near a socket, are both refused.
@@ -254,4 +264,24 @@ test("the campaign mailbox suite is isolated and asks for SMTP explicitly", () =
       }),
     /Self-signed SMTP acceptance requires the SMTP driver/,
   );
+  assert.throws(
+    () =>
+      buildIntegrationChildEnvironment({}, "synthetic-secret", {
+        allowedInternalHosts: ["127.0.0.1"],
+      }),
+    /Internal host allowances require the SMTP driver/,
+  );
+
+  // "*" makes the guard return ['*'] and stop being an allowlist, so it is
+  // refused here rather than left to a reviewer to notice.
+  for (const refused of ["*", "mail.internal", "169.254.169.254", "10.0.0.5"])
+    assert.throws(
+      () =>
+        buildIntegrationChildEnvironment({}, "synthetic-secret", {
+          emailingDomainDriver: "SMTP",
+          allowedInternalHosts: [refused],
+        }),
+      /Only loopback hosts may be allowed in an integration stage/,
+      `widening to ${refused} must be refused`,
+    );
 });
