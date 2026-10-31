@@ -1981,11 +1981,6 @@ msgstr ""
 msgid "A qualification was confirmed, yet the classification reports no contact linked to this collection. The two server reads disagree: have this checked rather than read as nothing done."
 msgstr ""
 
-#. js-lingui-id: coauWZ
-#: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
-msgid "A real emission inside the product, restricted by the server to staging destinations. Never to a prospect."
-msgstr ""
-
 #. js-lingui-id: Aiok04
 #: src/modules/settings/data-model/object-details/components/tabs/ObjectSharingReachPicker.tsx
 msgid "A record can be shared with anyone, even people whose role cannot access this object. They get that record only, to view or edit."
@@ -4127,11 +4122,6 @@ msgstr "En eksportert \"main\"-pilfunksjon kreves."
 msgid "An image or a link was requested. That is not a human reading."
 msgstr ""
 
-#. js-lingui-id: J149bW
-#: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
-msgid "An interface boolean authorises nothing. None of these states is deduced from a pilot name, a feature flag or a label: each one is what the server answered, and an unreadable answer leaves the capability unavailable."
-msgstr ""
-
 #. js-lingui-id: 2xLtB4
 #: src/modules/metadata-error-handler/hooks/useMetadataErrorHandler.ts
 msgid "An internal error occurred while applying your changes. Please contact support and try again later."
@@ -5527,9 +5517,9 @@ msgstr "Aksens navn"
 msgid "B"
 msgstr "B"
 
-#. js-lingui-id: +ltKiI
+#. js-lingui-id: eX8gxw
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
-msgid "B2B campaign. Nothing on this screen sends by itself: each step is permitted by the server or it is shut, and the reason is shown."
+msgid "B2B campaign. Nothing here sends by itself: a step the server has not permitted stays shut."
 msgstr ""
 
 #. js-lingui-id: iH8pgl
@@ -13677,11 +13667,6 @@ msgstr "hvert minutt"
 #. js-lingui-id: JsIvOW
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceDataExportSection.tsx
 msgid "Every object of this workspace as CSV files in one zip, kept for 1 day. Works for suspended workspaces."
-msgstr ""
-
-#. js-lingui-id: nUKz96
-#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
-msgid "Every step that is not permitted stays shut with its reason in this page, next to the control, and the control keeps its place in the tab order so the reason can be read without a mouse."
 msgstr ""
 
 #. js-lingui-id: Bnn6BU
@@ -22968,9 +22953,9 @@ msgstr "Ikke tilgjengelig"
 msgid "Not available for default view"
 msgstr "Ikke tilgjengelig i standardvisning"
 
-#. js-lingui-id: gpNpsk
+#. js-lingui-id: 80mncU
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
-msgid "Not available in this version: no operation is published yet to carry out this capability. The server was not asked."
+msgid "Not available in this version. The server did not refuse it."
 msgstr ""
 
 #. js-lingui-id: 0qBE9S
@@ -23624,6 +23609,11 @@ msgstr "Ett eller flere filtre refererer til deaktiverte eller slettede felt og 
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowConversationFields.tsx
 msgid "One per run"
 msgstr "Én per kjøring"
+
+#. js-lingui-id: Sdv/uw
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
+msgid "One real message goes to the address you type. The server applies no staging restriction to it, so the destination is yours to answer for."
+msgstr ""
 
 #. js-lingui-id: wwIwa1
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
@@ -32852,9 +32842,9 @@ msgstr ""
 msgid "The server accepted the test message for the address you typed."
 msgstr ""
 
-#. js-lingui-id: L9dr9Y
+#. js-lingui-id: g0nWZz
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
-msgid "The server allows this step, but this screen has nothing wired to it yet, so it does nothing."
+msgid "The server allows this step, but it is not available in this version yet."
 msgstr ""
 
 #. js-lingui-id: QhEWxs
@@ -34974,9 +34964,9 @@ msgstr ""
 msgid "Unavailable"
 msgstr "Utilgjengelig"
 
-#. js-lingui-id: AytO7F
+#. js-lingui-id: vk4eUs
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
-msgid "Unavailable in this version: no operation is published yet to carry out this step. This is a missing feature, not a refusal by the server."
+msgid "Unavailable in this version. The server did not refuse it, so there is no permission to chase."
 msgstr ""
 
 #. js-lingui-id: IxJVNJ
