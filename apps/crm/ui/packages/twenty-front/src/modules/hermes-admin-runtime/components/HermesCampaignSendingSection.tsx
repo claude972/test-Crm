@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { IconMailCog, IconSend } from 'kovaa-lab-ui/icon';
