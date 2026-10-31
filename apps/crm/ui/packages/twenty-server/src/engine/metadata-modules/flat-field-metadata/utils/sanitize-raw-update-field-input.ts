@@ -19,6 +19,7 @@ import {
 import { type FlatFieldMetadataEditableProperties } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata-editable-properties.constant';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { nullifyEmptyCompositeDefaultValue } from 'src/engine/metadata-modules/flat-field-metadata/utils/nullify-empty-composite-default-value.util';
+import { preserveEchoedOptionLabels } from 'src/engine/metadata-modules/flat-field-metadata/utils/preserve-echoed-option-labels.util';
 import { sanitizeSelectOptionColors } from 'src/engine/metadata-modules/flat-field-metadata/utils/sanitize-select-option-colors.util';
 import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { dispatchUpdateToAuthoredOverride } from 'src/engine/metadata-modules/overrides/utils/dispatch-update-to-authored-override.util';
@@ -42,7 +43,9 @@ export const sanitizeRawUpdateFieldInput = ({
     ownerApplicationUniversalIdentifier:
       existingFlatFieldMetadata.applicationUniversalIdentifier,
   };
-  const isStandardField = belongsToKovaaLabCRMStandardApp(existingFlatFieldMetadata);
+  const isStandardField = belongsToKovaaLabCRMStandardApp(
+    existingFlatFieldMetadata,
+  );
   const updatedEditableFieldProperties = extractAndSanitizeObjectStringFields(
     rawUpdateFieldInput,
     [
@@ -92,11 +95,16 @@ export const sanitizeRawUpdateFieldInput = ({
       }),
     );
 
+    const optionsWithPreservedLabels = preserveEchoedOptionLabels({
+      storedOptions: existingFlatFieldMetadata.options,
+      updatedOptions: optionsWithIds,
+    });
+
     updatedEditableFieldProperties.options = isFieldMetadataSelectKind(
       existingFlatFieldMetadata.type,
     )
-      ? sanitizeSelectOptionColors(optionsWithIds)
-      : optionsWithIds;
+      ? sanitizeSelectOptionColors(optionsWithPreservedLabels)
+      : optionsWithPreservedLabels;
   }
 
   if (
