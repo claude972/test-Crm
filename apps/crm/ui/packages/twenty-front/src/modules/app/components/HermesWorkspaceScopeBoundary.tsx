@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
@@ -18,5 +18,9 @@ export const HermesWorkspaceScopeBoundary = ({
 }) => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
 
-  return <div key={currentWorkspace?.id ?? 'no-workspace'}>{children}</div>;
+  // A keyed Fragment, not an element: wrapping the router in a box would add a
+  // link to the layout's height chain that nothing else accounts for.
+  return (
+    <Fragment key={currentWorkspace?.id ?? 'no-workspace'}>{children}</Fragment>
+  );
 };

@@ -49,3 +49,37 @@ describe('HermesWorkspaceScopeBoundary', () => {
     expect(screen.getByTestId('form-instance').textContent).not.toBe(before);
   });
 });
+
+// The real vector: another tab writes the company into local storage and this
+// tab learns about it through a storage event, with no call of its own.
+describe('HermesWorkspaceScopeBoundary, reached by a storage event', () => {
+  it('drops the previous company tree when another tab switches', () => {
+    localStorage.setItem(
+      'currentWorkspaceState',
+      JSON.stringify({ id: 'workspace-a' }),
+    );
+
+    render(
+      <HermesWorkspaceScopeBoundary>
+        <Form />
+      </HermesWorkspaceScopeBoundary>,
+    );
+
+    const before = screen.getByTestId('form-instance').textContent;
+
+    act(() => {
+      const next = JSON.stringify({ id: 'workspace-b' });
+
+      localStorage.setItem('currentWorkspaceState', next);
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: 'currentWorkspaceState',
+          newValue: next,
+          storageArea: localStorage,
+        }),
+      );
+    });
+
+    expect(screen.getByTestId('form-instance').textContent).not.toBe(before);
+  });
+});
