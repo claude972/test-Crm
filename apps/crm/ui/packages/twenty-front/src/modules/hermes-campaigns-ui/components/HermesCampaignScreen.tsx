@@ -120,6 +120,9 @@ export type HermesCampaignScreenProps = {
   selectedListId: string | null;
   onSelectList?: (listId: string) => void;
   listSaveState: HermesCampaignSaveState;
+  hasMoreAudiences: boolean;
+  isLoadingMoreAudiences: boolean;
+  onLoadMoreAudiences?: () => void;
   unsubscribeTopics: HermesCampaignAudienceOption[];
   selectedTopicId: string | null;
   onSelectTopic?: (topicId: string) => void;
@@ -194,6 +197,9 @@ export const HermesCampaignScreen = ({
   selectedListId,
   onSelectList,
   listSaveState,
+  hasMoreAudiences,
+  isLoadingMoreAudiences,
+  onLoadMoreAudiences,
   unsubscribeTopics,
   selectedTopicId,
   onSelectTopic,
@@ -316,6 +322,9 @@ export const HermesCampaignScreen = ({
           selectedListId,
           onSelectList,
           listSaveState,
+          hasMoreAudiences,
+          isLoadingMoreAudiences,
+          onLoadMoreAudiences,
           topics: unsubscribeTopics,
           selectedTopicId,
           onSelectTopic,

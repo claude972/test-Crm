@@ -5,7 +5,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { IconAlertTriangle } from 'kovaa-lab-ui/icon';
 import { Banner, Loader } from 'kovaa-lab-ui/primitives/feedback';
-import { Field, Select } from 'kovaa-lab-ui/primitives/input';
+import { Button, Field, Select } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesCampaignNote } from '@/hermes-campaigns-ui/components/HermesCampaignNote';
@@ -47,6 +47,11 @@ export type HermesCampaignAudiencePickerProps = {
   selectedListId: string | null;
   onSelectList?: (listId: string) => void;
   listSaveState: HermesCampaignSaveState;
+  // More lists than this page holds. Without a way past the page size the
+  // remaining audiences cannot be selected at all.
+  hasMoreAudiences: boolean;
+  isLoadingMoreAudiences: boolean;
+  onLoadMoreAudiences?: () => void;
 
   // The unsubscribe topic the campaign is sent under. Separate from the list:
   // one says who, the other says what they may opt out of.
@@ -103,6 +108,9 @@ export const HermesCampaignAudiencePicker = ({
   selectedListId,
   onSelectList,
   listSaveState,
+  hasMoreAudiences,
+  isLoadingMoreAudiences,
+  onLoadMoreAudiences,
   topics,
   selectedTopicId,
   onSelectTopic,
@@ -205,6 +213,26 @@ export const HermesCampaignAudiencePicker = ({
               {t`A failed read is not an empty company: nothing is shown rather than an empty list invented.`}
             </HermesCampaignNote>
           )}
+        </>
+      )}
+
+      {hasMoreAudiences && (
+        <>
+          <Button
+            variant="outline"
+            size="sm"
+            loading={isLoadingMoreAudiences}
+            disabled={
+              !isDefined(onLoadMoreAudiences) || isLoadingMoreAudiences
+            }
+            focusableWhenDisabled
+            onClick={() => onLoadMoreAudiences?.()}
+          >
+            {t`Show more audience lists`}
+          </Button>
+          <HermesCampaignNote>
+            {t`Not every list this company holds is shown yet. Read the rest before concluding the one you want is missing.`}
+          </HermesCampaignNote>
         </>
       )}
 

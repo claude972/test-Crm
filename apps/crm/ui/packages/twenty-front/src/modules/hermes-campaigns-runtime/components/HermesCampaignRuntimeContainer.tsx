@@ -47,6 +47,11 @@ export const HermesCampaignRuntimeContainer = ({
       selectedListId={runtime.selectedListId}
       onSelectList={runtime.onSelectList}
       listSaveState={runtime.listSaveState}
+      hasMoreAudiences={runtime.hasMoreAudiences}
+      isLoadingMoreAudiences={runtime.isLoadingMoreAudiences}
+      onLoadMoreAudiences={() => {
+        void runtime.onLoadMoreAudiences();
+      }}
       unsubscribeTopics={runtime.unsubscribeTopics}
       selectedTopicId={runtime.selectedTopicId}
       onSelectTopic={runtime.onSelectTopic}

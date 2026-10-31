@@ -11,6 +11,11 @@ import { gql } from '@apollo/client';
 // workspace id is sent and there is no variable here that could select one,
 // so the lists of another company are not reachable by changing an argument.
 //
+// Paginated forward with `after`, for the same reason the campaign list is:
+// a company holding more lists than one page would otherwise have the rest of
+// them unreachable, and an audience nobody can select is an audience that
+// does not exist as far as the operator is concerned.
+//
 // It is a read. Choosing a list writes `listId` on the campaign; the server
 // then re-resolves the audience itself, applying its own rights and its own
 // suppressions. Nothing here computes who will be written to.
@@ -18,8 +23,9 @@ export const HERMES_RUNTIME_CAMPAIGN_AUDIENCES = gql`
   query HermesRuntimeCampaignAudiences(
     $orderBy: [MessageListOrderByInput]
     $limit: Int
+    $lastCursor: String
   ) {
-    messageLists(orderBy: $orderBy, first: $limit) {
+    messageLists(orderBy: $orderBy, first: $limit, after: $lastCursor) {
       edges {
         node {
           __typename
@@ -28,6 +34,11 @@ export const HERMES_RUNTIME_CAMPAIGN_AUDIENCES = gql`
           description
           createdAt
         }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
       totalCount
     }

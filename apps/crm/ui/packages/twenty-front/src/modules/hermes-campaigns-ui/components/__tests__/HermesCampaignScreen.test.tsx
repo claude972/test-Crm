@@ -101,6 +101,9 @@ const renderScreen = (overrides: Partial<HermesCampaignScreenProps> = {}) =>
         selectedListId="list-1"
         onSelectList={jest.fn()}
         listSaveState={{ kind: 'idle' }}
+        hasMoreAudiences={false}
+        isLoadingMoreAudiences={false}
+        onLoadMoreAudiences={jest.fn()}
         unsubscribeTopics={[
           { id: 'topic-b2b', name: 'B2B prospecting', description: null },
         ]}
@@ -501,5 +504,45 @@ describe('HermesCampaignScreen', () => {
     // Nothing in the panel loads a remote resource, so no tracking marker of
     // the real recipient can be requested by looking at a preview.
     expect(document.querySelectorAll('img')).toHaveLength(0);
+  });
+
+  // CJ-CAMPAIGN-011, second place. The audience picker capped at its page
+  // size too, so the remaining lists could not be selected at all.
+  it('offers the next page of audience lists', () => {
+    const onLoadMoreAudiences = jest.fn();
+
+    renderScreen({ hasMoreAudiences: true, onLoadMoreAudiences });
+
+    const moreButton = screen.getByRole('button', {
+      name: 'Show more audience lists',
+    });
+
+    moreButton.click();
+
+    expect(onLoadMoreAudiences).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByText(
+        'Not every list this company holds is shown yet. Read the rest before concluding the one you want is missing.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('offers no audience page control when every list is already shown', () => {
+    renderScreen({ hasMoreAudiences: false });
+
+    expect(
+      screen.queryByRole('button', { name: 'Show more audience lists' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('says a campaign with no list yet has no recipients, next to the control', () => {
+    renderScreen({ selectedListId: null });
+
+    expect(
+      screen.getByText(
+        'This campaign has no audience list yet, so it has no recipients at all. Choose one here.',
+      ),
+    ).toBeVisible();
+    expect(screen.getByLabelText('Audience list')).toBeVisible();
   });
 });
