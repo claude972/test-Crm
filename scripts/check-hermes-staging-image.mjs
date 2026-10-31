@@ -5,10 +5,25 @@ import { existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'no
 import path from 'node:path';
 import net from 'node:net';
 import { fileURLToPath } from 'node:url';
+import { MIGRATION_COMMANDS, FAILURE_CATEGORIES } from '../infra/hermes-staging/entrypoint.mjs';
 
 const POSTGRES_IMAGE = 'postgres:16-bookworm@sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938';
 const REDIS_IMAGE = 'redis:7-bookworm@sha256:b6b6e3dc0c0952737748e55d5d885272840c7e42ba41ab1d5489f693419882f5';
 export const CLIENT_SDK_ENTRYPOINTS = Object.freeze(['core', 'metadata', 'rest', 'generate']);
+export function readMigrationDiagnostic(output, secrets) {
+  let safe = output.slice(0, 1024 * 1024);
+  for (const secret of secrets) if (secret) safe = safe.split(secret).join('[redacted]');
+  const lines = safe.split(/\r?\n/).filter((line) => line.startsWith('KOVAALABCRM_MIGRATION_FAILURE '));
+  if (lines.length !== 1 || lines[0].length > 1024) return undefined;
+  try {
+    const value = JSON.parse(lines[0].slice('KOVAALABCRM_MIGRATION_FAILURE '.length));
+    if (value.action !== 'migrate' || !MIGRATION_COMMANDS.includes(value.command) || !FAILURE_CATEGORIES.includes(value.category)) return undefined;
+    const result = { action: 'migrate', command: value.command, category: value.category };
+    if (Number.isInteger(value.exitCode) && value.exitCode >= 0 && value.exitCode <= 255) result.exitCode = value.exitCode;
+    if (['APP_VERSION', 'PG_DATABASE_URL', 'REDIS_URL', 'APP_SECRET', 'ENCRYPTION_KEY', 'SERVER_URL', 'FRONTEND_URL', 'STORAGE_TYPE', 'STORAGE_LOCAL_PATH'].includes(value.configKey)) result.configKey = value.configKey;
+    return result;
+  } catch { return undefined; }
+}
 export function validateSmokeEnvironment(environment) {
   assert.equal(environment.GITHUB_ACTIONS, 'true', 'Image smoke is restricted to disposable GitHub Actions runners');
   assert.equal(environment.RUNNER_ENVIRONMENT, 'github-hosted');
@@ -93,7 +108,7 @@ export async function smoke(environment) {
     await new Promise((resolve, reject) => { listener.once('error', reject); listener.listen(0, '127.0.0.1', resolve); });
     const selectedPort = listener.address().port;
     await new Promise((resolve) => listener.close(resolve));
-    const smokeOrigin = `http://127.0.0.1:${selectedPort}`;
+    const smokeOrigin = 'https://kovaalabcrm-staging.test';
     const values = {
       PG_DATABASE_URL: `postgres://kovaalabcrm:${databasePassword}@db:5432/kovaalabcrm_staging`, REDIS_URL: `redis://:${redisPassword}@redis:6379/0`,
       APP_SECRET: appSecret, ENCRYPTION_KEY: encryptionKey, SERVER_URL: smokeOrigin, FRONTEND_URL: smokeOrigin, AUTH_COOKIE_ALLOWED_ORIGINS: smokeOrigin,
@@ -161,6 +176,10 @@ export async function smoke(environment) {
     phase = 'completed';
   } catch (error) {
     report.failurePhase = phase;
+    if (phase === 'migrate' || phase === 'existing-volume-migrate') {
+      const diagnostic = readMigrationDiagnostic([error.stdout, error.stderr].filter(Boolean).map((value) => value.toString()).join('\n'), secrets);
+      if (diagnostic) report.migrationFailure = diagnostic;
+    }
     if (Number.isInteger(error.status)) report.commandExitCode = error.status;
     failure = `Staging image smoke failed during ${phase}; private diagnostics withheld`;
   }

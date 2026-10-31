@@ -71,10 +71,32 @@ export function assertDatabaseState({ tableCount, markerPresent, complete }) {
   assert.ok(markerPresent && complete === true, 'Existing or interrupted database requires a completed staging installation marker; manual recovery required');
   return true;
 }
+export const MIGRATION_COMMANDS = Object.freeze(['database-preflight', 'setup-db', 'run-instance-commands', 'cache:flush', 'upgrade', 'upgrade:status', 'cron:register:all']);
+export const FAILURE_CATEGORIES = Object.freeze(['unknown', 'module-missing', 'configuration', 'database-connection', 'schema', 'resource-limit', 'cancelled', 'output-limit', 'upgrade-summary', 'cron-summary']);
+const CONFIG_KEYS = ['APP_VERSION', 'PG_DATABASE_URL', 'REDIS_URL', 'APP_SECRET', 'ENCRYPTION_KEY', 'SERVER_URL', 'FRONTEND_URL', 'STORAGE_TYPE', 'STORAGE_LOCAL_PATH'];
+export function commandDiagnostic(args, output, exitCode, reason) {
+  const requested = args[0] === 'dist/database/scripts/setup-db.js' ? 'setup-db' : args[1];
+  const command = MIGRATION_COMMANDS.includes(requested) ? requested : 'database-preflight';
+  let category = reason ?? 'unknown';
+  if (!reason) {
+    if (/Cannot find module|MODULE_NOT_FOUND|ERR_PACKAGE_PATH_NOT_EXPORTED/.test(output)) category = 'module-missing';
+    else if (/heap out of memory|ENOMEM|allocation failed/i.test(output) || exitCode === 137) category = 'resource-limit';
+    else if (/ECONNREFUSED|ENOTFOUND|authentication failed|connect ETIMEDOUT/.test(output)) category = 'database-connection';
+    else if (/configuration|environment variable|Config validation|must be a|is required/i.test(output)) category = 'configuration';
+    else if (/QueryFailedError|relation .* does not exist|syntax error|migration.*failed|permission denied for schema/i.test(output)) category = 'schema';
+  }
+  const diagnostic = { action: 'migrate', command, category: FAILURE_CATEGORIES.includes(category) ? category : 'unknown' };
+  if (Number.isInteger(exitCode) && exitCode >= 0 && exitCode <= 255) diagnostic.exitCode = exitCode;
+  if (diagnostic.category === 'configuration') {
+    const key = CONFIG_KEYS.find((candidate) => output.includes(candidate));
+    if (key) diagnostic.configKey = key;
+  }
+  return diagnostic;
+}
 async function runCommand(args, environment) {
   const checkCron = args[1] === 'cron:register:all';
   const checkUpgrade = args[1] === 'upgrade:status';
-  const capture = checkCron || checkUpgrade;
+  const capture = args[0] !== 'dist/main.js' && args[0] !== 'dist/queue-worker/queue-worker.js';
   const child = spawn(process.execPath, args, { cwd: SERVER_DIRECTORY, env: environment, stdio: capture ? ['ignore', 'pipe', 'pipe'] : 'inherit' });
   let output = '';
   let overflow = false;
@@ -92,11 +114,14 @@ async function runCommand(args, environment) {
       child.once('error', reject);
       child.once('exit', (code, signal) => {
         try {
-          assert.ok(code === 0 && !interrupted && !overflow, `Staging command failed (${signal ?? code})`);
+          assert.ok(code === 0 && !interrupted && !overflow, 'Staging command failed');
           if (checkCron) assertCronSummary(output);
           if (checkUpgrade) assertUpgradeSummary(output);
           resolve();
-        } catch (error) { reject(error); }
+        } catch (error) {
+          error.stagingDiagnostic = commandDiagnostic(args, output, code, interrupted ? 'cancelled' : overflow ? 'output-limit' : code === 0 ? (checkCron ? 'cron-summary' : checkUpgrade ? 'upgrade-summary' : undefined) : undefined);
+          reject(error);
+        }
       });
     });
   } finally { process.removeListener('SIGINT', interrupt); process.removeListener('SIGTERM', terminate); }
@@ -135,5 +160,8 @@ export async function main(environment, action) {
   } finally { if (client) await client.end(); }
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main(process.env, process.argv[2]).catch(() => { console.error('kovaalabcrm staging refused startup or a strict command failed; private configuration withheld'); process.exitCode = 1; });
+  main(process.env, process.argv[2]).catch((error) => {
+    if (process.argv[2] === 'migrate') console.error('KOVAALABCRM_MIGRATION_FAILURE ' + JSON.stringify(error.stagingDiagnostic ?? commandDiagnostic([], ['ECONNREFUSED', 'ENOTFOUND', 'MODULE_NOT_FOUND', 'ERR_MODULE_NOT_FOUND'].includes(error.code) ? error.code : '', undefined)));
+    console.error('kovaalabcrm staging refused startup or a strict command failed; private configuration withheld'); process.exitCode = 1;
+  });
 }

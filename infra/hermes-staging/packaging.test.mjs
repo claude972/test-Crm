@@ -4,9 +4,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { spawnSync, execFileSync } from 'node:child_process';
-import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, main, runCommands, validateEnvironment } from './entrypoint.mjs';
+import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, commandDiagnostic, main, runCommands, validateEnvironment } from './entrypoint.mjs';
 import { createRequire } from 'node:module';
-import { CLIENT_SDK_ENTRYPOINTS, validateSmokeEnvironment } from '../../scripts/check-hermes-staging-image.mjs';
+import { CLIENT_SDK_ENTRYPOINTS, readMigrationDiagnostic, validateSmokeEnvironment } from '../../scripts/check-hermes-staging-image.mjs';
 
 const environment = (extra = {}) => ({
   PG_DATABASE_URL: `postgres://kovaalabcrm:${'a'.repeat(64)}@db:5432/kovaalabcrm_staging`,
@@ -189,4 +189,24 @@ test('source SHA stamping happens only after exact-context compilation and runti
   assert.ok(argument > dockerfile.lastIndexOf('COPY '));
   assert.match(dockerfile.slice(argument), /assert.match\(sha \?\? '', \/\^\[a-f0-9\]\{40\}\$\/\)/);
   assert.match(dockerfile.slice(argument), /writeFileSync\('dist\/front\/KOVAALABCRM_SOURCE.txt', sha/);
+});
+
+test('migration diagnostics reveal only allowlisted command/category/key/code, never native buffers', () => {
+  const secret = 'a'.repeat(64);
+  const native = `Cannot find module /private/${secret} SQL postgres://user:${secret}@db`;
+  assert.deepEqual(commandDiagnostic(['dist/database/scripts/setup-db.js'], native, 1), { action: 'migrate', command: 'setup-db', category: 'module-missing', exitCode: 1 });
+  assert.equal(commandDiagnostic(['dist/command/command.js', 'upgrade'], 'Config validation APP_SECRET must be a string', 1).configKey, 'APP_SECRET');
+  const safe = { action: 'migrate', command: 'upgrade', category: 'schema', exitCode: 1 };
+  const output = native + '\nKOVAALABCRM_MIGRATION_FAILURE ' + JSON.stringify({ ...safe, url: `postgres://user:${secret}@db`, sql: 'private query', configKey: secret });
+  assert.deepEqual(readMigrationDiagnostic(output, [secret]), safe);
+  assert.equal(readMigrationDiagnostic('KOVAALABCRM_MIGRATION_FAILURE ' + JSON.stringify({ ...safe, command: secret }), [secret]), undefined);
+  assert.equal(readMigrationDiagnostic(output + '\nKOVAALABCRM_MIGRATION_FAILURE {}', [secret]), undefined);
+  assert.equal(readMigrationDiagnostic('KOVAALABCRM_MIGRATION_FAILURE not-json ' + secret, [secret]), undefined);
+});
+test('SMTP smoke uses a reserved HTTPS application origin independently of loopback HTTP probes', () => {
+  const smoke = readFileSync(new URL('../../scripts/check-hermes-staging-image.mjs', import.meta.url), 'utf8');
+  assert.match(smoke, /const smokeOrigin = 'https:\/\/kovaalabcrm-staging.test'/);
+  assert.match(smoke, /const origin = `http:\/\/127\.0\.0\.1:/);
+  const driver = readFileSync(new URL('../../apps/crm/ui/packages/twenty-server/src/engine/core-modules/emailing-domain/drivers/smtp/smtp-emailing-domain-driver.ts', import.meta.url), 'utf8');
+  assert.match(driver, /https:/);
 });
