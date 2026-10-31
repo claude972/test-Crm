@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { spawnSync, execFileSync } from 'node:child_process';
-import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, readUpgradeSummary, commandDiagnostic, main, runCommands, validateEnvironment } from './entrypoint.mjs';
+import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, readUpgradeSummary, preflightDiagnostic, commandDiagnostic, main, runCommands, validateEnvironment } from './entrypoint.mjs';
 import { createRequire } from 'node:module';
 import { CLIENT_SDK_ENTRYPOINTS, readMigrationDiagnostic, validateSmokeEnvironment } from '../../scripts/check-hermes-staging-image.mjs';
 
@@ -220,4 +220,43 @@ test('native summary parser normalizes ANSI/CRLF and bounded Nest info teardown 
   const parsed = readMigrationDiagnostic('KOVAALABCRM_MIGRATION_FAILURE ' + JSON.stringify(diagnostic), []);
   assert.equal(parsed.upgradeStatus.instanceHealth, 'behind');
   assert.deepEqual(parsed.upgradeStatus.workspaceCounts, { upToDate: 1, behind: 2, failed: 3, total: 6 });
+});
+
+test('Nest trailer rejects initial ERROR even when its message contains a later LOG token', () => {
+  const prefix = 'Summary\n Instance: Up to date\n No workspaces\n';
+  const trailer = '[Nest] 17  - 10/31/2026, 8:00:00 PM ERROR [ModuleService] Failed handling LOG [CloseService] message';
+  assert.throws(() => assertUpgradeSummary(prefix + trailer));
+  assert.equal(readUpgradeSummary(prefix + trailer).unexpectedLineCount, 1);
+  assert.throws(() => assertUpgradeSummary(prefix + trailer.replace('ERROR', 'WARN')));
+});
+test('preflight names validation/activation stages without serializing assertion expected or actual values', async () => {
+  const secret = 'private-rejected-token';
+  await assert.rejects(main(environment({ APP_SECRET: secret }), 'migrate'), (error) => {
+    assert.deepEqual(error.stagingDiagnostic, { action: 'migrate', command: 'database-preflight', category: 'configuration', preflightStage: 'validate-environment', errorName: 'AssertionError', errorCode: 'ERR_ASSERTION', validationKey: 'APP_SECRET' });
+    assert.ok(!JSON.stringify(error.stagingDiagnostic).includes(secret)); return true;
+  });
+  await assert.rejects(main(environment(), 'migrate'), (error) => {
+    assert.equal(error.stagingDiagnostic.preflightStage, 'activation');
+    assert.equal(error.stagingDiagnostic.validationKey, 'KOVAALABCRM_ALLOW_STAGING_MIGRATIONS'); return true;
+  });
+});
+test('preflight imports/connections/marker errors have strict public enum diagnostics', () => {
+  const secret = 'x'.repeat(64);
+  const error = Object.assign(new Error(`postgres://user:${secret}@db SELECT private`), { code: 'ECONNREFUSED', sql: 'private query', actual: secret, expected: secret });
+  const diagnostic = preflightDiagnostic('connect-database', error);
+  assert.deepEqual(diagnostic, { action: 'migrate', command: 'database-preflight', category: 'database-connection', preflightStage: 'connect-database', errorName: 'Error', errorCode: 'ECONNREFUSED' });
+  assert.deepEqual(readMigrationDiagnostic('KOVAALABCRM_MIGRATION_FAILURE ' + JSON.stringify({ ...diagnostic, url: error.message }), [secret]), diagnostic);
+  const unknown = preflightDiagnostic(secret, { name: secret, code: secret, stagingValidationKey: secret, message: secret });
+  assert.deepEqual(unknown, { action: 'migrate', command: 'database-preflight', category: 'unknown' });
+  assert.equal(preflightDiagnostic('database-state', { code: 'ERR_ASSERTION' }).reason, 'unowned-or-partial-database');
+});
+test('database readiness proves TCP/authentication after temporary socket-only bootstrap', () => {
+  const smoke = readFileSync(new URL('../../scripts/check-hermes-staging-image.mjs', import.meta.url), 'utf8');
+  assert.doesNotMatch(smoke, /pg_isready/);
+  const compose = source('compose.yaml');
+  assert.doesNotMatch(compose, /pg_isready/);
+  assert.match(compose, /PGPASSWORD="\$\$POSTGRES_PASSWORD" psql -h 127\.0\.0\.1 -p 5432/);
+  assert.match(smoke, /PGPASSWORD="\$POSTGRES_PASSWORD" psql -h 127\.0\.0\.1 -p 5432/);
+  assert.match(smoke, /-d kovaalabcrm_staging -v ON_ERROR_STOP=1 -Atqc "SELECT 1"/);
+  assert.equal((smoke.match(/await wait\(databaseReady\)/g) ?? []).length, 2);
 });
