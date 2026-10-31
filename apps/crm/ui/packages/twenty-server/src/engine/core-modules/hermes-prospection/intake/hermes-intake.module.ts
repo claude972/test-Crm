@@ -7,6 +7,8 @@ import { HermesIntakeReplayService } from 'src/engine/core-modules/hermes-prospe
 import { HermesIntakeStateResolver } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake-state.resolver';
 import { HermesIntakeStateService } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake-state.service';
 import { HermesIntakeService } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.service';
+import { HermesMcpToolSurfaceResolver } from 'src/engine/core-modules/hermes-prospection/intake/mcp/hermes-mcp-tool-surface.resolver';
+import { HermesMcpToolSurfaceService } from 'src/engine/core-modules/hermes-prospection/intake/mcp/hermes-mcp-tool-surface.service';
 
 @Module({
   imports: [HermesProspectionModule, HermesEventsModule],
@@ -16,6 +18,8 @@ import { HermesIntakeService } from 'src/engine/core-modules/hermes-prospection/
     HermesIntakeReplayService,
     HermesIntakeStateService,
     HermesIntakeStateResolver,
+    HermesMcpToolSurfaceService,
+    HermesMcpToolSurfaceResolver,
   ],
 })
 export class HermesIntakeModule {}
