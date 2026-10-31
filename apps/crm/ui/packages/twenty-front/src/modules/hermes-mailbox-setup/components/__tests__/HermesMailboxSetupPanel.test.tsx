@@ -326,6 +326,74 @@ describe('HermesMailboxSetupPanel', () => {
     expect(variablesSpy).not.toHaveBeenCalled();
   });
 
+  it('keeps a server refusal a refusal, and binds nothing', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const onBindMail = jest.fn();
+
+    renderPanel(
+      [
+        ...buildAccountsMocks(log),
+        buildSaveMock(jest.fn(), {
+          success: false,
+          connectedAccountId: null,
+        }),
+      ],
+      onBindMail,
+    );
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+    await fillMinimalMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/a refusé l’enregistrement/);
+    expect(alert).not.toHaveTextContent(/ni confirmé ni infirmé/);
+    expect(onBindMail).not.toHaveBeenCalled();
+  });
+
+  it('reports a transport failure without claiming the mailbox was saved', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const onBindMail = jest.fn();
+
+    renderPanel(
+      [
+        ...buildAccountsMocks(log),
+        {
+          request: {
+            query: SaveImapSmtpCaldavAccountDocument,
+            variables: () => true,
+          },
+          maxUsageCount: 10,
+          error: new Error('socket hang up'),
+        },
+      ],
+      onBindMail,
+    );
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+    await fillMinimalMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/socket hang up/);
+    expect(enqueueToast).toHaveBeenCalled();
+    expect(onBindMail).not.toHaveBeenCalled();
+    // Nothing is presented as saved, so the form keeps what was typed.
+    expect(screen.getByLabelText(/IMAP Server/i)).toHaveValue(IMAP_HOST);
+  });
+
   it('says what the native « Name » field becomes, since its placeholder suggests a person', async () => {
     const user = userEvent.setup();
     const log: AccountsReadLog = { count: 0 };
