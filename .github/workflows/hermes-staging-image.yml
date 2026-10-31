@@ -21,6 +21,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Verify packaging boundaries before image construction
+        run: node --test infra/hermes-staging/packaging.test.mjs
+      - name: Reclaim only fixed unused SDK directories on the disposable runner
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          for unused_sdk_path in /usr/local/lib/android /opt/ghc /usr/share/dotnet; do
+            case "$unused_sdk_path" in
+              /usr/local/lib/android|/opt/ghc|/usr/share/dotnet) sudo rm -rf -- "$unused_sdk_path" ;;
+              *) exit 1 ;;
+            esac
+          done
       - name: Build exact source without deployment or registry publication
         run: |
           test "$(git rev-parse HEAD)" = "$HERMES_SOURCE_SHA"
