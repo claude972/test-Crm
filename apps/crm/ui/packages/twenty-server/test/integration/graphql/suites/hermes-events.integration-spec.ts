@@ -275,7 +275,15 @@ describe('Hermes Forms/Cal — native signed HTTP and PostgreSQL', () => {
         'Lot D must register the INTAKE endpoint for this workspace',
       );
       assert.equal(view.state, 'CONFIGURED_UNVERIFIED');
-      assert.deepEqual(view.secretFields, ['secret']);
+      // node:assert/strict makes deepEqual an alias of deepStrictEqual, and
+      // strict deep equality also compares prototypes. This view comes from
+      // the application graph built by globalSetup, whose realm is not this
+      // file's Jest context, so comparing its array directly fails while both
+      // sides print the same -- the "no visual difference" report. Copy the
+      // members into this realm and compare those: the meaning is unchanged,
+      // exactly one exposed secret field and it is named 'secret'.
+      assert.equal(view.secretFields.length, 1);
+      assert.deepEqual(Array.from(view.secretFields), ['secret']);
       registrations.set(workspaceId, view.revision);
       return connectionId;
     };
