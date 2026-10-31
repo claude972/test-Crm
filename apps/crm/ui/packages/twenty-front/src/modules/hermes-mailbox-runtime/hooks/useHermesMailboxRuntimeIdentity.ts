@@ -36,10 +36,6 @@ export type HermesMailboxRuntimeIdentity =
       // mailbox from another.
       connectionId: string;
       connectedAccountId: string;
-      // The binding's generation, as a string. Null when the central reader
-      // published none: a binding whose generation is unknown is not one a
-      // local record may be attributed to.
-      connectionRevision: string | null;
       // The exact handle of that account. The only address this screen ever
       // puts in `from`.
       mailboxAddress: string;
@@ -130,10 +126,6 @@ export const useHermesMailboxRuntimeIdentity =
         kind: 'known',
         connectionId: connection.value.connectionId,
         connectedAccountId: connection.value.connectedAccountId,
-        connectionRevision:
-          connection.value.revision === null
-            ? null
-            : String(connection.value.revision),
         mailboxAddress,
         unverifiedAliases: (account.handleAliases ?? [])
           .map((alias) => normalizeHermesMailboxEmail(alias))

@@ -54,6 +54,12 @@ export type HermesMailboxRuntimeMessage = {
   // The canonical message the server hydrated. Opaque, and the one a bot
   // draft is asked against; null means no draft can be asked for.
   messageId: string | null;
+  // The stable draft identity, published only for a message that really is
+  // this account's Hermes stable draft in its Drafts folder. Both opaque and
+  // handed straight back; absent means it is not one, and neither value is
+  // ever synthesised from anything else.
+  draftId: string | null;
+  draftRevision: string | null;
   uid: string;
   uidValidity: string | null;
   folder: string | null;

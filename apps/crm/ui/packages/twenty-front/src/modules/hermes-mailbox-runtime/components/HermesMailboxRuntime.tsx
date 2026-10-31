@@ -1,18 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { currentUserState } from '@/auth/states/currentUserState';
-import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { HermesMailboxRuntimeAssistantDraft } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft';
 import { HermesMailboxRuntimeBotPanel } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntimeBotPanel';
-import {
-  type HermesMailboxRuntimeSavedDraft,
-  useHermesMailboxRuntimeComposer,
-} from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeComposer';
+import { useHermesMailboxRuntimeComposer } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeComposer';
 import { useHermesMailboxRuntimeAttachmentDownload } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeAttachmentDownload';
-import {
-  type HermesMailboxRuntimeDraftIdentities,
-  useHermesMailboxRuntimeDraftIdentities,
-} from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeDraftIdentities';
 import { useHermesMailboxRuntimeFolders } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeFolders';
 import {
   type HermesMailboxRuntimeIdentityRead,
@@ -23,7 +14,6 @@ import { useHermesMailboxRuntimeMessage } from '@/hermes-mailbox-runtime/hooks/u
 import { useHermesMailboxRuntimeMessages } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeMessages';
 import { type HermesMailboxRuntimeMessage } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimePayload';
 import { type HermesMailboxRuntimeScope } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimeScope';
-import { type HermesMailboxRuntimeDraftScope } from '@/hermes-mailbox-runtime/utils/hermesMailboxRuntimeDraftIdentities';
 import { readHermesMailboxRuntimeMessageAttachments } from '@/hermes-mailbox-runtime/utils/readHermesMailboxRuntimeAttachments';
 import {
   HermesMailbox,
@@ -36,7 +26,6 @@ import {
   type HermesMailboxThread,
   type HermesMailboxThreadSummary,
 } from '@/hermes-mailbox-ui/types/HermesMailboxThread';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 type HermesMailboxRuntimeProps = {
   // Offered only when the parent can really route somewhere. Absent means the
@@ -55,7 +44,6 @@ const readThread = (
   message: HermesMailboxRuntimeMessage,
   summary: HermesMailboxThreadSummary | null,
   isDraftsFolder: boolean,
-  savedDraft: HermesMailboxRuntimeSavedDraft | null,
 ): HermesMailboxThread => ({
   id: message.uid,
   subject: message.subject,
@@ -88,21 +76,16 @@ const readThread = (
       attachments: readHermesMailboxRuntimeMessageAttachments(message),
     },
   ],
-  // A resume is offered only on the exact native message an identity the
-  // server issued names: same folder, same UID, same UIDVALIDITY, which is
-  // what identifies a message in IMAP. Re-checked here so this reader never
-  // offers a resume against a message the identity does not address.
+  // A resume is offered exactly when the server published a stable identity
+  // for this message. It publishes one only for this account's own Hermes
+  // draft in its Drafts folder, so the affordance and the thing behind it are
+  // one fact. No saved-at date is published, so none is claimed.
   draft:
-    savedDraft !== null &&
-    savedDraft.folder === message.folder &&
-    savedDraft.uid === message.uid &&
-    savedDraft.uidValidity === message.uidValidity
-      ? { id: savedDraft.draftId, savedAt: savedDraft.savedAt }
-      : null,
-  // A native draft whose stable identity this browser was never issued.
-  // Nothing published lists those identities, so there is no resume to offer
-  // and the pane says why rather than showing a button that cannot work.
-  isDraftIdentityUnknown: isDraftsFolder && savedDraft === null,
+    message.draftId === null ? null : { id: message.draftId, savedAt: null },
+  // A native draft the server published no identity for — written by another
+  // client, or an older reply draft that minted none. Nothing to resume, and
+  // the pane says so instead of offering a button that cannot work.
+  isDraftIdentityUnknown: isDraftsFolder && message.draftId === null,
 });
 
 type HermesMailboxRuntimeFolderViewProps = {
@@ -112,7 +95,6 @@ type HermesMailboxRuntimeFolderViewProps = {
   onSelectFolder: (folderId: string) => void;
   onBackToFolders: () => void;
   identity: HermesMailboxRuntimeIdentityRead;
-  draftIdentities: HermesMailboxRuntimeDraftIdentities;
   onConnectProvider?: () => void;
 };
 
@@ -128,7 +110,6 @@ const HermesMailboxRuntimeFolderView = ({
   onSelectFolder,
   onBackToFolders,
   identity,
-  draftIdentities,
   onConnectProvider,
 }: HermesMailboxRuntimeFolderViewProps) => {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
@@ -157,20 +138,10 @@ const HermesMailboxRuntimeFolderView = ({
   const openedMessage =
     message.load.kind === 'ready' ? message.load.value : null;
 
-  // Looked up against the location the SERVER published on its read of this
-  // very message, never against the scope this client asked under.
-  const savedDraft = draftIdentities.find(
-    openedMessage?.folder ?? null,
-    openedMessage?.uid ?? null,
-    openedMessage?.uidValidity ?? null,
-  );
-
   const composer = useHermesMailboxRuntimeComposer({
     scope,
     identity,
     message: openedMessage,
-    savedDraft,
-    onSavedDraft: draftIdentities.remember,
   });
 
   const inlineImagesByMessageId = useHermesMailboxRuntimeInlineImages({
@@ -205,10 +176,9 @@ const HermesMailboxRuntimeFolderView = ({
               message.load.value,
               selectedSummary,
               isDraftsFolder,
-              savedDraft,
             ),
     };
-  }, [isDraftsFolder, message.load, savedDraft, selectedSummary]);
+  }, [isDraftsFolder, message.load, selectedSummary]);
 
   // `null` is the honest answer while the mailbox's own address is unknown:
   // the send control is left out rather than offered for an emission that
@@ -311,38 +281,6 @@ export const HermesMailboxRuntime = ({
 
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
-  const currentUser = useAtomStateValue(currentUserState);
-  const currentWorkspace = useAtomStateValue(currentWorkspaceState);
-
-  // Who an identity belongs to: this person, in this company, on this bound
-  // account, under this generation of the binding. One part missing and there
-  // is no scope, so nothing is read or written at all.
-  const draftScope = useMemo<HermesMailboxRuntimeDraftScope | null>(() => {
-    const userId = currentUser?.id ?? null;
-    const workspaceId = currentWorkspace?.id ?? null;
-
-    if (
-      userId === null ||
-      workspaceId === null ||
-      identity.identity.kind !== 'known' ||
-      identity.identity.connectionRevision === null
-    ) {
-      return null;
-    }
-
-    return {
-      userId,
-      workspaceId,
-      connectedAccountId: identity.identity.connectedAccountId,
-      connectionRevision: identity.identity.connectionRevision,
-    };
-  }, [currentUser?.id, currentWorkspace?.id, identity.identity]);
-
-  // Outside the component tree on purpose: a draft is saved from the inbox
-  // and resumed from the provider's Drafts folder, so the identity the server
-  // issued has to survive that move and a reload with it.
-  const draftIdentities = useHermesMailboxRuntimeDraftIdentities(draftScope);
-
   // The inbox is opened once the folders are known, so the screen lands on a
   // list rather than on a folder picker. A mailbox the provider publishes
   // without an inbox role falls back to its first selectable folder.
@@ -369,7 +307,6 @@ export const HermesMailboxRuntime = ({
       onSelectFolder={setSelectedFolderId}
       onBackToFolders={() => setSelectedFolderId(null)}
       identity={identity}
-      draftIdentities={draftIdentities}
       onConnectProvider={onConnectProvider}
     />
   );

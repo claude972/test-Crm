@@ -74,18 +74,6 @@ type HermesMailboxRuntimeAttempt =
   | { kind: 'compose'; input: HermesMailboxRuntimeComposeInput }
   | { kind: 'new'; input: HermesMailboxRuntimeNewDraftInput };
 
-// Where the draft saved in this session landed in the provider's Drafts
-// folder, so the container can offer to resume exactly that message.
-export type HermesMailboxRuntimeSavedDraft = {
-  draftId: string;
-  draftRevision: string | null;
-  conversationId: string | null;
-  folder: string | null;
-  uid: string | null;
-  uidValidity: string | null;
-  savedAt: string | null;
-};
-
 export type HermesMailboxRuntimeComposer = {
   envelope: HermesMailboxLoad<HermesMailboxEnvelope | null>;
   sendState: HermesMailboxSendState;
@@ -96,7 +84,6 @@ export type HermesMailboxRuntimeComposer = {
   closeComposer: () => void;
   requestSend: (composition: HermesMailboxComposition) => void;
   saveDraft: (composition: HermesMailboxComposition) => void;
-  savedDraft: HermesMailboxRuntimeSavedDraft | null;
 };
 
 // Planning, composing, saving and sending one message.
@@ -119,17 +106,10 @@ export const useHermesMailboxRuntimeComposer = ({
   scope,
   identity,
   message,
-  savedDraft,
-  onSavedDraft,
 }: {
   scope: HermesMailboxRuntimeScope | null;
   identity: HermesMailboxRuntimeIdentityRead;
   message: HermesMailboxRuntimeMessage | null;
-  // Held by the caller, above the folder, because resuming a draft means
-  // walking into the provider's Drafts folder — and a per-folder state would
-  // be thrown away by exactly that move.
-  savedDraft: HermesMailboxRuntimeSavedDraft | null;
-  onSavedDraft: (draft: HermesMailboxRuntimeSavedDraft) => void;
 }): HermesMailboxRuntimeComposer => {
   const client = useApolloClient();
 
@@ -447,31 +427,29 @@ export const useHermesMailboxRuntimeComposer = ({
 
   // Pick a saved draft back up.
   //
-  // The recipients and the text come from the server's own read of the native
-  // draft, not from a local copy, and the stable id and opaque revision are
-  // restored as they were handed over.
+  // Everything comes from the server's own read of the native draft: the
+  // stable id, the opaque revision, the recipients and the text. Nothing is
+  // held locally, so any browser reading this message can resume it.
   const resumeDraft = useCallback(
     (draftId: string) => {
-      const record = savedDraft;
-
-      // Resuming is offered only on a draft this session wrote: nothing
-      // publishes draft identities, so a draft from another session cannot be
-      // picked up and the screen does not pretend otherwise.
+      // The server publishes an identity only for a message that really is
+      // this account's stable draft. No identity, or one naming another
+      // draft, is not something to resume, and none is invented here.
       if (
         identity.identity.kind === 'unknown' ||
         message === null ||
-        record === null ||
-        record.draftId !== draftId
+        message.draftId === null ||
+        message.draftId !== draftId
       ) {
         setEnvelope({ kind: 'unreadable', problem: 'missing', message: null });
 
         return;
       }
 
-      conversationIdRef.current = record.conversationId;
+      conversationIdRef.current = message.conversationId;
       requestIdRef.current = null;
       draftIdRef.current = draftId;
-      draftRevisionRef.current = record.draftRevision;
+      draftRevisionRef.current = message.draftRevision;
       sendRequestIdRef.current = null;
       attemptRef.current = null;
       isAttemptUncertainRef.current = false;
@@ -511,7 +489,7 @@ export const useHermesMailboxRuntimeComposer = ({
         },
       });
     },
-    [identity, message, savedDraft, senderOf],
+    [identity, message, senderOf],
   );
 
   const applySendOutcome = useCallback(
@@ -762,15 +740,6 @@ export const useHermesMailboxRuntimeComposer = ({
             conversationIdRef.current =
               read.value.conversationId ?? conversationIdRef.current;
 
-            onSavedDraft({
-              draftId: read.value.draftId ?? draftId,
-              draftRevision: read.value.draftRevision,
-              conversationId: conversationIdRef.current,
-              folder: read.value.folder,
-              uid: read.value.uid,
-              uidValidity: read.value.uidValidity,
-              savedAt: null,
-            });
             setDraftSaveState({
               kind: 'saved',
               draftId: read.value.draftId ?? draftId,
@@ -846,7 +815,7 @@ export const useHermesMailboxRuntimeComposer = ({
           );
         });
     },
-    [attachmentIdsOf, identity, mutate, onSavedDraft, scope],
+    [attachmentIdsOf, identity, mutate, scope],
   );
 
   return {
@@ -859,6 +828,5 @@ export const useHermesMailboxRuntimeComposer = ({
     closeComposer: reset,
     requestSend,
     saveDraft,
-    savedDraft,
   };
 };
