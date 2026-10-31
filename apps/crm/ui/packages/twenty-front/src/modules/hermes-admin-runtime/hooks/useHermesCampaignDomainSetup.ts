@@ -25,21 +25,48 @@ export type HermesCampaignDomainOutcome =
   | { kind: 'refused'; reason: string | null }
   | { kind: 'unconfirmed'; listReread: boolean };
 
-// Whether a write may be attempted, written as an ALLOWLIST on purpose: the
-// denylist this replaced named three uncertain states and let 'unconfirmed'
-// through, and the next state added would have been missed the same way. Here
-// anything unforeseen falls through to false.
+// Whether a recording may be attempted.
 //
-// 'idle' attempted nothing and 'refused' is a refusal raised before the write.
-// An uncertain outcome re-opens only once its re-read SUCCEEDED: the domain
-// list is the same authority that would hold the record, and this branch is
-// rendered only while the record is absent from it. An ACCEPTED write never
-// re-opens — its record exists whether or not the list could be re-read.
-const isSettledForRetry = (outcome: HermesCampaignDomainOutcome): boolean =>
-  outcome.kind === 'idle' ||
-  outcome.kind === 'refused' ||
-  ((outcome.kind === 'unconfirmed' || outcome.kind === 'write-unknown') &&
-    outcome.listReread);
+// TWO questions here, not one, and they are kept apart because this hook's
+// answer for an accepted write differs from the mailbox hook's for a real
+// reason. First: is the outcome KNOWN? Second: would a second attempt
+// duplicate something that already exists?
+//
+// A mailbox creation that succeeded may legitimately be followed by another —
+// a company can hold two. This recording cannot: the domain is the registered
+// mailbox's own, so there is exactly one of it, and an accepted recording
+// closes the control for good rather than because anything is uncertain.
+//
+// Written as an exhaustive switch rather than a set a reader must take on
+// trust. A denylist silently permits and an allowlist silently forbids; both
+// let the next author skip the question. Here a state added later fails to
+// COMPILE until someone answers both questions for it.
+const isSettledForRetry = (outcome: HermesCampaignDomainOutcome): boolean => {
+  switch (outcome.kind) {
+    // Nothing was attempted.
+    case 'idle':
+    // The server refused BEFORE writing: nothing was recorded.
+    case 'refused':
+      return true;
+    // The write itself is in flight: there is no outcome yet.
+    case 'recording':
+    // The server ACCEPTED: the one record this panel can create exists. Known,
+    // and closed — a second attempt would duplicate it, not add to it. The
+    // three differ only in what the list re-read showed, which says nothing
+    // about the write.
+    case 'recorded-unverified':
+    case 'recorded-not-reread':
+    case 'rereading':
+      return false;
+    // The server may or may not have applied it. The domain list is the same
+    // authority that would hold the record, and this branch renders only while
+    // the record is absent from it — so a SUCCEEDED re-read, and only that,
+    // re-opens the attempt.
+    case 'unconfirmed':
+    case 'write-unknown':
+      return outcome.listReread;
+  }
+};
 
 const readErrorMessage = (error: unknown): string | null =>
   error instanceof Error ? error.message : null;
