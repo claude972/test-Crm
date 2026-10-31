@@ -2012,3 +2012,12 @@ Reviewer Codex preview_pwa, source `953664bfc6a4d74aefe62c2e37975f707b82663f`, a
 Approuvé dans la portée testée : après STALE et panne réseau, phrase d'échec honnête et édition absente, bouton retry de lecture effectif sans rejeu de mutation ; lecture r2 puis clic humain OFF porte l'id de conversation courant et expectedRevision r2. Le cas réseau précédemment contradictoire est corrigé.
 
 Réserve P2 maintenue, assigned Claude bot owner : runReread vérifie data présente mais ne valide pas le payload de politique ni son id. Contre-épreuve STALE puis data `{hermesConversationBotPolicy:null}` sans erreur : state done, phrases contradictoires « read again » et « could not be read », aucun retry. Le read principal et setMode restent fermés : pas de permission inventée. Utiliser le lecteur de politique et exiger identité/révision utilisables pour done ; sinon failed avec retry. Pas d'approbation globale du traitement des réponses illisibles tant que cette borne reste ouverte. Aucun fichier applicatif modifié par cette revue.
+
+
+### CAT-WA-004 — P2 payload relu et corrigé au SHA 54cecf060
+
+Reviewer Codex preview_pwa : SHA `54cecf0609c13f710297dad1f912c557e7e1c0fe` confirmé présent sur GitHub, arbre Claude propre avant/après. Hook, contrôle et tests figés par git show, aucun fichier applicatif modifié. Le même lecteur canonique et la vérification conversationId servent maintenant aux deux lectures.
+
+5 tests ciblés / 1 suite PASS (~27s), 15 cas non sélectionnés, --detectOpenHandles et sortie normale : 3 contre-épreuves indépendantes null/non-objet/autre fil et 2 cas livrés réseau/retry. Pour chaque payload illisible : édition fermée, pas de message de succès ou de panne réseau inventée, retry READ disponible ; le clic récupère la politique du fil courant sans nouvelle mutation. Trois lectures du bon conversationId et une seule mutation initiale refusée STALE. P2 null/malformed primitif/wrong-id de953 corrigé et approuvé dans cette portée.
+
+Rapport privé `/private/tmp/hermes-review-claude-wa-bot.md`, section de tête54. Aucun build strict global ni recette navigateur/fournisseur réel exécuté par ce recheck. Ne pas déduire un parcours produit complet de cette approbation de code bornée ; root conserve CI finale, intégration, traductions et preview.
