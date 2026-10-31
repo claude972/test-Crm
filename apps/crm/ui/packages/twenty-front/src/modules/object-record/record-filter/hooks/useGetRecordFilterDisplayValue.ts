@@ -1,3 +1,4 @@
+import { translateStandardSelectOptionLabel } from '@/object-metadata/utils/translateStandardSelectOptionLabel';
 import { isNonEmptyString } from '@sniptt/guards';
 import { Temporal } from 'temporal-polyfill';
 
@@ -178,11 +179,18 @@ export const useGetRecordFilterDisplayValue = () => {
 
       const fieldMetadataItemOptions = fieldMetadataItem.options;
 
-      const optionLabels = valueArray.map(
-        (value) =>
-          fieldMetadataItemOptions?.find((option) => option.value === value)
-            ?.label,
-      );
+      const optionLabels = valueArray.map((value) => {
+        const option = fieldMetadataItemOptions?.find(
+          (candidate) => candidate.value === value,
+        );
+
+        return isDefined(option)
+          ? translateStandardSelectOptionLabel({
+              fieldUniversalIdentifier: fieldMetadataItem.universalIdentifier,
+              option,
+            })
+          : undefined;
+      });
 
       return `${optionLabels.join(', ')}`;
     }
