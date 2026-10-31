@@ -2116,3 +2116,10 @@ Cloud41242218708exact8b204 FAIL en8secondes pendantmigrate, artifact13057463629 
 Auteurpreview_pwa repris explicitement via followup_task pour diagnostic de chaque phase préalable/erreur enum et durcissement P2regexERROR contenantLOG ; reviewerbackend_review repris lecture seule. Les messages précédents à un agent idle ne déclenchaient pas de travail ; aucun commit P2 n'avait été produit, arbre0c5propre observé. Répartition exclusive conservée. Ne pas présenter une consigne envoyée comme code actif sans preuve d'action.
 
 DNS toujours absent au contrôle21:22UTC. Configuration VPS préparée seulement, aucun container applicatif démarré. Aucun lien actif.
+
+
+### Préflight TCP et diagnostic livré — 2026-10-31 21:37 UTC
+
+Auteur e844d7666→root52f294f9247b854c15442e3d257c74fe5c6ad005 poussé. Root25testsPASS : diagnosticpréflightnommé/enum/code/clé sans valeur, P2headerERRORcontenantLOGrefusé, DB readiness SMTP/Compose viaTCPauthSELECT1. Rootdiffrelu, reviewerbackend_review repris recheck exact. CloudUNIQUE41244388863source52fencours, pasnouvelimagevalidée ni migrationréussie prétendue.
+
+Seul compose.yaml préparé distant actualisé après vérificationSHA256 de l'ancien3c0f, sauvegarde0600 compose.before-tcp-health.yaml conservée, écriture atomique du nouveau fichier. Env/clefs privées préservés, aucun service démarré. Réelle revalidationComposemerged--quietVPS PASS. DNSAencoreabsent21:37UTC,aucunlienactif.
