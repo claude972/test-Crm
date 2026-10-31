@@ -33,13 +33,24 @@ jobs:
               *) exit 1 ;;
             esac
           done
-      - name: Build exact source without deployment or registry publication
+      - uses: docker/setup-buildx-action@v3
+      - name: Verify requested source identity
         run: |
           test "$(git rev-parse HEAD)" = "$HERMES_SOURCE_SHA"
-          docker build --platform linux/amd64 --target runtime \
-            --build-arg "HERMES_SOURCE_SHA=$HERMES_SOURCE_SHA" \
-            --file infra/hermes-staging/Dockerfile \
-            --tag "$HERMES_STAGING_IMAGE" .
+      - name: Build exact source without deployment or registry publication
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/hermes-staging/Dockerfile
+          target: runtime
+          platforms: linux/amd64
+          build-args: HERMES_SOURCE_SHA=${{ github.sha }}
+          tags: kovaalabcrm-staging:${{ github.sha }}
+          load: true
+          push: false
+          provenance: false
+          cache-from: type=gha,scope=kovaalabcrm-staging
+          cache-to: type=gha,scope=kovaalabcrm-staging,mode=max
       - name: Exercise image against disposable isolated storage
         run: |
           export HERMES_STAGING_REPORT_FILE="$RUNNER_TEMP/kovaalabcrm-image-evidence/smoke.json"
