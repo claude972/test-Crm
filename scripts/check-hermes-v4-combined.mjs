@@ -73,6 +73,9 @@ export const BACKEND_EXTRAS = [
   // en anglais sur un déploiement français.
   "src/engine/core-modules/twenty-config/__tests__/default-locale.config-variable.spec.ts",
   "src/engine/core-modules/user-workspace/__tests__/user-workspace-locale.service.spec.ts",
+  // CJ-01a : passe le bodyTemplate réel de l'éditeur au vrai
+  // compileCampaignEmailContent et exige deux substitutions différentes.
+  "src/modules/emailing/utils/__tests__/campaign-body-round-trip.util.spec.ts",
 ];
 const CONNECTION_ASSERTIONS = [
   "stale-revision-after-advisory-lock-blocks-all-transaction-writes-pool1",
