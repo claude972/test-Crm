@@ -851,3 +851,12 @@ agent: codex preview_pwa ; status: in_progress. Nouveau lot infrastructure optio
 Planrelu /private/tmp/kovaalabcrm-vps-fake-mail-plan.md. FournisseurGreenMail2.1.15digestdéjàvérifié, option/profile OFFpardéfaut, réseauinterneprivéalias.testexact,fixtureaucunport/egress/sharededge, seulsserverworker y rejoignent ; CA/SANTLSvérifiés,safemode/selfsignedfalse/exactallowlist,mountCApubliquelectureseule,secretsprivésstablesindépendants. DossiersDrafts/Sent/Trash viaauthIMAP, aucunseedCRMuser/account/domain/MAILlink. PasdeSMTP/IMAPvrai niDélivrabilitéexterneprétendus. Redéploiementapplivolumes/clefs/image52fconservés,rienautresprojets.
 
 Auteur livretemplates/adapterpréparation/probe/smokecloudborné sansimageapprebuild/pasDockerbuildMac/VPS niSSH,diff/tests/SHApoussérapport. RootreviewetsmokecloudavantactivationVPS. Certificatvaliditébornée7jours,GreenMailmessageséphémèresannoncés,pasSLA ; seulementfictifs.test. RejetwrongCA/SNI/password/autrehostetzerofixtureWANàprouver. RecetteR08/R10parUIaprèsDNS,userAencoreabsent, nepasattendreDNSpourpréparation.
+
+
+## CAT-PWA-NATIVE-NAVIGATION — 2026-10-31 23:07 UTC
+
+agent: codex backend_review ; status: in_progress. Vrai blocage navigateurVPS52f après inscription/créationworkspaceUI : navigationroot/reload→JSONCannotGET/404. ContrepreuveHTTPdocAcceptHTML/SecFetchDestdocument200. CDPdocumentresponsefromServiceWorker=true/status404 ; bypassSWtemporaire rechargeSPA puis retourfalse restaure404. BypassRESTAURÉ,false, pasunfix.
+
+Ownership exclusif backend frontend document-request util/service tests pertinents dans apps/crm/ui/packages/twenty-server/src/engine/core-modules/frontend/**, et script/serviceworker/tests nouveauxuniquementsibesoin+extensionACKroot. Branchefix/kovaalabcrm-pwa-navigation-20261031 base52f294f9247b854c15442e3d257c74fe5c6ad005 ; réutiliserarbreproprepossédéparagent, pasremettreanciens58arbressupprimés. Lireinstructions/configtestsavantcode. Rootgardeintegration/image/CI/preview ; auteurpreview_pwafakemailfichiersdistincts, pasconcurrence.
+
+DiagnosticetfixbornécontratdocumentHTMLnavigationtransmiseparSW, préserverAPIprefixes/methodes/contenttype/Accept/CSP/auth/tenancy, aucunCaddyrewritecontournement niSWdésactivationpermanente. Vraiecontrepreuveenligneavantetaprès, testsducontrat avecmétadonnéesréellesforwardednavigation ; source52fpublique/imagepartiellementrecettéeenattente. Pasnouvellefeature/refactor/pasgrosbuildlocal/secretlogs. LivrerSHAstablepoussétests/rapportrootbeforebuild ; parcoursUInormalSWONdoitpasser.

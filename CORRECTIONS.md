@@ -2167,3 +2167,10 @@ Auteur093ecccb9(8nouveauxfichiers)→rootce1960986 intégré,puisworkfloweef2a09
 Review093 /private/tmp/kovaalabcrm-isolated-mail-093-review.md6PASS maisfindingTTL : guarddansmêmePIDnamespace nepeutgarantirSIGKILLversPID1 ; arrêtJavaTERMcoopératifseulneprouvepashardexpiry. Auteurpreview_pwareprisexplicitementpourfixborné+testTERM-resistant,aucunDocker socket/privileged/hostPID. NEPASactiverproviderVPSavantfixrevu/preuvecloud. BaseSANSoverlayresteOFF ; includefileavecprofileOFFpeutquandmêmeaffecterserverworker,d'oùusageexpliciteuniquement.
 
 DNSauthoritatif22:54vide,HTTPprivéVPShealthPASS. AucunCaddyactif/DNS/providerVPSmodifié,aucuncompteCRMseedé ni fournisseur réel connecté.
+
+
+### DNS/HTTPS et blocage première navigation — 2026-10-31 23:07 UTC
+
+UserconfirmeDNSajouté. Aauthoritatifetpublic=2.24.89.251,AAAAvide. Caddyoriginalhash6dd...etaliasserver/CaddyIPrevérifiés ; candidatvalidéfresh via stdin, ajoutseulhostcrm-recette... sélectionnéatomiquementenpréservantmode664/UID1000/GID1000, reloadgracieuxexit0. Activehashca691... ; aucunautreshostsbytesmodifié. TLSpublicnormalcurlhealth200etvraiepagewelcomeCUAsansVercelPASS. PasdeprotectionVercelaffaiblie.
+
+NOUVEAUcompteSYNTHÉTIQUEetworkspaceAlpha créés100%UI(tab26kovaalabCrmLive,secretcoffre demo-vps-52f.json). Aprèscreateworkspace→/JSON404. Reproduitparreload ; CDPfromServiceWorkertrue. CurlGETdocHTML/200. TemporaireCDPbypassSWtruepourexplicationpuisRESTAURÉfalse ; nepasutilisercelapourdéclarerparcoursréussi. Apppublicpasencorelivréecommeprête. CAT-PWA-NATIVE-NAVIGATIONassignéavantcodepourdiagnostic/fixborné. API/auth/tenancynepasrelâcher.
