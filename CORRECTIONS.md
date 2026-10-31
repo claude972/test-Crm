@@ -2003,3 +2003,12 @@ Mailcd7+4bc reviewindépendante20tests6suitesPASS52SKIPsurtestsfigés ; sourcesa
 Rootf460e9bcf ajoute61entréessourceENcapturéesLinguisansmodifieranciennestraductions, compileEN+61runtimePASS. Root3043bba68 ajoute5IDscontextfieldMetadata.labelEN/FR (contexts distinctsd’ancienslabels) ; vraiscompiledEN/FRdonnentNew/Nouveau,Screening/Présélection,Meeting/Rendez-vous,Proposal/Proposition,Customer/Client. FinPOblankline corrigée0fc86895c,diffcheckclean. HEADroot0fc86895cpoussé,2e1ea52ee filtrepathsCI pouréviterannulationPGàchaqueeditfrontsansretirerleschecks/backend/manualdispatch. NouvelleCIfrontend41221897721sur0fcenpréparation.
 
 CIbase45afSMTPfocused41220549716SUCCESS etcommandeMIGRATIONcommittée41220549745SUCCESS ; combined6abc41219874403SUCCESS, codebackendidentique(maispasdernièreUI). Front6abc41219871359FAIL3fixturesTS2322, correctifsnativestestsoperationName4bc etArrayBuffer9eeintégrés0fc, encoreàvaliderglobalement. AucunP0runtime/Vercelactif, aucuneconnexionfournisseurréelnipreviewlivrée. Ressourcesprudemmentbornées,sourceoriginaleetVM/WIPintacts.
+
+
+### CAT-WA-004 — revue indépendante de 953664bfc
+
+Reviewer Codex preview_pwa, source `953664bfc6a4d74aefe62c2e37975f707b82663f`, arbre Claude propre et non modifié. Contrôle/hook/tests figés par git show dans un harnais privé. 12 tests sélectionnés PASS / 2 suites (5 scénarios livrés rejoués dans deux copies + 2 scénarios indépendants), 18 non sélectionnés, environ 40 secondes. Aucun build ou fournisseur exercé. Rapport privé `/private/tmp/hermes-review-claude-wa-bot.md`, section de tête953.
+
+Approuvé dans la portée testée : après STALE et panne réseau, phrase d'échec honnête et édition absente, bouton retry de lecture effectif sans rejeu de mutation ; lecture r2 puis clic humain OFF porte l'id de conversation courant et expectedRevision r2. Le cas réseau précédemment contradictoire est corrigé.
+
+Réserve P2 maintenue, assigned Claude bot owner : runReread vérifie data présente mais ne valide pas le payload de politique ni son id. Contre-épreuve STALE puis data `{hermesConversationBotPolicy:null}` sans erreur : state done, phrases contradictoires « read again » et « could not be read », aucun retry. Le read principal et setMode restent fermés : pas de permission inventée. Utiliser le lecteur de politique et exiger identité/révision utilisables pour done ; sinon failed avec retry. Pas d'approbation globale du traitement des réponses illisibles tant que cette borne reste ouverte. Aucun fichier applicatif modifié par cette revue.
