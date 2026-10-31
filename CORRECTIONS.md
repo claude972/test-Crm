@@ -2107,3 +2107,12 @@ CI41240923796ca9 FAILUREprécis : artifact13057039212 migrationFailure.command=u
 Auteur0c5eb80e1→root8b204f967234c7a26daf0185009d282cc934b976 poussé : parsing ligne par ligne ANSI/CRLF et fermeture Nest de niveau info bornée après deux lignes statut ; behind/failed/unrecognized/summaryabsent/ERRORrestent refusés. Diagnostic public limité aux compteurs/états enum. Root21testsPASS etdiffrelu ; reviewerbackend_review reprislectureseule0c5. Nouvelle CIIMAGE UNIQUE41242218708 source8b204 enqueued. Pasancienrunrelancé, pasgatesdésactivés niappmodifiée.
 
 DNSA encoreabsent au contrôle du présent point. VPS contient seulement configuration préparée privée et Composevalidé ; aucun conteneur/volume appli/proxy démarré. Aucun lien actif.
+
+
+### Préflight image — 2026-10-31 21:23 UTC
+
+Cloud41242218708exact8b204 FAIL en8secondes pendantmigrate, artifact13057463629 : database-preflight/unknown, pas de commande enfant identifiée. Image/SDKchecksPASS,cleanupPASS. Différent du précédent ca9 upgrade-summary ; aucun statut de base réellement validé par ce run. Pas de conclusion cause avant diagnostic.
+
+Auteurpreview_pwa repris explicitement via followup_task pour diagnostic de chaque phase préalable/erreur enum et durcissement P2regexERROR contenantLOG ; reviewerbackend_review repris lecture seule. Les messages précédents à un agent idle ne déclenchaient pas de travail ; aucun commit P2 n'avait été produit, arbre0c5propre observé. Répartition exclusive conservée. Ne pas présenter une consigne envoyée comme code actif sans preuve d'action.
+
+DNS toujours absent au contrôle21:22UTC. Configuration VPS préparée seulement, aucun container applicatif démarré. Aucun lien actif.
