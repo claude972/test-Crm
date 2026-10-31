@@ -813,4 +813,61 @@ describe('HermesMailboxSetupPanel', () => {
     ).toBeDisabled();
     expect(variablesSpy).not.toHaveBeenCalled();
   });
+
+  // MAIL-REVIEW03: the twin of the domain-panel defect, in the panel whose
+  // write has the worse consequence — nothing here can delete a connected
+  // account. Save was shown on `unconfirmed` and no re-read was offered, so a
+  // write the server accepted but reported nothing usable about could be sent
+  // a second time.
+  it('sends no second creation while the first answer carries no account', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const variablesSpy = jest.fn();
+
+    renderPanel([
+      ...buildAccountsMocks(log),
+      // Accepted-looking reply with no account id: the account may exist.
+      buildSaveMock(variablesSpy, { success: true, connectedAccountId: null }),
+    ]);
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+    await fillCompleteMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    await screen.findByText(/n’est ni confirmé ni infirmé/);
+
+    // Exactly one creation left the client.
+    expect(variablesSpy).toHaveBeenCalledTimes(1);
+
+    // The control is WITHDRAWN, not merely disabled: a disabled button and a
+    // guard that refuses are different claims.
+    expect(
+      screen.queryByRole('button', { name: /Enregistrer la boîte/ }),
+    ).toBeNull();
+
+    const reread = screen.getByRole('button', {
+      name: /Relire la liste des comptes/,
+    });
+
+    const readsBefore = log.count;
+    await user.click(reread);
+
+    // The re-read happened, and still nothing was written a second time.
+    await waitFor(() => {
+      expect(log.count).toBeGreaterThan(readsBefore);
+    });
+    expect(variablesSpy).toHaveBeenCalledTimes(1);
+
+    expect(
+      await screen.findByText(/La liste des comptes a été relue/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Enregistrer la boîte/ }),
+    ).toBeNull();
+  });
 });

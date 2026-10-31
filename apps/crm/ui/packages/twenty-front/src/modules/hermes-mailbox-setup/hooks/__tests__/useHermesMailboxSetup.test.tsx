@@ -39,7 +39,7 @@ const completeFormValues = {
   },
 } as never;
 
-const saveMock: MockedResponse = {
+const buildSaveMock = (connectedAccountId: string | null): MockedResponse => ({
   request: {
     query: SaveImapSmtpCaldavAccountDocument,
     variables: () => true,
@@ -50,11 +50,11 @@ const saveMock: MockedResponse = {
       saveImapSmtpCaldavAccount: {
         __typename: 'ImapSmtpCaldavConnectionSuccess',
         success: true,
-        connectedAccountId: NEW_ACCOUNT_ID,
+        connectedAccountId,
       },
     },
   },
-};
+});
 
 const accountsMock: MockedResponse = {
   request: { query: GET_MY_CONNECTED_ACCOUNTS },
@@ -62,7 +62,7 @@ const accountsMock: MockedResponse = {
   result: { data: { myConnectedAccounts: [] } },
 };
 
-const renderSetup = () => {
+const renderSetup = (saveMock: MockedResponse = buildSaveMock(NEW_ACCOUNT_ID)) => {
   // Each operation's context is recorded on its way out: that is where the
   // retry decision is read from.
   const operations: { name: string; skipRetry: unknown }[] = [];
@@ -139,5 +139,58 @@ describe('useHermesMailboxSetup', () => {
       kind: 'not-sent',
       missing: ['SMTP'],
     });
+  });
+
+  it('refuses a second creation while the first answer carries no account', async () => {
+    // The server accepted the write and returned no usable id, so the account
+    // may exist. This is MAIL-REVIEW03 at the hook, where the guard that
+    // actually refuses lives — a withdrawn button is a separate claim.
+    const { result, operations } = renderSetup(buildSaveMock(null));
+
+    await act(async () => {
+      await result.current.handleSave(completeFormValues);
+    });
+
+    expect(result.current.outcome).toEqual({
+      kind: 'unconfirmed',
+      listReread: false,
+    });
+    expect(result.current.canRetryWrite).toBe(false);
+
+    const savesAfterFirst = operations.filter(
+      (operation) => operation.name === 'SaveImapSmtpCaldavAccount',
+    ).length;
+
+    expect(savesAfterFirst).toBe(1);
+
+    // A second attempt from anywhere must not reach the server.
+    await act(async () => {
+      await result.current.handleSave(completeFormValues);
+    });
+
+    expect(
+      operations.filter(
+        (operation) => operation.name === 'SaveImapSmtpCaldavAccount',
+      ).length,
+    ).toBe(1);
+
+    // The re-read is the one action available, and it writes nothing.
+    await act(async () => {
+      await result.current.retryAccountsRead();
+    });
+
+    expect(result.current.outcome).toEqual({
+      kind: 'unconfirmed',
+      listReread: true,
+    });
+    expect(
+      operations.filter(
+        (operation) => operation.name === 'SaveImapSmtpCaldavAccount',
+      ).length,
+    ).toBe(1);
+
+    // And re-reading never re-authorises the creation: the account may exist,
+    // and nothing here could delete a second one.
+    expect(result.current.canRetryWrite).toBe(false);
   });
 });
