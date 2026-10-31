@@ -706,3 +706,10 @@ Root possède intégration/QA/hosting et coordination ; agent coordination seul 
 - Suivi réel créé dans ce chat : herm-s-terminer-les-parcours-et-recette-du-31-octobre-8-h, actif, reprises aux quarts d'heure jusqu'au compte rendu de08h puis arrêt. Pas de nouvelle session Claude doublon, aucun relais d'un autre projet modifié. Machine maintenue hors veille automatique jusqu'à08:05, app locale à garder ouverte.
 - CJ04 partagé désormais en CJ04a (centre/WA/SMTP/IMAP/comptes/membres, a65175da6d0fb8988) et CJ04b (MCP/intake/Forms/agenda/provenance, a2e482b4f7f1e9560), ownership détaillé par parent avant code ; six agents de code Claude observés, plus leurs recherches délimitées.
 - Bilan attendu : demande R01–R16, route/action utilisable, persistance et preuve d'exécution, source exacte/CI, distinction fournisseurs isolés/réels, limites et accès indispensables explicites. Fournir lien utilisable, compte et durée utile après08h ; ne pas réutiliser l'ancienne preview V4 expirée.
+
+
+### HERMES-COMPLETE-JOURNEYS-20261031 — renfort CJ01a, 31 octobre 04:47 UTC
+
+- agent: claude ; status: in_progress. Parent a réellement démarré `a0e019da4140fa71c` (métadonnées officielles de sous-agent observées), mission « CJ-01a EmailDocument editor round trip », branche `feat/claude-hermes-complete-campaign-body`, worktree dédié annoncé `/private/tmp/hermes-v4-admin-runtime`.
+- Fichiers exclusifs : `HermesCampaignContentSection.tsx`, adaptateur EmailDocument dédié et leurs tests. CJ01 conserve hook runtime/persistance, identité, audience et tests associés ; parent conserve routes/navigation/locales et assemblage. Contrat commun bodyTemplate canonique, aucune édition concurrente de ces fichiers. Avant code, lire les constats CJ-CAMPAIGN-005 à008 et préserver tout état local préexistant.
+- Livraison attendue : vrai éditeur natif, round trip sans perte du document riche, persistance/reload et compilation native du document réellement écrit. Nouvelle délégation réelle Claude, aucun worker Codex supplémentaire ; sept agents de code au total dans cette reprise, hors recherches.
