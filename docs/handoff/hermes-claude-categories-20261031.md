@@ -77,6 +77,43 @@ catalogue et ne le démontre pas ; root l'a dit et c'est exact. Ce qui est étab
 | SHA | Objet | État |
 |---|---|---|
 | `10dada84b` | juger l'éligibilité à la délégation AUTO depuis l'autorité MCP | poussé, non assemblé, non relu |
+| `b48ff0074` | ouvrir un chemin humain explicite vers AUTO par conversation | poussé, non assemblé, non relu |
+
+Autorité d'éligibilité, vérifiée par le parent dans le source :
+
+- **Permission de l'appelant à accorder AUTO : aucune autorité n'existe.** Le seul
+  contrôle est une porte tout-ou-rien, `assertAllowed`, qui lève
+  `ForbiddenException('MESSAGING_REQUIRES_UNRESTRICTED_WORKSPACE_ADMIN')` et garde
+  chaque opération du module. Conséquence énoncée plutôt que masquée : tout appelant
+  qui peut lire la politique peut déjà accorder AUTO. Le lot ne rend donc **rien**
+  sur la permission de l'appelant, au lieu d'inventer un indicateur par grant.
+- **Configuration MCP : autorité réelle, et c'est elle qui garde le contrôle.**
+  Requête `hermesMcpToolSurface`, sans argument, périmètre workspace pris de la
+  session. Éligibilité lue sur deux positifs explicites de l'outil de rédaction,
+  `authorized === true` **et** `callable === true`. La liste `refusals` n'est jamais
+  lue : une liste vide avec `authorized: null` donne inconnu, pas un grant. Une
+  absence d'outil ne vaut absence que si `truncated === false`.
+- `canAutoReply` **n'est pas** un signal d'éligibilité et n'a pas été utilisé comme
+  tel : le serveur ne le met à vrai qu'une fois AUTO déjà actif, donc s'en servir
+  pour offrir AUTO serait circulaire. Et `canDraft` vaut presque `effectiveMode !== 'OFF'`,
+  puisque le bot du registre est enregistré inconditionnellement au démarrage ; il ne
+  prouve rien sur un serveur MCP configuré.
+
+Second défaut trouvé et corrigé, atteignable sans que personne demande AUTO, et
+vérifié par le parent dans le source : la vérification de délégation porte sur le
+mode **effectif** — `result.effectiveMode === 'AUTO' && input.delegateAuto !== true`
+lève `BOT_DELEGATION_REQUIRED` — et `localMode === 'INHERIT' ? 'AUTO' : localMode`
+fait qu'INHERIT contribue AUTO à la résolution. Donc dans une société réglée sur
+AUTO, presser « Suivre la société » était refusé et affiché comme un échec
+technique, sans issue. La délégation n'est **pas** envoyée pour INHERIT ; le refus
+est expliqué et renvoie vers le choix explicite d'AUTO. Cause racine : ces refus
+sont des `ConflictException`, donc `extensions.code === 'CONFLICT'`, que le lecteur
+d'échec ne reconnaissait pas puisqu'il ne traitait que `FORBIDDEN`.
+
+Tests : 27/27 sur les deux suites du lot, et 17/17 de régression sur les deux portes
+d'entrée — la porte mail reste fonctionnelle. Quatre preuves négatives exécutées,
+dont l'inférence du grant depuis `refusals.length` et le relâchement du garde
+`truncated`, chacune faisant rougir exactement le test nommé.
 
 Constat de l'audit tenancy, vérifié dans le source : le tableau `offered` de
 `MessagingInboxBotModeControl.tsx` liste `INHERIT`, `ASSISTED` et `OFF` —
