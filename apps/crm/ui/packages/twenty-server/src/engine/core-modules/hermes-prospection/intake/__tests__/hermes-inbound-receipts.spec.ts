@@ -150,6 +150,7 @@ function fixture(connections?: Record<string, unknown>) {
     notes.push({
       id,
       title: `Form: secret form name`,
+      createdAt: '2026-10-30T14:00:00.000Z',
       bodyV2: { markdown: receiptBody(provider, eventId) },
     });
     return id;
@@ -158,6 +159,37 @@ function fixture(connections?: Record<string, unknown>) {
 }
 
 describe('Hermes inbound receipts list', () => {
+  it.each(['HEYFORM', 'CAL_DIY'])(
+    'does not use a provider timestamp as the receipt time for %s',
+    async (provider) => {
+      const f = fixture();
+      const connectionId =
+        provider === 'HEYFORM' ? formsConnection : calendarConnection;
+      f.add(connectionId, provider, 'delayed-event');
+      f.notes[0].bodyV2 = {
+        markdown: receiptBody(
+          provider,
+          'delayed-event',
+          '2000-01-01T00:00:00.000Z',
+        ),
+      };
+
+      const page = await f.service.listBridgeReceipts(actor);
+
+      expect(page.receipts[0].receivedAt).toBe('2026-10-30T14:00:00.000Z');
+    },
+  );
+
+  it('reports an unknown receipt time instead of substituting the provider clock', async () => {
+    const f = fixture();
+    f.add(formsConnection, 'HEYFORM', 'missing-native-date');
+    delete f.notes[0].createdAt;
+
+    const page = await f.service.listBridgeReceipts(actor);
+
+    expect(page.receipts[0].receivedAt).toBeNull();
+  });
+
   it('lists a form receipt with its canonical identifier and recomputed connection', async () => {
     const f = fixture();
     const noteId = f.add(formsConnection, 'HEYFORM', 'event-42');
@@ -174,7 +206,7 @@ describe('Hermes inbound receipts list', () => {
         bookingUid: null,
         connectionId: formsConnection,
         structureId: A,
-        receivedAt: '2026-10-30T12:00:00.000Z',
+        receivedAt: '2026-10-30T14:00:00.000Z',
         attribution: 'VERIFIED',
       },
     ]);

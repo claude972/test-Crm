@@ -132,6 +132,7 @@ describe('Hermes inbound classification', () => {
     const companyId = randomUUID();
     f.table('note').set(noteIdFor(formsConnection, 'HEYFORM'), {
       id: noteIdFor(formsConnection, 'HEYFORM'),
+      createdAt: '2026-10-30T14:00:00.000Z',
       bodyV2: {
         markdown: `Hermes receipt SHA256 ${'b'.repeat(64)}\n\nSource: HEYFORM\nEvent: ${eventId}\nReported at: 2026-10-30T12:00:00.000Z\n\nSynthetic`,
       },
@@ -154,7 +155,7 @@ describe('Hermes inbound classification', () => {
       connectionId: formsConnection,
       structureId: A,
       eventId,
-      receivedAt: '2026-10-30T12:00:00.000Z',
+      receivedAt: '2026-10-30T14:00:00.000Z',
       attribution: 'VERIFIED',
     });
     expect(result.links).toEqual({
@@ -253,6 +254,27 @@ describe('Hermes inbound classification', () => {
       connectionId: formsConnection,
       attribution: 'EDITED_RECEIPT',
       receivedAt: null,
+    });
+  });
+
+  it('keeps the server receipt time when a note body is edited', async () => {
+    const f = fixture();
+    f.table('note').set(noteIdFor(formsConnection, 'HEYFORM'), {
+      id: noteIdFor(formsConnection, 'HEYFORM'),
+      createdAt: '2026-10-30T14:00:00.000Z',
+      bodyV2: {
+        markdown: 'Rewritten by hand\nReported at: 2000-01-01T00:00:00.000Z',
+      },
+    });
+
+    const result = await f.service.classifyBridgeEvent(actor, {
+      provider: 'HEYFORM',
+      eventId,
+    });
+
+    expect(result.origin).toMatchObject({
+      attribution: 'EDITED_RECEIPT',
+      receivedAt: '2026-10-30T14:00:00.000Z',
     });
   });
 
