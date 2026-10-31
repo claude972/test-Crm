@@ -11,8 +11,11 @@ export const dynamicActivate = async (locale: keyof typeof APP_LOCALES) => {
     console.warn(`Invalid locale "${locale}", defaulting to "en"`);
     locale = SOURCE_LOCALE;
   }
-  const { messages } = await import(`../../locales/generated/${locale}.ts`);
-  i18n.load(locale, messages);
+  const [{ messages: sourceMessages }, { messages }] = await Promise.all([
+    import(`../../locales/generated/${SOURCE_LOCALE}.ts`),
+    import(`../../locales/generated/${locale}.ts`),
+  ]);
+  i18n.load(locale, { ...sourceMessages, ...messages });
   i18n.activate(locale);
 
   document.documentElement.lang = locale;
