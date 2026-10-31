@@ -45,8 +45,9 @@ export class CheckEmailingDomainVerificationCronJob {
   }
 
   private async reprovisionVerifiedWorkspaces(): Promise<void> {
+    const driver = this.emailingDomainDriverFactory.getCurrentDriverType();
     const verifiedDomains = await this.emailingDomainRepository.find({
-      where: { status: EmailingDomainStatus.VERIFIED },
+      where: { status: EmailingDomainStatus.VERIFIED, driver },
       select: ['workspaceId'],
     });
 
@@ -56,7 +57,7 @@ export class CheckEmailingDomainVerificationCronJob {
 
     for (const workspaceId of workspaceIds) {
       await this.emailingDomainDriverFactory
-        .getCurrentDriver()
+        .getDriverForDomain({ driver })
         .provisionWorkspace(workspaceId)
         .catch((error) => {
           this.logger.error(
@@ -68,7 +69,10 @@ export class CheckEmailingDomainVerificationCronJob {
 
   private async refreshUnverifiedDomains(): Promise<void> {
     const unverifiedDomains = await this.emailingDomainRepository.find({
-      where: { status: In(NON_TERMINAL_EMAILING_DOMAIN_STATUSES) },
+      where: {
+        status: In(NON_TERMINAL_EMAILING_DOMAIN_STATUSES),
+        driver: this.emailingDomainDriverFactory.getCurrentDriverType(),
+      },
       select: ['id', 'workspaceId', 'domain'],
     });
 
@@ -91,6 +95,7 @@ export class CheckEmailingDomainVerificationCronJob {
       await this.emailingDomainRepository.find({
         where: {
           status: EmailingDomainStatus.VERIFIED,
+          driver: this.emailingDomainDriverFactory.getCurrentDriverType(),
           unsubscribeHostnameStatus: UnsubscribeHostnameStatus.PENDING,
         },
         select: ['id', 'workspaceId'],

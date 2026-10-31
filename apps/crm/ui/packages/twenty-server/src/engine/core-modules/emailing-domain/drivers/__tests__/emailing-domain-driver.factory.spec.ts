@@ -93,6 +93,29 @@ describe('campaigns leave through the mailbox registered in the connection centr
       Buffer.from(emailAddress).toString('base64url'),
   } as unknown as UnsubscribeTokenService);
 
+  it('refuses verifying or registering an unrelated domain with the registered mailbox', async () => {
+    const provider = new EmailingDomainMailboxTransportProvider(smtpClient(), {
+      resolve: async () => resolvedConnection(),
+    } as never);
+    const driver = new SmtpEmailingDomainDriver(
+      ENVIRONMENT_CONNECTIONS,
+      'https://crm.example.test',
+      unsubscribe,
+      provider,
+    );
+    const resource = {
+      workspaceId: WORKSPACE_ID,
+      domain: 'unrelated.example.test',
+    };
+    await expect(driver.verifyDomain(resource)).rejects.toMatchObject({
+      code: EmailingDomainDriverExceptionCode.CONFIGURATION_ERROR,
+    });
+    await expect(driver.registerDomain(resource)).rejects.toMatchObject({
+      code: EmailingDomainDriverExceptionCode.CONFIGURATION_ERROR,
+    });
+    expect(getClient).not.toHaveBeenCalled();
+  });
+
   beforeEach(() => {
     sendMail = jest.fn().mockResolvedValue({
       messageId: '<stub@sender.example.test>',

@@ -83,7 +83,7 @@ export class EmailingDomainSenderService {
     };
 
     return this.emailingDomainDriverFactory
-      .getCurrentDriver()
+      .getDriverForDomain(emailingDomain)
       .sendEmail(emailToSend);
   }
 
@@ -146,7 +146,7 @@ export class EmailingDomainSenderService {
     );
 
     const { entries } = await this.emailingDomainDriverFactory
-      .getCurrentDriver()
+      .getDriverForDomain(emailingDomain)
       .sendEmailBatch({
         sendKind,
         workspaceId,

@@ -73,7 +73,11 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
 
   async registerDomain(input: EmailingDomainResourceInput): Promise<void> {
     if (this.registeredMailbox) {
-      await this.registeredMailbox.authorize(input.workspaceId, null);
+      const mailbox = await this.registeredMailbox.authorize(
+        input.workspaceId,
+        null,
+      );
+      this.assertMailboxDomain(mailbox, input.domain);
 
       return;
     }
@@ -367,6 +371,17 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
     }
   }
 
+  private assertMailboxDomain(
+    mailbox: AuthorizedMailbox,
+    domain: string,
+  ): void {
+    if (
+      mailbox.address.split('@').pop()?.toLowerCase() !== domain.toLowerCase()
+    ) {
+      throw this.configurationError();
+    }
+  }
+
   private getConnection(
     input: EmailingDomainResourceInput,
   ): HermesSmtpConnection {
@@ -391,6 +406,7 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
         input.workspaceId,
         fromAddress,
       );
+      this.assertMailboxDomain(mailbox, input.domain);
       const cached = this.transports.get(mailbox.cacheKey);
 
       if (cached) return cached;
