@@ -8,6 +8,7 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 import { HermesMetricValue } from '@/hermes-shell/dashboard/components/HermesMetricValue';
 import { useHermesRecordCount } from '@/hermes-shell/dashboard/hooks/useHermesRecordCount';
 import { type FieldMetadataItemOption } from '@/object-metadata/types/FieldMetadataItem';
+import { translateStandardSelectOptionLabel } from '@/object-metadata/utils/translateStandardSelectOptionLabel';
 
 const StyledStage = styled.div`
   border: 1px solid ${themeCssVariables.border.color.medium};
@@ -25,6 +26,7 @@ type HermesPipelineStageProps = {
   objectMetadataId: string;
   objectNameSingular: string;
   stageFieldName: string;
+  stageFieldUniversalIdentifier?: string | null;
   option: FieldMetadataItemOption;
 };
 
@@ -32,6 +34,7 @@ export const HermesPipelineStage = ({
   objectMetadataId,
   objectNameSingular,
   stageFieldName,
+  stageFieldUniversalIdentifier,
   option,
 }: HermesPipelineStageProps) => {
   const filter = useMemo<RecordGqlOperationFilter>(
@@ -49,13 +52,11 @@ export const HermesPipelineStage = ({
     <StyledStage>
       {/* The stage name is inside the tag, so the stage is identified by its
           own words and not by the colour the workspace chose for it. */}
-      <Tag
-        color={option.color}
-        variant="soft"
-        weight="medium"
-        truncate={false}
-      >
-        {option.label}
+      <Tag color={option.color} variant="soft" weight="medium" truncate={false}>
+        {translateStandardSelectOptionLabel({
+          fieldUniversalIdentifier: stageFieldUniversalIdentifier,
+          option,
+        })}
       </Tag>
       <HermesMetricValue metric={metric} />
     </StyledStage>

@@ -148,6 +148,9 @@ export const HermesPipelineSection = () => {
                 objectMetadataId={opportunityObjectMetadataItem.id}
                 objectNameSingular={opportunityObjectMetadataItem.nameSingular}
                 stageFieldName={stageFieldMetadataItem.name}
+                stageFieldUniversalIdentifier={
+                  stageFieldMetadataItem.universalIdentifier
+                }
                 option={option}
               />
             </StyledStageSlot>
