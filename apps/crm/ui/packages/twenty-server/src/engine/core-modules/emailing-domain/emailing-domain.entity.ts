@@ -1,4 +1,4 @@
-import { ObjectType } from '@nestjs/graphql';
+import { HideField, ObjectType } from '@nestjs/graphql';
 
 import {
   Column,
@@ -24,7 +24,11 @@ import {
 
 @Entity({ name: 'emailingDomain', schema: 'core' })
 @ObjectType('EmailingDomain')
-@Unique('IDX_EMAILING_DOMAIN_WORKSPACE_DRIVER_UNIQUE', ['workspaceId', 'domain', 'driver'])
+@Unique('IDX_EMAILING_DOMAIN_WORKSPACE_DRIVER_UNIQUE', [
+  'workspaceId',
+  'domain',
+  'driver',
+])
 @Index('IDX_EMAILING_DOMAIN_GLOBAL_DOMAIN_UNIQUE', ['domain'], {
   unique: true,
   where: `"driver" <> 'SMTP'`,
@@ -47,6 +51,7 @@ export class EmailingDomainEntity extends WorkspaceRelatedEntity {
     enum: EMAILING_DOMAIN_PROVENANCE_VALUES,
     default: LEGACY_GLOBAL_EMAILING_DRIVER,
   })
+  @HideField()
   driver: EmailingDomainDriverProvenance;
 
   @Column({

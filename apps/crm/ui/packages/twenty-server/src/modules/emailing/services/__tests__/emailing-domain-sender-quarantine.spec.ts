@@ -56,7 +56,7 @@ const setup = (blocked: string[] = []) => {
           tenantStatus: 'ACTIVE',
         }),
     } as never,
-    { getCurrentDriver: () => driver } as never,
+    { getDriverForDomain: () => driver } as never,
     { findApplicableSuppressions } as never,
     { findOne: jest.fn().mockResolvedValue(null) } as never,
   );

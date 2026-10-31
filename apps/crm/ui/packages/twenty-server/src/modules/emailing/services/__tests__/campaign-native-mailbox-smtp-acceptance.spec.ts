@@ -259,7 +259,7 @@ describe('Campaign send from the natively registered mailbox, captured by an iso
           unsubscribeHostnameStatus: 'ACTIVE',
         })),
       } as never,
-      { getCurrentDriver: () => driver } as never,
+      { getDriverForDomain: () => driver } as never,
       {
         findApplicableSuppressions: jest.fn(async () => []),
         findTrackingOptedOutEmailAddresses: jest.fn(async () => new Set()),

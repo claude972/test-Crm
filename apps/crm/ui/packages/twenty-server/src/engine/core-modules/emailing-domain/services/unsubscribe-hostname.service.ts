@@ -1,3 +1,4 @@
+import { EmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-driver.type';
 /* @license Enterprise */
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -29,6 +30,13 @@ export class UnsubscribeHostnameService {
   ) {}
 
   async provision(emailingDomain: EmailingDomainEntity): Promise<void> {
+    if (emailingDomain.driver === EmailingDomainDriver.SMTP) {
+      await this.useServerHostname(
+        emailingDomain.workspaceId,
+        emailingDomain.id,
+      );
+      return;
+    }
     if (isNonEmptyString(emailingDomain.unsubscribeHostnameId)) {
       return;
     }
@@ -72,6 +80,13 @@ export class UnsubscribeHostnameService {
   }
 
   async refreshStatus(emailingDomain: EmailingDomainEntity): Promise<void> {
+    if (emailingDomain.driver === EmailingDomainDriver.SMTP) {
+      await this.useServerHostname(
+        emailingDomain.workspaceId,
+        emailingDomain.id,
+      );
+      return;
+    }
     if (!isNonEmptyString(emailingDomain.unsubscribeHostname)) {
       return;
     }
@@ -92,6 +107,7 @@ export class UnsubscribeHostnameService {
   }
 
   async deprovision(emailingDomain: EmailingDomainEntity): Promise<void> {
+    if (emailingDomain.driver === EmailingDomainDriver.SMTP) return;
     if (
       !this.dnsManagerService.isConfigured() ||
       !isNonEmptyString(emailingDomain.unsubscribeHostname)
@@ -110,7 +126,14 @@ export class UnsubscribeHostnameService {
     { provision }: { provision: boolean },
   ): Promise<void> {
     try {
-      if (!this.dnsManagerService.isConfigured()) {
+      const snapshot = await this.emailingDomainRepository.findOneOrFail(
+        workspaceId,
+        { where: { id: emailingDomainId } },
+      );
+      if (
+        snapshot.driver === EmailingDomainDriver.SMTP ||
+        !this.dnsManagerService.isConfigured()
+      ) {
         await this.useServerHostname(workspaceId, emailingDomainId);
 
         return;
@@ -159,6 +182,7 @@ export class UnsubscribeHostnameService {
     emailingDomain: EmailingDomainEntity,
   ): Promise<VerificationRecord[]> {
     if (
+      emailingDomain.driver === EmailingDomainDriver.SMTP ||
       !this.dnsManagerService.isConfigured() ||
       !isNonEmptyString(emailingDomain.unsubscribeHostname)
     ) {

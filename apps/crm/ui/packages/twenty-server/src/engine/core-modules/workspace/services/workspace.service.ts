@@ -837,6 +837,10 @@ export class WorkspaceService {
               domains: emailingDomains.map(
                 (emailingDomain) => emailingDomain.domain,
               ),
+              resources: emailingDomains.map(({ domain, driver }) => ({
+                domain,
+                driver,
+              })),
             },
           );
 

@@ -1,3 +1,4 @@
+import { EmailingDomainDriverFactory } from 'src/engine/core-modules/emailing-domain/drivers/emailing-domain-driver.factory';
 import { Injectable } from '@nestjs/common';
 
 import { msg } from '@lingui/core/macro';
@@ -67,6 +68,7 @@ export class MessageCampaignService {
     private readonly throttlerService: ThrottlerService,
     private readonly emailBillingService: EmailBillingService,
     private readonly i18nService: I18nService,
+    private readonly emailingDomainDriverFactory: EmailingDomainDriverFactory,
   ) {}
 
   async send({
@@ -433,6 +435,7 @@ export class MessageCampaignService {
       {
         where: {
           domain: getDomainFromEmail(fromAddress)?.toLowerCase(),
+          driver: this.emailingDomainDriverFactory.getCurrentDriverType(),
           status: EmailingDomainStatus.VERIFIED,
         },
       },

@@ -1,3 +1,8 @@
+import { type EmailingDomainEntity } from 'src/engine/core-modules/emailing-domain/emailing-domain.entity';
+import {
+  EmailingDomainDriverException,
+  EmailingDomainDriverExceptionCode,
+} from 'src/engine/core-modules/emailing-domain/drivers/exceptions/emailing-domain-driver.exception';
 import { Injectable } from '@nestjs/common';
 
 import { isNonEmptyString } from '@sniptt/guards';
@@ -50,6 +55,18 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
     this.emailGroupAccessService.validateEmailGroupAccessOrThrow();
 
     return super.getCurrentDriver();
+  }
+
+  getDriverForDomain(
+    domain: Pick<EmailingDomainEntity, 'driver'>,
+  ): EmailingDomainDriverInterface {
+    if (domain.driver !== this.getCurrentDriverType()) {
+      throw new EmailingDomainDriverException(
+        'Emailing domain provider provenance does not match the configured driver',
+        EmailingDomainDriverExceptionCode.CONFIGURATION_ERROR,
+      );
+    }
+    return this.getCurrentDriver();
   }
 
   getCurrentDriverType(): EmailingDomainDriver {
