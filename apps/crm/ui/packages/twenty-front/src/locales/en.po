@@ -38804,3 +38804,34 @@ msgstr "Whether this conversation can be handed to the bot is unknown: {why}. Th
 #: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
 msgid "you are not allowed to read the bot server's configuration"
 msgstr "you are not allowed to read the bot server's configuration"
+
+#. js-lingui-id: 34/Ymp
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Customer"
+msgstr "Customer"
+
+#. js-lingui-id: dTYtQr
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Meeting"
+msgstr "Meeting"
+
+#. js-lingui-id: 1NsPsQ
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "New"
+msgstr "New"
+
+#. js-lingui-id: IBJ/4j
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Proposal"
+msgstr "Proposal"
+
+#. js-lingui-id: SiXwZL
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Screening"
+msgstr "Screening"
+

@@ -38809,3 +38809,34 @@ msgstr "La délégation au bot reste indéterminée : {why}. Ce choix sera propo
 #: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
 msgid "you are not allowed to read the bot server's configuration"
 msgstr "vous n’avez pas le droit de lire la configuration du serveur de bot"
+
+#. js-lingui-id: 34/Ymp
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Customer"
+msgstr "Client"
+
+#. js-lingui-id: dTYtQr
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Meeting"
+msgstr "Rendez-vous"
+
+#. js-lingui-id: 1NsPsQ
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "New"
+msgstr "Nouveau"
+
+#. js-lingui-id: IBJ/4j
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Proposal"
+msgstr "Proposition"
+
+#. js-lingui-id: SiXwZL
+#: src/modules/object-metadata/constants/StandardSelectOptionLabels.ts
+msgctxt "fieldMetadata.label"
+msgid "Screening"
+msgstr "Présélection"
+
