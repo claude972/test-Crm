@@ -431,10 +431,11 @@ describe('HermesMailboxSetupPanel', () => {
     expect(onBindMail).not.toHaveBeenCalled();
   });
 
-  it('reports a transport failure without claiming the mailbox was saved', async () => {
+  it('treats a lost response as unknown, withholds a second send and offers only a re-read', async () => {
     const user = userEvent.setup();
     const log: AccountsReadLog = { count: 0 };
     const onBindMail = jest.fn();
+    const saveSpy = jest.fn();
 
     renderPanel(
       [
@@ -442,7 +443,10 @@ describe('HermesMailboxSetupPanel', () => {
         {
           request: {
             query: SaveImapSmtpCaldavAccountDocument,
-            variables: () => true,
+            variables: (variables) => {
+              saveSpy(variables);
+              return true;
+            },
           },
           maxUsageCount: 10,
           error: new Error('socket hang up'),
@@ -461,11 +465,112 @@ describe('HermesMailboxSetupPanel', () => {
     );
 
     const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent(/socket hang up/);
+    // A dropped response does not prove a refusal: the server may have applied
+    // the write, so claiming nothing was written would invite a duplicate.
+    expect(alert).toHaveTextContent(
+      /nous ne savons pas si la boîte a été enregistrée/,
+    );
+    expect(alert).toHaveTextContent(/Ne la recréez pas/);
+    expect(alert.textContent).not.toMatch(/Rien n’a été écrit|a refusé/);
     expect(enqueueToast).toHaveBeenCalled();
     expect(onBindMail).not.toHaveBeenCalled();
-    // Nothing is presented as saved, so the form keeps what was typed.
-    expect(screen.getByLabelText(/IMAP Server/i)).toHaveValue(IMAP_HOST);
+
+    // No way to send again is offered at all.
+    expect(
+      screen.queryByRole('button', { name: /Enregistrer la boîte/ }),
+    ).not.toBeInTheDocument();
+
+    // The only recovery re-reads, and writes nothing more.
+    await user.click(
+      screen.getByRole('button', { name: /Relire la liste des comptes/ }),
+    );
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        /La liste des comptes a été relue/,
+      );
+    });
+    expect(saveSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a GraphQL refusal a refusal, apart from a lost response', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const onBindMail = jest.fn();
+
+    renderPanel(
+      [
+        ...buildAccountsMocks(log),
+        {
+          request: {
+            query: SaveImapSmtpCaldavAccountDocument,
+            variables: () => true,
+          },
+          maxUsageCount: 10,
+          // The server answered and declined: that IS a refusal.
+          result: { errors: [{ message: 'hôte SMTP interdit' }] },
+        },
+      ],
+      onBindMail,
+    );
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+    await fillMinimalMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/a refusé l’enregistrement/);
+    expect(alert.textContent).not.toMatch(
+      /nous ne savons pas si la boîte a été enregistrée/,
+    );
+    expect(onBindMail).not.toHaveBeenCalled();
+    // A pronounced refusal may be corrected and sent again.
+    expect(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not let a throwing consumer rewrite the server’s verdict', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const onBindMail = jest.fn(() => {
+      throw new Error('le centre a échoué à lier MAIL');
+    });
+
+    renderPanel(
+      [
+        ...buildAccountsMocks(log),
+        buildSaveMock(jest.fn(), {
+          success: true,
+          connectedAccountId: NEW_ACCOUNT_ID,
+        }),
+      ],
+      onBindMail,
+    );
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+    await fillMinimalMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    await waitFor(() => {
+      expect(onBindMail).toHaveBeenCalledWith(NEW_ACCOUNT_ID);
+    });
+
+    // The write was accepted. A listener blowing up afterwards is its own
+    // failure and must not turn the acceptance into a refusal.
+    const note = await screen.findByRole('status');
+    expect(note).toHaveTextContent(/enregistrée, non vérifiée/);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(enqueueToast).toHaveBeenCalled();
   });
 
   it('says what the native « Name » field becomes, since its placeholder suggests a person', async () => {

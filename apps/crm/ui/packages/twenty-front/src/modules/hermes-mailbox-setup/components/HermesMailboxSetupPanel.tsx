@@ -184,17 +184,42 @@ export const HermesMailboxSetupPanel = ({
           </HermesAdminNote>
         )}
 
+        {outcome.kind === 'write-unknown' && (
+          <HermesAdminNote role="alert">
+            {outcome.listReread
+              ? t`La réponse ne nous est pas parvenue : nous ne savons pas si la boîte a été enregistrée. La liste des comptes a été relue — si la boîte y figure, l’enregistrement a bien eu lieu.`
+              : t`La réponse ne nous est pas parvenue : nous ne savons pas si la boîte a été enregistrée. Ne la recréez pas — relisez la liste des comptes pour voir si elle y figure.`}
+          </HermesAdminNote>
+        )}
+
         <StyledActions>
-          <Button
-            type="button"
-            variant="solid"
-            size="sm"
-            loading={loading}
-            disabled={!canSave || loading}
-            onClick={handleSubmit((data) => handleSave(data))}
-          >
-            {t`Enregistrer la boîte`}
-          </Button>
+          {/* A write whose answer was lost may have been applied, so sending
+              again is withheld rather than offered: the recovery is a re-read. */}
+          {outcome.kind !== 'write-unknown' && (
+            <Button
+              type="button"
+              variant="solid"
+              size="sm"
+              loading={loading}
+              disabled={!canSave || loading}
+              onClick={handleSubmit((data) => handleSave(data))}
+            >
+              {t`Enregistrer la boîte`}
+            </Button>
+          )}
+
+          {outcome.kind === 'write-unknown' && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void retryAccountsRead();
+              }}
+            >
+              {t`Relire la liste des comptes`}
+            </Button>
+          )}
           <Button
             type="button"
             variant="outline"
