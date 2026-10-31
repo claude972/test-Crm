@@ -794,3 +794,11 @@ Complément ownership CAT-BACKEND-SMTP-SHARED (ACK root avant édition) : seules
 ### CAT-SMTP-MIGRATION / root Codex — 31 octobre16:12UTC
 
 agent: codex root ; status: in_progress. Fichiers exclusifs nouveaux scripts/check-hermes-smtp-domain-migration-ci.mjs et tests, .github/workflows/hermes-smtp-domain-migration.yml, puis seule commande générée 2-52 et inscription manifeste après revue du vrai générateur cloud. Base90f, entité/checkpoint agent addb50143 à intégrer sans ses WIP. Baseline exacte90f dans checkout GitHub jetable, PG16p0_ci/Redis, setup/upgrade natifs, preuve dérive JSONB sémantique réutilisée strictement, aucune synchronisation ni DDL rédigée à la main présentée générée. N'accepter que colonne enumdriver et indexes emailingDomain, up/down/up réel puis comparaison metadata, aucun service réel. Agentbackend_review garde application/tests/domaines/cleanup/guards ; root ne les édite pas. Préparation peut précéder appcodefinal, aucune livraison finale déduite.
+
+
+### CAT-WA-005 — transfert exclusif à Codex, 31 octobre 16:42 UTC
+
+- Parent Claude a confirmé le gel à 16:41:38 UTC ; auteur Codex preview_pwa, état in_progress. Root supervise et intégrera après revue. Claude conserve les fichiers bot STALE et la fixture Opus.
+- Worktree neuf `/private/tmp/hermes-wa-upload-recovery`, branche `fix/hermes-wa-upload-identity-20261031`, base poussée `9eea9c8ed7b01846fb7e3046669c41ef4a4af066` (ba35 + correction des tampons de fixture TypeScript). Aucun WIP Claude repris ou modifié.
+- Fichiers exclusifs : HermesWaRuntimeComposer.tsx, useHermesWaMediaUpload.ts, HermesWaRuntimeComposer.test.tsx ; extension autorisée de useHermesWaMediaUpload.test.tsx pour vérifier acceptation synchrone, reset et annulation. Pas d'édition bot/fixture Opus ni d'autre lot.
+- Correction attendue : seule une tentative réellement acceptée par le hook peut devenir uploadedSource ; une demande B rejetée pendant A ne doit pas rendre A envoyable sous l'aperçu B. Tests du vrai compositeur avec choix B + clic upload B pendant A, changement après READY, fichier/vocal et réponses tardives après reset/annulation. Aucun build lourd ni base locale ; tests ciblés et checkpoint poussé pour revue.
