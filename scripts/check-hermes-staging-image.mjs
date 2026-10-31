@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'no
 import path from 'node:path';
 import net from 'node:net';
 import { fileURLToPath } from 'node:url';
-import { MIGRATION_COMMANDS, FAILURE_CATEGORIES } from '../infra/hermes-staging/entrypoint.mjs';
+import { MIGRATION_COMMANDS, FAILURE_CATEGORIES, PREFLIGHT_STAGES, ERROR_NAMES, ERROR_CODES, VALIDATION_KEYS } from '../infra/hermes-staging/entrypoint.mjs';
 
 const POSTGRES_IMAGE = 'postgres:16-bookworm@sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938';
 const REDIS_IMAGE = 'redis:7-bookworm@sha256:b6b6e3dc0c0952737748e55d5d885272840c7e42ba41ab1d5489f693419882f5';
@@ -21,6 +21,11 @@ export function readMigrationDiagnostic(output, secrets) {
     const result = { action: 'migrate', command: value.command, category: value.category };
     if (Number.isInteger(value.exitCode) && value.exitCode >= 0 && value.exitCode <= 255) result.exitCode = value.exitCode;
     if (['APP_VERSION', 'PG_DATABASE_URL', 'REDIS_URL', 'APP_SECRET', 'ENCRYPTION_KEY', 'SERVER_URL', 'FRONTEND_URL', 'STORAGE_TYPE', 'STORAGE_LOCAL_PATH'].includes(value.configKey)) result.configKey = value.configKey;
+    if (PREFLIGHT_STAGES.includes(value.preflightStage)) result.preflightStage = value.preflightStage;
+    if (ERROR_NAMES.includes(value.errorName)) result.errorName = value.errorName;
+    if (ERROR_CODES.includes(value.errorCode)) result.errorCode = value.errorCode;
+    if (VALIDATION_KEYS.includes(value.validationKey)) result.validationKey = value.validationKey;
+    if (value.reason === 'unowned-or-partial-database') result.reason = value.reason;
     const status = value.upgradeStatus;
     if (status && ['up-to-date', 'behind', 'failed', 'unrecognized'].includes(status.instanceHealth) && Number.isSafeInteger(status.summaryCount) && status.summaryCount >= 0 && Number.isSafeInteger(status.unexpectedLineCount) && status.unexpectedLineCount >= 0 && typeof status.noWorkspaces === 'boolean' && typeof status.retrievalFailed === 'boolean') {
       result.upgradeStatus = { summaryCount: status.summaryCount, instanceHealth: status.instanceHealth, noWorkspaces: status.noWorkspaces, retrievalFailed: status.retrievalFailed, unexpectedLineCount: status.unexpectedLineCount };
@@ -106,7 +111,8 @@ export async function smoke(environment) {
     docker(['run', '--detach', '--name', database, '--network', dataNetwork, '--network-alias', 'db', '--memory', '1g', '--cpus', '1', '--env-file', postgresEnv, '--mount', `type=volume,src=${postgresVolume},dst=/var/lib/postgresql/data`, POSTGRES_IMAGE]);
     containers.push(redis);
     docker(['run', '--detach', '--name', redis, '--network', dataNetwork, '--network-alias', 'redis', '--memory', '256m', '--cpus', '0.5', '--env-file', redisEnv, '--mount', `type=volume,src=${redisVolume},dst=/data`, '--entrypoint', '/bin/sh', REDIS_IMAGE, '-ec', 'exec /usr/local/bin/docker-entrypoint.sh redis-server --requirepass "$REDIS_PASSWORD" --appendonly yes --maxmemory 192mb --maxmemory-policy noeviction']);
-    await wait(() => docker(['exec', database, 'pg_isready', '-U', 'kovaalabcrm', '-d', 'kovaalabcrm_staging']).includes('accepting connections'));
+    const databaseReady = () => docker(['exec', database, '/bin/sh', '-ec', 'PGPASSWORD="$POSTGRES_PASSWORD" psql -h 127.0.0.1 -p 5432 -U kovaalabcrm -d kovaalabcrm_staging -v ON_ERROR_STOP=1 -Atqc "SELECT 1"']) === '1';
+    await wait(databaseReady);
     const redisCommand = (args) => docker(['exec', redis, '/bin/sh', '-ec', `REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli ${args}`]);
     await wait(() => redisCommand('ping') === 'PONG');
     const listener = net.createServer();
@@ -164,7 +170,7 @@ export async function smoke(environment) {
     const storageProbe = `const fs=require('node:fs');const p='.local-storage/.packaging-probe';fs.writeFileSync(p,'retained');`;
     docker(['exec', server, 'node', '-e', storageProbe]);
     docker(['stop', '--time', '20', worker, server], 60_000); docker(['restart', database, redis]);
-    await wait(() => docker(['exec', database, 'pg_isready', '-U', 'kovaalabcrm']).includes('accepting connections'));
+    await wait(databaseReady);
     await wait(() => redisCommand('ping') === 'PONG');
     assert.equal(sql('SELECT id FROM public.kovaalabcrm_packaging_probe'), '1');
     assert.equal(redisCommand('GET kovaalabcrm-packaging-probe'), 'retained');

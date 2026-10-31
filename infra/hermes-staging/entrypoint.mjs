@@ -4,38 +4,40 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const SERVER_DIRECTORY = '/app/packages/twenty-server';
+export const VALIDATION_KEYS = Object.freeze(['PG_DATABASE_URL', 'REDIS_URL', 'REDIS_QUEUE_PREFIX', 'REDIS_CACHE_PREFIX', 'APP_SECRET', 'ENCRYPTION_KEY', 'SERVER_URL', 'FRONTEND_URL', 'STORAGE_TYPE', 'STORAGE_LOCAL_PATH', 'OUTBOUND_HTTP_SAFE_MODE_ENABLED', 'IMAP_SMTP_ALLOW_SELF_SIGNED', 'SIGN_IN_PREFILLED', 'APP_VERSION', 'KOVAALABCRM_STAGING_SOURCE_SHA', 'KOVAALABCRM_ALLOW_STAGING_MIGRATIONS']);
+function validate(key, check) {
+  try { return check(); } catch (error) { error.stagingValidationKey = key; throw error; }
+}
 export function validateEnvironment(environment) {
-  const postgres = new URL(environment.PG_DATABASE_URL);
-  assert.ok(['postgres:', 'postgresql:'].includes(postgres.protocol));
-  assert.equal(postgres.pathname, '/kovaalabcrm_staging', 'Only the dedicated staging database may be used');
-  assert.equal(postgres.hostname, 'db', 'Only the private Compose database alias is accepted');
-  assert.ok(postgres.hostname && postgres.username && decodeURIComponent(postgres.password).length >= 32);
-  assert.equal(postgres.search, '', 'Database connection overrides are not allowed');
-  const redis = new URL(environment.REDIS_URL);
-  assert.equal(redis.protocol, 'redis:');
-  assert.equal(redis.hostname, 'redis', 'Only the private Compose Redis alias is accepted');
-  assert.equal(environment.REDIS_QUEUE_PREFIX, 'kovaalabcrm-staging');
-  assert.equal(environment.REDIS_CACHE_PREFIX, 'kovaalabcrm-staging');
-  assert.ok(redis.hostname && decodeURIComponent(redis.password).length >= 32, 'Dedicated Redis credentials are required');
-  assert.ok(['', '/0'].includes(redis.pathname));
-  assert.equal(redis.search, '');
-  for (const key of ['APP_SECRET', 'ENCRYPTION_KEY']) assert.match(environment[key] ?? '', /^[a-f0-9]{64}$/, `${key} must be a persistent 32-byte hex key`);
-  const server = new URL(environment.SERVER_URL);
-  const frontend = new URL(environment.FRONTEND_URL);
-  assert.equal(server.origin, frontend.origin, 'Frontend and API must use one origin');
-  for (const origin of [server, frontend]) {
-    assert.equal(origin.username + origin.password + origin.search + origin.hash, '');
-    assert.equal(origin.pathname, '/');
-  }
+  validate('PG_DATABASE_URL', () => {
+    const postgres = new URL(environment.PG_DATABASE_URL);
+    assert.ok(['postgres:', 'postgresql:'].includes(postgres.protocol));
+    assert.equal(postgres.pathname, '/kovaalabcrm_staging');
+    assert.equal(postgres.hostname, 'db');
+    assert.ok(postgres.username && decodeURIComponent(postgres.password).length >= 32);
+    assert.equal(postgres.search, '');
+  });
+  validate('REDIS_URL', () => {
+    const redis = new URL(environment.REDIS_URL);
+    assert.equal(redis.protocol, 'redis:'); assert.equal(redis.hostname, 'redis');
+    assert.ok(decodeURIComponent(redis.password).length >= 32);
+    assert.ok(['', '/0'].includes(redis.pathname)); assert.equal(redis.search, '');
+  });
+  for (const key of ['REDIS_QUEUE_PREFIX', 'REDIS_CACHE_PREFIX']) validate(key, () => assert.equal(environment[key], 'kovaalabcrm-staging'));
+  for (const key of ['APP_SECRET', 'ENCRYPTION_KEY']) validate(key, () => assert.match(environment[key] ?? '', /^[a-f0-9]{64}$/));
+  const server = validate('SERVER_URL', () => new URL(environment.SERVER_URL));
+  const frontend = validate('FRONTEND_URL', () => new URL(environment.FRONTEND_URL));
+  validate('FRONTEND_URL', () => assert.equal(server.origin, frontend.origin));
+  for (const [key, origin] of [['SERVER_URL', server], ['FRONTEND_URL', frontend]]) validate(key, () => {
+    assert.equal(origin.username + origin.password + origin.search + origin.hash, ''); assert.equal(origin.pathname, '/');
+  });
   const isolatedSmoke = environment.KOVAALABCRM_STAGING_SMOKE === 'true' && environment.GITHUB_ACTIONS === 'true';
-  assert.ok(server.protocol === 'https:' || (isolatedSmoke && server.protocol === 'http:' && server.hostname === '127.0.0.1'), 'Public staging requires HTTPS');
-  assert.equal(environment.STORAGE_TYPE, 'local');
-  assert.equal(environment.STORAGE_LOCAL_PATH, `${SERVER_DIRECTORY}/.local-storage`);
-  assert.equal(environment.OUTBOUND_HTTP_SAFE_MODE_ENABLED ?? 'true', 'true');
-  assert.equal(environment.IMAP_SMTP_ALLOW_SELF_SIGNED ?? 'false', 'false');
-  assert.equal(environment.SIGN_IN_PREFILLED ?? 'false', 'false');
-  assert.equal(environment.APP_VERSION, '2.52.0', 'Native migration version must match this source');
-  assert.match(environment.KOVAALABCRM_STAGING_SOURCE_SHA ?? '', /^[a-f0-9]{40}$/);
+  validate('SERVER_URL', () => assert.ok(server.protocol === 'https:' || (isolatedSmoke && server.protocol === 'http:' && server.hostname === '127.0.0.1')));
+  validate('STORAGE_TYPE', () => assert.equal(environment.STORAGE_TYPE, 'local'));
+  validate('STORAGE_LOCAL_PATH', () => assert.equal(environment.STORAGE_LOCAL_PATH, `${SERVER_DIRECTORY}/.local-storage`));
+  for (const [key, value] of [['OUTBOUND_HTTP_SAFE_MODE_ENABLED', 'true'], ['IMAP_SMTP_ALLOW_SELF_SIGNED', 'false'], ['SIGN_IN_PREFILLED', 'false']]) validate(key, () => assert.equal(environment[key] ?? value, value));
+  validate('APP_VERSION', () => assert.equal(environment.APP_VERSION, '2.52.0'));
+  validate('KOVAALABCRM_STAGING_SOURCE_SHA', () => assert.match(environment.KOVAALABCRM_STAGING_SOURCE_SHA ?? '', /^[a-f0-9]{40}$/));
 }
 export function actionCommands(action, initialized) {
   if (action === 'server') return [['dist/main.js']];
@@ -68,7 +70,7 @@ export function readUpgradeSummary(output) {
   if (counts && counts.slice(1).every((count) => Number.isSafeInteger(Number(count)))) details.workspaceCounts = { upToDate: Number(counts[1]), behind: Number(counts[2]), failed: Number(counts[3]), total: Number(counts[4]) };
   details.noWorkspaces = section[1] === 'No workspaces';
   // Nest closes connections after printing the summary; only its info-level log framing may follow.
-  details.unexpectedLineCount = section.slice(2).filter((line) => !/^\[Nest\] \d+\s+.*\s+(?:LOG|DEBUG|VERBOSE)\s+\[[A-Za-z][A-Za-z0-9]*\]/.test(line)).length;
+  details.unexpectedLineCount = section.slice(2).filter((line) => !/^\[Nest\]\s+\d+\s+-\s+\d{1,2}\/\d{1,2}\/\d{4},\s+\d{1,2}:\d{2}:\d{2}(?:\s+[AP]M)?\s+(?:LOG|DEBUG|VERBOSE)\s+\[[A-Za-z][A-Za-z0-9]*\]/.test(line)).length;
   return details;
 }
 export function assertUpgradeSummary(output) {
@@ -107,6 +109,18 @@ export function commandDiagnostic(args, output, exitCode, reason) {
     if (key) diagnostic.configKey = key;
   }
   return diagnostic;
+}
+export const PREFLIGHT_STAGES = Object.freeze(['validate-environment', 'activation', 'import-pg', 'connect-database', 'statement-timeout', 'advisory-lock', 'table-count', 'marker-presence', 'marker-read', 'database-state', 'write-marker-table', 'write-marker-row', 'close-database']);
+export const ERROR_NAMES = Object.freeze(['AssertionError', 'TypeError', 'Error', 'error', 'AggregateError', 'SyntaxError']);
+export const ERROR_CODES = Object.freeze(['ERR_ASSERTION', 'ERR_INVALID_URL', 'MODULE_NOT_FOUND', 'ERR_MODULE_NOT_FOUND', 'ERR_PACKAGE_PATH_NOT_EXPORTED', 'ENOENT', 'EACCES', 'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', '28P01', '3D000', '42P01', '42501', '42703', '23505', '42P07', '40001', '57014', '57P03', '08006', '08001']);
+export function preflightDiagnostic(stage, error) {
+  const result = { action: 'migrate', command: 'database-preflight', category: stage === 'validate-environment' || stage === 'activation' ? 'configuration' : stage === 'connect-database' ? 'database-connection' : 'unknown' };
+  if (PREFLIGHT_STAGES.includes(stage)) result.preflightStage = stage;
+  if (ERROR_NAMES.includes(error?.name)) result.errorName = error.name;
+  if (ERROR_CODES.includes(error?.code)) result.errorCode = error.code;
+  if (VALIDATION_KEYS.includes(error?.stagingValidationKey)) result.validationKey = error.stagingValidationKey;
+  if (stage === 'database-state' && error?.code === 'ERR_ASSERTION') result.reason = 'unowned-or-partial-database';
+  return result;
 }
 async function runCommand(args, environment) {
   const checkCron = args[1] === 'cron:register:all';
@@ -150,29 +164,50 @@ export async function main(environment, action) {
     assert.ok(result.ok && (await result.json()).status === 'ok');
     return;
   }
-  validateEnvironment(environment);
   let client;
+  let stage = 'validate-environment';
+  let failed = false;
   try {
+    validateEnvironment(environment);
     if (action === 'migrate') {
-      assert.equal(environment.KOVAALABCRM_ALLOW_STAGING_MIGRATIONS, 'true', 'Explicit staging migration opt-in required');
+      stage = 'activation';
+      validate('KOVAALABCRM_ALLOW_STAGING_MIGRATIONS', () => assert.equal(environment.KOVAALABCRM_ALLOW_STAGING_MIGRATIONS, 'true', 'Explicit staging migration opt-in required'));
+      stage = 'import-pg';
       const { Client } = createRequire(`${SERVER_DIRECTORY}/package.json`)('pg');
       client = new Client({ connectionString: environment.PG_DATABASE_URL });
+      stage = 'connect-database';
       await client.connect();
+      stage = 'statement-timeout';
       await client.query("SET statement_timeout = '600000'");
+      stage = 'advisory-lock';
       await client.query("SELECT pg_advisory_lock(hashtext('kovaalabcrm-staging-migrate'))");
+      stage = 'table-count';
       const tables = await client.query("SELECT count(*)::int AS count FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema') AND table_type = 'BASE TABLE'");
+      stage = 'marker-presence';
       const marker = await client.query("SELECT to_regclass('public.kovaalabcrm_staging_installation') IS NOT NULL AS present");
+      stage = 'marker-read';
       const state = marker.rows[0].present ? await client.query('SELECT complete FROM public.kovaalabcrm_staging_installation WHERE singleton = true') : { rows: [] };
+      stage = 'database-state';
       const initialized = assertDatabaseState({ tableCount: tables.rows[0].count, markerPresent: marker.rows[0].present, complete: state.rows[0]?.complete });
       await runCommands(actionCommands(action, initialized), environment);
       if (!initialized) {
+        stage = 'write-marker-table';
         await client.query('CREATE TABLE public.kovaalabcrm_staging_installation (singleton boolean PRIMARY KEY CHECK (singleton), complete boolean NOT NULL, source_sha text NOT NULL)');
+        stage = 'write-marker-row';
         await client.query('INSERT INTO public.kovaalabcrm_staging_installation VALUES (true, true, $1)', [environment.KOVAALABCRM_STAGING_SOURCE_SHA]);
       }
     } else {
       await runCommands(actionCommands(action, false), environment);
     }
-  } finally { if (client) await client.end(); }
+  } catch (error) {
+    failed = true;
+    if (action === 'migrate' && !error.stagingDiagnostic) error.stagingDiagnostic = preflightDiagnostic(stage, error);
+    throw error;
+  } finally {
+    if (client) try { await client.end(); } catch (error) {
+      if (!failed) { error.stagingDiagnostic = preflightDiagnostic('close-database', error); throw error; }
+    }
+  }
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main(process.env, process.argv[2]).catch((error) => {
