@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
@@ -15,9 +16,19 @@ import { UnsubscribeHostnameStatus } from 'src/engine/core-modules/emailing-doma
 import { VerificationRecord } from 'src/engine/core-modules/emailing-domain/drivers/types/verifications-record.type';
 import { WorkspaceRelatedEntity } from 'src/engine/workspace-manager/types/workspace-related-entity.type';
 
+import {
+  EMAILING_DOMAIN_PROVENANCE_VALUES,
+  LEGACY_GLOBAL_EMAILING_DRIVER,
+  type EmailingDomainDriverProvenance,
+} from 'src/engine/core-modules/emailing-domain/types/emailing-domain-driver-provenance.type';
+
 @Entity({ name: 'emailingDomain', schema: 'core' })
 @ObjectType('EmailingDomain')
-@Unique('IDX_EMAILING_DOMAIN_DOMAIN_UNIQUE', ['domain'])
+@Unique('IDX_EMAILING_DOMAIN_WORKSPACE_DRIVER_UNIQUE', ['workspaceId', 'domain', 'driver'])
+@Index('IDX_EMAILING_DOMAIN_GLOBAL_DOMAIN_UNIQUE', ['domain'], {
+  unique: true,
+  where: `"driver" <> 'SMTP'`,
+})
 export class EmailingDomainEntity extends WorkspaceRelatedEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -30,6 +41,13 @@ export class EmailingDomainEntity extends WorkspaceRelatedEntity {
 
   @Column({ type: 'varchar', nullable: false })
   domain: string;
+
+  @Column({
+    type: 'enum',
+    enum: EMAILING_DOMAIN_PROVENANCE_VALUES,
+    default: LEGACY_GLOBAL_EMAILING_DRIVER,
+  })
+  driver: EmailingDomainDriverProvenance;
 
   @Column({
     type: 'enum',

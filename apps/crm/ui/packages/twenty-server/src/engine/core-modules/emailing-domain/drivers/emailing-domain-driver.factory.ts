@@ -52,6 +52,10 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
     return super.getCurrentDriver();
   }
 
+  getCurrentDriverType(): EmailingDomainDriver {
+    return this.kovaaLabConfigService.get('EMAILING_DOMAIN_DRIVER');
+  }
+
   protected buildConfigKey(): string {
     const driver = this.kovaaLabConfigService.get('EMAILING_DOMAIN_DRIVER');
 
