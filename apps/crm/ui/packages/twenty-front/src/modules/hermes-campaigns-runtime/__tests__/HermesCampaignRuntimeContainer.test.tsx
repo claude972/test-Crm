@@ -323,9 +323,9 @@ const renderContainer = () => {
             recordingLink,
             new MockLink([
               campaignRecordMock,
-            recipientsMock,
-            persistenceTrap,
-            recipientPreviewTrap,
+              recipientsMock,
+              persistenceTrap,
+              recipientPreviewTrap,
               sendPreviewMock,
               messageChannelsMock,
               unsubscribeTopicsMock,
