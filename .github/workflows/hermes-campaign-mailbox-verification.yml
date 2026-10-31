@@ -3,6 +3,13 @@ on:
   workflow_dispatch:
   push:
     branches: [fix/hermes-autonomous-recovery-20261031]
+    paths:
+      - '.github/workflows/hermes-campaign-mailbox-verification.yml'
+      - 'scripts/check-hermes*.mjs'
+      - 'scripts/check-hermes*.cjs'
+      - 'apps/crm/ui/packages/twenty-server/**'
+      - 'apps/crm/ui/packages/twenty-shared/**'
+      - 'apps/crm/ui/yarn.lock'
 permissions:
   contents: read
 concurrency:

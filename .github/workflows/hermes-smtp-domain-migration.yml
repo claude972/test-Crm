@@ -2,6 +2,12 @@ name: Hermes SMTP domain migration
 on:
   push:
     branches: [fix/hermes-autonomous-recovery-20261031]
+    paths:
+      - '.github/workflows/hermes-smtp-domain-migration.yml'
+      - 'scripts/check-hermes-smtp-domain-migration-ci*'
+      - 'apps/crm/ui/packages/twenty-server/src/database/**'
+      - 'apps/crm/ui/packages/twenty-server/src/engine/core-modules/emailing-domain/**'
+      - 'apps/crm/ui/yarn.lock'
   workflow_dispatch:
 permissions:
   contents: read
