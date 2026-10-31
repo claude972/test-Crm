@@ -57,6 +57,9 @@ const env = {
   // Preview campaigns must fail closed until a real relay is explicitly configured.
   EMAILING_DOMAIN_DRIVER: 'SMTP', EMAILING_SMTP_CONNECTIONS: '{}',
   HERMES_B2B_CAMPAIGNS_ENABLED: 'true',
+  // The locale lives on the membership, so a second company opened in English
+  // on a French deployment. An explicit choice still wins over this default.
+  DEFAULT_LOCALE: 'fr-FR',
 };
 const delay = () => new Promise((resolve) => setTimeout(resolve, 1000));
 const active = () => !stopped && Date.now() < deadline;

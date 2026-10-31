@@ -84,4 +84,46 @@ describe('purgeSessionStorage', () => {
     // would keep firing after the user has already left.
     expect(jest.getTimerCount()).toBe(0);
   });
+
+  describe('offline caches', () => {
+    const setCacheStorage = (stub: { keys: jest.Mock; delete: jest.Mock }) => {
+      Object.defineProperty(globalThis, 'caches', {
+        value: stub,
+        configurable: true,
+        writable: true,
+      });
+    };
+
+    afterEach(() => {
+      // @ts-expect-error jsdom has no CacheStorage by default; put it back.
+      delete globalThis.caches;
+    });
+
+    it('purges CacheStorage on the way out, before the caller navigates', async () => {
+      mockedClearMetadataStoreStorage.mockResolvedValue(true);
+      const storage = {
+        keys: jest.fn().mockResolvedValue(['hermes-offline-v1']),
+        delete: jest.fn().mockResolvedValue(true),
+      };
+      setCacheStorage(storage);
+
+      // This is the sign-out and workspace-switch guarantee: both paths go
+      // through purgeSessionStorage, so CacheStorage is emptied on both.
+      await expect(purgeSessionStorage()).resolves.toBe('cleared');
+
+      expect(storage.delete).toHaveBeenCalledWith('hermes-offline-v1');
+    });
+
+    it('still reports the metadata store outcome when the cache purge is refused', async () => {
+      mockedClearMetadataStoreStorage.mockResolvedValue(true);
+      setCacheStorage({
+        keys: jest.fn().mockRejectedValue(new Error('storage access denied')),
+        delete: jest.fn(),
+      });
+
+      // A browser that refuses CacheStorage must not make signing out fail,
+      // and must not be reported as a failed metadata wipe either.
+      await expect(purgeSessionStorage()).resolves.toBe('cleared');
+    });
+  });
 });
