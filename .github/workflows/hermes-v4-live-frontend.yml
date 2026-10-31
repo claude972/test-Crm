@@ -62,7 +62,9 @@ jobs:
         id: bundle
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |
-          node .yarn/releases/yarn-4.18.1.cjs nx build kovaa-lab-front --skip-nx-cache
+          # The dependency graph is already built by the step above; nx would
+          # rebuild every ^dep a second time, for about four minutes of nothing.
+          node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front build
           test -d packages/twenty-front/build
           du -sh packages/twenty-front/build
       - name: Record the revision this bundle was built from

@@ -1,5 +1,5 @@
 import { ApolloLink, type Operation } from '@apollo/client';
-import { MockLink } from '@apollo/client/testing';
+import { MockLink, type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
@@ -136,8 +136,10 @@ const renderContainer = ({
   connections = connectionsMock,
   conversations = conversationsMock,
 }: {
-  connections?: typeof connectionsMock;
-  conversations?: typeof conversationsMock;
+  // Deliberately loose: an override legitimately carries empty arrays, which a
+  // `typeof` of the populated fixtures would refuse.
+  connections?: MockedResponse;
+  conversations?: MockedResponse;
 } = {}) => {
   // Every operation the container runs is recorded on its way to the mock
   // link, which is how "nothing is emitted at mount" becomes an assertion
@@ -238,18 +240,18 @@ describe('HermesWaInboxContainer', () => {
       connections: {
         request: { query: HERMES_MESSAGING_CONNECTIONS },
         result: { data: { hermesMessagingConnections: [] } },
-      } as typeof connectionsMock,
+      },
       conversations: {
         request: conversationsMock.request,
         result: {
           data: {
-            hermesWaConversationsV3: {
-              ...conversationsMock.result.data.hermesWaConversationsV3,
-              conversations: [],
+            hermesInboxConversations: {
+              ...conversationsMock.result.data.hermesInboxConversations,
+              items: [],
             },
           },
         },
-      } as typeof conversationsMock,
+      },
     });
 
     expect(
