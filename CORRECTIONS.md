@@ -2130,3 +2130,10 @@ Seul compose.yaml préparé distant actualisé après vérificationSHA256 de l'a
 CI41244388863exact52f294f9247b854c15442e3d257c74fe5c6ad005 SUCCESS. Artifactpreuve13058977055 digestc4dc453ecfa53ef0dd68dae87b77151a89a18ee4f1228572e2a7276c3b28addf vérifié : exactImage/frontendServerSdk/strictMigration/healthClientConfigFrontend/registeredQueueWorker/sameVersionExistingVolumeMigration/restartPersistence/cleanup=true. Le contrôle précédent ne prouvait pas la santé ; celle-ci est maintenant établie dans ce smoke isolé, pas encore parcours navigateur VPS.
 
 ImageIdsha256:638c44a7de8a9be8dd457332e4acfef513eba8eebd53d0c6b0a7fb224e3ebd9c. Artifactprivé13059141738~299MB digestccb2345c79eeb376adbf91862092c633453aca5cb14ef5fa13c79cfb980551cc transféré directementGitHub→SSHsrv2081633,sans imageMac ni tokenGitHub distant. ZIPentierhashvérifié,4nomsattendusseuls,imagearchivehash/sourceSHA/imageIdvérifiés surVPS. /home/ops/kovaalabcrm-staging/releases/52f... privé. dockerload en cours, pas encore application démarrée au présent checkpoint. Nouveau deployment.env0600 référenceimageIDimmuable etpathsprivés, aucune clef régénérée. Proxy/DNSservicesexistants intacts.
+
+
+### Préparation VPS active — 2026-10-31 21:55 UTC
+
+Image transférée/hashée puis chargée. DockerVPS29 présente l'Id du MANIFEST OCI sha256:e373a70239aaad1db260da98902d7de6344d7a869e0ed9dc4693b23d0d3fb25e, tandis que la preuve CI donne le CONFIGdigest638c44.... Vérification cryptographique DANSarchive : manifest e373 hash exact→config638 hash exact ; RootFSdiff_ids,architecture,User/Entrypoint/Cmd/Env/Labels/WorkingDir chargés correspondent au configCI,revision52f exacte. Preuve privée loaded-provenance.json sur releaseVPS. Pas d'acceptation aveugle d'un Id différent. deployment.env désormais référence repo@manifestimmuable, ancien fichier conservé0600 ; clefs inchangées.
+
+Les services dédiés kovaalabcrm-staging-db-1 etredis-1 démarrés ethealthy, uniquement nouveaux volumes/réseaux propres. Migration stricte migrate-1 démarrée, résultat encore attendu ; serveur/worker pas encore démarrés. Aucun Caddy/DNS/autre service modifié. Pas d'accès public annoncé.
