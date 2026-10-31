@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const POSTGRES_IMAGE = 'postgres:16-bookworm@sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938';
 const REDIS_IMAGE = 'redis:7-bookworm@sha256:b6b6e3dc0c0952737748e55d5d885272840c7e42ba41ab1d5489f693419882f5';
+export const CLIENT_SDK_ENTRYPOINTS = Object.freeze(['core', 'metadata', 'rest', 'generate']);
 export function validateSmokeEnvironment(environment) {
   assert.equal(environment.GITHUB_ACTIONS, 'true', 'Image smoke is restricted to disposable GitHub Actions runners');
   assert.equal(environment.RUNNER_ENVIRONMENT, 'github-hosted');
@@ -61,8 +62,15 @@ export async function smoke(environment) {
     assert.equal(inspected.Architecture, 'amd64');
     report.imageId = imageId;
     checks.exactImage = true;
-    const filesProbe = `const fs=require('node:fs');for(const p of ['dist/main.js','dist/queue-worker/queue-worker.js','dist/front/index.html','dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts']){if(!fs.statSync(p).size)process.exit(1)}if(fs.readFileSync('dist/front/KOVAALABCRM_SOURCE.txt','utf8').trim()!==process.env.KOVAALABCRM_STAGING_SOURCE_SHA)process.exit(1);require.resolve('kovaa-lab-shared');require.resolve('kovaa-lab-client-sdk');`;
+    phase = 'image-runtime-files';
+    const filesProbe = `const fs=require('node:fs');for(const p of ['dist/main.js','dist/queue-worker/queue-worker.js','dist/front/index.html','dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts']){if(!fs.statSync(p).size)process.exit(1)}if(fs.readFileSync('dist/front/KOVAALABCRM_SOURCE.txt','utf8').trim()!==process.env.KOVAALABCRM_STAGING_SOURCE_SHA)process.exit(1);`;
     docker(['run', '--rm', '--network', 'none', '--entrypoint', 'node', imageId, '-e', filesProbe]);
+    phase = 'image-shared-entrypoint';
+    docker(['run', '--rm', '--network', 'none', '--entrypoint', 'node', imageId, '-e', "require.resolve('kovaa-lab-shared');"]);
+    for (const entrypoint of CLIENT_SDK_ENTRYPOINTS) {
+      phase = `image-client-sdk-${entrypoint}`;
+      docker(['run', '--rm', '--network', 'none', '--entrypoint', 'node', imageId, '-e', `require.resolve('kovaa-lab-client-sdk/${entrypoint}');`]);
+    }
     checks.frontendServerSdk = true;
     phase = 'services';
     const dataNetwork = `${prefix}-data`; const edgeNetwork = `${prefix}-edge`;
@@ -151,7 +159,11 @@ export async function smoke(environment) {
     docker(['exec', server, 'node', '-e', "if(require('node:fs').readFileSync('.local-storage/.packaging-probe','utf8')!=='retained')process.exit(1)"]);
     checks.restartPersistence = true;
     phase = 'completed';
-  } catch { failure = `Staging image smoke failed during ${phase}; private diagnostics withheld`; }
+  } catch (error) {
+    report.failurePhase = phase;
+    if (Number.isInteger(error.status)) report.commandExitCode = error.status;
+    failure = `Staging image smoke failed during ${phase}; private diagnostics withheld`;
+  }
   finally {
     let clean = true;
     try { docker(['info', '--format', '{{.ID}}']); } catch { clean = false; }

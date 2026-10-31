@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, realpathSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, main, runCommands, validateEnvironment } from './entrypoint.mjs';
-import { validateSmokeEnvironment } from '../../scripts/check-hermes-staging-image.mjs';
+import { createRequire } from 'node:module';
+import { CLIENT_SDK_ENTRYPOINTS, validateSmokeEnvironment } from '../../scripts/check-hermes-staging-image.mjs';
 
 const environment = (extra = {}) => ({
   PG_DATABASE_URL: `postgres://kovaalabcrm:${'a'.repeat(64)}@db:5432/kovaalabcrm_staging`,
@@ -67,8 +68,8 @@ test('runtime and build use the same pinned glibc base and the actual twenty dir
   assert.match(dockerfile, /COPY apps\/crm\/ui\//);
   assert.match(dockerfile, /USER 1000:1000/);
   assert.match(dockerfile, /org.opencontainers.image.revision/);
-  assert.match(source('build.mjs'), /HERMES_SOURCE_SHA/);
-  assert.match(source('build.mjs'), /dist\/front\/KOVAALABCRM_SOURCE.txt/);
+  assert.match(dockerfile, /HERMES_SOURCE_SHA/);
+  assert.match(dockerfile, /dist\/front\/KOVAALABCRM_SOURCE.txt/);
 });
 test('build context excludes private state and unrelated apps without dropping secret-related source modules', () => {
   const ignore = source('Dockerfile.dockerignore');
@@ -144,7 +145,7 @@ test('production prune checks native constraints before removing their developme
   assert.match(build, /command\(\[yarn, 'install', '--immutable'\]\);/);
   const constraints = build.indexOf("command([yarn, 'constraints']);");
   const focus = build.indexOf("command([yarn, 'workspaces', 'focus', '--production'");
-  assert.ok(constraints > build.indexOf("writeFileSync(path.join(server, 'dist/front/KOVAALABCRM_SOURCE.txt')") && focus > constraints);
+  assert.ok(constraints > build.indexOf("cpSync(path.join(root, 'packages/twenty-front/build')") && focus > constraints);
   assert.equal((build.match(/YARN_ENABLE_CONSTRAINTS_CHECKS/g) ?? []).length, 1);
   assert.match(build.slice(focus), /\], root, \{ YARN_ENABLE_CONSTRAINTS_CHECKS: 'false' \}\);/);
   assert.doesNotMatch(source('Dockerfile'), /YARN_ENABLE_CONSTRAINTS_CHECKS/);
@@ -152,4 +153,40 @@ test('production prune checks native constraints before removing their developme
   const nativeHook = readFileSync(new URL('../../apps/crm/ui/yarn.config.cjs', import.meta.url), 'utf8');
   assert.match(nativeHook, /require\('@yarnpkg\/types'\)/);
   assert.match(nativeHook, /semver.satisfies\(currentNodeVersion, requiredNodeVersion\)/);
+});
+
+test('image module probe uses actual client SDK subpath exports, whose root is forbidden', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../../apps/crm/ui/packages/twenty-client-sdk/package.json', import.meta.url), 'utf8'));
+  assert.equal(manifest.exports['.'], undefined);
+  assert.deepEqual(CLIENT_SDK_ENTRYPOINTS.map((entry) => `./${entry}`), Object.keys(manifest.exports));
+  const temporary = mkdtempSync(path.join(os.tmpdir(), 'kovaalabcrm-sdk-exports-test-'));
+  try {
+    const sdk = path.join(temporary, 'node_modules', manifest.name);
+    mkdirSync(sdk, { recursive: true });
+    writeFileSync(path.join(sdk, 'package.json'), JSON.stringify(manifest));
+    const require = createRequire(path.join(temporary, 'probe.cjs'));
+    for (const entry of CLIENT_SDK_ENTRYPOINTS) {
+      const output = path.resolve(sdk, manifest.exports[`./${entry}`].require);
+      mkdirSync(path.dirname(output), { recursive: true });
+      writeFileSync(output, 'module.exports = {};');
+      assert.equal(require.resolve(`${manifest.name}/${entry}`), realpathSync(output));
+    }
+    assert.throws(() => require.resolve(manifest.name), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
+    const smoke = readFileSync(new URL('../../scripts/check-hermes-staging-image.mjs', import.meta.url), 'utf8');
+    assert.doesNotMatch(smoke, /require.resolve\('kovaa-lab-client-sdk'\)/);
+    assert.match(smoke, /report.failurePhase = phase/);
+  } finally { rmSync(temporary, { recursive: true }); }
+});
+
+test('source SHA stamping happens only after exact-context compilation and runtime copy', () => {
+  const dockerfile = source('Dockerfile');
+  const build = source('build.mjs');
+  assert.doesNotMatch(build, /HERMES_SOURCE_SHA|KOVAALABCRM_SOURCE/);
+  const runtime = dockerfile.indexOf('FROM base AS runtime');
+  assert.ok(runtime > 0);
+  assert.doesNotMatch(dockerfile.slice(0, runtime), /ARG HERMES_SOURCE_SHA/);
+  const argument = dockerfile.indexOf('ARG HERMES_SOURCE_SHA');
+  assert.ok(argument > dockerfile.lastIndexOf('COPY '));
+  assert.match(dockerfile.slice(argument), /assert.match\(sha \?\? '', \/\^\[a-f0-9\]\{40\}\$\/\)/);
+  assert.match(dockerfile.slice(argument), /writeFileSync\('dist\/front\/KOVAALABCRM_SOURCE.txt', sha/);
 });
