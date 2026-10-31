@@ -2055,3 +2055,12 @@ Nom produit corrigé explicitement par le propriétaire : kovaalabcrm ; ressourc
 CI exacte9445ee2c5 : frontend41232493836 SUCCESS,114suites/1348tests ; combined41232496500 SUCCESS,82suites/966units plus helper5tests, parcours SMTP isolé/PG/DI et bundle production. Les dossiers Drafts/Sent/Trash restent non provisionnés sur runtime601 courant, donc leur recette UI reste ouverte malgré smokefixture944 vert.
 
 Root a poussé c7b7bc900, workflow manuel .github/workflows/hermes-staging-image.yml : build image exacte puis smoke isolé, export artifact privé1jour, aucun registre ni déploiement automatique. YAML et diffcheck PASS seulement ; workflow pas exécuté avant packaging auteur. preview_pwa a confirmé contrat et nouvelles ressources kovaalabcrm-staging, code en cours,11tests légers annoncés auteur sans construction image. Reviewerbackend_review chargé en lecture seule de vérifier contrats de migration natifs avant revue livrable. Aucun Claude actif prétendu, app gelée, autres projets intacts.
+
+
+### Packaging persistant kovaalabcrm —31octobre19:42UTC
+
+Auteur preview_pwa61418022f poussé,14tests légers PASS. Root a relu Dockerfile/contexte/build/Compose/entrypoint/smoke et réexécuté14tests PASS, intégré0ae6a51f3. Reviewerbackend_review a donné accord borné pour build/smoke cloud, pas déploiement : source native des gates statut/cron confirmée.
+
+Rootworkflow c7b7bc900 puis1338c574e : dispatch a été rejeté422 car runner.temp n'est pas disponible dans env de job ; aucun run créé. Corrigé289b376a9 par calcul du chemin au niveau step. Dispatch UNIQUE accepté41235265710 source289b376a9d809fbc57285327eeeb2c48b3e8b120, queued au dernier contrôle. Build/smoke réels encore à prouver. Aucun Docker build local/VPS, registre public ou changement distant. Le nom ressources est kovaalabcrm-staging ; chemins historiques restent conservés.
+
+VPS sélectionné et ressources confirmées, domaine non choisi ; aucun DNS/proxy/production modifié. Preview601 courante expire20:07UTC, et l'installation durable n'est pas encore disponible.
