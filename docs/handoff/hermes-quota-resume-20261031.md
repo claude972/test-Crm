@@ -75,3 +75,8 @@ Deux points de parcours supplémentaires sur2f1e à corriger/tester sans régres
 ## Mise à jour navigateur06:33UTC
 
 Le blocage CUA décrit plus haut n'est plus total : inventaire IAB2 et création d'un nouvel onglet about:blank/tab18 avec état AX réussis. Canal techniquement de nouveau disponible, à employer dès preview assemblée prête. Aucune recette CRM nouvelle effectuée, aucun succès Safari utilisateur déduit. Ne pas prendre l'ancien paragraphe de blocage comme raison de renoncer au prochain test CUA.
+
+
+## Recheck liste06:50UTC
+
+Root a exécuté la suite native `HermesCampaignListView.test.tsx` sur2f1e8e705 dans son seul checkout QA détaché : **1 suite/10 tests PASS**. Affichage/états et callback d'ouverture testés, aucune recette navigateur/HTTP/PG. Le test d'issue inconnue a toujours un nom vide et vérifie seulement le texte ; il ne réfute pas CJ-CAMPAIGN-010 (bouton actif avec nom non vide). CJ-CAMPAIGN-011 pagination et CJ-FRONT-TYPE-001 restent ouverts. Aucun test changé ni check strict rendu vert. Le checkout QA root est maintenant détaché sur2f1e et ses seules dépendances non suivies demeurent son symlink.
