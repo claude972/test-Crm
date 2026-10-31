@@ -1815,3 +1815,10 @@ Nouveaux runs exactsmêmeSHA c46 : fullfrontend41192244151, combined41192246414(
 Front73941191835763 a désormais étapeTypecheckfrontendFAIL, bundleencours ; logàlireaprèsfin, pasvertdéclaré. Root tsgo noEmit(nongrosbuild) surc46encours session20266, /private/tmp/hermes-c46-front-types-local.txt ; nepasmodifierfichierspourmasqueréchec. TouslesnouveauxdéveloppementsClaude sontbloquésquota. Continuerrecette/descriptifdeslimitesetlivraisonhonnêteà12.
 
 CJ-FIXTURE-001 revuefa7df8176, nonintégré : le commentaire prétend qu'un handle expéditeur sous .invalid empêche un vrai destinataire. Ce handle n'impose pas l'adresse d'enveloppe destinataire ni le comportement du relais : ce n'est pas une barrière d'émission. Le marqueurtestProvider ne dispose pasencoreconsommateurUI visible ni provisioner. Ne jamais promouvoir ce fragment en preuvefournisseur/sécurité ou l'intégrercommeparcoursfini. GarderSMTPrelayisoléetdestinatairesfictifs explicites quand lotrepris.
+
+
+### Contrôle strict10:23UTC — CJ-FRONT-TYPE004
+
+Front41191835763sur739fd6fc6FAILURE. LogCIexact /private/tmp/hermes-cj014-front-type-failure.log : uniqueTS2322src/modules/hermes-campaigns-runtime/__tests__/HermesCampaignRuntimeContainer.test.tsx(414,15), previewRecipientMock typéobject n'estpasMockedResponse(requêteobligatoireabsenteentype). Nouvellefixturedu vraiClaudeCJ014, pasunéchecdescodeapplicatifdémontré. Rootn'a ni éditélecode/test ni retirécecheck pourverdir, quotahebdomadaire empêchecorrectionClaudemaintenant. **Le buildstrictn'estpasvert.** Bundlepeutêtreconstruitmalgrécetypefail parworkflow(exécutionsindépendantes), celaneconstituepaslivraisoncomplète.
+
+Rechecklocaltsgo surc46 session20266fini2 : retrouveCEtypeTS2322, plus4SettingsPath.Structuresetshared/vitedeclarationsliéesauxdistlocauxpartagés. SeulTS2322estconfirméparCIpropre ; nepasprésenterlesdistlocauxcommequatrerégressionsproduit. CIc46front41192244151/combo41192246414/P041192248859encours, résultatsàlire. P0ancien41188341880désormaiscompleted, demandeexplicited'annulationretournealreadycompleted, nouveauP0enpréparationnormal.

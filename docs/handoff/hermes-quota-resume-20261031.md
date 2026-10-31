@@ -187,3 +187,10 @@ Root a seulement assemblé les commitsClaude déjàécrits/relus par Git merge s
 Nouveaux runs exactsmêmeSHA c46 : fullfrontend41192244151, combined41192246414(SMTPoptinfaux;aucunR10prouvé), runtimeP041192248859(worker/sameorigintrue90min). CeP0remplaceancien41188341880 ; anciennepreviewnepluspartagercommeactive. Gate attendrauneVercelpreviewexacte etnouveaucontrôlepublicaprèsREADY, délai15minaprèsdémarragegate. Préparerbundle/artifacttunnel. Sourcefinalefraîchevers11:30–11:40UTC pourduréeutileaprès12, pasdelivraisonavantrecette.
 
 Front73941191835763 a désormais étapeTypecheckfrontendFAIL, bundleencours ; logàlireaprèsfin, pasvertdéclaré. Root tsgo noEmit(nongrosbuild) surc46encours session20266, /private/tmp/hermes-c46-front-types-local.txt ; nepasmodifierfichierspourmasqueréchec. TouslesnouveauxdéveloppementsClaude sontbloquésquota. Continuerrecette/descriptifdeslimitesetlivraisonhonnêteà12.
+
+
+### Contrôle strict10:23UTC — CJ-FRONT-TYPE004
+
+Front41191835763sur739fd6fc6FAILURE. LogCIexact /private/tmp/hermes-cj014-front-type-failure.log : uniqueTS2322src/modules/hermes-campaigns-runtime/__tests__/HermesCampaignRuntimeContainer.test.tsx(414,15), previewRecipientMock typéobject n'estpasMockedResponse(requêteobligatoireabsenteentype). Nouvellefixturedu vraiClaudeCJ014, pasunéchecdescodeapplicatifdémontré. Rootn'a ni éditélecode/test ni retirécecheck pourverdir, quotahebdomadaire empêchecorrectionClaudemaintenant. **Le buildstrictn'estpasvert.** Bundlepeutêtreconstruitmalgrécetypefail parworkflow(exécutionsindépendantes), celaneconstituepaslivraisoncomplète.
+
+Rechecklocaltsgo surc46 session20266fini2 : retrouveCEtypeTS2322, plus4SettingsPath.Structuresetshared/vitedeclarationsliéesauxdistlocauxpartagés. SeulTS2322estconfirméparCIpropre ; nepasprésenterlesdistlocauxcommequatrerégressionsproduit. CIc46front41192244151/combo41192246414/P041192248859encours, résultatsàlire. P0ancien41188341880désormaiscompleted, demandeexplicited'annulationretournealreadycompleted, nouveauP0enpréparationnormal.
