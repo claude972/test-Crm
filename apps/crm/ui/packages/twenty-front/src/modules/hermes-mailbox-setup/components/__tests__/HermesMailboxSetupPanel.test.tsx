@@ -2,7 +2,7 @@ import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
@@ -187,14 +187,27 @@ const renderPanel = (mocks: MockedResponse[], onBindMail = jest.fn()) => {
 // the native message channel only for a submission carrying IMAP, and refuses
 // a MAIL connection that cannot send, so neither protocol alone is a complete
 // mailbox here.
-const fillCompleteMailbox = async (
-  user: ReturnType<typeof userEvent.setup>,
-) => {
-  await user.type(screen.getByLabelText(/Email Address/i), MAILBOX);
-  await user.type(screen.getByLabelText(/IMAP Server/i), IMAP_HOST);
-  await user.type(screen.getByLabelText(/IMAP Password/i), TYPED_PASSWORD);
-  await user.type(screen.getByLabelText(/SMTP Server/i), SMTP_HOST);
-  await user.type(screen.getByLabelText(/SMTP Password/i), TYPED_PASSWORD);
+//
+const setField = (label: RegExp, value: string) => {
+  fireEvent.change(screen.getByLabelText(label), { target: { value } });
+};
+
+// A mailbox the centre can bind: both protocols, one change event per field.
+//
+// Keystroke-by-keystroke typing used to fill these forms — about 156 renders
+// per save test. Under load one such test reached 20 s against a 30 s
+// per-test limit, so the suite failed unpredictably on the very rules it
+// guards. These events reach the same `onChange` and produce the same
+// submitted payload. What typing additionally proves — that each native field
+// is reachable AND writable by a person, which `fireEvent` would not catch on
+// a disabled or read-only input — is proven once, on purpose, by the last test
+// in this file.
+const setCompleteMailbox = () => {
+  setField(/Email Address/i, MAILBOX);
+  setField(/IMAP Server/i, IMAP_HOST);
+  setField(/IMAP Password/i, TYPED_PASSWORD);
+  setField(/SMTP Server/i, SMTP_HOST);
+  setField(/SMTP Password/i, TYPED_PASSWORD);
 };
 
 describe('HermesMailboxSetupPanel', () => {
@@ -251,7 +264,9 @@ describe('HermesMailboxSetupPanel', () => {
     // The native field set, not a re-authored one.
     expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
 
-    await fillCompleteMailbox(user);
+    // Really typed here: this is the one test that proves a person can drive
+    // the native fields at all.
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -299,12 +314,15 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
 
-    const note = await screen.findByRole('status');
+    // Queried by its own wording, not as « the status element »: under load
+    // that resolves on whichever one renders first, which is how this suite
+    // produced an assertion failure that reproduced nowhere in isolation.
+    const note = await screen.findByText(/enregistrée, non vérifiée/);
     // The three states are named apart: recorded, reachable, proven-flowing.
     expect(note).toHaveTextContent(/enregistrée, non vérifiée/);
     expect(note).toHaveTextContent(/joignabilité n’est pas établie/);
@@ -330,7 +348,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -364,8 +382,8 @@ describe('HermesMailboxSetupPanel', () => {
 
     // A host without the password typed this session is not a configured
     // protocol on creation, so the save stays closed.
-    await user.type(screen.getByLabelText(/Email Address/i), MAILBOX);
-    await user.type(screen.getByLabelText(/IMAP Server/i), IMAP_HOST);
+    setField(/Email Address/i, MAILBOX);
+    setField(/IMAP Server/i, IMAP_HOST);
     expect(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     ).toBeDisabled();
@@ -415,12 +433,12 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
 
-    const note = await screen.findByRole('status');
+    const note = await screen.findByText(/n’a pas pu être relue/);
     // The account exists. Saying nothing was written would push the operator
     // into creating it a second time.
     expect(note).toHaveTextContent(/enregistrée, non vérifiée/);
@@ -465,7 +483,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -504,7 +522,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -560,7 +578,7 @@ describe('HermesMailboxSetupPanel', () => {
       await user.click(
         screen.getByRole('button', { name: /Connecter une boîte/ }),
       );
-      await fillCompleteMailbox(user);
+      setCompleteMailbox();
       await user.click(
         screen.getByRole('button', { name: /Enregistrer la boîte/ }),
       );
@@ -611,7 +629,7 @@ describe('HermesMailboxSetupPanel', () => {
       await user.click(
         screen.getByRole('button', { name: /Connecter une boîte/ }),
       );
-      await fillCompleteMailbox(user);
+      setCompleteMailbox();
       await user.click(
         screen.getByRole('button', { name: /Enregistrer la boîte/ }),
       );
@@ -667,7 +685,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -678,7 +696,7 @@ describe('HermesMailboxSetupPanel', () => {
 
     // The write was accepted. A listener blowing up afterwards is its own
     // failure and must not turn the acceptance into a refusal.
-    const note = await screen.findByRole('status');
+    const note = await screen.findByText(/enregistrée, non vérifiée/);
     expect(note).toHaveTextContent(/enregistrée, non vérifiée/);
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(enqueueToast).toHaveBeenCalled();
@@ -719,13 +737,15 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(
+        screen.getByText(/enregistrée, non vérifiée/),
+      ).toBeInTheDocument();
     });
 
     // Reopening offers an empty form: no credential is kept client side.
@@ -758,9 +778,9 @@ describe('HermesMailboxSetupPanel', () => {
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
 
-    await user.type(screen.getByLabelText(/Email Address/i), MAILBOX);
-    await user.type(screen.getByLabelText(/SMTP Server/i), SMTP_HOST);
-    await user.type(screen.getByLabelText(/SMTP Password/i), TYPED_PASSWORD);
+    setField(/Email Address/i, MAILBOX);
+    setField(/SMTP Server/i, SMTP_HOST);
+    setField(/SMTP Password/i, TYPED_PASSWORD);
 
     // The requirement is stated with its reason, not carried by a disabled
     // button alone, and it names the protocol that is missing.
@@ -800,9 +820,9 @@ describe('HermesMailboxSetupPanel', () => {
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
 
-    await user.type(screen.getByLabelText(/Email Address/i), MAILBOX);
-    await user.type(screen.getByLabelText(/IMAP Server/i), IMAP_HOST);
-    await user.type(screen.getByLabelText(/IMAP Password/i), TYPED_PASSWORD);
+    setField(/Email Address/i, MAILBOX);
+    setField(/IMAP Server/i, IMAP_HOST);
+    setField(/IMAP Password/i, TYPED_PASSWORD);
 
     expect(
       screen.getByText(/Cette boîte doit porter la réception/),
@@ -834,7 +854,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -891,7 +911,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -917,12 +937,43 @@ describe('HermesMailboxSetupPanel', () => {
     expect(screen.getByLabelText(/Email Address/i)).toHaveValue('');
     expect(screen.getByLabelText(/IMAP Server/i)).toHaveValue('');
 
-    await fillCompleteMailbox(user);
+    setCompleteMailbox();
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
 
     // A second creation really did leave, deliberately.
     await waitFor(() => expect(variablesSpy).toHaveBeenCalledTimes(2));
+  });
+
+  it('accepte les frappes d’une personne sur chacun de ses champs natifs', async () => {
+    // What keystroke typing proved as a side effect of the old fixtures, now
+    // proved on purpose and for ten keystrokes: every native field is
+    // reachable by its label AND writable by a person. `fireEvent.change`
+    // would succeed even on a disabled or read-only input, so this is the one
+    // place that must not use it.
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+
+    renderPanel(buildAccountsMocks(log));
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+
+    for (const label of [
+      /Email Address/i,
+      /IMAP Server/i,
+      /IMAP Password/i,
+      /SMTP Server/i,
+      /SMTP Password/i,
+    ]) {
+      const field = screen.getByLabelText(label);
+
+      await user.type(field, 'ab');
+
+      expect(field).toHaveValue('ab');
+    }
   });
 });
