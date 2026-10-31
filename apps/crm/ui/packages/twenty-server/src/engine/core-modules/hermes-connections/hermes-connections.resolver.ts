@@ -79,18 +79,11 @@ export class HermesConnectionsResolver {
     private readonly tests: HermesConnectionTestService,
   ) {}
 
-  // A connection test the operator asks for.
-  //
-  // Declared as a Mutation although it changes no stored state: it is a
-  // command issued by pressing a button, it must never be served from a cache,
-  // and it must never be replayed by a transport retry. A Query would be
-  // cached and refetched, which would turn one deliberate diagnostic into
-  // repeated provider traffic.
-  //
-  // It sends no mail: the SMTP path stops after authentication and the IMAP
-  // path only lists folders and reads counters. It starts no campaign, no sync
-  // and no poll, and it never promotes a configuration to « verified » — the
-  // store still publishes only NOT_CONFIGURED and CONFIGURED_UNVERIFIED.
+  // A connection test the operator asks for. A Mutation although it stores
+  // nothing: a command must not be cached, refetched or replayed. It sends no
+  // mail — SMTP stops after authentication, IMAP only lists and counts — and
+  // it promotes no state: the store still publishes only NOT_CONFIGURED and
+  // CONFIGURED_UNVERIFIED.
   @Mutation(() => GraphQLJSONObject)
   hermesTestMailConnectionV4(
     @AuthWorkspace() workspace: WorkspaceEntity,

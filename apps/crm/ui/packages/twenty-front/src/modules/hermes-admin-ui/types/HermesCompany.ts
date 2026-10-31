@@ -49,16 +49,10 @@ export type HermesCompanyMember = {
   unknownRole: string | null;
   state: HermesCompanyMemberState | null;
   unknownState: string | null;
-  // The roles this member actually holds, each with the permission flags that
-  // decide what it allows.
-  //
-  // Null means the roles were never read, so nothing may be said about this
-  // member's rights. An empty array means the member genuinely holds none,
-  // which is a real answer and denies every right.
-  //
-  // This is where rights are read from, not from `role` above: the native
-  // model is additive custom roles, so a single enumerated role could not
-  // describe a member holding two.
+  // The roles held, each with its permission flags. Null means they were never
+  // read, so nothing may be said; an empty array means none are held, which
+  // denies every right. Rights come from here, not from `role` above: the
+  // native model is additive custom roles.
   roles: readonly HermesMemberRole[] | null;
 };
 

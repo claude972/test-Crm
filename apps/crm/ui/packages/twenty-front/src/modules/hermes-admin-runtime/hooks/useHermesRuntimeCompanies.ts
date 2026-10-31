@@ -144,16 +144,10 @@ export const useHermesRuntimeCompanies = (): HermesRuntimeCompanies => {
           .filter((part) => part.length > 0)
           .join(' ');
 
-        // Every role the member holds, with its flags. The rights are read
-        // from those flags, never from a label: a role called
-        // « Administrateur » that carries nothing opens nothing, and a role
-        // with an unfamiliar name can be the one that configures the
-        // connections.
-        //
-        // `role` stays null because the three published roles are a vocabulary
-        // this product does not use — the native model is additive custom
-        // roles — and folding several real roles into one enumerated value
-        // would misstate what the person may do.
+        // Every role held, with its flags. Rights come from the flags, never
+        // from a label. `role` stays null because the three published roles
+        // are a vocabulary this product does not use, and folding several real
+        // roles into one value would misstate what the person may do.
         const roles = readHermesRolesForMember(rolesRead, member.id);
 
         return {

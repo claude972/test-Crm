@@ -4,12 +4,9 @@ import {
 } from '@/hermes-admin-ui/types/HermesConnectionCheck';
 import { parseHermesInstant } from '@/hermes-admin-ui/utils/parseHermesInstant';
 
-// Turning what a server answered into what may be said about a connection.
-//
-// These are pure readers. Nothing is defaulted into existence: an answer that
-// cannot be read becomes 'unconfirmed', which proves nothing, rather than a
-// success or a failure. In particular no shape of answer, and no absence of
-// one, can produce « verified » — the word does not exist in the outcome.
+// Pure readers from a server answer to what may be said. An answer that
+// cannot be read becomes 'unconfirmed', which proves nothing; no shape of
+// answer can produce « verified ».
 
 const readRecord = (value: unknown): Record<string, unknown> | null =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -136,12 +133,9 @@ export const readHermesMailCheckPayload = (
   return { kind: 'unconfirmed' };
 };
 
-// The WhatsApp probe's answer.
-//
-// `hermesEvolutionConnection` is the existing read-only instance-state query:
-// `{status, providerState, checkedAt, errorCode}`. It is reused rather than
-// duplicated, and its three-layer reality is preserved — the gateway can
-// answer perfectly while the WhatsApp pairing is not done.
+// The WhatsApp probe's answer, from the existing read-only instance-state
+// query. Its three-layer reality is preserved: the gateway can answer
+// perfectly while the WhatsApp pairing is unfinished.
 export const readHermesEvolutionCheckPayload = (
   payload: unknown,
 ): HermesConnectionCheckOutcome => {

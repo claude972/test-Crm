@@ -12,12 +12,9 @@ type HermesConnectionCheckNoteProps = {
   outcome: HermesConnectionCheckOutcome | undefined;
 };
 
-// The result of one read-only probe, said in words that do not overstate it.
-//
-// The word « connecté » appears nowhere in this component, and neither does
-// « vérifié ». A probe establishes that a provider answered at one instant.
-// Saying more than that is the false claim this whole screen exists to avoid,
-// so the wording names the operation, dates it, and stops.
+// One probe's result, in words that do not overstate it. Neither « connecté »
+// nor « vérifié » appears here: the wording names the operation, dates it,
+// and stops.
 export const HermesConnectionCheckNote = ({
   probe,
   outcome,

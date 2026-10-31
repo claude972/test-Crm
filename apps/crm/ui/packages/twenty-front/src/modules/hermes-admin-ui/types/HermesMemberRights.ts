@@ -1,15 +1,7 @@
-// What a member may actually do in this operating company.
-//
-// A role LABEL is a name somebody chose; it is not a right. « Admin » can be a
-// role with nothing enabled, and a custom role nobody recognises can be the
-// one that configures the connections. So nothing here is derived from a
-// label: every right comes from the permission flags the server publishes on
-// the role itself.
-//
-// Roles are additive: a member holding several roles has the union of what
-// they grant. That is how the native permission model resolves them, so it is
-// how they are resolved here — taking the first role, or the strictest one,
-// would understate what the person can do.
+// What a member may actually do here. Nothing is derived from a role's LABEL,
+// which is a name somebody chose: every right comes from the permission flags
+// the server publishes on the role. Roles are additive, so a member holding
+// several has the union of what they grant.
 
 // The rights the settings centre is accountable for showing. Each one maps to
 // published permission flags and to nothing else.
@@ -33,12 +25,9 @@ export const isHermesMemberRight = (
   typeof value === 'string' &&
   (HERMES_MEMBER_RIGHTS as readonly string[]).includes(value);
 
-// Whether a right is held.
-//
-// 'unknown' is a flag the server did not publish. It is kept apart from
-// 'denied' and never shown as a refusal: telling an administrator that someone
-// lacks a right, when the right was simply not reported, would be a false
-// statement about that person.
+// Whether a right is held. 'unknown' is a flag the server did not publish; it
+// is kept apart from 'denied' and never shown as a refusal, which would be a
+// false statement about a person.
 export type HermesMemberRightStanding = 'granted' | 'denied' | 'unknown';
 
 // The permission flags of one role, exactly as published. Every field is
@@ -77,12 +66,9 @@ const FLAGS_BY_RIGHT: Record<
   USE_BOT_TOOLS: ['canAccessAllTools'],
 };
 
-// One right, resolved across every role the member holds.
-//
-// Granted as soon as one role grants it. Otherwise unknown if anything was
-// left unreported, because an unreported flag could have been the one that
-// granted it. Denied only when every relevant flag of every role came back
-// false — which is the only case where a refusal can honestly be stated.
+// One right across every role held. Granted as soon as one role grants it;
+// unknown if any relevant flag went unreported, since it could have been the
+// granting one; denied only when every one came back false.
 export const readHermesMemberRight = (
   roles: readonly HermesMemberRole[] | null,
   right: HermesMemberRight,
@@ -127,12 +113,9 @@ export const readHermesMemberRights = (
     standing: readHermesMemberRight(roles, right),
   }));
 
-// Whether this member is one of the administrators the connections contract
-// accepts writes from.
-//
-// Only an explicit grant counts. An unknown flag is not permission, and the
-// screen never presents a member as able to configure connections on the
-// strength of a role name.
+// Whether this member is an administrator the connections contract accepts
+// writes from. Only an explicit grant counts: an unknown flag is not
+// permission, and a role's name never is.
 export const canHermesMemberConfigureConnections = (
   roles: readonly HermesMemberRole[] | null,
 ): boolean => readHermesMemberRight(roles, 'CONFIGURE_CONNECTIONS') === 'granted';

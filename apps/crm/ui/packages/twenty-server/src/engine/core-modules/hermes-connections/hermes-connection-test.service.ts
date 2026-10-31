@@ -8,25 +8,11 @@ import { SmtpClientProvider } from 'src/modules/messaging/message-import-manager
 
 import { HermesConnectionsService } from './hermes-connections.service';
 
-// A connection test, and nothing more than a test.
-//
-// What this service does: it asks the configured mail server a question that
-// changes nothing, and reports whether it answered.
-//
-// What it does NOT do, by construction and not by convention:
-//   - it never sends mail. The SMTP path stops at authentication: nodemailer's
-//     `verify` performs the greeting, the TLS upgrade and the login, then
-//     closes. No MAIL FROM, no RCPT TO, no DATA is ever issued, so no message
-//     can leave even if the configuration is perfect.
-//   - it never writes to the mailbox. The IMAP path lists folders and reads
-//     one folder's counters. Nothing is fetched, flagged, moved, appended or
-//     deleted.
-//   - it never starts a campaign, a sync or a poll.
-//
-// And what a successful test still does NOT prove: that mail will arrive, or
-// that a recipient will receive anything. It proves the server was reachable
-// and accepted these credentials at one instant. The caller is responsible for
-// never promoting that into « connected ».
+// Asks the configured mail server a question that changes nothing, and reports
+// whether it answered. It never sends mail: the SMTP path stops at
+// authentication and the IMAP path only lists folders and reads counters. It
+// starts no campaign, sync or poll. A success proves the server was reachable
+// at one instant — not that any mail will arrive.
 
 // The two read-only operations, named so the operator can be told what was
 // actually dialled rather than being shown a bare green tick.
@@ -97,12 +83,9 @@ const deadline = async <T>(run: Promise<T>): Promise<T> => {
   }
 };
 
-// Every provider failure becomes one of a closed set of codes.
-//
-// The raw error is deliberately dropped rather than attached as a cause: IMAP
-// and SMTP failures carry the host, the port, the mailbox and occasionally the
-// credential that was rejected. The operator gets a code they can act on and
-// the log gets nothing it should not hold.
+// Every provider failure becomes one of a closed set of codes. The raw error
+// is dropped rather than attached: IMAP and SMTP failures carry the host, the
+// port and sometimes the rejected credential.
 const sanitize = (failure: unknown, fallback: string): string => {
   if (failure instanceof ProbeFailure) {
     return failure.code;
@@ -138,12 +121,9 @@ export class HermesConnectionTestService {
     private readonly smtp: SmtpClientProvider,
   ) {}
 
-  // Runs one read-only probe against the workspace's bound mail account.
-  //
-  // The same authorization gate as every other connection operation is applied
-  // first, unchanged: an unrestricted workspace administrator of this
-  // workspace. A probe reads a configured credential's liveness, so it is not
-  // a weaker operation than reading the configuration itself.
+  // Runs one read-only probe against the workspace's bound mail account. The
+  // same unchanged authorization gate as every other connection operation
+  // applies: an unrestricted workspace administrator of this workspace.
   async testMail(
     actor: HermesMessagingActor,
     probe: HermesMailProbe,
@@ -305,12 +285,9 @@ export class HermesConnectionTestService {
     }
   }
 
-  // SMTP, authentication only.
-  //
-  // `verify` is nodemailer's own connection check: it connects, greets,
-  // upgrades to TLS and authenticates, then closes. It does not call
-  // `sendMail`, and no envelope or body is ever built here — there is nothing
-  // in this method that could emit a message.
+  // SMTP, authentication only. `verify` connects, greets, upgrades to TLS and
+  // authenticates, then closes. It does not call `sendMail`, and no envelope
+  // or body is built here, so nothing in this method can emit.
   private async probeSmtp(
     connectedAccountId: string,
   ): Promise<readonly string[]> {

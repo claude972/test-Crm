@@ -3,15 +3,9 @@ import {
   type HermesMemberRoleFlags,
 } from '@/hermes-admin-ui/types/HermesMemberRights';
 
-// Turning the roles the server published into the roles each member holds.
-//
 // The server answers roles→members; the table needs member→roles. The
-// inversion happens here, in a pure function, so it can be tested without a
-// client.
-//
-// A flag the server did not send stays null. It is never read as false: that
-// would state a refusal nobody expressed, and the rights model keeps
-// « unknown » apart from « denied » precisely so that cannot happen.
+// inversion is a pure function so it can be tested without a client. A flag
+// the server did not send stays null, never false.
 
 const readRecord = (value: unknown): Record<string, unknown> | null =>
   typeof value === 'object' && value !== null && !Array.isArray(value)

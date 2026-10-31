@@ -1,27 +1,11 @@
-// What a connection test is, and what it is not.
-//
-// Two different things get confused under the word « connecté », and this
-// module exists to keep them apart — in the model, not only in the wording:
-//
-//   1. REACHABILITY. A read-only probe asked the provider a question that
-//      changes nothing, and got an answer. That is a fact about one instant.
-//      It sends no mail, no WhatsApp, and starts no campaign.
-//
-//   2. A PROVEN FLOW. A real exchange was recorded in the durable ledger: a
-//      message actually arrived, or a provider actually accepted one. That is
-//      the only thing that proves the channel carries traffic.
-//
-// Reachability does not imply a proven flow, and a proven flow in the past
-// does not make a channel reachable now. Neither one is folded into the
-// connection's configuration state: saving a configuration proves nothing at
-// all, which is why a save can never produce either of these.
+// Keeps two notions apart that « connecté » confuses: REACHABILITY, a
+// read-only probe answered at one instant, and a PROVEN FLOW, a real exchange
+// in the durable ledger. Neither implies the other, and neither follows from
+// saving a configuration.
 
-// The read-only operation a probe actually performs, per channel.
-//
-// Named operations rather than a boolean, because the operator is entitled to
-// know what was dialled. Each one is an operation the real provider genuinely
-// supports, and each one is read-only by construction — there is deliberately
-// no probe that sends.
+// The read-only operation each probe performs. Named rather than a boolean so
+// the operator knows what was dialled. Every one is an operation the real
+// provider supports, and none of them sends.
 export const HERMES_CONNECTION_PROBES = [
   // Evolution's own instance-state read. It reports whether the WhatsApp
   // instance is paired; it posts no message.
@@ -50,13 +34,9 @@ export const doesHermesProbeSendAnything = (
   _probe: HermesConnectionProbe,
 ): false => false;
 
-// Which channels this build can probe, and which it cannot.
-//
-// WhatsApp and the native mailbox have a read-only probe. The remaining slots
-// of the settings centre do not — not because they are broken, but because no
-// authorised read-only operation is published for them here. That is said
-// plainly instead of leaving a test button that silently does nothing, and
-// instead of reporting an absent operation as a provider failure.
+// Which channels this build can probe. The other slots have no published
+// read-only operation here, which is said plainly rather than left as a test
+// button that silently does nothing.
 export const HERMES_PROBE_BY_UI_KIND: Readonly<
   Record<string, readonly HermesConnectionProbe[]>
 > = {
@@ -107,12 +87,9 @@ export type HermesConnectionCheckOutcome =
       // the paired state, the folder that was found, the tool that was listed.
       observations: readonly string[];
     }
-  // The provider answered, and said it is not ready to carry traffic. The
-  // usual case is an Evolution instance whose WhatsApp pairing has not been
-  // completed: the gateway is perfectly reachable and the channel still
-  // cannot send. Folding this into 'reachable' would promise a working
-  // channel; folding it into 'unreachable' would send the operator looking
-  // for a network fault that does not exist.
+  // The provider answered and is not ready to carry traffic — usually an
+  // Evolution instance whose WhatsApp pairing is unfinished. Neither
+  // 'reachable' nor 'unreachable' would be true of it.
   | {
       kind: 'reachable-not-ready';
       probe: HermesConnectionProbe;
@@ -151,12 +128,9 @@ export const isHermesConnectionReachable = (
   outcome: HermesConnectionCheckOutcome,
 ): boolean => outcome.kind === 'reachable';
 
-// The flow a real exchange proved, read from the durable ledger.
-//
-// INBOUND_OBSERVED: a message genuinely arrived and was stored.
-// OUTBOUND_ACCEPTED: a provider genuinely accepted one for delivery. That is
-// acceptance, which is not delivery and not a read receipt — the ledger does
-// not know those, so neither does this type.
+// The flow a real exchange proved, from the durable ledger. OUTBOUND_ACCEPTED
+// is a provider accepting for delivery: acceptance, not delivery and not a
+// read receipt.
 export const HERMES_CONNECTION_FLOWS = [
   'INBOUND_OBSERVED',
   'OUTBOUND_ACCEPTED',
@@ -194,13 +168,9 @@ export const isHermesConnectionFlowProven = (
   proof.kind === 'proven' &&
   proof.flows.some((entry) => entry.flow === flow);
 
-// The one function the screen reads a headline from, and the reason this
-// module exists.
-//
-// It cannot return « connecté ». The vocabulary is: nothing configured,
-// configured but nothing checked, reachable at an instant, a proven flow, or a
-// failure. « Reachable » and « proven » are separate descriptors that can both
-// be present, and neither replaces the other.
+// The headline the screen reads. It cannot return « connecté »: reachability
+// and proof are separate descriptors that can both be present, and neither
+// replaces the other.
 export type HermesConnectionStanding = {
   // Was a read-only probe answered, and when.
   reachability:
@@ -271,12 +241,9 @@ export const readHermesConnectionStanding = (
   return { reachability: { kind: 'never-checked' }, proof };
 };
 
-// Whether the screen may offer an action that actually sends something.
-//
-// Reachability alone is not enough to claim the channel works, but it is the
-// gate for ATTEMPTING a send: dialling a provider nobody could reach would
-// fail in front of the operator with no explanation. A proven flow is not
-// required — requiring it would make the first send impossible.
+// The gate for ATTEMPTING a send. Reachability is required so a send is not
+// offered against a provider nobody could reach; a proven flow is not, since
+// requiring it would make the first send impossible.
 export const canAttemptHermesSend = (
   standing: HermesConnectionStanding,
 ): boolean => standing.reachability.kind === 'reachable';
