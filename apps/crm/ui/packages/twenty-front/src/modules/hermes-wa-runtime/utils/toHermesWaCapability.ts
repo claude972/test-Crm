@@ -12,6 +12,7 @@ import {
 export type HermesWaCapabilityName =
   | 'canSend'
   | 'canSendMedia'
+  | 'canReceiveMedia'
   | 'canRecordVoice';
 
 // One capability, from the connection read.
@@ -25,10 +26,12 @@ export type HermesWaCapabilityName =
 //   absent            — the contract's NOT_CONFIGURED. No synthetic connection
 //                       is built, and the library has a sentence for it.
 //   reported          — the flag the server published, and only `true` opens
-//                       the capability. The contract states canSendMedia,
-//                       canReceiveMedia and canRecordVoice all stay false
-//                       until a real probe demonstrates otherwise, and the
-//                       reader already defaults an absent flag to false.
+//                       the capability. The server derives each media flag from
+//                       what the authenticated instance itself reported — the
+//                       pinned build, and for reception the instance's own
+//                       webhook configuration — so an unconfigured or incapable
+//                       provider still publishes false, and the reader defaults
+//                       an absent flag to false.
 //
 // AVAILABLE is never read as a capability either. It is the only
 // provider-confirmed state, but it is a state, not a permission, and
@@ -50,7 +53,9 @@ export const toHermesWaCapability = (
       ? read.connection.canSend
       : name === 'canSendMedia'
         ? read.connection.canSendMedia
-        : read.connection.canRecordVoice;
+        : name === 'canReceiveMedia'
+          ? read.connection.canReceiveMedia
+          : read.connection.canRecordVoice;
 
   if (flag === true) {
     return { kind: 'available' };

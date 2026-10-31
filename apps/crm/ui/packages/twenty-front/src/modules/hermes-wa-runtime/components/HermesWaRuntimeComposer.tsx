@@ -57,11 +57,16 @@ type HermesWaRuntimeComposerProps = {
 // nothing in it runs at mount: not the prepare, not the upload, not the send.
 //
 // Capabilities are read from the connection, one flag at a time, and an absent
-// flag closes the control with a sentence. The contract publishes
-// canSendMedia and canRecordVoice as false until a real probe demonstrates
-// otherwise, so the usual state of this composer is a text box and two closed
-// panels that say why — which is the honest picture of an unconfigured
-// provider, not a bug.
+// flag closes the control with a sentence. The server derives canSendMedia and
+// canRecordVoice from the provider's own answers — the pinned build on an open
+// socket — so these panels open on a real instance and stay closed, with a
+// sentence, on one that is unconfigured, on another version, or disconnected.
+// A closed panel is the honest picture of that provider, not a bug here.
+//
+// A true canRecordVoice means the verified build publishes the voice route. It
+// is not proof that a voice note was converted and delivered: nothing the
+// provider exposes reports host-side audio conversion, so the first real send
+// remains the thing that settles it.
 export const HermesWaRuntimeComposer = ({
   conversationId,
   connectionRead,
