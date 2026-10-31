@@ -5,7 +5,6 @@ import { ALL_OVERRIDABLE_PROPERTIES_BY_METADATA_NAME } from 'src/engine/metadata
 import { ALL_TRANSLATABLE_PROPERTIES_BY_METADATA_NAME } from 'src/engine/metadata-modules/flat-entity/constant/all-translatable-properties-by-metadata-name.constant';
 import { type EffectiveEntityI18nContext } from 'src/engine/metadata-modules/overrides/types/effective-entity-i18n-context.type';
 import { resolveEffectiveEntityPropertyByName } from 'src/engine/metadata-modules/overrides/utils/resolve-effective-entity-property.util';
-import { resolveEffectiveTranslatedOptions } from 'src/engine/metadata-modules/overrides/utils/resolve-effective-translated-options.util';
 import {
   type OverridableFlatEntity,
   resolveEffectiveFlatEntityProperty,
@@ -27,17 +26,6 @@ export const resolveEffectiveTranslatedFlatEntity = <
   const translatableProperties: readonly string[] =
     ALL_TRANSLATABLE_PROPERTIES_BY_METADATA_NAME[metadataName] ?? [];
 
-  const effectiveFlatEntityWithTranslatedOptions =
-    metadataName === 'fieldMetadata'
-      ? {
-          ...flatEntity,
-          ['options']: resolveEffectiveTranslatedOptions(
-            flatEntity.options,
-            i18nContext,
-          ),
-        }
-      : flatEntity;
-
   return overridableProperties.reduce<TFlatEntity>(
     (effectiveFlatEntity, property) => ({
       ...effectiveFlatEntity,
@@ -56,6 +44,6 @@ export const resolveEffectiveTranslatedFlatEntity = <
             authorContext: i18nContext,
           }),
     }),
-    effectiveFlatEntityWithTranslatedOptions,
+    flatEntity,
   );
 };
