@@ -44,7 +44,10 @@ export const readCampaignCapability = ({
   if (capability.allowed === false) {
     return {
       kind: 'refused',
-      origin: 'server',
+      // The server is the default author of a refusal. A capability that
+      // names a different origin is reported under that one, so a step this
+      // build simply cannot carry out is not blamed on the server.
+      origin: capability.origin ?? 'server',
       reasonCode: capability.reasonCode,
       reason: capability.reason,
     };

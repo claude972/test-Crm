@@ -2,6 +2,7 @@ import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import { isNonEmptyString } from '@sniptt/guards';
+import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { IconAlertTriangle, IconEye } from 'kovaa-lab-ui/icon';
 import { Tag } from 'kovaa-lab-ui/primitives/data-display';
@@ -12,6 +13,7 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 import { HermesCampaignIssueList } from '@/hermes-campaigns-ui/components/HermesCampaignIssueList';
 import { HermesCampaignNote } from '@/hermes-campaigns-ui/components/HermesCampaignNote';
 import { HermesCampaignReason } from '@/hermes-campaigns-ui/components/HermesCampaignReason';
+import { HermesCampaignSaveControl } from '@/hermes-campaigns-ui/components/HermesCampaignSaveControl';
 import {
   HERMES_CAMPAIGN_BODY_MAX_LENGTH,
   HERMES_CAMPAIGN_SUBJECT_MAX_LENGTH,
@@ -21,6 +23,7 @@ import {
   type HermesCampaignContent,
   type HermesCampaignPreviewState,
 } from '@/hermes-campaigns-ui/types/HermesCampaignContent';
+import { type HermesCampaignSaveState } from '@/hermes-campaigns-ui/types/HermesCampaignSaveState';
 import { validateCampaignContent } from '@/hermes-campaigns-ui/utils/validateCampaignContent';
 
 const StyledLayout = styled.div`
@@ -108,6 +111,12 @@ type HermesCampaignContentSectionProps = {
   // Read-only once the campaign is no longer a draft: editing a campaign on
   // its way would describe a message nobody will receive.
   isEditable: boolean;
+  // How the last recording of the subject and the message went. The section
+  // shows it next to the control: an edit that was never recorded must not
+  // look like a recorded one.
+  saveState: HermesCampaignSaveState;
+  // Absent means nothing is wired to record the content.
+  onSaveContent?: () => void;
 };
 
 export const HermesCampaignContentSection = ({
@@ -116,6 +125,8 @@ export const HermesCampaignContentSection = ({
   declaredVariables,
   previewState,
   isEditable,
+  saveState,
+  onSaveContent,
 }: HermesCampaignContentSectionProps) => {
   const { t, i18n } = useLingui();
 
@@ -139,6 +150,13 @@ export const HermesCampaignContentSection = ({
   const availableTokens = declaredVariableNames
     .map((name) => `{{${name}}}`)
     .join(' ');
+
+  // A conditional flag the server published, in words. Null is "it did not
+  // say", which is not "no": next to a tracking marker those read very
+  // differently.
+  const readWouldBeLabel = (flag: boolean | null): string =>
+    flag === true ? t`yes` : flag === false ? t`no` : t`not stated`;
+
 
   return (
     <Section.Root>
@@ -196,6 +214,23 @@ export const HermesCampaignContentSection = ({
             {t`The content is read-only: this campaign is no longer a draft.`}
           </HermesCampaignNote>
         )}
+
+        {/* Recording the subject and the message on the campaign. This is
+            what makes an edit survive a reload; nothing is emitted by it. */}
+        <HermesCampaignSaveControl
+          id="hermes-campaign-save-content"
+          label={t`Record the content`}
+          saveState={saveState}
+          onSave={onSaveContent}
+          canSave={isEditable && validation.issues.length === 0}
+          blockedReason={
+            !isEditable
+              ? t`This campaign is no longer a draft, so its content can no longer be recorded.`
+              : validation.issues.length > 0
+                ? t`Fix the problems listed above before recording.`
+                : undefined
+          }
+        />
 
         {previewState.kind === 'idle' && (
           <HermesCampaignNote>
@@ -280,12 +315,66 @@ export const HermesCampaignContentSection = ({
               </StyledMissing>
             )}
 
+            {previewState.preview.isRecipientSendable === false && (
+              <Banner
+                status="warning"
+                variant="soft"
+                icon={<IconAlertTriangle aria-hidden="true" />}
+              >
+                {t`This recipient is currently excluded, so a send would skip them. The rendering is shown anyway.`}
+              </Banner>
+            )}
+
+            {isNonEmptyString(previewState.preview.exclusionReason) && (
+              <HermesCampaignReason
+                reasonCode={previewState.preview.exclusionReason}
+                reason={null}
+                fallback={t`The server gave no reason for the exclusion.`}
+              />
+            )}
+
+            {previewState.preview.isRecipientSendable === null && (
+              <HermesCampaignNote>
+                {t`The server did not say whether this recipient would be sent to, so it is unknown rather than assumed.`}
+              </HermesCampaignNote>
+            )}
+
+            {previewState.preview.variablesUsed.length > 0 && (
+              <StyledVariableHint>
+                {t`Variables resolved for this recipient: ${previewState.preview.variablesUsed.map((name) => `{{${name}}}`).join(' ')}`}
+              </StyledVariableHint>
+            )}
+
+            {isDefined(previewState.preview.envelope) && (
+              <StyledVariableHint>
+                {/* Every one of these is conditional on a send that has not
+                    happened, so the wording stays in that tense. */}
+                {t`If this campaign departed: sender ${previewState.preview.envelope.fromAddress ?? '—'}, open marker ${readWouldBeLabel(previewState.preview.envelope.openMarkerWouldBeIncluded)}, click tracking ${readWouldBeLabel(previewState.preview.envelope.clickTrackingWouldBeApplied)}, unsubscribe link ${readWouldBeLabel(previewState.preview.envelope.unsubscribeLinkWouldBeIncluded)}.`}
+              </StyledVariableHint>
+            )}
+
             <HermesCampaignNote>
               <Trans>
                 This is a rendering, not a message. No transport was contacted,
                 no recipient was reached and nothing was recorded as sent.
               </Trans>
             </HermesCampaignNote>
+
+            <HermesCampaignNote>
+              <Trans>
+                Shown as plain text on purpose: the panel stays inert, so no
+                layout is executed, no remote image is fetched and this
+                recipient's open marker is never loaded. A preview cannot
+                record an open that nobody performed. The real message is laid
+                out in HTML, so it will not look exactly like this.
+              </Trans>
+            </HermesCampaignNote>
+
+            {isDefined(previewState.preview.envelope?.senderStatus) && (
+              <HermesCampaignNote>
+                {t`The server reports the sender as ${previewState.preview.envelope.senderStatus}. That is what it checked, not proof that a send would succeed.`}
+              </HermesCampaignNote>
+            )}
           </StyledPreview>
         )}
 

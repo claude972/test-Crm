@@ -38,6 +38,8 @@ import {
   type HermesCampaignState,
 } from '@/hermes-campaigns-ui/types/HermesCampaignJourney';
 import { type HermesCampaignLoad } from '@/hermes-campaigns-ui/types/HermesCampaignLoad';
+import { type HermesCampaignPreviewRecipient } from '@/hermes-campaigns-ui/types/HermesCampaignPreviewRecipient';
+import { type HermesCampaignSaveState } from '@/hermes-campaigns-ui/types/HermesCampaignSaveState';
 import { type HermesCampaignMetric } from '@/hermes-campaigns-ui/types/HermesCampaignResult';
 import { type HermesMarketingObjection } from '@/hermes-campaigns-ui/types/HermesMarketingObjection';
 import { type HermesSenderIdentity } from '@/hermes-campaigns-ui/types/HermesSenderIdentity';
@@ -112,7 +114,22 @@ export type HermesCampaignScreenProps = {
 
   content: HermesCampaignContent;
   onContentChange: (content: HermesCampaignContent) => void;
+  // How the last recording of the subject and the message went, and the
+  // control that performs it. Without these the content would be editable
+  // and never stored, which is the defect this screen used to have.
+  contentSaveState: HermesCampaignSaveState;
+  onSaveContent?: () => void;
+  // How recording the chosen sender went.
+  senderSaveState: HermesCampaignSaveState;
+
   previewState: HermesCampaignPreviewState;
+  previewRecipients: HermesCampaignPreviewRecipient[];
+  selectedPreviewRecipientId: string | null;
+  onSelectPreviewRecipient?: (recipientId: string) => void;
+
+  // Where a test message really goes. Typed by the operator, no default.
+  testDestination: string;
+  onTestDestinationChange: (destination: string) => void;
 
   scheduleDraft: HermesCampaignSchedule;
   onScheduleDraftChange: (draft: HermesCampaignSchedule) => void;
@@ -120,6 +137,9 @@ export type HermesCampaignScreenProps = {
   scheduledAt: HermesCampaignSchedule | null;
 
   actionOutcome: HermesCampaignActionOutcome | null;
+  // True once an emission ended with no known result. The emitting steps stay
+  // shut until the campaign is re-read: no blind retry.
+  hasUncertainEmission: boolean;
   onPreview?: () => void;
   onSendSyntheticTest?: () => void;
   onSchedule?: (schedule: HermesCampaignSchedule) => void;
@@ -151,12 +171,21 @@ export const HermesCampaignScreen = ({
   onRetryAudience,
   content,
   onContentChange,
+  contentSaveState,
+  onSaveContent,
+  senderSaveState,
   previewState,
+  previewRecipients,
+  selectedPreviewRecipientId,
+  onSelectPreviewRecipient,
+  testDestination,
+  onTestDestinationChange,
   scheduleDraft,
   onScheduleDraftChange,
   timeZones,
   scheduledAt,
   actionOutcome,
+  hasUncertainEmission,
   onPreview,
   onSendSyntheticTest,
   onSchedule,
@@ -236,6 +265,7 @@ export const HermesCampaignScreen = ({
         selectedIdentityId={selectedIdentityId}
         onSelectIdentity={onSelectIdentity}
         onRetry={onRetrySenderIdentities}
+        saveState={senderSaveState}
       />
 
       <HermesCampaignCapabilitiesSection
@@ -255,6 +285,8 @@ export const HermesCampaignScreen = ({
         declaredVariables={audience?.variables ?? []}
         previewState={previewState}
         isEditable={campaignState === 'draft'}
+        saveState={contentSaveState}
+        onSaveContent={onSaveContent}
       />
 
       <HermesCampaignJourneySection
@@ -267,6 +299,12 @@ export const HermesCampaignScreen = ({
         scheduledAt={scheduledAt}
         retainedCount={audience?.retainedCount ?? null}
         outcome={actionOutcome}
+        hasUncertainEmission={hasUncertainEmission}
+        previewRecipients={previewRecipients}
+        selectedPreviewRecipientId={selectedPreviewRecipientId}
+        onSelectPreviewRecipient={onSelectPreviewRecipient}
+        testDestination={testDestination}
+        onTestDestinationChange={onTestDestinationChange}
         onPreview={onPreview}
         onSendSyntheticTest={onSendSyntheticTest}
         onSchedule={onSchedule}

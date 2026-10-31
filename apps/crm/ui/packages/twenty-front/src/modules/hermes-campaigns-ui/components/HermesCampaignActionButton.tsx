@@ -69,7 +69,9 @@ export const HermesCampaignActionButton = ({
 
   const emissionLabels: Record<HermesCampaignEmissionKind, string> = {
     none: t`Emits nothing`,
-    'staging-destinations-only': t`Real emission · staging destinations only`,
+    // Says the truth: the server does not restrict this destination, so the
+    // address on screen is the address that receives a real message.
+    'typed-destination': t`Real emission · to the address you typed`,
     recipients: t`Real emission · to the retained recipients`,
   };
 
@@ -119,7 +121,9 @@ export const HermesCampaignActionButton = ({
           fallback={
             permission.origin === 'sender-identity'
               ? t`Unavailable: the sender identity this would run under is not authorised.`
-              : t`Unavailable: the server refused this step without giving a reason.`
+              : permission.origin === 'client'
+                ? t`Unavailable in this version: no operation is published yet to carry out this step. This is a missing feature, not a refusal by the server.`
+                : t`Unavailable: the server refused this step without giving a reason.`
           }
         />
       )}

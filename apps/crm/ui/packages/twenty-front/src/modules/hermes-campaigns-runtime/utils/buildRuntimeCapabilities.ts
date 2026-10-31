@@ -51,6 +51,7 @@ const refused = (
   reason,
 });
 
+
 // Turns the server's answers into the five capabilities the screen reads.
 //
 // Only three of the five have anything published behind them:
@@ -62,9 +63,20 @@ const refused = (
 //   yes, and a blocker is the server saying no with its own code.
 // - cancel comes from the published status, which is the fact the lifecycle
 //   service's own guard tests, and that guard runs again on the call.
-// - preview and testSynthetic have no published capability anywhere in the
-//   schema, so they stay unavailable. Nothing here invents one from a name, a
-//   pilot flag or an interface boolean.
+// - preview is open whenever the campaign can be read. It has its own
+//   operation, `previewMessageCampaignRecipient`, which emits nothing and
+//   enforces its own rights server side, so the control is offered and the
+//   resolver is left to refuse. No capability flag is published for it, and
+//   none is invented: nothing is claimed about the preview beyond the fact
+//   that asking for it sends no message.
+// - testSynthetic does have its operation, so it is gated on the same verdict
+//   as the departure it rehearses. That is deliberately conservative: the
+//   blockers also cover things a single test does not need, such as an empty
+//   audience, so the test is never more permissive than the send and
+//   sometimes stricter. Never the other way round.
+//
+// Nothing here invents a capability from a name, a pilot flag or an interface
+// boolean.
 export const buildRuntimeCapabilities = ({
   blockers,
   campaignStatus,
@@ -91,8 +103,8 @@ export const buildRuntimeCapabilities = ({
         : refused('MESSAGE_CAMPAIGN_NOT_CANCELABLE', null);
 
   return {
-    preview: unavailable(),
-    testSynthetic: unavailable(),
+    preview: allowed(),
+    testSynthetic: sendability,
     schedule: sendability,
     send: sendability,
     cancel,

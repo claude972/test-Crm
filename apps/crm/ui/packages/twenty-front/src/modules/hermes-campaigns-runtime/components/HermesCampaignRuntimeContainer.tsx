@@ -9,18 +9,21 @@ export type HermesCampaignRuntimeContainerProps = {
 
 // The campaign screen, plugged into the emailing engine this workspace runs.
 //
-// Every prop is passed by name rather than spread, so what is wired and what
-// is not can be read here in one place. Three callbacks are missing on
-// purpose, and each one leaves its control shut with a reason in the page:
+// Every prop is passed by name rather than spread, so what is wired can be
+// read here in one place. Every callback the screen accepts is now wired,
+// including the three that used to be left out: the recipient preview, the
+// test to an address the operator types, and the immediate send.
 //
-// - onPreview: nothing in the schema renders a campaign for a recipient.
-// - onSendSyntheticTest: a test is a real emission, the operation accepts any
-//   destination with no staging restriction, the screen offers no field where
-//   a human could name one, and the server publishes no capability for it.
-// - onSend: an immediate send is never wired from this container.
+// Leaving them out was the defect. A step that the server does not permit is
+// still shut — an absent sender, an unverified domain or a campaign that is
+// not a draft all close their controls with the reason shown in the page —
+// but it is the server's verdict that closes them, not a missing callback.
+// The guard refuses; the wiring is there.
 //
-// Nothing here emits at mount: the two wired actions are mutations held by
-// callbacks and fired only by a human pressing a control the server opened.
+// Nothing here emits at mount. Every mutation sits behind a callback fired
+// only by a human pressing a control the server opened, the immediate send
+// additionally behind a confirmation made in the page, and an emission whose
+// outcome is unknown shuts the emitting steps instead of offering a retry.
 export const HermesCampaignRuntimeContainer = ({
   campaignId,
 }: HermesCampaignRuntimeContainerProps) => {
@@ -34,20 +37,32 @@ export const HermesCampaignRuntimeContainer = ({
       selectedIdentityId={runtime.selectedIdentityId}
       onSelectIdentity={runtime.onSelectIdentity}
       onRetrySenderIdentities={runtime.onRetrySenderIdentities}
+      senderSaveState={runtime.senderSaveState}
       capabilitiesLoad={runtime.capabilitiesLoad}
       onRetryCapabilities={runtime.onRetryCapabilities}
       audienceLoad={runtime.audienceLoad}
       onRetryAudience={runtime.onRetryAudience}
       content={runtime.content}
       onContentChange={runtime.onContentChange}
+      contentSaveState={runtime.contentSaveState}
+      onSaveContent={runtime.onSaveContent}
       previewState={runtime.previewState}
+      previewRecipients={runtime.previewRecipients}
+      selectedPreviewRecipientId={runtime.selectedPreviewRecipientId}
+      onSelectPreviewRecipient={runtime.onSelectPreviewRecipient}
+      testDestination={runtime.testDestination}
+      onTestDestinationChange={runtime.onTestDestinationChange}
       scheduleDraft={runtime.scheduleDraft}
       onScheduleDraftChange={runtime.onScheduleDraftChange}
       timeZones={runtime.timeZones}
       scheduledAt={runtime.scheduledAt}
       actionOutcome={runtime.actionOutcome}
+      hasUncertainEmission={runtime.hasUncertainEmission}
+      onPreview={runtime.onPreview}
+      onSendSyntheticTest={runtime.onSendSyntheticTest}
       onSchedule={runtime.onSchedule}
       onCancelSchedule={runtime.onCancelSchedule}
+      onSend={runtime.onSend}
       resultsLoad={runtime.resultsLoad}
       onRetryResults={runtime.onRetryResults}
       objectionsLoad={runtime.objectionsLoad}
