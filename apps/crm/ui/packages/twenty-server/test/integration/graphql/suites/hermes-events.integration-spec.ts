@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 
-import { type ConfigService } from '@nestjs/config';
 import request from 'supertest';
 import { In } from 'typeorm';
 
@@ -9,6 +8,7 @@ import { getAppProviderByClassName as provider } from 'test/integration/utils/ge
 import { getCoreRepository } from 'test/integration/utils/get-core-repository.util';
 import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
 import { type AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
+import { type HermesConnectionsService } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
 import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -41,8 +41,9 @@ assert.equal(database.search, '');
 const A = SEED_APPLE_WORKSPACE_ID;
 const B = SEED_YCOMBINATOR_WORKSPACE_ID;
 const PREFIX = `hermes-events-${randomUUID().slice(0, 8)}`;
-const connectionA = randomUUID();
-const connectionB = randomUUID();
+// Assigned in beforeAll from the connection ids the central service mints.
+let connectionA = '';
+let connectionB = '';
 const secretA = randomBytes(32).toString('hex');
 const secretB = randomBytes(32).toString('hex');
 const receivedAt = '2026-10-30T12:00:00.000Z';
@@ -132,7 +133,18 @@ const post = async (
 describe('Hermes Forms/Cal — native signed HTTP and PostgreSQL', () => {
   const fixtures = new Map<string, Fixture>();
   const ids = new Map<string, Map<string, Set<string>>>();
-  let originalConfiguration: string;
+  // workspaceId -> revision of the INTAKE connection this suite registered.
+  const registrations = new Map<string, number>();
+  // The same unrestricted workspace administrator the endpoint is owned by.
+  const operator = (workspaceId: string) => {
+    const fixture = fixtures.get(workspaceId);
+    assert.ok(fixture);
+    return {
+      workspaceId,
+      userId: fixture.user.id,
+      userWorkspaceId: fixture.membership.id,
+    };
+  };
   const remember = (
     workspaceId: string,
     name: string,
@@ -182,7 +194,6 @@ describe('Hermes Forms/Cal — native signed HTTP and PostgreSQL', () => {
     const config = provider<KovaaLabCRMConfigService>(
       'KovaaLabCRMConfigService',
     );
-    originalConfiguration = config.get('HERMES_INTAKE_CONNECTIONS');
     assert.equal(
       config.get('EMAILING_DOMAIN_DRIVER'),
       'LOG',
@@ -231,40 +242,60 @@ describe('Hermes Forms/Cal — native signed HTTP and PostgreSQL', () => {
         roleId: role.id,
       });
     }
-    const entry = (workspaceId: string, secret: string) => {
-      const fixture = fixtures.get(workspaceId)!;
-      return {
-        workspaceId,
-        operatorUserId: fixture.user.id,
-        operatorUserWorkspaceId: fixture.membership.id,
-        secret,
-        allowedSources: ['FORMS', 'CALENDAR'],
-      };
+    // The central connections service is the only registry the signed intake
+    // guard consults: centralIntake resolves by connectionId through it and
+    // has no environment fallback. So register the INTAKE endpoint for A and
+    // B here, with its HMAC secret, exactly as an operator would, and take
+    // the connection id the service mints rather than inventing one.
+    const connections = provider<HermesConnectionsService>(
+      'HermesConnectionsService',
+    );
+    const register = async (workspaceId: string, secret: string) => {
+      const actor = operator(workspaceId);
+      const current = (await connections.list(actor)).find(
+        (connection) => connection.kind === 'INTAKE',
+      );
+      const view = await connections.save(actor, {
+        kind: 'INTAKE',
+        expectedRevision: current?.revision ?? 0,
+        settings: {
+          allowedSources: ['FORMS', 'CALENDAR'],
+          // The previous env-only fixture omitted this and inherited the
+          // schema default; keep that exact budget, do not widen it.
+          maxRequestsPerMinute: 10,
+        },
+        secrets: { secret },
+      });
+      const { connectionId } = view;
+      assert.ok(
+        connectionId,
+        'Lot D must register the INTAKE endpoint for this workspace',
+      );
+      assert.equal(view.state, 'CONFIGURED_UNVERIFIED');
+      assert.deepEqual(view.secretFields, ['secret']);
+      registrations.set(workspaceId, view.revision);
+      return connectionId;
     };
-    const serialized = JSON.stringify({
-      [connectionA]: entry(A, secretA),
-      [connectionB]: entry(B, secretB),
-    });
-    provider<ConfigService>('ConfigService').set(
-      'HERMES_INTAKE_CONNECTIONS',
-      serialized,
-    );
-    assert.ok(
-      config.get('HERMES_INTAKE_CONNECTIONS') === serialized,
-      'Native env-only config fixture must be active',
-    );
+    connectionA = await register(A, secretA);
+    connectionB = await register(B, secretB);
+    assert.notEqual(connectionA, connectionB);
   }, 180_000);
   afterAll(async () => {
-    if (originalConfiguration !== undefined)
-      provider<ConfigService>('ConfigService').set(
-        'HERMES_INTAKE_CONNECTIONS',
-        originalConfiguration,
-      );
     for (const [workspaceId, fixture] of fixtures) {
       // Restore this synthetic actor before cleanup if the negative test failed.
       await getCoreRepository<UserEntity>(UserEntity).update(fixture.user.id, {
         disabled: false,
       });
+      // Withdraw the INTAKE registration while this operator can still act:
+      // remove() re-checks access, and the membership is deleted just below.
+      const revision = registrations.get(workspaceId);
+      if (revision !== undefined)
+        await provider<HermesConnectionsService>(
+          'HermesConnectionsService',
+        ).remove(operator(workspaceId), {
+          kind: 'INTAKE',
+          expectedRevision: revision,
+        });
       await inspect(workspaceId, async (manager, permissions) => {
         const noteIds = [...(ids.get(workspaceId)?.get('note') ?? [])];
         const calendarIds = [
