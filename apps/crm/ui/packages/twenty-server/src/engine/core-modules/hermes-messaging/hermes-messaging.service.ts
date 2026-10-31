@@ -465,8 +465,13 @@ export class HermesMessagingService {
               status === 'AVAILABLE' && probe.canReceiveMedia === true,
             canRecordVoice:
               status === 'AVAILABLE' && probe.canRecordVoice === true,
+            // Gated like canSend, not like the media capabilities. Composing a
+            // rich reply is a permission the stored configuration grants —
+            // secure SMTP — so it needs no provider to have answered. Media
+            // does need that, which is why those stay AVAILABLE-only.
             canComposeRichEmail:
-              status === 'AVAILABLE' && probe.canComposeRichEmail === true,
+              ['AVAILABLE', 'CONFIGURED_UNVERIFIED'].includes(status) &&
+              probe.canComposeRichEmail === true,
             lastCheckedAt: new Date(),
             errorCode: status === 'UNAVAILABLE' ? 'PROVIDER_UNAVAILABLE' : null,
           };

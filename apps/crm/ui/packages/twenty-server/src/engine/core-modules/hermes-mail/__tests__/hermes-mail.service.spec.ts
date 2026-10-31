@@ -206,6 +206,51 @@ describe('Hermes mailbox bridge', () => {
     });
     expect(f.imap.getClient).not.toHaveBeenCalled();
   });
+  it('does not turn a fresh sync cursor into a reachable mailbox', async () => {
+    // The cursor is the trace of a past poll. Credentials can be revoked and a
+    // server can go down a second after a successful sync, so freshness is not
+    // reachability — this used to publish AVAILABLE and showed a mailbox as
+    // reached that nobody had reached.
+    const f = fixture();
+
+    f.cursors.findOneBy.mockResolvedValue({
+      uidValidity: '123',
+      lastUid: '11',
+      updatedAt: new Date(),
+    } as never);
+
+    expect(await f.service.probe(workspaceId)).toMatchObject({
+      status: 'CONFIGURED_UNVERIFIED',
+    });
+
+    // And nothing was dialled to reach that verdict: this runs on the
+    // connections listing and on every AUTO activation.
+    expect(f.imap.getClient).not.toHaveBeenCalled();
+    expect(f.smtp.getClient).not.toHaveBeenCalled();
+  });
+  it('keeps rich composition a configuration permission, not a past sync', async () => {
+    // Previously gated on cursor freshness, which is reception evidence and
+    // says nothing about SMTP. It is the same permission as sending.
+    const f = fixture();
+
+    f.cursors.findOneBy.mockResolvedValue(null as never);
+
+    expect(await f.service.probe(workspaceId)).toMatchObject({
+      status: 'CONFIGURED_UNVERIFIED',
+      canSend: true,
+      canComposeRichEmail: true,
+    });
+  });
+  it('refuses rich composition when SMTP is not secure', async () => {
+    const f = fixture();
+
+    f.account.connectionParameters.SMTP.connectionSecurity = 'NONE';
+
+    expect(await f.service.probe(workspaceId)).toMatchObject({
+      canSend: false,
+      canComposeRichEmail: false,
+    });
+  });
   it('stops immediately when the delegating operator was revoked', async () => {
     const f = fixture();
     f.access.assertAllowed.mockRejectedValue(new Error('revoked'));
