@@ -53,9 +53,51 @@ Reste ouvert et non corrigé : le contrat IMAP+SMTP (voir ci-dessous).
 | SHA | Objet | État |
 |---|---|---|
 | `f64c974c1` | garantir que les libellés d'options standard atteignent le catalogue | assemblé, **test seul** |
-| `d13ac13ea` | ne pas enregistrer une traduction d'option renvoyée comme un renommage | poussé, non assemblé, non relu |
+| `d13ac13ea` | ne pas enregistrer une traduction d'option renvoyée comme un renommage | **assemblé**, ready_for_review |
+| `6ff4f4667` | traduire au runtime les libellés d'options du modèle standard | **assemblé**, ready_for_review |
 
-**Les étapes ne sont pas traduites au runtime.** `f64c974c1` est un test de
+**Mise à jour : les étapes sont traduites au runtime, serveur seul, sans codegen.**
+Assemblé à `521f4b4d6`. 139/139 verts sur 24 suites à l'assemblage.
+
+Ordre délibéré : le garde d'écriture **précède** la traduction, donc la branche
+n'est jamais à un commit où la traduction expédie sans protection.
+
+Aucun fichier front, aucun `src/locales/**`, aucun `fr-FR.po`, **aucune propriété
+de DTO, aucun codegen, aucune migration, aucun nouveau msgid**. `options` est un
+champ GraphQL existant : la forme du schéma est inchangée, et c'est précisément
+pourquoi aucun codegen n'est nécessaire.
+
+Deux points vérifiés par le parent dans le source :
+
+- **Lecture** : `resolveEffectiveTranslatedFlatEntity` résout désormais `options`
+  avant la réduction scalaire existante, en déléguant à
+  `resolveEffectiveTranslatedOptions`, qui appelle `translateStandardLabel` avec le
+  contexte `fieldMetadata.label` — **le même contexte que le site d'écriture**, ce
+  qui explique que les msgid résolvent déjà. Seul `label` est résolu ; `id`,
+  `value`, `position` et `color` passent tels quels. Un manque au catalogue renvoie
+  la chaîne stockée inchangée.
+- **Écriture** : le garde est posé sur l'**autorité**, dans
+  `sanitizeRawUpdateFieldInput`, et non sur le formulaire — donc il protège *tous*
+  les clients, formulaire, mode groupé, onglet périmé, API, script. Il est restreint
+  aux champs standard et il est **sans locale** : un libellé candidat compte comme
+  écho s'il correspond à la traduction livrée du libellé stocké dans **n'importe
+  laquelle** des 35 locales compilées, ce qu'un garde franco-seul n'aurait pas fait.
+
+Correction apportée à la route proposée par le parent : la ruse du formulaire « À
+propos » ne transposait pas, parce que ses champs sont des scalaires séparés qu'on
+peut omettre, alors que `options` est **un seul champ tableau** remplacé en bloc.
+Dès qu'une seule option est touchée, ne serait-ce que sa couleur, le tableau entier
+part — libellés traduits compris. La route formulaire était donc la route DTO +
+codegen déguisée. D'où le garde côté autorité.
+
+Deux mécanismes indépendants distinguent maintenant un libellé personnalisé : à la
+lecture, l'aller-retour catalogue rend inchangé ce qu'il ne connaît pas ; à
+l'écriture, le test d'écho stocke verbatim un vrai renommage.
+
+Quatre preuves négatives exécutées, dont celle demandée nommément : garde rendu
+trop zélé, et les trois tests de renommage réel rougissent.
+
+**État historique conservé pour mémoire :** `f64c974c1` est un test de
 catalogue et ne le démontre pas ; root l'a dit et c'est exact. Ce qui est établi :
 
 - `fieldMetadata` n'a que `['label','description']` comme propriétés traduisibles.
