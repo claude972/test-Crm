@@ -83,6 +83,7 @@ export const HermesMailboxSetupPanel = ({
     loading,
     outcome,
     resetSetup,
+    retryAccountsRead,
   } = useHermesMailboxSetup({ onConnected: handleConnected });
 
   const { control } = formMethods;
@@ -108,7 +109,14 @@ export const HermesMailboxSetupPanel = ({
 
         {outcome.kind === 'saved-unverified' && (
           <HermesAdminNote role="status">
-            {t`Boîte enregistrée. Sa joignabilité n’est pas vérifiée : aucun serveur de messagerie n’a été contacté. Elle est maintenant sélectionnable ci-dessus.`}
+            {t`Boîte enregistrée, non vérifiée. L’enregistrement est acquis ; sa joignabilité n’est pas établie et aucun échange de courrier n’a été prouvé. Utilisez « Tester la connexion » pour établir la joignabilité.`}
+          </HermesAdminNote>
+        )}
+
+        {(outcome.kind === 'saved-not-reread' ||
+          outcome.kind === 'rereading') && (
+          <HermesAdminNote role="status">
+            {t`Boîte enregistrée, non vérifiée. La liste des comptes n’a pas pu être relue : elle peut être incomplète à l’écran. Le compte existe côté serveur — ne le recréez pas.`}
           </HermesAdminNote>
         )}
 
@@ -121,6 +129,22 @@ export const HermesMailboxSetupPanel = ({
           >
             {t`Connecter une boîte`}
           </Button>
+
+          {(outcome.kind === 'saved-not-reread' ||
+            outcome.kind === 'rereading') && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              loading={outcome.kind === 'rereading'}
+              disabled={outcome.kind === 'rereading'}
+              onClick={() => {
+                void retryAccountsRead();
+              }}
+            >
+              {t`Relire la liste des comptes`}
+            </Button>
+          )}
         </StyledActions>
       </StyledPanel>
     );

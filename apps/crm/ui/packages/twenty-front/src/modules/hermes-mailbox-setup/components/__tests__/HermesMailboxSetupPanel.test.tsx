@@ -260,9 +260,10 @@ describe('HermesMailboxSetupPanel', () => {
     );
 
     const note = await screen.findByRole('status');
-    expect(note).toHaveTextContent(/joignabilité n’est pas vérifiée/);
-    expect(note).toHaveTextContent(/aucun serveur de messagerie n’a été contacté/);
-    // Saved is not reachable and not proven-flowing.
+    // The three states are named apart: recorded, reachable, proven-flowing.
+    expect(note).toHaveTextContent(/enregistrée, non vérifiée/);
+    expect(note).toHaveTextContent(/joignabilité n’est pas établie/);
+    expect(note).toHaveTextContent(/aucun échange de courrier n’a été prouvé/);
     expect(note.textContent).not.toMatch(/connectée|vérifiée avec succès/);
   });
 
@@ -324,6 +325,79 @@ describe('HermesMailboxSetupPanel', () => {
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     ).toBeDisabled();
     expect(variablesSpy).not.toHaveBeenCalled();
+  });
+
+  it('keeps an accepted write that could not be re-read out of the refusal path, and never invites a duplicate', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const onBindMail = jest.fn();
+
+    renderPanel(
+      [
+        // The empty first read.
+        {
+          request: { query: GET_MY_CONNECTED_ACCOUNTS },
+          maxUsageCount: 1,
+          result: () => {
+            log.count += 1;
+            return { data: { myConnectedAccounts: [] } };
+          },
+        },
+        // The re-read that follows the ACCEPTED write, and fails.
+        {
+          request: { query: GET_MY_CONNECTED_ACCOUNTS },
+          maxUsageCount: 1,
+          error: new Error('liste indisponible'),
+        },
+        // The re-read the operator asks for afterwards, which succeeds.
+        {
+          request: { query: GET_MY_CONNECTED_ACCOUNTS },
+          maxUsageCount: 10,
+          result: () => {
+            log.count += 1;
+            return { data: { myConnectedAccounts: [createdAccountRow] } };
+          },
+        },
+        buildSaveMock(jest.fn(), {
+          success: true,
+          connectedAccountId: NEW_ACCOUNT_ID,
+        }),
+      ],
+      onBindMail,
+    );
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+    await fillMinimalMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    const note = await screen.findByRole('status');
+    // The account exists. Saying nothing was written would push the operator
+    // into creating it a second time.
+    expect(note).toHaveTextContent(/enregistrée, non vérifiée/);
+    expect(note).toHaveTextContent(/n’a pas pu être relue/);
+    expect(note).toHaveTextContent(/ne le recréez pas/);
+    expect(note.textContent).not.toMatch(/Rien n’a été écrit|a refusé/);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    // The id is established, so the MAIL binding still gets it.
+    expect(onBindMail).toHaveBeenCalledWith(NEW_ACCOUNT_ID);
+
+    // The offered recovery is a re-read, not another write.
+    await user.click(
+      screen.getByRole('button', { name: /Relire la liste des comptes/ }),
+    );
+
+    expect(await screen.findByText(MAILBOX)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: /Relire la liste des comptes/ }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('keeps a server refusal a refusal, and binds nothing', async () => {

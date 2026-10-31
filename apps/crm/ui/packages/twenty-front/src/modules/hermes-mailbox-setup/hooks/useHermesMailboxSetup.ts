@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@apollo/client/react';
+import { useApolloClient, useMutation } from '@apollo/client/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -24,15 +24,18 @@ import { buildHermesMailboxFormDefaults } from '@/hermes-mailbox-setup/constants
 
 // What a mailbox creation attempt ended as.
 //
-// 'saved-unverified' is the honest success: the credentials are in the native
-// encrypted store and NOTHING has contacted the server they describe. It is
-// the centre's CONFIGURED_UNVERIFIED, never « connecté ». 'unconfirmed' is an
-// answer that could not be read: it proves neither a save nor a failure, so a
-// retry could duplicate and is not offered as a success.
+// 'saved-unverified' is the honest success: the account is RECORDED in the
+// native encrypted store, and nothing has established that the mailbox is
+// reachable. It is the centre's CONFIGURED_UNVERIFIED, never « connecté ».
+// 'saved-not-reread' is the same accepted write whose list re-read failed: the
+// account exists and must not be created again. 'unconfirmed' is an answer that
+// could not be read at all, so it proves neither a save nor a failure.
 export type HermesMailboxSetupOutcome =
   | { kind: 'idle' }
   | { kind: 'saving' }
   | { kind: 'saved-unverified'; connectedAccountId: string }
+  | { kind: 'saved-not-reread'; connectedAccountId: string }
+  | { kind: 'rereading'; connectedAccountId: string }
   | { kind: 'refused'; reason: string | null }
   | { kind: 'unconfirmed' };
 
@@ -68,14 +71,26 @@ export const useHermesMailboxSetup = ({
   const { handleSubmit, formState, watch, reset } = formMethods;
   const { isSubmitting } = formState;
 
+  // The write and the re-read are awaited SEPARATELY on purpose. Bundling the
+  // re-read into the mutation makes a failed re-read reject the save, and the
+  // accepted write then reads as a refusal — which would push the operator into
+  // creating the account a second time.
   const [saveConnection, { loading: saveLoading }] = useMutation(
     SaveImapSmtpCaldavAccountDocument,
-    {
-      // The centre reads its selectable accounts from this query. Awaiting the
-      // re-read is what makes the new account present before it is announced.
-      refetchQueries: [{ query: GET_MY_CONNECTED_ACCOUNTS }],
-      awaitRefetchQueries: true,
-    },
+  );
+
+  const apolloClient = useApolloClient();
+
+  // Re-reads the list the centre selects from, writing it to the cache the
+  // centre's own query watches. It throws, and the caller decides what a
+  // failure means for an account that already exists.
+  const readAccountsList = useCallback(
+    () =>
+      apolloClient.query({
+        query: GET_MY_CONNECTED_ACCOUNTS,
+        fetchPolicy: 'network-only',
+      }),
+    [apolloClient],
   );
 
   const watchedValues = watch();
@@ -160,7 +175,17 @@ export const useHermesMailboxSetup = ({
         // The typed password leaves the browser's memory as soon as the server
         // has it. Nothing about this account is kept client side.
         reset(buildHermesMailboxFormDefaults());
-        setOutcome({ kind: 'saved-unverified', connectedAccountId });
+
+        // From here the write is ACCEPTED. A failed re-read is reported as a
+        // stale list, never as a refusal, and the account is never offered for
+        // creation again.
+        try {
+          await readAccountsList();
+          setOutcome({ kind: 'saved-unverified', connectedAccountId });
+        } catch {
+          setOutcome({ kind: 'saved-not-reread', connectedAccountId });
+        }
+
         onConnected?.(connectedAccountId);
       } catch (error) {
         const toastOptions = getToastOptionsFromError({ error });
@@ -174,11 +199,32 @@ export const useHermesMailboxSetup = ({
     [
       getConfiguredProtocols,
       saveConnection,
+      readAccountsList,
       reset,
       onConnected,
       enqueueToast,
     ],
   );
+
+  // Offered after an accepted write whose list re-read failed. It re-reads
+  // only: the account exists, so nothing is written again.
+  const retryAccountsRead = useCallback(async (): Promise<void> => {
+    const pending =
+      outcome.kind === 'saved-not-reread' ? outcome.connectedAccountId : null;
+
+    if (pending === null) {
+      return;
+    }
+
+    setOutcome({ kind: 'rereading', connectedAccountId: pending });
+
+    try {
+      await readAccountsList();
+      setOutcome({ kind: 'saved-unverified', connectedAccountId: pending });
+    } catch {
+      setOutcome({ kind: 'saved-not-reread', connectedAccountId: pending });
+    }
+  }, [outcome, readAccountsList]);
 
   const resetSetup = useCallback(() => {
     reset(buildHermesMailboxFormDefaults());
@@ -194,5 +240,6 @@ export const useHermesMailboxSetup = ({
     loading: saveLoading,
     outcome,
     resetSetup,
+    retryAccountsRead,
   };
 };
