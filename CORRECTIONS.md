@@ -2030,3 +2030,8 @@ Frontend41223824108SUCCESSsur508 :114suites1348tests0FAIL/0pending,types/bundleP
 ### Runtimefinalpréparé31octobre17:42UTC
 
 DeuxCIexactes508SUCCESS : frontend41223824108(1348tests114suites,types,bundle)etcombined41223827218(backend/PG/SMTPisolé/DI/bundle). Bundlefront13051106413téléchargé/hashvérifié. DéclenchementUNIQUEP0runtime41225410843avecworker/sameorigin/fixtureTLSisolé/90min, source508 vérifiéeAPI. Phaseconstructionbackendencours, aucunlienremis/expirationsupposée/déploiementVercelactif. Watchartefactborné30sparlecturepourrécupérertunnel; contrôlepublicseulementaprèsREADYVercelpreview. Modèlepreview90minDBjetableetsourcesfournisseursnonconfigurésrestentexplicités.
+
+
+### Recette live 508 — 31 octobre vers 18:07 UTC
+
+Frontend exact et combined SUCCESS ; preview active, onboarding UI, connexion IMAP/SMTP fictive native, domaine vérifié, campagne sauvegarde/reload/aperçu/test/programmer-annuler/envoi humain et pipeline Proposition/relations/reload réellement exécutés. Nouveau blocage lecture INBOX MAIL_MESSAGE_CHANGED : backend_review possède le diagnostic et la fixture, aucun affaiblissement du garde applicatif. Détails : docs/verification/hermes-live-recipe-41225410843.md. Aucun fournisseur réel ni recette R01–R16 complète annoncé.
