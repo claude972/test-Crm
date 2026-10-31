@@ -10,9 +10,13 @@ import { PREVIEW_MESSAGE_CAMPAIGN_SEND } from '@/activities/emails/graphql/metad
 import { UNSUBSCRIBE_TOPICS } from '@/activities/emails/graphql/metadata-queries/unsubscribeTopics';
 import { SEND_MESSAGE_CAMPAIGN } from '@/activities/emails/graphql/mutations/sendMessageCampaign';
 import { SEND_MESSAGE_CAMPAIGN_TEST } from '@/activities/emails/graphql/mutations/sendMessageCampaignTest';
+import { myConnectedAccountsState } from '@/accounts/states/myConnectedAccountsState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { HermesCampaignRuntimeContainer } from '@/hermes-campaigns-runtime/components/HermesCampaignRuntimeContainer';
 import { HERMES_RUNTIME_UPDATE_CAMPAIGN } from '@/hermes-campaigns-runtime/graphql/mutations/hermesRuntimeUpdateCampaign';
+import { useHermesCampaignPersistence } from '@/hermes-campaigns-runtime/hooks/useHermesCampaignPersistence';
+import { HERMES_CONNECTIONS_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-queries/hermesConnectionsV4';
+import { HERMES_RUNTIME_CAMPAIGN_AUDIENCES } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignAudiences';
 import { HERMES_RUNTIME_CAMPAIGN_RECIPIENTS } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignRecipients';
 import { HERMES_RUNTIME_CAMPAIGN_RECORD } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignRecord';
 import { GET_MY_MESSAGE_CHANNELS } from '@/settings/accounts/graphql/queries/getMyMessageChannels';
@@ -138,6 +142,62 @@ const recipientsMock = () => ({
         edges: [],
         totalCount: 0,
       },
+    },
+  },
+});
+
+const audiencesMock = () => ({
+  request: {
+    query: HERMES_RUNTIME_CAMPAIGN_AUDIENCES,
+    variables: { orderBy: [{ createdAt: 'DescNullsLast' }], limit: 50 },
+  },
+  result: {
+    data: {
+      messageLists: {
+        __typename: 'MessageListConnection',
+        edges: [
+          {
+            __typename: 'MessageListEdge',
+            node: {
+              __typename: 'MessageList',
+              id: LIST_ID,
+              name: 'Architects, Lyon',
+              description: null,
+              createdAt: '2026-10-20T08:00:00.000Z',
+            },
+          },
+        ],
+        totalCount: 1,
+      },
+    },
+  },
+});
+
+const CONNECTED_ACCOUNT_ID = 'ca-1';
+
+// The central MAIL connection, naming exactly one connected account. This is
+// the only thing that attests which mailbox is registered: the send preview
+// never resolves it.
+const connectionsMock = (connectedAccountId: string | null = CONNECTED_ACCOUNT_ID) => ({
+  request: { query: HERMES_CONNECTIONS_V4, variables: {} },
+  result: {
+    data: {
+      hermesConnectionsV4:
+        connectedAccountId === null
+          ? [{ kind: 'MAIL', state: 'NOT_CONFIGURED', connectionId: null }]
+          : [
+              {
+                kind: 'MAIL',
+                state: 'CONFIGURED',
+                connectionId: 'conn-mail-1',
+                revision: 3,
+                settings: {
+                  connectedAccountId,
+                  mailbox: 'INBOX',
+                  handle: 'contact@atelier-fontaine.fr',
+                },
+              },
+            ],
     },
   },
 });
@@ -276,6 +336,19 @@ const renderContainer = (mocks: readonly unknown[]) => {
       { key: FeatureFlagKey.IS_MESSAGE_CAMPAIGN_ENABLED, value: true },
     ],
   });
+  // The native account the central MAIL connection names. Without it the
+  // connection resolves to nothing and no mailbox is the registered one.
+  jotaiStore.set(myConnectedAccountsState.atom, [
+    {
+      __typename: 'ConnectedAccount',
+      id: CONNECTED_ACCOUNT_ID,
+      handle: SENDER_ADDRESS,
+      handleAliases: null,
+      provider: 'google',
+      accountOwnerId: 'member-1',
+      archivedAt: null,
+    },
+  ] as never);
 
   const sentOperationNames: string[] = [];
 
@@ -314,6 +387,8 @@ const baseReads = () => [
   recordMock(STORED_SUBJECT, STORED_BODY),
   sendPreviewMock(),
   recipientsMock(),
+  audiencesMock(),
+  connectionsMock(),
   channelsMock(),
   topicsMock(),
   suppressionsMock(),
@@ -478,7 +553,10 @@ describe('campaign content persistence', () => {
     // into rather than a hoped-for one.
     const deferredUpdate = {
       ...updateMock(),
-      delay: 120,
+      // Long enough to be a real window on a loaded machine. The waits below
+      // are given explicit timeouts to match, rather than relying on the
+      // default and turning a slow run into a false failure.
+      delay: 800,
     };
 
     renderContainer([
@@ -503,26 +581,36 @@ describe('campaign content persistence', () => {
     screen.getByRole('button', { name: 'Record the content' }).click();
 
     // The recording is in flight; the operator carries on typing.
-    expect(await screen.findByText('Recording…')).toBeVisible();
+    expect(
+      await screen.findByText('Recording…', undefined, { timeout: 5_000 }),
+    ).toBeVisible();
 
     fireEvent.change(subjectField, { target: { value: TYPED_DURING_SAVE } });
 
     // Wait for the recording to actually finish, rather than for the local
     // text to be what it already was.
-    await waitFor(() => {
-      expect(screen.queryByText('Recording…')).not.toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Recording…')).not.toBeInTheDocument();
+      },
+      { timeout: 10_000 },
+    );
 
     // The later text is still there: it was never thrown away.
-    await waitFor(() => {
-      expect(screen.getByLabelText('Subject')).toHaveValue(TYPED_DURING_SAVE);
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText('Subject')).toHaveValue(TYPED_DURING_SAVE);
+      },
+      { timeout: 5_000 },
+    );
 
     // And it is not claimed to be saved, because it was not: what the server
     // recorded is the snapshot that was sent, not what is on screen now.
     expect(
       await screen.findByText(
         'Not recorded yet: what is on screen differs from what the server holds.',
+        undefined,
+        { timeout: 5_000 },
       ),
     ).toBeVisible();
 
@@ -587,6 +675,8 @@ describe('campaign sender persistence', () => {
       recordMock(STORED_SUBJECT, STORED_BODY, null),
       sendPreviewMock(),
       recipientsMock(),
+      audiencesMock(),
+      connectionsMock(),
       channelsMock([connectedMailbox]),
       topicsMock(),
       suppressionsMock(),
@@ -603,9 +693,27 @@ describe('campaign sender persistence', () => {
 
     // Choosable, although no verdict authorises it to emit yet.
     expect(senderRadio).not.toHaveAttribute('aria-disabled', 'true');
-    expect(senderRadio).not.toBeChecked();
 
-    fireEvent.click(senderRadio);
+    // Offered, because it is the mailbox the central MAIL connection names —
+    // and said to be an offer rather than a record, because the campaign
+    // holds no sender at this point.
+    expect(
+      await screen.findByText(
+        'This campaign has recorded no sender. The one shown is the mailbox actually registered in the connection centre, offered as a proposal: choose it to record it.',
+      ),
+    ).toBeVisible();
+
+    // And offering is never attesting: the transport is not proven by any
+    // read here.
+    expect(
+      screen.getByText(
+        'Being the registered mailbox does not prove the transport works. That stays unproven until a test or a send says otherwise.',
+      ),
+    ).toBeVisible();
+
+    // The proposal has its own control, because a radio that is already
+    // selected fires no change event when clicked.
+    screen.getByRole('button', { name: 'Record this sender' }).click();
 
     expect(
       await screen.findByText(
@@ -613,13 +721,17 @@ describe('campaign sender persistence', () => {
       ),
     ).toBeVisible();
 
-    // And the campaign was genuinely read again afterwards, so what is shown
-    // is the stored sender rather than the click.
+    // And the campaign was genuinely read again afterwards: the proposal note
+    // is gone, because the sender is now on the record rather than offered.
     await waitFor(() => {
       expect(
-        screen.getByRole('radio', { name: SENDER_ADDRESS }),
-      ).toBeChecked();
+        screen.queryByText(
+          'This campaign has recorded no sender. The one shown is the mailbox actually registered in the connection centre, offered as a proposal: choose it to record it.',
+        ),
+      ).not.toBeInTheDocument();
     });
+
+    expect(screen.getByRole('radio', { name: SENDER_ADDRESS })).toBeChecked();
 
     // Recording a sender is a write on the campaign record, not an emission.
     expect(emissionTrap).not.toHaveBeenCalled();
@@ -630,6 +742,8 @@ describe('campaign sender persistence', () => {
       recordMock(STORED_SUBJECT, STORED_BODY, null),
       sendPreviewMock(),
       recipientsMock(),
+      audiencesMock(),
+      connectionsMock(),
       channelsMock([connectedMailbox]),
       topicsMock(),
       suppressionsMock(),
@@ -641,5 +755,198 @@ describe('campaign sender persistence', () => {
 
     expect(sentOperationNames).not.toContain('HermesRuntimeUpdateCampaign');
     expect(emissionTrap).not.toHaveBeenCalled();
+  });
+});
+
+// CJ-CAMPAIGN-008. A campaign created from this screen stored only an id and
+// a name, nothing offered a list, and the recording path did not even accept
+// `listId` — so a draft stayed audience-less for life. The choice has to be
+// here, and it has to persist.
+describe('campaign audience persistence', () => {
+  beforeEach(() => {
+    emissionTrap.mockClear();
+  });
+
+  const OTHER_LIST_ID = '60606060-1111-4222-8333-444455556666';
+
+  const audiencesWithTwoLists = () => ({
+    request: {
+      query: HERMES_RUNTIME_CAMPAIGN_AUDIENCES,
+      variables: { orderBy: [{ createdAt: 'DescNullsLast' }], limit: 50 },
+    },
+    result: {
+      data: {
+        messageLists: {
+          __typename: 'MessageListConnection',
+          edges: [
+            {
+              __typename: 'MessageListEdge',
+              node: {
+                __typename: 'MessageList',
+                id: OTHER_LIST_ID,
+                name: 'Shopfitters, Nantes',
+                description: null,
+                createdAt: '2026-10-25T08:00:00.000Z',
+              },
+            },
+          ],
+          totalCount: 1,
+        },
+      },
+    },
+  });
+
+  const listUpdateMock = () => ({
+    request: {
+      query: HERMES_RUNTIME_UPDATE_CAMPAIGN,
+      variables: {
+        idToUpdate: CAMPAIGN_ID,
+        input: { listId: OTHER_LIST_ID },
+      },
+    },
+    result: {
+      data: {
+        updateMessageCampaign: {
+          __typename: 'MessageCampaign',
+          id: CAMPAIGN_ID,
+          name: 'Shopfitting — Loire-Atlantique',
+          subject: STORED_SUBJECT,
+          bodyTemplate: STORED_BODY,
+          fromAddress: {
+            __typename: 'Emails',
+            primaryEmail: SENDER_ADDRESS,
+          },
+          listId: OTHER_LIST_ID,
+          unsubscribeTopicId: null,
+          status: 'DRAFT',
+          scheduledAt: null,
+        },
+      },
+    },
+  });
+
+  const recordWithList = (listId: string | null) => ({
+    request: {
+      query: HERMES_RUNTIME_CAMPAIGN_RECORD,
+      variables: { campaignId: CAMPAIGN_ID },
+    },
+    result: {
+      data: {
+        messageCampaign: {
+          ...campaignRecord(STORED_SUBJECT, STORED_BODY),
+          listId,
+        },
+      },
+    },
+  });
+
+  const recipientsFor = (listId: string) => ({
+    request: {
+      query: HERMES_RUNTIME_CAMPAIGN_RECIPIENTS,
+      variables: { listId, limit: 50 },
+    },
+    result: {
+      data: {
+        messageListMembers: {
+          __typename: 'MessageListMemberConnection',
+          edges: [],
+          totalCount: 0,
+        },
+      },
+    },
+  });
+
+  it('offers the audience control even when the campaign has no list at all', async () => {
+    renderContainer([
+      recordWithList(null),
+      sendPreviewMock(),
+      audiencesWithTwoLists(),
+      connectionsMock(),
+      channelsMock([connectedMailbox]),
+      topicsMock(),
+      suppressionsMock(),
+    ]);
+
+    // The control is reachable in exactly the state where it matters: an
+    // audience-less campaign. It sits outside the load view for that reason.
+    expect(await screen.findByLabelText('Audience list')).toBeVisible();
+    expect(
+      screen.getByText(
+        'This campaign has no audience list yet, so it has no recipients at all. Choose one here.',
+      ),
+    ).toBeVisible();
+
+    // And the figures are not invented while there is no list.
+    expect(emissionTrap).not.toHaveBeenCalled();
+  });
+
+  // Driven through the persistence contract rather than through the select
+  // widget: the design system's Select renders its popup in a portal via
+  // pointer events that jsdom does not implement, so its options cannot be
+  // opened in a unit test at all. What that widget cannot cover here is
+  // covered by the two tests above — the control is present, labelled and
+  // enabled in the audience-less state — and by root's browser recipe. What
+  // is proven here is the part that was actually missing: the recording path
+  // accepts `listId` and writes exactly it.
+  it('records a chosen audience list as listId and nothing else', async () => {
+    const saved: string[] = [];
+
+    const Harness = () => {
+      const { listSaveState, saveList } = useHermesCampaignPersistence({
+        campaignId: CAMPAIGN_ID,
+        onRecorded: () => {
+          saved.push('re-read');
+        },
+      });
+
+      return (
+        <button type="button" onClick={() => void saveList(OTHER_LIST_ID)}>
+          {`record:${listSaveState.kind}`}
+        </button>
+      );
+    };
+
+    render(
+      <MockedProvider
+        link={ApolloLink.from([new MockLink([listUpdateMock()])])}
+      >
+        <Harness />
+      </MockedProvider>,
+    );
+
+    screen.getByRole('button', { name: 'record:idle' }).click();
+
+    // The mock matches on exact variables, so a save that sent anything other
+    // than `{ listId }` — or sent it under another field name — would not
+    // match and this would never reach 'saved'.
+    expect(await screen.findByRole('button', { name: 'record:saved' })).toBeVisible();
+
+    // And the campaign is re-read afterwards, so the server re-resolves the
+    // audience from the list rather than the screen keeping its own idea.
+    expect(saved).toEqual(['re-read']);
+  });
+
+  it('says a list can resolve to fewer recipients than it holds, rather than hiding it', async () => {
+    renderContainer([
+      recordWithList(LIST_ID),
+      sendPreviewMock(),
+      recipientsMock(),
+      audiencesMock(),
+      connectionsMock(),
+      channelsMock([connectedMailbox]),
+      topicsMock(),
+      suppressionsMock(),
+    ]);
+
+    expect(
+      await screen.findByText(
+        /A list can resolve to fewer recipients than it holds/,
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        /the server keeps only rows whose professional purpose and company context were recorded at qualification/,
+      ),
+    ).toBeVisible();
   });
 });

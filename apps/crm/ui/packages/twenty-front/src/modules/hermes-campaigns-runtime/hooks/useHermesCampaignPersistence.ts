@@ -15,6 +15,13 @@ export type HermesRuntimeCampaignUpdateInput = {
   subject?: string;
   bodyTemplate?: string;
   fromAddress?: { primaryEmail: string; additionalEmails: null };
+  // Which audience list this campaign uses, and what a recipient opts out of.
+  // Recording a list does not decide who will be written to: the server
+  // re-resolves the audience from it, under its own rights and the standing
+  // objections, and keeps only rows whose professional purpose and company
+  // context were recorded at qualification.
+  listId?: string;
+  unsubscribeTopicId?: string;
 };
 
 type UpdateMutationResult = {
@@ -86,6 +93,12 @@ export const useHermesCampaignPersistence = ({
     useState<HermesCampaignSaveState>({ kind: 'idle' });
   const [senderSaveState, setSenderSaveState] =
     useState<HermesCampaignSaveState>({ kind: 'idle' });
+  const [listSaveState, setListSaveState] = useState<HermesCampaignSaveState>({
+    kind: 'idle',
+  });
+  const [topicSaveState, setTopicSaveState] = useState<HermesCampaignSaveState>(
+    { kind: 'idle' },
+  );
 
   const record = useCallback(
     async (
@@ -141,6 +154,19 @@ export const useHermesCampaignPersistence = ({
     [record],
   );
 
+  // Records which audience list the campaign uses. The server decides what
+  // that list resolves to; this only stores the choice.
+  const saveList = useCallback(
+    (listId: string) => record({ listId }, setListSaveState),
+    [record],
+  );
+
+  const saveUnsubscribeTopic = useCallback(
+    (unsubscribeTopicId: string) =>
+      record({ unsubscribeTopicId }, setTopicSaveState),
+    [record],
+  );
+
   // Said by the screen as soon as what is shown differs from what the server
   // holds, so an unrecorded draft is never mistaken for a recorded one.
   const markContentUnsaved = useCallback(() => {
@@ -152,8 +178,12 @@ export const useHermesCampaignPersistence = ({
   return {
     contentSaveState,
     senderSaveState,
+    listSaveState,
+    topicSaveState,
     saveContent,
     saveSender,
+    saveList,
+    saveUnsubscribeTopic,
     markContentUnsaved,
   };
 };

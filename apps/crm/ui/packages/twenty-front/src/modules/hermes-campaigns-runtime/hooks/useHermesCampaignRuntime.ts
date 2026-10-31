@@ -28,6 +28,7 @@ import {
 import { validateTestDestination } from '@/hermes-campaigns-ui/utils/validateTestDestination';
 import { PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT } from '@/hermes-campaigns-runtime/graphql/queries/previewMessageCampaignRecipient';
 import { useHermesCampaignPersistence } from '@/hermes-campaigns-runtime/hooks/useHermesCampaignPersistence';
+import { useHermesRuntimeCampaignAudiences } from '@/hermes-campaigns-runtime/hooks/useHermesRuntimeCampaignAudiences';
 import { useHermesRuntimeCampaignRecipients } from '@/hermes-campaigns-runtime/hooks/useHermesRuntimeCampaignRecipients';
 import { useHermesRuntimeCampaignRecord } from '@/hermes-campaigns-runtime/hooks/useHermesRuntimeCampaignRecord';
 import {
@@ -52,6 +53,7 @@ import {
 import { readRuntimeFailure } from '@/hermes-campaigns-runtime/utils/readRuntimeFailure';
 import { readRuntimeRecipientPreview } from '@/hermes-campaigns-runtime/utils/readRuntimeRecipientPreview';
 import { readHermesCallFailure } from '@/prospection/utils/readHermesCallFailure';
+import { useHermesMailboxRuntimeIdentity } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeIdentity';
 import { useProspectionSuppressionRegister } from '@/prospection/hooks/useProspectionSuppressionRegister';
 import { GET_MY_MESSAGE_CHANNELS } from '@/settings/accounts/graphql/queries/getMyMessageChannels';
 import { useIsFeatureEnabled } from '@/workspace/hooks/useIsFeatureEnabled';
@@ -254,6 +256,15 @@ export const useHermesCampaignRuntime = ({
     loading: registerLoading,
   } = useProspectionSuppressionRegister();
 
+  // Which mailbox is actually registered, resolved from the central MAIL
+  // connection and then from the native account it names. This is the only
+  // delegation fact available: the send preview never looks at the mailbox,
+  // so it cannot stand in for this.
+  const { identity: mailboxIdentity } = useHermesMailboxRuntimeIdentity();
+
+  const centralMailboxAddress =
+    mailboxIdentity.kind === 'known' ? mailboxIdentity.mailboxAddress : null;
+
   const [sendCampaign] = useMutation<SendMutationResult, SendMutationVariables>(
     SEND_MESSAGE_CAMPAIGN,
     // The transport never replays an emission on its own: a retry nobody
@@ -358,14 +369,15 @@ export const useHermesCampaignRuntime = ({
     [blockers],
   );
 
-  const { identities, campaignIdentityId } = useMemo(
+  const { identities, campaignIdentityId, centralIdentityId } = useMemo(
     () =>
       buildRuntimeSenderIdentities({
         channels: channelsData?.myMessageChannels ?? [],
         campaignFromAddress: campaign?.fromAddress?.primaryEmail ?? null,
         campaignSenderVerdict,
+        centralMailboxAddress,
       }),
-    [channelsData, campaign, campaignSenderVerdict],
+    [channelsData, campaign, campaignSenderVerdict, centralMailboxAddress],
   );
 
   const senderIdentitiesLoad: HermesCampaignLoad<HermesSenderIdentity[]> =
@@ -431,6 +443,11 @@ export const useHermesCampaignRuntime = ({
     ]);
   }, [refetchCampaign, refetchPreview, isEngineReachable]);
 
+  const { audiencesLoad, onRetryAudiences } =
+    useHermesRuntimeCampaignAudiences({
+      isEngineEnabled: isMessageCampaignEnabled,
+    });
+
   const { recipients: previewRecipients } = useHermesRuntimeCampaignRecipients({
     listId: isNonEmptyString(campaign?.listId) ? campaign.listId : null,
   });
@@ -438,8 +455,12 @@ export const useHermesCampaignRuntime = ({
   const {
     contentSaveState,
     senderSaveState,
+    listSaveState,
+    topicSaveState,
     saveContent,
     saveSender,
+    saveList,
+    saveUnsubscribeTopic,
     markContentUnsaved,
   } = useHermesCampaignPersistence({
     campaignId,
@@ -525,6 +546,56 @@ export const useHermesCampaignRuntime = ({
     },
     [identities, saveSender],
   );
+
+  const onSelectList = useCallback(
+    (listId: string) => {
+      void saveList(listId);
+    },
+    [saveList],
+  );
+
+  const onSelectTopic = useCallback(
+    (topicId: string) => {
+      void saveUnsubscribeTopic(topicId);
+    },
+    [saveUnsubscribeTopic],
+  );
+
+  // What the sender radio shows. A campaign that has recorded no sender
+  // offers the mailbox that is genuinely registered, so the choice is in
+  // front of the operator instead of being somewhere else — but offering is
+  // not recording: nothing is written until the choice is made, and the
+  // section says so.
+  const offeredIdentityId =
+    selectedIdentityOverride ?? campaignIdentityId ?? centralIdentityId;
+
+  const isSenderRecorded = isNonEmptyString(campaignIdentityId);
+
+  // Records whatever the sender control currently shows.
+  //
+  // A proposal is pre-selected when the campaign holds no sender, and a radio
+  // that is already selected fires no change — so relying on the radio alone
+  // would leave the proposal permanently unrecordable, which is the same dead
+  // end one step further on. This gives the act its own control.
+  const onRecordSender = useCallback(() => {
+    const identity = identities.find(
+      (candidate) => candidate.id === offeredIdentityId,
+    );
+    const address = identity?.displayedAddress;
+
+    if (!isNonEmptyString(address)) {
+      setActionOutcome({
+        kind: 'failed',
+        action: 'saveSender',
+        reasonCode: 'SENDER_ADDRESS_NOT_PUBLISHED',
+        reason: null,
+      });
+
+      return;
+    }
+
+    void saveSender(address);
+  }, [identities, offeredIdentityId, saveSender]);
 
   const selectedIdentity = useMemo(() => {
     const identityId = selectedIdentityOverride ?? campaignIdentityId;
@@ -820,9 +891,14 @@ export const useHermesCampaignRuntime = ({
     campaignState: readRuntimeCampaignState(campaignStatus) ?? 'draft',
 
     senderIdentitiesLoad,
-    selectedIdentityId: selectedIdentityOverride ?? campaignIdentityId,
+    selectedIdentityId: offeredIdentityId,
     onSelectIdentity,
     senderSaveState,
+    isSenderRecorded,
+    onRecordSender,
+    // Unproven on purpose: nothing read here establishes that the transport
+    // works. Only a probe or an actual send does.
+    isTransportProven: false,
     onRetrySenderIdentities: () => {
       void refetchChannels();
     },
@@ -836,6 +912,22 @@ export const useHermesCampaignRuntime = ({
     onRetryAudience: () => {
       void refetchPreview();
     },
+
+    audiencesLoad,
+    onRetryAudiences,
+    selectedListId: isNonEmptyString(campaign?.listId) ? campaign.listId : null,
+    onSelectList,
+    listSaveState,
+    unsubscribeTopics: (topicsData?.unsubscribeTopics ?? []).map((topic) => ({
+      id: topic.id,
+      name: topic.name ?? null,
+      description: null,
+    })),
+    selectedTopicId: isNonEmptyString(campaign?.unsubscribeTopicId)
+      ? campaign.unsubscribeTopicId
+      : null,
+    onSelectTopic,
+    topicSaveState,
 
     content,
     onContentChange,

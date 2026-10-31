@@ -91,6 +91,23 @@ const renderScreen = (overrides: Partial<HermesCampaignScreenProps> = {}) =>
             variables: [{ name: 'city', missingCount: 5 }],
           },
         }}
+        audiencesLoad={{
+          kind: 'ready',
+          value: [
+            { id: 'list-1', name: 'Architects, Lyon', description: null },
+          ],
+        }}
+        onRetryAudiences={jest.fn()}
+        selectedListId="list-1"
+        onSelectList={jest.fn()}
+        listSaveState={{ kind: 'idle' }}
+        unsubscribeTopics={[
+          { id: 'topic-b2b', name: 'B2B prospecting', description: null },
+        ]}
+        selectedTopicId="topic-b2b"
+        onSelectTopic={jest.fn()}
+        topicSaveState={{ kind: 'idle' }}
+        isSenderRecorded
         content={{ subject: 'Rethink your shopfront', body: 'Hello {{city}}' }}
         onContentChange={jest.fn()}
         contentSaveState={{ kind: 'idle' }}
