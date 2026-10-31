@@ -262,6 +262,7 @@ import { AddHermesInboxFastInstanceCommand } from 'src/database/commands/upgrade
 import { AddHermesBotPolicyFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793392487144-add-hermes-bot-policy';
 import { AddHermesMediaFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793402072719-add-hermes-media';
 import { AddHermesConnectionsFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793403069092-add-hermes-connections';
+import { ScopeSmtpEmailingDomainsFastInstanceCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-instance-command-fast-1793463637591-scope-smtp-emailing-domains';
 
 export const INSTANCE_COMMANDS = [
   AddViewFieldGroupIdIndexOnViewFieldFastInstanceCommand,
@@ -526,4 +527,5 @@ export const INSTANCE_COMMANDS = [
   AddHermesBotPolicyFastInstanceCommand,
   AddHermesMediaFastInstanceCommand,
   AddHermesConnectionsFastInstanceCommand,
+  ScopeSmtpEmailingDomainsFastInstanceCommand,
 ];
