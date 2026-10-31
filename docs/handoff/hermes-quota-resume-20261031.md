@@ -125,3 +125,16 @@ Preview intermédiaire924 déployée et partageprivé créé : run41185168138 ex
 ## Reprise R10 après premier rouge,08:59UTC
 
 Parent intègre9cab8f886 (fixtureconfigenbase retirée) puis6c4939860 (allowlistloopbackinjectéeuniquementstageSMTP, valeursnonloopback/wildcardrefusées) dans6182a2f21 ; root relit et exécute **35 tests harnais PASS** dansQA6182. Premierretry41186695621 a capturé21d068ef6 AVANTpushduharnais : root a demandé son annulation, pasdepreuvecomptée. Remote f7a14931e contient6182 (ascendancevérifiée) +keycampaignroute, puisnouveau **41186752974** dispatch SMTPopt-intrue, headSHA **f7a14931e905201e5b09807385fe4e08068b969d**, pendingaucheck. Ne pasconfondreles2retries. ParentClaudeAutha10b8bd475571fc26 écritdans/private/tmp/hermes-v4-auth-frontend, gardeagnosticenconstruction, testsutil16PASSannoncésmaisfixnonlivréencore. Preview924/tab19resteéchecactivation, expire10:08:55UTC.
+
+
+## Checkpoint09:22UTC — Auth à recetter de nouveau
+
+Claude livre e74c98429/49deed9e0, assemblésd3eb5df38. Reprise globale réservée au visiteur déjàconnecté à son arrivée et latchavantawait contre fonctions reconstruites àchaquerendu ; seulesSessionSuperseded absorbées, guards/rotationinchangés. Rootrelit et **2suites18testsPASS** (effet+Authsameorigin), pas encore preuvebrowser.
+
+Root publiebrancheépinglée **preview/cj-auth-d3eb5df38** (paspréfixep0-sessionautotrigger), source **d3eb5df38537fcfdcdc34d01cb6db130a203902c**, lance **front41188342005** et **P041188341880** worker/multiwstrue90min. Ces2runs sontle prochaincoupledepreview, vérifierhead/étapes/tunnel. P0concurrencyremplaceancienne924, nepaslancerautreP0concurrent. Rootgèrecontrôle/Vercel/browsers.
+
+R10retry41186752974FAILURE aunouveaubeforeAll : fixturejoin passeworkspaceIdstring àaddUserToWorkspaceIfUserNotInWorkspacequiattendWorkspaceEntity ; workspace.idundefined→cacheguard. ParentCJ02prévenu avecstack etdemandeaudit/touscontrats/typecheckfixtureavantautrerun.
+
+RootQA4f517 : **3suites37testsPASS** setup004/mailruntime/publicsurface ; diagnosticsmocksPolicyencoreprésents. EnsuiteQArootmaintenantd3eb5df38 pourAuth18PASS.
+
+Le helpercheck-preview-onboarding-p0.mjs n'utilise PASdecookiejar, seulementBearer, alorsquesameOriginémetuserSessioncookie etsignUpInNewWorkspaceutiliseAuthPrincipalGuarduserSession. SonUNAUTHcreate_workspacen'estpaspreuveproduit ; échecconservé, vraierecetteUI924restebloquante. RefaireloginUIcomptefraisaprèsdéploiementd3e, nepasaffаiblirguardpourréparerhelper.
