@@ -302,9 +302,9 @@ export const HermesCampaignJourneySection = ({
             <HermesCampaignNote>
               <Trans>
                 It may have happened, in whole or in part. Nothing is retried
-                automatically and no step is offered again: reload the
-                campaign and read what actually left before deciding. Pressing
-                again now could send the same message twice.
+                automatically and no step is offered again: reload the campaign
+                and read what actually left before deciding. Pressing again now
+                could send the same message twice.
               </Trans>
             </HermesCampaignNote>
           </>
@@ -574,14 +574,6 @@ export const HermesCampaignJourneySection = ({
             </Checkbox>
           </StyledConfirmation>
         </StyledSteps>
-
-        <HermesCampaignNote>
-          <Trans>
-            Every step that is not permitted stays shut with its reason in this
-            page, next to the control, and the control keeps its place in the
-            tab order so the reason can be read without a mouse.
-          </Trans>
-        </HermesCampaignNote>
       </StyledLayout>
     </Section.Root>
   );

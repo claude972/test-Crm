@@ -252,7 +252,10 @@ export const HermesCampaignScreen = ({
   // The verdict on the chosen identity, computed once and shared, so the
   // capabilities and the journey cannot disagree about it.
   const identityAuthorization = useMemo(() => {
-    if (senderIdentitiesLoad.kind !== 'ready' || !isDefined(selectedIdentityId)) {
+    if (
+      senderIdentitiesLoad.kind !== 'ready' ||
+      !isDefined(selectedIdentityId)
+    ) {
       return null;
     }
 
@@ -291,8 +294,8 @@ export const HermesCampaignScreen = ({
         </StyledTitleRow>
         <HermesCampaignNote>
           <Trans>
-            B2B campaign. Nothing on this screen sends by itself: each step is
-            permitted by the server or it is shut, and the reason is shown.
+            B2B campaign. Nothing here sends by itself: a step the server has
+            not permitted stays shut.
           </Trans>
         </HermesCampaignNote>
       </StyledHeader>
