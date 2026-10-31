@@ -8,4 +8,6 @@ export { HermesMailboxSetupPanel } from '@/hermes-mailbox-setup/components/Herme
 export {
   useHermesMailboxSetup,
   type HermesMailboxSetupOutcome,
+  type HermesMailboxMissingProtocol,
+  type HermesMailboxProtocolRequirement,
 } from '@/hermes-mailbox-setup/hooks/useHermesMailboxSetup';

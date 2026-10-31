@@ -7,14 +7,28 @@ import {
   type MessagingInboxBotMode,
   type MessagingInboxBotPolicyRead,
 } from '@/messaging-inbox/types/MessagingInboxBotPolicy';
-import { readMessagingInboxCallFailure } from '@/messaging-inbox/utils/readMessagingInboxCallFailure';
 import { readMessagingInboxBotPolicy } from '@/messaging-inbox/utils/readMessagingInboxPayload';
+import {
+  type MessagingInboxPolicyRefusalCode,
+  readMessagingInboxPolicyRefusal,
+} from '@/messaging-inbox/utils/readMessagingInboxPolicyRefusal';
 
+// `code` carries the server's own named precondition when it published one, so
+// a refusal it made deliberately can be explained in those terms instead of
+// being shown as a technical failure.
 export type MessagingInboxBotPolicyWriteState =
   | { kind: 'idle' }
   | { kind: 'requesting' }
-  | { kind: 'refused'; message: string | null }
-  | { kind: 'failed'; message: string | null };
+  | {
+      kind: 'refused';
+      message: string | null;
+      code: MessagingInboxPolicyRefusalCode | null;
+    }
+  | {
+      kind: 'failed';
+      message: string | null;
+      code: MessagingInboxPolicyRefusalCode | null;
+    };
 
 export type MessagingInboxBotPolicyControl = {
   read: MessagingInboxBotPolicyRead;
@@ -110,7 +124,7 @@ export const useMessagingInboxBotPolicy = (
         read.policy.revision === null ||
         read.policy.conversationId !== conversationId
       ) {
-        setWriteState({ kind: 'refused', message: null });
+        setWriteState({ kind: 'refused', message: null, code: null });
 
         return;
       }
@@ -141,19 +155,37 @@ export const useMessagingInboxBotPolicy = (
             applied.kind === 'read' &&
               applied.value.conversationId === conversationId
               ? { kind: 'idle' }
-              : { kind: 'refused', message: null },
+              : { kind: 'refused', message: null, code: null },
           );
 
-          return refetch();
+          // Same here: an abort at unmount is not an outcome to report.
+          return refetch().catch(() => undefined);
         })
         .catch((error: unknown) => {
-          const failure = readMessagingInboxCallFailure(error);
+          const { failure, code } = readMessagingInboxPolicyRefusal(error);
 
+          // A named precondition is a refusal the server chose to make, even
+          // though it travels as CONFLICT rather than FORBIDDEN. Calling it a
+          // failure would invite a retry of a decision, not of a hiccup.
           setWriteState(
-            failure.kind === 'denied'
-              ? { kind: 'refused', message: failure.message }
-              : { kind: 'failed', message: failure.message },
+            code !== null || failure.kind === 'denied'
+              ? { kind: 'refused', message: failure.message, code }
+              : { kind: 'failed', message: failure.message, code },
           );
+
+          // STALE means the revision in hand is the wrong one, so every
+          // further attempt is refused the same way until it is replaced. The
+          // re-read is issued here, which is also the only thing that makes
+          // the message's "it has been read again" true.
+          //
+          // Its own rejection is swallowed: a read aborted because the thread
+          // closed is not a second failure to report, and leaving it unhandled
+          // surfaces as a stray error elsewhere.
+          if (code === 'BOT_POLICY_STALE') {
+            return refetch().catch(() => undefined);
+          }
+
+          return undefined;
         });
     },
     [conversationId, read, refetch, setPolicyMutation],

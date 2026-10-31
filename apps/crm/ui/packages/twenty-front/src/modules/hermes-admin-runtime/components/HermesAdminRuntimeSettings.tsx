@@ -1,5 +1,7 @@
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { Button } from 'kovaa-lab-ui/primitives/input';
+import { useCallback, useMemo, useState } from 'react';
+import { isNonEmptyString } from '@sniptt/guards';
 
 import { HermesAdminNote } from '@/hermes-admin-ui/components/HermesAdminNote';
 import { HermesAdminSettingsCenter } from '@/hermes-admin-ui/components/HermesAdminSettingsCenter';
@@ -18,6 +20,7 @@ import {
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
 import { HermesBotPolicySection } from '@/hermes-bot-settings/components/HermesBotPolicySection';
 import { HermesMcpToolSurfacePanel } from '@/hermes-admin-runtime/components/HermesMcpToolSurfacePanel';
+import { HermesMailboxSetupPanel } from '@/hermes-mailbox-setup/components/HermesMailboxSetupPanel';
 import { useHermesConnectionCheck } from '@/hermes-admin-runtime/hooks/useHermesConnectionCheck';
 import { useHermesRuntimeCompanies } from '@/hermes-admin-runtime/hooks/useHermesRuntimeCompanies';
 import { useHermesRuntimeConnections } from '@/hermes-admin-runtime/hooks/useHermesRuntimeConnections';
@@ -33,21 +36,19 @@ import {
 // This component owns the reads, the writes and the outcomes. The library it
 // renders owns the presentation and decides nothing: every state below was
 // read from a server or is the honest absence of one.
-export type HermesAdminRuntimeSettingsProps = {
-  // The native mailbox creation panel. Supplied by whoever owns that panel;
-  // this container only forwards it to the centre, and renders nothing of its
-  // own in its place when it is absent.
-  mailboxSetupSlot?: ReactNode;
-};
-
-export const HermesAdminRuntimeSettings = ({
-  mailboxSetupSlot,
-}: HermesAdminRuntimeSettingsProps = {}) => {
+export const HermesAdminRuntimeSettings = () => {
   const { t } = useLingui();
 
   const companies = useHermesRuntimeCompanies();
   const connections = useHermesRuntimeConnections(companies.activeCompanyId);
-  const { nativeAccounts } = useHermesRuntimeNativeAccounts();
+  const { read: nativeAccountsRead, rereadAccounts } =
+    useHermesRuntimeNativeAccounts();
+
+  // Only a REPORTED read yields accounts. An empty array from any other state
+  // is a rendering fallback, never the server saying « none » — which is why
+  // the state itself is said out loud in the slot below.
+  const nativeAccounts =
+    nativeAccountsRead.kind === 'reported' ? nativeAccountsRead.accounts : [];
   // The read-only connection probes. A save still proves nothing: these are
   // the only operations that reach a provider, and the strongest thing they
   // establish is reachability at a dated instant.
@@ -61,6 +62,10 @@ export const HermesAdminRuntimeSettings = ({
   const [checkedTarget, setCheckedTarget] = useState<HermesCheckTarget | null>(
     null,
   );
+
+  // The account this centre just created, so the operator is told which one to
+  // pick. It is an identifier, never a claim: the binding is the save below.
+  const [createdAccountId, setCreatedAccountId] = useState<string | null>(null);
 
   // What the screen holds, and whether it still belongs to the active company.
   //
@@ -202,6 +207,7 @@ export const HermesAdminRuntimeSettings = ({
 
       connections.resetWriteState();
       discardChecks();
+      setCreatedAccountId(null);
 
       // The revision is passed on exactly as it was read, never repaired. A
       // connection read without one opens a form that cannot send, and says
@@ -223,6 +229,7 @@ export const HermesAdminRuntimeSettings = ({
     (connectionKind: HermesConnectionKind) => {
       connections.resetWriteState();
       discardChecks();
+      setCreatedAccountId(null);
       setFormSubject({ mode: 'create', kind: connectionKind });
     },
     [connections, discardChecks],
@@ -281,6 +288,74 @@ export const HermesAdminRuntimeSettings = ({
     [companies],
   );
 
+  const createdAccount = useMemo(
+    () =>
+      createdAccountId === null
+        ? undefined
+        : nativeAccounts.find((account) => account.id === createdAccountId),
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    [createdAccountId, nativeAccountsRead],
+  );
+
+  // The creation half of the mailbox journey, mounted here because this
+  // container is what the panel's `onConnected` contract names: the panel
+  // writes the native encrypted store and never a connection, and binding MAIL
+  // to the new account is this screen's own save.
+  const mailboxSetupSlot = (
+    <>
+      {/* The read's own three states, told apart. A failure says it failed and
+          offers the re-read; only a reported empty list says « none ». */}
+      {nativeAccountsRead.kind === 'loading' && (
+        <HermesAdminNote role="status">
+          {t`Lecture de la liste des comptes connectés natifs…`}
+        </HermesAdminNote>
+      )}
+
+      {nativeAccountsRead.kind === 'unreadable' && (
+        <>
+          <HermesAdminNote role="alert">
+            {nativeAccountsRead.reason !== null
+              ? t`La liste des comptes connectés natifs n’a pas pu être lue : ${nativeAccountsRead.reason}. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose.`
+              : t`La liste des comptes connectés natifs n’a pas pu être lue. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose.`}
+          </HermesAdminNote>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void rereadAccounts();
+            }}
+          >
+            {t`Relire la liste des comptes`}
+          </Button>
+        </>
+      )}
+
+      <HermesMailboxSetupPanel
+        // Only a REPORTED, empty read may say « none ». Loading and unreadable
+        // both leave it unknown, and the wording stays neutral.
+        hasExistingAccounts={
+          !(
+            nativeAccountsRead.kind === 'reported' &&
+            nativeAccountsRead.accounts.length === 0
+          )
+        }
+        onConnected={setCreatedAccountId}
+      />
+
+      {createdAccountId !== null && (
+        <HermesAdminNote role="status">
+          {createdAccount === undefined
+            ? t`La boîte a été enregistrée. Elle ne figure pas encore dans la liste ci-dessus : relisez la liste des comptes avant de conclure qu’elle manque, et ne la recréez pas.`
+            : isNonEmptyString(createdAccount.address)
+              ? t`Boîte enregistrée : ${createdAccount.address}. Choisissez-la ci-dessus puis enregistrez la liaison — rien n’est lié tant que cet enregistrement n’a pas eu lieu.`
+              : t`Boîte enregistrée, sans adresse renvoyée par le serveur. Choisissez-la ci-dessus puis enregistrez la liaison — rien n’est lié tant que cet enregistrement n’a pas eu lieu.`}
+        </HermesAdminNote>
+      )}
+    </>
+  );
+
   const handleRequestReload = useCallback(() => {
     // A reload the operator asked for, which is the only answer to a replaced
     // session. Nothing is retried in its place.
@@ -289,6 +364,7 @@ export const HermesAdminRuntimeSettings = ({
 
   const handleCancelForm = useCallback(() => {
     connections.resetWriteState();
+    setCreatedAccountId(null);
     setFormSubject(null);
   }, [connections]);
 

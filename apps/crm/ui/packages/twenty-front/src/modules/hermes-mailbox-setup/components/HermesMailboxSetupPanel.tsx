@@ -5,7 +5,10 @@ import { FormProvider } from 'react-hook-form';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
-import { HermesAdminNote } from '@/hermes-admin-ui/components/HermesAdminNote';
+import {
+  HermesAdminNote,
+  HermesAdminRuleNote,
+} from '@/hermes-admin-ui/components/HermesAdminNote';
 import { useHermesMailboxSetup } from '@/hermes-mailbox-setup/hooks/useHermesMailboxSetup';
 import { SettingsAccountsConnectionForm } from '@/settings/accounts/components/SettingsAccountsConnectionForm';
 
@@ -82,15 +85,38 @@ export const HermesMailboxSetupPanel = ({
     isSubmitting,
     loading,
     outcome,
+    protocolRequirement,
+    canRetryWrite,
+    hasAcceptedWrite,
     resetSetup,
     retryAccountsRead,
   } = useHermesMailboxSetup({ onConnected: handleConnected });
+
+  const isSaving = outcome.kind === 'saving';
+
+  // Everything neither settled nor in flight may hide an applied write, so the
+  // re-read is the one action offered.
+  const mustReRead = !canRetryWrite && !isSaving;
 
   const { control } = formMethods;
 
   const cancelSetup = () => {
     resetSetup();
     setIsOpen(false);
+  };
+
+  // A new attempt after a write the server ACCEPTED starts clean: the previous
+  // mailbox exists, so this is a deliberate second one and must not resubmit
+  // the form that already succeeded. An outcome that is merely UNKNOWN is
+  // never reset from here — its exits stay the re-read and the explicit
+  // Cancel, because a reset would hand back the control that risks a
+  // duplicate.
+  const openSetup = () => {
+    if (hasAcceptedWrite) {
+      resetSetup();
+    }
+
+    setIsOpen(true);
   };
 
   if (!isOpen) {
@@ -125,7 +151,7 @@ export const HermesMailboxSetupPanel = ({
             type="button"
             variant="solid"
             size="sm"
-            onClick={() => setIsOpen(true)}
+            onClick={openSetup}
           >
             {t`Connecter une boîte`}
           </Button>
@@ -170,6 +196,20 @@ export const HermesMailboxSetupPanel = ({
           {t`Le nom identifie cette boîte dans la liste des connexions : nommez la boîte de la société, pas une personne. L’adresse est celle de la boîte elle-même.`}
         </HermesAdminNote>
 
+        {/* The server's requirement, said before the write and with its
+            reason, rather than carried by a disabled button alone. */}
+        {protocolRequirement.kind === 'missing' && (
+          <HermesAdminRuleNote>
+            {t`Cette boîte doit porter la réception (IMAP) et l’envoi (SMTP) : la liaison centrale ne s’enregistre que sur une boîte qui fait les deux, et c’est la réception qui fait créer le canal natif dont l’expéditeur de campagne est résolu. Il manque ${protocolRequirement.missing.join(' et ')} — renseignez l’hôte et le mot de passe de ce protocole.`}
+          </HermesAdminRuleNote>
+        )}
+
+        {outcome.kind === 'not-sent' && (
+          <HermesAdminNote role="alert">
+            {t`Rien n’a été envoyé : il manque ${outcome.missing.join(' et ')}. Une boîte enregistrée sans les deux protocoles existerait sans pouvoir porter la liaison centrale, et rien ici ne la supprimerait.`}
+          </HermesAdminNote>
+        )}
+
         {outcome.kind === 'refused' && (
           <HermesAdminNote role="alert">
             {outcome.reason !== null
@@ -180,7 +220,9 @@ export const HermesMailboxSetupPanel = ({
 
         {outcome.kind === 'unconfirmed' && (
           <HermesAdminNote role="alert">
-            {t`La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Vérifiez la liste des comptes avant de réessayer, pour ne pas créer de doublon.`}
+            {outcome.listReread
+              ? t`La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. La liste des comptes a été relue — si la boîte y figure, l’enregistrement a bien eu lieu ; sinon, annulez et reprenez. Pour ne pas créer de doublon, rien n’est renvoyé d’ici.`
+              : t`La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Relisez la liste des comptes avant toute autre tentative, pour ne pas créer de doublon.`}
           </HermesAdminNote>
         )}
 
@@ -193,26 +235,30 @@ export const HermesMailboxSetupPanel = ({
         )}
 
         <StyledActions>
-          {/* A write whose answer was lost may have been applied, so sending
-              again is withheld rather than offered: the recovery is a re-read. */}
-          {outcome.kind !== 'write-unknown' && (
+          {/* Offered only on an outcome PROVEN settled, never on the
+              complement of a list of uncertain ones: a write that may have
+              created the account must not be sendable again, and the recovery
+              is a re-read. */}
+          {(canRetryWrite || isSaving) && (
             <Button
               type="button"
               variant="solid"
               size="sm"
-              loading={loading}
-              disabled={!canSave || loading}
+              loading={loading || isSaving}
+              disabled={!canSave || loading || isSaving}
               onClick={handleSubmit((data) => handleSave(data))}
             >
               {t`Enregistrer la boîte`}
             </Button>
           )}
 
-          {outcome.kind === 'write-unknown' && (
+          {mustReRead && (
             <Button
               type="button"
               variant="outline"
               size="sm"
+              loading={outcome.kind === 'rereading'}
+              disabled={outcome.kind === 'rereading'}
               onClick={() => {
                 void retryAccountsRead();
               }}

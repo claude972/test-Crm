@@ -1,6 +1,5 @@
 import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
-import type React from 'react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -20,6 +19,7 @@ import { HERMES_MCP_TOOL_SURFACE } from '@/hermes-admin-runtime/graphql/metadata
 import { HermesAdminRuntimeSettings } from '@/hermes-admin-runtime/components/HermesAdminRuntimeSettings';
 import { HERMES_WORKSPACE_BOT_POLICIES } from '@/hermes-bot-settings/graphql/metadata-queries/hermesWorkspaceBotPolicies';
 import { GET_MY_CONNECTED_ACCOUNTS } from '@/settings/accounts/graphql/queries/getMyConnectedAccounts';
+import { ToastProvider } from 'kovaa-lab-ui/components/feedback';
 
 // The authentication hook is not re-implemented and not exercised here: this
 // container only calls its two company methods and maps their promises. They
@@ -235,9 +235,24 @@ const memberRolesMock: MockedResponse = {
   },
 };
 
+// A read that FAILED. `error:` is what makes MockLink reject the request; a
+// throw inside `result` would be a received answer instead.
+const failingAccountsMock: MockedResponse = {
+  request: { query: GET_MY_CONNECTED_ACCOUNTS },
+  maxUsageCount: 10,
+  error: new Error('socket hang up'),
+};
+
+// A read that SUCCEEDED and reported nothing. The server really did say none.
+const emptyAccountsMock: MockedResponse = {
+  request: { query: GET_MY_CONNECTED_ACCOUNTS },
+  maxUsageCount: 10,
+  result: { data: { myConnectedAccounts: [] } },
+};
+
 const renderSettings = (
   extraMocks: MockedResponse[] = [],
-  mailboxSetupSlot?: React.ReactNode,
+  accountsMockOverride?: MockedResponse,
 ) => {
   const store = createStore();
 
@@ -268,7 +283,7 @@ const renderSettings = (
       <MockedProvider
         mocks={[
           connectionsMock,
-          nativeAccountsMock,
+          accountsMockOverride ?? nativeAccountsMock,
           botPoliciesMock,
           memberRolesMock,
           mcpToolSurfaceMock,
@@ -276,7 +291,12 @@ const renderSettings = (
         ]}
       >
         <I18nProvider i18n={i18n}>
-          <HermesAdminRuntimeSettings mailboxSetupSlot={mailboxSetupSlot} />
+          {/* HARNESS: the toast host is an application-level provider, mounted
+              in App.tsx. The real one is used rather than a stub, so the
+              mailbox panel this container now renders runs as it does there. */}
+          <ToastProvider>
+            <HermesAdminRuntimeSettings />
+          </ToastProvider>
         </I18nProvider>
       </MockedProvider>
     </Provider>,
@@ -565,7 +585,7 @@ describe('HermesAdminRuntimeSettings', () => {
   it('names a native account by its name and address, never by its identifier', async () => {
     // A UUID read as a mailbox is how the wrong account gets bound, so a raw
     // identifier is never shown where a name belongs.
-    renderSettings([], <div>Panneau de création de boîte</div>);
+    renderSettings();
 
     await screen.findByText('E-mail entrant (IMAP)');
 
@@ -596,28 +616,36 @@ describe('HermesAdminRuntimeSettings', () => {
       );
     }
 
-    // The creation panel is rendered in the slot this form owns. Its contents
-    // belong to another lot; this screen only provides the hole.
+    // The real creation panel, not a hole: the container mounts it itself, so
+    // the operator can add a mailbox from the centre instead of being sent
+    // away to the product's own account pages.
     expect(
-      screen.getByText('Panneau de création de boîte'),
+      screen.getByRole('button', { name: 'Connecter une boîte' }),
     ).toBeInTheDocument();
   });
 
-  it('renders nothing in place of an absent mailbox creation panel', async () => {
+  it('offers the mailbox creation panel in the mail form, never a dead end', async () => {
+    // The regression this covers: the slot existed and nobody filled it, so
+    // the form told the operator to go and connect a mailbox elsewhere. That
+    // left the configured-mailbox-becomes-campaign-sender chain cut at its
+    // first link.
     renderSettings();
 
     await screen.findByText('E-mail entrant (IMAP)');
 
-    const editButtons = screen.getAllByRole('button', {
-      name: 'Modifier les paramètres',
-    });
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
 
-    await userEvent.click(editButtons[1]);
-
-    // No panel supplied, so the operator is told where to go instead of being
-    // shown an empty area.
     expect(
-      screen.queryByText('Panneau de création de boîte'),
+      screen.getByRole('button', { name: 'Connecter une boîte' }),
+    ).toBeInTheDocument();
+
+    // And the wording that sent the operator away is gone.
+    expect(
+      screen.queryByText(
+        /Il faut en connecter un dans les comptes du produit/,
+      ),
     ).toBeNull();
   });
 
@@ -707,5 +735,86 @@ describe('HermesAdminRuntimeSettings', () => {
         /Rien ne les reprend automatiquement : il faut les réactiver dans les politiques du bot/,
       ),
     ).toBeInTheDocument();
+  });
+
+  // CATMAIL004: the accounts read used to swallow `error` and yield [], so a
+  // failed read rendered as the server reporting no account at all. A failure
+  // and a reported absence are different facts and must not share a rendering.
+  it('does not turn a failed accounts read into a reported absence', async () => {
+    renderSettings([], failingAccountsMock);
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
+
+    // The failure is named, and the re-read is offered.
+    expect(
+      await screen.findByText(
+        /La liste des comptes connectés natifs n’a pas pu être lue/,
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'Relire la liste des comptes' }),
+    ).toBeInTheDocument();
+
+    // And the absence the server never stated is NOT claimed — neither by the
+    // creation panel nor by the form's own selector note, which is the stack
+    // the operator used to be shown: a false absence with the correction
+    // directly underneath it.
+    expect(
+      screen.queryByText(/Aucune boîte mail n’est encore enregistrée/),
+    ).toBeNull();
+    expect(screen.queryByText(/Aucun compte connecté natif/)).toBeNull();
+  });
+
+  it('reports an absence only when the server reported one', async () => {
+    renderSettings([], emptyAccountsMock);
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
+
+    // An answered, empty read is an answer, so it may be said plainly.
+    expect(
+      await screen.findByText(/Aucune boîte mail n’est encore enregistrée/),
+    ).toBeInTheDocument();
+
+    // And it is not dressed up as a failure.
+    expect(
+      screen.queryByText(
+        /La liste des comptes connectés natifs n’a pas pu être lue/,
+      ),
+    ).toBeNull();
+
+    // The form still states nothing of its own: it did not read the list.
+    expect(screen.queryByText(/Aucun compte connecté natif/)).toBeNull();
+  });
+
+  it('does not offer an empty account list as a live choice', async () => {
+    renderSettings([], emptyAccountsMock);
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
+
+    // « Choisir un compte connecté » over no options reads as a choice that
+    // merely happens to be empty. There is nothing to choose, and the control
+    // says so and is not operable.
+    const select = await screen.findByLabelText('Compte connecté natif');
+
+    expect(select).toBeDisabled();
+    expect(
+      screen.getByRole('option', { name: 'Aucun compte à choisir' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: 'Choisir un compte connecté' }),
+    ).toBeNull();
   });
 });

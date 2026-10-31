@@ -43,7 +43,64 @@ export type HermesMailboxSetupOutcome =
   | { kind: 'rereading'; connectedAccountId: string }
   | { kind: 'write-unknown'; reason: string | null; listReread: boolean }
   | { kind: 'refused'; reason: string | null }
-  | { kind: 'unconfirmed' };
+  | { kind: 'not-sent'; missing: HermesMailboxMissingProtocol[] }
+  | { kind: 'unconfirmed'; listReread: boolean };
+
+// Whether the write's outcome is KNOWN. That is the whole test, and it is not
+// the same question as whether the write succeeded: a refusal is as settled as
+// a success. What must stay closed is not-knowing, because only there does a
+// second attempt risk a duplicate.
+//
+// Written as an exhaustive switch, not a list of state names. The first
+// version of this rule was too open and the second too closed, and both came
+// from enumerating names instead of asking what each state knows. A state
+// added later fails to COMPILE here until someone answers that question for
+// it, which neither an allowlist nor a denylist would have forced.
+const isOutcomeSettled = (outcome: HermesMailboxSetupOutcome): boolean => {
+  switch (outcome.kind) {
+    // Nothing was attempted, or the request never left the browser.
+    case 'idle':
+    case 'not-sent':
+    // The server refused BEFORE writing: nothing was created.
+    case 'refused':
+    // The server ACCEPTED: the account exists and its identifier is known.
+    // These three differ only in what the list re-read managed to show, which
+    // says nothing about the write.
+    case 'saved-unverified':
+    case 'saved-not-reread':
+    case 'rereading':
+      return true;
+    // The write itself is in flight: there is no outcome yet.
+    case 'saving':
+    // The server may or may not have applied it. A second attempt here is how
+    // one mailbox becomes two, and nothing here can delete one.
+    case 'write-unknown':
+    case 'unconfirmed':
+      return false;
+  }
+};
+
+// The write was ACCEPTED and the account exists. A new creation from here is a
+// deliberate second mailbox, so it starts from a cleared form rather than
+// resubmitting the one that already succeeded.
+const hasAcceptedWrite = (outcome: HermesMailboxSetupOutcome): boolean =>
+  outcome.kind === 'saved-unverified' ||
+  outcome.kind === 'saved-not-reread' ||
+  outcome.kind === 'rereading';
+
+// The protocols the MAIL connection requires, and which of them the form is
+// still missing.
+//
+// This is the SERVER's requirement, made legible before the write rather than
+// softened: reception polls IMAP, and the native message channel the campaign
+// sender is resolved from is created only when the submission carries an IMAP
+// block. An SMTP-only account is created and then cannot serve as the MAIL
+// connection, which surfaces later as a missing native channel.
+export type HermesMailboxMissingProtocol = 'IMAP' | 'SMTP';
+
+export type HermesMailboxProtocolRequirement =
+  | { kind: 'met' }
+  | { kind: 'missing'; missing: HermesMailboxMissingProtocol[] };
 
 const readErrorMessage = (error: unknown): string | null =>
   error instanceof Error ? error.message : null;
@@ -116,6 +173,11 @@ export const useHermesMailboxSetup = ({
   // creating the account a second time.
   const [saveConnection, { loading: saveLoading }] = useMutation(
     SaveImapSmtpCaldavAccountDocument,
+    // The transport must never replay this one. ApolloFactory's RetryLink runs
+    // with `max: 2` and retries on any network error, so without this a lost
+    // answer could land the write TWICE before the outcome below is computed —
+    // creating a second connected account that nothing here can delete.
+    { context: { skipRetry: true } },
   );
 
   const apolloClient = useApolloClient();
@@ -145,23 +207,70 @@ export const useHermesMailboxSetup = ({
     [],
   );
 
+  const protocolRequirement = useMemo<HermesMailboxProtocolRequirement>(() => {
+    const missing = (['IMAP', 'SMTP'] as const).filter((protocol) => {
+      const protocolConfig = watchedValues[protocol];
+
+      return !isDefined(protocolConfig) || !isProtocolConfigured(protocolConfig);
+    });
+
+    return missing.length === 0 ? { kind: 'met' } : { kind: 'missing', missing };
+  }, [watchedValues]);
+
   const canSave = useMemo(
     () =>
       Boolean(watchedValues.handle?.trim()) &&
       getConfiguredProtocols(watchedValues).length > 0 &&
+      // Both protocols, because the server requires both of a MAIL connection.
+      protocolRequirement.kind === 'met' &&
+      // And the previous outcome is known: a write that MAY have landed is
+      // never re-offered, while one that certainly did is no obstacle.
+      isOutcomeSettled(outcome) &&
       !isSubmitting,
-    [getConfiguredProtocols, watchedValues, isSubmitting],
+    [
+      getConfiguredProtocols,
+      watchedValues,
+      protocolRequirement,
+      outcome,
+      isSubmitting,
+    ],
   );
 
   const handleSave = useCallback(
     async (formValues: ConnectionFormData): Promise<void> => {
+      // The guard that actually refuses, as opposed to the button that merely
+      // looks unavailable: a stray submit on an unsettled outcome must not
+      // reach the server, because the account may already exist.
+      if (!isOutcomeSettled(outcome)) {
+        return;
+      }
+
+      // Checked again on the submitted values, not on the watched ones: the
+      // button is the first guard, and a request that cannot serve its purpose
+      // must not leave even if something else triggers the submit.
+      const missingProtocols = (['IMAP', 'SMTP'] as const).filter(
+        (protocol) => {
+          const protocolConfig = formValues[protocol];
+
+          return (
+            !isDefined(protocolConfig) || !isProtocolConfigured(protocolConfig)
+          );
+        },
+      );
+
+      if (missingProtocols.length > 0) {
+        setOutcome({ kind: 'not-sent', missing: [...missingProtocols] });
+
+        return;
+      }
+
       const configuredProtocols = getConfiguredProtocols(formValues);
 
       // Submitting nothing configured would create an account that can neither
       // receive nor send. The schema refuses it too; this keeps the request
       // from leaving at all.
       if (configuredProtocols.length === 0) {
-        setOutcome({ kind: 'unconfirmed' });
+        setOutcome({ kind: 'unconfirmed', listReread: false });
         return;
       }
 
@@ -231,7 +340,7 @@ export const useHermesMailboxSetup = ({
       // A reply we cannot read an account id out of settles nothing: the
       // account may exist. Saying so beats inventing either outcome.
       if (!isNonEmptyString(connectedAccountId)) {
-        setOutcome({ kind: 'unconfirmed' });
+        setOutcome({ kind: 'unconfirmed', listReread: false });
         return;
       }
 
@@ -265,6 +374,7 @@ export const useHermesMailboxSetup = ({
       reset,
       onConnected,
       enqueueToast,
+      outcome,
     ],
   );
 
@@ -272,7 +382,11 @@ export const useHermesMailboxSetup = ({
   // re-read failed AND for a write whose answer was lost. It re-reads and
   // never writes: re-emitting could create the very duplicate at issue.
   const retryAccountsRead = useCallback(async (): Promise<void> => {
-    if (outcome.kind === 'write-unknown') {
+    // Both outcomes that may hide an applied write report whether the list was
+    // re-read. 'unconfirmed' is precisely the state where re-reading is the
+    // only honest action: the server accepted something and told us nothing
+    // usable about it.
+    if (outcome.kind === 'write-unknown' || outcome.kind === 'unconfirmed') {
       try {
         await readAccountsList();
         setOutcome({ ...outcome, listReread: true });
@@ -310,6 +424,13 @@ export const useHermesMailboxSetup = ({
     isSubmitting,
     loading: saveLoading,
     outcome,
+    protocolRequirement,
+    // The single source of truth for whether a creation may be attempted, so
+    // the control and the guard cannot disagree.
+    canRetryWrite: isOutcomeSettled(outcome),
+    // Whether the account from a previous attempt exists, so a new attempt
+    // begins on a cleared form instead of the one that already succeeded.
+    hasAcceptedWrite: hasAcceptedWrite(outcome),
     resetSetup,
     retryAccountsRead,
   };

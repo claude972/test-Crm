@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 
+import { HermesCampaignSendingSection } from '@/hermes-admin-runtime/components/HermesCampaignSendingSection';
 import { HermesBotPolicySection } from '@/hermes-bot-settings/components/HermesBotPolicySection';
 import { SettingsPageContainer } from '@/settings/components/SettingsPageContainer';
 import { SettingsDiscoveryHeroCard } from '@/settings/components/SettingsDiscoveryHeroCard';
@@ -117,6 +118,7 @@ export const SettingsWorkspaceCommunications = () => {
             />
           </StyledCardsColumn>
         </Section.Root>
+        {isMessageCampaignFeatureEnabled && <HermesCampaignSendingSection />}
         {isMessageCampaignFeatureEnabled && (
           <Section.Root>
             <Section.Header
