@@ -1593,7 +1593,7 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Tous ces constats ont été réellement envoyés au parent via PTY2418 pour relais aux agents propriétaires ; root n'a édité aucun fichier applicatif concurrent. Les lots poursuivent leur code et leurs tests. Preview V4 expirée, aucun nouveau lien annoncé ni fournisseur réel prétendu vérifié.
 
 
-### HERMES-COMPLETE-JOURNEYS-20261031 — revue indépendante du 31 octobre 04:35 UTC
+### HERMES-COMPLETE-JOURNEYS-20261031 — revue indépendante du 31 octobre 04:31 UTC
 
 - Acting agent : Codex root. Parent Claude `8f3db32e-4613-45e3-94f3-16e664f3cbfc`, PTY2418 existante réutilisée ; messages réels de revue envoyés, aucun nouveau worker doublon. Les agents propriétaires continuent leurs lots. Codex ne modifie aucun fichier applicatif.
 - CJ-PWA-002 : status **verified dans le périmètre source + tests isolés**, fix `5506a10d0` et `c03ef12a13ac5936f1249f18144137db686cbd2e`, intégrés `4733cb18b`. Root a exécuté `node --test scripts/check-preview-access.test.mjs scripts/check-hermes-pwa-service-worker.test.mjs` : **25 tests PASS**, zéro échec. Le vrai fichier SW est évalué dans une portée VM ; les contrôles d'accès utilisent deux serveurs HTTP de boucle locale. Installation sans requête protégée, aucun cache de réponse, redirection/HTML de connexion non convertis en succès et secrets caviardés. Ces tests ne prouvent ni une installation PWA réelle ni Safari. Bootstrap ajouté par le parent `7efd64983`, relu : enregistrement après rendu, sans blocage initial. Rapport antérieur disant « appelé par personne » à actualiser ; nouvelle police Inter du fallback à corriger selon DESIGN.
@@ -1606,7 +1606,7 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Checkout original et sauvegardes préservés. Disque contrôlé : environ 11 GiB libres sur système, 2,8 GiB sur externe ; pas de gros build local ni nettoyage destructif. Ancienne preview expirée, aucun lien de remplacement annoncé avant sa vraie recette.
 
 
-### HERMES-COMPLETE-JOURNEYS-20261031 — revue réglages du 31 octobre 04:42 UTC
+### HERMES-COMPLETE-JOURNEYS-20261031 — revue réglages du 31 octobre 04:33 UTC
 
 - Revue root sur les commits exacts `e4e7972aa0d6d1e8d59e6f9a0d9b1b4071d6c231`, `3c7fc53cb` et `1688c1ea3` dans le worktree de CJ04a ; fichiers de rôles non committés laissés à leur propriétaire. La nouvelle sonde utilise bien les fournisseurs IMAP/SMTP natifs et ne construit ni message ni enveloppe ; une sonde réussie reste distincte d'une preuve de flux.
 - CJ-CONN-001, reviewer root, assigned CJ04a, status **open** : `HermesConnectionTestService.testMail` valide l'acteur appelant une seule fois avant `resolve` et les I/O. La relecture finale `connections.resolve` vérifie les droits de l'acteur qui a enregistré la configuration, et non ceux d'un autre administrateur ayant déclenché la sonde. Si ce second administrateur perd ses droits pendant le test, les observations/counters peuvent encore lui être retournés. Demande : recheck des droits de l'appelant après résolution avant ouverture et après sonde/fermeture avant retour ; test de révocation avec appelant distinct du propriétaire de connexion.

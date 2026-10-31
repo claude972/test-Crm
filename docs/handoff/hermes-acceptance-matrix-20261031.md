@@ -24,7 +24,7 @@ Cette grille suit les demandes, pas le nombre de composants ou de tests verts. L
 Les accès fournisseurs manquants doivent être listés après inventaire sécurisé de la configuration autorisée. Ils ne justifient pas l'absence d'un parcours codé et recetté sur un serveur de test identifié. Les tests de fournisseurs factices ne seront jamais annoncés comme une connexion réelle. Aucun envoi à des prospects, production ou nouveau service payant autorisé par cette matrice.
 
 
-## Checkpoint de supervision — 31 octobre 04:35 UTC
+## Checkpoint de supervision — 31 octobre 04:31 UTC
 
 Les états de la colonne « à la reprise » restent historiques. Les deltas suivants ne constituent pas une recette finale :
 
