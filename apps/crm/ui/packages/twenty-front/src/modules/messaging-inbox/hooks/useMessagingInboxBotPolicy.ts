@@ -30,10 +30,31 @@ export type MessagingInboxBotPolicyWriteState =
       code: MessagingInboxPolicyRefusalCode | null;
     };
 
+// What became of the re-read a STALE refusal triggers.
+//
+// Four answers, never two at once. A refusal whose message promises "it has
+// been read again" may only render over 'done': when the re-read itself fails
+// the operator was being told, in one breath, that the read failed and that it
+// succeeded — with no way to try again.
+//
+// 'none' is "no re-read was called for", which is every other refusal.
+export type MessagingInboxBotPolicyRereadState =
+  | { kind: 'none' }
+  | { kind: 'reading' }
+  | { kind: 'done' }
+  | { kind: 'failed' };
+
 export type MessagingInboxBotPolicyControl = {
   read: MessagingInboxBotPolicyRead;
   writeState: MessagingInboxBotPolicyWriteState;
+  // The outcome of the re-read, so a caller can say which of the three
+  // happened instead of asserting the happy one.
+  rereadState: MessagingInboxBotPolicyRereadState;
   setMode: (mode: MessagingInboxBotMode) => void;
+  // Offered only when the re-read failed: without a fresh revision every
+  // further attempt is refused identically, so a retry is the one action that
+  // can unblock the operator.
+  retryReread: (() => void) | null;
   resetWriteState: () => void;
 };
 
@@ -63,6 +84,9 @@ export const useMessagingInboxBotPolicy = (
 
   const [writeState, setWriteState] =
     useState<MessagingInboxBotPolicyWriteState>({ kind: 'idle' });
+
+  const [rereadState, setRereadState] =
+    useState<MessagingInboxBotPolicyRereadState>({ kind: 'none' });
 
   // skipRetry: a policy write must not be replayed by a transport retry. A
   // revoked delegation that comes back on its own is exactly the failure the
@@ -110,6 +134,27 @@ export const useMessagingInboxBotPolicy = (
     return { kind: 'reported', policy: payload.value };
   }, [conversationId, data, error, loading]);
 
+  // The re-read, with its outcome reported rather than discarded. A result
+  // carrying errors is a failed read even though the promise resolved, which
+  // is what `errorPolicy: 'all'` makes possible.
+  const runReread = useCallback(() => {
+    setRereadState({ kind: 'reading' });
+
+    return refetch()
+      .then((result) => {
+        setRereadState(
+          result.error === undefined && result.data !== undefined
+            ? { kind: 'done' }
+            : { kind: 'failed' },
+        );
+      })
+      .catch(() => {
+        // A network failure is not an abort. Swallowing it silently is what
+        // let the "read again" sentence render over a read that never landed.
+        setRereadState({ kind: 'failed' });
+      });
+  }, [refetch]);
+
   const setMode = useCallback(
     (mode: MessagingInboxBotMode) => {
       // Without a revision there is nothing to compare, and a write that
@@ -130,6 +175,7 @@ export const useMessagingInboxBotPolicy = (
       }
 
       setWriteState({ kind: 'requesting' });
+      setRereadState({ kind: 'none' });
 
       void setPolicyMutation({
         variables: {
@@ -178,22 +224,31 @@ export const useMessagingInboxBotPolicy = (
           // re-read is issued here, which is also the only thing that makes
           // the message's "it has been read again" true.
           //
-          // Its own rejection is swallowed: a read aborted because the thread
-          // closed is not a second failure to report, and leaving it unhandled
-          // surfaces as a stray error elsewhere.
+          // Its outcome is reported, not swallowed: the sentence that promises
+          // a successful re-read may only render once there has been one.
           if (code === 'BOT_POLICY_STALE') {
-            return refetch().catch(() => undefined);
+            return runReread();
           }
+
+          setRereadState({ kind: 'none' });
 
           return undefined;
         });
     },
-    [conversationId, read, refetch, setPolicyMutation],
+    [conversationId, read, refetch, runReread, setPolicyMutation],
   );
 
   const resetWriteState = useCallback(() => {
     setWriteState({ kind: 'idle' });
+    setRereadState({ kind: 'none' });
   }, []);
 
-  return { read, writeState, setMode, resetWriteState };
+  return {
+    read,
+    writeState,
+    rereadState,
+    setMode,
+    retryReread: rereadState.kind === 'failed' ? runReread : null,
+    resetWriteState,
+  };
 };
