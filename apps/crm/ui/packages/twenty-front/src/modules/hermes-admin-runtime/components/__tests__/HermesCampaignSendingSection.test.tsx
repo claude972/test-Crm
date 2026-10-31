@@ -2,7 +2,7 @@ import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
-import { render, screen } from '@testing-library/react';
+import { configure, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -16,6 +16,18 @@ import {
   GetEmailingDomainsDocument,
   UnsubscribeHostnameStatus,
 } from '~/generated-metadata/graphql';
+
+// RTL's `asyncUtilTimeout` governs how long a `findBy*` or a `waitFor` waits
+// for something that is genuinely on its way. It defaults to 1000 ms and is
+// unset repo-wide, so a loaded machine blows it long before the 30 s per-test
+// budget is touched — and the failure then reads « Unable to find an element »,
+// an assertion failure, rather than a timeout. That is the shape of the
+// intermittent red this suite showed under contention.
+//
+// Scoped to this file, and it does NOT relax the per-test limit: a query still
+// resolves the moment the element appears, so a fast machine pays nothing and
+// a genuinely missing element still fails.
+configure({ asyncUtilTimeout: 5000 });
 
 const ACCOUNT_ID = '22222222-2222-4222-8222-222222222222';
 const MAILBOX = 'contact@atelier.example';

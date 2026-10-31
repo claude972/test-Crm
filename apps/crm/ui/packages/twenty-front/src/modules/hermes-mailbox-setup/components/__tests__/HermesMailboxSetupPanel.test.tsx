@@ -2,7 +2,13 @@ import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  configure,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
@@ -11,6 +17,18 @@ import { useHermesRuntimeNativeAccounts } from '@/hermes-admin-runtime/hooks/use
 import { HermesMailboxSetupPanel } from '@/hermes-mailbox-setup/components/HermesMailboxSetupPanel';
 import { GET_MY_CONNECTED_ACCOUNTS } from '@/settings/accounts/graphql/queries/getMyConnectedAccounts';
 import { SaveImapSmtpCaldavAccountDocument } from '~/generated-metadata/graphql';
+
+// RTL's `asyncUtilTimeout` governs how long a `findBy*` or a `waitFor` waits
+// for something that is genuinely on its way. It defaults to 1000 ms and is
+// unset repo-wide, so a loaded machine blows it long before the 30 s per-test
+// budget is touched — and the failure then reads « Unable to find an element »,
+// an assertion failure, rather than a timeout. That is the shape of the
+// intermittent red this suite showed under contention.
+//
+// Scoped to this file, and it does NOT relax the per-test limit: a query still
+// resolves the moment the element appears, so a fast machine pays nothing and
+// a genuinely missing element still fails.
+configure({ asyncUtilTimeout: 5000 });
 
 // ENVIRONMENT GAP, not product behaviour: jsdom defines no PointerEvent, and
 // the design system's controls from @base-ui/react dispatch one, which throws
