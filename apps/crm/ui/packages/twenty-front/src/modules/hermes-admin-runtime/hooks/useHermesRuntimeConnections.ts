@@ -216,22 +216,25 @@ export const useHermesRuntimeConnections = (
       setSaveState({ kind: 'saving' });
 
       void saveMutation({ variables: { input: build.write } })
-        .then((answer) => {
+        .then(async (answer) => {
           if (!isDefined(answer.data?.hermesSaveConnectionV4)) {
             // The call left and the answer could not be read. That is neither
             // a save nor a failure, and it is certainly not a verification.
             setSaveState({ kind: 'unconfirmed' });
-          } else {
-            // Saved, with no verification date: this contract publishes no
-            // connection test, so nothing is ever presented as connected.
-            setSaveState({ kind: 'saved', verifiedAt: null });
+
+            return;
           }
 
-          // Refreshed on its own so the next write carries the new revision.
-          // Its failure is not this write's failure: a refresh that does not
-          // come back leaves the query in error, which the read already
-          // reports as unknown.
-          refetch().catch(() => {});
+          // Accepted. Every write advances the revision, so what is on screen
+          // is stale by construction: it is re-read BEFORE anything is
+          // presented as current, and a re-read that fails is said out loud
+          // rather than leaving a stale revision looking authoritative.
+          try {
+            await refetch();
+            setSaveState({ kind: 'saved', verifiedAt: null });
+          } catch {
+            setSaveState({ kind: 'saved-unread' });
+          }
         })
         .catch(applyFailure);
     },
@@ -267,14 +270,21 @@ export const useHermesRuntimeConnections = (
       void removeMutation({
         variables: { input: { kind: runtimeKind, expectedRevision: revision } },
       })
-        .then((answer) => {
+        .then(async (answer) => {
           if (!isDefined(answer.data?.hermesRemoveConnectionV4)) {
             setSaveState({ kind: 'unconfirmed' });
-          } else {
-            setSaveState({ kind: 'saved', verifiedAt: null });
+
+            return;
           }
 
-          refetch().catch(() => {});
+          // A removal leaves a tombstone revision that a recreation needs, so
+          // the re-read matters as much as it does after a save.
+          try {
+            await refetch();
+            setSaveState({ kind: 'saved', verifiedAt: null });
+          } catch {
+            setSaveState({ kind: 'saved-unread' });
+          }
         })
         .catch(applyFailure);
     },

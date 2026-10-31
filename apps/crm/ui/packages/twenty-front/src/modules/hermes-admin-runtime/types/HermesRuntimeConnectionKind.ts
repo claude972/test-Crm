@@ -72,22 +72,9 @@ export const readHermesRuntimeWriteSupport = (
     return { kind: 'no-server-kind' };
   }
 
-  // EVOLUTION stores two distinct secrets: `apiKey`, and a `webhookSecret` of
-  // exactly 64 lowercase hex characters that must differ from it. Supplying a
-  // secret object replaces the complete set, so sending one field would erase
-  // the other. One secret control cannot carry two secrets, and inventing a
-  // combined syntax the operator was never told about would be worse than
-  // saying so.
-  if (runtimeKind === 'EVOLUTION') {
-    return { kind: 'missing-control', detail: 'evolution-two-secrets' };
-  }
-
-  // INTAKE requires `allowedSources` and `maxRequestsPerMinute` in its
-  // settings. The form has no control for either, and defaulting them here
-  // would be this screen deciding an operator's ingress policy for them.
-  if (runtimeKind === 'INTAKE') {
-    return { kind: 'missing-control', detail: 'intake-settings' };
-  }
-
+  // Every published kind the form can now compose. EVOLUTION has its two
+  // distinct secret controls and INTAKE has its sources and its rate, so
+  // neither is refused before sending any more. `missing-control` stays in
+  // the type: it is what a future kind without controls would report.
   return { kind: 'supported' };
 };

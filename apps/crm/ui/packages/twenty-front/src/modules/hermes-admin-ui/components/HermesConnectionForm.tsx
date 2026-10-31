@@ -23,22 +23,26 @@ import {
 } from '@/hermes-admin-ui/types/HermesConnectionCheck';
 import {
   HERMES_CONNECTION_FORM_EMPTY_VALUES,
+  HERMES_INTAKE_SOURCES,
   type HermesConnectionFormSubject,
   type HermesConnectionFormSubmission,
   type HermesConnectionFormValues,
   type HermesConnectionSaveState,
+  type HermesIntakeSource,
   type HermesNativeConnectedAccount,
+  type HermesSecretField,
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
 import {
+  checkHermesSecretEntry,
   hasHermesOwnSecretField,
   readHermesConnectionSecretPolicy,
   readHermesConnectionWriteGate,
   readHermesNativeAccountAddress,
+  readHermesSecretFields,
   validateHermesConnectionForm,
   type HermesConnectionFormIssues,
 } from '@/hermes-admin-ui/utils/hermesAdminWrite';
 import {
-  buildHermesSecretSubmission,
   hermesSecretPlaceholder,
   readHermesSecretField,
 } from '@/hermes-admin-ui/utils/hermesSecret';
@@ -92,6 +96,18 @@ const StyledSelect = styled.select`
     outline: 1px solid ${themeCssVariables.border.color.strong};
     outline-offset: 1px;
   }
+`;
+
+const StyledCheckboxRow = styled.div`
+  align-items: center;
+  display: flex;
+  gap: ${themeCssVariables.spacing[2]};
+  padding: ${themeCssVariables.spacing[1]} 0;
+`;
+
+const StyledCheckboxLabel = styled.label`
+  color: ${themeCssVariables.font.color.primary};
+  font-size: ${themeCssVariables.font.size.sm};
 `;
 
 const StyledError = styled.p`
@@ -161,9 +177,12 @@ export const HermesConnectionForm = ({
     initialValues ?? HERMES_CONNECTION_FORM_EMPTY_VALUES,
   );
 
-  // The only place a typed secret lives, and only while this form is open. It
-  // is never read back from the server and never put in browser storage.
-  const [typedSecret, setTypedSecret] = useState('');
+  // The only place a typed secret lives, and only while this form is open.
+  // Keyed by the server's own field names; never read back from the server and
+  // never put in browser storage.
+  const [typedSecrets, setTypedSecrets] = useState<
+    Partial<Record<HermesSecretField, string>>
+  >({});
 
   const [issues, setIssues] = useState<HermesConnectionFormIssues>({});
 
@@ -180,6 +199,28 @@ export const HermesConnectionForm = ({
     APPOINTMENTS: t`Rendez-vous`,
   };
 
+  // Named exactly as the server names each secret, so an operator pasting a
+  // value knows which one they are replacing.
+  const secretLabels: Record<HermesSecretField, string> = {
+    apiKey: t`Clé d’API (apiKey)`,
+    webhookSecret: t`Secret de webhook (webhookSecret)`,
+    token: t`Jeton (token)`,
+    secret: t`Secret de signature (secret)`,
+  };
+
+  const secretHints: Record<HermesSecretField, string> = {
+    apiKey: t`La clé que le fournisseur Evolution attend sur ses appels.`,
+    webhookSecret: t`Exactement soixante-quatre caractères hexadécimaux minuscules, et différent de la clé d’API. Il authentifie les réceptions.`,
+    token: t`Au moins trente-deux caractères imprimables.`,
+    secret: t`Exactement soixante-quatre caractères hexadécimaux minuscules. Il signe les collectes entrantes.`,
+  };
+
+  const sourceLabels: Record<HermesIntakeSource, string> = {
+    SCRAPING: t`Collecte signée (scraping)`,
+    FORMS: t`Formulaires`,
+    CALENDAR: t`Rendez-vous`,
+  };
+
   const kindLabel =
     subject.kind !== null
       ? kindLabels[subject.kind]
@@ -189,6 +230,12 @@ export const HermesConnectionForm = ({
 
   const secretPolicy = readHermesConnectionSecretPolicy(subject.kind);
   const showsSecretField = hasHermesOwnSecretField(secretPolicy);
+  const secretFields = readHermesSecretFields(secretPolicy);
+  const secretEntry = checkHermesSecretEntry(secretFields, typedSecrets);
+
+  // A signed collection is an endpoint OTHERS call: it has no address to dial
+  // and no name of its own, only an ingress policy.
+  const isIntakeKind = subject.kind === 'SIGNED_INTAKE';
 
   const secretRead = readHermesSecretField(
     subject.mode === 'edit' ? subject.hasStoredSecret : false,
@@ -215,6 +262,17 @@ export const HermesConnectionForm = ({
   const nativeAccountErrorId = `${fieldIdPrefix}-native-account-error`;
   const imapFolderId = `${fieldIdPrefix}-imap-folder`;
   const imapFolderHelpId = `${fieldIdPrefix}-imap-folder-help`;
+  const allowedSourcesId = `${fieldIdPrefix}-allowed-sources`;
+  const maxRateId = `${fieldIdPrefix}-max-rate`;
+  const maxRateHelpId = `${fieldIdPrefix}-max-rate-help`;
+
+  // What the two generic fields mean for this kind. « Adresse du service » is
+  // true of an MCP endpoint and useless for an Evolution instance, so each
+  // kind names its own.
+  const kindFieldLabels =
+    subject.kind === 'WHATSAPP_EVOLUTION'
+      ? { name: t`Nom de l’instance`, endpoint: t`Adresse de base Evolution` }
+      : { name: t`Nom de la connexion`, endpoint: t`Adresse du service` };
 
   // Read only, and a consequence of the chosen account rather than an input.
   const attachedAddress = readHermesNativeAccountAddress(
@@ -225,11 +283,21 @@ export const HermesConnectionForm = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const found = validateHermesConnectionForm(secretPolicy, values);
+    const found = validateHermesConnectionForm(
+      secretPolicy,
+      values,
+      subject.kind,
+    );
 
     setIssues(found);
 
     if (Object.keys(found).length > 0) {
+      return;
+    }
+
+    // One secret filled out of two would erase the other on the server, so
+    // nothing is sent until the set is complete or untouched.
+    if (secretEntry.kind === 'partial') {
       return;
     }
 
@@ -244,13 +312,14 @@ export const HermesConnectionForm = ({
     setPending('none');
     onSubmit({
       values,
-      secret: showsSecretField
-        ? buildHermesSecretSubmission(typedSecret)
-        : { kind: 'unchanged' },
+      secret:
+        showsSecretField && secretEntry.kind === 'complete'
+          ? { kind: 'replaced', values: typedSecrets }
+          : { kind: 'unchanged' },
       expectedRevision: writeGate.expectedRevision,
     });
-    // Nothing of the secret is kept once it has left.
-    setTypedSecret('');
+    // Nothing of the secrets is kept once they have left.
+    setTypedSecrets({});
   };
 
   const confirmDelete = () => {
@@ -375,10 +444,97 @@ export const HermesConnectionForm = ({
             </HermesAdminNote>
           </StyledFieldset>
         </>
+      ) : isIntakeKind ? (
+        <>
+          {/* A signed collection is an endpoint OTHERS call. There is nothing
+              to dial, so no address is asked for — only the ingress policy. */}
+          <HermesAdminRuleNote>
+            {t`Une collecte signée est un point d’entrée que l’on appelle, pas un service à joindre : il n’y a donc aucune adresse à saisir. Ce qui se règle ici, c’est ce qu’elle accepte.`}
+          </HermesAdminRuleNote>
+
+          <StyledFieldset>
+            <StyledFieldName id={allowedSourcesId}>
+              {t`Sources autorisées`}
+            </StyledFieldName>
+
+            <div role="group" aria-labelledby={allowedSourcesId}>
+              {HERMES_INTAKE_SOURCES.map((source) => (
+                <StyledCheckboxRow key={source}>
+                  <input
+                    type="checkbox"
+                    id={`${allowedSourcesId}-${source}`}
+                    checked={values.allowedSources.includes(source)}
+                    disabled={isSaving}
+                    onChange={(event) =>
+                      setValues((current) => ({
+                        ...current,
+                        allowedSources: event.target.checked
+                          ? [...current.allowedSources, source]
+                          : current.allowedSources.filter(
+                              (kept) => kept !== source,
+                            ),
+                      }))
+                    }
+                  />
+                  <StyledCheckboxLabel
+                    htmlFor={`${allowedSourcesId}-${source}`}
+                  >
+                    {sourceLabels[source]}
+                  </StyledCheckboxLabel>
+                </StyledCheckboxRow>
+              ))}
+            </div>
+
+            {/* Nothing is pre-checked: an unchecked source is not an accepted
+                one, and choosing for the operator would be this screen
+                deciding their ingress policy. */}
+            <HermesAdminNote>
+              {t`Rien n’est coché par défaut. Une source non cochée n’est pas acceptée, et choisir à votre place reviendrait à décider de votre politique de collecte.`}
+            </HermesAdminNote>
+
+            {issues.allowedSources === 'required' && (
+              <StyledError role="alert">
+                {t`Choisissez au moins une source à accepter.`}
+              </StyledError>
+            )}
+          </StyledFieldset>
+
+          <StyledFieldset>
+            <StyledLabel htmlFor={maxRateId}>
+              {t`Requêtes acceptées par minute`}
+            </StyledLabel>
+            <Input
+              id={maxRateId}
+              value={values.maxRequestsPerMinute}
+              onValueChange={(next) =>
+                setValues((current) => ({
+                  ...current,
+                  maxRequestsPerMinute: next,
+                }))
+              }
+              disabled={isSaving}
+              required
+              autoComplete="off"
+              inputMode="numeric"
+              aria-invalid={
+                issues.maxRequestsPerMinute === 'required' ? true : undefined
+              }
+              aria-describedby={maxRateHelpId}
+            />
+            <HermesAdminNote id={maxRateHelpId}>
+              {t`Un entier entre 1 et 60. Au-delà, les requêtes sont refusées plutôt que mises en attente.`}
+            </HermesAdminNote>
+            {issues.maxRequestsPerMinute === 'required' && (
+              <StyledError role="alert">
+                {t`Indiquez un entier entre 1 et 60.`}
+              </StyledError>
+            )}
+          </StyledFieldset>
+        </>
       ) : (
         <>
           <StyledFieldset>
-            <StyledLabel htmlFor={labelId}>{t`Nom de la connexion`}</StyledLabel>
+            <StyledLabel htmlFor={labelId}>{kindFieldLabels.name}</StyledLabel>
             <Input
               id={labelId}
               value={values.label}
@@ -401,7 +557,7 @@ export const HermesConnectionForm = ({
 
           <StyledFieldset>
             <StyledLabel htmlFor={endpointId}>
-              {t`Adresse du service`}
+              {kindFieldLabels.endpoint}
             </StyledLabel>
             <Input
               id={endpointId}
@@ -451,22 +607,29 @@ export const HermesConnectionForm = ({
       )}
 
       {showsSecretField && (
-        <StyledFieldset>
-          <StyledLabel htmlFor={secretId}>
-            {t`Secret (clé, jeton ou mot de passe)`}
-          </StyledLabel>
-          <Input
-            id={secretId}
-            type="password"
-            value={typedSecret}
-            onValueChange={setTypedSecret}
-            disabled={isSaving}
-            // No browser filling, storing or completing this field.
-            autoComplete="new-password"
-            spellCheck={false}
-            placeholder={hermesSecretPlaceholder(secretRead)}
-            aria-describedby={secretHelpId}
-          />
+        <>
+          {secretFields.map((field) => (
+            <StyledFieldset key={field}>
+              <StyledLabel htmlFor={`${secretId}-${field}`}>
+                {secretLabels[field]}
+              </StyledLabel>
+              <Input
+                id={`${secretId}-${field}`}
+                type="password"
+                value={typedSecrets[field] ?? ''}
+                onValueChange={(next) =>
+                  setTypedSecrets((current) => ({ ...current, [field]: next }))
+                }
+                disabled={isSaving}
+                // No browser filling, storing or completing this field.
+                autoComplete="new-password"
+                spellCheck={false}
+                placeholder={hermesSecretPlaceholder(secretRead)}
+                aria-describedby={secretHelpId}
+              />
+              <HermesAdminNote>{secretHints[field]}</HermesAdminNote>
+            </StyledFieldset>
+          ))}
 
           <StyledActions>
             <Tag
@@ -483,14 +646,28 @@ export const HermesConnectionForm = ({
             </Tag>
           </StyledActions>
 
-          {/* The contract of this field, said out loud: the stored value never
+          {/* The contract of these fields, said out loud: a stored value never
               comes back, so it cannot be shown or checked — only replaced. */}
           <HermesAdminRuleNote id={secretHelpId}>
             {secretRead.kind === 'stored'
-              ? t`La valeur enregistrée reste côté serveur : elle n’est jamais renvoyée au navigateur, donc ni affichée ni relue ici. Laissez ce champ vide pour la conserver telle quelle, ou saisissez une nouvelle valeur pour la remplacer.`
+              ? t`La valeur enregistrée reste côté serveur : elle n’est jamais renvoyée au navigateur, donc ni affichée ni relue ici. Laissez ces champs vides pour la conserver telle quelle, ou saisissez une nouvelle valeur pour la remplacer.`
               : t`La valeur saisie partira vers le serveur, y restera, et ne sera jamais renvoyée au navigateur : elle ne pourra plus être relue depuis cet écran, seulement remplacée.`}
           </HermesAdminRuleNote>
-        </StyledFieldset>
+
+          {/* Supplying the secret object replaces the COMPLETE set, so one
+              field filled out of two would erase the other. Nothing is sent. */}
+          {secretFields.length > 1 && (
+            <HermesAdminRuleNote>
+              {t`Ces secrets se remplacent ensemble : enregistrer n’en envoie pas un seul, car le serveur remplace alors l’ensemble et l’autre serait effacé. Laissez les deux vides pour les conserver, ou renseignez les deux pour les remplacer.`}
+            </HermesAdminRuleNote>
+          )}
+
+          {secretEntry.kind === 'partial' && (
+            <HermesAdminNote role="alert">
+              {t`Rien ne sera envoyé : un seul des deux secrets est renseigné, et l’envoyer seul effacerait l’autre. Renseignez les deux, ou videz celui que vous avez saisi pour les conserver tels quels.`}
+            </HermesAdminNote>
+          )}
+        </>
       )}
 
       <StyledActions>
@@ -634,6 +811,12 @@ export const HermesConnectionForm = ({
             {t`Les réponses automatiques de ce canal sont arrêtées. Rien ne les reprend automatiquement : il faut les réactiver dans les politiques du bot.`}
           </HermesAdminNote>
         </>
+      )}
+
+      {saveState.kind === 'saved-unread' && (
+        <HermesAdminNote role="alert">
+          {t`Enregistré côté serveur, mais la relecture qui doit suivre n’a pas abouti : la révision affichée n’est plus celle du serveur, et un enregistrement suivant serait refusé sur cette base. Rechargez pour repartir de ce que le serveur retient.`}
+        </HermesAdminNote>
       )}
 
       {saveState.kind === 'not-sent' && (

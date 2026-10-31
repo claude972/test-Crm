@@ -12,6 +12,7 @@ import {
   readHermesConnectionWriteGate,
   readHermesNativeAccountAddress,
   shouldDiscardHermesResult,
+  checkHermesSecretEntry,
   validateHermesConnectionForm,
 } from '@/hermes-admin-ui/utils/hermesAdminWrite';
 
@@ -72,10 +73,29 @@ describe('readHermesConnectionSecretPolicy', () => {
   });
 
   it('offers a secret field for the kinds that do keep one of their own', () => {
+    // WhatsApp keeps TWO distinct secrets, named as the server names them.
     expect(readHermesConnectionSecretPolicy('WHATSAPP_EVOLUTION')).toEqual({
       kind: 'own-secret',
+      fields: ['apiKey', 'webhookSecret'],
     });
-    expect(hasHermesOwnSecretField({ kind: 'own-secret' })).toBe(true);
+    expect(readHermesConnectionSecretPolicy('MCP')).toEqual({
+      kind: 'own-secret',
+      fields: ['token'],
+    });
+    expect(readHermesConnectionSecretPolicy('SIGNED_INTAKE')).toEqual({
+      kind: 'own-secret',
+      fields: ['secret'],
+    });
+    // Sources inside the one collection record, not records of their own.
+    expect(readHermesConnectionSecretPolicy('FORMS')).toEqual({
+      kind: 'unknown',
+    });
+    expect(readHermesConnectionSecretPolicy('APPOINTMENTS')).toEqual({
+      kind: 'unknown',
+    });
+    expect(
+      hasHermesOwnSecretField({ kind: 'own-secret', fields: ['token'] }),
+    ).toBe(true);
   });
 
   it('offers nothing for a kind it does not recognise', () => {
@@ -135,6 +155,7 @@ describe('validateHermesConnectionForm', () => {
       validateHermesConnectionForm(
         { kind: 'native-account' },
         HERMES_CONNECTION_FORM_EMPTY_VALUES,
+        'EMAIL_IMAP',
       ),
     ).toEqual({ nativeAccountId: 'required', imapFolder: 'required' });
   });
@@ -148,6 +169,7 @@ describe('validateHermesConnectionForm', () => {
           nativeAccountId: 'acc-1',
           imapFolder: 'INBOX',
         },
+        'EMAIL_IMAP',
       ),
     ).toEqual({});
   });
@@ -161,6 +183,7 @@ describe('validateHermesConnectionForm', () => {
           nativeAccountId: 'acc-1',
           imapFolder: '   ',
         },
+        'EMAIL_IMAP',
       ),
     ).toEqual({ imapFolder: 'required' });
   });
@@ -168,10 +191,92 @@ describe('validateHermesConnectionForm', () => {
   it('asks a connection with its own secret for a name and a service address', () => {
     expect(
       validateHermesConnectionForm(
-        { kind: 'own-secret' },
+        { kind: 'own-secret', fields: ['token'] },
         HERMES_CONNECTION_FORM_EMPTY_VALUES,
+        'MCP',
       ),
     ).toEqual({ label: 'required', endpoint: 'required' });
+  });
+
+  it('asks a signed collection for its sources and its rate, not for an address', () => {
+    // It is an endpoint others call: it has nothing to dial and no name of
+    // its own, only an ingress policy.
+    expect(
+      validateHermesConnectionForm(
+        { kind: 'own-secret', fields: ['secret'] },
+        HERMES_CONNECTION_FORM_EMPTY_VALUES,
+        'SIGNED_INTAKE',
+      ),
+    ).toEqual({
+      allowedSources: 'required',
+      maxRequestsPerMinute: 'required',
+    });
+  });
+
+  it('accepts a signed collection with at least one source and a rate in range', () => {
+    expect(
+      validateHermesConnectionForm(
+        { kind: 'own-secret', fields: ['secret'] },
+        {
+          ...HERMES_CONNECTION_FORM_EMPTY_VALUES,
+          allowedSources: ['FORMS'],
+          maxRequestsPerMinute: '30',
+        },
+        'SIGNED_INTAKE',
+      ),
+    ).toEqual({});
+  });
+
+  it('refuses a rate outside one to sixty, and a non-integer one', () => {
+    for (const rate of ['0', '61', '', '  ', '12.5', 'abc', '-1']) {
+      expect(
+        validateHermesConnectionForm(
+          { kind: 'own-secret', fields: ['secret'] },
+          {
+            ...HERMES_CONNECTION_FORM_EMPTY_VALUES,
+            allowedSources: ['SCRAPING'],
+            maxRequestsPerMinute: rate,
+          },
+          'SIGNED_INTAKE',
+        ),
+      ).toEqual({ maxRequestsPerMinute: 'required' });
+    }
+  });
+});
+
+describe('checkHermesSecretEntry', () => {
+  it('treats every field left empty as keeping the stored set', () => {
+    expect(checkHermesSecretEntry(['apiKey', 'webhookSecret'], {})).toEqual({
+      kind: 'unchanged',
+    });
+  });
+
+  it('refuses one secret of two, because sending it would erase the other', () => {
+    // Supplying the secret object replaces the COMPLETE set.
+    expect(
+      checkHermesSecretEntry(['apiKey', 'webhookSecret'], { apiKey: 'k' }),
+    ).toEqual({ kind: 'partial', missing: ['webhookSecret'] });
+    expect(
+      checkHermesSecretEntry(['apiKey', 'webhookSecret'], {
+        webhookSecret: 'w',
+      }),
+    ).toEqual({ kind: 'partial', missing: ['apiKey'] });
+  });
+
+  it('accepts both secrets together', () => {
+    expect(
+      checkHermesSecretEntry(['apiKey', 'webhookSecret'], {
+        apiKey: 'k',
+        webhookSecret: 'w',
+      }),
+    ).toEqual({ kind: 'complete' });
+  });
+
+  it('does not treat a secret made of spaces as empty', () => {
+    // A secret is never trimmed: spaces can be part of it.
+    expect(checkHermesSecretEntry(['token'], { token: '  ' })).toEqual({
+      kind: 'complete',
+    });
   });
 });
 

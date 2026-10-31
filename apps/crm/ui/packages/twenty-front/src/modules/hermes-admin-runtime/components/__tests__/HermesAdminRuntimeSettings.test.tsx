@@ -551,9 +551,9 @@ describe('HermesAdminRuntimeSettings', () => {
     expect(screen.getByLabelText('Nom de la connexion')).toHaveValue(
       'lookup_contact',
     );
-    expect(
-      screen.getByLabelText('Secret (clé, jeton ou mot de passe)'),
-    ).toHaveValue('');
+    // Named for the field the server stores, and empty: no secret is read
+    // back, so there is nothing to prefill.
+    expect(screen.getByLabelText('Jeton (token)')).toHaveValue('');
 
     await userEvent.click(
       screen.getByRole('button', { name: 'Enregistrer les modifications' }),
