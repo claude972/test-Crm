@@ -17,6 +17,14 @@ import {
   type EvolutionMessageInput,
   evolutionProviderConnectionId,
 } from './evolution-message.types';
+import {
+  EVOLUTION_MEDIA_VERSION,
+  type EvolutionReceptionBlockReason,
+  type EvolutionVoiceBlockReason,
+  type EvolutionWebhookConfiguration,
+  judgeEvolutionReception,
+  judgeEvolutionVoice,
+} from './evolution-media-capability';
 
 const inputSchema = z.object({
   workspaceId: z.string().uuid(),
@@ -52,6 +60,14 @@ type EvolutionMessagesOptions = {
   timeoutMs?: number;
   allowedInternalHosts?: string[];
   assertCurrent?: () => Promise<void>;
+  // The connection whose ingress a reported webhook URL must address for an
+  // inbound message to be receivable at all. It is supplied by the caller that
+  // resolved the connection, never read from a provider payload or an input.
+  //
+  // Absent by default, and absent means reception stays unproven: an adapter
+  // built from the environment alone cannot attribute a delivery, so it answers
+  // canReceiveMedia false rather than guessing.
+  ingressConnectionId?: string | null;
 };
 
 export class EvolutionMessagesAdapter {
@@ -69,6 +85,7 @@ export class EvolutionMessagesAdapter {
       timeoutMs: options.timeoutMs ?? 3000,
       allowedInternalHosts: [...(options.allowedInternalHosts ?? [])],
       assertCurrent: options.assertCurrent ?? (async () => undefined),
+      ingressConnectionId: options.ingressConnectionId ?? null,
     };
     this.#probe = new EvolutionConnectionAdapter(
       serializedConnections,
@@ -87,12 +104,13 @@ export class EvolutionMessagesAdapter {
 
     if (result.status === 'NOT_CONFIGURED') return { status: 'NOT_CONFIGURED' };
     if (result.status === 'PROVIDER_REPORTED_OPEN') {
-      const verified = await this.mediaVersionVerified(workspaceId);
+      const capability = await this.mediaCapability(workspaceId);
+
       return {
         status: 'AVAILABLE',
-        canSendMedia: verified,
-        canReceiveMedia: false,
-        canRecordVoice: false,
+        canSendMedia: capability.canSendMedia,
+        canReceiveMedia: capability.canReceiveMedia,
+        canRecordVoice: capability.canRecordVoice,
       };
     }
 
@@ -100,6 +118,104 @@ export class EvolutionMessagesAdapter {
       status: 'UNAVAILABLE',
       errorCode: result.errorCode ?? result.status,
     };
+  }
+
+  // The three media capabilities, each from the provider's own answers.
+  //
+  // Call this only once the connection probe reported an open socket: these are
+  // questions about what an open instance can do, not about whether it is up.
+  //
+  // The reasons are returned alongside the flags so a caller can explain a
+  // closed capability instead of showing an operator a control that silently
+  // does nothing. They are diagnostics, never an outcome: nothing here turns a
+  // reason into a capability.
+  async mediaCapability(workspaceId: string): Promise<{
+    canSendMedia: boolean;
+    canReceiveMedia: boolean;
+    canRecordVoice: boolean;
+    receptionReason: EvolutionReceptionBlockReason | null;
+    voiceReason: EvolutionVoiceBlockReason | null;
+  }> {
+    const versionVerified = await this.mediaVersionVerified(workspaceId);
+    // Not asked when the build is already disqualified: the reception judgement
+    // refuses on the version first, so a second request would prove nothing.
+    const webhook: EvolutionWebhookConfiguration = versionVerified
+      ? await this.readWebhookConfiguration(workspaceId)
+      : { kind: 'unreadable' };
+    const reception = judgeEvolutionReception({
+      versionVerified,
+      ingressConnectionId: this.#options.ingressConnectionId,
+      webhook,
+    });
+    const voice = judgeEvolutionVoice({ versionVerified });
+
+    return {
+      canSendMedia: versionVerified,
+      canReceiveMedia: reception.canReceiveMedia,
+      canRecordVoice: voice.canRecordVoice,
+      receptionReason: reception.reason,
+      voiceReason: voice.reason,
+    };
+  }
+
+  // Official tag 2.3.6 webhook.router.ts/find, through the event router mounted
+  // at '' and abstract.router.ts' ':instanceName'. A read, and only a read: this
+  // never writes a webhook configuration and never posts to a send route, so
+  // asking the capability question cannot emit a message.
+  private async readWebhookConfiguration(
+    workspaceId: string,
+  ): Promise<EvolutionWebhookConfiguration> {
+    const connection = this.#connections[workspaceId];
+
+    if (!connection) return { kind: 'unreadable' };
+
+    const httpAgent = createSsrfSafeAgent(
+      'http',
+      this.#options.allowedInternalHosts,
+    );
+    const httpsAgent = createSsrfSafeAgent(
+      'https',
+      this.#options.allowedInternalHosts,
+    );
+
+    try {
+      const response = await axios.get<unknown>(
+        `${connection.baseUrl}/webhook/find/${encodeURIComponent(connection.instanceName)}`,
+        {
+          headers: { apikey: connection.apiKey, Accept: 'application/json' },
+          httpAgent,
+          httpsAgent,
+          proxy: false,
+          maxRedirects: 0,
+          timeout: this.#options.timeoutMs,
+          signal: AbortSignal.timeout(this.#options.timeoutMs),
+          maxContentLength: 32_768,
+          maxBodyLength: 0,
+          validateStatus: () => true,
+        },
+      );
+
+      if (response.status !== 200) return { kind: 'unreadable' };
+
+      // EventController.get returns the raw row, or null when the instance has
+      // no webhook configured. A null answer is a configuration fact, not a
+      // failed read, and the two are reported apart.
+      if (
+        response.data === null ||
+        response.data === undefined ||
+        typeof response.data !== 'object'
+      )
+        return { kind: 'absent' };
+
+      return { kind: 'row', row: response.data };
+    } catch {
+      // Axios errors carry the apikey header and the provider body. No cause
+      // ever leaves this method.
+      return { kind: 'unreadable' };
+    } finally {
+      httpAgent.destroy();
+      httpsAgent.destroy();
+    }
   }
 
   // Official tag 2.3.6 src/api/routes/index.router.ts exposes packageJson.version.
@@ -129,8 +245,9 @@ export class EvolutionMessagesAdapter {
       });
       return (
         response.status === 200 &&
-        z.object({ version: z.literal('2.3.6') }).safeParse(response.data)
-          .success
+        z
+          .object({ version: z.literal(EVOLUTION_MEDIA_VERSION) })
+          .safeParse(response.data).success
       );
     } catch {
       return false;

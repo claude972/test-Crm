@@ -50,7 +50,14 @@ export class HermesConnectedEvolutionAdapter {
       serialized,
       nativeConnection,
       assertCurrent,
-      adapter: new EvolutionMessagesAdapter(serialized, { assertCurrent }),
+      // The resolved connection's own identity, which is what our webhook
+      // ingress requires in a delivery URL. HermesConnectedEvolutionReceiver
+      // refuses an unscoped delivery, so this is the identity a reported
+      // webhook URL has to carry for reception to be real.
+      adapter: new EvolutionMessagesAdapter(serialized, {
+        assertCurrent,
+        ingressConnectionId: connection.connectionId,
+      }),
     };
   }
 
