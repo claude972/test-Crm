@@ -1,3 +1,4 @@
+import { translateStandardSelectOptionLabel } from '@/object-metadata/utils/translateStandardSelectOptionLabel';
 import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
 import { t } from '@lingui/core/macro';
 import { isDefined } from 'kovaa-lab-shared/utils';
@@ -15,5 +16,10 @@ export const getRecordGroupByValueLabelFromFieldValue = ({
     (option) => option.value === fieldValue,
   );
 
-  return selectedOption?.label ?? t`No Value`;
+  if (!isDefined(selectedOption)) return t`No Value`;
+
+  return translateStandardSelectOptionLabel({
+    fieldUniversalIdentifier: groupByFieldMetadataItem.universalIdentifier,
+    option: selectedOption,
+  });
 };

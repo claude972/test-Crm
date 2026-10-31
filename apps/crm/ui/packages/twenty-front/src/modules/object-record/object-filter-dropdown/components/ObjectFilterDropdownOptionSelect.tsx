@@ -1,3 +1,4 @@
+import { translateStandardSelectOptionLabel } from '@/object-metadata/utils/translateStandardSelectOptionLabel';
 import { ListItemButton } from 'kovaa-lab-ui/components/navigation';
 import { fieldMetadataItemByIdSelector } from '@/object-metadata/states/fieldMetadataItemByIdSelector';
 import { type FieldMetadataItemOption } from '@/object-metadata/types/FieldMetadataItem';
@@ -94,6 +95,20 @@ export const ObjectFilterDropdownOptionSelect = ({
     ? relationTargetFieldMetadataItem.options
     : sourceFieldSelectOptions;
 
+  // Render-side only. The canonical label still feeds the display value this
+  // component persists, so the translation must never touch selectableOptions.
+  const filterFieldUniversalIdentifier = isDefined(
+    relationTargetFieldMetadataItem,
+  )
+    ? relationTargetFieldMetadataItem.universalIdentifier
+    : fieldMetadataItemUsedInDropdown?.universalIdentifier;
+
+  const translateOptionLabel = (option: SelectOptionForFilter) =>
+    translateStandardSelectOptionLabel({
+      fieldUniversalIdentifier: filterFieldUniversalIdentifier,
+      option,
+    });
+
   const [selectableOptions, setSelectableOptions] = useState<
     SelectOptionForFilter[]
   >([]);
@@ -156,11 +171,15 @@ export const ObjectFilterDropdownOptionSelect = ({
     resetSelectedItem();
   };
 
-  const optionsInDropdown = selectableOptions?.filter((option) =>
-    option.label
-      .toLowerCase()
-      .includes(objectFilterDropdownSearchInput.toLowerCase()),
-  );
+  const optionsInDropdown = selectableOptions?.filter((option) => {
+    const searchTerm = objectFilterDropdownSearchInput.toLowerCase();
+
+    // Both, so an operator who knows the shipped wording still finds the option
+    return (
+      option.label.toLowerCase().includes(searchTerm) ||
+      translateOptionLabel(option).toLowerCase().includes(searchTerm)
+    );
+  });
 
   const showNoResult = optionsInDropdown?.length === 0;
 
@@ -189,9 +208,11 @@ export const ObjectFilterDropdownOptionSelect = ({
               }
             >
               {isDefined(option.color) ? (
-                <Tag color={option.color}>{option.label}</Tag>
+                <Tag color={option.color}>{translateOptionLabel(option)}</Tag>
               ) : (
-                <OverflowingTextWithTooltip text={option.label} />
+                <OverflowingTextWithTooltip
+                  text={translateOptionLabel(option)}
+                />
               )}
             </ListItemButton>
           ))
