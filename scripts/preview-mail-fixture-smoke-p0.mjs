@@ -5,41 +5,9 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import net from 'node:net';
 import path from 'node:path';
-import tls from 'node:tls';
+import { channel, imapCommand, STANDARD_FOLDERS } from './preview-mail-fixture-imap-p0.mjs';
 import { fixturePlan, privateDirectory, PORTS } from './preview-mail-fixture-p0.mjs';
 
-async function channel(plan, ca, port) {
-  const socket = tls.connect({ host: '127.0.0.1', port, servername: plan.hostname, ca,
-    rejectUnauthorized: true, minVersion: 'TLSv1.2' });
-  let buffer = '';
-  let failure;
-  let waiting;
-  const queue = [];
-  const fail = (error) => { failure = error; waiting?.reject(error); waiting = undefined; };
-  socket.on('data', (data) => {
-    buffer += data.toString('utf8');
-    if (buffer.length > 128 * 1024) return fail(new Error('Oversized fixture response'));
-    for (;;) {
-      const end = buffer.indexOf('\r\n');
-      if (end < 0) break;
-      const line = buffer.slice(0, end); buffer = buffer.slice(end + 2);
-      if (waiting) { const next = waiting; waiting = undefined; next.resolve(line); }
-      else queue.push(line);
-    }
-  });
-  socket.on('error', fail);
-  socket.on('close', () => fail(new Error('Fixture connection ended')));
-  socket.setTimeout(5000, () => socket.destroy(new Error('Fixture protocol timeout')));
-  await new Promise((resolve, reject) => { socket.once('secureConnect', resolve); socket.once('error', reject); });
-  assert.equal(socket.authorized, true);
-  const line = () => {
-    if (queue.length) return Promise.resolve(queue.shift());
-    if (failure) return Promise.reject(failure);
-    assert.ok(!waiting, 'Only one pending protocol read');
-    return new Promise((resolve, reject) => { waiting = { resolve, reject }; });
-  };
-  return { line, send: (value) => socket.write(`${value}\r\n`), close: () => socket.destroy() };
-}
 async function smtpResponse(connection, expected) {
   for (let count = 0; count < 100; count++) {
     const line = await connection.line();
@@ -48,19 +16,6 @@ async function smtpResponse(connection, expected) {
     assert.equal(line[3], '-');
   }
   throw new Error('Oversized SMTP reply');
-}
-async function imapCommand(connection, tag, command) {
-  connection.send(`${tag} ${command}`);
-  const lines = [];
-  for (let count = 0; count < 1000; count++) {
-    const line = await connection.line();
-    if (line.startsWith(`${tag} `)) {
-      assert.ok(line.startsWith(`${tag} OK`), 'IMAP command refused');
-      return lines.join('\r\n');
-    }
-    lines.push(line);
-  }
-  throw new Error('Oversized IMAP reply');
 }
 async function smoke() {
   assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Provider smoke is runner-only');
@@ -114,6 +69,39 @@ async function smoke() {
 
   } finally { imap.close(); }
   console.info('Isolated fixture: authenticated IMAPS read the captured MIME; CA/SAN validated on both protocols');
+  for (const user of plan.users) {
+    const client = await channel(plan, ca, PORTS.imaps);
+    try {
+      assert.match(await client.line(), /^\* OK /);
+      await imapCommand(client, 'd001', `LOGIN "${user.login}" "${plan.password}"`);
+      const listed = await imapCommand(client, 'd002', 'LIST "" "*"');
+      for (const folder of STANDARD_FOLDERS)
+        assert.ok(listed.split('\r\n').some(line => line.startsWith('* LIST ') && line.endsWith(`"${folder}"`)), 'Every fixture mailbox needs standard folders');
+      const raw = `From: ${user.email}\r\nTo: ${user.email}\r\nSubject: isolated-draft\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nisolated draft only\r\n`;
+      const byteLength = Buffer.byteLength(raw);
+      client.send(`d003 APPEND "Drafts" (\\Draft) {${byteLength}}`);
+      assert.match(await client.line(), /^\+/);
+      client.send(raw);
+      // Consume APPEND completion without logging MIME, credentials or recipient.
+      let appended = false;
+      for (let count = 0; count < 100; count++) {
+        const line = await client.line();
+        if (line.startsWith('d003 ')) { assert.match(line, /^d003 OK/); appended = true; break; }
+      }
+      assert.ok(appended);
+      const selected = await imapCommand(client, 'd004', 'SELECT "Drafts"');
+      assert.match(selected, /UIDVALIDITY \d+/);
+      const fetched = await imapCommand(client, 'd005', 'UID FETCH 1 (UID FLAGS RFC822.SIZE BODY.PEEK[])');
+      assert.match(fetched, /\bUID 1\b/);
+      assert.ok(fetched.includes('\\Draft'));
+      assert.ok(fetched.includes(raw), 'Draft MIME must survive authenticated APPEND/fetch');
+      const literalSize = Number(fetched.match(/\{(\d+)\}\r\n/)?.[1]);
+      assert.equal(Number(fetched.match(/RFC822\.SIZE (\d+)/)?.[1]), literalSize);
+      assert.equal(literalSize, byteLength);
+    } finally { client.close(); }
+  }
+  console.info('Isolated fixture: all three synthetic mailboxes list Drafts/Sent/Trash and persist a flagged draft with matching MIME, UIDVALIDITY and RFC822.SIZE');
+
 }
 async function verifyCleanup() {
   assert.equal(process.env.GITHUB_ACTIONS, 'true');

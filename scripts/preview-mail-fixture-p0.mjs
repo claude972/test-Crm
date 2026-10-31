@@ -6,6 +6,7 @@ import { createHmac } from 'node:crypto';
 import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import tls from 'node:tls';
+import { initializeStandardFolders } from './preview-mail-fixture-imap-p0.mjs';
 import { fileURLToPath } from 'node:url';
 
 export const IMAGE = 'greenmail/standalone:2.1.15@sha256:309ba544ea482e5d4265d09921cdab07c8dad2cc4481d715c9b8ff5d3f0a149f';
@@ -209,6 +210,8 @@ async function start(env) {
     await startForwarding(plan, directory, env);
     phase = 'verified-bindings-and-TLS';
     await verifyFixture(plan, directory);
+    phase = 'standard-mailbox-folders';
+    await initializeStandardFolders(plan, readFileSync(path.join(directory, 'ca.pem')));
     phase = 'host-mapping';
     writeHosts(plan);
     const runtime = runtimeEnvironment(plan, directory);
