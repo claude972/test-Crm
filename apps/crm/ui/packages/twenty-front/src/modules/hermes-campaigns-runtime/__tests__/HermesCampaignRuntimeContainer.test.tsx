@@ -4,6 +4,7 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Provider as JotaiProvider } from 'jotai';
 
 import { PREVIEW_MESSAGE_CAMPAIGN_SEND } from '@/activities/emails/graphql/metadata-queries/previewMessageCampaignSend';
@@ -321,6 +322,40 @@ const suppressionsMock = {
   },
 };
 
+const PREVIEW_PERSON_ID = '50505050-1111-4222-8333-444455556666';
+
+// A real rendering for the one recipient the list resolved. Personalised, so
+// that a test asserting on it cannot pass against an empty panel.
+const recipientPreviewMock = {
+  request: {
+    query: PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT,
+    variables: {
+      input: { campaignId: CAMPAIGN_ID, personId: PREVIEW_PERSON_ID },
+    },
+  },
+  result: {
+    data: {
+      previewMessageCampaignRecipient: {
+        personId: PREVIEW_PERSON_ID,
+        email: 'camille.roy@atelier-fontaine.fr',
+        subject: 'Rethink your shopfront, Camille',
+        html: '<p>Bonjour Camille Roy</p>',
+        plainText: 'Bonjour Camille Roy',
+        variablesUsed: ['fullName'],
+        isRecipientSendable: true,
+        recipientExclusionReason: null,
+        envelope: {
+          fromAddress: SENDER_ADDRESS,
+          senderStatus: 'VERIFIED',
+          openMarkerWouldBeIncluded: true,
+          clickTrackingWouldBeApplied: false,
+          unsubscribeLinkWouldBeIncluded: true,
+        },
+      },
+    },
+  },
+};
+
 // Mocked so that an emission would be served and recorded instead of failing
 // as an unmatched operation. If either of these ever runs, the test fails.
 const emissionTrap = jest.fn();
@@ -343,7 +378,11 @@ const sendTestTrap = {
   },
 };
 
-const renderContainer = () => {
+// The preview mock is swappable: most tests keep the trap, which fails if a
+// preview runs unasked, while the preview test serves a real rendering.
+const renderContainer = ({
+  previewRecipientMock = recipientPreviewTrap as object,
+}: { previewRecipientMock?: object } = {}) => {
   resetJotaiStore();
   jotaiStore.set(currentWorkspaceState.atom, {
     ...mockCurrentWorkspace,
@@ -372,7 +411,7 @@ const renderContainer = () => {
               audiencesMock,
               connectionsMock,
               persistenceTrap,
-              recipientPreviewTrap,
+              previewRecipientMock,
               sendPreviewMock,
               messageChannelsMock,
               unsubscribeTopicsMock,
@@ -490,5 +529,59 @@ describe('HermesCampaignRuntimeContainer', () => {
     expect(
       screen.getAllByText('MESSAGE_CAMPAIGN_NOT_CANCELABLE').length,
     ).toBeGreaterThan(0);
+  });
+
+  // Driven through a real ApolloClient rather than a mocked hook, because the
+  // defect this covers was the wrong Apollo hook inside the hook: a query
+  // document handed to `useMutation`, which Apollo refuses at call time. A
+  // mocked hook cannot see that, and a "does not throw" assertion would not
+  // have caught the panel staying empty either.
+  it('renders the recipient preview through a real client, and emits nothing', async () => {
+    const { sentOperationNames } = renderContainer({
+      previewRecipientMock: recipientPreviewMock,
+    });
+
+    expect(
+      await screen.findByText('Shopfitting — Loire-Atlantique'),
+    ).toBeVisible();
+
+    // Pick the recipient through the real Select, as an operator does.
+    await userEvent.click(
+      screen.getByRole('combobox', { name: 'Recipient to preview' }),
+    );
+    await userEvent.click(
+      await screen.findByText('Camille Roy · camille.roy@atelier-fontaine.fr'),
+    );
+
+    const previewButton = screen.getByRole('button', {
+      name: 'Render a recipient preview',
+    });
+
+    // Choosing a recipient is what opens the control.
+    expect(previewButton).not.toHaveAttribute('aria-disabled', 'true');
+
+    await userEvent.click(previewButton);
+
+    // The personalised rendering is actually on screen. This is the
+    // assertion the mechanism error broke: the throw left the panel empty.
+    expect(
+      await screen.findByText('Rethink your shopfront, Camille'),
+    ).toBeVisible();
+    expect(screen.getByText('Bonjour Camille Roy')).toBeVisible();
+    expect(screen.getByText('camille.roy@atelier-fontaine.fr')).toBeVisible();
+    expect(
+      screen.getByText('Variables resolved for this recipient: {{fullName}}'),
+    ).toBeVisible();
+
+    // The preview really did go to the server, as a query.
+    expect(sentOperationNames).toContain('PreviewMessageCampaignRecipient');
+
+    // And it emitted nothing: no send, no test, no SMTP handover.
+    expect(emissionTrap).not.toHaveBeenCalled();
+    expect(
+      sentOperationNames.filter((name) =>
+        EMITTING_OPERATION_NAMES.includes(name),
+      ),
+    ).toEqual([]);
   });
 });

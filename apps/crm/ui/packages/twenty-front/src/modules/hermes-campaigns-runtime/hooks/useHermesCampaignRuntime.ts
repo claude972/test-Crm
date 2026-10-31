@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client/react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
@@ -289,12 +289,12 @@ export const useHermesCampaignRuntime = ({
     { context: { skipRetry: true } },
   );
 
-  // The recipient preview is a query, but it is run on demand rather than on
-  // mount, so it is driven imperatively. It emits nothing.
-  const [runPreview] = useMutation<
-    RecipientPreviewQueryResult,
-    RecipientPreviewQueryVariables
-  >(PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT);
+  // The recipient preview is a query, run on demand rather than on mount, so
+  // it is issued imperatively against the client. It emits nothing.
+  //
+  // It is not a mutation: handing this query document to `useMutation` is what
+  // made every preview throw instead of render.
+  const apolloClient = useApolloClient();
 
   const [contentDraft, setContentDraft] =
     useState<HermesCampaignContent | null>(null);
@@ -331,7 +331,7 @@ export const useHermesCampaignRuntime = ({
     ? 'No campaign was given to this screen.'
     : 'The native campaign engine is not enabled on this workspace.';
 
-  const notConfigured = <TValue,>(): HermesCampaignLoad<TValue> => ({
+  const notConfigured = <TValue>(): HermesCampaignLoad<TValue> => ({
     kind: 'not-configured',
     detail: notConfiguredDetail,
   });
@@ -632,7 +632,14 @@ export const useHermesCampaignRuntime = ({
     setActionOutcome({ kind: 'running', action: 'preview' });
 
     try {
-      const { data } = await runPreview({
+      const { data } = await apolloClient.query<
+        RecipientPreviewQueryResult,
+        RecipientPreviewQueryVariables
+      >({
+        query: PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT,
+        // A preview is never served from the cache: a stale render would
+        // misstate what this campaign currently says.
+        fetchPolicy: 'no-cache',
         variables: {
           input: {
             campaignId,
@@ -676,7 +683,7 @@ export const useHermesCampaignRuntime = ({
       setPreviewState({ kind: 'failed', ...failure });
       setActionOutcome({ kind: 'failed', action: 'preview', ...failure });
     }
-  }, [campaignId, runPreview, selectedPreviewRecipientId]);
+  }, [apolloClient, campaignId, selectedPreviewRecipientId]);
 
   // ---- Test: one real message, to the address somebody typed. ----
 
