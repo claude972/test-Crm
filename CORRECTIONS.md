@@ -2123,3 +2123,10 @@ DNS toujours absent au contrôle21:22UTC. Configuration VPS préparée seulement
 Auteur e844d7666→root52f294f9247b854c15442e3d257c74fe5c6ad005 poussé. Root25testsPASS : diagnosticpréflightnommé/enum/code/clé sans valeur, P2headerERRORcontenantLOGrefusé, DB readiness SMTP/Compose viaTCPauthSELECT1. Rootdiffrelu, reviewerbackend_review repris recheck exact. CloudUNIQUE41244388863source52fencours, pasnouvelimagevalidée ni migrationréussie prétendue.
 
 Seul compose.yaml préparé distant actualisé après vérificationSHA256 de l'ancien3c0f, sauvegarde0600 compose.before-tcp-health.yaml conservée, écriture atomique du nouveau fichier. Env/clefs privées préservés, aucun service démarré. Réelle revalidationComposemerged--quietVPS PASS. DNSAencoreabsent21:37UTC,aucunlienactif.
+
+
+### Image persistante validée cloud — 2026-10-31 21:52 UTC
+
+CI41244388863exact52f294f9247b854c15442e3d257c74fe5c6ad005 SUCCESS. Artifactpreuve13058977055 digestc4dc453ecfa53ef0dd68dae87b77151a89a18ee4f1228572e2a7276c3b28addf vérifié : exactImage/frontendServerSdk/strictMigration/healthClientConfigFrontend/registeredQueueWorker/sameVersionExistingVolumeMigration/restartPersistence/cleanup=true. Le contrôle précédent ne prouvait pas la santé ; celle-ci est maintenant établie dans ce smoke isolé, pas encore parcours navigateur VPS.
+
+ImageIdsha256:638c44a7de8a9be8dd457332e4acfef513eba8eebd53d0c6b0a7fb224e3ebd9c. Artifactprivé13059141738~299MB digestccb2345c79eeb376adbf91862092c633453aca5cb14ef5fa13c79cfb980551cc transféré directementGitHub→SSHsrv2081633,sans imageMac ni tokenGitHub distant. ZIPentierhashvérifié,4nomsattendusseuls,imagearchivehash/sourceSHA/imageIdvérifiés surVPS. /home/ops/kovaalabcrm-staging/releases/52f... privé. dockerload en cours, pas encore application démarrée au présent checkpoint. Nouveau deployment.env0600 référenceimageIDimmuable etpathsprivés, aucune clef régénérée. Proxy/DNSservicesexistants intacts.
