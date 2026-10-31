@@ -138,3 +138,12 @@ R10retry41186752974FAILURE aunouveaubeforeAll : fixturejoin passeworkspaceIdstri
 RootQA4f517 : **3suites37testsPASS** setup004/mailruntime/publicsurface ; diagnosticsmocksPolicyencoreprésents. EnsuiteQArootmaintenantd3eb5df38 pourAuth18PASS.
 
 Le helpercheck-preview-onboarding-p0.mjs n'utilise PASdecookiejar, seulementBearer, alorsquesameOriginémetuserSessioncookie etsignUpInNewWorkspaceutiliseAuthPrincipalGuarduserSession. SonUNAUTHcreate_workspacen'estpaspreuveproduit ; échecconservé, vraierecetteUI924restebloquante. RefaireloginUIcomptefraisaprèsdéploiementd3e, nepasaffаiblirguardpourréparerhelper.
+
+
+## Checkpoint navigateur09:47UTC
+
+D3preview41188341880déployée : dpl_4noqH7Zb3Bo4QnJjzmnYdw4DDHMC, contrôle6ed250996, expire10:56:50UTC, partage10:56:21. Coffre demo/share/share-url-41188341880.json. **AuthUIpositive** comptefraisSANSsociétéprécréée→société/profil/invitationsignorées→Entreprises. CUAvariableauthRecipe/tab20(activecampaign); ancienhermesRecipe/tab19sur924remplacée. Sourceexactd3 front41188342005SUCCESS.
+
+RootUIcampaigncreate/save/reload/reopencontenuTipTapPASS. Importmanuel1fauxB2B→qualif→audience+brouillonPASS. MAISvraisblockersR10 : UUIDv5deprospectionrejetéparIsUUID4(CJ013,CJ02), etAperçucampagnev4échoueuseMutation(documentQUERY)(CJ014,CJ01). Menuabsentd3(CJ015parent,fix9c0144125observéplusrécent), faussepromessetestpréprod(CJ016), classificationstaleaprèsqualif(CJINTAKEUI002). Parent prévenu de tous, attendrefixes puiscontre-épreuves. Rapportpublic docs/verification/hermes-auth-recipe-41188341880.md.
+
+Rootaépinglébranche **preview/cj-r10-75c7b4ff8**, source75c7b4ff874825cea0408d311ebe4d9f753da4fe, lancé**41189235623**combinedSMTPoptinvrai et**41189235656**fullfrontend. FrontSUCCESS ; étapeSMTProuge, jobencoursaucheck, récupérerlogaprèsfin etrelancerCJ02/05. PasdeP0concurrenttantquerecetteactive, finalefraîchevers11:30–11:40UTCtoujoursnécessaire.

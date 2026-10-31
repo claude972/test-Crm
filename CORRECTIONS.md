@@ -1777,3 +1777,14 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - CJ-R10-CI002,assignedCJ02,status **open** : run41186752974,f7a14931e,FAILURE avantparcours ; fixturejoinligne153 passe stringworkspaceId au lieu deWorkspaceEntity au vrai addUserToWorkspaceIfUserNotInWorkspace. Cacheguardcorrectementrefuseundefined ; corrigerfixture/auditersignatures, nepasassouplircache/roles. Parent informé.
 - CJ-SETUP004 : correction61deefdfe assemblée4f517, root37tests/3suitesPASS sursetup/mailruntime/surface. Statut verifieddanspérimètreunitaires, pasprotocoleréel. Source whitelistcodespréécriture, INTERNAL/nonclassé resteinconnu.
 - Le refusAPIcreate_workspace duhelperancien neferme ni n'ouvre unfindingproduit : cookiessessionpasconservésparhelperBeareronly dansmodecookieAuth. Retenir commeblocant la vraieactivationUI échouée, enattentecontre-épreuve.
+
+
+### Recette navigateur d3eb5df38,09:34–09:47UTC
+
+- **CJ-AUTH-RECETTE001 verified pour ce parcours** : login normal compte sanssociété→créationsociété→profil→invitationsignorées→Entreprises5lignes. Rapport docs/verification/hermes-auth-recipe-41188341880.md. Reload et sauvegarde campagne testés, pas encore deuxième société/logoutrelogin.
+- **CJ-CAMPAIGN013**,assignedCJ02,status **open — réel UI+source** : UUIDv5 créé par prospection valide en stockage mais rejeté par IsUUID4 des inputs emailing-domain(capacités/send/preview). Identifiant observé21863c22-e759-5ad5-9550-d4cda60568bc. Auditer aussi list/person/suppressionids issus des ponts, préserver validationUUID/idempotence/tenant et ne pas régénérer les identifiants. Parent prévenu.
+- **CJ-CAMPAIGN014**,assignedCJ01,status **open — réel UI+source** : aperçu personnalisé sur campagnev4 avec audience retenue1 et destinataire sélectionné échoue dans Apollo4.2, useMutation(documentQUERY). Utiliser lecture impérative/lazy native, rien au montage/aucune émission, tester le CLIC avec vrai ApolloClient. Parent prévenu.
+- **CJ-CAMPAIGN015**,assignedparentnav,status **open sur d3** : aucune entrée Campagnes dans le vrai menu ; route testée par adresse, pas un parcours de navigation validé.
+- **CJ-CAMPAIGN016**,assignedCJ01,status **open sur d3** : texteCapacités prétend restrictionserveur du test àpréproduction, texteParcours dit correctement absence de cette restriction. Retirer promesse fausse, garder test à destinataire explicite.
+- **CJ-INTAKE-UI002**,assignedCJ04b,status **open sur d3** : classificationcontacts0 persisteaprèsqualifqualifiée1, refetchà vérifieraprèsmutation. Pas de preuve de perte en base, état d'affichage observé.
+- Bilan borné : vrai brouillonUIcreate/save/reload/reopen PASS ; importmanuel/qualification/audience PASS ; aperçu/sendR10 NONvalidés, encoredeuxvraisblockers. Front41189235656SUCCESSsur75c7, combinedSMTP41189235623 a son étapeSMTP en échec et autresétapesencours ; logsàlirelorsdisponibles, pas de conclusion de parcours.
