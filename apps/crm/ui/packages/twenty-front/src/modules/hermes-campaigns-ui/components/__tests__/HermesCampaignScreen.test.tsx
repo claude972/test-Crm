@@ -191,14 +191,44 @@ describe('HermesCampaignScreen', () => {
       screen.getByText('This identity has no attested delegation yet.'),
     ).toBeVisible();
 
+    // Deliberately changed. These radios used to be disabled, which was the
+    // dead end: every identity other than the one already on the campaign
+    // arrives with no server verdict, so a draft with no sender could never
+    // be given one and an existing sender could never be changed. Choosing a
+    // sender records it on the campaign and emits nothing, so it stays
+    // available; the refusal above is about emitting and the emitting steps
+    // still enforce it, which the next test asserts.
     for (const address of [
       'commercial@atelier-fontaine.fr',
       'promo@atelier-fontaine.fr',
     ]) {
-      expect(
-        screen.getByRole('radio', { name: address }),
-      ).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByRole('radio', { name: address })).not.toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
     }
+
+    expect(
+      screen.getAllByText(
+        'Refused for sending, not for choosing: this mailbox can still be recorded on the campaign, and the server is asked again about the address it actually holds.',
+      ).length,
+    ).toBe(2);
+  });
+
+  it('cannot record an identity the server published no address for', () => {
+    renderScreen({
+      senderIdentitiesLoad: {
+        kind: 'ready',
+        value: [{ ...delegatedIdentity, id: 'si-4', displayedAddress: null }],
+      },
+      selectedIdentityId: null,
+    });
+
+    expect(
+      screen.getByText(
+        'This identity cannot be recorded: the server published no address for it, so there is nothing to store as the sender.',
+      ),
+    ).toBeVisible();
   });
 
   it('refuses every emitting step when the chosen identity is refused', () => {

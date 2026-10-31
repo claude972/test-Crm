@@ -18,6 +18,7 @@ import { Radio } from 'kovaa-lab-ui/primitives/input';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesCampaignNote } from '@/hermes-campaigns-ui/components/HermesCampaignNote';
+import { readSenderIdentitySelectability } from '@/hermes-campaigns-ui/utils/readSenderIdentitySelectability';
 import { HermesCampaignReason } from '@/hermes-campaigns-ui/components/HermesCampaignReason';
 import {
   type HermesSenderIdentity,
@@ -133,6 +134,8 @@ export const HermesSenderIdentityCard = ({
 }: HermesSenderIdentityCardProps) => {
   const { t, i18n } = useLingui();
 
+  const selectability = readSenderIdentitySelectability(identity);
+
   const detailsId = `hermes-sender-identity-${identity.id}-details`;
   const refusalId = `hermes-sender-identity-${identity.id}-refusal`;
 
@@ -231,9 +234,14 @@ export const HermesSenderIdentityCard = ({
       <StyledHeader>
         {/* The reason sits in the card rather than on the control, which is
             unreachable once disabled. */}
+        {/* Choosing a sender records it on the campaign; it emits nothing.
+            So the control is shut only when there is no address to record,
+            never because the identity may not emit — that refusal belongs to
+            the emitting steps, which still enforce it. Disabling it here was
+            why a draft with no sender could never be given one. */}
         <Radio
           value={identity.id}
-          disabled={!authorization.allowed}
+          disabled={!selectability.selectable}
           aria-describedby={
             authorization.allowed ? detailsId : `${refusalId} ${detailsId}`
           }
@@ -295,6 +303,22 @@ export const HermesSenderIdentityCard = ({
             fallback={refusalSentences[authorization.code]}
           />
         </StyledHeader>
+      )}
+
+      {/* The distinction that was missing: this refusal is about emitting,
+          not about choosing. The mailbox can still be recorded on the
+          campaign, and the server is asked again about the address that was
+          actually stored. */}
+      {authorization.allowed === false && selectability.selectable && (
+        <HermesCampaignNote>
+          {t`Refused for sending, not for choosing: this mailbox can still be recorded on the campaign, and the server is asked again about the address it actually holds.`}
+        </HermesCampaignNote>
+      )}
+
+      {!selectability.selectable && (
+        <HermesCampaignNote>
+          {t`This identity cannot be recorded: the server published no address for it, so there is nothing to store as the sender.`}
+        </HermesCampaignNote>
       )}
 
       <StyledFacts id={detailsId}>

@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client/react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
@@ -454,8 +454,14 @@ export const useHermesCampaignRuntime = ({
   const hasUnsavedContent =
     content.subject !== publishedSubject || content.body !== publishedBody;
 
+  // The draft, readable synchronously after an await. A recording takes a
+  // round trip, and the operator may well keep typing during it, so the state
+  // value captured when the save started cannot be trusted afterwards.
+  const contentDraftRef = useRef<HermesCampaignContent | null>(null);
+
   const onContentChange = useCallback(
     (next: HermesCampaignContent) => {
+      contentDraftRef.current = next;
       setContentDraft(next);
       markContentUnsaved();
     },
@@ -463,14 +469,35 @@ export const useHermesCampaignRuntime = ({
   );
 
   const onSaveContent = useCallback(async () => {
-    const recorded = await saveContent(content);
+    // Exactly what is being sent, frozen before the call.
+    const attempted = content;
 
-    if (recorded) {
-      // The server's answer is now the source: the local draft is dropped so
-      // the screen shows what was stored, not what was typed.
-      setContentDraft(null);
+    const recorded = await saveContent(attempted);
+
+    if (!recorded) {
+      return;
     }
-  }, [saveContent, content]);
+
+    const live = contentDraftRef.current;
+    const typedDuringTheSave =
+      isDefined(live) &&
+      (live.subject !== attempted.subject || live.body !== attempted.body);
+
+    if (typedDuringTheSave) {
+      // Keeping the draft is the whole point: dropping it here would throw
+      // away everything typed while the mutation was in flight. What was
+      // recorded is the snapshot that was sent, not what is on screen now,
+      // so the screen goes back to saying the content is not recorded.
+      markContentUnsaved();
+
+      return;
+    }
+
+    // Nothing moved under the save: the server's answer is now the source,
+    // so the local draft is dropped and the screen shows what was stored.
+    contentDraftRef.current = null;
+    setContentDraft(null);
+  }, [saveContent, content, markContentUnsaved]);
 
   // Choosing a sender records it. The server still decides at departure
   // whether that address may carry this campaign, and can refuse then.
