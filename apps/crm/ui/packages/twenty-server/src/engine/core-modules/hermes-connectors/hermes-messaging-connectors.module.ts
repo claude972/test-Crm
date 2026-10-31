@@ -14,6 +14,7 @@ import { HermesConnectedMcpAdapter } from 'src/engine/core-modules/hermes-prospe
 
 @Module({
   imports: [HermesMessagingModule],
+  exports: [HermesConnectedMcpAdapter],
   controllers: [EvolutionWebhookController],
   providers: [
     HermesConnectedEvolutionAdapter,
