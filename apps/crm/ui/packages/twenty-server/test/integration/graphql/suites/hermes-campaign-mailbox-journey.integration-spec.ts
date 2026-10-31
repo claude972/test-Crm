@@ -19,6 +19,7 @@ import {
 import { getCoreRepository } from 'test/integration/utils/get-core-repository.util';
 import { saveImapSmtpCaldavAccount } from 'test/integration/metadata/suites/connected-account/utils/save-imap-smtp-caldav-account.util';
 import { expectEventually } from 'test/integration/utils/expect-eventually.util';
+import { waitForAllJobsToFinish } from 'test/integration/utils/wait-for-all-jobs-to-finish.util';
 
 import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
 import { type AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
@@ -559,7 +560,9 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
   });
 
   it('schedules the campaign and then cancels it', async () => {
-    const scheduledAt = new Date(Date.now() + 3_600_000).toISOString();
+    const capturedBefore = await readFixtureMessages();
+    // The native queue-drain helper promotes test delays of at most one minute.
+    const scheduledAt = new Date(Date.now() + 30_000).toISOString();
 
     successful(
       await api(
@@ -593,18 +596,24 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
       ),
     );
 
-    const canceled = successful<{ messageCampaign: { status: string } }>(
+    const canceled = successful<{
+      messageCampaign: { status: string; scheduledAt: string | null };
+    }>(
       await api(
         tokenA,
-        'query($id: UUID!) { messageCampaign(filter: { id: { eq: $id } }) { status } }',
+        'query($id: UUID!) { messageCampaign(filter: { id: { eq: $id } }) { status scheduledAt } }',
         { id: campaignId },
         '/graphql',
       ),
     );
 
-    expect(canceled.messageCampaign.status).toBe(
-      MessageCampaignStatus.CANCELED,
-    );
+    expect(canceled.messageCampaign.status).toBe(MessageCampaignStatus.DRAFT);
+    expect(canceled.messageCampaign.scheduledAt).toBeNull();
+
+    // Execute the cancelled job through the real worker: its stale schedule
+    // must not emit, and must not strand the following integration cases.
+    await waitForAllJobsToFinish();
+    expect(await readFixtureMessages()).toHaveLength(capturedBefore.length);
   });
 
   it('keeps a durable opposition out of the audience', async () => {
