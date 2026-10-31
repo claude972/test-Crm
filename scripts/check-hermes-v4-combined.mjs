@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { mkdirSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -40,7 +46,12 @@ const AUTH_EXTRAS = [
   "src/engine/core-modules/auth/auth.resolver.spec.ts",
   "src/engine/core-modules/user-session/utils/extract-user-session-token-from-request.util.spec.ts",
 ];
-const BACKEND_EXTRAS = [
+// Specs the hermes-* scan cannot reach, because they live outside the hermes-*
+// module tree. Listed explicitly so a combined run cannot pass without them.
+// Reproduce one by hand without mutating the shared tree:
+// NODE_PATH=<shared node_modules> node <shared>/jest/bin/jest.js \
+//   --config jest.config.mjs --runInBand --runTestsByPath <specs>
+export const BACKEND_EXTRAS = [
   "src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts",
   "src/engine/core-modules/emailing-domain/drivers/smtp/__tests__/smtp-emailing-domain-driver.spec.ts",
   "src/engine/core-modules/emailing-domain/drivers/__tests__/emailing-domain-driver.factory.spec.ts",
@@ -53,6 +64,15 @@ const BACKEND_EXTRAS = [
   "src/engine/core-modules/twenty-config/constants/__tests__/hermes-b2b-campaigns-config.spec.ts",
   "src/engine/core-modules/workspace/services/__tests__/workspace-campaign-optin.service.spec.ts",
   "src/modules/messaging/message-import-manager/drivers/smtp/providers/__tests__/smtp-client-deadline.spec.ts",
+  // CJ-02, campagnes. L'acceptance importe nodemailer et tire lodash.chunk :
+  // dépendances déclarées de l'arbre partagé, résolues en CI sans étape ni
+  // symlink. Les échecs locaux venaient d'un symlink de worktree absent.
+  "src/modules/emailing/services/__tests__/message-campaign-recipient-preview.service.spec.ts",
+  "src/modules/emailing/services/__tests__/campaign-native-mailbox-smtp-acceptance.spec.ts",
+  // DEFAULT_LOCALE : la locale vit sur l'adhésion, d'où une deuxième société
+  // en anglais sur un déploiement français.
+  "src/engine/core-modules/twenty-config/__tests__/default-locale.config-variable.spec.ts",
+  "src/engine/core-modules/user-workspace/__tests__/user-workspace-locale.service.spec.ts",
 ];
 const CONNECTION_ASSERTIONS = [
   "stale-revision-after-advisory-lock-blocks-all-transaction-writes-pool1",
@@ -63,6 +83,12 @@ const CONNECTION_ASSERTIONS = [
 
 const checkedPath = (root, relative) => {
   const absolute = path.join(root, relative);
+  // Named rather than a bare ENOENT: a declared spec absent from the branch
+  // under test is the failure this list exists to produce.
+  assert.ok(
+    existsSync(absolute),
+    `Declared suite missing from this checkout: ${relative}`,
+  );
   assert.equal(
     realpathSync(absolute),
     absolute,
