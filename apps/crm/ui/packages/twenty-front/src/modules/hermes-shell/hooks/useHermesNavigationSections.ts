@@ -4,15 +4,22 @@ import { useMemo } from 'react';
 import { AppPath, SettingsPath } from 'kovaa-lab-shared/types';
 import { getAppPath, getSettingsPath } from 'kovaa-lab-shared/utils';
 import {
+  IconBrandWhatsapp,
   IconBuildingSkyscraper,
   IconGauge,
   IconInbox,
+  IconMail,
   IconMessage,
   IconSettings,
   useIcons,
 } from 'kovaa-lab-ui/icon';
 
 import { HERMES_RECORD_NAVIGATION_ORDER } from '@/hermes-shell/constants/HermesRecordNavigationOrder';
+import {
+  HERMES_ADMIN_RUNTIME_PATH,
+  HERMES_MAILBOX_RUNTIME_PATH,
+  HERMES_WA_RUNTIME_PATH,
+} from '@/hermes-shell/constants/HermesRuntimeRoutePaths';
 import { HERMES_SHELL_ROUTE_PATHS } from '@/hermes-shell/constants/HermesShellRoutePaths';
 import { type HermesNavigationSection } from '@/hermes-shell/types/HermesNavigationItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
@@ -92,6 +99,18 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
             Icon: IconMessage,
           },
           {
+            key: 'whatsapp',
+            label: t`WhatsApp`,
+            to: HERMES_WA_RUNTIME_PATH,
+            Icon: IconBrandWhatsapp,
+          },
+          {
+            key: 'mailbox',
+            label: t`Mailbox`,
+            to: HERMES_MAILBOX_RUNTIME_PATH,
+            Icon: IconMail,
+          },
+          {
             key: 'reception',
             label: t`Hermès collections`,
             to: PROSPECTION_RECEPTION_PATH,
@@ -126,6 +145,19 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
           to: getSettingsPath(SettingsPath.Structures),
           Icon: IconBuildingSkyscraper,
         },
+        // The central connections screen is restricted to unrestricted
+        // workspace administrators server side, like the reception above, so
+        // the link is offered to them rather than shown and then refused.
+        ...(hasWorkspacePermission
+          ? [
+              {
+                key: 'connections',
+                label: t`Connections and companies`,
+                to: HERMES_ADMIN_RUNTIME_PATH,
+                Icon: IconSettings,
+              },
+            ]
+          : []),
         {
           key: 'settings',
           label: t`Settings`,

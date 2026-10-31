@@ -3,7 +3,9 @@ import { useLingui } from '@lingui/react/macro';
 import { useCallback, useState } from 'react';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import { MessagingInboxConnectionNote } from '@/messaging-inbox/components/MessagingInboxConnectionNote';
 import { useMessagingInboxConnections } from '@/messaging-inbox/hooks/useMessagingInboxConnections';
+import { HERMES_ADMIN_RUNTIME_PATH } from '@/hermes-shell/constants/HermesRuntimeRoutePaths';
 
 import { HermesWaNote } from '@/hermes-wa-ui/components/HermesWaNote';
 
@@ -123,6 +125,16 @@ export const HermesWaInboxContainer = ({
 
       {selectedConversation === null ? (
         <StyledPlaceholder>
+          {/* The configuration state belongs here, not only in a thread: with
+              no connection registered there is no conversation to open, and an
+              invitation to open one would read as a working but empty inbox.
+              The note keeps loading and unknown distinct from "not set up", so
+              a failed read never passes for an absence. */}
+          <MessagingInboxConnectionNote
+            channel="WHATSAPP"
+            read={connectionRead}
+            setupPathOverride={HERMES_ADMIN_RUNTIME_PATH}
+          />
           <HermesWaNote>{t`Open a conversation to read it.`}</HermesWaNote>
         </StyledPlaceholder>
       ) : (

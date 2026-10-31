@@ -132,7 +132,13 @@ const botPolicyMock = {
   },
 };
 
-const renderContainer = () => {
+const renderContainer = ({
+  connections = connectionsMock,
+  conversations = conversationsMock,
+}: {
+  connections?: typeof connectionsMock;
+  conversations?: typeof conversationsMock;
+} = {}) => {
   // Every operation the container runs is recorded on its way to the mock
   // link, which is how "nothing is emitted at mount" becomes an assertion
   // rather than a claim.
@@ -146,12 +152,7 @@ const renderContainer = () => {
 
   const link = ApolloLink.from([
     recordingLink,
-    new MockLink([
-      conversationsMock,
-      messagesMock,
-      connectionsMock,
-      botPolicyMock,
-    ]),
+    new MockLink([conversations, messagesMock, connections, botPolicyMock]),
   ]);
 
   render(
@@ -228,5 +229,31 @@ describe('HermesWaInboxContainer', () => {
     expect(afterOpening).not.toContain('HermesWaPrepareMediaUpload');
     expect(afterOpening).not.toContain('HermesWaFinalizeMediaUpload');
     expect(afterOpening).not.toContain('HermesWaCancelMediaUpload');
+  });
+  it('says the channel is not set up instead of inviting the operator to open a conversation that cannot exist', async () => {
+    // No registered WhatsApp connection and no conversation: the screen used
+    // to show only "Open a conversation to read it.", which reads as a working
+    // but empty inbox. The configuration state has to be said here too.
+    renderContainer({
+      connections: {
+        request: { query: HERMES_MESSAGING_CONNECTIONS },
+        result: { data: { hermesMessagingConnections: [] } },
+      } as typeof connectionsMock,
+      conversations: {
+        request: conversationsMock.request,
+        result: {
+          data: {
+            hermesWaConversationsV3: {
+              ...conversationsMock.result.data.hermesWaConversationsV3,
+              conversations: [],
+            },
+          },
+        },
+      } as typeof conversationsMock,
+    });
+
+    expect(
+      await screen.findByText(/not set up/i),
+    ).toBeInTheDocument();
   });
 });

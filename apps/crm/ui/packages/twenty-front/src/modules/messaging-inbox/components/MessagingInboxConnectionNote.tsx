@@ -51,6 +51,10 @@ const StyledLink = styled(Link)`
 type MessagingInboxConnectionNoteProps = {
   channel: MessagingInboxChannel;
   read: MessagingInboxConnectionRead;
+  // Where "not set up" sends the operator, when the caller owns a setup screen
+  // closer to it than the native settings pages. Left out, the existing
+  // destinations are kept exactly as they were.
+  setupPathOverride?: string;
 };
 
 // One channel's configuration state, said in the contract's own terms.
@@ -67,13 +71,15 @@ type MessagingInboxConnectionNoteProps = {
 export const MessagingInboxConnectionNote = ({
   channel,
   read,
+  setupPathOverride,
 }: MessagingInboxConnectionNoteProps) => {
   const { t } = useLingui();
 
   const setupPath =
-    channel === 'EMAIL'
+    setupPathOverride ??
+    (channel === 'EMAIL'
       ? getSettingsPath(SettingsPath.AccountsEmails)
-      : getSettingsPath(SettingsPath.Integrations);
+      : getSettingsPath(SettingsPath.Integrations));
 
   if (read.kind === 'loading') {
     return (
