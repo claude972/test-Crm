@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
@@ -202,7 +202,7 @@ export const HermesCampaignCapabilitiesSection = ({
                         permission.origin === 'sender-identity'
                           ? t`Refused because the sender identity this would run under is not authorised.`
                           : permission.origin === 'client'
-                            ? t`Not available in this version: no operation is published yet to carry out this capability. The server was not asked.`
+                            ? t`Not available in this version. The server did not refuse it.`
                             : t`The server refused this capability without giving a reason.`
                       }
                     />
@@ -217,15 +217,6 @@ export const HermesCampaignCapabilitiesSection = ({
               </StyledRow>
             );
           })}
-
-          <HermesCampaignNote>
-            <Trans>
-              An interface boolean authorises nothing. None of these states is
-              deduced from a pilot name, a feature flag or a label: each one is
-              what the server answered, and an unreadable answer leaves the
-              capability unavailable.
-            </Trans>
-          </HermesCampaignNote>
         </StyledList>
       </HermesCampaignLoadView>
     </Section.Root>

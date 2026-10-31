@@ -87,9 +87,7 @@ export const HermesCampaignActionButton = ({
           // Keeps a refused control in the tab order so its reason is read
           // out instead of being skipped.
           focusableWhenDisabled
-          aria-describedby={
-            isPermitted ? effectId : `${reasonId} ${effectId}`
-          }
+          aria-describedby={isPermitted ? effectId : `${reasonId} ${effectId}`}
           onClick={() => {
             if (isPermitted) {
               onActivate();
@@ -122,7 +120,7 @@ export const HermesCampaignActionButton = ({
             permission.origin === 'sender-identity'
               ? t`Unavailable: the sender identity this would run under is not authorised.`
               : permission.origin === 'client'
-                ? t`Unavailable in this version: no operation is published yet to carry out this step. This is a missing feature, not a refusal by the server.`
+                ? t`Unavailable in this version. The server did not refuse it, so there is no permission to chase.`
                 : t`Unavailable: the server refused this step without giving a reason.`
           }
         />
@@ -136,7 +134,7 @@ export const HermesCampaignActionButton = ({
 
       {permission.kind === 'allowed' && !isDefined(onActivate) && (
         <HermesCampaignNote id={reasonId}>
-          {t`The server allows this step, but this screen has nothing wired to it yet, so it does nothing.`}
+          {t`The server allows this step, but it is not available in this version yet.`}
         </HermesCampaignNote>
       )}
     </StyledAction>

@@ -72,7 +72,11 @@ const renderScreen = (overrides: Partial<HermesCampaignScreenProps> = {}) =>
         campaignState="draft"
         senderIdentitiesLoad={{
           kind: 'ready',
-          value: [delegatedIdentity, unverifiedIdentity, sameDomainNotDelegated],
+          value: [
+            delegatedIdentity,
+            unverifiedIdentity,
+            sameDomainNotDelegated,
+          ],
         }}
         selectedIdentityId="si-1"
         onSelectIdentity={jest.fn()}
@@ -423,6 +427,38 @@ describe('HermesCampaignScreen', () => {
     }
   });
 
+  // The screen explains what the operator can do, not how it is built. The
+  // actionable reasons are asserted throughout this suite; this one pins the
+  // other half of the rule, so the implementation prose cannot come back.
+  it('explains the operator’s options without describing its own wiring', () => {
+    renderScreen();
+
+    for (const implementationDetail of [
+      /interface boolean/i,
+      /feature flag/i,
+      /tab order/i,
+      /nothing wired to it/i,
+      /no operation is published/i,
+      /\bprops?\b/i,
+    ]) {
+      expect(screen.queryByText(implementationDetail)).not.toBeInTheDocument();
+    }
+
+    // And a refused step still carries its reason and its code: the trim
+    // removed self-description, never an actionable reason.
+    expect(screen.getAllByText('CAPABILITY_UNAVAILABLE')).toHaveLength(2);
+    expect(
+      screen.getByText(
+        'The server refused this capability without giving a reason.',
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Unavailable: the server refused this step without giving a reason.',
+      ),
+    ).toBeVisible();
+  });
+
   it('shuts every emitting step after an emission whose outcome is unknown', () => {
     renderScreen({
       hasUncertainEmission: true,
@@ -520,9 +556,7 @@ describe('HermesCampaignScreen', () => {
     });
 
     expect(
-      screen.getByText(
-        /Shown as plain text on purpose: the panel stays inert/,
-      ),
+      screen.getByText(/Shown as plain text on purpose: the panel stays inert/),
     ).toBeVisible();
     // Nothing in the panel loads a remote resource, so no tracking marker of
     // the real recipient can be requested by looking at a preview.
