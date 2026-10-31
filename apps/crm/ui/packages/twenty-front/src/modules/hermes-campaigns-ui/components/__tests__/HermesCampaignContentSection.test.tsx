@@ -62,6 +62,7 @@ const ControlledSection = ({
       declaredVariables={declaredVariables}
       previewState={{ kind: 'idle' }}
       isEditable={true}
+      saveState={{ kind: 'idle' }}
     />
   );
 };
