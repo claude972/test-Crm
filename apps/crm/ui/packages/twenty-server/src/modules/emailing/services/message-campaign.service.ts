@@ -25,7 +25,7 @@ import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decora
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
-import { MessageChannelMetadataService } from 'src/engine/metadata-modules/message-channel/message-channel-metadata.service';
+import { CampaignMessageChannelService } from 'src/modules/emailing/services/campaign-message-channel.service';
 import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
 import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
@@ -59,7 +59,7 @@ export class MessageCampaignService {
     private readonly messageQueueService: MessageQueueService,
     private readonly emailingDomainSenderService: EmailingDomainSenderService,
     private readonly workspaceOrmManager: WorkspaceOrmManager,
-    private readonly messageChannelMetadataService: MessageChannelMetadataService,
+    private readonly campaignMessageChannelService: CampaignMessageChannelService,
     private readonly userRoleService: UserRoleService,
     private readonly campaignVariableService: CampaignVariableService,
     private readonly messageCampaignAudienceService: MessageCampaignAudienceService,
@@ -193,12 +193,11 @@ export class MessageCampaignService {
       requestedScheduledAt,
     });
 
-    const messageChannel =
-      await this.messageChannelMetadataService.getOrCreateEmailGroupChannel({
-        fromAddress,
-        userWorkspaceId,
-        workspaceId,
-      });
+    const messageChannel = await this.campaignMessageChannelService.resolve({
+      fromAddress,
+      userWorkspaceId,
+      workspaceId,
+    });
 
     return {
       roleId,

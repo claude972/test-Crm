@@ -743,12 +743,14 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
     // in PostgreSQL; it mocks nothing. The engine's own
     // buildNonQuarantinedCampaignDeliveryCriteria must then refuse to claim it.
     const quarantined = (await dataSource.query(
-      `UPDATE "${schema}"."campaignDelivery"
-         SET state = 'FAILED', "failureReason" = 'SEND_OUTCOME_UNCONFIRMED'
-       WHERE "campaignId" IN (
-         SELECT id FROM "${schema}"."messageCampaign" WHERE name LIKE $1
-       )
-       RETURNING id, "recipientEmail"`,
+      `WITH quarantined AS (
+         UPDATE "${schema}"."campaignDelivery"
+            SET state = 'FAILED', "failureReason" = 'SEND_OUTCOME_UNCONFIRMED'
+          WHERE "campaignId" IN (
+            SELECT id FROM "${schema}"."messageCampaign" WHERE name LIKE $1
+          )
+          RETURNING id
+       ) SELECT id FROM quarantined`,
       [`${PREFIX}-immediate%`],
     )) as { id: string }[];
 
