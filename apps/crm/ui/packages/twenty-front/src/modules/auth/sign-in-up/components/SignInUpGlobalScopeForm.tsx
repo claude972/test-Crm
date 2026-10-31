@@ -1,5 +1,11 @@
+import { useAuth } from '@/auth/hooks/useAuth';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { returnToPathState } from '@/auth/states/returnToPathState';
+import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
+import { getToastOptionsFromError } from '@/error-handler/utils/getToastOptionsFromError';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
+import { useState } from 'react';
+import { useToast } from 'kovaa-lab-ui/components/feedback';
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
 import { UndecoratedLink } from '@/ui/navigation/link/components/UndecoratedLink/UndecoratedLink';
 import { useQuery } from '@apollo/client/react';
@@ -27,6 +33,7 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { getWorkspaceAvatarColorSeed } from '@/workspace/utils/getWorkspaceAvatarColorSeed';
 import { isNonEmptyString } from '@sniptt/guards';
+import { isDefined } from 'kovaa-lab-shared/utils';
 import { IconChevronRight, IconPlus } from 'kovaa-lab-ui/icon';
 import { Avatar } from 'kovaa-lab-ui/primitives/data-display';
 import { Separator } from 'kovaa-lab-ui/primitives/layout';
@@ -137,6 +144,14 @@ export const SignInUpGlobalScopeForm = () => {
   const { form } = useSignInUpForm();
   const { handleResetPassword } = useHandleResetPassword();
   const returnToPath = useAtomStateValue(returnToPathState);
+  const isSameOriginMultiWorkspaceEnabled = useAtomStateValue(
+    isSameOriginMultiWorkspaceEnabledState,
+  );
+  const { signInToAvailableWorkspaceOnSameOrigin } = useAuth();
+  const { enqueueToast } = useToast();
+  const [redeemingWorkspaceId, setRedeemingWorkspaceId] = useState<
+    string | null
+  >(null);
 
   useQuery(GetWorkspaceCreationDefaultsDocument, {
     skip: signInUpStep !== SignInUpStep.WorkspaceSelection,
@@ -158,6 +173,32 @@ export const SignInUpGlobalScopeForm = () => {
     );
   };
 
+  // On a same-origin deployment the entry carries the login token for its own
+  // workspace and there is no other host to send anyone to, so choosing it is
+  // the same in-place exchange the single-workspace path performs. Entries
+  // without a token (an invitation, a sign-up) still follow their link.
+  const canRedeemInPlace = (availableWorkspace: AvailableWorkspace) =>
+    isSameOriginMultiWorkspaceEnabled &&
+    isNonEmptyString(availableWorkspace.loginToken);
+
+  const handleRedeemInPlace =
+    (availableWorkspace: AvailableWorkspace) => async () => {
+      // One exchange at a time: a second click would race the first and
+      // supersede its session generation mid-flight.
+      if (isDefined(redeemingWorkspaceId)) return;
+      setRedeemingWorkspaceId(availableWorkspace.id);
+      try {
+        await signInToAvailableWorkspaceOnSameOrigin(availableWorkspace);
+      } catch (error) {
+        setRedeemingWorkspaceId(null);
+        enqueueToast(
+          CombinedGraphQLErrors.is(error)
+            ? getToastOptionsFromError({ error })
+            : { status: 'error', children: t`Authentication failed` },
+        );
+      }
+    };
+
   const availableWorkspacesList = [
     ...availableWorkspaces.availableWorkspacesForSignIn,
     ...availableWorkspaces.availableWorkspacesForSignUp,
@@ -168,47 +209,65 @@ export const SignInUpGlobalScopeForm = () => {
       {signInUpStep === SignInUpStep.WorkspaceSelection && (
         <StyledOnboardingContentContainer>
           <StyledWorkspaceContainer>
-            {availableWorkspacesList.map((availableWorkspace, index) => (
-              <OnboardingStepAnimatedItem
-                key={availableWorkspace.id}
-                index={index}
-              >
-                <UndecoratedLink
-                  to={getAvailableWorkspaceUrl(availableWorkspace)}
+            {availableWorkspacesList.map((availableWorkspace, index) => {
+              const isRedeemedInPlace = canRedeemInPlace(availableWorkspace);
+              const workspaceItem = (
+                <StyledWorkspaceItem
+                  onClick={
+                    isRedeemedInPlace
+                      ? handleRedeemInPlace(availableWorkspace)
+                      : undefined
+                  }
+                  aria-busy={redeemingWorkspaceId === availableWorkspace.id}
                 >
-                  <StyledWorkspaceItem>
-                    <StyledWorkspaceContent>
-                      <Avatar
-                        name={availableWorkspace.displayName || ''}
-                        colorSeed={getWorkspaceAvatarColorSeed(
-                          availableWorkspace.displayName,
-                        )}
-                        src={getAbsoluteImageUrl(
-                          availableWorkspace.logo ?? DEFAULT_WORKSPACE_LOGO,
-                        )}
-                        size="lg"
-                      />
-                      <StyledWorkspaceTextContainer>
-                        <StyledWorkspaceName>
-                          {availableWorkspace.displayName ||
-                            availableWorkspace.id}
-                        </StyledWorkspaceName>
-                        <StyledWorkspaceUrl>
-                          {
-                            new URL(
-                              getWorkspaceUrl(availableWorkspace.workspaceUrls),
-                            ).hostname
-                          }
-                        </StyledWorkspaceUrl>
-                      </StyledWorkspaceTextContainer>
-                      <StyledChevronIcon>
-                        <IconChevronRight size={theme.icon.size.md} />
-                      </StyledChevronIcon>
-                    </StyledWorkspaceContent>
-                  </StyledWorkspaceItem>
-                </UndecoratedLink>
-              </OnboardingStepAnimatedItem>
-            ))}
+                  <StyledWorkspaceContent>
+                    <Avatar
+                      name={availableWorkspace.displayName || ''}
+                      colorSeed={getWorkspaceAvatarColorSeed(
+                        availableWorkspace.displayName,
+                      )}
+                      src={getAbsoluteImageUrl(
+                        availableWorkspace.logo ?? DEFAULT_WORKSPACE_LOGO,
+                      )}
+                      size="lg"
+                    />
+                    <StyledWorkspaceTextContainer>
+                      <StyledWorkspaceName>
+                        {availableWorkspace.displayName ||
+                          availableWorkspace.id}
+                      </StyledWorkspaceName>
+                      <StyledWorkspaceUrl>
+                        {
+                          new URL(
+                            getWorkspaceUrl(availableWorkspace.workspaceUrls),
+                          ).hostname
+                        }
+                      </StyledWorkspaceUrl>
+                    </StyledWorkspaceTextContainer>
+                    <StyledChevronIcon>
+                      <IconChevronRight size={theme.icon.size.md} />
+                    </StyledChevronIcon>
+                  </StyledWorkspaceContent>
+                </StyledWorkspaceItem>
+              );
+
+              return (
+                <OnboardingStepAnimatedItem
+                  key={availableWorkspace.id}
+                  index={index}
+                >
+                  {isRedeemedInPlace ? (
+                    workspaceItem
+                  ) : (
+                    <UndecoratedLink
+                      to={getAvailableWorkspaceUrl(availableWorkspace)}
+                    >
+                      {workspaceItem}
+                    </UndecoratedLink>
+                  )}
+                </OnboardingStepAnimatedItem>
+              );
+            })}
             {!isDDLLocked && (
               <OnboardingStepAnimatedItem
                 index={availableWorkspacesList.length}
