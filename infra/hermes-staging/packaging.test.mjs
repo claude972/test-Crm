@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { spawnSync, execFileSync } from 'node:child_process';
-import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, commandDiagnostic, main, runCommands, validateEnvironment } from './entrypoint.mjs';
+import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, readUpgradeSummary, commandDiagnostic, main, runCommands, validateEnvironment } from './entrypoint.mjs';
 import { createRequire } from 'node:module';
 import { CLIENT_SDK_ENTRYPOINTS, readMigrationDiagnostic, validateSmokeEnvironment } from '../../scripts/check-hermes-staging-image.mjs';
 
@@ -209,4 +209,15 @@ test('SMTP smoke uses a reserved HTTPS application origin independently of loopb
   assert.match(smoke, /const origin = `http:\/\/127\.0\.0\.1:/);
   const driver = readFileSync(new URL('../../apps/crm/ui/packages/twenty-server/src/engine/core-modules/emailing-domain/drivers/smtp/smtp-emailing-domain-driver.ts', import.meta.url), 'utf8');
   assert.match(driver, /https:/);
+});
+
+test('native summary parser normalizes ANSI/CRLF and bounded Nest info teardown without accepting bad health', () => {
+  const output = '\u001b[1m\u001b[4mSummary\u001b[24m\u001b[22m\r\n  Instance: \u001b[32mUp to date\u001b[39m\r\n  No workspaces\r\n[Nest] 17  - 10/31/2026, 8:00:00 PM     LOG [ModuleService] Closed\r\n';
+  assert.doesNotThrow(() => assertUpgradeSummary(output));
+  assert.deepEqual(readUpgradeSummary(output), { summaryCount: 1, instanceHealth: 'up-to-date', noWorkspaces: true, retrievalFailed: false, unexpectedLineCount: 0 });
+  for (const bad of [output.replace('Up to date', 'Behind'), output.replace('Up to date', 'Failed'), output.replace('LOG', 'ERROR'), output + 'private unknown line']) assert.throws(() => assertUpgradeSummary(bad));
+  const diagnostic = commandDiagnostic(['dist/command/command.js', 'upgrade:status'], 'Summary\n  Instance: Behind\n  Workspaces: 1 up to date, 2 behind, 3 failed (6 total)', 0, 'upgrade-summary');
+  const parsed = readMigrationDiagnostic('KOVAALABCRM_MIGRATION_FAILURE ' + JSON.stringify(diagnostic), []);
+  assert.equal(parsed.upgradeStatus.instanceHealth, 'behind');
+  assert.deepEqual(parsed.upgradeStatus.workspaceCounts, { upToDate: 1, behind: 2, failed: 3, total: 6 });
 });
