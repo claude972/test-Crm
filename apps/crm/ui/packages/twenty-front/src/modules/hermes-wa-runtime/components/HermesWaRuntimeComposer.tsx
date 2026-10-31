@@ -220,7 +220,8 @@ export const HermesWaRuntimeComposer = ({
 
       <StyledActions>
         <Button
-          variant="primary"
+          variant="solid"
+          color="accent"
           size="sm"
           startIcon={<IconSend />}
           loading={isSending}
@@ -346,7 +347,8 @@ export const HermesWaRuntimeComposer = ({
           </HermesWaNote>
           <StyledActions>
             <Button
-              variant="primary"
+              variant="solid"
+              color="accent"
               size="sm"
               startIcon={<IconSend />}
               disabled={sendCapability.kind !== 'available' || isSending}

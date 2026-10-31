@@ -243,7 +243,10 @@ export const HermesAdminRuntimeSettings = () => {
       {/* What this build cannot configure, said before the operator tries.
           These are missing controls on this screen, not server refusals, and
           nothing is sent for them. */}
-      {connections.writeBlock.kind === 'unsupported' && (
+      {connections.writeBlock.kind === 'unsupported' &&
+        // `supported` cannot reach this branch, but the type does not tie the
+        // two together, so the narrowing is written out rather than asserted.
+        connections.writeBlock.support.kind !== 'supported' && (
         <HermesAdminNote role="alert">
           {connections.writeBlock.support.kind === 'no-server-kind'
             ? t`Rien n’a été envoyé : ce canal n’a pas de configuration centrale propre. L’envoi de courrier s’appuie sur le compte connecté natif choisi pour la réception, et les formulaires comme les rendez-vous sont des sources d’une collecte signée, pas des connexions distinctes.`

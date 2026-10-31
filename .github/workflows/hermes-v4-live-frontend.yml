@@ -63,20 +63,20 @@ jobs:
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |
           node .yarn/releases/yarn-4.18.1.cjs nx build kovaa-lab-front --skip-nx-cache
-          test -d packages/twenty-front/dist
-          du -sh packages/twenty-front/dist
+          test -d packages/twenty-front/build
+          du -sh packages/twenty-front/build
       - name: Record the revision this bundle was built from
         if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
         run: |
           printf 'source_sha=%s\nbuilt_at=%s\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            > packages/twenty-front/dist/HERMES_V4_SOURCE.txt
-          cat packages/twenty-front/dist/HERMES_V4_SOURCE.txt
+            > packages/twenty-front/build/HERMES_V4_SOURCE.txt
+          cat packages/twenty-front/build/HERMES_V4_SOURCE.txt
       - name: Publish the exact bundle for deployment
         if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
-          name: hermes-v4-frontend-dist-${{ github.sha }}
-          path: apps/crm/ui/packages/twenty-front/dist
+          name: hermes-v4-frontend-build-${{ github.sha }}
+          path: apps/crm/ui/packages/twenty-front/build
           retention-days: 2
           if-no-files-found: error
       - name: Preserve exact unit and typecheck evidence
