@@ -100,3 +100,8 @@ Surc46etpreview41192248859 : CJ013UUIDv5/CJ014queryaperçu/CJ015menu/CJINTAKEUI0
 ## R03/R15 — complément11:00UTC
 
 Surc46: créationentrepriseetcontacthorsqualification, éditionnom/domaine/email/téléphone/poste/entreprise, reload et recherche/routefichevalidés. Adresseinvalidesignaléearia-invalid=true, valideensuiterelue. CaptureCRMdesktop/mobile390,viewportrestauré. Suppression/restaurationnonessayées, pasCRUDintégralniinstallationPWA. CDPinstallabilitéindisponibleoutil, pasdéfautproduitconclu. BoutoncontactEnvoyermaildirigeconfigurationIMAPSMTPquandaucuncompte, aucunmessageparti.
+
+
+## R02 — complément11:10UTC
+
+Le second compte indépendant n'a pas pu être créé : signUp natif retourne SIGNUP_DISABLED / New workspace setup is disabled, login de contrôle USER_NOT_FOUND. Aucune mutation de configuration ni contournement. Le refus d'accès à une société étrangère et le rôle lecture seule ne sont donc toujours pas validés par une nouvelle recette UI. Cela ne remet pas en cause les bascules autorisées et leurs données observées, mais ne les transforme pas en preuve négative d'autorisation.

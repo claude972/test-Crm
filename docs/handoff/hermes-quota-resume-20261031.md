@@ -232,3 +232,12 @@ Rechercheglobale« CamilleRecette »→contactentêtedesrésultats, puisouvertur
 Viewport390x844montrecontactlisibleavecchamps/relationsetactionsenbas, capturemobile-contact-after-reload.jpg observée. Viewportrestauré. CDPPage.getInstallabilityErrorséchoue« Unabletofetcherrorsfortarget » : limitationoutil, aucuneinstallabilité/installationprouvée. Manifest/HTTPstandalonedejàvalidé, PWAréel/offlinetoujoursnonrecettés.
 
 Rootaajoutécheckpointautomationsansmodifieréchéance/fréquence, pournepasredéployerc46initialeetprévoirrafraîchissement11:25–11:30UTC. Sourcefinalebranchepreview/cj-verified-20261031c46 resteexacte, testTSbloquéavecautorisationCodexTESTseulementencoreENATTENTE, pasnouveaucode.Claudequotainchangé23h. CUA21c46RecipegardéhandOff, maintenantficheCamilleRecettefullroute.
+
+
+## Vérification supplémentaire11:10UTC — second compte non créé
+
+La tentative de créer un compte outsider de recette indépendant échoue explicitement via la mutation native signUp : FORBIDDEN / SIGNUP_DISABLED, « New workspace setup is disabled ». Une contre-vérification getLoginTokenFromCredentials renvoie USER_NOT_FOUND ; aucun second compte créé ni refus inter-société en navigateur démontré. Ne pas convertir cet échec de préparation en preuve d'autorisation. La création initiale du compte de recette C46 avait réussi avant son onboarding ; la configuration interdit maintenant de nouvelles inscriptions. Root n'a pas modifié la configuration, contourné les gardes ni fabriqué une session. R02 membre non autorisé / rôle lecture seule reste non recetté UI, malgré tests PG existants. Pour la session finale neuve, créer tout compte de recette nécessaire AVANT le premier onboarding si la configuration se ferme ensuite.
+
+Correction de traçabilité : la mention10:46 « fenêtre Safari privée fermée » était prématurée ; le raccourci n'avait pas fermé cette fenêtre. Même fenêtre privée975EE29B encore observée au checkpoint11:08, toujours anonyme sur welcome. Fermeture effectuée ensuite par son vrai bouton AX31 et vérifiée par changement vers une autre fenêtre normale. Aucune connexion applicative dans Safari réalisée, aucune session habituelle modifiée. La preuve SafariMac bienvenue sans loginVercel reste valide ; SafariiPhone/loginapp non confirmés.
+
+Source c46 inchangée, quota Claude hebdomadaire et autorisation Codex pour LE test toujours en attente. Préparer le nouveau P0 vers11:25–11:30UTC, exactement même bundle c46, nouvelle preview/contrôle aprèsREADY/compte puis recette pour livraison12UTC et expiration utile explicitée.
