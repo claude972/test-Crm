@@ -293,7 +293,7 @@ couvert par un test.
 | CAT-UI-WA | `8f285f8bd` | fausse preuve Opus remplacée par un vrai flux Ogg/Opus |
 | CAT-UI-WA | `2d28197c0` | CATWA005 verrou/génération + CATWA006 genre validé serveur |
 
-Assemblé à `cf6c0a0a9`. CAT-UI-WA mesure 26 suites / 277 tests sur son périmètre
+Assemblé à `a83b7152d`. CAT-UI-WA mesure 26 suites / 277 tests sur son périmètre
 complet, contre 260 au round précédent : +17 tests, zéro régression.
 
 Trois points qui méritent d'être lus :
