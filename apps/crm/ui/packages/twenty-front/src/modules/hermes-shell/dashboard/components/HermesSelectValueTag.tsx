@@ -1,3 +1,4 @@
+import { translateStandardSelectOptionLabel } from '@/object-metadata/utils/translateStandardSelectOptionLabel';
 import { useLingui } from '@lingui/react/macro';
 
 import { isDefined } from 'kovaa-lab-shared/utils';
@@ -50,13 +51,11 @@ export const HermesSelectValueTag = ({
   }
 
   return (
-    <Tag
-      color={option.color}
-      variant="soft"
-      weight="medium"
-      truncate={false}
-    >
-      {option.label}
+    <Tag color={option.color} variant="soft" weight="medium" truncate={false}>
+      {translateStandardSelectOptionLabel({
+        fieldUniversalIdentifier: fieldMetadataItem.universalIdentifier,
+        option,
+      })}
     </Tag>
   );
 };

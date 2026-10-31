@@ -40,3 +40,39 @@ export const translateStandardSelectOptionLabel = ({
 
   return i18n._(shippedOption.shippedLabel);
 };
+
+// Same rule over a whole options array, for the render-side layers that hand the
+// array on to a renderer. The array identity is preserved when nothing changes,
+// so a translated locale is the only case that allocates.
+export const translateStandardSelectOptionLabels = <
+  TOption extends { id?: string | null; label: string },
+>({
+  fieldUniversalIdentifier,
+  options,
+}: {
+  fieldUniversalIdentifier?: string | null;
+  options?: readonly TOption[] | null;
+}): TOption[] | null | undefined => {
+  if (!isDefined(options)) {
+    return options;
+  }
+
+  let hasTranslation = false;
+
+  const translatedOptions = options.map((option) => {
+    const label = translateStandardSelectOptionLabel({
+      fieldUniversalIdentifier,
+      option,
+    });
+
+    if (label === option.label) {
+      return option;
+    }
+
+    hasTranslation = true;
+
+    return { ...option, label };
+  });
+
+  return hasTranslation ? translatedOptions : [...options];
+};

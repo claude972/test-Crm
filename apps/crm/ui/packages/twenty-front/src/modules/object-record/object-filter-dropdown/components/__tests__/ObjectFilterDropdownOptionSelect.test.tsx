@@ -1,4 +1,6 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
+import { i18n } from '@lingui/core';
+import { generateMessageId } from 'kovaa-lab-shared/i18n';
 import { useEffect, useState } from 'react';
 
 import { ObjectFilterDropdownOptionSelect } from '@/object-record/object-filter-dropdown/components/ObjectFilterDropdownOptionSelect';
@@ -33,11 +35,14 @@ jest.mock('@/ui/layout/selectable-list/hooks/useSelectableList', () => ({
   }),
 }));
 
+const applyObjectFilterDropdownFilterValueMock = jest.fn();
+
 jest.mock(
   '@/object-record/object-filter-dropdown/hooks/useApplyObjectFilterDropdownFilterValue',
   () => ({
     useApplyObjectFilterDropdownFilterValue: () => ({
-      applyObjectFilterDropdownFilterValue: jest.fn(),
+      applyObjectFilterDropdownFilterValue:
+        applyObjectFilterDropdownFilterValueMock,
     }),
   }),
 );
@@ -117,5 +122,38 @@ describe('ObjectFilterDropdownOptionSelect', () => {
     for (const option of otherOptions) {
       expect(getByText(option.label)).toBeInTheDocument();
     }
+  });
+  // The write side must not move: what this dropdown persists is the display
+  // value, and it has to stay the shipped wording whatever the viewer reads.
+  it('renders the translated wording while persisting the canonical one', () => {
+    const screening = (selectField.options ?? []).find(
+      (option) => option.label === 'Screening',
+    );
+
+    if (!screening) {
+      throw new Error('Missing the Screening option in the opportunity mock');
+    }
+
+    i18n.load('fr-FR', {
+      [generateMessageId('Screening', 'fieldMetadata.label')]: 'Présélection',
+    });
+    i18n.activate('fr-FR');
+    applyObjectFilterDropdownFilterValueMock.mockClear();
+
+    const { getByText, queryByText } = render(<Wrapper />);
+
+    // after: the operator reads the translated wording
+    expect(getByText('Présélection')).toBeInTheDocument();
+    expect(queryByText('Screening')).not.toBeInTheDocument();
+
+    fireEvent.click(getByText('Présélection'));
+
+    // before, and the point of the whole direction: the payload is canonical
+    expect(applyObjectFilterDropdownFilterValueMock).toHaveBeenCalledWith(
+      JSON.stringify([screening.value]),
+      'Screening',
+    );
+
+    i18n.activate('en');
   });
 });

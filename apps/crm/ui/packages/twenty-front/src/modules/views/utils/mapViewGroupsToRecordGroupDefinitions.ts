@@ -1,3 +1,4 @@
+import { translateStandardSelectOptionLabel } from '@/object-metadata/utils/translateStandardSelectOptionLabel';
 import { t } from '@lingui/core/macro';
 
 import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
@@ -77,7 +78,13 @@ const mapSelectViewGroupsToRecordGroupDefinitions = (
       return buildRecordGroupDefinition({
         viewGroup,
         isNoValue: !isDefined(selectedOption),
-        title: selectedOption?.label ?? t`No Value`,
+        title: isDefined(selectedOption)
+          ? translateStandardSelectOptionLabel({
+              fieldUniversalIdentifier:
+                selectFieldMetadataItem.universalIdentifier,
+              option: selectedOption,
+            })
+          : t`No Value`,
         value: selectedOption?.value ?? null,
         color: selectedOption?.color ?? 'transparent',
       });

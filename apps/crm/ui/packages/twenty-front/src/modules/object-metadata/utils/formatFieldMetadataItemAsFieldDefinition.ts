@@ -5,6 +5,7 @@ import { type FieldMetadata } from '@/object-record/record-field/ui/types/FieldM
 import { getFieldButtonIcon } from '@/object-record/record-field/ui/utils/getFieldButtonIcon';
 import { FieldMetadataType } from 'kovaa-lab-shared/types';
 import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
+import { translateStandardSelectOptionLabels } from '@/object-metadata/utils/translateStandardSelectOptionLabel';
 
 export type FieldMetadataItemAsFieldDefinitionProps = {
   field: FieldMetadataItem;
@@ -46,7 +47,13 @@ export const formatFieldMetadataItemAsFieldDefinition = ({
     relationObjectMetadataId: relationObjectMetadataItem?.id ?? '',
     objectMetadataNameSingular: objectMetadataItem.nameSingular ?? '',
     targetFieldMetadataName: field.relation?.targetFieldMetadata?.name ?? '',
-    options: field.options,
+    // Display only: every consumer of fieldDefinition.metadata.options renders the
+    // label or submits option.value. The settings form and the mutations read
+    // fieldMetadataItem.options instead, which stays canonical.
+    options: translateStandardSelectOptionLabels({
+      fieldUniversalIdentifier: field.universalIdentifier,
+      options: field.options,
+    }),
     settings: field.settings,
     isNullable: field.isNullable,
     applicationId: field.applicationId,
