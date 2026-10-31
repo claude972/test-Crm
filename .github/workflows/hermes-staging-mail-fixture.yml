@@ -1,5 +1,11 @@
 name: kovaalabcrm isolated fake mail acceptance
 on:
+  push:
+    branches: ['fix/hermes-autonomous-recovery-20261031']
+    paths:
+      - 'infra/hermes-staging/mail-fixture/**'
+      - 'scripts/check-hermes-staging-mail-fixture*.mjs'
+      - '.github/workflows/hermes-staging-mail-fixture.yml'
   workflow_dispatch:
 permissions:
   contents: read
