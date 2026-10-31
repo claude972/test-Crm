@@ -1,12 +1,15 @@
-// Why an attachment cannot be opened yet.
+// Whether an attachment can be opened.
 //
-// There is deliberately no 'available' case in this slice. The private import
-// that would make a file readable is not built, so a variant saying a file is
-// available would let a parent light up a button for an operation that does
-// not exist. When the media work lands, the variant is added here and the
-// strip's control becomes conditional — not before.
+// 'available' exists now that the private media read is wired: the server has
+// imported the bytes into a scoped asset and a parent can serve them. It is
+// still the parent that fetches — this module holds no URL and no bytes — so
+// the strip offers a download only when a parent also supplied the callback
+// that performs it.
 export type HermesMailboxAttachmentAvailability =
-  // The contract's current state: the file exists on the provider and needs a
+  // The bytes exist as a private scoped asset and can be read through the
+  // authenticated media operation.
+  | { kind: 'available' }
+  // The contract's earlier state: the file exists on the provider and needs a
   // private import before this application can serve it.
   | { kind: 'privateImportRequired' }
   // The provider itself says the file cannot be served.

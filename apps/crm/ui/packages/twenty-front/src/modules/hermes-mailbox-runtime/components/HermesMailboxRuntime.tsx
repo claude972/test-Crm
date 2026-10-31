@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useHermesMailboxRuntimeComposer } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeComposer';
+import {
+  type HermesMailboxRuntimeSavedDraft,
+  useHermesMailboxRuntimeComposer,
+} from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeComposer';
+import { useHermesMailboxRuntimeAttachmentDownload } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeAttachmentDownload';
 import { useHermesMailboxRuntimeFolders } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeFolders';
 import {
   type HermesMailboxRuntimeIdentityRead,
@@ -11,11 +15,11 @@ import { useHermesMailboxRuntimeMessage } from '@/hermes-mailbox-runtime/hooks/u
 import { useHermesMailboxRuntimeMessages } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeMessages';
 import { type HermesMailboxRuntimeMessage } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimePayload';
 import { type HermesMailboxRuntimeScope } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimeScope';
+import { readHermesMailboxRuntimeMessageAttachments } from '@/hermes-mailbox-runtime/utils/readHermesMailboxRuntimeAttachments';
 import {
   HermesMailbox,
   type HermesMailboxProviderState,
 } from '@/hermes-mailbox-ui/components/HermesMailbox';
-import { type HermesMailboxAttachment } from '@/hermes-mailbox-ui/types/HermesMailboxAttachment';
 import { type HermesMailboxSendAvailability } from '@/hermes-mailbox-ui/types/HermesMailboxComposition';
 import { type HermesMailboxFolder } from '@/hermes-mailbox-ui/types/HermesMailboxFolder';
 import { type HermesMailboxLoad } from '@/hermes-mailbox-ui/types/HermesMailboxLoad';
@@ -31,29 +35,6 @@ type HermesMailboxRuntimeProps = {
   onConnectProvider?: () => void;
 };
 
-// One attachment as the shipped strip can describe it.
-//
-// There is no availability variant for a file this application can serve, and
-// one is not faked: the strip offers no download either way. 'UNSUPPORTED' is
-// the server refusing to serve the bytes, and it is said as such.
-const readAttachments = (
-  message: HermesMailboxRuntimeMessage,
-): HermesMailboxAttachment[] =>
-  message.attachments.map((attachment) => ({
-    id:
-      attachment.assetId ??
-      'part:' + String(attachment.index ?? message.attachments.indexOf(attachment)),
-    name: attachment.filename,
-    mimeType: attachment.mimeType,
-    // The mail read publishes no per-part size, so none is invented: a missing
-    // figure is not a zero-byte file.
-    sizeBytes: null,
-    availability:
-      attachment.state === 'UNSUPPORTED'
-        ? { kind: 'unavailable' as const, reason: 'UNSUPPORTED' }
-        : { kind: 'unknown' as const },
-  }));
-
 // The thread panel's one message.
 //
 // The folder listing is one row per message, which is what the contract
@@ -64,6 +45,7 @@ const readThread = (
   message: HermesMailboxRuntimeMessage,
   summary: HermesMailboxThreadSummary | null,
   isDraftsFolder: boolean,
+  savedDraft: HermesMailboxRuntimeSavedDraft | null,
 ): HermesMailboxThread => ({
   id: message.uid,
   subject: message.subject,
@@ -93,12 +75,20 @@ const readThread = (
       // The server does not split the quoted history out of the body, so no
       // split is attempted here.
       quote: null,
-      attachments: readAttachments(message),
+      attachments: readHermesMailboxRuntimeMessageAttachments(message),
     },
   ],
-  // This container reaches no operation that resumes a saved reply draft, so
-  // no draft reference is published and the panel offers no resume.
-  draft: null,
+  // A resume is offered only on the exact native message a save in this
+  // session landed on: same folder, same UID, same UIDVALIDITY. No operation
+  // lists draft identities, so nothing is claimed about drafts this session
+  // did not write.
+  draft:
+    savedDraft !== null &&
+    savedDraft.folder === message.folder &&
+    savedDraft.uid === message.uid &&
+    savedDraft.uidValidity === message.uidValidity
+      ? { id: savedDraft.draftId, savedAt: savedDraft.savedAt }
+      : null,
 });
 
 type HermesMailboxRuntimeFolderViewProps = {
@@ -108,6 +98,8 @@ type HermesMailboxRuntimeFolderViewProps = {
   onSelectFolder: (folderId: string) => void;
   onBackToFolders: () => void;
   identity: HermesMailboxRuntimeIdentityRead;
+  savedDraft: HermesMailboxRuntimeSavedDraft | null;
+  onSavedDraft: (draft: HermesMailboxRuntimeSavedDraft) => void;
   onConnectProvider?: () => void;
 };
 
@@ -123,6 +115,8 @@ const HermesMailboxRuntimeFolderView = ({
   onSelectFolder,
   onBackToFolders,
   identity,
+  savedDraft,
+  onSavedDraft,
   onConnectProvider,
 }: HermesMailboxRuntimeFolderViewProps) => {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
@@ -147,12 +141,23 @@ const HermesMailboxRuntimeFolderView = ({
   );
 
   const message = useHermesMailboxRuntimeMessage({ scope });
-  const composer = useHermesMailboxRuntimeComposer({ scope, identity });
 
   const openedMessage =
     message.load.kind === 'ready' ? message.load.value : null;
 
+  const composer = useHermesMailboxRuntimeComposer({
+    scope,
+    identity,
+    message: openedMessage,
+    savedDraft,
+    onSavedDraft,
+  });
+
   const inlineImagesByMessageId = useHermesMailboxRuntimeInlineImages({
+    message: openedMessage,
+  });
+
+  const downloadAttachment = useHermesMailboxRuntimeAttachmentDownload({
     message: openedMessage,
   });
 
@@ -176,9 +181,14 @@ const HermesMailboxRuntimeFolderView = ({
       value:
         message.load.value === null
           ? null
-          : readThread(message.load.value, selectedSummary, isDraftsFolder),
+          : readThread(
+              message.load.value,
+              selectedSummary,
+              isDraftsFolder,
+              composer.savedDraft,
+            ),
     };
-  }, [isDraftsFolder, message.load, selectedSummary]);
+  }, [composer.savedDraft, isDraftsFolder, message.load, selectedSummary]);
 
   // `null` is the honest answer while the mailbox's own address is unknown:
   // the send control is left out rather than offered for an emission that
@@ -213,13 +223,26 @@ const HermesMailboxRuntimeFolderView = ({
       selectedThreadId={selectedThreadId}
       onSelectThread={selectThread}
       onReloadThreads={messages.reload}
+      // Offered only when the server handed back a cursor and the client's own
+      // page bound has not been reached. Absent means no control, rather than
+      // one that does nothing.
+      onLoadMoreThreads={
+        messages.nextCursor !== null && !messages.hasReachedPageLimit
+          ? messages.loadMore
+          : undefined
+      }
+      isLoadingMoreThreads={messages.isLoadingMore}
+      // A message that answers nothing needs an authorised sender like any
+      // other. Without a resolved mailbox the action is left out.
+      onComposeNew={
+        identity.identity.kind === 'known' && provider.kind !== 'notConfigured'
+          ? composer.composeNew
+          : undefined
+      }
       thread={thread}
       envelope={composer.envelope}
       onPlanAnswer={composer.planAnswer}
-      // No operation resumes a saved reply draft in this slice, so this cannot
-      // be reached: `thread.draft` is always null and the panel renders no
-      // resume control.
-      onResumeDraft={() => {}}
+      onResumeDraft={composer.resumeDraft}
       onCloseComposer={composer.closeComposer}
       inlineImagesByMessageId={inlineImagesByMessageId}
       onBackToFolders={onBackToFolders}
@@ -229,6 +252,7 @@ const HermesMailboxRuntimeFolderView = ({
       draftSaveState={composer.draftSaveState}
       onRequestSend={composer.requestSend}
       onSaveDraft={composer.saveDraft}
+      onDownloadAttachment={downloadAttachment}
       onConnectProvider={onConnectProvider}
     />
   );
@@ -246,6 +270,12 @@ export const HermesMailboxRuntime = ({
   const identity = useHermesMailboxRuntimeIdentity();
 
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+
+  // Above the folder on purpose: a draft is saved from the inbox and resumed
+  // from the provider's Drafts folder, so its stable identity has to survive
+  // that move.
+  const [savedDraft, setSavedDraft] =
+    useState<HermesMailboxRuntimeSavedDraft | null>(null);
 
   // The inbox is opened once the folders are known, so the screen lands on a
   // list rather than on a folder picker. A mailbox the provider publishes
@@ -273,6 +303,8 @@ export const HermesMailboxRuntime = ({
       onSelectFolder={setSelectedFolderId}
       onBackToFolders={() => setSelectedFolderId(null)}
       identity={identity}
+      savedDraft={savedDraft}
+      onSavedDraft={setSavedDraft}
       onConnectProvider={onConnectProvider}
     />
   );

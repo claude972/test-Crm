@@ -92,6 +92,8 @@ type HermesMailboxThreadPanelProps = {
   draftSaveState: HermesMailboxDraftSaveState;
   onRequestSend: (composition: HermesMailboxComposition) => void;
   onSaveDraft: (composition: HermesMailboxComposition) => void;
+  // Performs the private read for one attachment of the opened message.
+  onDownloadAttachment?: (attachmentId: string) => void;
 };
 
 // The reading pane, and the editor that opens inside it.
@@ -111,8 +113,17 @@ export const HermesMailboxThreadPanel = ({
   draftSaveState,
   onRequestSend,
   onSaveDraft,
+  onDownloadAttachment,
 }: HermesMailboxThreadPanelProps) => {
   const { t } = useLingui();
+
+  // Read before the early returns, because a message that answers nothing is
+  // composed with no thread open at all.
+  const readyEnvelope = envelope.kind === 'ready' ? envelope.value : null;
+  const newEnvelope =
+    readyEnvelope !== null && readyEnvelope.kind === 'new'
+      ? readyEnvelope
+      : null;
 
   if (thread.kind !== 'ready') {
     return (
@@ -128,18 +139,31 @@ export const HermesMailboxThreadPanel = ({
   if (thread.value === null) {
     return (
       <StyledPanel aria-label={t`Thread`}>
-        <StyledEmptyState>
-          <StyledEmptyTitle>{t`No thread open`}</StyledEmptyTitle>
-          <HermesMailboxNote>
-            <Trans>Pick a thread from the list.</Trans>
-          </HermesMailboxNote>
-        </StyledEmptyState>
+        {newEnvelope !== null ? (
+          <HermesMailboxComposer
+            key={`new:${newEnvelope.threadId}`}
+            envelope={newEnvelope}
+            sendAvailability={sendAvailability}
+            sendState={sendState}
+            draftSaveState={draftSaveState}
+            onRequestSend={onRequestSend}
+            onSaveDraft={onSaveDraft}
+            onDiscard={onCloseComposer}
+          />
+        ) : (
+          <StyledEmptyState>
+            <StyledEmptyTitle>{t`No thread open`}</StyledEmptyTitle>
+            <HermesMailboxNote>
+              <Trans>Pick a thread from the list.</Trans>
+            </HermesMailboxNote>
+          </StyledEmptyState>
+        )}
       </StyledPanel>
     );
   }
 
   const openThread = thread.value;
-  const plannedEnvelope = envelope.kind === 'ready' ? envelope.value : null;
+  const plannedEnvelope = readyEnvelope;
   const isPlanning = envelope.kind === 'loading';
   const hasPlanningFailed =
     envelope.kind !== 'ready' && envelope.kind !== 'loading';
@@ -165,6 +189,7 @@ export const HermesMailboxThreadPanel = ({
               key={message.id}
               message={message}
               inlineImages={inlineImagesByMessageId[message.id]}
+              onDownloadAttachment={onDownloadAttachment}
             />
           ))}
         </StyledMessages>

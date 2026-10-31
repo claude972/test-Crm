@@ -1,20 +1,29 @@
-import { useMutation } from '@apollo/client/react';
+import { type DocumentNode } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { useCallback, useRef, useState } from 'react';
 import { v4 } from 'uuid';
 
 import { HERMES_MAILBOX_RUNTIME_COMPOSE_MODES } from '@/hermes-mailbox-runtime/constants/HermesMailboxRuntimeContract';
+import { HERMES_MAIL_CLONE_ATTACHMENT_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailCloneAttachmentV4';
+import { HERMES_MAIL_CREATE_DRAFT_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailCreateDraftV4';
 import { HERMES_MAIL_PLAN_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailPlanV4';
 import { HERMES_MAIL_SAVE_DRAFT_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailSaveDraftV4';
+import { HERMES_MAIL_SEND_NEW_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailSendNewV4';
 import { HERMES_MAIL_SEND_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailSendV4';
-import { type HermesMailboxRuntimeScope } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimeScope';
 import { type HermesMailboxRuntimeIdentityRead } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeIdentity';
+import { type HermesMailboxRuntimeMessage } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimePayload';
+import { type HermesMailboxRuntimeScope } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimeScope';
+import { toHermesMailboxAttachment } from '@/hermes-mailbox-runtime/utils/readHermesMailboxRuntimeAttachments';
 import { readHermesMailboxRuntimeFailure } from '@/hermes-mailbox-runtime/utils/readHermesMailboxRuntimeFailure';
 import {
+  readHermesMailboxRuntimeClonedAsset,
   readHermesMailboxRuntimeDraftOutcome,
+  readHermesMailboxRuntimeNewDraftOutcome,
   readHermesMailboxRuntimePlan,
   readHermesMailboxRuntimeSendOutcome,
 } from '@/hermes-mailbox-runtime/utils/readHermesMailboxRuntimePayload';
 import { type HermesMailboxAddress } from '@/hermes-mailbox-ui/types/HermesMailboxAddress';
+import { type HermesMailboxAttachment } from '@/hermes-mailbox-ui/types/HermesMailboxAttachment';
 import {
   type HermesMailboxComposeKind,
   type HermesMailboxComposition,
@@ -25,12 +34,11 @@ import {
 import { type HermesMailboxLoad } from '@/hermes-mailbox-ui/types/HermesMailboxLoad';
 import { parseHermesMailboxAddress } from '@/hermes-mailbox-ui/utils/parseHermesMailboxAddress';
 
-// Exactly the input `HermesMailComposeInput` publishes, and nothing beside it.
+// Exactly the input `HermesMailComposeInput` publishes.
 //
 // There is no `subject`: the contract derives a reply's and a forward's
 // subject from the original MIME server-side, and this input has no field for
-// one. Whatever a person types over the prepared subject therefore stays local
-// — see the module's README note.
+// one, so an edited subject on those three stays local.
 type HermesMailboxRuntimeComposeInput = {
   folder: string;
   uid: string;
@@ -42,6 +50,40 @@ type HermesMailboxRuntimeComposeInput = {
   text: string;
   conversationId?: string;
   clientRequestId?: string;
+  attachmentIds?: string[];
+};
+
+// Exactly the input `HermesMailNewDraftInput` publishes. It does carry a
+// subject, because a new message has no original to derive one from.
+type HermesMailboxRuntimeNewDraftInput = {
+  from: string;
+  to?: string[];
+  cc?: string[];
+  subject: string;
+  text: string;
+  draftId: string;
+  // Opaque. Sent back exactly as it arrived, which is what makes the save a
+  // compare-and-swap rather than a blind append.
+  draftRevision?: string;
+  clientRequestId?: string;
+  conversationId?: string;
+  attachmentIds?: string[];
+};
+
+type HermesMailboxRuntimeAttempt =
+  | { kind: 'compose'; input: HermesMailboxRuntimeComposeInput }
+  | { kind: 'new'; input: HermesMailboxRuntimeNewDraftInput };
+
+// Where the draft saved in this session landed in the provider's Drafts
+// folder, so the container can offer to resume exactly that message.
+export type HermesMailboxRuntimeSavedDraft = {
+  draftId: string;
+  draftRevision: string | null;
+  conversationId: string | null;
+  folder: string | null;
+  uid: string | null;
+  uidValidity: string | null;
+  savedAt: string | null;
 };
 
 export type HermesMailboxRuntimeComposer = {
@@ -49,39 +91,47 @@ export type HermesMailboxRuntimeComposer = {
   sendState: HermesMailboxSendState;
   draftSaveState: HermesMailboxDraftSaveState;
   planAnswer: (kind: HermesMailboxComposeKind) => void;
+  composeNew: () => void;
+  resumeDraft: (draftId: string) => void;
   closeComposer: () => void;
   requestSend: (composition: HermesMailboxComposition) => void;
   saveDraft: (composition: HermesMailboxComposition) => void;
+  savedDraft: HermesMailboxRuntimeSavedDraft | null;
 };
 
-// Planning, saving and sending one answer.
+// Planning, composing, saving and sending one message.
 //
-// Three rules from the contract shape all of it:
+// Rules from the contract that shape all of it:
 //
-// 1. The server plans the recipients. The planning call answers with a
-//    prepared envelope, which is shown as the authority and may then be
-//    edited by a person. The library's offline planner is never consulted.
-// 2. The sender is the connected mailbox's exact handle. It is taken from the
-//    connected account, never from a header on the message being answered.
-// 3. A send carries one client request id, minted once. After an uncertain
-//    outcome the same id and the same content are replayed — never a new id,
-//    and never a retry this code started by itself.
+// 1. The server plans an answer's recipients. A new message has no original,
+//    so there is nothing to plan and the recipients are the ones a person
+//    types; the library's offline planner is never consulted either way.
+// 2. The sender is the mailbox the central connection binds, resolved before
+//    anything else.
+// 3. A draft has a stable id and an opaque revision. Both are kept and handed
+//    straight back, never rebuilt.
+// 4. A send attempt has its own id, distinct from the draft's, minted once.
+//    After an uncertain outcome the same id and the same content are replayed
+//    — never a new id, and never a retry this code started by itself.
+// 5. A forward carries its files only through explicit clones, and references
+//    the target asset ids the clone returned.
 export const useHermesMailboxRuntimeComposer = ({
   scope,
   identity,
+  message,
+  savedDraft,
+  onSavedDraft,
 }: {
   scope: HermesMailboxRuntimeScope | null;
   identity: HermesMailboxRuntimeIdentityRead;
+  message: HermesMailboxRuntimeMessage | null;
+  // Held by the caller, above the folder, because resuming a draft means
+  // walking into the provider's Drafts folder — and a per-folder state would
+  // be thrown away by exactly that move.
+  savedDraft: HermesMailboxRuntimeSavedDraft | null;
+  onSavedDraft: (draft: HermesMailboxRuntimeSavedDraft) => void;
 }): HermesMailboxRuntimeComposer => {
-  const [planMutation] = useMutation<{ hermesMailPlanV4: unknown }>(
-    HERMES_MAIL_PLAN_V4,
-  );
-  const [sendMutation] = useMutation<{ hermesMailSendV4: unknown }>(
-    HERMES_MAIL_SEND_V4,
-  );
-  const [saveDraftMutation] = useMutation<{ hermesMailSaveDraftV4: unknown }>(
-    HERMES_MAIL_SAVE_DRAFT_V4,
-  );
+  const client = useApolloClient();
 
   const [envelope, setEnvelope] = useState<
     HermesMailboxLoad<HermesMailboxEnvelope | null>
@@ -92,64 +142,151 @@ export const useHermesMailboxRuntimeComposer = ({
   const [draftSaveState, setDraftSaveState] =
     useState<HermesMailboxDraftSaveState>({ kind: 'idle' });
 
-  // The conversation the planning call reserved. Opaque, carried back
-  // unchanged: a forward is planned against its own canonical draft
-  // conversation, and sending under a different one is refused by the server.
+  // The conversation the server reserved. Opaque, carried back unchanged.
   const conversationIdRef = useRef<string | null>(null);
 
-  // The request id of the composition currently open.
-  //
-  // A forward's id is minted when it is planned, because the server derives
-  // the draft conversation from it and would fork a second one under another
-  // id. A reply's id is minted on its first send.
+  // A forward's planning id. The server derives its draft conversation from
+  // it, so a different id on the send would fork a second conversation and be
+  // refused; it is minted at planning time and kept.
   const requestIdRef = useRef<string | null>(null);
+
+  // The new message's stable draft identity and its opaque revision.
+  const draftIdRef = useRef<string | null>(null);
+  const draftRevisionRef = useRef<string | null>(null);
+
+  // The immutable send attempt of a new message. Distinct from draftIdRef by
+  // contract: one identifies the draft, the other identifies this attempt.
+  const sendRequestIdRef = useRef<string | null>(null);
 
   // The attempt on the wire, kept byte for byte so an uncertain outcome is
   // replayed exactly rather than rebuilt from whatever is in the editor now.
-  const attemptRef = useRef<HermesMailboxRuntimeComposeInput | null>(null);
+  const attemptRef = useRef<HermesMailboxRuntimeAttempt | null>(null);
   const isAttemptUncertainRef = useRef(false);
+
+  // Library attachment id -> the asset id valid in the conversation this
+  // composition will be sent in. A forward's entry is the clone's id.
+  const assetIdByAttachmentRef = useRef<Record<string, string>>({});
 
   const reset = useCallback(() => {
     conversationIdRef.current = null;
     requestIdRef.current = null;
+    draftIdRef.current = null;
+    draftRevisionRef.current = null;
+    sendRequestIdRef.current = null;
     attemptRef.current = null;
     isAttemptUncertainRef.current = false;
+    assetIdByAttachmentRef.current = {};
     setEnvelope({ kind: 'ready', value: null });
     setSendState({ kind: 'idle' });
     setDraftSaveState({ kind: 'idle' });
   }, []);
 
-  const buildInput = useCallback(
-    (
-      target: HermesMailboxRuntimeScope,
-      from: string,
-      kind: HermesMailboxComposeKind,
-      fields: { to?: string[]; cc?: string[]; text: string },
-      clientRequestId: string | null,
-    ): HermesMailboxRuntimeComposeInput => ({
-      folder: target.folder,
-      uid: target.uid,
-      uidValidity: target.uidValidity,
-      mode: HERMES_MAILBOX_RUNTIME_COMPOSE_MODES[kind],
-      from,
-      ...(fields.to === undefined ? {} : { to: fields.to }),
-      ...(fields.cc === undefined ? {} : { cc: fields.cc }),
-      text: fields.text,
-      ...(conversationIdRef.current === null
-        ? {}
-        : { conversationId: conversationIdRef.current }),
-      ...(clientRequestId === null ? {} : { clientRequestId }),
-    }),
+  const senderOf = useCallback(
+    (address: string | null) => {
+      const parsed = parseHermesMailboxAddress(address);
+
+      return {
+        address:
+          parsed ?? ({ display: null, email: null, raw: address ?? '' } as HermesMailboxAddress),
+        authority: identity.readAuthority(address),
+      };
+    },
+    [identity],
+  );
+
+  const attachmentIdsOf = useCallback(
+    (attachments: HermesMailboxAttachment[]): string[] =>
+      attachments
+        .map((attachment) => assetIdByAttachmentRef.current[attachment.id])
+        .filter((assetId): assetId is string => assetId !== undefined),
     [],
+  );
+
+  // One mutation, read defensively, with no cache in the way.
+  const mutate = useCallback(
+    async (mutation: DocumentNode, input: unknown) => {
+      const { data } = await client.mutate<Record<string, unknown>>({
+        mutation,
+        variables: { input },
+        fetchPolicy: 'no-cache',
+      });
+
+      return data;
+    },
+    [client],
+  );
+
+  // Carry a forwarded thread's files into the forward's own conversation.
+  //
+  // Explicit, one file at a time, and only the ids the clone answered with are
+  // kept: the send never reuses a source thread's assets.
+  const cloneForwardAttachments = useCallback(
+    async (
+      source: HermesMailboxRuntimeMessage,
+      targetConversationId: string,
+    ): Promise<HermesMailboxAttachment[]> => {
+      const result: HermesMailboxAttachment[] = [];
+
+      for (const [index, attachment] of source.attachments.entries()) {
+        if (
+          attachment.state !== 'READY' ||
+          attachment.assetId === null ||
+          source.conversationId === null
+        ) {
+          result.push(
+            toHermesMailboxAttachment(attachment, {
+              index,
+              targetAssetId: null,
+            }),
+          );
+
+          continue;
+        }
+
+        let targetAssetId: string | null = null;
+
+        try {
+          const data = await mutate(HERMES_MAIL_CLONE_ATTACHMENT_V4, {
+            sourceConversationId: source.conversationId,
+            sourceAssetId: attachment.assetId,
+            targetConversationId,
+          });
+
+          const read = readHermesMailboxRuntimeClonedAsset(
+            data?.hermesMailCloneAttachmentV4,
+          );
+
+          targetAssetId = read.kind === 'read' ? read.value.assetId : null;
+        } catch {
+          // A file that could not be cloned is not carried. It stays visible
+          // in the strip as a file that cannot be served, which is better than
+          // a forward that quietly leaves without it.
+          targetAssetId = null;
+        }
+
+        const row = toHermesMailboxAttachment(attachment, {
+          index,
+          targetAssetId,
+        });
+
+        if (targetAssetId !== null) {
+          assetIdByAttachmentRef.current[row.id] = targetAssetId;
+        }
+
+        result.push(row);
+      }
+
+      return result;
+    },
+    [mutate],
   );
 
   const planAnswer = useCallback(
     (kind: HermesMailboxComposeKind) => {
       if (scope === null || identity.identity.kind === 'unknown') {
-        // Without a scope there is nothing to answer, and without the
-        // mailbox's own address there is no authorised sender to plan with.
-        // Either way the editor stays closed rather than opening on locally
-        // guessed recipients.
+        // Without a scope there is nothing to answer, and without a resolved
+        // mailbox there is no authorised sender. Either way the editor stays
+        // closed rather than opening on locally guessed recipients.
         setEnvelope({ kind: 'unreadable', problem: 'missing', message: null });
 
         return;
@@ -158,8 +295,12 @@ export const useHermesMailboxRuntimeComposer = ({
       const from = identity.identity.mailboxAddress;
 
       conversationIdRef.current = null;
+      draftIdRef.current = null;
+      draftRevisionRef.current = null;
+      sendRequestIdRef.current = null;
       attemptRef.current = null;
       isAttemptUncertainRef.current = false;
+      assetIdByAttachmentRef.current = {};
       // A forward reserves its draft conversation from this id, so it is
       // minted here and kept for the send that may follow.
       requestIdRef.current = kind === 'forward' ? v4() : null;
@@ -167,152 +308,276 @@ export const useHermesMailboxRuntimeComposer = ({
       setDraftSaveState({ kind: 'idle' });
       setEnvelope({ kind: 'loading' });
 
-      const input = buildInput(scope, from, kind, { text: '' }, requestIdRef.current);
-
-      planMutation({ variables: { input } })
-        .then(({ data }) => {
-          const read = readHermesMailboxRuntimePlan(data?.hermesMailPlanV4);
-
-          if (read.kind === 'notConfigured') {
-            setEnvelope({ kind: 'notConfigured' });
-
-            return;
-          }
-
-          if (read.kind === 'unreadable') {
-            setEnvelope({
-              kind: 'unreadable',
-              problem: read.problem,
-              message: null,
-            });
-
-            return;
-          }
-
-          conversationIdRef.current = read.value.conversationId;
-
-          const senderAddress = parseHermesMailboxAddress(read.value.from);
-
-          setEnvelope({
-            kind: 'ready',
-            value: {
-              kind,
-              threadId: scope.uid,
-              sender: {
-                address: senderAddress ?? {
-                  display: null,
-                  email: null,
-                  raw: read.value.from ?? '',
-                },
-                // The server accepted this sender, and the local answer says
-                // which of the two authorities it is. A shared domain is never
-                // one of them.
-                authority: identity.readAuthority(read.value.from),
-              },
-              to: read.value.to
-                .map((address) => parseHermesMailboxAddress(address))
-                .filter(
-                  (address): address is HermesMailboxAddress =>
-                    address !== null,
-                ),
-              cc: read.value.cc
-                .map((address) => parseHermesMailboxAddress(address))
-                .filter(
-                  (address): address is HermesMailboxAddress =>
-                    address !== null,
-                ),
-              subject: read.value.subject,
-              body: read.value.text,
-              inReplyTo: read.value.inReplyTo,
-              references: read.value.references,
-              // The planning payload publishes no attachment list, so none is
-              // claimed. A forward's files are reserved server-side and are
-              // not offered here.
-              attachments: [],
-            },
-          });
-        })
-        .catch((error: unknown) => {
-          const failure = readHermesMailboxRuntimeFailure(error);
-
-          setEnvelope(
-            failure.kind === 'notConfigured'
-              ? { kind: 'notConfigured' }
-              : failure.kind === 'denied'
-                ? { kind: 'denied', message: failure.message }
-                : failure.kind === 'expired'
-                  ? { kind: 'pageExpired', message: failure.message }
-                  : {
-                      kind: 'unreadable',
-                      problem: 'missing',
-                      message: failure.message,
-                    },
-          );
+      const run = async () => {
+        const data = await mutate(HERMES_MAIL_PLAN_V4, {
+          folder: scope.folder,
+          uid: scope.uid,
+          uidValidity: scope.uidValidity,
+          mode: HERMES_MAILBOX_RUNTIME_COMPOSE_MODES[kind],
+          from,
+          text: '',
+          ...(requestIdRef.current === null
+            ? {}
+            : { clientRequestId: requestIdRef.current }),
         });
+
+        const read = readHermesMailboxRuntimePlan(data?.hermesMailPlanV4);
+
+        if (read.kind === 'notConfigured') {
+          setEnvelope({ kind: 'notConfigured' });
+
+          return;
+        }
+
+        if (read.kind === 'unreadable') {
+          setEnvelope({
+            kind: 'unreadable',
+            problem: read.problem,
+            message: null,
+          });
+
+          return;
+        }
+
+        conversationIdRef.current = read.value.conversationId;
+
+        const attachments =
+          kind === 'forward' &&
+          message !== null &&
+          read.value.conversationId !== null
+            ? await cloneForwardAttachments(message, read.value.conversationId)
+            : [];
+
+        setEnvelope({
+          kind: 'ready',
+          value: {
+            kind,
+            threadId: scope.uid,
+            // The server accepted this sender; the local answer says which
+            // authority it is. A shared domain is never one of them.
+            sender: senderOf(read.value.from),
+            to: read.value.to
+              .map((address) => parseHermesMailboxAddress(address))
+              .filter(
+                (address): address is HermesMailboxAddress => address !== null,
+              ),
+            cc: read.value.cc
+              .map((address) => parseHermesMailboxAddress(address))
+              .filter(
+                (address): address is HermesMailboxAddress => address !== null,
+              ),
+            subject: read.value.subject,
+            body: read.value.text,
+            inReplyTo: read.value.inReplyTo,
+            references: read.value.references,
+            attachments,
+          },
+        });
+      };
+
+      run().catch((error: unknown) => {
+        const failure = readHermesMailboxRuntimeFailure(error);
+
+        setEnvelope(
+          failure.kind === 'notConfigured'
+            ? { kind: 'notConfigured' }
+            : failure.kind === 'denied'
+              ? { kind: 'denied', message: failure.message }
+              : failure.kind === 'expired'
+                ? { kind: 'pageExpired', message: failure.message }
+                : {
+                    kind: 'unreadable',
+                    problem: 'missing',
+                    message: failure.message,
+                  },
+        );
+      });
     },
-    [buildInput, identity, planMutation, scope],
+    [
+      cloneForwardAttachments,
+      identity,
+      message,
+      mutate,
+      scope,
+      senderOf,
+    ],
+  );
+
+  // A message that answers nothing.
+  //
+  // No server call: there is no original to plan from, so the editor opens on
+  // an empty envelope whose only server-sourced value is the sender. The
+  // stable draft id is minted here and is what the first save carries.
+  const composeNew = useCallback(() => {
+    if (identity.identity.kind === 'unknown') {
+      setEnvelope({ kind: 'unreadable', problem: 'missing', message: null });
+
+      return;
+    }
+
+    const draftId = v4();
+
+    conversationIdRef.current = null;
+    requestIdRef.current = null;
+    draftIdRef.current = draftId;
+    draftRevisionRef.current = null;
+    sendRequestIdRef.current = null;
+    attemptRef.current = null;
+    isAttemptUncertainRef.current = false;
+    assetIdByAttachmentRef.current = {};
+    setSendState({ kind: 'idle' });
+    setDraftSaveState({ kind: 'idle' });
+    setEnvelope({
+      kind: 'ready',
+      value: {
+        kind: 'new',
+        // The draft's own identity stands in for a thread it does not have.
+        threadId: draftId,
+        sender: senderOf(identity.identity.mailboxAddress),
+        to: [],
+        cc: [],
+        subject: '',
+        body: '',
+        inReplyTo: null,
+        references: [],
+        attachments: [],
+      },
+    });
+  }, [identity, senderOf]);
+
+  // Pick a saved draft back up.
+  //
+  // The recipients and the text come from the server's own read of the native
+  // draft, not from a local copy, and the stable id and opaque revision are
+  // restored as they were handed over.
+  const resumeDraft = useCallback(
+    (draftId: string) => {
+      const record = savedDraft;
+
+      // Resuming is offered only on a draft this session wrote: nothing
+      // publishes draft identities, so a draft from another session cannot be
+      // picked up and the screen does not pretend otherwise.
+      if (
+        identity.identity.kind === 'unknown' ||
+        message === null ||
+        record === null ||
+        record.draftId !== draftId
+      ) {
+        setEnvelope({ kind: 'unreadable', problem: 'missing', message: null });
+
+        return;
+      }
+
+      conversationIdRef.current = record.conversationId;
+      requestIdRef.current = null;
+      draftIdRef.current = draftId;
+      draftRevisionRef.current = record.draftRevision;
+      sendRequestIdRef.current = null;
+      attemptRef.current = null;
+      isAttemptUncertainRef.current = false;
+      assetIdByAttachmentRef.current = {};
+
+      const attachments = message.attachments.map((attachment, index) => {
+        const row = toHermesMailboxAttachment(attachment, {
+          index,
+          // A draft's own parts are already scoped to the draft's
+          // conversation, so each one's asset id is its target id.
+          targetAssetId:
+            message.conversationId !== null ? attachment.assetId : null,
+        });
+
+        if (attachment.assetId !== null && message.conversationId !== null) {
+          assetIdByAttachmentRef.current[row.id] = attachment.assetId;
+        }
+
+        return row;
+      });
+
+      setSendState({ kind: 'idle' });
+      setDraftSaveState({ kind: 'idle' });
+      setEnvelope({
+        kind: 'ready',
+        value: {
+          kind: 'new',
+          threadId: draftId,
+          sender: senderOf(identity.identity.mailboxAddress),
+          to: message.to,
+          cc: message.cc,
+          subject: message.subject ?? '',
+          body: message.text ?? '',
+          inReplyTo: null,
+          references: [],
+          attachments,
+        },
+      });
+    },
+    [identity, message, savedDraft, senderOf],
+  );
+
+  const applySendOutcome = useCallback(
+    (data: Record<string, unknown> | null | undefined, field: string) => {
+      const read = readHermesMailboxRuntimeSendOutcome(data?.[field]);
+
+      if (read.kind === 'notConfigured') {
+        isAttemptUncertainRef.current = false;
+        setSendState({ kind: 'notConfigured' });
+
+        return;
+      }
+
+      if (read.kind === 'unreadable') {
+        // The request did leave and the answer could not be read, which is an
+        // unknown outcome: the attempt and its id are kept so a person can
+        // replay the very same one.
+        isAttemptUncertainRef.current = true;
+        setSendState({ kind: 'failed', message: 'SEND_OUTCOME_UNCONFIRMED' });
+
+        return;
+      }
+
+      if (read.value.status === 'ACCEPTED') {
+        isAttemptUncertainRef.current = false;
+        // A server receipt, never a delivery. The Sent copy and the draft's
+        // disposition are separate facts and are not reported as part of it.
+        setSendState({ kind: 'accepted' });
+
+        return;
+      }
+
+      if (
+        read.value.status === 'FAILED' &&
+        read.value.errorCode === 'NOT_CONFIGURED'
+      ) {
+        isAttemptUncertainRef.current = false;
+        setSendState({ kind: 'notConfigured' });
+
+        return;
+      }
+
+      // FAILED is a definitive refusal, so a corrected composition may legally
+      // carry a new id. Anything else — UNCONFIRMED included — is uncertain
+      // and keeps the reservation.
+      isAttemptUncertainRef.current = read.value.status !== 'FAILED';
+      setSendState({
+        kind: 'failed',
+        message: read.value.errorCode ?? read.value.status,
+      });
+    },
+    [],
   );
 
   const runSend = useCallback(
-    (input: HermesMailboxRuntimeComposeInput) => {
-      attemptRef.current = input;
+    (attempt: HermesMailboxRuntimeAttempt) => {
+      attemptRef.current = attempt;
       setSendState({ kind: 'requested' });
 
-      sendMutation({ variables: { input } })
-        .then(({ data }) => {
-          const read = readHermesMailboxRuntimeSendOutcome(
-            data?.hermesMailSendV4,
-          );
+      const mutation =
+        attempt.kind === 'new' ? HERMES_MAIL_SEND_NEW_V4 : HERMES_MAIL_SEND_V4;
+      const field =
+        attempt.kind === 'new' ? 'hermesMailSendNewV4' : 'hermesMailSendV4';
 
-          if (read.kind === 'notConfigured') {
-            isAttemptUncertainRef.current = false;
-            setSendState({ kind: 'notConfigured' });
-
-            return;
-          }
-
-          if (read.kind === 'unreadable') {
-            // The request did leave and the server's answer could not be read,
-            // which is an unknown outcome: the attempt and its id are kept so
-            // a person can replay the very same one.
-            isAttemptUncertainRef.current = true;
-            setSendState({
-              kind: 'failed',
-              message: 'SEND_OUTCOME_UNCONFIRMED',
-            });
-
-            return;
-          }
-
-          if (read.value.status === 'ACCEPTED') {
-            isAttemptUncertainRef.current = false;
-            // A server receipt, never a delivery. The library's wording is
-            // careful about that, and nothing here adds to it; the Sent-copy
-            // state is deliberately not reported as part of acceptance.
-            setSendState({ kind: 'accepted' });
-
-            return;
-          }
-
-          if (
-            read.value.status === 'FAILED' &&
-            read.value.errorCode === 'NOT_CONFIGURED'
-          ) {
-            isAttemptUncertainRef.current = false;
-            setSendState({ kind: 'notConfigured' });
-
-            return;
-          }
-
-          // FAILED is a definitive refusal, so a corrected composition may
-          // legally carry a new id. Anything else — UNCONFIRMED included — is
-          // uncertain and keeps the reservation.
-          isAttemptUncertainRef.current = read.value.status !== 'FAILED';
-          setSendState({
-            kind: 'failed',
-            message: read.value.errorCode ?? read.value.status,
-          });
-        })
+      mutate(mutation, attempt.input)
+        .then((data) => applySendOutcome(data, field))
         .catch((error: unknown) => {
           const failure = readHermesMailboxRuntimeFailure(error);
 
@@ -323,13 +588,16 @@ export const useHermesMailboxRuntimeComposer = ({
             return;
           }
 
-          // A refused input reserved nothing, so the next attempt of a reply
-          // may mint a fresh id. A forward keeps its id regardless: the server
-          // ties its draft conversation to it.
+          // A refused input reserved nothing, so the next attempt may mint a
+          // fresh id. A forward keeps its id regardless: the server ties its
+          // draft conversation to it.
           if (failure.kind === 'rejectedInput') {
             isAttemptUncertainRef.current = false;
 
-            if (input.mode !== 'FORWARD') {
+            if (attempt.kind === 'new') {
+              sendRequestIdRef.current = null;
+              attemptRef.current = null;
+            } else if (attempt.input.mode !== 'FORWARD') {
               requestIdRef.current = null;
               attemptRef.current = null;
             }
@@ -345,12 +613,12 @@ export const useHermesMailboxRuntimeComposer = ({
           setSendState({ kind: 'failed', message: failure.message });
         });
     },
-    [sendMutation],
+    [applySendOutcome, mutate],
   );
 
   const requestSend = useCallback(
     (composition: HermesMailboxComposition) => {
-      if (scope === null || identity.identity.kind === 'unknown') {
+      if (identity.identity.kind === 'unknown') {
         return;
       }
 
@@ -363,47 +631,190 @@ export const useHermesMailboxRuntimeComposer = ({
         return;
       }
 
+      const from = identity.identity.mailboxAddress;
+      const attachmentIds = attachmentIdsOf(composition.attachments);
+
+      if (composition.kind === 'new') {
+        const draftId = draftIdRef.current;
+
+        if (draftId === null) {
+          return;
+        }
+
+        // Two distinct identifiers: the draft's stable one, and this one
+        // immutable send attempt.
+        const clientRequestId = sendRequestIdRef.current ?? v4();
+
+        sendRequestIdRef.current = clientRequestId;
+
+        runSend({
+          kind: 'new',
+          input: {
+            from,
+            to: composition.to,
+            cc: composition.cc,
+            subject: composition.subject,
+            text: composition.body,
+            draftId,
+            clientRequestId,
+            ...(conversationIdRef.current === null
+              ? {}
+              : { conversationId: conversationIdRef.current }),
+            ...(attachmentIds.length === 0 ? {} : { attachmentIds }),
+          },
+        });
+
+        return;
+      }
+
+      if (scope === null) {
+        return;
+      }
+
       const clientRequestId = requestIdRef.current ?? v4();
 
       requestIdRef.current = clientRequestId;
 
-      runSend(
-        buildInput(
-          scope,
-          identity.identity.mailboxAddress,
-          composition.kind,
-          {
-            to: composition.to,
-            cc: composition.cc,
-            text: composition.body,
-          },
+      runSend({
+        kind: 'compose',
+        input: {
+          folder: scope.folder,
+          uid: scope.uid,
+          uidValidity: scope.uidValidity,
+          mode: HERMES_MAILBOX_RUNTIME_COMPOSE_MODES[composition.kind],
+          from,
+          to: composition.to,
+          cc: composition.cc,
+          text: composition.body,
           clientRequestId,
-        ),
-      );
+          ...(conversationIdRef.current === null
+            ? {}
+            : { conversationId: conversationIdRef.current }),
+          ...(attachmentIds.length === 0 ? {} : { attachmentIds }),
+        },
+      });
     },
-    [buildInput, identity, runSend, scope],
+    [attachmentIdsOf, identity, runSend, scope],
   );
 
   const saveDraft = useCallback(
     (composition: HermesMailboxComposition) => {
-      if (scope === null || identity.identity.kind === 'unknown') {
+      if (identity.identity.kind === 'unknown') {
         return;
       }
 
+      const from = identity.identity.mailboxAddress;
+
       setDraftSaveState({ kind: 'saving' });
 
-      // Saving emits nothing. A forward passes the id its planning reserved,
-      // because the draft belongs to that same canonical conversation.
-      const input = buildInput(
-        scope,
-        identity.identity.mailboxAddress,
-        composition.kind,
-        { to: composition.to, cc: composition.cc, text: composition.body },
-        composition.kind === 'forward' ? requestIdRef.current : null,
-      );
+      // A new message's draft goes through the draft operation, which carries
+      // the stable identity, the opaque revision and the scoped attachments.
+      if (composition.kind === 'new') {
+        const draftId = draftIdRef.current;
 
-      saveDraftMutation({ variables: { input } })
-        .then(({ data }) => {
+        if (draftId === null) {
+          setDraftSaveState({ kind: 'failed', message: null });
+
+          return;
+        }
+
+        const attachmentIds = attachmentIdsOf(composition.attachments);
+
+        mutate(HERMES_MAIL_CREATE_DRAFT_V4, {
+          from,
+          to: composition.to,
+          cc: composition.cc,
+          subject: composition.subject,
+          text: composition.body,
+          draftId,
+          // Handed straight back, unparsed. Its only job is the
+          // compare-and-swap the server performs against the native content.
+          ...(draftRevisionRef.current === null
+            ? {}
+            : { draftRevision: draftRevisionRef.current }),
+          ...(conversationIdRef.current === null
+            ? {}
+            : { conversationId: conversationIdRef.current }),
+          ...(attachmentIds.length === 0 ? {} : { attachmentIds }),
+        })
+          .then((data) => {
+            const read = readHermesMailboxRuntimeNewDraftOutcome(
+              data?.hermesMailCreateDraftV4,
+            );
+
+            if (read.kind === 'notConfigured') {
+              setDraftSaveState({ kind: 'notConfigured' });
+
+              return;
+            }
+
+            if (read.kind === 'unreadable' || read.value.state !== 'SAVED') {
+              setDraftSaveState({
+                kind: 'failed',
+                message: read.kind === 'read' ? read.value.state : null,
+              });
+
+              return;
+            }
+
+            // Kept verbatim for the next save and for a resume.
+            draftRevisionRef.current = read.value.draftRevision;
+            conversationIdRef.current =
+              read.value.conversationId ?? conversationIdRef.current;
+
+            onSavedDraft({
+              draftId: read.value.draftId ?? draftId,
+              draftRevision: read.value.draftRevision,
+              conversationId: conversationIdRef.current,
+              folder: read.value.folder,
+              uid: read.value.uid,
+              uidValidity: read.value.uidValidity,
+              savedAt: null,
+            });
+            setDraftSaveState({
+              kind: 'saved',
+              draftId: read.value.draftId ?? draftId,
+              savedAt: null,
+            });
+          })
+          .catch((error: unknown) => {
+            const failure = readHermesMailboxRuntimeFailure(error);
+
+            setDraftSaveState(
+              failure.kind === 'notConfigured'
+                ? { kind: 'notConfigured' }
+                : { kind: 'failed', message: failure.message },
+            );
+          });
+
+        return;
+      }
+
+      if (scope === null) {
+        setDraftSaveState({ kind: 'failed', message: null });
+
+        return;
+      }
+
+      // The older reply/forward draft mutation. It publishes no stable draft
+      // identity and refuses attachment ids, and neither is invented here.
+      mutate(HERMES_MAIL_SAVE_DRAFT_V4, {
+        folder: scope.folder,
+        uid: scope.uid,
+        uidValidity: scope.uidValidity,
+        mode: HERMES_MAILBOX_RUNTIME_COMPOSE_MODES[composition.kind],
+        from,
+        to: composition.to,
+        cc: composition.cc,
+        text: composition.body,
+        ...(composition.kind === 'forward' && requestIdRef.current !== null
+          ? { clientRequestId: requestIdRef.current }
+          : {}),
+        ...(conversationIdRef.current === null
+          ? {}
+          : { conversationId: conversationIdRef.current }),
+      })
+        .then((data) => {
           const read = readHermesMailboxRuntimeDraftOutcome(
             data?.hermesMailSaveDraftV4,
           );
@@ -423,9 +834,6 @@ export const useHermesMailboxRuntimeComposer = ({
             return;
           }
 
-          // This mutation publishes no stable draft identity and no saved-at
-          // instant, so neither is invented. The stable identity belongs to
-          // the newer draft operations, which this container does not reach.
           setDraftSaveState({ kind: 'saved', draftId: null, savedAt: null });
         })
         .catch((error: unknown) => {
@@ -438,7 +846,7 @@ export const useHermesMailboxRuntimeComposer = ({
           );
         });
     },
-    [buildInput, identity, saveDraftMutation, scope],
+    [attachmentIdsOf, identity, mutate, onSavedDraft, scope],
   );
 
   return {
@@ -446,8 +854,11 @@ export const useHermesMailboxRuntimeComposer = ({
     sendState,
     draftSaveState,
     planAnswer,
+    composeNew,
+    resumeDraft,
     closeComposer: reset,
     requestSend,
     saveDraft,
+    savedDraft,
   };
 };

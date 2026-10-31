@@ -13,6 +13,19 @@ export const HERMES_MAILBOX_COMPOSE_KINDS = [
 export type HermesMailboxComposeKind =
   (typeof HERMES_MAILBOX_COMPOSE_KINDS)[number];
 
+// A message that answers nothing.
+//
+// It is kept out of HERMES_MAILBOX_COMPOSE_KINDS on purpose: those three are
+// what the planning operation accepts, and a new message has no original to
+// plan from. It is composed, saved and sent through the draft operations
+// instead, and the editor is opened by its own action rather than by asking
+// the server to prepare an answer.
+export const HERMES_MAILBOX_NEW_KIND = 'new';
+
+export type HermesMailboxCompositionKind =
+  | HermesMailboxComposeKind
+  | typeof HERMES_MAILBOX_NEW_KIND;
+
 // Whether this mailbox may send as a given address.
 //
 // The contract is strict on purpose: the sender must be the mailbox's own
@@ -46,7 +59,7 @@ export type HermesMailboxSender = {
 // The editor shows it, lets a person change it afterwards, and never
 // substitutes a value of its own.
 export type HermesMailboxEnvelope = {
-  kind: HermesMailboxComposeKind;
+  kind: HermesMailboxCompositionKind;
   threadId: string;
   sender: HermesMailboxSender;
   to: HermesMailboxAddress[];
@@ -71,7 +84,7 @@ export type HermesMailboxEnvelope = {
 // be sent is exactly what the contract moved this computation server-side to
 // avoid.
 export type HermesMailboxComposition = {
-  kind: HermesMailboxComposeKind;
+  kind: HermesMailboxCompositionKind;
   threadId: string;
   to: string[];
   cc: string[];

@@ -80,19 +80,24 @@ type HermesMailboxAttachmentStripProps = {
   attachments: HermesMailboxAttachment[];
   // Present only in the forward editor, where taking a file out is meaningful.
   onRemoveAttachment?: (attachmentId: string) => void;
+  // Performs the private read. Absent means no download is offered at all,
+  // whatever an attachment's availability says: this module never fetches.
+  onDownloadAttachment?: (attachmentId: string) => void;
   // Names a human took out, so the removal stays visible afterwards.
   removedNames?: string[];
 };
 
 // The attachment strip, used under a message and inside the editor.
 //
-// It names files and never fetches one. The download control is present and
-// disabled with its reason on screen: a file's bytes need a private import
-// that is not built yet, and metadata is not an enabled action.
+// It names files and never fetches one. A file whose bytes the server has
+// imported privately gets an enabled control that asks the parent to read
+// them; every other state keeps the control disabled with its reason on
+// screen, because metadata is not an enabled action.
 export const HermesMailboxAttachmentStrip = ({
   title,
   attachments,
   onRemoveAttachment,
+  onDownloadAttachment,
   removedNames = [],
 }: HermesMailboxAttachmentStripProps) => {
   const { t, i18n } = useLingui();
@@ -123,6 +128,12 @@ export const HermesMailboxAttachmentStrip = ({
   const describeUnavailability = (
     attachment: HermesMailboxAttachment,
   ): string => {
+    if (attachment.availability.kind === 'available') {
+      // Reached only when no parent supplied a reader, which is itself the
+      // reason the control stays disabled.
+      return t`This file is imported, but no reader is available on this screen.`;
+    }
+
     if (attachment.availability.kind === 'privateImportRequired') {
       return t`Not downloadable yet: this file still has to be imported privately.`;
     }
@@ -146,7 +157,14 @@ export const HermesMailboxAttachmentStrip = ({
             const name = isNonEmptyString(attachment.name)
               ? attachment.name
               : t`Unnamed file`;
-            const reason = describeUnavailability(attachment);
+            // Both conditions, because an imported file with nobody to read it
+            // is still not downloadable here.
+            const isDownloadable =
+              attachment.availability.kind === 'available' &&
+              onDownloadAttachment !== undefined;
+            const reason = isDownloadable
+              ? null
+              : describeUnavailability(attachment);
 
             return (
               <StyledRow key={attachment.id}>
@@ -157,19 +175,33 @@ export const HermesMailboxAttachmentStrip = ({
                   <StyledFileName>{name}</StyledFileName>
                   <StyledFileMeta>{describeMeta(attachment)}</StyledFileMeta>
                   {/* The reason is on screen, not only in a tooltip. */}
-                  <StyledFileMeta>{reason}</StyledFileMeta>
+                  {reason !== null && (
+                    <StyledFileMeta>{reason}</StyledFileMeta>
+                  )}
                 </StyledFile>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  aria-describedby={undefined}
-                  aria-label={t`Download ${name} — unavailable: ${reason}`}
-                >
-                  {t`Download`}
-                </Button>
+                {isDownloadable ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDownloadAttachment?.(attachment.id)}
+                    aria-label={t`Download ${name}`}
+                  >
+                    {t`Download`}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled
+                    aria-describedby={undefined}
+                    aria-label={t`Download ${name} — unavailable: ${reason}`}
+                  >
+                    {t`Download`}
+                  </Button>
+                )}
 
                 {onRemoveAttachment !== undefined && (
                   <Button

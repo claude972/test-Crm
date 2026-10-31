@@ -1,7 +1,8 @@
 import { styled } from '@linaria/react';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
-import { IconPaperclip } from 'kovaa-lab-ui/icon';
+import { IconPaperclip, IconPencil } from 'kovaa-lab-ui/icon';
+import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesMailboxInstantLabel } from '@/hermes-mailbox-ui/components/HermesMailboxInstantLabel';
@@ -26,6 +27,24 @@ const StyledTitle = styled.h2`
   letter-spacing: 0.04em;
   margin: 0;
   text-transform: uppercase;
+`;
+
+// The folder name and the one action that does not belong to a row, on one
+// line. Left-aligned with the list, not centred over it.
+const StyledHeader = styled.div`
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${themeCssVariables.spacing[2]};
+  justify-content: space-between;
+  min-width: 0;
+`;
+
+const StyledMore = styled.div`
+  display: grid;
+  gap: ${themeCssVariables.spacing[1]};
+  justify-items: start;
+  min-width: 0;
 `;
 
 const StyledList = styled.ul`
@@ -159,6 +178,14 @@ type HermesMailboxThreadListPanelProps = {
   onSelectThread: (threadId: string) => void;
   // Offered on an expired page of results.
   onReloadThreads?: () => void;
+  // Asks for the next page. Absent means the parent has no further page to
+  // ask for, and no control is shown rather than one that does nothing.
+  onLoadMoreThreads?: () => void;
+  isLoadingMoreThreads?: boolean;
+  // Opens an editor for a message that answers nothing. Absent means the
+  // parent cannot compose one — no mailbox identity, or no draft operation —
+  // and the action is left out.
+  onComposeNew?: () => void;
   // Already translated: the name of the folder being listed.
   folderLabel: string | null;
 };
@@ -171,6 +198,9 @@ export const HermesMailboxThreadListPanel = ({
   selectedThreadId,
   onSelectThread,
   onReloadThreads,
+  onLoadMoreThreads,
+  isLoadingMoreThreads = false,
+  onComposeNew,
   folderLabel,
 }: HermesMailboxThreadListPanelProps) => {
   const { t } = useLingui();
@@ -208,9 +238,23 @@ export const HermesMailboxThreadListPanel = ({
 
   return (
     <StyledPanel aria-label={t`Threads`}>
-      <StyledTitle>
-        {isNonEmptyString(folderLabel) ? folderLabel : t`Threads`}
-      </StyledTitle>
+      <StyledHeader>
+        <StyledTitle>
+          {isNonEmptyString(folderLabel) ? folderLabel : t`Threads`}
+        </StyledTitle>
+
+        {onComposeNew !== undefined && (
+          <Button
+            type="button"
+            variant="solid"
+            size="sm"
+            startIcon={<IconPencil />}
+            onClick={onComposeNew}
+          >
+            {t`New message`}
+          </Button>
+        )}
+      </StyledHeader>
 
       <HermesMailboxLoadNote
         unavailableHeadline={t`Threads unavailable.`}
@@ -285,6 +329,28 @@ export const HermesMailboxThreadListPanel = ({
             })}
           </StyledList>
         ))}
+
+      {/* A page the parent can still ask for. The list says what it holds and
+          never implies it holds the whole folder. */}
+      {threads.kind === 'ready' && onLoadMoreThreads !== undefined && (
+        <StyledMore>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            loading={isLoadingMoreThreads}
+            disabled={isLoadingMoreThreads}
+            onClick={onLoadMoreThreads}
+          >
+            {t`Load more`}
+          </Button>
+          <HermesMailboxNote>
+            <Trans>
+              This is the newest page of this folder, not all of it.
+            </Trans>
+          </HermesMailboxNote>
+        </StyledMore>
+      )}
     </StyledPanel>
   );
 };

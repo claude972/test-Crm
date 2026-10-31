@@ -31,8 +31,10 @@ export {
 } from '@/hermes-mailbox-ui/types/HermesMailboxBody';
 export {
   HERMES_MAILBOX_COMPOSE_KINDS,
+  HERMES_MAILBOX_NEW_KIND,
   type HermesMailboxComposeKind,
   type HermesMailboxComposition,
+  type HermesMailboxCompositionKind,
   type HermesMailboxDraftSaveState,
   type HermesMailboxEnvelope,
   type HermesMailboxSendAvailability,

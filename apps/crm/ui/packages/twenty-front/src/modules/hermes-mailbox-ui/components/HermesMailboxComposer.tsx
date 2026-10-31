@@ -9,7 +9,7 @@ import { HermesMailboxAttachmentStrip } from '@/hermes-mailbox-ui/components/Her
 import { HermesMailboxDiagnostic } from '@/hermes-mailbox-ui/components/HermesMailboxDiagnostic';
 import { HermesMailboxNote } from '@/hermes-mailbox-ui/components/HermesMailboxNote';
 import {
-  type HermesMailboxComposeKind,
+  type HermesMailboxCompositionKind,
   type HermesMailboxComposition,
   type HermesMailboxDraftSaveState,
   type HermesMailboxEnvelope,
@@ -175,10 +175,11 @@ export const HermesMailboxComposer = ({
     [t],
   );
 
-  const titles: Record<HermesMailboxComposeKind, string> = {
+  const titles: Record<HermesMailboxCompositionKind, string> = {
     reply: t`Reply`,
     replyAll: t`Reply to all`,
     forward: t`Forward`,
+    new: t`New message`,
   };
 
   const isSendRequestInFlight = sendState.kind === 'requested';
@@ -213,12 +214,12 @@ export const HermesMailboxComposer = ({
     return t`Refused: this address could not be checked against the mailbox.`;
   };
 
-  // In this slice a saved draft keeps no attachment, so the save hands over a
+  // A new message's draft is saved through the draft operation, which does
+  // carry its scoped attachments. The reply and forward drafts go through the
+  // older mutation, which refuses attachment ids — so the save hands over a
   // composition without them and says so before anybody presses it.
-  const saveComposition: HermesMailboxComposition = {
-    ...composition,
-    attachments: [],
-  };
+  const saveComposition: HermesMailboxComposition =
+    envelope.kind === 'new' ? composition : { ...composition, attachments: [] };
 
   return (
     <StyledEditor
@@ -252,7 +253,12 @@ export const HermesMailboxComposer = ({
       </StyledSenderRow>
 
       <HermesMailboxNote>
-        {envelope.kind === 'forward' ? (
+        {envelope.kind === 'new' ? (
+          <Trans>
+            This message answers nothing, so there is nothing for the server to
+            prepare: the recipients are the ones you type.
+          </Trans>
+        ) : envelope.kind === 'forward' ? (
           <Trans>
             Recipients were prepared by the server. A forward leaves with no
             reply references and no recipient: you choose where it goes.
@@ -310,7 +316,9 @@ export const HermesMailboxComposer = ({
       </Field.Root>
 
       <HermesMailboxAttachmentStrip
-        title={t`Forwarded attachments`}
+        title={
+          envelope.kind === 'new' ? t`Attachments` : t`Forwarded attachments`
+        }
         attachments={attachments}
         onRemoveAttachment={removeAttachment}
         removedNames={removedNames}
@@ -344,7 +352,7 @@ export const HermesMailboxComposer = ({
           </HermesMailboxNote>
         )}
 
-        {attachments.length > 0 && (
+        {attachments.length > 0 && envelope.kind !== 'new' && (
           <HermesMailboxNote>
             <Trans>
               Saving as a draft does not keep attachments in this version.
