@@ -2098,3 +2098,12 @@ Cloud41238719058source3c0f BUILD SUCCESS mais smokeFAILdurantmigrate(exit1). Art
 Revue ingress /private/tmp/kovaalabcrm-staging-ingress-plan-review.md terminée sans bloquant dans plan additif. Macro securite inventoriée lecture seule : seulement HSTS/nosniff/referrer-policy/-Server, pas basic_auth/CSP. Les autres peers du réseau edge pourront joindre serveur3000 : auth native obligatoire, pas preuve d'isolation cryptographique par le seul proxy.
 
 Première préparation distante autorisée faite sur srv2081633 : répertoire NEUF /home/ops/kovaalabcrm-staging et sous-dossiers0700, trois env0600 privés + Compose/override/blocCaddy0600 transférés par SSH vérifié. Aucun ancien fichier écrasé. Validation réelle docker compose config --quiet sur VPS PASS, sans afficher configuration résolue. Aucun conteneur/volume/réseau lancé, aucun Caddy/DNS/service existant modifié. Image non déployée, configuration préparée seulement. Clefs persistantes conservées dans coffre local, jamais Git/artifact/log. DNS reste attendu du propriétaire.
+
+
+### Contrôle upgrade natif — 2026-10-31 21:09 UTC
+
+CI41240923796ca9 FAILUREprécis : artifact13057039212 migrationFailure.command=upgrade:status,category=upgrade-summary,exitCode=0. Cela ne prouve PAS que la base est à jour : l'ancien parser refuse sa sortie, et le statut réel doit être observé.
+
+Auteur0c5eb80e1→root8b204f967234c7a26daf0185009d282cc934b976 poussé : parsing ligne par ligne ANSI/CRLF et fermeture Nest de niveau info bornée après deux lignes statut ; behind/failed/unrecognized/summaryabsent/ERRORrestent refusés. Diagnostic public limité aux compteurs/états enum. Root21testsPASS etdiffrelu ; reviewerbackend_review reprislectureseule0c5. Nouvelle CIIMAGE UNIQUE41242218708 source8b204 enqueued. Pasancienrunrelancé, pasgatesdésactivés niappmodifiée.
+
+DNSA encoreabsent au contrôle du présent point. VPS contient seulement configuration préparée privée et Composevalidé ; aucun conteneur/volume appli/proxy démarré. Aucun lien actif.
