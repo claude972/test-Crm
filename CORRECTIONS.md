@@ -2137,3 +2137,10 @@ ImageIdsha256:638c44a7de8a9be8dd457332e4acfef513eba8eebd53d0c6b0a7fb224e3ebd9c. 
 Image transférée/hashée puis chargée. DockerVPS29 présente l'Id du MANIFEST OCI sha256:e373a70239aaad1db260da98902d7de6344d7a869e0ed9dc4693b23d0d3fb25e, tandis que la preuve CI donne le CONFIGdigest638c44.... Vérification cryptographique DANSarchive : manifest e373 hash exact→config638 hash exact ; RootFSdiff_ids,architecture,User/Entrypoint/Cmd/Env/Labels/WorkingDir chargés correspondent au configCI,revision52f exacte. Preuve privée loaded-provenance.json sur releaseVPS. Pas d'acceptation aveugle d'un Id différent. deployment.env désormais référence repo@manifestimmuable, ancien fichier conservé0600 ; clefs inchangées.
 
 Les services dédiés kovaalabcrm-staging-db-1 etredis-1 démarrés ethealthy, uniquement nouveaux volumes/réseaux propres. Migration stricte migrate-1 démarrée, résultat encore attendu ; serveur/worker pas encore démarrés. Aucun Caddy/DNS/autre service modifié. Pas d'accès public annoncé.
+
+
+### kovaalabcrm démarré en privé sur VPS — 2026-10-31 21:58 UTC
+
+Migration stricte VPS initiale EXIT0, puis rerun même version déclenché par dépendanceCompose EXIT0. Serveur lancéhealthy, worker lancé ; vraie inscription BullMQ campaign-send-queue=1 vérifiée sans données sensibles. PG/Redishealthy,volumesprivéspropres ; aucune boîte/provider/userCRM seedé pour prétendre UI.
+
+Contrôles HTTP PRIVÉS sur127.0.0.1:13000 : healthz200statusok, marker52f exact, client-config sameOrigintrue/multiworkspacefalse, documentdashboard200 HTML. CescontrôlesNEsontPASune recette visuelle,niTLS/publiclogin. ProxyCaddy/DNS inchangés etpasdelienpublicopérationnel. Sauvegarde/restaurationVPS et recette UI restent à faire ; protocolelectureseule /private/tmp/kovaalabcrm-staging-backup-restore-protocol.md prêt. Cloud52f avait déjà prouvé le restart/persistenceisolés, pas encore redémarrage/restaurationsurVPS.
