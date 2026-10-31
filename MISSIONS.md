@@ -812,3 +812,8 @@ agent: codexroot ; status: in_progress. Aprèsauditcatalogue,61messagesactifsdes
 ### CAT-WA-005 — extension exclusive recorder autorisée par root
 
 Codex preview_pwa possède aussi HermesWaVoiceRecorder.tsx et son test existant, dans le même worktree fix/hermes-wa-upload-identity-20261031. Prop optionnelle rétrocompatible onRecordingRequested, appelée uniquement par les handlers Record et Record again ; aucun nouvel effet. Le compositeur invalide l'ancienne identité avant la nouvelle capture, puis onClipReady et upload accepté établissent le nouveau blob. Tester ancien vocal READY → Record again → envoi absent avant nouveau clip ; annulation et fichier/vocal conservés. Root avertit le parent Claude du gel. BotControl/STALE et fixture Opus restent exclus.
+
+
+### CAT-I18N-FALLBACK / root Codex —31octobre17:13UTC
+
+agent: codexroot ; status: in_progress. Fichiers exclusifs utils/i18n/dynamicActivate.ts etson__tests__/dynamicActivate.test.ts(front) : lescataloguesDE/autreslanguesn'ontpaslesnouveauxIDsUIcommis EN/FR, dynamiqueactuellechargeseulecibleetaffichehashes. RootajoutereplidesmessagesENsourcesavantcataloguecible, enpréservanttraductionschoisies/lang/RTL. TestsréelscataloguesDE→FR→DEsanshashnifuiteFR. Aucunhelperpipeline/GUIClaudetouché. Pasnouveauxservices/payloads/permissions. Critèreplusgénéralqueles5labelshelperdéjàprotégésc604, couvreboîtemail/campagnes/botnouveauxmessages.
