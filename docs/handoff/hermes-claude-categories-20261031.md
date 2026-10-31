@@ -93,8 +93,37 @@ Reste ouvert et non corrigé : le contrat IMAP+SMTP (voir ci-dessous).
 | `d13ac13ea` | ne pas enregistrer une traduction d'option renvoyée comme un renommage | **assemblé**, ready_for_review |
 | `6ff4f4667` | traduire au runtime les libellés d'options du modèle standard | **assemblé**, ready_for_review |
 
-**Mise à jour : les étapes sont traduites au runtime, serveur seul, sans codegen.**
-Assemblé à `521f4b4d6`. 139/139 verts sur 24 suites à l'assemblage.
+**RETIRÉ. Décision à prendre par root.** Les étapes **ne sont pas** traduites au
+runtime et CAT-I18N-PIPELINE n'est pas livré. `d13ac13ea` et `6ff4f4667` sont
+annulés par `c3017f3e0`, assemblé à `75c0c286c` ; seul `f64c974c1`, test seul,
+survit. 202/202 verts sur 42 suites après retrait.
+
+| SHA | Rôle |
+|---|---|
+| `3fe667d54` | garde corrigée (portée + appariement) et contre-épreuves sur le sanitizeur public — **conservé dans l'historique exprès**, pour que root ait un SHA relisible |
+| `c3017f3e0` | le retrait |
+
+Les quatre contre-épreuves de root ont tiré et le lot a confirmé les trois premiers
+défauts dans le code avant de corriger. Deux précisions qui comptent :
+
+- **La portée ne pouvait pas être corrigée d'un seul côté.** `isStandardField` était
+  déjà calculé dans la fonction et simplement pas utilisé. Mais garder le seul garde
+  d'écriture aurait créé un nouveau bug : la lecture traduisait les options de
+  *n'importe quel* champ dont le libellé touchait le catalogue, donc les options d'un
+  champ personnalisé auraient été traduites à la lecture puis figées à l'écriture.
+  Les deux côtés doivent bouger ensemble.
+- **Le lot est allé plus loin que l'arbitrage de root, et le parent l'assume.** Root
+  proposait de retirer le garde et de **garder** la traduction à la lecture. Le lot a
+  retiré les deux, au motif que cette combinaison est la pire des trois : garde absent
+  et traduction vive, un administrateur français qui change une couleur dans le modèle
+  de données renvoie le tableau entier — le formulaire est amorcé depuis
+  `fieldMetadataItem.options`, vérifié par le parent — et fige `Présélection` **pour
+  toutes les locales à la fois**, en silence, irréversiblement, sans trace du libellé
+  livré. Des étapes en anglais sont un défaut cosmétique visible sans perte de donnée.
+  Le parent a assemblé le retrait pour que le défaut par défaut soit le moins grave.
+  **Si root tranche autrement, c'est une commande :** `git cherry-pick 6ff4f4667 3fe667d54`.
+
+**État historique conservé pour mémoire :**
 
 Ordre délibéré : le garde d'écriture **précède** la traduction, donc la branche
 n'est jamais à un commit où la traduction expédie sans protection.
