@@ -118,4 +118,110 @@ describe('resolveEffectiveTranslatedFlatEntity', () => {
     );
     expect(translated).not.toBe('Creation date');
   });
+  // The stage names users actually see: a jsonb array the scalar registry never reaches
+  describe('select option labels', () => {
+    type TestOption = {
+      id?: string;
+      value: string;
+      label: string;
+      position?: number;
+      color?: string;
+    };
+
+    const realI18n = () =>
+      setupI18n({ locale: 'fr-FR', messages: { 'fr-FR': frenchMessages } });
+
+    const resolveOptions = (
+      options: readonly TestOption[] | null,
+      i18nInstance: EffectiveEntityI18nContext['i18nInstance'],
+    ): readonly TestOption[] | null =>
+      resolveEffectiveTranslatedFlatEntity({
+        metadataName: 'fieldMetadata',
+        flatEntity: { ...flatFieldMetadata, label: 'Stage', options },
+        i18nContext: buildI18nContext({ i18nInstance }),
+      }).options;
+
+    const resolveOptionList = (
+      options: readonly TestOption[],
+      i18nInstance: EffectiveEntityI18nContext['i18nInstance'],
+    ): readonly TestOption[] => {
+      const resolved = resolveOptions(options, i18nInstance);
+
+      if (resolved === null) {
+        throw new Error('expected the resolver to return select options');
+      }
+
+      return resolved;
+    };
+
+    const standardStageOptions: readonly TestOption[] = [
+      {
+        id: '20202020-8e01-4afd-9c39-d2063097587a',
+        value: 'NEW',
+        label: 'New',
+        position: 0,
+        color: 'red',
+      },
+      {
+        id: '20202020-e685-4671-ac32-26d304dacb6e',
+        value: 'SCREENING',
+        label: 'Screening',
+        position: 1,
+        color: 'purple',
+      },
+      {
+        id: '20202020-696e-4f6b-91bc-f413e9b2f654',
+        value: 'PROPOSAL',
+        label: 'Proposal',
+        position: 3,
+        color: 'turquoise',
+      },
+    ];
+
+    it('translates the standard stage names with the real French catalog', () => {
+      expect(
+        resolveOptionList(standardStageOptions, realI18n()).map(
+          (option) => option.label,
+        ),
+      ).toEqual(['Nouveau', 'Présélection', 'Proposition']);
+    });
+
+    it('leaves the api value, the id, the position and the color untouched', () => {
+      expect(resolveOptionList(standardStageOptions, realI18n())[1]).toEqual({
+        id: '20202020-e685-4671-ac32-26d304dacb6e',
+        value: 'SCREENING',
+        label: 'Présélection',
+        position: 1,
+        color: 'purple',
+      });
+    });
+
+    it('keeps a personalised stage name the catalog does not know', () => {
+      const personalisedStage: TestOption = {
+        id: '20202020-e685-4671-ac32-26d304dacb6e',
+        value: 'SCREENING',
+        label: 'Premier contact',
+        position: 1,
+        color: 'purple',
+      };
+
+      expect(resolveOptionList([personalisedStage], realI18n())).toEqual([
+        personalisedStage,
+      ]);
+    });
+
+    it('serves every locale from the same catalog lookup, not a French branch', () => {
+      const messageId = generateMessageId('Screening', 'fieldMetadata.label');
+
+      expect(
+        resolveOptionList([{ value: 'SCREENING', label: 'Screening' }], {
+          _: (id: string) => `translated:${id}`,
+        }),
+      ).toEqual([{ value: 'SCREENING', label: `translated:${messageId}` }]);
+    });
+
+    it('leaves a field with no options alone', () => {
+      expect(resolveOptions(null, realI18n())).toBeNull();
+    });
+  });
 });
