@@ -30,8 +30,45 @@ ne sont pas encore assemblées.
 |---|---|---|
 | `fbaaf1cda` | monter le panneau de création de boîte dans le centre | assemblé, 32/32 verts |
 | `ee7d6577d` | réunir l'expéditeur de campagne dans le centre | assemblé, 32/32 verts |
-| `9f144a7c3` | retirer l'import mort signalé en revue | poussé, non assemblé |
-| `890dd295d` | enregistrer et vérifier le domaine de campagne natif | poussé, non assemblé, non relu |
+| `9f144a7c3` | retirer l'import mort signalé en revue | **assemblé** |
+| `890dd295d` | enregistrer et vérifier le domaine de campagne natif | **assemblé**, ready_for_review |
+| `070f0c07b` | exiger IMAP et SMTP, comme la liaison centrale l'exige | **assemblé**, ready_for_review |
+
+42/42 verts sur quatre suites à l'assemblage, sept preuves négatives au total.
+
+**Domaine natif, et pourquoi ce n'est pas le flux EMAIL_GROUP.** `createEmailingDomain`
+n'avait **aucun document généré** : il est écrit à la main, selon le précédent du
+dépôt. Le domaine **n'est pas une saisie** : il est dérivé de l'adresse de la boîte
+enregistrée par la fonction native, et le panneau n'offre qu'un bouton. Un champ
+libre serait précisément la façon d'enregistrer un domaine depuis lequel la société
+n'envoie pas ; une preuve négative tient cette ligne. Les composants natifs de
+vérification et d'enregistrements DNS sont réutilisés et non réécrits, et les
+enregistrements DNS ne s'affichent que si le serveur en a publié — donc une société
+autorisée par sa propre boîte ne se voit jamais réclamer des entrées inutiles.
+
+Le bouton de vérification native est conservé tel quel : le re-cliquer est une
+**relecture du verdict serveur**, pas une réémission d'écriture. L'écriture à risque
+de doublon est la création, et c'est là que vivent les quatre états ; sur issue
+inconnue le bouton d'enregistrement est **retiré** et seule la relecture est offerte.
+
+**Contrat IMAP+SMTP : validation avant soumission, pas de faux canal.** Rien n'est
+créé, synthétisé ni impliqué ; l'exigence est énoncée comme celle du serveur, avec
+le protocole manquant nommé et la raison — la liaison centrale ne s'enregistre que
+sur une boîte qui fait les deux, et c'est la réception qui fait créer le canal natif
+dont l'expéditeur de campagne est résolu. La requête ne part simplement pas.
+
+**Changement de comportement à relever en revue** : la règle du panneau a changé.
+15 des 18 tests existants renseignaient IMAP seul et attendaient un enregistrement
+réussi ; ils renseignent désormais les deux protocoles. Une assertion encodait
+l'ancienne forme permissive et a dû changer — la garantie « rien n'est inventé
+depuis des défauts » est désormais portée par CALDAV, le protocole réellement
+optionnel. Le garde préexistant sur zéro protocole est conservé bien que devenu
+inatteignable, pour ne retirer aucun contrôle.
+
+**Tension de copie native signalée, non touchée** : le formulaire natif de connexion
+dit « Configure SMTP settings … Leave blank if you don't need to send emails », ce
+qui est correct pour un compte natif ordinaire et contredit désormais la note
+d'exigence affichée un bloc plus bas dans le centre. Hors périmètre du lot.
 
 Constats établis par ce lot, avec preuve :
 
