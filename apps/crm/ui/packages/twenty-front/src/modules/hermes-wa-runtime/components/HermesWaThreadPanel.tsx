@@ -17,7 +17,6 @@ import {
   HermesWaAlertNote,
   HermesWaNote,
 } from '@/hermes-wa-ui/components/HermesWaNote';
-import { readHermesWaDeliveryState } from '@/hermes-wa-ui/types/HermesWaDelivery';
 
 import { HermesWaContactInspector } from '@/hermes-wa-runtime/components/HermesWaContactInspector';
 import { HermesWaRuntimeAttachment } from '@/hermes-wa-runtime/components/HermesWaRuntimeAttachment';
@@ -26,6 +25,7 @@ import { useHermesWaMessages } from '@/hermes-wa-runtime/hooks/useHermesWaMessag
 import { useHermesWaReply } from '@/hermes-wa-runtime/hooks/useHermesWaReply';
 import { readHermesWaContact } from '@/hermes-wa-runtime/types/HermesWaContactMatch';
 import { toHermesWaCapability } from '@/hermes-wa-runtime/utils/toHermesWaCapability';
+import { toHermesWaDelivery } from '@/hermes-wa-runtime/utils/toHermesWaDelivery';
 
 const StyledThread = styled.section`
   display: flex;
@@ -206,18 +206,14 @@ export const HermesWaThreadPanel = ({
                   // as markup.
                   text={message.base.text}
                   timeLabel={message.base.occurredAt}
-                  delivery={{
-                    // The library reads the state itself, so it is handed
-                    // the server's own word — the reduced one when this side
-                    // recognised it, the raw one when it did not. An
-                    // unrecognised status stays unrecognised on both sides.
-                    state: readHermesWaDeliveryState(
-                      message.base.status.kind === 'known'
-                        ? message.base.status.status
-                        : message.base.status.raw,
-                    ),
-                    errorCode: message.base.errorCode,
-                  }}
+                  // The already-reduced status is carried across, never re-read
+                  // from its raw string: the two readers normalise differently,
+                  // so re-reading let a status the inbox had rejected come back
+                  // as a recognised, settled one.
+                  delivery={toHermesWaDelivery(
+                    message.base.status,
+                    message.base.errorCode,
+                  )}
                 >
                   {message.attachments.length > 0 && (
                     <StyledAttachments>
