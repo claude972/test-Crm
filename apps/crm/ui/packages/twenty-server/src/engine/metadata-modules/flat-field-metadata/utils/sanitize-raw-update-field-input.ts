@@ -19,7 +19,6 @@ import {
 import { type FlatFieldMetadataEditableProperties } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata-editable-properties.constant';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { nullifyEmptyCompositeDefaultValue } from 'src/engine/metadata-modules/flat-field-metadata/utils/nullify-empty-composite-default-value.util';
-import { preserveEchoedOptionLabels } from 'src/engine/metadata-modules/flat-field-metadata/utils/preserve-echoed-option-labels.util';
 import { sanitizeSelectOptionColors } from 'src/engine/metadata-modules/flat-field-metadata/utils/sanitize-select-option-colors.util';
 import { belongsToKovaaLabCRMStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { dispatchUpdateToAuthoredOverride } from 'src/engine/metadata-modules/overrides/utils/dispatch-update-to-authored-override.util';
@@ -43,9 +42,7 @@ export const sanitizeRawUpdateFieldInput = ({
     ownerApplicationUniversalIdentifier:
       existingFlatFieldMetadata.applicationUniversalIdentifier,
   };
-  const isStandardField = belongsToKovaaLabCRMStandardApp(
-    existingFlatFieldMetadata,
-  );
+  const isStandardField = belongsToKovaaLabCRMStandardApp(existingFlatFieldMetadata);
   const updatedEditableFieldProperties = extractAndSanitizeObjectStringFields(
     rawUpdateFieldInput,
     [
@@ -88,24 +85,12 @@ export const sanitizeRawUpdateFieldInput = ({
   }
 
   if (isDefined(updatedEditableFieldProperties.options)) {
-    // Only a standard field's options were ever shipped from a catalog, so only
-    // they can be read back translated. A custom field's labels were typed by
-    // the operator, and a system build writes canonical labels on purpose:
-    // both must reach the merge exactly as sent. Matching runs before the ids
-    // below are minted, which would otherwise make an id-less option look
-    // identified and strand the match on the api value.
-    const optionsWithPreservedLabels =
-      isStandardField && !isSystemBuild
-        ? preserveEchoedOptionLabels({
-            storedOptions: existingFlatFieldMetadata.options,
-            updatedOptions: updatedEditableFieldProperties.options,
-          })
-        : updatedEditableFieldProperties.options;
-
-    const optionsWithIds = optionsWithPreservedLabels.map((option) => ({
-      id: v4(),
-      ...option,
-    }));
+    const optionsWithIds = updatedEditableFieldProperties.options.map(
+      (option) => ({
+        id: v4(),
+        ...option,
+      }),
+    );
 
     updatedEditableFieldProperties.options = isFieldMetadataSelectKind(
       existingFlatFieldMetadata.type,
