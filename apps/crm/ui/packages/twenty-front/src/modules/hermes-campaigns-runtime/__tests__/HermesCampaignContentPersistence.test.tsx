@@ -22,6 +22,12 @@ import {
 } from '@/ui/utilities/state/jotai/jotaiStore';
 import {
   FeatureFlagKey,
+  MessageChannelContactAutoCreationPolicy,
+  MessageChannelSyncStage,
+  MessageChannelSyncStatus,
+  MessageChannelType,
+  MessageChannelVisibility,
+  MessageFolderImportPolicy,
   MessageSuppressionsDocument,
   UnsubscribeTopicVisibility,
 } from '~/generated-metadata/graphql';
@@ -49,7 +55,11 @@ const emissionTrapFor = (query: Parameters<typeof MockLink>[0], name: string) =>
     },
   }) as never;
 
-const campaignRecord = (subject: string, bodyTemplate: string) => ({
+const campaignRecord = (
+  subject: string,
+  bodyTemplate: string,
+  fromPrimaryEmail: string | null = 'contact@atelier-fontaine.fr',
+) => ({
   __typename: 'MessageCampaign',
   id: CAMPAIGN_ID,
   name: 'Shopfitting — Loire-Atlantique',
@@ -57,7 +67,7 @@ const campaignRecord = (subject: string, bodyTemplate: string) => ({
   bodyTemplate,
   fromAddress: {
     __typename: 'Emails',
-    primaryEmail: 'contact@atelier-fontaine.fr',
+    primaryEmail: fromPrimaryEmail,
   },
   listId: LIST_ID,
   unsubscribeTopicId: null,
@@ -74,12 +84,20 @@ const campaignRecord = (subject: string, bodyTemplate: string) => ({
   uniqueClickCount: 0,
 });
 
-const recordMock = (subject: string, bodyTemplate: string) => ({
+const recordMock = (
+  subject: string,
+  bodyTemplate: string,
+  fromPrimaryEmail: string | null = 'contact@atelier-fontaine.fr',
+) => ({
   request: {
     query: HERMES_RUNTIME_CAMPAIGN_RECORD,
     variables: { campaignId: CAMPAIGN_ID },
   },
-  result: { data: { messageCampaign: campaignRecord(subject, bodyTemplate) } },
+  result: {
+    data: {
+      messageCampaign: campaignRecord(subject, bodyTemplate, fromPrimaryEmail),
+    },
+  },
 });
 
 const sendPreviewMock = () => ({
@@ -124,10 +142,45 @@ const recipientsMock = () => ({
   },
 });
 
-const channelsMock = () => ({
+const channelsMock = (
+  channels: readonly unknown[] = [],
+) => ({
   request: { query: GET_MY_MESSAGE_CHANNELS, variables: {} },
-  result: { data: { myMessageChannels: [] } },
+  result: { data: { myMessageChannels: channels } },
 });
+
+const SENDER_ADDRESS = 'contact@atelier-fontaine.fr';
+
+// A mailbox the workspace has connected. Its channel type is deliberately
+// EMAIL and not EMAIL_GROUP: the type grants no authority, so it must not be
+// what decides whether this can be chosen.
+const connectedMailbox = {
+  __typename: 'MessageChannel',
+  id: 'mc-1',
+  handle: 'inbound-7f3a@inbound.kovaa.test',
+  displayName: 'Atelier Fontaine',
+  visibility: MessageChannelVisibility.SHARE_EVERYTHING,
+  type: MessageChannelType.EMAIL,
+  isContactAutoCreationEnabled: true,
+  contactAutoCreationPolicy:
+    MessageChannelContactAutoCreationPolicy.SENT_AND_RECEIVED,
+  messageFolderImportPolicy: MessageFolderImportPolicy.ALL_FOLDERS,
+  excludeNonProfessionalEmails: false,
+  excludeGroupEmails: false,
+  isSyncEnabled: true,
+  syncStatus: MessageChannelSyncStatus.ACTIVE,
+  syncStage: MessageChannelSyncStage.MESSAGE_LIST_FETCH_PENDING,
+  syncStageStartedAt: null,
+  importProgress: null,
+  connectedAccountId: 'ca-1',
+  connectedAccount: {
+    __typename: 'ConnectedAccountPublicDTO',
+    id: 'ca-1',
+    handle: SENDER_ADDRESS,
+  },
+  createdAt: '2026-10-01T08:00:00.000Z',
+  updatedAt: '2026-10-01T08:00:00.000Z',
+};
 
 const topicsMock = () => ({
   request: { query: UNSUBSCRIBE_TOPICS, variables: {} },
@@ -265,6 +318,16 @@ const baseReads = () => [
   topicsMock(),
   suppressionsMock(),
 ];
+
+// jsdom does not implement PointerEvent, and the design system's radio
+// dispatches one when it is activated. This is a gap in the test environment,
+// not product behaviour: without it a real click cannot be simulated at all.
+beforeAll(() => {
+  if (typeof window.PointerEvent !== 'function') {
+    (window as unknown as { PointerEvent: unknown }).PointerEvent =
+      class extends MouseEvent {};
+  }
+});
 
 describe('campaign content persistence', () => {
   beforeEach(() => {
@@ -411,44 +474,11 @@ describe('campaign content persistence', () => {
   it('keeps text typed while the recording was in flight', async () => {
     const TYPED_DURING_SAVE = 'Rethink your shopfront in Nantes and Rezé';
 
-    // The answer is held back until the test releases it, so there is a real
-    // window to type into rather than a hoped-for one.
-    let releaseUpdate: (() => void) | undefined;
-    const updateHeld = new Promise<void>((resolve) => {
-      releaseUpdate = resolve;
-    });
-
+    // The answer is delayed, so there is a real window in flight to type
+    // into rather than a hoped-for one.
     const deferredUpdate = {
-      request: {
-        query: HERMES_RUNTIME_UPDATE_CAMPAIGN,
-        variables: {
-          idToUpdate: CAMPAIGN_ID,
-          input: { subject: EDITED_SUBJECT, bodyTemplate: STORED_BODY },
-        },
-      },
-      result: async () => {
-        await updateHeld;
-
-        return {
-          data: {
-            updateMessageCampaign: {
-              __typename: 'MessageCampaign',
-              id: CAMPAIGN_ID,
-              name: 'Shopfitting — Loire-Atlantique',
-              subject: EDITED_SUBJECT,
-              bodyTemplate: STORED_BODY,
-              fromAddress: {
-                __typename: 'Emails',
-                primaryEmail: 'contact@atelier-fontaine.fr',
-              },
-              listId: LIST_ID,
-              unsubscribeTopicId: null,
-              status: 'DRAFT',
-              scheduledAt: null,
-            },
-          },
-        };
-      },
+      ...updateMock(),
+      delay: 120,
     };
 
     renderContainer([
@@ -477,8 +507,6 @@ describe('campaign content persistence', () => {
 
     fireEvent.change(subjectField, { target: { value: TYPED_DURING_SAVE } });
 
-    releaseUpdate?.();
-
     // Wait for the recording to actually finish, rather than for the local
     // text to be what it already was.
     await waitFor(() => {
@@ -504,6 +532,114 @@ describe('campaign content persistence', () => {
       ),
     ).not.toBeInTheDocument();
 
+    expect(emissionTrap).not.toHaveBeenCalled();
+  });
+});
+
+// CJ-CAMPAIGN-007. A draft that has no sender yet must be able to get one.
+// Every identity other than the one already on the campaign arrives with no
+// server verdict, and the emission authorisation refuses a missing verdict —
+// correctly. Using that same answer to disable the radio made the choice
+// permanently unselectable.
+describe('campaign sender persistence', () => {
+  beforeEach(() => {
+    emissionTrap.mockClear();
+  });
+
+  const senderUpdateMock = () => ({
+    request: {
+      query: HERMES_RUNTIME_UPDATE_CAMPAIGN,
+      variables: {
+        idToUpdate: CAMPAIGN_ID,
+        input: {
+          fromAddress: {
+            primaryEmail: SENDER_ADDRESS,
+            additionalEmails: null,
+          },
+        },
+      },
+    },
+    result: {
+      data: {
+        updateMessageCampaign: {
+          __typename: 'MessageCampaign',
+          id: CAMPAIGN_ID,
+          name: 'Shopfitting — Loire-Atlantique',
+          subject: STORED_SUBJECT,
+          bodyTemplate: STORED_BODY,
+          fromAddress: {
+            __typename: 'Emails',
+            primaryEmail: SENDER_ADDRESS,
+          },
+          listId: LIST_ID,
+          unsubscribeTopicId: null,
+          status: 'DRAFT',
+          scheduledAt: null,
+        },
+      },
+    },
+  });
+
+  it('lets a draft with no sender be given one, records it and reads it back', async () => {
+    renderContainer([
+      // No `From` at all, and no verdict for any identity: exactly the state
+      // in which nothing could previously be chosen.
+      recordMock(STORED_SUBJECT, STORED_BODY, null),
+      sendPreviewMock(),
+      recipientsMock(),
+      channelsMock([connectedMailbox]),
+      topicsMock(),
+      suppressionsMock(),
+      senderUpdateMock(),
+      // The re-read: the campaign now holds the address that was stored.
+      recordMock(STORED_SUBJECT, STORED_BODY, SENDER_ADDRESS),
+      sendPreviewMock(),
+      recipientsMock(),
+    ]);
+
+    const senderRadio = await screen.findByRole('radio', {
+      name: SENDER_ADDRESS,
+    });
+
+    // Choosable, although no verdict authorises it to emit yet.
+    expect(senderRadio).not.toHaveAttribute('aria-disabled', 'true');
+    expect(senderRadio).not.toBeChecked();
+
+    fireEvent.click(senderRadio);
+
+    expect(
+      await screen.findByText(
+        'Sender recorded on the campaign. It will still be here after a reload.',
+      ),
+    ).toBeVisible();
+
+    // And the campaign was genuinely read again afterwards, so what is shown
+    // is the stored sender rather than the click.
+    await waitFor(() => {
+      expect(
+        screen.getByRole('radio', { name: SENDER_ADDRESS }),
+      ).toBeChecked();
+    });
+
+    // Recording a sender is a write on the campaign record, not an emission.
+    expect(emissionTrap).not.toHaveBeenCalled();
+  });
+
+  it('does not record a sender on mount, only on an explicit choice', async () => {
+    const { sentOperationNames } = renderContainer([
+      recordMock(STORED_SUBJECT, STORED_BODY, null),
+      sendPreviewMock(),
+      recipientsMock(),
+      channelsMock([connectedMailbox]),
+      topicsMock(),
+      suppressionsMock(),
+    ]);
+
+    expect(
+      await screen.findByRole('radio', { name: SENDER_ADDRESS }),
+    ).toBeVisible();
+
+    expect(sentOperationNames).not.toContain('HermesRuntimeUpdateCampaign');
     expect(emissionTrap).not.toHaveBeenCalled();
   });
 });

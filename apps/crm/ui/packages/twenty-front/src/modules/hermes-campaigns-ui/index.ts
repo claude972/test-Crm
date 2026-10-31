@@ -97,6 +97,8 @@ export {
 } from '@/hermes-campaigns-ui/utils/readCampaignCapability';
 export { readCampaignMetric } from '@/hermes-campaigns-ui/utils/readCampaignMetric';
 export { readSenderIdentityAuthorization } from '@/hermes-campaigns-ui/utils/readSenderIdentityAuthorization';
+export { readSenderIdentitySelectability } from '@/hermes-campaigns-ui/utils/readSenderIdentitySelectability';
+export type { HermesSenderIdentitySelectability } from '@/hermes-campaigns-ui/utils/readSenderIdentitySelectability';
 export {
   readCampaignContentVariables,
   validateCampaignContent,
