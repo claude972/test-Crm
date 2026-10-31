@@ -61,9 +61,15 @@ export const HERMES_PROBE_BY_UI_KIND: Readonly<
   Record<string, readonly HermesConnectionProbe[]>
 > = {
   WHATSAPP_EVOLUTION: ['EVOLUTION_INSTANCE_STATE'],
-  // One mail binding, two directions, two distinct probes. Reception working
-  // is not sending working, so they are never collapsed into one answer.
-  EMAIL_IMAP: ['IMAP_LIST_STATUS'],
+  // The mail binding is ONE native connected account carrying both
+  // directions, so the slot backed by that record tests both. They stay two
+  // distinct probes reported as two distinct answers: reception working is not
+  // sending working, and one verdict would hide a broken direction behind a
+  // working one. The wording names each direction, so nothing is conflated.
+  EMAIL_IMAP: ['IMAP_LIST_STATUS', 'SMTP_LOGIN_ONLY'],
+  // The outgoing slot has no central record of its own — the native account
+  // owns the SMTP credentials. It is listed here so that, where it is shown,
+  // the test it offers is the sending one and not the receiving one.
   EMAIL_SMTP: ['SMTP_LOGIN_ONLY'],
 };
 

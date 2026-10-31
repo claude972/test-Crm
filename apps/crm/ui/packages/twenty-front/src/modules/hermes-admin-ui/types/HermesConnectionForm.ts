@@ -90,19 +90,14 @@ export type HermesConnectionSaveState =
   | { kind: 'session-replaced'; message: string | null }
   | { kind: 'unconfirmed' };
 
-// The result of « Tester la connexion », as the parent reports it.
+// The result of « Tester la connexion » now lives in `HermesConnectionCheck.ts`
+// as `HermesConnectionCheckOutcome`.
 //
-// 'unconfirmed' is a test whose answer could not be read: it proves nothing,
-// so it is not a failure and certainly not a success. No outcome is ever
-// inferred from the request having been sent.
-export type HermesConnectionTestState =
-  | { kind: 'idle' }
-  | { kind: 'testing' }
-  | { kind: 'verified'; verifiedAt: string | null }
-  | { kind: 'failed'; errorCode: string | null }
-  | { kind: 'refused'; reason: string | null }
-  | { kind: 'session-replaced'; message: string | null }
-  | { kind: 'unconfirmed' };
+// It was replaced rather than extended because its success state was called
+// 'verified', and a read-only probe cannot verify a connection: it establishes
+// only that a provider answered at one dated instant. A type whose success
+// value was « verified » kept inviting the false « connecté » this screen
+// exists to avoid. Reachability and a proven flow are now separate notions.
 
 // Where a connection's credentials actually live. 'native-account' is e-mail:
 // it runs on the already encrypted native connected account, and there is no

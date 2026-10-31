@@ -14,9 +14,9 @@ import {
   type HermesConnectionFormSubject,
   type HermesConnectionFormSubmission,
   type HermesConnectionFormValues,
-  type HermesConnectionTestState,
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
 import { HermesBotPolicySection } from '@/hermes-bot-settings/components/HermesBotPolicySection';
+import { useHermesConnectionCheck } from '@/hermes-admin-runtime/hooks/useHermesConnectionCheck';
 import { useHermesRuntimeCompanies } from '@/hermes-admin-runtime/hooks/useHermesRuntimeCompanies';
 import { useHermesRuntimeConnections } from '@/hermes-admin-runtime/hooks/useHermesRuntimeConnections';
 import { useHermesRuntimeNativeAccounts } from '@/hermes-admin-runtime/hooks/useHermesRuntimeNativeAccounts';
@@ -24,18 +24,6 @@ import {
   HERMES_RUNTIME_KIND_BY_UI_KIND,
   readHermesRuntimeWriteSupport,
 } from '@/hermes-admin-runtime/types/HermesRuntimeConnectionKind';
-
-// No test exists in this contract.
-//
-// The published states are NOT_CONFIGURED and CONFIGURED_UNVERIFIED, and the
-// contract says in as many words that configuration presence is never a
-// connection test: saving sends no provider request, invokes no tool and
-// sends no mail or WhatsApp. So no test operation is called, and every test
-// state stays idle. The alternative — reporting a save as a passed test —
-// would be the false « connected » the contract forbids.
-const NO_TEST_STATE: HermesConnectionTestState = { kind: 'idle' };
-const NO_TEST_STATE_BY_ID: Readonly<Record<string, HermesConnectionTestState>> =
-  {};
 
 // The settings centre, wired to the central connections store, the bot policy
 // operations and the authentication hook's two company methods.
@@ -49,6 +37,10 @@ export const HermesAdminRuntimeSettings = () => {
   const companies = useHermesRuntimeCompanies();
   const connections = useHermesRuntimeConnections(companies.activeCompanyId);
   const { nativeAccounts } = useHermesRuntimeNativeAccounts();
+  // The read-only connection probes. A save still proves nothing: these are
+  // the only operations that reach a provider, and the strongest thing they
+  // establish is reachability at a dated instant.
+  const checks = useHermesConnectionCheck();
 
   const [formSubject, setFormSubject] =
     useState<HermesConnectionFormSubject | null>(null);
@@ -135,6 +127,30 @@ export const HermesAdminRuntimeSettings = () => {
 
     return HERMES_CONNECTION_FORM_EMPTY_VALUES;
   }, [connections.views, formSubject]);
+
+  // Runs the read-only probes of whichever channel the operator asked about.
+  //
+  // The channel is resolved from the connection that was read, never from the
+  // button's position: probing the wrong channel would show one provider's
+  // reachability against another's configuration.
+  const handleRequestTest = useCallback(
+    (connectionId: string) => {
+      if (connections.read.kind !== 'reported') {
+        return;
+      }
+
+      const connection = connections.read.connections.find(
+        (candidate) => candidate.id === connectionId,
+      );
+
+      if (connection === undefined) {
+        return;
+      }
+
+      checks.requestCheck(connection.kind);
+    },
+    [checks, connections.read],
+  );
 
   const handleRequestEdit = useCallback(
     (connectionId: string) => {
@@ -272,15 +288,11 @@ export const HermesAdminRuntimeSettings = () => {
         connectionFormInitialValues={initialValues}
         nativeAccounts={nativeAccounts}
         connectionSaveState={connections.saveState}
-        connectionTestStateByConnectionId={NO_TEST_STATE_BY_ID}
-        connectionFormTestState={NO_TEST_STATE}
+        checkByProbe={checks.outcomeByProbe}
+        isChecking={checks.isChecking}
         onRequestSwitchCompany={companies.requestSwitch}
         onRequestAddCompany={handleRequestAdd}
-        onRequestTestConnection={() => {
-          // Deliberately empty: this contract publishes no connection test,
-          // so there is nothing to call and nothing is inferred from the
-          // button having been pressed.
-        }}
+        onRequestTestConnection={handleRequestTest}
         onRequestEditConnection={handleRequestEdit}
         onRequestCreateConnection={handleRequestCreate}
         onRequestDeleteConnection={handleRequestDelete}

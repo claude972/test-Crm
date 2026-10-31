@@ -33,11 +33,13 @@ describe('the probe catalogue', () => {
     ]);
   });
 
-  it('keeps reception and sending as two separate mail probes', () => {
-    // A mailbox that receives is not thereby a mailbox that sends. One answer
-    // for both directions would hide a broken one behind a working one.
+  it('tests both mail directions from the one binding, as two separate probes', () => {
+    // One native account carries reception and sending, so the slot backed by
+    // it tests both — but never as a single verdict, because a mailbox that
+    // receives is not thereby a mailbox that sends.
     expect(readHermesProbesForUiKind('EMAIL_IMAP')).toEqual([
       'IMAP_LIST_STATUS',
+      'SMTP_LOGIN_ONLY',
     ]);
     expect(readHermesProbesForUiKind('EMAIL_SMTP')).toEqual([
       'SMTP_LOGIN_ONLY',
