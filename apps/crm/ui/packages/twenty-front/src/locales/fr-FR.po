@@ -38839,3 +38839,23 @@ msgstr "Proposition"
 msgctxt "fieldMetadata.label"
 msgid "Screening"
 msgstr "Présélection"
+
+#. js-lingui-id: 8jtImu
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Read the policy again"
+msgstr "Relire les réglages du bot"
+
+#. js-lingui-id: 87WY0D
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open, and the current one could not be read. Nothing was changed, and this choice cannot be made until it has been read."
+msgstr "Les réglages de cette conversation ou de la société ont changé, et leur version actuelle n’a pas pu être lue. Aucun changement effectué. Relisez-les avant de modifier ce choix."
+
+#. js-lingui-id: KxHUb2
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open. Nothing was changed."
+msgstr "Les réglages de cette conversation ou de la société ont changé pendant que cet écran était ouvert. Aucun changement effectué."
+
+#. js-lingui-id: 1efCmK
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open. Reading the current one now."
+msgstr "Les réglages de cette conversation ou de la société ont changé. Lecture de la version actuelle…"
