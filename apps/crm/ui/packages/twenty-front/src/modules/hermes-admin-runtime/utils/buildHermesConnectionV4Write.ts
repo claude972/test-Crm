@@ -1,4 +1,7 @@
-import { type HermesConnectionFormSubmission } from '@/hermes-admin-ui/types/HermesConnectionForm';
+import {
+  type HermesConnectionFormSubmission,
+  type HermesSecretField,
+} from '@/hermes-admin-ui/types/HermesConnectionForm';
 import { type HermesRuntimeConnectionKind } from '@/hermes-admin-runtime/types/HermesRuntimeConnectionKind';
 
 export type HermesConnectionV4Write = {
@@ -21,6 +24,39 @@ export type HermesConnectionV4WriteBuild =
 // not fill is sent empty and refused by the server's own validator, which is
 // the only validator of record: a second one in the browser would drift from
 // it and start accepting what the server rejects, or worse, the reverse.
+// Attaches the typed secrets, or omits the key entirely.
+//
+// Omitted means the stored set is kept. Only the fields this kind actually
+// stores are attached, and each value is passed straight through — not
+// trimmed, not normalised, not logged, because leading and trailing
+// characters can be part of a secret.
+const withSecrets = (
+  write: HermesConnectionV4Write,
+  secret: HermesConnectionFormSubmission['secret'],
+  fields: readonly HermesSecretField[],
+): HermesConnectionV4WriteBuild => {
+  if (secret.kind !== 'replaced') {
+    return { kind: 'built', write };
+  }
+
+  const secrets: Record<string, unknown> = {};
+
+  for (const field of fields) {
+    const value = secret.values[field];
+
+    if (value !== undefined) {
+      secrets[field] = value;
+    }
+  }
+
+  // A replacement that carries none of this kind's fields is not a
+  // replacement: the key is omitted so the stored set survives.
+  return {
+    kind: 'built',
+    write: Object.keys(secrets).length === 0 ? write : { ...write, secrets },
+  };
+};
+
 export const buildHermesConnectionV4Write = (
   runtimeKind: HermesRuntimeConnectionKind,
   submission: HermesConnectionFormSubmission,
@@ -68,20 +104,42 @@ export const buildHermesConnectionV4Write = (
       },
     };
 
-    // The token is only ever the value typed in this session. It is passed
-    // straight through: not trimmed, not normalised, not logged — leading and
-    // trailing characters can be part of a secret.
-    return {
-      kind: 'built',
-      write:
-        secret.kind === 'replaced'
-          ? { ...write, secrets: { token: secret.value } }
-          : write,
-    };
+    return withSecrets(write, secret, ['token']);
   }
 
-  // EVOLUTION needs two distinct secrets and INTAKE needs settings this form
-  // has no control for. Both are refused before anything leaves the browser
-  // rather than sent half-built.
+  if (runtimeKind === 'EVOLUTION') {
+    const write: HermesConnectionV4Write = {
+      kind: 'EVOLUTION',
+      expectedRevision,
+      settings: {
+        baseUrl: values.endpoint.trim(),
+        instanceName: values.label.trim(),
+      },
+    };
+
+    // Both secrets or neither. Supplying the object replaces the complete
+    // set, so sending one would erase the other; the form refuses a partial
+    // entry before this point.
+    return withSecrets(write, secret, ['apiKey', 'webhookSecret']);
+  }
+
+  if (runtimeKind === 'INTAKE') {
+    const write: HermesConnectionV4Write = {
+      kind: 'INTAKE',
+      expectedRevision,
+      settings: {
+        // The operator's own ingress policy, sent exactly as chosen. Nothing
+        // is added: an unchecked source is not an accepted one.
+        allowedSources: [...values.allowedSources],
+        // Sent as a number because the contract types it as one. An entry
+        // that is not a valid integer is refused by the form before here, and
+        // NaN would be refused by the server's own validator in any case.
+        maxRequestsPerMinute: Number(values.maxRequestsPerMinute.trim()),
+      },
+    };
+
+    return withSecrets(write, secret, ['secret']);
+  }
+
   return { kind: 'unsupported' };
 };

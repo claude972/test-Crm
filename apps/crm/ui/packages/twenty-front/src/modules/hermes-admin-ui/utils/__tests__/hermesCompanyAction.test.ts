@@ -169,6 +169,9 @@ const member = (id: string, companyId: string): HermesCompanyMember => ({
   unknownRole: null,
   state: 'ACTIVE',
   unknownState: null,
+  // These fixtures exercise the company filter and say nothing about roles,
+  // so null is the truthful value: the roles were never read.
+  roles: null,
 });
 
 describe('filterHermesMembersByCompany', () => {

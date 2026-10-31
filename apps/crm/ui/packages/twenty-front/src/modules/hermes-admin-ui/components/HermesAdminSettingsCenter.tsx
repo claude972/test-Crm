@@ -1,5 +1,6 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
+import { type ReactNode } from 'react';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesAdminRuleNote } from '@/hermes-admin-ui/components/HermesAdminNote';
@@ -64,6 +65,9 @@ type HermesAdminSettingsCenterProps = {
   // The existing native connected IMAP and SMTP accounts an e-mail link picks
   // from. Nothing is typed in their place.
   nativeAccounts?: readonly HermesNativeConnectedAccount[];
+  // Passed straight through to the connection form, which owns the hole. Its
+  // contents belong to the lot that owns the native mailbox setup panel.
+  mailboxSetupSlot?: ReactNode;
   connectionSaveState: HermesConnectionSaveState;
   // The last outcome of each read-only probe, shared by the cards and the open
   // form. Keyed by probe because a probe is a channel's own operation.
@@ -105,6 +109,7 @@ export const HermesAdminSettingsCenter = ({
   connectionFormSubject,
   connectionFormInitialValues,
   nativeAccounts,
+  mailboxSetupSlot,
   connectionSaveState,
   checkByProbe,
   checkedConnectionId,
@@ -182,6 +187,7 @@ export const HermesAdminSettingsCenter = ({
           companyName={activeCompany?.name ?? null}
           initialValues={connectionFormInitialValues}
           nativeAccounts={nativeAccounts}
+          mailboxSetupSlot={mailboxSetupSlot}
           saveState={connectionSaveState}
           checkByProbe={
             connectionFormSubject.mode === 'edit' &&

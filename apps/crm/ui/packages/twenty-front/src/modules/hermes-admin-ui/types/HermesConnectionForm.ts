@@ -18,7 +18,21 @@ export type HermesConnectionFormValues = {
   // An IMAP FOLDER, not an address. The server locks this folder while it
   // collects. Its usual value is INBOX.
   imapFolder: string;
+  // Which signed sources a collection accepts. An operator's ingress policy,
+  // so it is chosen here and never defaulted on their behalf.
+  allowedSources: readonly HermesIntakeSource[];
+  // Requests per minute the collection endpoint accepts, 1 to 60. Kept as the
+  // typed text so an empty or invalid entry is refused rather than coerced.
+  maxRequestsPerMinute: string;
 };
+
+export const HERMES_INTAKE_SOURCES = [
+  'SCRAPING',
+  'FORMS',
+  'CALENDAR',
+] as const;
+
+export type HermesIntakeSource = (typeof HERMES_INTAKE_SOURCES)[number];
 
 export const HERMES_CONNECTION_FORM_EMPTY_VALUES: HermesConnectionFormValues = {
   label: '',
@@ -26,6 +40,8 @@ export const HERMES_CONNECTION_FORM_EMPTY_VALUES: HermesConnectionFormValues = {
   account: '',
   nativeAccountId: '',
   imapFolder: '',
+  allowedSources: [],
+  maxRequestsPerMinute: '',
 };
 
 // One native connected account the operator may pick. Already encrypted on the
@@ -70,7 +86,13 @@ export type HermesConnectionFormSubject =
 // about the stored secret is sent at all, so the server keeps what it has.
 export type HermesConnectionFormSubmission = {
   values: HermesConnectionFormValues;
-  secret: { kind: 'unchanged' } | { kind: 'replaced'; value: string };
+  // Keyed by the server's own field names. Supplying the object replaces the
+  // COMPLETE secret set for an identity, so a partial object would wipe the
+  // fields it omits — which is why a connection wanting two secrets sends
+  // both or neither, never one.
+  secret:
+    | { kind: 'unchanged' }
+    | { kind: 'replaced'; values: Readonly<Partial<Record<HermesSecretField, string>>> };
   // Echoed back exactly as read, for the server to refuse the write on. Null
   // only on a create, where there is nothing yet to be stale against.
   expectedRevision: string | null;
@@ -81,6 +103,11 @@ export type HermesConnectionSaveState =
   | { kind: 'idle' }
   | { kind: 'saving' }
   | { kind: 'saved'; verifiedAt: string | null }
+  // The server accepted the write and the re-read that must follow it failed.
+  // The revision on screen is stale by construction, so what is displayed is
+  // no longer known to be what the server holds — and the next write would
+  // carry a revision the server has already moved past.
+  | { kind: 'saved-unread' }
   | { kind: 'refused'; reason: string | null }
   // Nothing left the browser. Kept apart from a refusal, which means the
   // server saw the write and declined it.
@@ -104,6 +131,20 @@ export type HermesConnectionSaveState =
 // second credential store of ours. The form settles the link and offers no
 // mailbox password at all, which would invite a forbidden duplicate store.
 export type HermesConnectionSecretPolicy =
-  | { kind: 'own-secret' }
+  // The server's own field names, in the order they are asked for. Several
+  // means the whole set is replaced together.
+  | { kind: 'own-secret'; fields: readonly HermesSecretField[] }
   | { kind: 'native-account' }
   | { kind: 'unknown' };
+
+// Every secret field the central store accepts, named exactly as the server
+// names it. Nothing is invented here: a field absent from this list has no
+// control, because this screen would not know where its value would go.
+export const HERMES_SECRET_FIELDS = [
+  'apiKey',
+  'webhookSecret',
+  'token',
+  'secret',
+] as const;
+
+export type HermesSecretField = (typeof HERMES_SECRET_FIELDS)[number];
