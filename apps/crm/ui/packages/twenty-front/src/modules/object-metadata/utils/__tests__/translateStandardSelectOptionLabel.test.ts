@@ -271,4 +271,64 @@ describe('translateStandardSelectOptionLabel', () => {
       });
     });
   });
+  // Confirmed against lingui: a present-but-empty entry resolves to the id for an
+  // empty string, and to an empty string for an empty array. A stray untranslated
+  // msgstr produces either, and a merged English fallback can be shadowed by one.
+  describe('an entry that is present but unusable', () => {
+    const stageLabels = STANDARD_SELECT_OPTION_LABELS[STAGE_FIELD];
+    const screeningMessageId = messageId('Screening');
+
+    const withProductionDescriptors = (assert: () => void) => {
+      const restoreMessages = stageLabels.map(({ shippedLabel }) => ({
+        shippedLabel,
+        message: shippedLabel.message,
+      }));
+
+      for (const { shippedLabel } of stageLabels) {
+        shippedLabel.message = undefined;
+      }
+
+      try {
+        assert();
+      } finally {
+        for (const { shippedLabel, message } of restoreMessages) {
+          shippedLabel.message = message;
+        }
+      }
+    };
+
+    it('reads the shipped English when the entry is an empty string', () => {
+      i18n.load('de-DE', { [screeningMessageId]: '' });
+      i18n.activate('de-DE');
+
+      withProductionDescriptors(() => {
+        const translated = translate({ id: SCREENING_ID, label: 'Screening' });
+
+        expect(translated).toBe('Screening');
+        expect(translated).not.toBe(screeningMessageId);
+      });
+    });
+
+    it('reads the shipped English when the entry is an empty array', () => {
+      i18n.load('de-DE', { [screeningMessageId]: [] });
+      i18n.activate('de-DE');
+
+      withProductionDescriptors(() => {
+        expect(translate({ id: SCREENING_ID, label: 'Screening' })).toBe(
+          'Screening',
+        );
+      });
+    });
+
+    it('still keeps a renamed stage verbatim', () => {
+      i18n.load('de-DE', { [screeningMessageId]: '' });
+      i18n.activate('de-DE');
+
+      withProductionDescriptors(() => {
+        expect(translate({ id: SCREENING_ID, label: 'Premier contact' })).toBe(
+          'Premier contact',
+        );
+      });
+    });
+  });
 });

@@ -1,3 +1,4 @@
+import { isNonEmptyString } from '@sniptt/guards';
 import { i18n } from '@lingui/core';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
@@ -48,7 +49,15 @@ export const translateStandardSelectOptionLabel = ({
     return shippedOption.sourceLabel;
   }
 
-  return i18n._(shippedOption.shippedLabel);
+  // An entry can be present and still unusable: lingui hands back the id for an
+  // empty string and an empty string for an empty array, both of which a stray
+  // untranslated msgstr produces. Checked after resolution because the compiled
+  // shape is lingui's business, not ours.
+  const translated = i18n._(shippedOption.shippedLabel);
+
+  return isNonEmptyString(translated) && translated !== messageId
+    ? translated
+    : shippedOption.sourceLabel;
 };
 
 // Same rule over a whole options array, for the render-side layers that hand the
