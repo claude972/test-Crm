@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { useApolloClient, useMutation } from '@apollo/client/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -30,14 +31,21 @@ import { buildHermesMailboxFormDefaults } from '@/hermes-mailbox-setup/constants
 // 'saved-not-reread' is the same accepted write whose list re-read failed: the
 // account exists and must not be created again. 'unconfirmed' is an answer that
 // could not be read at all, so it proves neither a save nor a failure.
+// 'write-unknown' is a request whose answer never arrived or could not be
+// read. It is NOT a refusal: the server may have applied the write, so the
+// panel stops offering to send and offers only a re-read.
 export type HermesMailboxSetupOutcome =
   | { kind: 'idle' }
   | { kind: 'saving' }
   | { kind: 'saved-unverified'; connectedAccountId: string }
   | { kind: 'saved-not-reread'; connectedAccountId: string }
   | { kind: 'rereading'; connectedAccountId: string }
+  | { kind: 'write-unknown'; reason: string | null; listReread: boolean }
   | { kind: 'refused'; reason: string | null }
   | { kind: 'unconfirmed' };
+
+const readErrorMessage = (error: unknown): string | null =>
+  error instanceof Error ? error.message : null;
 
 type UseHermesMailboxSetupProps = {
   // Called once the account exists server side AND the accounts list has been
@@ -145,6 +153,11 @@ export const useHermesMailboxSetup = ({
 
       setOutcome({ kind: 'saving' });
 
+      // The mutation is awaited in a try of its OWN. Nothing after it shares
+      // this catch, so no later failure can be mistaken for the server's
+      // answer about the write.
+      let result;
+
       try {
         const { data } = await saveConnection({
           variables: {
@@ -156,44 +169,60 @@ export const useHermesMailboxSetup = ({
           },
         });
 
-        const result = data?.saveImapSmtpCaldavAccount;
+        result = data?.saveImapSmtpCaldavAccount;
+      } catch (error) {
+        enqueueToast(getToastOptionsFromError({ error }));
 
-        if (result?.success === false) {
-          setOutcome({ kind: 'refused', reason: null });
-          return;
-        }
+        // Only GraphQL errors mean the server SAW this write and declined it.
+        // A lost, non-OK or unparsable response proves nothing: the write may
+        // have been applied, so claiming a refusal would invite a duplicate.
+        setOutcome(
+          CombinedGraphQLErrors.is(error)
+            ? { kind: 'refused', reason: readErrorMessage(error) }
+            : {
+                kind: 'write-unknown',
+                reason: readErrorMessage(error),
+                listReread: false,
+              },
+        );
+        return;
+      }
 
-        const connectedAccountId = result?.connectedAccountId;
+      if (result?.success === false) {
+        setOutcome({ kind: 'refused', reason: null });
+        return;
+      }
 
-        // A reply we cannot read an account id out of settles nothing: the
-        // account may exist. Saying so beats inventing either outcome.
-        if (!isNonEmptyString(connectedAccountId)) {
-          setOutcome({ kind: 'unconfirmed' });
-          return;
-        }
+      const connectedAccountId = result?.connectedAccountId;
 
-        // The typed password leaves the browser's memory as soon as the server
-        // has it. Nothing about this account is kept client side.
-        reset(buildHermesMailboxFormDefaults());
+      // A reply we cannot read an account id out of settles nothing: the
+      // account may exist. Saying so beats inventing either outcome.
+      if (!isNonEmptyString(connectedAccountId)) {
+        setOutcome({ kind: 'unconfirmed' });
+        return;
+      }
 
-        // From here the write is ACCEPTED. A failed re-read is reported as a
-        // stale list, never as a refusal, and the account is never offered for
-        // creation again.
-        try {
-          await readAccountsList();
-          setOutcome({ kind: 'saved-unverified', connectedAccountId });
-        } catch {
-          setOutcome({ kind: 'saved-not-reread', connectedAccountId });
-        }
+      // The typed password leaves the browser's memory as soon as the server
+      // has it. Nothing about this account is kept client side.
+      reset(buildHermesMailboxFormDefaults());
 
+      // From here the write is ACCEPTED. A failed re-read is reported as a
+      // stale list, never as a refusal, and the account is never offered for
+      // creation again.
+      try {
+        await readAccountsList();
+        setOutcome({ kind: 'saved-unverified', connectedAccountId });
+      } catch {
+        setOutcome({ kind: 'saved-not-reread', connectedAccountId });
+      }
+
+      // Outside every try: a consumer that throws must not rewrite the
+      // server's verdict on its own write. The failure is reported on its own
+      // terms and the outcome above stands.
+      try {
         onConnected?.(connectedAccountId);
       } catch (error) {
-        const toastOptions = getToastOptionsFromError({ error });
-        enqueueToast(toastOptions);
-        setOutcome({
-          kind: 'refused',
-          reason: error instanceof Error ? error.message : null,
-        });
+        enqueueToast(getToastOptionsFromError({ error }));
       }
     },
     [
@@ -206,16 +235,25 @@ export const useHermesMailboxSetup = ({
     ],
   );
 
-  // Offered after an accepted write whose list re-read failed. It re-reads
-  // only: the account exists, so nothing is written again.
+  // The only recovery this panel offers, for an accepted write whose list
+  // re-read failed AND for a write whose answer was lost. It re-reads and
+  // never writes: re-emitting could create the very duplicate at issue.
   const retryAccountsRead = useCallback(async (): Promise<void> => {
-    const pending =
-      outcome.kind === 'saved-not-reread' ? outcome.connectedAccountId : null;
-
-    if (pending === null) {
+    if (outcome.kind === 'write-unknown') {
+      try {
+        await readAccountsList();
+        setOutcome({ ...outcome, listReread: true });
+      } catch {
+        setOutcome({ ...outcome, listReread: false });
+      }
       return;
     }
 
+    if (outcome.kind !== 'saved-not-reread') {
+      return;
+    }
+
+    const pending = outcome.connectedAccountId;
     setOutcome({ kind: 'rereading', connectedAccountId: pending });
 
     try {
