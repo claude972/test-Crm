@@ -59,3 +59,8 @@ Centre A : groupe « Toute la société »→Arrêt complet→reload : boutonpre
 ## Écrans messageries vérifiés11:54UTC
 
 Sur la société A finale : WhatsApp affiche « À configurer », aucune conversation, réponses/synchro désactivées et médias entrants/envoi/vocaux indisponibles. Mail affiche « Aucune boîte aux lettres n'est connectée », dossiers/réponse-transfert/brouillons/PJ indisponibles. Ce ne sont pas des réceptions vides validées ; aucun fournisseur n'a été récupéré. Retour au dashboard A, ongletIAB22 conservé comme livrable.
+
+
+## Dernier contrôle de remise11:57:49UTC
+
+GET /healthz via curl standard et cookie de partage seul : HTTP200/statusok, expirationAPI13:07:05.105UTC et partage13:06:36UTC inchangées. Viewport390x844 de la nouvelle preview vérifié visuellement : dashboardA6/6/7/0 et pipeline lisibles, capturemobile-dashboard.png ; viewport restauré ensuite. Cela ne vaut pas installation/offlinePWA. Branches distantes vérifiées : sourcec46 et rapportmissions poussé. Aucun nouveau succès global ni aucune connexion fournisseur depuis les preuves ci-dessus.
