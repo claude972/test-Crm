@@ -18,3 +18,6 @@ RuntimeP041185168138, attempt1, artefacttunnel13035983046 : mêmeSHA, expiration
 CJ-AUTH-RECETTE-001 : blocage de parcours réel sur924, cause racine encore à diagnostiquer. ParentClaude propriétaireAuth prévenu avec SHA/heure/étapes. Corriger sans désactiver les contrôles de génération de session ni fabriquer d'état client. Garder la preuve échouée ; refaire une connexion et activation normales après correction.
 
 R10 séparé : CI41183947336,e35ddba6a,opt-inSMTPvrai,FAILURE14/14tests au même beforeAllligne210 updateConfigVariable OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS (réponse data absente). Docker/GreenMail ont démarré, il faut diagnostiquer l'auth/contrat de la fixture admin-panel. Aucun parcours SMTP final validé par cette première exécution. ParentCJ02/CJ05 prévenus, assertions et gardeSSRF à préserver.
+
+
+Complément09:05UTC : contrôle HTTP frais, cookiejar indépendant, sans CLIAuth/Authorization, vérifie200 pour document, healthz,statusok, client-config/serverUrl exact, manifest/display standalone et HERMES_V4_SOURCE924. TLS normal conservé. Aucun succès d'activationCRM, de Safari propriétaire ou d'installation PWA déduit.
