@@ -6,15 +6,15 @@ Source candidate exacte : c46f667a62370ec889f775e0b189ccc74f7ebcd5, branche prev
 
 | Demande | Résultat établi | Limite restante |
 |---|---|---|
-| R01 Sociétés cloisonnées | Création et bascule Alpha/Bêta, données distinctes observées sur d3 | Comptes et bases temporaires ; nouvelles connexions réelles absentes |
-| R02 Dashboards autorisés | Vue propre et récapitulatif des deux sociétés autorisées observés sur d3 ; tests PG | Nouveau non-membre et lecture seule non recettés UI ; création outsider refusée SIGNUP_DISABLED sur C46 |
+| R01 Sociétés cloisonnées | Création et bascule Alpha/Bêta sur d3 puis A/B sur la preview finale c46, campagnes distinctes observées | Comptes et bases temporaires ; nouvelles connexions réelles absentes |
+| R02 Dashboards autorisés | Vue propre et récapitulatif des deux sociétés autorisées observés sur d3 puis c46 ; tests PG | Nouveau non-membre et lecture seule non recettés UI ; création outsider refusée SIGNUP_DISABLED sur C46 |
 | R03 CRM clients | Création/édition/recherche entreprise et contact, validation e-mail, téléphone fictif, poste et relation persistés sur C46 | Suppression/restauration non essayées |
 | R04 Pipeline | Création humaine opportunité, New→Proposal et liens contact/entreprise persistés sur d3 puis sur la preview finale c46 | Drag/drop et reprise finale à distinguer ; aucun flux fournisseur prouvé |
 | R05 Classement | Qualification manuelle B2B et compteurs contact/société relus sur C46 | Réception effective mail/WA/formulaire non recettée |
 | R06 Scraping Hermès | Dépôt JSON manuel fictif→qualification→contact/client→audience validé UI ; signatures/rejeu testés isolément | Hermès externe non raccordé |
 | R07 WhatsApp et médias | Composants et contrôles serveur présents ; tests isolés | Aucune réception Evolution réelle, lecture image/vidéo/audio ni enregistrement vocal de bout en bout prouvés |
 | R08 Boîte mail | Mailbox native et accès configuration IMAP/SMTP présents ; tests isolés | Aucune vraie boîte raccordée ; réception/réponse/transfert/brouillon réel non validés |
-| R09 Bot MCP | OFF Alpha persisté et ASSISTED Bêta conservé ; politiques testées isolément | Aucun MCP fournisseur connecté ; réponses et arrêt par vrai fil/conversation non validés |
+| R09 Bot MCP | OFF Alpha puis A finale persisté, ASSISTED Bêta puis B finale conservé ; politiques testées isolément | Aucun MCP fournisseur connecté ; réponses et arrêt par vrai fil/conversation non validés |
 | R10 Campagnes | Menu, audience, objet/corps persistés, réouverture et aperçu personnalisé réel sans émission validés sur C46 | Expéditeur/relais absent ; test, programmation/annulation et envoi effectif non recettés ; SMTP HTTP/PG en échec8/14 |
 | R11 Ouvertures/opposition | Suivi ON/reload puis OFF persisté ; sujet de désinscription créé et lié à campagne ; opposition isolée testée | Aucun mail suivi ni opposition publique→réimport prouvés de bout en bout |
 | R12 Forms/Cal.diy | Contrats et tests PG isolés | Services externes non raccordés, réception réelle non validée |
@@ -47,3 +47,10 @@ Campagne9ff7fb8e-eb7e-5cd7-b308-b149ce7e61c7, « Campagne de démonstration — 
 Opportunité9f8783eb-d655-414e-a62e-0261f1f261e2 « Opportunité de démonstration — aucun envoi » créée humainement après qualification. ÉtapeNew→Proposal, entrepriseAtelierDémonstration et contactProspectFictif sélectionnés dans leurs vraies listes. Fichecomplète rechargée : nom/Proposal/relations relus, chronologie4champs cohérente. Capture pipeline-after-reload.png observée. Pas de drag/drop ni mail envoyé.
 
 Preuves locales : /private/tmp/hermes-preview-41197244441/recipe/ . Aucun fournisseur SMTP/IMAP/Evolution/MCP/Hermès/Forms/Cal réel connecté, aucune installation PWA réelle effectuée. Les preuves isolées et les parcours antérieurs conservent leur périmètre ; ce déploiement n'efface pas les critères manquants.
+
+
+## Contre-épreuve finale multi-société11:50–11:53UTC
+
+Depuis le centre, création native « Hermès Démo B — cloisonnement », profil terminé et invitations ignorées sans contacter personne. B possède une liste campagne vide (« Aucune campagne »), tandis que la campagne de démonstration réapparaît après la bascule vers A. Dashboard B : entreprises5/personnes5/opportunités6/tâches0. Vue « Vos sociétés autorisées » : A6/6/7/0, B5/5/6/0, total11/11/13/0 ; cohérent avec le contact/client qualifiés et l'opportunité manuelle dans A. Capture authorized-dashboard-two-companies.png observée, b-campaigns-empty.png conservée. Cela prouve la distinction entre sociétés autorisées de ce compte, PAS le refus d'un membre non autorisé ni le rôle lecture seule.
+
+Centre A : groupe « Toute la société »→Arrêt complet→reload : boutonpressed/disabled confirmé, politiqueOFFpersistée. BasculeB→centre : Brouillon seulementpressed/disabled encore présent, politiqueASSISTEDconservée. Retour à A puis dashboard pour le propriétaire. Aucun MCP fournisseur ni réponsebot réelle testés. Ces données de recette vivent uniquement jusqu’à expiration de la session.

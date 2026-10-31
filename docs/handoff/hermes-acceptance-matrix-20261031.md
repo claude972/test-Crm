@@ -105,3 +105,8 @@ Surc46: créationentrepriseetcontacthorsqualification, éditionnom/domaine/email
 ## R02 — complément11:10UTC
 
 Le second compte indépendant n'a pas pu être créé : signUp natif retourne SIGNUP_DISABLED / New workspace setup is disabled, login de contrôle USER_NOT_FOUND. Aucune mutation de configuration ni contournement. Le refus d'accès à une société étrangère et le rôle lecture seule ne sont donc toujours pas validés par une nouvelle recette UI. Cela ne remet pas en cause les bascules autorisées et leurs données observées, mais ne les transforme pas en preuve négative d'autorisation.
+
+
+## Contre-épreuves finales11:48–11:53UTC
+
+Previewfinale41197244441/c46, expiration13:07:05UTC, partage13:06:36UTC. Nouvelleconnexion IABetSafariMacprivé réussies sansVercellogin. CollecteJSONfictive→qualification→brouilloncampagne→save/reload→aperçupersonnaliséréelPASS ; opportunitéhumaine→Proposal/relations/reloadPASS. A/B créées/basculées : Bcampagnevide, Acampagneretrouvée ; dashboardB5/5/6/0, communA6/6/7/0+B5/5/6/0=11/11/13/0. OFFA/reloadpersisté, BBrouillonseulementinchangé. R01/R02/R04/R09configuration/R10brouillon renforcés sursourcefinale. Nullepreuvenouvellefournisseurréel, PWAinstallation, non-membreUI, SMTPtest/schedule/send oufrançaisintégral. Détailsdansdocs/verification/hermes-owner-delivery-20261031.md ; CIfrontendstrictfixturetoujoursrouge.
