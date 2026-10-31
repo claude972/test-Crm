@@ -1976,6 +1976,11 @@ msgstr ""
 msgid "A proposal. Nothing has been sent, and inserting it sends nothing."
 msgstr ""
 
+#. js-lingui-id: 7Ltlga
+#: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+msgid "A qualification was confirmed, yet the classification reports no contact linked to this collection. The two server reads disagree: have this checked rather than read as nothing done."
+msgstr ""
+
 #. js-lingui-id: coauWZ
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
 msgid "A real emission inside the product, restricted by the server to staging destinations. Never to a prospect."
@@ -6461,6 +6466,7 @@ msgstr "Anulowano harmonogram kampanii i przeniesiono ją z powrotem do wersji r
 
 #. js-lingui-id: oRJtCM
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+#: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
 #: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
 #: src/pages/hermes/HermesCampaignListPage.tsx
 msgid "Campaigns"
@@ -22826,6 +22832,11 @@ msgstr ""
 msgid "None published. Replies then reach the displayed address."
 msgstr ""
 
+#. js-lingui-id: R3NZHh
+#: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+msgid "None reported, after a confirmed qualification"
+msgstr ""
+
 #. js-lingui-id: ixhAJF
 #: src/modules/workflow/workflow-steps/workflow-actions/send-chat-message-action/components/WorkflowEditActionSendChatMessage.tsx
 msgid "None, only send the message"
@@ -32434,6 +32445,11 @@ msgstr "Konwersacja została skompaktowana"
 #. js-lingui-id: aN/6n+
 #: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
 msgid "The conversations could not be read."
+msgstr ""
+
+#. js-lingui-id: /05nTc
+#: src/modules/prospection/components/HermesQualificationForm.tsx
+msgid "The counts and the classification below were not reread: this call did not confirm what it changed. What they show is from before this attempt."
 msgstr ""
 
 #. js-lingui-id: /kfzmx
