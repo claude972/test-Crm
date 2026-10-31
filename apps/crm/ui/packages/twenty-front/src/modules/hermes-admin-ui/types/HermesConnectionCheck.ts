@@ -91,6 +91,18 @@ export type HermesConnectionCheckOutcome =
       // the paired state, the folder that was found, the tool that was listed.
       observations: readonly string[];
     }
+  // The provider answered, and said it is not ready to carry traffic. The
+  // usual case is an Evolution instance whose WhatsApp pairing has not been
+  // completed: the gateway is perfectly reachable and the channel still
+  // cannot send. Folding this into 'reachable' would promise a working
+  // channel; folding it into 'unreachable' would send the operator looking
+  // for a network fault that does not exist.
+  | {
+      kind: 'reachable-not-ready';
+      probe: HermesConnectionProbe;
+      checkedAt: Date;
+      reason: string;
+    }
   | {
       kind: 'unreachable';
       probe: HermesConnectionProbe;
@@ -104,6 +116,13 @@ export type HermesConnectionCheckOutcome =
   // not a provider problem: there is simply no authorised operation to call,
   // and pressing a button cannot invent one.
   | { kind: 'not-offered' }
+  // Nothing is configured, so nothing was dialled. Distinct from a probe that
+  // was never run: here there is no configuration for a probe to reach.
+  | { kind: 'nothing-configured' }
+  // The configuration changed while the probe was in flight, so the answer
+  // describes credentials that are no longer the current ones. It is not
+  // reported as a success or a failure of the current configuration.
+  | { kind: 'connection-changed' }
   | { kind: 'session-replaced'; message: string | null }
   // The answer could not be read. It proves nothing, so it is neither a
   // success nor a failure, and it is never shown as either.
@@ -171,8 +190,10 @@ export type HermesConnectionStanding = {
   reachability:
     | { kind: 'never-checked' }
     | { kind: 'reachable'; checkedAt: Date }
+    | { kind: 'reachable-not-ready'; checkedAt: Date; reason: string }
     | { kind: 'unreachable'; checkedAt: Date | null; errorCode: string | null }
     | { kind: 'not-offered' }
+    | { kind: 'nothing-configured' }
     | { kind: 'inconclusive' };
   // Did the ledger record a real exchange.
   proof: HermesConnectionFlowProof;
@@ -185,6 +206,17 @@ export const readHermesConnectionStanding = (
   if (outcome.kind === 'reachable') {
     return {
       reachability: { kind: 'reachable', checkedAt: outcome.checkedAt },
+      proof,
+    };
+  }
+
+  if (outcome.kind === 'reachable-not-ready') {
+    return {
+      reachability: {
+        kind: 'reachable-not-ready',
+        checkedAt: outcome.checkedAt,
+        reason: outcome.reason,
+      },
       proof,
     };
   }
@@ -204,12 +236,17 @@ export const readHermesConnectionStanding = (
     return { reachability: { kind: 'not-offered' }, proof };
   }
 
-  // A refusal, a replaced session or an unreadable answer all establish
-  // nothing about reachability. They are not failures of the provider, so they
-  // are not reported as « injoignable ».
+  if (outcome.kind === 'nothing-configured') {
+    return { reachability: { kind: 'nothing-configured' }, proof };
+  }
+
+  // A refusal, a replaced session, a configuration that moved under the probe
+  // and an unreadable answer all establish nothing about reachability. None of
+  // them is a failure of the provider, so none is reported as « injoignable ».
   if (
     outcome.kind === 'refused' ||
     outcome.kind === 'session-replaced' ||
+    outcome.kind === 'connection-changed' ||
     outcome.kind === 'unconfirmed'
   ) {
     return { reachability: { kind: 'inconclusive' }, proof };

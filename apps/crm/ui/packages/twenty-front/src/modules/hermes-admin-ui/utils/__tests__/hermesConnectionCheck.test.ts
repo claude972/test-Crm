@@ -194,6 +194,36 @@ describe('canAttemptHermesSend', () => {
     expect(canAttemptHermesSend(reachable)).toBe(true);
   });
 
+  it('refuses an attempt when the gateway answered but the channel is not ready', () => {
+    // An Evolution instance that is not paired answers its gateway perfectly
+    // and still cannot send. Offering a send here would fail in front of the
+    // operator with no explanation.
+    const notReady = readHermesConnectionStanding(
+      {
+        kind: 'reachable-not-ready',
+        probe: 'EVOLUTION_INSTANCE_STATE',
+        checkedAt: CHECKED_AT,
+        reason: 'CONNECTING',
+      },
+      NO_PROOF,
+    );
+
+    expect(notReady.reachability).toEqual({
+      kind: 'reachable-not-ready',
+      checkedAt: CHECKED_AT,
+      reason: 'CONNECTING',
+    });
+    expect(canAttemptHermesSend(notReady)).toBe(false);
+  });
+
+  it('refuses an attempt on a configuration that moved under the probe', () => {
+    expect(
+      canAttemptHermesSend(
+        readHermesConnectionStanding({ kind: 'connection-changed' }, NO_PROOF),
+      ),
+    ).toBe(false);
+  });
+
   it('refuses an attempt on an inconclusive or unoffered check', () => {
     expect(
       canAttemptHermesSend(
