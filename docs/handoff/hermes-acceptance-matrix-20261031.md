@@ -53,3 +53,10 @@ Complément 04:36 UTC : les deux suites campagnes non chargées ont été relanc
 - R08/R09 : défaut de reprise après reload et contrôles bot absents de la vraie mailbox constatés, nouveau lot CJ04d lancé. MCP32testsPASS mais injection du client central dans le module surface incorrecte à corriger.
 - R10 : sélection From débloquée partiellement, attestation centrale encore à corriger. Suite produit HTTP/PG réattribuée au vrai CJ02. Format riche/audience/save concurrent toujours en cours.
 - R07 : forme webhookByEvents corrigée et root28testsPASS ; vrai stockage natif et fournisseur non validés. R15/R16 toujours aucune installation PWA ni nouvelle preview/Safari utilisateur prouvés.
+
+
+## Checkpoint — 31 octobre 05:28 UTC
+
+- R13 : root62testsPASS sur b0ef31d0c pour sonde WA/états mail/identité des grants ; droits UI corrigés ba31adf23 relus mais nouveau recheck frontend non chargé faute résolution ESM locale, à vérifier en CI propre.
+- R07 : preuve native positive médias demandée à CJ03, reprise non encore confirmée ; ancienne fixture Map avec octets de texte ne prouve pas des médias affichables.
+- R15/R16 : **outil de navigation CUA indisponible malgré réinitialisation**. Pas de recette visuelle nouvelle possible à ce checkpoint ; développement/PG/HTTP continuent. Aucune ancienne capture ni curl200 promu en preuve navigateur, Safari propriétaire toujours non confirmé.
