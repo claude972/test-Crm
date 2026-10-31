@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { useApolloClient, useMutation } from '@apollo/client/react';
+import { type GraphQLFormattedError } from 'graphql';
 import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -31,9 +32,9 @@ import { buildHermesMailboxFormDefaults } from '@/hermes-mailbox-setup/constants
 // 'saved-not-reread' is the same accepted write whose list re-read failed: the
 // account exists and must not be created again. 'unconfirmed' is an answer that
 // could not be read at all, so it proves neither a save nor a failure.
-// 'write-unknown' is a request whose answer never arrived or could not be
-// read. It is NOT a refusal: the server may have applied the write, so the
-// panel stops offering to send and offers only a re-read.
+// 'write-unknown' is a request whose answer never arrived, could not be read,
+// or carried no code proving a refusal BEFORE the write. The server may have
+// applied it, so the panel stops offering to send and offers only a re-read.
 export type HermesMailboxSetupOutcome =
   | { kind: 'idle' }
   | { kind: 'saving' }
@@ -46,6 +47,36 @@ export type HermesMailboxSetupOutcome =
 
 const readErrorMessage = (error: unknown): string | null =>
   error instanceof Error ? error.message : null;
+
+// The ONLY codes accepted as proof the write was REFUSED, because each is
+// raised before the native resolver reaches its transaction: the guards and
+// the validation pipe run before the method body, and the resolver's own
+// pre-write throws carry these. Every other code — INTERNAL_SERVER_ERROR
+// first of all — can follow the COMMIT, so it proves nothing.
+const PRE_WRITE_REFUSAL_CODES = [
+  'UNAUTHENTICATED',
+  'FORBIDDEN',
+  'BAD_USER_INPUT',
+  'NOT_FOUND',
+];
+
+// Read from the top-level extensions code ONLY: a subCode is a module's own
+// label and does not say where the check ran, so it is not evidence here.
+const isPreWriteRefusalCode = (
+  graphQLError: GraphQLFormattedError,
+): boolean => {
+  const code = graphQLError.extensions?.code;
+
+  return typeof code === 'string' && PRE_WRITE_REFUSAL_CODES.includes(code);
+};
+
+// A refusal has to be PROVEN, so every error in the answer must be placed on
+// that list. One unplaceable or missing code leaves the outcome unknown: the
+// server may have applied the write.
+const isProvenPreWriteRefusal = (error: unknown): boolean =>
+  CombinedGraphQLErrors.is(error) &&
+  error.errors.length > 0 &&
+  error.errors.every(isPreWriteRefusalCode);
 
 type UseHermesMailboxSetupProps = {
   // Called once the account exists server side AND the accounts list has been
@@ -173,11 +204,13 @@ export const useHermesMailboxSetup = ({
       } catch (error) {
         enqueueToast(getToastOptionsFromError({ error }));
 
-        // Only GraphQL errors mean the server SAW this write and declined it.
-        // A lost, non-OK or unparsable response proves nothing: the write may
-        // have been applied, so claiming a refusal would invite a duplicate.
+        // A GraphQL error is NOT proof of a refusal: the native resolver
+        // COMMITS, then awaits more work, so an INTERNAL_SERVER_ERROR can
+        // follow an applied write. Only a code raised before the write reads
+        // as refused; every other answer, and every lost one, stays unknown
+        // and is offered no re-emission.
         setOutcome(
-          CombinedGraphQLErrors.is(error)
+          isProvenPreWriteRefusal(error)
             ? { kind: 'refused', reason: readErrorMessage(error) }
             : {
                 kind: 'write-unknown',
