@@ -131,9 +131,12 @@ export const HermesWaRuntimeComposer = ({
     [conversationId, upload],
   );
 
-  // The asset a send may reference. Only a READY one exists here, and the
-  // reply kind is taken from the MIME the server returned — not from the kind
-  // this client asked for.
+  // The asset a send may reference. Only a READY one exists here.
+  //
+  // The reply kind is the kind the server VALIDATED at finalize. An Opus
+  // recording whose native sniff said `video/webm` is AUDIO on the server:
+  // reading the MIME instead would send it as a video, the server refuses
+  // that, and the voice note never arrives.
   const readyAsset = upload.state.kind === 'ready' ? upload.state : null;
 
   const sendAsset = useCallback(() => {
@@ -144,6 +147,42 @@ export const HermesWaRuntimeComposer = ({
     const capturedConversationId = conversationId;
     const capturedAssetId = readyAsset.assetId;
     const mimeType = readyAsset.mimeType.toLowerCase();
+
+    if (readyAsset.assetKind === 'AUDIO') {
+      // No caption, as the contract requires.
+      reply.send({
+        kind: 'AUDIO',
+        conversationId: capturedConversationId,
+        assetId: capturedAssetId,
+      });
+
+      return;
+    }
+
+    if (readyAsset.assetKind === 'IMAGE') {
+      reply.send({
+        kind: 'IMAGE',
+        conversationId: capturedConversationId,
+        text,
+        assetId: capturedAssetId,
+      });
+
+      return;
+    }
+
+    if (readyAsset.assetKind === 'VIDEO') {
+      reply.send({
+        kind: 'VIDEO',
+        conversationId: capturedConversationId,
+        text,
+        assetId: capturedAssetId,
+      });
+
+      return;
+    }
+
+    // Past here the server named no sendable kind, so its MIME is all that is
+    // left to read. A fallback, never the first answer.
 
     if (mimeType.startsWith('audio/')) {
       // No caption, as the contract requires.
@@ -178,10 +217,9 @@ export const HermesWaRuntimeComposer = ({
       return;
     }
 
-    // A MIME outside the three picks no kind. The WebM-audio case the contract
-    // names lands here when the native sniff reported video/webm: the asset is
-    // AUDIO on the server and this client will not relabel it, so it says so
-    // rather than sending it as a video.
+    // No validated kind and a MIME outside the three: nothing is sent. The
+    // video/webm recording that used to land here is now caught above by the
+    // server's own AUDIO verdict, which is the whole point of reading it.
   }, [conversationId, readyAsset, reply, text]);
 
   return (

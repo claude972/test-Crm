@@ -28,6 +28,36 @@ export type HermesWaSendState =
       failure: MessagingInboxCallFailure;
     };
 
+// The three asset kinds a WhatsApp reply may carry. FILE is deliberately out:
+// the contract states WhatsApp prepare and reply do not accept it.
+export const HERMES_WA_SENDABLE_ASSET_KINDS = [
+  'IMAGE',
+  'VIDEO',
+  'AUDIO',
+] as const;
+
+export type HermesWaSendableAssetKind =
+  (typeof HERMES_WA_SENDABLE_ASSET_KINDS)[number];
+
+// The server's own word for a finalized asset's kind, reduced to the three a
+// reply may carry. Anything else — FILE, an unknown value, an absent field —
+// is null, which is "the server named no sendable kind" and never a guess.
+export const readHermesWaSendableAssetKind = (
+  rawKind: string | null,
+): HermesWaSendableAssetKind | null => {
+  if (rawKind === null) {
+    return null;
+  }
+
+  const normalised = rawKind.trim().toUpperCase();
+
+  return (HERMES_WA_SENDABLE_ASSET_KINDS as readonly string[]).includes(
+    normalised,
+  )
+    ? (normalised as HermesWaSendableAssetKind)
+    : null;
+};
+
 // One media attachment's journey, from the file a person chose to the asset id
 // a reply may carry.
 //
@@ -40,7 +70,17 @@ export type HermesWaUploadState =
   // The bytes are being PUT to the native quarantine target.
   | { kind: 'uploading'; assetId: string }
   | { kind: 'finalizing'; assetId: string }
-  | { kind: 'ready'; assetId: string; mimeType: string }
+  // `assetKind` is the kind the SERVER validated at finalize. It is the
+  // authority for the reply kind: an Opus recording the native sniff called
+  // `video/webm` is AUDIO on the server, and choosing from the MIME would send
+  // it as a video the server then refuses. Null is the server naming no
+  // sendable kind, and only then is the MIME a last resort.
+  | {
+      kind: 'ready';
+      assetId: string;
+      mimeType: string;
+      assetKind: HermesWaSendableAssetKind | null;
+    }
   | { kind: 'cancelling'; assetId: string }
   | { kind: 'cancelled' }
   | {
