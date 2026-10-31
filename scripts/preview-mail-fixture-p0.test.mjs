@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import tls from 'node:tls';
+import { assertFolderFixture, initializeStandardFolders, STANDARD_FOLDERS } from './preview-mail-fixture-imap-p0.mjs';
 import { IMAGE, PORTS, matchesForwardProcess, assertInternalAddress, createLoopbackForwarder, dockerArguments, fixturePlan, generateFixtureCertificates, main, privateDirectory, runtimeEnvironment } from './preview-mail-fixture-p0.mjs';
 
 const now = Date.parse('2026-10-31T16:00:00Z');
@@ -146,4 +147,22 @@ test('cleanup identity refuses reused PIDs or another command/session', () => {
   assert.equal(matchesForwardProcess(state, command, '5678'), false);
   assert.equal(matchesForwardProcess(state, command.replace('forward', 'parameters'), '1234'), false);
   assert.equal(matchesForwardProcess(state, command.replace(plan.id, '999-1'), '1234'), false);
+});
+
+
+test('folder provisioning accepts only the three exact isolated synthetic accounts', async () => {
+  const active = { ...plan, expiresAt: new Date(Date.now() + 60_000).toISOString() };
+  assert.deepEqual(STANDARD_FOLDERS, ['Drafts', 'Sent', 'Trash']);
+  assertFolderFixture(active);
+  for (const invalid of [
+    { ...active, hostname: 'mail.example.com' },
+    { ...active, domain: 'example.com' },
+    { ...active, mode: 'production' },
+    { ...active, password: 'bad\r\ncommand' },
+    { ...active, users: [...active.users, { login: 'other', email: 'other@example.com' }] },
+    { ...active, users: active.users.slice(0, 1) },
+    { ...active, expiresAt: new Date(Date.now() - 1).toISOString() },
+  ]) {
+    await assert.rejects(initializeStandardFolders(invalid, Buffer.from('no network before validation')));
+  }
 });
