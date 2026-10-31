@@ -33,3 +33,6 @@ Les états de la colonne « à la reprise » restent historiques. Les deltas sui
 - R14 : default locale configurée dans le script de session et tests comportementaux d'adhésion ajoutés `888187a6a`. Nouveau compte/adhésion à tester sans forcer la langue manuellement.
 - R15 : fallback sans cache privé et enregistrement réel dans bootstrap `7efd64983`. Root a exécuté 25 contrôles isolés SW/accès PASS. Installation et dégradation réseau dans un vrai navigateur restent non vérifiées.
 - R16 : contrôleur de partage vérifié sur serveurs HTTP isolés ; aucune nouvelle preview finale déployée, Safari propriétaire toujours non confirmé. Une fixture d'accès ne résout pas son signalement réel.
+
+
+Complément 04:36 UTC : les deux suites campagnes non chargées ont été relancées avec résolution explicite des dépendances, sans mutation du checkout original : 14 tests PASS, soit les sept suites/86 tests recontrôlés en deux runs. Correction du périmètre de preuve relue `32059faa5`, onboarding HTTP/PG encore non recetté. Locale : root 7 tests PASS sur service/configuration. PWA : root 26 tests isolés PASS sur `936a21c65`, correction de police et rapport relus, intégration finale/installation/Safari toujours attendus.
