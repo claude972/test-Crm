@@ -1,0 +1,125 @@
+import assert from "node:assert/strict";
+import {
+  mkdtempSync,
+  mkdirSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import test from "node:test";
+import {
+  discoverFrontendSuites,
+  parseConnectionProof,
+  runCombined,
+} from "./check-hermes-v4-combined.mjs";
+
+const frontendFixture = () => {
+  const root = realpathSync(
+    mkdtempSync(path.join(tmpdir(), "hermes-combined-suites-")),
+  );
+  const put = (filename) => {
+    const absolute = path.join(root, filename);
+    mkdirSync(path.dirname(absolute), { recursive: true });
+    writeFileSync(absolute, "");
+  };
+  for (const group of [
+    "auth",
+    "apollo",
+    "hermes-wa-ui",
+    "hermes-mailbox-ui",
+    "hermes-admin-ui",
+    "hermes-campaigns-ui",
+    "hermes-wa-runtime",
+    "hermes-mailbox-runtime",
+    "hermes-admin-runtime",
+    "hermes-campaigns-runtime",
+  ])
+    put(`src/modules/${group}/__tests__/behavior.test.tsx`);
+  for (const filename of [
+    "src/modules/users/hooks/__tests__/useLoadCurrentUserSameOrigin.test.tsx",
+    "src/modules/auth/hooks/__tests__/useAuthSameOrigin.test.tsx",
+    "src/utils/i18n/__tests__/initialI18nActivate.test.ts",
+    "src/modules/settings/data-model/fields/preview/utils/__tests__/getMultiSelectFieldPreviewValue.test.ts",
+  ])
+    put(filename);
+  return root;
+};
+
+test("frontend discovery fails closed when a delivered UI lacks its runtime or tests", () => {
+  const root = frontendFixture();
+  try {
+    assert.equal(discoverFrontendSuites(root).length, 14);
+    rmSync(path.join(root, "src/modules/hermes-mailbox-runtime"), {
+      recursive: true,
+    });
+    assert.throws(() => discoverFrontendSuites(root));
+    mkdirSync(path.join(root, "src/modules/hermes-mailbox-runtime"));
+    assert.throws(
+      () => discoverFrontendSuites(root),
+      /Missing tested frontend group/,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("suite discovery rejects linked trees rather than testing another checkout", () => {
+  const root = frontendFixture();
+  try {
+    const mailbox = path.join(root, "src/modules/hermes-mailbox-runtime");
+    rmSync(mailbox, { recursive: true });
+    symlinkSync(
+      path.join(root, "src/modules/hermes-wa-runtime"),
+      mailbox,
+      "dir",
+    );
+    assert.throws(() => discoverFrontendSuites(root), /symlinks are forbidden/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+const proof = () => ({
+  status: "passed",
+  poolSize: 1,
+  providerTraffic: false,
+  assertions: [
+    "stale-revision-after-advisory-lock-blocks-all-transaction-writes-pool1",
+    "native-media-receive-asset-lock-then-D-rotation-zero-files-pool1",
+    "native-inbox-ingest-messaging-lock-then-D-rotation-zero-messages-pool1",
+    "native-D-rotation-preserves-OFF-ASSISTED-INHERIT-and-clears-AUTO-grant",
+  ],
+});
+const output = (value) => "HERMES_CONNECTION_PG:" + JSON.stringify(value);
+
+test("a successful process without every native PostgreSQL barrier is not accepted as proof", () => {
+  assert.deepEqual(parseConnectionProof(output(proof())), proof());
+  assert.throws(() => parseConnectionProof("process finished normally"));
+  for (let index = 0; index < proof().assertions.length; index++) {
+    const partial = proof();
+    partial.assertions.splice(index, 1);
+    assert.throws(
+      () => parseConnectionProof(output(partial)),
+      /Missing PostgreSQL barrier/,
+    );
+  }
+  assert.throws(() =>
+    parseConnectionProof(output({ ...proof(), providerTraffic: true })),
+  );
+  assert.throws(() =>
+    parseConnectionProof(output({ ...proof(), status: "failed" })),
+  );
+});
+
+test("arbitrary suites and flags cannot become an executable combined stage", async () => {
+  for (const mode of [
+    undefined,
+    "--same-origin=true",
+    "custom-suite.ts",
+    "postgres-tenancy --extra",
+  ])
+    await assert.rejects(runCombined(mode), /Unknown fixed combined stage/);
+});
