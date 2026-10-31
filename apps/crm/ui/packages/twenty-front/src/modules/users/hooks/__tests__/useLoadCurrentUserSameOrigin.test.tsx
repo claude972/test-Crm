@@ -162,6 +162,26 @@ describe('verified current-user bootstrap before cache or tenant state changes',
     expect(mockClient.writeQuery).not.toHaveBeenCalled();
     expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(A);
   });
+  it('keeps the session when the cookie workspace differs from persisted only in case', async () => {
+    jotaiStore.set(currentWorkspaceState.atom, {
+      id: A.toUpperCase(),
+    } as never);
+    mockClient.query.mockResolvedValue(resultData(A));
+    const { result } = render();
+    await result.current.loadCurrentUser();
+    expect(resetWorkspaceSessionAndReload).not.toHaveBeenCalled();
+    expect(mockClient.writeQuery).toHaveBeenCalledTimes(1);
+    expect(jotaiStore.get(currentWorkspaceState.atom)?.id).toBe(A);
+  });
+  it('keeps the session when the user id differs from persisted only in case', async () => {
+    jotaiStore.set(currentWorkspaceState.atom, { id: B } as never);
+    jotaiStore.set(currentUserState.atom, { id: 'SYNTHETIC-USER' } as never);
+    mockClient.query.mockResolvedValue(resultData(B));
+    const { result } = render();
+    await result.current.loadCurrentUser();
+    expect(resetWorkspaceSessionAndReload).not.toHaveBeenCalled();
+    expect(mockClient.writeQuery).toHaveBeenCalledTimes(1);
+  });
   it('purges unknown persistent metadata before committing verified B on a fresh context', async () => {
     jotaiStore.set(currentWorkspaceState.atom, null);
     jotaiStore.set(currentUserState.atom, null);
