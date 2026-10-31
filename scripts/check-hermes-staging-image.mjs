@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import net from 'node:net';
+import { request } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { MIGRATION_COMMANDS, FAILURE_CATEGORIES, PREFLIGHT_STAGES, ERROR_NAMES, ERROR_CODES, VALIDATION_KEYS } from '../infra/hermes-staging/entrypoint.mjs';
 
@@ -33,6 +34,28 @@ export function readMigrationDiagnostic(output, secrets) {
     }
     return result;
   } catch { return undefined; }
+}
+export async function checkForwardedServiceWorkerDocument(origin) {
+  assert.match(origin, /^http:\/\/127\.0\.0\.1:\d+$/);
+  await new Promise((resolve, reject) => {
+    // node:http preserves the actual SW metadata; fetch overwrites Sec-Fetch-Mode with cors.
+    const outgoing = request(`${origin}/`, { method: 'GET', headers: { Accept: 'text/html', 'Sec-Fetch-Dest': 'empty', 'Sec-Fetch-Mode': 'navigate' } }, (response) => {
+      let body = '';
+      response.setEncoding('utf8');
+      response.on('data', (chunk) => { body += chunk; if (body.length > 2 * 1024 * 1024) outgoing.destroy(new Error('Document response exceeded smoke limit')); });
+      response.once('error', reject);
+      response.once('end', () => {
+        try {
+          assert.equal(response.statusCode, 200, 'Forwarded SW navigation must return its HTML document');
+          assert.match(response.headers['content-type'] ?? '', /^text\/html(?:;|$)/i);
+          assert.match(body, /<\/head>/i);
+          resolve();
+        } catch (error) { reject(error); }
+      });
+    });
+    outgoing.setTimeout(5000, () => outgoing.destroy(new Error('Document smoke timed out')));
+    outgoing.once('error', reject); outgoing.end();
+  });
 }
 export function validateSmokeEnvironment(environment) {
   assert.equal(environment.GITHUB_ACTIONS, 'true', 'Image smoke is restricted to disposable GitHub Actions runners');
@@ -148,6 +171,10 @@ export async function smoke(environment) {
       return response.ok && (await response.json()).status === 'ok';
     };
     await wait(health);
+    phase = 'forwarded-service-worker-document';
+    await checkForwardedServiceWorkerDocument(origin);
+    checks.forwardedServiceWorkerDocument = true;
+    phase = 'server';
     const config = await (await fetch(`${origin}/client-config`, { signal: AbortSignal.timeout(5000) })).json();
     assert.equal(config.isSameOriginMultiWorkspaceEnabled, true);
     assert.equal(config.isMultiWorkspaceEnabled, false);
