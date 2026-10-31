@@ -37,31 +37,52 @@ True only when all of the following hold, each from the provider's own answer:
 2. `GET /` reports version exactly `2.3.6`. The stored-bytes fetch this contract
    uses (`/chat/getBase64FromMediaMessage`) exists only on that pinned build.
 3. `GET /webhook/find/{instance}` returns a configuration row where
-   - `enabled` is exactly `true` — an absent flag is not read as on;
+   - `enabled` is exactly `true` — an absent flag is **not** read as on;
    - `events` contains `MESSAGES_UPSERT`;
-   - `url` is an absolute http(s) URL whose path is
-     `/webhooks/hermes/evolution/<this connection's id>`.
-4. The adapter was constructed with that connection's identity. The
-   environment-only adapter has none and answers `false` by construction.
+   - `url` is an absolute http(s) URL whose **origin is one this deployment
+     configured** (from `SERVER_URL`, or an explicit operator allowlist) and
+     whose path is `/webhooks/hermes/evolution/<this connection's id>`;
+   - `headers` carries `x-hermes-evolution-token` (any case) whose value equals
+     this connection's stored `webhookSecret`.
+4. The adapter was constructed with that connection's identity, with at least one
+   expected ingress origin, and with a way to compare the delivery token. The
+   environment-only adapter has none of the three and answers `false` by
+   construction.
 
-The connection-scoped path is not a preference. `HermesConnectedEvolutionReceiver`
-refuses every delivery that does not name a connection, so an instance posting
-to the bare path is rejected as unauthorized each time: a webhook that is absent,
-disabled, unsubscribed or pointed elsewhere genuinely cannot deliver, and the
-flag says so.
+Why the origin is required, not merely noted: a webhook whose path and connection
+id are correct but whose origin is another host sends every delivery to that host
+and none to us. Path plus connection id is therefore not evidence of reception.
+With no origin configured the answer is `INGRESS_ORIGIN_UNKNOWN` — unproven,
+never "any host will do". Scheme and port are part of the origin, so
+`http://` or `:8443` against an `https://` origin does not match.
+
+Why the delivery token is required: `EvolutionWebhookController` reads
+`x-hermes-evolution-token` and `HermesConnectedEvolutionReceiver` compares it to
+this connection's `webhookSecret` with a timing-safe comparison. A webhook
+without an accepted token is refused **401 on every single delivery**, so an
+otherwise perfect configuration still cannot receive. **The receiving guard was
+not touched — it is correct; the capability claim was what was wrong.**
+
+The token is checked without this code handling the secret: the connected adapter
+passes a timing-safe *comparison function*, so the messages adapter and the
+judgement never hold the secret, and the reported value is never returned,
+logged or stored. Evidence is reduced to one of `MATCHED`, `MISMATCHED`,
+`NOT_CONFIGURED` or `UNVERIFIABLE`.
+
+`UNVERIFIABLE` is kept apart from `NOT_CONFIGURED` on purpose. The pinned build's
+read returns a raw database row and the exact `headers` column could not be
+confirmed from the source (`schema.prisma` was not readable), so a row that
+reports no headers at all leaves authentication *unproven* rather than *absent*,
+and reception stays false either way.
 
 Each refusal carries a reason an operator can act on:
-`PROVIDER_VERSION_UNVERIFIED`, `INGRESS_NOT_IDENTIFIED`, `WEBHOOK_NOT_READABLE`,
-`WEBHOOK_NOT_CONFIGURED`, `WEBHOOK_DISABLED`, `WEBHOOK_EVENT_NOT_SUBSCRIBED`,
-`WEBHOOK_URL_NOT_THIS_INGRESS`. A read that fails is reported as
+`PROVIDER_VERSION_UNVERIFIED`, `INGRESS_NOT_IDENTIFIED`, `INGRESS_ORIGIN_UNKNOWN`,
+`WEBHOOK_NOT_READABLE`, `WEBHOOK_NOT_CONFIGURED`, `WEBHOOK_DISABLED`,
+`WEBHOOK_EVENT_NOT_SUBSCRIBED`, `WEBHOOK_URL_NOT_THIS_INGRESS`,
+`WEBHOOK_TOKEN_NOT_CONFIGURED`, `WEBHOOK_TOKEN_MISMATCHED`,
+`WEBHOOK_TOKEN_UNVERIFIABLE`. A read that fails is reported as
 `WEBHOOK_NOT_READABLE` and never as "nothing is configured": the two are
 different facts.
-
-Known bound, stated rather than hidden: the webhook **host** is not asserted.
-A deployment's own public origin is not something the probe knows without new
-configuration, and inventing one would turn a missing setting into a false
-negative. The path plus the per-database connection UUID is what makes a
-delivery reachable and attributable; which host answers is not proven here.
 
 `webhookBase64` is read into the schema and deliberately excluded from the
 judgement: we never accept provider-delivered base64 and never fetch a webhook
@@ -115,7 +136,13 @@ Read at tag 2.3.6, commit `3454bec79f514995df9a5ea36a3554ab35cf1c82`:
   read, copied or needed for this work.
 - Host-side audio conversion, as above.
 - An end-to-end reception against a real instance: a real inbound image through
-  to private storage, display and playback has not been observed.
+  to private storage, display and playback has not been observed. One inbound
+  image **is** exercised end to end over real loopback HTTP through the real
+  controller, receiver and media adapter into a store double, which proves our
+  path and its guards and proves nothing about a real provider.
+- Whether the pinned build's webhook row really reports a `headers` column under
+  that name. Until a real instance answers, a row without it is treated as
+  `WEBHOOK_TOKEN_UNVERIFIABLE` and reception stays closed.
 - A loopback demonstration provider is not provider delivery proof. The listener
   in `evolution-media-capability.spec.ts` is a few lines of that test file
   answering on `127.0.0.1`. It is labelled a demonstration in the file itself and

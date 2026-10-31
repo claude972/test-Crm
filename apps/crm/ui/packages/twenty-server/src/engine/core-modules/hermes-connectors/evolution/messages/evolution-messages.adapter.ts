@@ -22,8 +22,11 @@ import {
   type EvolutionReceptionBlockReason,
   type EvolutionVoiceBlockReason,
   type EvolutionWebhookConfiguration,
+  evolutionWebhookRowSchema,
   judgeEvolutionReception,
   judgeEvolutionVoice,
+  readEvolutionIngressOrigins,
+  readEvolutionIngressToken,
 } from './evolution-media-capability';
 
 const inputSchema = z.object({
@@ -68,13 +71,36 @@ type EvolutionMessagesOptions = {
   // built from the environment alone cannot attribute a delivery, so it answers
   // canReceiveMedia false rather than guessing.
   ingressConnectionId?: string | null;
+  // This deployment's expected public ingress origin(s) — SERVER_URL, or an
+  // explicit operator allowlist — passed down by the caller that holds the
+  // configuration. A reported webhook URL must address one of them.
+  //
+  // Empty by default. A webhook on the right path at someone else's host
+  // delivers to that host and never to us, so with no configured origin to
+  // compare against reception stays unproven rather than assumed.
+  ingressOrigins?: readonly (string | null | undefined)[];
+  // Compares a provider-reported delivery token to this connection's webhook
+  // secret. Supplied as a comparison rather than as the secret, so this adapter
+  // never holds it and no output can leak it.
+  //
+  // Absent by default, which leaves the token UNVERIFIABLE and reception false.
+  matchesIngressToken?: ((value: string) => boolean) | null;
 };
 
 export class EvolutionMessagesAdapter {
   readonly channel = 'WHATSAPP' as const;
   readonly #connections: Record<string, EvolutionConnection>;
   readonly #probe: EvolutionConnectionAdapter;
-  readonly #options: Required<EvolutionMessagesOptions>;
+  // Resolved, not `Required<>`: the ingress origins are normalized on the way
+  // in, so what is stored is narrower than what a caller may pass.
+  readonly #options: {
+    timeoutMs: number;
+    allowedInternalHosts: string[];
+    assertCurrent: () => Promise<void>;
+    ingressConnectionId: string | null;
+    ingressOrigins: string[];
+    matchesIngressToken: ((value: string) => boolean) | null;
+  };
 
   constructor(
     serializedConnections: string,
@@ -86,6 +112,8 @@ export class EvolutionMessagesAdapter {
       allowedInternalHosts: [...(options.allowedInternalHosts ?? [])],
       assertCurrent: options.assertCurrent ?? (async () => undefined),
       ingressConnectionId: options.ingressConnectionId ?? null,
+      ingressOrigins: readEvolutionIngressOrigins(options.ingressOrigins ?? []),
+      matchesIngressToken: options.matchesIngressToken ?? null,
     };
     this.#probe = new EvolutionConnectionAdapter(
       serializedConnections,
@@ -142,10 +170,24 @@ export class EvolutionMessagesAdapter {
     const webhook: EvolutionWebhookConfiguration = versionVerified
       ? await this.readWebhookConfiguration(workspaceId)
       : { kind: 'unreadable' };
+    // The delivery token the provider says it will present, read from the same
+    // row and compared through the delegated check. The reported value is used
+    // here and nowhere else: it is not returned, logged or stored.
+    const row =
+      webhook.kind === 'row'
+        ? evolutionWebhookRowSchema.safeParse(webhook.row)
+        : null;
+    const reportedHeaders =
+      row !== null && row.success ? row.data.headers : null;
     const reception = judgeEvolutionReception({
       versionVerified,
       ingressConnectionId: this.#options.ingressConnectionId,
+      ingressOrigins: this.#options.ingressOrigins,
       webhook,
+      ingressToken: readEvolutionIngressToken(
+        reportedHeaders,
+        this.#options.matchesIngressToken,
+      ),
     });
     const voice = judgeEvolutionVoice({ versionVerified });
 

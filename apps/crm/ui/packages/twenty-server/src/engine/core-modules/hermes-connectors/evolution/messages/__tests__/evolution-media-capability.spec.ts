@@ -4,9 +4,12 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { EvolutionMessagesAdapter } from '../evolution-messages.adapter';
 import {
   EVOLUTION_INGRESS_PATH,
+  EVOLUTION_INGRESS_TOKEN_HEADER,
   EVOLUTION_UPSERT_EVENT,
   judgeEvolutionReception,
   judgeEvolutionVoice,
+  readEvolutionIngressOrigins,
+  readEvolutionIngressToken,
 } from '../evolution-media-capability';
 
 // A DEMONSTRATION PROVIDER, NOT A VERIFIED CONNECTOR.
@@ -20,6 +23,12 @@ import {
 const workspaceId = randomUUID();
 const connectionId = randomUUID();
 const instanceName = 'fixture-capability';
+// This deployment's configured public origin, and the delivery token our
+// ingress authenticates. The secret is a fixture value generated per test run
+// and never appears in any assertion output.
+const ingressOrigin = 'https://crm.example.test';
+let webhookSecret = '';
+const matchesIngressToken = (value: string) => value === webhookSecret;
 
 let server: Server;
 let requests: { method: string; path: string; key?: string }[];
@@ -32,13 +41,30 @@ let webhookStatus: number;
 
 const connection = () => ({ baseUrl, instanceName, apiKey });
 
-const adapter = (ingressConnectionId: string | null = connectionId) =>
+const adapter = (
+  overrides: {
+    ingressConnectionId?: string | null;
+    ingressOrigins?: readonly (string | null | undefined)[];
+    matchesIngressToken?: ((value: string) => boolean) | null;
+  } = {},
+) =>
   new EvolutionMessagesAdapter(
     JSON.stringify({ [workspaceId]: connection() }),
     {
       allowedInternalHosts: ['127.0.0.1'],
       timeoutMs: 500,
-      ingressConnectionId,
+      ingressConnectionId:
+        'ingressConnectionId' in overrides
+          ? overrides.ingressConnectionId
+          : connectionId,
+      ingressOrigins:
+        'ingressOrigins' in overrides
+          ? overrides.ingressOrigins
+          : [ingressOrigin],
+      matchesIngressToken:
+        'matchesIngressToken' in overrides
+          ? overrides.matchesIngressToken
+          : matchesIngressToken,
     },
   );
 
@@ -48,8 +74,9 @@ const configuredWebhook = (overrides: Record<string, unknown> = {}) => ({
   id: 'fixture-row',
   instanceId: 'fixture-instance',
   enabled: true,
-  url: `https://crm.example.test${EVOLUTION_INGRESS_PATH}/${connectionId}`,
+  url: `${ingressOrigin}${EVOLUTION_INGRESS_PATH}/${connectionId}`,
   events: ['CONNECTION_UPDATE', EVOLUTION_UPSERT_EVENT],
+  headers: { [EVOLUTION_INGRESS_TOKEN_HEADER]: webhookSecret },
   webhookBase64: false,
   webhookByEvents: false,
   ...overrides,
@@ -59,6 +86,7 @@ beforeEach(async () => {
   requests = [];
   version = '2.3.6';
   state = 'open';
+  webhookSecret = randomBytes(32).toString('hex');
   webhook = configuredWebhook();
   webhookStatus = 200;
   apiKey = randomBytes(32).toString('hex');
@@ -208,7 +236,7 @@ describe('Evolution media capabilities, derived from a demonstration provider', 
   });
 
   it('cannot attribute a delivery without a connection identity, so reception stays false', async () => {
-    const capability = await adapter(null).mediaCapability(workspaceId);
+    const capability = await adapter({ ingressConnectionId: null }).mediaCapability(workspaceId);
 
     expect(capability).toMatchObject({
       canSendMedia: true,
@@ -218,11 +246,97 @@ describe('Evolution media capabilities, derived from a demonstration provider', 
     });
   });
 
-  it('never leaks the provider api key or a webhook URL into a capability answer', async () => {
+  it('never leaks the provider api key, the delivery token or a webhook URL into a capability answer', async () => {
     const capability = await adapter().mediaCapability(workspaceId);
 
     expect(JSON.stringify(capability)).not.toContain(apiKey);
+    expect(JSON.stringify(capability)).not.toContain(webhookSecret);
     expect(JSON.stringify(capability)).not.toContain('crm.example.test');
+  });
+
+  // The origin matters: path plus connection id on someone else's host means
+  // every delivery goes to that host and none to us.
+  it('refuses reception when the webhook addresses another origin on the right path', async () => {
+    webhook = configuredWebhook({
+      url: `https://attacker.invalid${EVOLUTION_INGRESS_PATH}/${connectionId}`,
+    });
+
+    expect(await adapter().mediaCapability(workspaceId)).toMatchObject({
+      canReceiveMedia: false,
+      receptionReason: 'WEBHOOK_URL_NOT_THIS_INGRESS',
+    });
+  });
+
+  it('refuses reception when no expected ingress origin is configured, rather than accepting any host', async () => {
+    expect(
+      await adapter({ ingressOrigins: [] }).mediaCapability(workspaceId),
+    ).toMatchObject({
+      canReceiveMedia: false,
+      receptionReason: 'INGRESS_ORIGIN_UNKNOWN',
+    });
+  });
+
+  it('does not accept a different port or scheme on the configured host', async () => {
+    for (const url of [
+      `https://crm.example.test:8443${EVOLUTION_INGRESS_PATH}/${connectionId}`,
+      `http://crm.example.test${EVOLUTION_INGRESS_PATH}/${connectionId}`,
+    ]) {
+      webhook = configuredWebhook({ url });
+
+      expect(
+        (await adapter().mediaCapability(workspaceId)).receptionReason,
+      ).toBe('WEBHOOK_URL_NOT_THIS_INGRESS');
+    }
+  });
+
+  // Our own controller authenticates every delivery, so a webhook without an
+  // accepted token is refused 401 before anything is stored.
+  it('refuses reception when the webhook carries no delivery token', async () => {
+    webhook = configuredWebhook({ headers: {} });
+
+    expect(await adapter().mediaCapability(workspaceId)).toMatchObject({
+      canReceiveMedia: false,
+      receptionReason: 'WEBHOOK_TOKEN_NOT_CONFIGURED',
+    });
+  });
+
+  it('refuses reception when the webhook carries a token that is not ours', async () => {
+    webhook = configuredWebhook({
+      headers: {
+        [EVOLUTION_INGRESS_TOKEN_HEADER]: randomBytes(32).toString('hex'),
+      },
+    });
+
+    expect(await adapter().mediaCapability(workspaceId)).toMatchObject({
+      canReceiveMedia: false,
+      receptionReason: 'WEBHOOK_TOKEN_MISMATCHED',
+    });
+  });
+
+  it('keeps reception unproven when the token cannot be checked at all', async () => {
+    // The provider did not report its headers.
+    webhook = configuredWebhook({ headers: undefined });
+    expect((await adapter().mediaCapability(workspaceId)).receptionReason).toBe(
+      'WEBHOOK_TOKEN_UNVERIFIABLE',
+    );
+
+    // Or this caller supplied no way to compare one.
+    webhook = configuredWebhook();
+    expect(
+      (await adapter({ matchesIngressToken: null }).mediaCapability(workspaceId))
+        .receptionReason,
+    ).toBe('WEBHOOK_TOKEN_UNVERIFIABLE');
+  });
+
+  it('accepts the delivery token header whatever case the operator typed', async () => {
+    webhook = configuredWebhook({
+      headers: { 'X-Hermes-Evolution-Token': webhookSecret },
+    });
+
+    expect(await adapter().mediaCapability(workspaceId)).toMatchObject({
+      canReceiveMedia: true,
+      receptionReason: null,
+    });
   });
 });
 
@@ -231,18 +345,24 @@ describe('The capability judgements themselves, without a listener', () => {
     kind: 'row' as const,
     row: {
       enabled: true,
-      url: `https://crm.example.test${EVOLUTION_INGRESS_PATH}/${connectionId}`,
+      url: `${ingressOrigin}${EVOLUTION_INGRESS_PATH}/${connectionId}`,
       events: [EVOLUTION_UPSERT_EVENT],
     },
   };
+  const evidence = (
+    overrides: Partial<Parameters<typeof judgeEvolutionReception>[0]> = {},
+  ) => ({
+    versionVerified: true,
+    ingressConnectionId: connectionId,
+    ingressOrigins: [ingressOrigin],
+    webhook: webhookRow,
+    ingressToken: 'MATCHED' as const,
+    ...overrides,
+  });
 
   it('refuses reception on the build before anything else is considered', () => {
     expect(
-      judgeEvolutionReception({
-        versionVerified: false,
-        ingressConnectionId: connectionId,
-        webhook: webhookRow,
-      }),
+      judgeEvolutionReception(evidence({ versionVerified: false })),
     ).toEqual({
       canReceiveMedia: false,
       reason: 'PROVIDER_VERSION_UNVERIFIED',
@@ -251,11 +371,14 @@ describe('The capability judgements themselves, without a listener', () => {
 
   it('does not accept a subscription written in the delivered lower-case form', () => {
     expect(
-      judgeEvolutionReception({
-        versionVerified: true,
-        ingressConnectionId: connectionId,
-        webhook: { kind: 'row', row: { ...webhookRow.row, events: ['messages.upsert'] } },
-      }).reason,
+      judgeEvolutionReception(
+        evidence({
+          webhook: {
+            kind: 'row',
+            row: { ...webhookRow.row, events: ['messages.upsert'] },
+          },
+        }),
+      ).reason,
     ).toBe('WEBHOOK_EVENT_NOT_SUBSCRIBED');
   });
 
@@ -266,24 +389,22 @@ describe('The capability judgements themselves, without a listener', () => {
       '',
     ])
       expect(
-        judgeEvolutionReception({
-          versionVerified: true,
-          ingressConnectionId: connectionId,
-          webhook: { kind: 'row', row: { ...webhookRow.row, url } },
-        }).reason,
+        judgeEvolutionReception(
+          evidence({ webhook: { kind: 'row', row: { ...webhookRow.row, url } } }),
+        ).reason,
       ).toBe('WEBHOOK_URL_NOT_THIS_INGRESS');
   });
 
   it('accepts a single trailing slash on an otherwise exact ingress URL', () => {
     expect(
-      judgeEvolutionReception({
-        versionVerified: true,
-        ingressConnectionId: connectionId,
-        webhook: {
-          kind: 'row',
-          row: { ...webhookRow.row, url: `${webhookRow.row.url}/` },
-        },
-      }),
+      judgeEvolutionReception(
+        evidence({
+          webhook: {
+            kind: 'row',
+            row: { ...webhookRow.row, url: `${webhookRow.row.url}/` },
+          },
+        }),
+      ),
     ).toEqual({ canReceiveMedia: true, reason: null });
   });
 
@@ -291,12 +412,68 @@ describe('The capability judgements themselves, without a listener', () => {
     const { enabled: _enabled, ...withoutFlag } = webhookRow.row;
 
     expect(
-      judgeEvolutionReception({
-        versionVerified: true,
-        ingressConnectionId: connectionId,
-        webhook: { kind: 'row', row: withoutFlag },
-      }).reason,
+      judgeEvolutionReception(
+        evidence({ webhook: { kind: 'row', row: withoutFlag } }),
+      ).reason,
     ).toBe('WEBHOOK_DISABLED');
+  });
+
+  it('requires the delivery token to match before reception opens', () => {
+    expect(judgeEvolutionReception(evidence()).canReceiveMedia).toBe(true);
+
+    for (const [token, reason] of [
+      ['MISMATCHED', 'WEBHOOK_TOKEN_MISMATCHED'],
+      ['NOT_CONFIGURED', 'WEBHOOK_TOKEN_NOT_CONFIGURED'],
+      ['UNVERIFIABLE', 'WEBHOOK_TOKEN_UNVERIFIABLE'],
+    ] as const)
+      expect(judgeEvolutionReception(evidence({ ingressToken: token }))).toEqual(
+        { canReceiveMedia: false, reason },
+      );
+  });
+
+  it('reads a configured origin down to its origin and drops what is unusable', () => {
+    expect(
+      readEvolutionIngressOrigins([
+        'https://crm.example.test/some/path?q=1',
+        'https://crm.example.test',
+        '  ',
+        null,
+        undefined,
+        'not a url',
+        'ftp://crm.example.test',
+      ]),
+    ).toEqual(['https://crm.example.test']);
+  });
+
+  it('reads the delivery token evidence without handling the secret itself', () => {
+    const matches = (value: string) => value === 'expected-token';
+
+    expect(readEvolutionIngressToken(null, matches)).toBe('UNVERIFIABLE');
+    expect(readEvolutionIngressToken({}, null)).toBe('UNVERIFIABLE');
+    expect(readEvolutionIngressToken('a string', matches)).toBe('UNVERIFIABLE');
+    expect(readEvolutionIngressToken([], matches)).toBe('UNVERIFIABLE');
+    expect(readEvolutionIngressToken({ other: 'x' }, matches)).toBe(
+      'NOT_CONFIGURED',
+    );
+    // A non-string value is not a token.
+    expect(
+      readEvolutionIngressToken(
+        { [EVOLUTION_INGRESS_TOKEN_HEADER]: 42 },
+        matches,
+      ),
+    ).toBe('NOT_CONFIGURED');
+    expect(
+      readEvolutionIngressToken(
+        { [EVOLUTION_INGRESS_TOKEN_HEADER]: 'wrong' },
+        matches,
+      ),
+    ).toBe('MISMATCHED');
+    expect(
+      readEvolutionIngressToken(
+        { [EVOLUTION_INGRESS_TOKEN_HEADER]: 'expected-token' },
+        matches,
+      ),
+    ).toBe('MATCHED');
   });
 
   it('ties voice to the pinned build and to nothing else', () => {
