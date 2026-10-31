@@ -35,6 +35,18 @@ const StyledCompanyCell = styled.div`
   min-width: 0;
 `;
 
+const StyledTableViewport = styled.div`
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  width: 100%;
+
+  &:focus-visible {
+    outline: 2px solid ${themeCssVariables.accent.primary};
+    outline-offset: ${themeCssVariables.spacing[1]};
+  }
+`;
+
 export const SettingsStructuresDashboard = () => {
   const { t } = useLingui();
 
@@ -117,104 +129,110 @@ export const SettingsStructuresDashboard = () => {
               </StyledNote>
             )}
 
-            <Table>
-              <TableRow gridTemplateColumns={gridTemplateColumns}>
-                <TableHeader>{t`Company`}</TableHeader>
-                {metricKeys.map((key) => (
-                  <TableHeader key={key} align="right">
-                    {METRIC_LABELS[key] ?? key}
-                  </TableHeader>
-                ))}
-              </TableRow>
+            <StyledTableViewport
+              role="region"
+              aria-label={t`Across your companies`}
+              tabIndex={0}
+            >
+              <Table style={{ minWidth: 240 + metricKeys.length * 120 }}>
+                <TableRow gridTemplateColumns={gridTemplateColumns}>
+                  <TableHeader>{t`Company`}</TableHeader>
+                  {metricKeys.map((key) => (
+                    <TableHeader key={key} align="right">
+                      {METRIC_LABELS[key] ?? key}
+                    </TableHeader>
+                  ))}
+                </TableRow>
 
-              <TableBody>
-                {/* The totals ride in the same grid as the rows beneath them,
+                <TableBody>
+                  {/* The totals ride in the same grid as the rows beneath them,
                     so a figure and its sum sit in one column rather than in
                     two separately styled blocks. */}
-                <TableRow gridTemplateColumns={gridTemplateColumns}>
-                  <TableCell color={themeCssVariables.font.color.secondary}>
-                    {t`All your companies`}
-                  </TableCell>
-                  {/* Mapped over the same keys as the header, not over the
+                  <TableRow gridTemplateColumns={gridTemplateColumns}>
+                    <TableCell color={themeCssVariables.font.color.secondary}>
+                      {t`All your companies`}
+                    </TableCell>
+                    {/* Mapped over the same keys as the header, not over the
                       totals array: with the union above the two can differ in
                       length, and mapping the totals would shift every cell
                       under the wrong column. */}
-                  {metricKeys.map((key) => {
-                    const total = totalByKey.get(key);
+                    {metricKeys.map((key) => {
+                      const total = totalByKey.get(key);
+
+                      return (
+                        <TableCell key={key} align="right">
+                          {isDefined(total) ? (
+                            <StructureMetricValue metric={total} />
+                          ) : (
+                            // Reported by a structure but not summed by the
+                            // server. An empty cell would read as a zero.
+                            <Tag color="gray" variant="soft">
+                              {t`Not summed`}
+                            </Tag>
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+
+                  {dashboard.structures.map((row) => {
+                    const metricByKey = new Map(
+                      row.metrics.map((metric) => [metric.key, metric]),
+                    );
 
                     return (
-                      <TableCell key={key} align="right">
-                        {isDefined(total) ? (
-                          <StructureMetricValue metric={total} />
-                        ) : (
-                          // Reported by a structure but not summed by the
-                          // server. An empty cell would read as a zero.
-                          <Tag color="gray" variant="soft">
-                            {t`Not summed`}
-                          </Tag>
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-
-                {dashboard.structures.map((row) => {
-                  const metricByKey = new Map(
-                    row.metrics.map((metric) => [metric.key, metric]),
-                  );
-
-                  return (
-                    <TableRow
-                      key={row.structure.workspaceId}
-                      gridTemplateColumns={gridTemplateColumns}
-                    >
-                      <TableCell
-                        color={themeCssVariables.font.color.primary}
-                        overflow="hidden"
+                      <TableRow
+                        key={row.structure.workspaceId}
+                        gridTemplateColumns={gridTemplateColumns}
                       >
-                        <StyledCompanyCell>
-                          <OverflowingTextWithTooltip
-                            text={row.structure.displayName}
-                          />
-                          {row.structure.isCurrent && (
-                            <Tag color="blue" variant="soft" weight="medium">
-                              {t`Current`}
-                            </Tag>
-                          )}
-                          {row.structure.requiresAuthentication && (
-                            <Tag
-                              color="gray"
-                              variant="outline"
-                              borderStyle="dashed"
-                            >
-                              {t`Sign in required`}
-                            </Tag>
-                          )}
-                        </StyledCompanyCell>
-                      </TableCell>
-
-                      {metricKeys.map((key) => {
-                        const metric = metricByKey.get(key);
-
-                        return (
-                          <TableCell key={key} align="right">
-                            {isDefined(metric) ? (
-                              <StructureMetricValue metric={metric} />
-                            ) : (
-                              // The server did not report this metric for this
-                              // company. An empty cell would read as a zero.
-                              <Tag color="gray" variant="soft">
-                                {t`Unavailable`}
+                        <TableCell
+                          color={themeCssVariables.font.color.primary}
+                          overflow="hidden"
+                        >
+                          <StyledCompanyCell>
+                            <OverflowingTextWithTooltip
+                              text={row.structure.displayName}
+                            />
+                            {row.structure.isCurrent && (
+                              <Tag color="blue" variant="soft" weight="medium">
+                                {t`Current`}
                               </Tag>
                             )}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                            {row.structure.requiresAuthentication && (
+                              <Tag
+                                color="gray"
+                                variant="outline"
+                                borderStyle="dashed"
+                              >
+                                {t`Sign in required`}
+                              </Tag>
+                            )}
+                          </StyledCompanyCell>
+                        </TableCell>
+
+                        {metricKeys.map((key) => {
+                          const metric = metricByKey.get(key);
+
+                          return (
+                            <TableCell key={key} align="right">
+                              {isDefined(metric) ? (
+                                <StructureMetricValue metric={metric} />
+                              ) : (
+                                // The server did not report this metric for this
+                                // company. An empty cell would read as a zero.
+                                <Tag color="gray" variant="soft">
+                                  {t`Unavailable`}
+                                </Tag>
+                              )}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </StyledTableViewport>
           </Section.Root>
         )}
       </SettingsPageContainer>
