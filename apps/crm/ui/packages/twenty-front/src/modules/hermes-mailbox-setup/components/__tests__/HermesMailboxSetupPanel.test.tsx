@@ -149,17 +149,22 @@ const CentreHarness = ({
 }: {
   onBindMail: (connectedAccountId: string) => void;
 }) => {
-  const { nativeAccounts } = useHermesRuntimeNativeAccounts();
+  const { read } = useHermesRuntimeNativeAccounts();
+
+  // Only a reported read yields rows, exactly as the real centre does.
+  const accounts = read.kind === 'reported' ? read.accounts : [];
 
   return (
     <div>
       <ul aria-label="comptes-selectionnables">
-        {nativeAccounts.map((account) => (
+        {accounts.map((account) => (
           <li key={account.id}>{account.address ?? account.id}</li>
         ))}
       </ul>
       <HermesMailboxSetupPanel
-        hasExistingAccounts={nativeAccounts.length > 0}
+        hasExistingAccounts={
+          !(read.kind === 'reported' && read.accounts.length === 0)
+        }
         onConnected={onBindMail}
       />
     </div>

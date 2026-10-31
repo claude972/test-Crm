@@ -1,4 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
+import { Button } from 'kovaa-lab-ui/primitives/input';
 import { useCallback, useMemo, useState } from 'react';
 import { isNonEmptyString } from '@sniptt/guards';
 
@@ -40,8 +41,14 @@ export const HermesAdminRuntimeSettings = () => {
 
   const companies = useHermesRuntimeCompanies();
   const connections = useHermesRuntimeConnections(companies.activeCompanyId);
-  const { nativeAccounts, isLoading: nativeAccountsLoading } =
+  const { read: nativeAccountsRead, rereadAccounts } =
     useHermesRuntimeNativeAccounts();
+
+  // Only a REPORTED read yields accounts. An empty array from any other state
+  // is a rendering fallback, never the server saying « none » — which is why
+  // the state itself is said out loud in the slot below.
+  const nativeAccounts =
+    nativeAccountsRead.kind === 'reported' ? nativeAccountsRead.accounts : [];
   // The read-only connection probes. A save still proves nothing: these are
   // the only operations that reach a provider, and the strongest thing they
   // establish is reachability at a dated instant.
@@ -286,7 +293,8 @@ export const HermesAdminRuntimeSettings = () => {
       createdAccountId === null
         ? undefined
         : nativeAccounts.find((account) => account.id === createdAccountId),
-    [createdAccountId, nativeAccounts],
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    [createdAccountId, nativeAccountsRead],
   );
 
   // The creation half of the mailbox journey, mounted here because this
@@ -295,10 +303,44 @@ export const HermesAdminRuntimeSettings = () => {
   // to the new account is this screen's own save.
   const mailboxSetupSlot = (
     <>
+      {/* The read's own three states, told apart. A failure says it failed and
+          offers the re-read; only a reported empty list says « none ». */}
+      {nativeAccountsRead.kind === 'loading' && (
+        <HermesAdminNote role="status">
+          {t`Lecture de la liste des comptes connectés natifs…`}
+        </HermesAdminNote>
+      )}
+
+      {nativeAccountsRead.kind === 'unreadable' && (
+        <>
+          <HermesAdminNote role="alert">
+            {nativeAccountsRead.reason !== null
+              ? t`La liste des comptes connectés natifs n’a pas pu être lue : ${nativeAccountsRead.reason}. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose.`
+              : t`La liste des comptes connectés natifs n’a pas pu être lue. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose.`}
+          </HermesAdminNote>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void rereadAccounts();
+            }}
+          >
+            {t`Relire la liste des comptes`}
+          </Button>
+        </>
+      )}
+
       <HermesMailboxSetupPanel
-        // Only an answered read may say « none »: an empty list that is still
-        // loading is not an absence.
-        hasExistingAccounts={nativeAccountsLoading || nativeAccounts.length > 0}
+        // Only a REPORTED, empty read may say « none ». Loading and unreadable
+        // both leave it unknown, and the wording stays neutral.
+        hasExistingAccounts={
+          !(
+            nativeAccountsRead.kind === 'reported' &&
+            nativeAccountsRead.accounts.length === 0
+          )
+        }
         onConnected={setCreatedAccountId}
       />
 

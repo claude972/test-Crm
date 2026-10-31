@@ -235,7 +235,25 @@ const memberRolesMock: MockedResponse = {
   },
 };
 
-const renderSettings = (extraMocks: MockedResponse[] = []) => {
+// A read that FAILED. `error:` is what makes MockLink reject the request; a
+// throw inside `result` would be a received answer instead.
+const failingAccountsMock: MockedResponse = {
+  request: { query: GET_MY_CONNECTED_ACCOUNTS },
+  maxUsageCount: 10,
+  error: new Error('socket hang up'),
+};
+
+// A read that SUCCEEDED and reported nothing. The server really did say none.
+const emptyAccountsMock: MockedResponse = {
+  request: { query: GET_MY_CONNECTED_ACCOUNTS },
+  maxUsageCount: 10,
+  result: { data: { myConnectedAccounts: [] } },
+};
+
+const renderSettings = (
+  extraMocks: MockedResponse[] = [],
+  accountsMockOverride?: MockedResponse,
+) => {
   const store = createStore();
 
   store.set(currentWorkspaceState.atom, {
@@ -265,7 +283,7 @@ const renderSettings = (extraMocks: MockedResponse[] = []) => {
       <MockedProvider
         mocks={[
           connectionsMock,
-          nativeAccountsMock,
+          accountsMockOverride ?? nativeAccountsMock,
           botPoliciesMock,
           memberRolesMock,
           mcpToolSurfaceMock,
@@ -717,5 +735,56 @@ describe('HermesAdminRuntimeSettings', () => {
         /Rien ne les reprend automatiquement : il faut les réactiver dans les politiques du bot/,
       ),
     ).toBeInTheDocument();
+  });
+
+  // CATMAIL004: the accounts read used to swallow `error` and yield [], so a
+  // failed read rendered as the server reporting no account at all. A failure
+  // and a reported absence are different facts and must not share a rendering.
+  it('does not turn a failed accounts read into a reported absence', async () => {
+    renderSettings([], failingAccountsMock);
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
+
+    // The failure is named, and the re-read is offered.
+    expect(
+      await screen.findByText(
+        /La liste des comptes connectés natifs n’a pas pu être lue/,
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'Relire la liste des comptes' }),
+    ).toBeInTheDocument();
+
+    // And the absence the server never stated is NOT claimed.
+    expect(
+      screen.queryByText(/Aucune boîte mail n’est encore enregistrée/),
+    ).toBeNull();
+  });
+
+  it('reports an absence only when the server reported one', async () => {
+    renderSettings([], emptyAccountsMock);
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
+
+    // An answered, empty read is an answer, so it may be said plainly.
+    expect(
+      await screen.findByText(/Aucune boîte mail n’est encore enregistrée/),
+    ).toBeInTheDocument();
+
+    // And it is not dressed up as a failure.
+    expect(
+      screen.queryByText(
+        /La liste des comptes connectés natifs n’a pas pu être lue/,
+      ),
+    ).toBeNull();
   });
 });
