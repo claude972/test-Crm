@@ -93,6 +93,24 @@ async function smoke() {
     assert.ok(received.includes(`Subject: ${marker}`), 'Stored MIME subject must match submitted message');
     assert.ok(received.includes(marker), 'Stored MIME body must contain the synthetic marker');
     assert.ok(received.includes(`ada@${plan.domain}`), 'Recipient mailbox must match');
+    const summary = await imapCommand(imap, 'a005', 'UID FETCH 1 (UID RFC822.SIZE)');
+    const partial = await imapCommand(imap, 'a006', 'UID FETCH 1 (UID BODY.PEEK[]<0.37748737>)');
+    const sourceLiteral = (response) => {
+      const match = /\{(\d+)\}\r\n/.exec(response);
+      assert.ok(match, 'IMAP source must contain one bounded literal');
+      const length = Number(match[1]);
+      assert.ok(Number.isSafeInteger(length) && length > 0 && length < 128 * 1024);
+      const bytes = Buffer.from(response.slice(match.index + match[0].length), 'utf8').subarray(0, length);
+      assert.equal(bytes.length, length);
+      return bytes;
+    };
+    const fullBytes = sourceLiteral(received), partialBytes = sourceLiteral(partial);
+    const size = Number(summary.match(/RFC822\.SIZE (\d+)/)?.[1]);
+    const uid = Number(summary.match(/\bUID (\d+)/)?.[1]);
+    assert.equal(uid, 1); assert.ok(Number.isSafeInteger(size));
+    assert.deepEqual(partialBytes, fullBytes, 'A bounded partial fetch must retain the complete small fixture MIME');
+    console.info(JSON.stringify({probe:'imap-source-size',uid,reportedSize:size,fullSourceLength:fullBytes.length,boundedSourceLength:partialBytes.length,strictSizeGuardWouldPass:size===partialBytes.length}));
+
   } finally { imap.close(); }
   console.info('Isolated fixture: authenticated IMAPS read the captured MIME; CA/SAN validated on both protocols');
 }
