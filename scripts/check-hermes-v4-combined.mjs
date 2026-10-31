@@ -43,6 +43,7 @@ const AUTH_EXTRAS = [
 const BACKEND_EXTRAS = [
   "src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts",
   "src/engine/core-modules/emailing-domain/drivers/smtp/__tests__/smtp-emailing-domain-driver.spec.ts",
+  "src/engine/core-modules/emailing-domain/drivers/__tests__/emailing-domain-driver.factory.spec.ts",
   "src/engine/core-modules/emailing-domain/utils/__tests__/get-sole-envelope-recipient.util.spec.ts",
   "src/engine/core-modules/emailing-domain/services/__tests__/unsubscribe-content.service.spec.ts",
   "src/modules/emailing/services/__tests__/campaign-unconfirmed-quarantine.spec.ts",
