@@ -6,6 +6,11 @@ const fieldName = z
   .refine(
     (value) => !['constructor', 'prototype', '__proto__'].includes(value),
   );
+const toolNameValue = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(/^[A-Za-z0-9_.:-]+$/);
 const connectionSchema = z
   .object({
     endpoint: z
@@ -28,11 +33,12 @@ const connectionSchema = z
       .min(32)
       .max(4096)
       .regex(/^[\x21-\x7E]+$/),
-    toolName: z
-      .string()
-      .min(1)
-      .max(128)
-      .regex(/^[A-Za-z0-9_.:-]+$/),
+    toolName: toolNameValue,
+    // Explicit operator grant. Discovery reports every advertised tool, but
+    // only a name listed here may ever be called, and the drafting tool must
+    // itself be granted. Absent, the grant is exactly the drafting tool, so an
+    // existing connection keeps its current single-tool authorization.
+    authorizedTools: z.array(toolNameValue).min(1).max(32).optional(),
     protocolVersion: z.literal('2025-11-25').default('2025-11-25'),
     argumentMap: z
       .object({
@@ -49,9 +55,20 @@ const connectionSchema = z
     (value) =>
       new Set(Object.values(value.argumentMap)).size ===
       Object.values(value.argumentMap).length,
+  )
+  .refine(
+    (value) =>
+      !value.authorizedTools ||
+      (new Set(value.authorizedTools).size === value.authorizedTools.length &&
+        value.authorizedTools.includes(value.toolName)),
   );
 
 export type HermesMcpConnection = z.infer<typeof connectionSchema>;
+// The effective operator grant for a connection. Kept as a function so no
+// caller has to re-derive the "absent means exactly the drafting tool" rule.
+export const authorizedToolNames = (
+  connection: Pick<HermesMcpConnection, 'toolName' | 'authorizedTools'>,
+): readonly string[] => connection.authorizedTools ?? [connection.toolName];
 export type HermesMcpDraftInput = {
   workspaceId: string;
   conversationId: string;
@@ -65,6 +82,36 @@ export type HermesMcpDraftResult = {
   text?: string;
   provider: 'HERMES_MCP';
 };
+
+// Why a tool advertised by the server is still not callable. Reported so an
+// operator can act on it instead of guessing why the bot stays manual.
+export type HermesMcpToolRefusal =
+  | 'NOT_AUTHORIZED'
+  | 'NOT_READ_ONLY'
+  | 'DESTRUCTIVE'
+  | 'UNSUPPORTED_SCHEMA'
+  | 'DUPLICATE_NAME';
+export type HermesMcpDiscoveredTool = {
+  name: string;
+  title: string | null;
+  authorized: boolean;
+  callable: boolean;
+  refusals: HermesMcpToolRefusal[];
+  isDraftingTool: boolean;
+};
+export type HermesMcpDiscoveryResult = {
+  status: 'NOT_CONFIGURED' | 'READY' | 'UNAVAILABLE';
+  provider: 'HERMES_MCP';
+  // Every name the operator granted, including ones the server never
+  // advertised — a grant on an absent tool must stay visible, not silent.
+  authorizedTools: string[];
+  draftingTool: string | null;
+  tools: HermesMcpDiscoveredTool[];
+  truncated: boolean;
+};
+export const discoveryInputSchema = z
+  .object({ workspaceId: z.string().uuid() })
+  .strict();
 
 export const draftInputSchema = z
   .object({
