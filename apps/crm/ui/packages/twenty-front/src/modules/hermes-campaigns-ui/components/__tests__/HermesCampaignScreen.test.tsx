@@ -400,6 +400,29 @@ describe('HermesCampaignScreen', () => {
     ).toBeVisible();
   });
 
+  // The capability list used to promise the server restricted the test to
+  // pre-production destinations and never to a prospect. It does not: the
+  // server validates `toAddress` as an address and sends there. The two
+  // sections now say the same true thing, and this test fails if the
+  // promise comes back.
+  it('never promises a pre-production guard the server does not apply', () => {
+    renderScreen();
+
+    expect(
+      screen.getByText(
+        'One real message goes to the address you type. The server applies no staging restriction to it, so the destination is yours to answer for.',
+      ),
+    ).toBeVisible();
+
+    for (const falsePromise of [
+      /restricted by the server to staging destinations/i,
+      /restricted by the server to pre-production/i,
+      /never to a prospect/i,
+    ]) {
+      expect(screen.queryByText(falsePromise)).not.toBeInTheDocument();
+    }
+  });
+
   it('shuts every emitting step after an emission whose outcome is unknown', () => {
     renderScreen({
       hasUncertainEmission: true,

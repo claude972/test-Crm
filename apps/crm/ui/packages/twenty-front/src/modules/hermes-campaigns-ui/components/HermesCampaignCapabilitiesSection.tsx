@@ -143,7 +143,7 @@ export const HermesCampaignCapabilitiesSection = ({
 
   const explanations: Record<HermesCampaignCapabilityName, string> = {
     preview: t`Renders the content for one recipient. Emits nothing: no transport is contacted.`,
-    testSynthetic: t`A real emission inside the product, restricted by the server to staging destinations. Never to a prospect.`,
+    testSynthetic: t`One real message goes to the address you type. The server applies no staging restriction to it, so the destination is yours to answer for.`,
     schedule: t`Records a moment. Scheduling does not send: the authorisation and the exclusions are read again at departure.`,
     send: t`Puts the campaign on the transport for the retained recipients.`,
     cancel: t`Withdraws the departures that are still avoidable. It cannot recall a message the SMTP server already accepted.`,
