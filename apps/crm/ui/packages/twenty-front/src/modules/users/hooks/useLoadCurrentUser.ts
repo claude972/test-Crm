@@ -108,11 +108,16 @@ export const useLoadCurrentUser = () => {
         }
         if (options.commitState === false)
           return { user, workspaceMember: null, workspace: null };
+        // Normalized on both sides, like the supersede check above: a uuid
+        // that differs only in case is the same workspace, and treating it as
+        // a different one purges the session and reloads for nothing.
         if (
           user.currentWorkspace &&
           ((previousWorkspaceId &&
-            previousWorkspaceId !== user.currentWorkspace.id) ||
-            (previousUserId && previousUserId !== user.id))
+            previousWorkspaceId.toLowerCase() !==
+              user.currentWorkspace.id.toLowerCase()) ||
+            (previousUserId &&
+              previousUserId.toLowerCase() !== user.id.toLowerCase()))
         ) {
           await resetWorkspaceSessionAndReload({
             client,
