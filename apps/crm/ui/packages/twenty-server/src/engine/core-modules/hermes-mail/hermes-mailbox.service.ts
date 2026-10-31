@@ -51,6 +51,21 @@ export class HermesMailboxService {
     }
   >();
 
+  // ImapFlow otherwise emulates MOVE with COPY + DELETE/EXPUNGE. Only
+  // native MOVE (also mandatory in active IMAP4rev2) may reach messageMove.
+  private canMove(client: ImapFlow) {
+    return !!(
+      client.capabilities?.has('MOVE') ||
+      client.enabled?.has('IMAP4REV2') ||
+      (client.capabilities?.has('IMAP4rev2') &&
+        !client.capabilities?.has('IMAP4rev1'))
+    );
+  }
+  private requireSafeMove(client: ImapFlow) {
+    if (!this.canMove(client))
+      throw new ConflictException('MAIL_SAFE_MOVE_UNAVAILABLE');
+  }
+
   private alive(client: ImapFlow) {
     if (this.expiredClients.has(client))
       throw new ServiceUnavailableException('MAIL_TIMEOUT');
@@ -133,6 +148,11 @@ export class HermesMailboxService {
       if (timer) clearTimeout(timer);
       this.expiredClients.add(client);
       await this.imap.closeClient(client);
+      // MAIL006: closing the client is awaited after the access check and the
+      // fresh read above, so a revocation landing during that wait would be
+      // seen by nobody and the result would leave anyway. Re-authorize here,
+      // last, once every wait of this session is over.
+      await this.access.assertAllowed(actor);
     }
   }
 
@@ -178,7 +198,16 @@ export class HermesMailboxService {
           unread,
         });
       }
-      return { state: 'AVAILABLE', folders: result };
+      return {
+        state: 'AVAILABLE',
+        folders: result,
+        capabilities: {
+          uidMove: this.canMove(client),
+          moveUnavailableReason: this.canMove(client)
+            ? null
+            : 'MAIL_SAFE_MOVE_UNAVAILABLE',
+        },
+      };
     });
   }
 
@@ -414,6 +443,7 @@ export class HermesMailboxService {
           );
           if (!existing)
             throw new NotFoundException('MAIL_DESTINATION_NOT_FOUND');
+          this.requireSafeMove(client);
         }
         const message = await client.fetchOne(
           String(input.uid),
@@ -435,6 +465,7 @@ export class HermesMailboxService {
         }
         if (input.destination) {
           await this.current(actor, client);
+          this.requireSafeMove(client);
           if (
             !(await client.messageMove(String(input.uid), input.destination, {
               uid: true,
@@ -612,6 +643,15 @@ export class HermesMailboxService {
           reason: 'MAIL_SENT_COPY_UNCONFIRMED',
         },
       };
+    } finally {
+      // MAIL006: the copy awaited provider I/O after acceptance, so the actor
+      // is re-authorized here, once the wait is over. A revocation observed
+      // during the copy propagates from this finally instead of being
+      // swallowed by the catch above, so the already accepted message is
+      // never handed back to an actor who lost access. Nothing is replayed
+      // and no ledger record is rewritten: the acceptance stays acquired and
+      // an uncertain copy stays uncertain.
+      await this.access.assertAllowed(actor);
     }
   }
 
@@ -682,6 +722,11 @@ export class HermesMailboxService {
           }
           if (!matching.length) return { state: 'NOT_FOUND' };
           await this.current(actor, client);
+          if (!this.canMove(client))
+            return {
+              state: 'UNAVAILABLE',
+              reason: 'MAIL_SAFE_MOVE_UNAVAILABLE',
+            };
           if (
             !(await client.messageMove(matching.join(','), trash.path, {
               uid: true,
@@ -700,6 +745,13 @@ export class HermesMailboxService {
         state: 'UNCONFIRMED',
         reason: 'MAIL_DRAFT_DISPOSITION_UNCONFIRMED',
       };
+    } finally {
+      // MAIL006: this catch swallows every failure of the disposition, a
+      // revocation included, and nothing checked access behind it.
+      // Re-authorize after the wait so a revocation propagates instead of
+      // disappearing into an UNCONFIRMED receipt. The draft is left exactly
+      // where the provider left it: nothing is replayed, nothing is recorded.
+      await this.access.assertAllowed(actor);
     }
   }
 
@@ -757,7 +809,7 @@ export class HermesMailboxService {
   async sendNew(actor: HermesMessagingActor, input: HermesMailNewDraftInput) {
     if (!input.clientRequestId)
       throw new BadRequestException('MAIL_REQUEST_ID_REQUIRED');
-    return this.mail.withDraftLock(
+    const sent = await this.mail.withDraftLock(
       actor,
       input.draftId ?? input.clientRequestId,
       async () => {
@@ -813,6 +865,13 @@ export class HermesMailboxService {
         return { ...copied, draftDisposition };
       },
     );
+    // MAIL006: withDraftLock releases the draft lock on an await placed after
+    // this callback returned, outside every check above. Re-authorize at this
+    // boundary, the one the accepted message actually leaves by, so a
+    // revocation during that release propagates instead of handing back the
+    // private object. The acceptance stays acquired; nothing is re-sent.
+    await this.access.assertAllowed(actor);
+    return sent;
   }
 
   async createDraft(
@@ -905,6 +964,8 @@ export class HermesMailboxService {
           );
           if (latestRevision !== draftRevision && old.length && !trash)
             throw new ConflictException('MAIL_DRAFT_REPLACE_UNAVAILABLE');
+          if (latestRevision !== draftRevision && old.length)
+            this.requireSafeMove(client);
           const conversation = await this.mail.draftConversation(
             actor,
             {
@@ -953,6 +1014,7 @@ export class HermesMailboxService {
               'MAIL_DRAFT_SAVE_UNCONFIRMED',
             );
           await this.current(actor, client);
+          if (old.length) this.requireSafeMove(client);
           if (
             old.length &&
             !(await client.messageMove(old.join(','), trash!.path, {

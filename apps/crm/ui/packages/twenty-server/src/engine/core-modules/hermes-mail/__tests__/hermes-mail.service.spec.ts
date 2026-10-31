@@ -85,6 +85,8 @@ function fixture(reader?: unknown, media?: unknown) {
     ),
   };
   const client = {
+    capabilities: new Map([['MOVE', true]]),
+    enabled: new Set<string>(),
     mailbox: { uidValidity: 123n },
     search: jest.fn(async () => [11, 12]),
     getMailboxLock: jest.fn(async () => ({ release: jest.fn() })),
