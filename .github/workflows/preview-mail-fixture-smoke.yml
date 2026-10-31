@@ -1,0 +1,45 @@
+name: Isolated preview mail fixture smoke
+on:
+  push:
+    branches: ['fix/hermes-preview-fixture-20261031']
+    paths:
+      - 'scripts/preview-mail-fixture*.mjs'
+      - '.github/workflows/preview-mail-fixture-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: isolated-preview-mail-fixture-smoke
+  cancel-in-progress: true
+jobs:
+  fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check fixture boundaries without workspace installation
+        run: node --test scripts/preview-mail-fixture-p0.test.mjs
+      - name: Prepare only synthetic credentials and eight-minute expiry
+        run: |
+          node --input-type=module <<'JS'
+          import { randomBytes } from 'node:crypto';
+          import { appendFileSync } from 'node:fs';
+          const secret = randomBytes(32).toString('hex');
+          console.info(`::add-mask::${secret}`);
+          appendFileSync(process.env.GITHUB_ENV, `P0_PREVIEW_MAIL_FIXTURE=true\nP0_ORIGIN_SECRET=${secret}\nP0_PREVIEW_EXPIRES_AT=${new Date(Date.now() + 8 * 60_000).toISOString()}\n`);
+          JS
+      - name: Start real pinned GreenMail with isolated network and verified TLS
+        run: node scripts/preview-mail-fixture-p0.mjs start
+      - name: Deposit one synthetic message over SMTPS and read it over IMAPS
+        run: node scripts/preview-mail-fixture-smoke-p0.mjs
+      - name: Always remove provider, network, host mapping and private files
+        if: ${{ always() }}
+        run: node scripts/preview-mail-fixture-p0.mjs cleanup
+      - name: Prove loopback forwarders and private resources are gone
+        if: ${{ always() && env.P0_PREVIEW_MAIL_FIXTURE == 'true' }}
+        run: node scripts/preview-mail-fixture-smoke-p0.mjs after-cleanup
