@@ -148,6 +148,11 @@ export class HermesMailboxService {
       if (timer) clearTimeout(timer);
       this.expiredClients.add(client);
       await this.imap.closeClient(client);
+      // MAIL006: closing the client is awaited after the access check and the
+      // fresh read above, so a revocation landing during that wait would be
+      // seen by nobody and the result would leave anyway. Re-authorize here,
+      // last, once every wait of this session is over.
+      await this.access.assertAllowed(actor);
     }
   }
 
@@ -740,6 +745,13 @@ export class HermesMailboxService {
         state: 'UNCONFIRMED',
         reason: 'MAIL_DRAFT_DISPOSITION_UNCONFIRMED',
       };
+    } finally {
+      // MAIL006: this catch swallows every failure of the disposition, a
+      // revocation included, and nothing checked access behind it.
+      // Re-authorize after the wait so a revocation propagates instead of
+      // disappearing into an UNCONFIRMED receipt. The draft is left exactly
+      // where the provider left it: nothing is replayed, nothing is recorded.
+      await this.access.assertAllowed(actor);
     }
   }
 
@@ -797,7 +809,7 @@ export class HermesMailboxService {
   async sendNew(actor: HermesMessagingActor, input: HermesMailNewDraftInput) {
     if (!input.clientRequestId)
       throw new BadRequestException('MAIL_REQUEST_ID_REQUIRED');
-    return this.mail.withDraftLock(
+    const sent = await this.mail.withDraftLock(
       actor,
       input.draftId ?? input.clientRequestId,
       async () => {
@@ -853,6 +865,13 @@ export class HermesMailboxService {
         return { ...copied, draftDisposition };
       },
     );
+    // MAIL006: withDraftLock releases the draft lock on an await placed after
+    // this callback returned, outside every check above. Re-authorize at this
+    // boundary, the one the accepted message actually leaves by, so a
+    // revocation during that release propagates instead of handing back the
+    // private object. The acceptance stays acquired; nothing is re-sent.
+    await this.access.assertAllowed(actor);
+    return sent;
   }
 
   async createDraft(

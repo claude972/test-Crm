@@ -742,3 +742,110 @@ it('MAIL006 rechecks actor access when Sent-copy errors would otherwise return a
   expect(f.mail.replyRich).toHaveBeenCalledTimes(1);
   expect(f.client.append).not.toHaveBeenCalled();
 });
+
+const privateAccepted = {
+  id: 'accepted',
+  conversationId: 'canonical',
+  providerConnectionId: 'mail',
+  status: 'ACCEPTED',
+  text: 'Private outbound body',
+};
+const newSend = {
+  from: 'me@example.com',
+  to: ['client@example.org'],
+  subject: 'Private',
+  text: 'Private outbound body',
+  clientRequestId: 'e4d16125-1299-4b15-aa57-d193a423b4e9',
+};
+// A client that never opens leaves the session's own closing recheck out of
+// the picture, so each boundary below answers for itself.
+const revokeInsteadOfOpening = (f: ReturnType<typeof fixture>, nth: number) => {
+  let connections = 0;
+  f.imap.getClient.mockImplementation(async () => {
+    if (++connections !== nth) return { ...f.client } as never;
+    f.access.assertAllowed.mockRejectedValue(new Error('REVOKED') as never);
+    throw new Error('MAIL_CONNECTION_LOST');
+  });
+};
+
+it('MAIL006 rechecks actor access after the awaited session close so a revocation during it never returns the mailbox listing', async () => {
+  const f = fixture();
+  // The revocation lands while the session close is awaited, after the
+  // in-session access check and the fresh read have already passed.
+  f.imap.closeClient.mockImplementation(async () => {
+    f.access.assertAllowed.mockRejectedValue(new Error('REVOKED') as never);
+    return undefined;
+  });
+  await expect(f.service.folders(actor)).rejects.toThrow('REVOKED');
+  expect(f.imap.closeClient).toHaveBeenCalledTimes(1);
+});
+
+it('MAIL006 rechecks actor access when the Sent copy of an accepted reply fails under a revocation', async () => {
+  const f = fixture();
+  f.mail.replyRich.mockResolvedValue(privateAccepted as never);
+  // The reply path carries no draft lock, so the copy's own catch is all that
+  // stands between the revocation and the already accepted private message.
+  revokeInsteadOfOpening(f, 2);
+  const sent = f.service.send(actor, {
+    ...scope,
+    mode: 'REPLY',
+    from: 'me@example.com',
+    text: 'Private outbound body',
+    clientRequestId: 'e4d16125-1299-4b15-aa57-d193a423b4e9',
+  } as never);
+  await expect(sent).rejects.toThrow('REVOKED');
+  // The acceptance stays acquired: no second SMTP attempt, no append.
+  expect(f.mail.replyRich).toHaveBeenCalledTimes(1);
+  expect(f.client.append).not.toHaveBeenCalled();
+});
+
+it('MAIL006 rechecks actor access when an accepted draft disposition would otherwise swallow a revocation into UNCONFIRMED', async () => {
+  const f = fixture();
+  // On the send path the draft-lock recheck is the outer net, so this
+  // boundary is exercised on its own to prove its catch no longer swallows.
+  const dispose = (
+    f.service as unknown as {
+      disposeAcceptedDraft: (
+        actor: unknown,
+        receipt: unknown,
+        draftId: string,
+        envelope: unknown,
+        attachmentIds: string[],
+      ) => Promise<unknown>;
+    }
+  ).disposeAcceptedDraft.bind(f.service);
+  revokeInsteadOfOpening(f, 1);
+  await expect(
+    dispose(
+      actor,
+      {
+        status: 'ACCEPTED',
+        providerConnectionId: 'mail',
+        conversationId: 'canonical',
+      },
+      'draft-1',
+      {},
+      [],
+    ),
+  ).rejects.toThrow('REVOKED');
+  // The draft is left exactly where the provider left it.
+  expect(f.client.messageMove).not.toHaveBeenCalled();
+});
+
+it('MAIL006 rechecks actor access after the awaited draft-lock release so a revocation during it never returns the accepted message', async () => {
+  const f = fixture();
+  f.mail.replyRich.mockResolvedValue(privateAccepted as never);
+  // withDraftLock releases the draft lock on an await placed after the
+  // callback returned: revoke exactly there, where no inner check can see it.
+  f.mail.withDraftLock.mockImplementation(
+    async (_actor: unknown, _draftId: string, run: () => Promise<unknown>) => {
+      const result = await run();
+      f.access.assertAllowed.mockRejectedValue(new Error('REVOKED') as never);
+      return result;
+    },
+  );
+  await expect(f.service.sendNew(actor, newSend)).rejects.toThrow('REVOKED');
+  // The send was accepted once and is never replayed by the failed handover.
+  expect(f.mail.replyRich).toHaveBeenCalledTimes(1);
+  expect(f.client.append).not.toHaveBeenCalled();
+});
