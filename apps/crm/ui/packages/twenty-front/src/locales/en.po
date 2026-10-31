@@ -121,6 +121,16 @@ msgstr "\"{path}\" is not a value"
 msgid "\"{subfieldName}\" is not a subfield of \"{fieldName}\""
 msgstr "\"{subfieldName}\" is not a subfield of \"{fieldName}\""
 
+#. js-lingui-id: +RPGiO
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "« Configurer les connexions » reprend exactement le contrôle du serveur : il exige les droits non restreints sur les réglages, la lecture et l’écriture de toutes les fiches, et refuse tout rôle portant des permissions de champ ou des conditions par ligne. Un rôle qui n’a que les réglages est refusé."
+msgstr "« Configurer les connexions » reprend exactement le contrôle du serveur : il exige les droits non restreints sur les réglages, la lecture et l’écriture de toutes les fiches, et refuse tout rôle portant des permissions de champ ou des conditions par ligne. Un rôle qui n’a que les réglages est refusé."
+
+#. js-lingui-id: s3POCb
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "« Inconnu » signifie que le serveur n’a pas publié le fait, ou que cet écran ne peut pas le trancher. Ce n’est jamais un refus."
+msgstr "« Inconnu » signifie que le serveur n’a pas publié le fait, ou que cet écran ne peut pas le trancher. Ce n’est jamais un refus."
+
 #. js-lingui-id: TaLmrR
 #. placeholder {0}: formatNumber(currentCreditsByPeriod, { decimals: 2 })
 #: src/modules/settings/billing/components/SettingsBillingSubscriptionInfo.tsx
@@ -348,11 +358,23 @@ msgstr "{0, plural, one {You do not have permission to access the {fieldsList} f
 msgid "{0, plural, one {Your invite isn't sent yet} other {Your # invites aren't sent yet}}"
 msgstr "{0, plural, one {Your invite isn't sent yet} other {Your # invites aren't sent yet}}"
 
+#. js-lingui-id: qBA4YQ
+#. placeholder {0}: actionLabels[outcome.action]
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "{0} — outcome unknown."
+msgstr "{0} — outcome unknown."
+
 #. js-lingui-id: TdkyNJ
 #. placeholder {0}: actionLabels[outcome.action]
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
 msgid "{0} — refused."
 msgstr "{0} — refused."
+
+#. js-lingui-id: q17uvm
+#. placeholder {0}: i18n.number(entry.sentCount)
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "{0} accepted by the transport, which is a handover and not a delivery."
+msgstr "{0} accepted by the transport, which is a handover and not a delivery."
 
 #. js-lingui-id: m19qLK
 #. placeholder {0}: i18n.number(count.value)
@@ -466,6 +488,13 @@ msgstr "{0} objects, {1} fields"
 #: src/modules/settings/event-logs/components/SettingsLogs.tsx
 msgid "{0} of {1}"
 msgstr "{0} of {1}"
+
+#. js-lingui-id: SF6Iog
+#. placeholder {0}: i18n.number(campaignsLoad.value.length)
+#. placeholder {1}: i18n.number(totalCount)
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "{0} of {1} campaigns shown."
+msgstr "{0} of {1} campaigns shown."
 
 #. js-lingui-id: QpXHR8
 #. placeholder {0}: i18n.number(content.subject.trim().length)
@@ -1188,6 +1217,96 @@ msgstr "{positionLabel}, total length unknown"
 msgid "{prefilledCount} of {fieldCount} fields prefilled"
 msgstr "{prefilledCount} of {fieldCount} fields prefilled"
 
+#. js-lingui-id: ketoD9
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : aucun test n’est publié pour ce canal dans cette version. Rien n’a été joint, et rien n’est présenté comme vérifié."
+msgstr "{probeLabel} : aucun test n’est publié pour ce canal dans cette version. Rien n’a été joint, et rien n’est présenté comme vérifié."
+
+#. js-lingui-id: p0QBOx
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : injoignable le {checkedAt}, sans motif renvoyé."
+msgstr "{probeLabel} : injoignable le {checkedAt}, sans motif renvoyé."
+
+#. js-lingui-id: y/zfPr
+#. placeholder {0}: outcome.errorCode
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : injoignable le {checkedAt}. Motif renvoyé : {0}."
+msgstr "{probeLabel} : injoignable le {checkedAt}. Motif renvoyé : {0}."
+
+#. js-lingui-id: VUw4z4
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : injoignable, sans motif renvoyé."
+msgstr "{probeLabel} : injoignable, sans motif renvoyé."
+
+#. js-lingui-id: jvbvrJ
+#. placeholder {0}: outcome.errorCode
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : injoignable. Motif renvoyé : {0}."
+msgstr "{probeLabel} : injoignable. Motif renvoyé : {0}."
+
+#. js-lingui-id: tK3AM4
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : jamais testé. Aucun test n’a eu lieu, ce qui n’est pas un échec."
+msgstr "{probeLabel} : jamais testé. Aucun test n’a eu lieu, ce qui n’est pas un échec."
+
+#. js-lingui-id: Tc1/7O
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : joignable le {checkedAt}. Le serveur a répondu : {observations}."
+msgstr "{probeLabel} : joignable le {checkedAt}. Le serveur a répondu : {observations}."
+
+#. js-lingui-id: J+iYs8
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : joignable le {checkedAt}. Le serveur a répondu."
+msgstr "{probeLabel} : joignable le {checkedAt}. Le serveur a répondu."
+
+#. js-lingui-id: 1QXxpi
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : la configuration a changé pendant le test. La réponse porte sur des identifiants qui ne sont plus les identifiants courants, donc elle n’est comptée ni comme réussie ni comme échouée. Relancez le test."
+msgstr "{probeLabel} : la configuration a changé pendant le test. La réponse porte sur des identifiants qui ne sont plus les identifiants courants, donc elle n’est comptée ni comme réussie ni comme échouée. Relancez le test."
+
+#. js-lingui-id: YaSmDI
+#. placeholder {0}: outcome.reason
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : la passerelle a répondu le {checkedAt}, mais le canal n’est pas prêt à acheminer ({0})."
+msgstr "{probeLabel} : la passerelle a répondu le {checkedAt}, mais le canal n’est pas prêt à acheminer ({0})."
+
+#. js-lingui-id: MVyLhF
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : la réponse du test n’a pas pu être lue. Le résultat est inconnu — ni réussi, ni échoué, et surtout pas vérifié."
+msgstr "{probeLabel} : la réponse du test n’a pas pu être lue. Le résultat est inconnu — ni réussi, ni échoué, et surtout pas vérifié."
+
+#. js-lingui-id: onOPXV
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : rien n’est configuré, donc rien n’a été joint. Aucun service n’est en cause."
+msgstr "{probeLabel} : rien n’est configuré, donc rien n’a été joint. Aucun service n’est en cause."
+
+#. js-lingui-id: iMJ6pL
+#. placeholder {0}: outcome.message
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : session remplacée — {0}. Rechargez avant de tester."
+msgstr "{probeLabel} : session remplacée — {0}. Rechargez avant de tester."
+
+#. js-lingui-id: g7M91G
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : session remplacée. La session et le cookie natif ne désignent plus le même utilisateur ou le même espace. Rechargez avant de tester."
+msgstr "{probeLabel} : session remplacée. La session et le cookie natif ne désignent plus le même utilisateur ou le même espace. Rechargez avant de tester."
+
+#. js-lingui-id: 9pKL5p
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : test en cours…"
+msgstr "{probeLabel} : test en cours…"
+
+#. js-lingui-id: hKrq+C
+#. placeholder {0}: outcome.reason
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : test refusé — {0}. Rien n’a été joint."
+msgstr "{probeLabel} : test refusé — {0}. Rien n’a été joint."
+
+#. js-lingui-id: 5fRmMw
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "{probeLabel} : test refusé. Rien n’a été joint et rien n’a été vérifié."
+msgstr "{probeLabel} : test refusé. Rien n’a été joint et rien n’a été vérifié."
+
 #. js-lingui-id: 2V2T+0
 #. placeholder {0}: formatNumber(queuedCount)
 #. placeholder {1}: formatNumber(queuedCount)
@@ -1792,6 +1911,11 @@ msgstr "A draft is not a finished campaign: its content and any first-contact no
 msgid "A durable proof, kept apart from the deal stage and from the bot's mode."
 msgstr "A durable proof, kept apart from the deal stage and from the bot's mode."
 
+#. js-lingui-id: Z+DL+q
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "A failed read is not an empty company: nothing is shown rather than an empty list invented."
+msgstr "A failed read is not an empty company: nothing is shown rather than an empty list invented."
+
 #. js-lingui-id: xk6SkO
 #: src/modules/workflow/workflow-steps/workflow-actions/form-action/components/WorkflowEditActionFormBuilder.tsx
 msgid "A form opens for the person who launches the workflow and is filled in on the spot. With this trigger, it only shows in the workflow run."
@@ -1801,6 +1925,16 @@ msgstr "A form opens for the person who launches the workflow and is filled in o
 #: src/modules/workflow/workflow-steps/workflow-actions/form-action/components/WorkflowEditActionFormBuilder.tsx
 msgid "A form opens for the person who launches the workflow and is filled in on the spot. With this trigger, it only shows in the workflow run. To ask someone for an answer or an approval in their inbox, use a Send to Inbox step instead."
 msgstr "A form opens for the person who launches the workflow and is filled in on the spot. With this trigger, it only shows in the workflow run. To ask someone for an answer or an approval in their inbox, use a Send to Inbox step instead."
+
+#. js-lingui-id: 9Ttqw2
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "A list can resolve to fewer recipients than it holds. That is not a discrepancy: the server keeps only rows whose professional purpose and company context were recorded at qualification, and sets the rest aside. The figures and the reasons below are the server's own, and nothing here widens the campaign to records it excluded."
+msgstr "A list can resolve to fewer recipients than it holds. That is not a discrepancy: the server keeps only rows whose professional purpose and company context were recorded at qualification, and sets the rest aside. The figures and the reasons below are the server's own, and nothing here widens the campaign to records it excluded."
+
+#. js-lingui-id: ExLONb
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "A new campaign is an empty draft: no audience, no content and no sender yet."
+msgstr "A new campaign is an empty draft: no audience, no content and no sender yet."
 
 #. js-lingui-id: 5R8uEq
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowConversationFields.tsx
@@ -1817,15 +1951,20 @@ msgstr "A payment method is needed to keep your workspace active."
 msgid "A payment on your subscription failed. Your premium features stay active while we retry it."
 msgstr "A payment on your subscription failed. Your premium features stay active while we retry it."
 
-#. js-lingui-id: 5d+Iu/
+#. js-lingui-id: xoSpqn
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
-msgid "A preview emits nothing. A test is a real emission restricted to staging destinations. A send is a send."
-msgstr "A preview emits nothing. A test is a real emission restricted to staging destinations. A send is a send."
+msgid "A preview emits nothing. A test really sends one message, to the address you type and to no other. A send is a send."
+msgstr "A preview emits nothing. A test really sends one message, to the address you type and to no other. A send is a send."
 
 #. js-lingui-id: oA/qUI
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 msgid "A preview renders the content for one recipient and emits nothing. It is not a test, and it is not a send."
 msgstr "A preview renders the content for one recipient and emits nothing. It is not a test, and it is not a send."
+
+#. js-lingui-id: dT3LS9
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "A previous emission ended without a known result. Reload the campaign and check what actually left before sending anything again."
+msgstr "A previous emission ended without a known result. Reload the campaign and check what actually left before sending anything again."
 
 #. js-lingui-id: coauWZ
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
@@ -3081,11 +3220,6 @@ msgstr "Admin Panel - General"
 msgid "Admin Panel - Health"
 msgstr "Admin Panel - Health"
 
-#. js-lingui-id: vtohpP
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-msgid "Administrateur"
-msgstr "Administrateur"
-
 #. js-lingui-id: 82sWFi
 #: src/pages/settings/admin-panel/SettingsAdmin.tsx
 msgid "Administration"
@@ -3100,6 +3234,11 @@ msgstr "Administrator"
 #: src/modules/settings/admin-panel/components/SettingsAdminServerAdmins.tsx
 msgid "Administrators"
 msgstr "Administrators"
+
+#. js-lingui-id: 9Ag0Xq
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Adresse de base Evolution"
+msgstr "Adresse de base Evolution"
 
 #. js-lingui-id: H428C2
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
@@ -3404,6 +3543,11 @@ msgstr "Ajout d’une société"
 #: src/modules/hermes-admin-ui/components/HermesCompanyAddForm.tsx
 msgid "Ajouter la société"
 msgstr "Ajouter la société"
+
+#. js-lingui-id: YDra35
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Ajouter une boîte mail"
+msgstr "Ajouter une boîte mail"
 
 #. js-lingui-id: z6/HDK
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
@@ -4018,6 +4162,7 @@ msgstr "Annual"
 
 #. js-lingui-id: tALayW
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
 msgid "Annuler"
 msgstr "Annuler"
 
@@ -4946,6 +5091,11 @@ msgstr "Attendees"
 msgid "Attendees unreadable for this appointment."
 msgstr "Attendees unreadable for this appointment."
 
+#. js-lingui-id: DfVWkz
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Au moins trente-deux caractères imprimables."
+msgstr "Au moins trente-deux caractères imprimables."
+
 #. js-lingui-id: OH35fo
 #: src/modules/hermes-admin-ui/components/HermesConnectionCenter.tsx
 msgid "Aucun canal n’est présenté tant qu’une société exploitante active n’est pas connue."
@@ -4956,20 +5106,45 @@ msgstr "Aucun canal n’est présenté tant qu’une société exploitante activ
 msgid "Aucun compte connecté natif IMAP ou SMTP n’est disponible. Il faut en connecter un dans les comptes du produit : rien ne se saisit ici à sa place."
 msgstr "Aucun compte connecté natif IMAP ou SMTP n’est disponible. Il faut en connecter un dans les comptes du produit : rien ne se saisit ici à sa place."
 
+#. js-lingui-id: GPA8YZ
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Aucun compte connecté natif IMAP ou SMTP n’est disponible. Vous pouvez en connecter un ci-dessous ; les identifiants restent dans le magasin chiffré natif."
+msgstr "Aucun compte connecté natif IMAP ou SMTP n’est disponible. Vous pouvez en connecter un ci-dessous ; les identifiants restent dans le magasin chiffré natif."
+
 #. js-lingui-id: Ew/dlJ
 #: src/modules/hermes-admin-ui/components/HermesConnectionCenter.tsx
 msgid "Aucun identifiant n’est saisi ni affiché ici. Une capacité que le serveur n’a pas confirmée est annoncée comme non confirmée, donc indisponible."
 msgstr "Aucun identifiant n’est saisi ni affiché ici. Une capacité que le serveur n’a pas confirmée est annoncée comme non confirmée, donc indisponible."
+
+#. js-lingui-id: XPWV4F
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Aucun rôle"
+msgstr "Aucun rôle"
 
 #. js-lingui-id: DVVGWG
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Aucun secret enregistré"
 msgstr "Aucun secret enregistré"
 
+#. js-lingui-id: IuekhZ
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Aucun test de connexion n’est publié pour ce canal dans cette version. Rien ne peut être joint depuis ici, et rien n’est présenté comme vérifié pour autant."
+msgstr "Aucun test de connexion n’est publié pour ce canal dans cette version. Rien ne peut être joint depuis ici, et rien n’est présenté comme vérifié pour autant."
+
+#. js-lingui-id: vh16Od
+#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
+msgid "Aucun test de connexion n’est publié pour ce canal dans cette version. Rien ne peut être joint depuis ici."
+msgstr "Aucun test de connexion n’est publié pour ce canal dans cette version. Rien ne peut être joint depuis ici."
+
 #. js-lingui-id: 6Na4YL
 #: src/modules/hermes-admin-ui/components/HermesCompanyActionNote.tsx
 msgid "Aucune API d’authentification multi-société n’est configurée, donc cette commande ne mène nulle part. Elle reste désactivée jusqu’à ce qu’un serveur la déclare."
 msgstr "Aucune API d’authentification multi-société n’est configurée, donc cette commande ne mène nulle part. Elle reste désactivée jusqu’à ce qu’un serveur la déclare."
+
+#. js-lingui-id: 6+wuNY
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Aucune boîte mail n’est encore enregistrée"
+msgstr "Aucune boîte mail n’est encore enregistrée"
 
 #. js-lingui-id: zaCDTf
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
@@ -5012,10 +5187,26 @@ msgstr "Aucune société exploitante n’est autorisée pour ce compte."
 msgid "Audience"
 msgstr "Audience"
 
+#. js-lingui-id: L3C87L
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Audience list"
+msgstr "Audience list"
+
+#. js-lingui-id: pg0eav
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Audience list recorded on the campaign. It will still be here after a reload."
+msgstr "Audience list recorded on the campaign. It will still be here after a reload."
+
 #. js-lingui-id: 6XwtJI
 #: src/modules/prospection/components/CampaignAudiencesSection.tsx
 msgid "Audience lists already qualified for campaigns. Read-only here."
 msgstr "Audience lists already qualified for campaigns. Read-only here."
+
+#. js-lingui-id: 9fwGD5
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Audience lists are not available: the native campaign engine is not enabled on this workspace."
+msgstr "Audience lists are not available: the native campaign engine is not enabled on this workspace."
 
 #. js-lingui-id: DfInpw
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignAudienceSection.tsx
@@ -5087,8 +5278,10 @@ msgstr "Authentication"
 #: src/modules/auth/hooks/useAuth.ts
 #: src/modules/auth/hooks/useAuth.ts
 #: src/modules/auth/hooks/useAuth.ts
+#: src/modules/auth/hooks/useAuth.ts
 #: src/modules/auth/hooks/useRedeemSsoExchangeToken.ts
 #: src/modules/auth/hooks/useVerifyLogin.ts
+#: src/modules/auth/sign-in-up/components/SignInUpGlobalScopeForm.tsx
 #: src/modules/auth/utils/assertAuthSessionUnchanged.ts
 #: src/modules/auth/utils/resetWorkspaceSessionAndReload.ts
 msgid "Authentication failed"
@@ -5306,6 +5499,11 @@ msgstr "Back to operations"
 msgid "Back to settings"
 msgstr "Back to settings"
 
+#. js-lingui-id: wuUgSW
+#: src/modules/hermes-campaigns-runtime/components/HermesCampaignListContainer.tsx
+msgid "Back to the campaigns"
+msgstr "Back to the campaigns"
+
 #. js-lingui-id: i8ZVQU
 #: src/modules/advanced-text-editor/constants/AdvancedTextEditorBlockCatalog.ts
 msgid "background"
@@ -5438,6 +5636,11 @@ msgstr "BCC"
 #: src/modules/settings/admin-panel/utils/getUpgradeHealthStatusBadge.ts
 msgid "Behind"
 msgstr "Behind"
+
+#. js-lingui-id: tIUavN
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "Being the registered mailbox does not prove the transport works. That stays unproven until a test or a send says otherwise."
+msgstr "Being the registered mailbox does not prove the transport works. That stays unproven until a test or a send says otherwise."
 
 #. js-lingui-id: Fg77nJ
 #: src/modules/settings/data-model/constants/RelationTypes.ts
@@ -5610,6 +5813,16 @@ msgstr "Body Input"
 #: src/modules/client-context/components/ClientRecordNoteCard.tsx
 msgid "Body unreadable for this note."
 msgstr "Body unreadable for this note."
+
+#. js-lingui-id: cbcg3V
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Boîte enregistrée, non vérifiée. L’enregistrement est acquis ; sa joignabilité n’est pas établie et aucun échange de courrier n’a été prouvé. Utilisez « Tester la connexion » pour établir la joignabilité."
+msgstr "Boîte enregistrée, non vérifiée. L’enregistrement est acquis ; sa joignabilité n’est pas établie et aucun échange de courrier n’a été prouvé. Utilisez « Tester la connexion » pour établir la joignabilité."
+
+#. js-lingui-id: sbUkvB
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Boîte enregistrée, non vérifiée. La liste des comptes n’a pas pu être relue : elle peut être incomplète à l’écran. Le compte existe côté serveur — ne le recréez pas."
+msgstr "Boîte enregistrée, non vérifiée. La liste des comptes n’a pas pu être relue : elle peut être incomplète à l’écran. Le compte existe côté serveur — ne le recréez pas."
 
 #. js-lingui-id: d+emGl
 #. placeholder {0}: activeCompany.primaryMailbox
@@ -6163,10 +6376,27 @@ msgstr "Campaign sending unavailable."
 msgid "Campaign unscheduled and back in your drafts"
 msgstr "Campaign unscheduled and back in your drafts"
 
+#. js-lingui-id: oRJtCM
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+#: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
+#: src/pages/hermes/HermesCampaignListPage.tsx
+msgid "Campaigns"
+msgstr "Campaigns"
+
+#. js-lingui-id: fDlcVB
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Campaigns are not enabled"
+msgstr "Campaigns are not enabled"
+
 #. js-lingui-id: m+uOLb
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
 msgid "Campaigns, audiences and sender identities are partitioned by operating company."
 msgstr "Campaigns, audiences and sender identities are partitioned by operating company."
+
+#. js-lingui-id: DBCYAW
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Campaigns, audiences and sender identities are partitioned by operating company. Create the first one above."
+msgstr "Campaigns, audiences and sender identities are partitioned by operating company. Create the first one above."
 
 #. js-lingui-id: n3fZtA
 #: src/modules/object-record/record-sharing/utils/getRecordShareRoleAccessNote.ts
@@ -6314,6 +6544,7 @@ msgstr "Cancellation unknown"
 #. js-lingui-id: vv7kpg
 #: src/modules/ai/constants/AiChatThreadReasons.ts
 #: src/modules/client-context/components/ClientBookingCard.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
 #: src/modules/object-core/agents/components/CoreAgentRunStatus.tsx
 msgid "Cancelled"
@@ -6495,10 +6726,30 @@ msgstr "Cc/Bcc"
 msgid "Ce champ est pour une valeur publique, comme une boîte ou un numéro d’instance. N’y mettez aucun secret."
 msgstr "Ce champ est pour une valeur publique, comme une boîte ou un numéro d’instance. N’y mettez aucun secret."
 
+#. js-lingui-id: 5bmzlq
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "Ce n’est pas une panne réseau : le service répond. L’appairage WhatsApp de cette instance n’est pas terminé, et rien ne peut être envoyé avant qu’il le soit."
+msgstr "Ce n’est pas une panne réseau : le service répond. L’appairage WhatsApp de cette instance n’est pas terminé, et rien ne peut être envoyé avant qu’il le soit."
+
 #. js-lingui-id: HGGrBp
 #: src/modules/hermes-admin-ui/components/HermesCompanySummary.tsx
 msgid "Ce récapitulatif est en lecture seule. Chaque société possède ses propres connexions, politiques et membres : un réglage pris dans l’une n’agit jamais sur une autre."
 msgstr "Ce récapitulatif est en lecture seule. Chaque société possède ses propres connexions, politiques et membres : un réglage pris dans l’une n’agit jamais sur une autre."
+
+#. js-lingui-id: c9mtDE
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "Ce test liste les dossiers et lit les compteurs du dossier relevé. Il ne relève, ne marque, ne déplace et ne supprime aucun message : un message non lu reste non lu."
+msgstr "Ce test liste les dossiers et lit les compteurs du dossier relevé. Il ne relève, ne marque, ne déplace et ne supprime aucun message : un message non lu reste non lu."
+
+#. js-lingui-id: Tl0h6a
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "Ce test lit l’état de l’instance. Il n’envoie aucun message WhatsApp."
+msgstr "Ce test lit l’état de l’instance. Il n’envoie aucun message WhatsApp."
+
+#. js-lingui-id: +qgwUW
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "Ce test s’arrête à l’authentification, puis ferme. Aucun destinataire, aucun objet et aucun corps n’est transmis : aucun courrier ne peut partir."
+msgstr "Ce test s’arrête à l’authentification, puis ferme. Aucun destinataire, aucun objet et aucun corps n’est transmis : aucun courrier ne peut partir."
 
 #. js-lingui-id: dnSmS/
 #: src/modules/hermes-admin-ui/components/HermesConnectionCapabilityList.tsx
@@ -6519,6 +6770,11 @@ msgstr "Certificate invalid"
 #: src/modules/hermes-admin-ui/components/HermesConnectionCenter.tsx
 msgid "Ces connexions appartiennent à {activeCompanyName} et à elle seule. Aucun réglage pris ici n’atteint une autre société exploitante."
 msgstr "Ces connexions appartiennent à {activeCompanyName} et à elle seule. Aucun réglage pris ici n’atteint une autre société exploitante."
+
+#. js-lingui-id: hEkYQu
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Ces secrets se remplacent ensemble : enregistrer n’en envoie pas un seul, car le serveur remplace alors l’ensemble et l’autre serait effacé. Laissez les deux vides pour les conserver, ou renseignez les deux pour les remplacer."
+msgstr "Ces secrets se remplacent ensemble : enregistrer n’en envoie pas un seul, car le serveur remplace alors l’ensemble et l’autre serait effacé. Laissez les deux vides pour les conserver, ou renseignez les deux pour les remplacer."
 
 #. js-lingui-id: 56C62d
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
@@ -6829,6 +7085,11 @@ msgstr "Choice"
 msgid "Choisir un compte connecté"
 msgstr "Choisir un compte connecté"
 
+#. js-lingui-id: ixsWtA
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Choisissez au moins une source à accepter."
+msgstr "Choisissez au moins une source à accepter."
+
 #. js-lingui-id: rzR+je
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Choisissez le compte connecté natif qui portera cette liaison."
@@ -6848,6 +7109,11 @@ msgstr "Choose a date"
 #: src/modules/hermes-wa-ui/components/HermesWaMediaComposer.tsx
 msgid "Choose a file"
 msgstr "Choose a file"
+
+#. js-lingui-id: iZ6674
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "Choose a mailbox to record it as the sender."
+msgstr "Choose a mailbox to record it as the sender."
 
 #. js-lingui-id: n5pcaT
 #: src/modules/ai/components/AiModelTierDropdown.tsx
@@ -6957,6 +7223,11 @@ msgstr "Choose the fields that will identify your records"
 msgid "Choose the format used to display date value"
 msgstr "Choose the format used to display date value"
 
+#. js-lingui-id: FwSwg6
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Choose the recipient to preview first."
+msgstr "Choose the recipient to preview first."
+
 #. js-lingui-id: We5HK6
 #: src/modules/workflow/workflow-steps/workflow-actions/form-action/constants/FormFieldDefaultTexts.ts
 msgid "Choose values"
@@ -7006,6 +7277,11 @@ msgstr "Choose who answers: the bot on its own, the bot as a drafter with a huma
 #: src/modules/settings/app-preferences/components/SettingsAppPreferencesAppsSection.tsx
 msgid "Choose your preferences for the apps installed on your workspace by the admin"
 msgstr "Choose your preferences for the apps installed on your workspace by the admin"
+
+#. js-lingui-id: 8irT9o
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Choosing a list records which list this campaign uses. It does not decide who will be written to: the server resolves that again at departure, and the standing objections apply then."
+msgstr "Choosing a list records which list this campaign uses. It does not decide who will be written to: the server resolves that again at departure, and the standing objections apply then."
 
 #. js-lingui-id: h2kp0z
 #: src/modules/advanced-text-editor/extensions/slash-command/DefaultSlashCommands.ts
@@ -7081,6 +7357,11 @@ msgstr "Claude"
 #: src/modules/settings/mcp/utils/buildMcpSetupCategories.tsx
 msgid "Claude install links require an HTTPS MCP URL."
 msgstr "Claude install links require an HTTPS MCP URL."
+
+#. js-lingui-id: /Wmkkl
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Clé d’API (apiKey)"
+msgstr "Clé d’API (apiKey)"
 
 #. js-lingui-id: xCJdfg
 #: src/modules/log-console/components/LogConsoleResults.tsx
@@ -7430,6 +7711,11 @@ msgstr "Collapse sidebar"
 msgid "collapsible"
 msgstr "collapsible"
 
+#. js-lingui-id: OMDRHP
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Collecte signée (scraping)"
+msgstr "Collecte signée (scraping)"
+
 #. js-lingui-id: Jpq3gO
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
 #: src/modules/prospection/components/HermesImportBatchesTable.tsx
@@ -7739,6 +8025,11 @@ msgstr "Compte connecté natif"
 msgid "Compte ou identifiant public"
 msgstr "Compte ou identifiant public"
 
+#. js-lingui-id: xNIvRu
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Compte sans nom ni adresse renvoyés par le serveur"
+msgstr "Compte sans nom ni adresse renvoyés par le serveur"
+
 #. js-lingui-id: BglnOD
 #: src/modules/settings/admin-panel/health-status/components/SettingsAdminWorkspacesStatusSummaryCard.tsx
 msgid "Computed at"
@@ -7958,6 +8249,11 @@ msgstr "Configured by an administrator"
 msgid "Configurer"
 msgstr "Configurer"
 
+#. js-lingui-id: C4WkeH
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Configurer les connexions"
+msgstr "Configurer les connexions"
+
 #. js-lingui-id: 7VpPHA
 #: src/modules/settings/admin-panel/components/SettingsAdminServerAdminAccess.tsx
 #: src/modules/settings/billing/components/internal/ResourceCreditPackagePickerModal.tsx
@@ -8130,6 +8426,12 @@ msgstr "Connected"
 msgid "Connected accounts"
 msgstr "Connected accounts"
 
+#. js-lingui-id: +X5ITy
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Connecter une boîte"
+msgstr "Connecter une boîte"
+
 #. js-lingui-id: 9zb2WA
 #: src/modules/connectors/components/HermesEvolutionConnectionTag.tsx
 msgid "Connecting"
@@ -8186,6 +8488,7 @@ msgstr "Connection unknown"
 
 #. js-lingui-id: 8vPD2W
 #: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
+#: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
 #: src/pages/hermes/HermesAdminRuntimePage.tsx
 msgid "Connections and companies"
 msgstr "Connections and companies"
@@ -9157,6 +9460,11 @@ msgstr "Create task"
 msgid "Create Text Field"
 msgstr "Create Text Field"
 
+#. js-lingui-id: uA5Pzz
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Create the campaign"
+msgstr "Create the campaign"
+
 #. js-lingui-id: JjK4rW
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionCreateCalendarEvent.tsx
 msgid "Create the event as an all-day event"
@@ -9241,6 +9549,11 @@ msgstr "Created or updated"
 #: src/modules/ai/constants/CrudToolOperationVerbs.ts
 msgid "Creating {objectLabel}"
 msgstr "Creating {objectLabel}"
+
+#. js-lingui-id: xHTrQX
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Creating the draft…"
+msgstr "Creating the draft…"
 
 #. js-lingui-id: 00OfBp
 #: src/modules/auth/sign-in-up/constants/WorkspaceActivationMessages.tsx
@@ -11345,6 +11658,7 @@ msgstr "Downloading is not available on this screen."
 #. js-lingui-id: eneWvv
 #: src/modules/activities/emails/components/EmailThreadPreview.tsx
 #: src/modules/ai/constants/AiChatThreadReasons.ts
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxMessageCard.tsx
 #: src/modules/object-core/workflows/constants/CoreWorkflowStatusFilterOptions.ts
@@ -11462,6 +11776,12 @@ msgstr "Drag and Drop Here"
 #: src/modules/advanced-text-editor/components/AdvancedTextEditorBlockHandleMenu.tsx
 msgid "Drag to move, click for options"
 msgstr "Drag to move, click for options"
+
+#. js-lingui-id: /AG64I
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Droits effectifs"
+msgstr "Droits effectifs"
 
 #. js-lingui-id: VIbDgE
 #: src/modules/page-layout/widgets/fields/components/FieldsConfigurationGroupEditor.tsx
@@ -12371,6 +12691,11 @@ msgstr "Enough for one of these on average"
 msgid "Enqueued"
 msgstr "Enqueued"
 
+#. js-lingui-id: HnC3Ix
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Enregistré côté serveur, mais la relecture qui doit suivre n’a pas abouti : la révision affichée n’est plus celle du serveur, et un enregistrement suivant serait refusé sur cette base. Rechargez pour repartir de ce que le serveur retient."
+msgstr "Enregistré côté serveur, mais la relecture qui doit suivre n’a pas abouti : la révision affichée n’est plus celle du serveur, et un enregistrement suivant serait refusé sur cette base. Rechargez pour repartir de ce que le serveur retient."
+
 #. js-lingui-id: wcgsN2
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Enregistré, et le serveur a daté une vérification."
@@ -12385,6 +12710,11 @@ msgstr "Enregistré. Aucune vérification n’a eu lieu : la connexion reste « 
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Enregistrer cette connexion arrêtera les réponses automatiques sur ce canal : elles devront être réactivées explicitement. Une autorisation donnée pour l’ancienne connexion ne vaut pas pour la nouvelle."
 msgstr "Enregistrer cette connexion arrêtera les réponses automatiques sur ce canal : elles devront être réactivées explicitement. Une autorisation donnée pour l’ancienne connexion ne vaut pas pour la nouvelle."
+
+#. js-lingui-id: prtcih
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Enregistrer la boîte"
+msgstr "Enregistrer la boîte"
 
 #. js-lingui-id: 7rFh+V
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
@@ -12794,6 +13124,11 @@ msgstr "Environments"
 msgid "Envoi"
 msgstr "Envoi"
 
+#. js-lingui-id: exQnTp
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "envoi SMTP (authentification seule)"
+msgstr "envoi SMTP (authentification seule)"
+
 #. js-lingui-id: BlLvRP
 #: src/modules/settings/security/components/SettingsSecuritySettings.tsx
 msgid "Erasure of soft-deleted records"
@@ -13010,10 +13345,10 @@ msgstr "État"
 msgid "État de connexion inconnu"
 msgstr "État de connexion inconnu"
 
-#. js-lingui-id: IndbOw
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-msgid "État inconnu"
-msgstr "État inconnu"
+#. js-lingui-id: lTPL9E
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "état de l’instance WhatsApp"
+msgstr "état de l’instance WhatsApp"
 
 #. js-lingui-id: 9cInOZ
 #. placeholder {0}: member.unknownState
@@ -13262,6 +13597,16 @@ msgstr ""
 #: src/modules/spreadsheet-import/steps/components/MatchColumnsStep/components/UserTableColumn.tsx
 msgid "ex: {firstDefinedValue}"
 msgstr "ex: {firstDefinedValue}"
+
+#. js-lingui-id: ELDjWW
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Exactement soixante-quatre caractères hexadécimaux minuscules, et différent de la clé d’API. Il authentifie les réceptions."
+msgstr "Exactement soixante-quatre caractères hexadécimaux minuscules, et différent de la clé d’API. Il authentifie les réceptions."
+
+#. js-lingui-id: pTs0mO
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Exactement soixante-quatre caractères hexadécimaux minuscules. Il signe les collectes entrantes."
+msgstr "Exactement soixante-quatre caractères hexadécimaux minuscules. Il signe les collectes entrantes."
 
 #. js-lingui-id: QQlMid
 #: src/modules/settings/accounts/components/SettingsAccountsMessageChannelDetails.tsx
@@ -14690,6 +15035,11 @@ msgstr "Fix the payment issue to keep your premium features active."
 msgid "Fix the payment issue to restore your premium features."
 msgstr "Fix the payment issue to restore your premium features."
 
+#. js-lingui-id: 3zoz+P
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "Fix the problems listed above before recording."
+msgstr "Fix the problems listed above before recording."
+
 #. js-lingui-id: ylQd2j
 #: src/modules/side-panel/pages/workflow/action/components/SidePanelWorkflowSelectAction.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/utils/getActionHeaderTypeOrThrow.ts
@@ -14771,6 +15121,11 @@ msgstr "For a collection the entry point did not bring in. What is staged here i
 #: src/modules/workflow/workflow-steps/workflow-actions/classify-action/components/WorkflowEditActionClassify.tsx
 msgid "For example: Alex is a software engineer with three years of React experience."
 msgstr "For example: Alex is a software engineer with three years of React experience."
+
+#. js-lingui-id: aMk0h7
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "For example: Architects, Lyon, first contact"
+msgstr "For example: Architects, Lyon, first contact"
 
 #. js-lingui-id: q3IKGG
 #: src/modules/workflow/workflow-steps/workflow-actions/classify-action/components/WorkflowEditActionClassify.tsx
@@ -14868,6 +15223,7 @@ msgstr "Forms are meant for manual triggers"
 
 #. js-lingui-id: PfU1eD
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Formulaires"
 msgstr "Formulaires"
@@ -15236,6 +15592,11 @@ msgstr "GIN (full-text search and JSONB)"
 #: src/pages/settings/applications/utils/getClaimErrorContent.ts
 msgid "GitHub authorization failed or was denied. Please connect your GitHub account again."
 msgstr "GitHub authorization failed or was denied. Please connect your GitHub account again."
+
+#. js-lingui-id: IJm5Ne
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Give the campaign a name to create it."
+msgstr "Give the campaign a name to create it."
 
 #. js-lingui-id: 2GT3Hf
 #: src/modules/ai/constants/DataResidencyConfig.ts
@@ -16062,10 +16423,24 @@ msgstr "IDPSSODescriptor element is missing"
 msgid "if"
 msgstr "if"
 
+#. js-lingui-id: p1RZ2B
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "If it was not created, the next attempt reuses the same identifier, so it cannot produce a second campaign."
+msgstr "If it was not created, the next attempt reuses the same identifier, so it cannot produce a second campaign."
+
 #. js-lingui-id: bTDz/2
 #: src/modules/settings/admin-panel/health-status/maintenance-mode/components/SettingsAdminMaintenanceMode.tsx
 msgid "If there's no link, no button will appear."
 msgstr "If there's no link, no button will appear."
+
+#. js-lingui-id: UqKTUQ
+#. placeholder {0}: previewState.preview.envelope.fromAddress ?? '—'
+#. placeholder {1}: readWouldBeLabel(previewState.preview.envelope.openMarkerWouldBeIncluded)
+#. placeholder {2}: readWouldBeLabel(previewState.preview.envelope.clickTrackingWouldBeApplied)
+#. placeholder {3}: readWouldBeLabel(previewState.preview.envelope.unsubscribeLinkWouldBeIncluded)
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "If this campaign departed: sender {0}, open marker {1}, click tracking {2}, unsubscribe link {3}."
+msgstr "If this campaign departed: sender {0}, open marker {1}, click tracking {2}, unsubscribe link {3}."
 
 #. js-lingui-id: X4iihZ
 #: src/modules/auth/sign-in-up/hooks/useHandleResetPassword.ts
@@ -16393,6 +16768,11 @@ msgstr "Included"
 msgid "Incoming media unavailable"
 msgstr "Incoming media unavailable"
 
+#. js-lingui-id: kmwWQz
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "Incoming pictures, videos and voice notes cannot reach this workspace yet: the WhatsApp provider is not reporting a delivery configuration for this connection. Text messages are unaffected, and attachments already received stay readable."
+msgstr "Incoming pictures, videos and voice notes cannot reach this workspace yet: the WhatsApp provider is not reporting a delivery configuration for this connection. Text messages are unaffected, and attachments already received stay readable."
+
 #. js-lingui-id: mtGDyy
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceBillingContent.tsx
 #: src/modules/settings/billing/components/SettingsBillingSubscriptionInfo.tsx
@@ -16414,6 +16794,11 @@ msgstr "Incomplete expired"
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceBillingContent.tsx
 msgid "Incomplete Expired"
 msgstr "Incomplete Expired"
+
+#. js-lingui-id: c8C44f
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "inconnu"
+msgstr "inconnu"
 
 #. js-lingui-id: Xltrl0
 #: src/modules/settings/billing/components/internal/ResourceCreditPriceSelector.tsx
@@ -16453,6 +16838,11 @@ msgstr "Index deleted"
 msgid "Indexes"
 msgstr "Indexes"
 
+#. js-lingui-id: HK/YCt
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Indicateur CRM « accès à tous les outils »"
+msgstr "Indicateur CRM « accès à tous les outils »"
+
 #. js-lingui-id: DCN/a+
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Indiquez l’adresse du service à joindre."
@@ -16462,6 +16852,11 @@ msgstr "Indiquez l’adresse du service à joindre."
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Indiquez le dossier IMAP à relever, par exemple INBOX."
 msgstr "Indiquez le dossier IMAP à relever, par exemple INBOX."
+
+#. js-lingui-id: vCgRkE
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Indiquez un entier entre 1 et 60."
+msgstr "Indiquez un entier entre 1 et 60."
 
 #. js-lingui-id: hG711D
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceContent.tsx
@@ -17097,6 +17492,21 @@ msgstr "Issuer URI"
 msgid "It could not be retrieved. Ask the sender to send it again."
 msgstr "It could not be retrieved. Ask the sender to send it again."
 
+#. js-lingui-id: iJoW8y
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "It may already be in the list below. Creating is shut until you re-read the list, because pressing again on a guess could leave you with two."
+msgstr "It may already be in the list below. Creating is shut until you re-read the list, because pressing again on a guess could leave you with two."
+
+#. js-lingui-id: bxRO2T
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "It may have happened, in whole or in part. Nothing is retried automatically and no step is offered again: reload the campaign and read what actually left before deciding. Pressing again now could send the same message twice."
+msgstr "It may have happened, in whole or in part. Nothing is retried automatically and no step is offered again: reload the campaign and read what actually left before deciding. Pressing again now could send the same message twice."
+
+#. js-lingui-id: lP98CC
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "It may or may not have been recorded. Reload the campaign to see what the server holds before editing again — nothing is retried on its own, on purpose."
+msgstr "It may or may not have been recorded. Reload the campaign to see what the server holds before editing again — nothing is retried on its own, on purpose."
+
 #. js-lingui-id: 28wkw4
 #: src/modules/hermes-wa-ui/components/HermesWaMediaUnavailable.tsx
 msgid "It was held back on purpose and will not be opened here."
@@ -17167,6 +17577,11 @@ msgstr "Japanese"
 msgid "JetBrains AI / Junie"
 msgstr "JetBrains AI / Junie"
 
+#. js-lingui-id: lNYEkw
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Jeton (token)"
+msgstr "Jeton (token)"
+
 #. js-lingui-id: FVzmEZ
 #: src/modules/settings/admin-panel/health-status/components/SettingsAdminQueueJobRowDropdownMenu.tsx
 msgid "Job Actions"
@@ -17214,6 +17629,11 @@ msgstr "john.doe"
 #: src/modules/settings/accounts/components/SettingsAccountsConnectionForm.tsx
 msgid "john.doe@example.com"
 msgstr "john.doe@example.com"
+
+#. js-lingui-id: 0B4D7W
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "Joignable n’est pas connecté : cela signifie que le serveur a répondu à cet instant et a accepté ces identifiants. Cela ne prouve pas qu’un message arrivera. Seul un échange réellement enregistré le prouve."
+msgstr "Joignable n’est pas connecté : cela signifie que le serveur a répondu à cet instant et a accepté ces identifiants. Cela ne prouve pas qu’un message arrivera. Seul un échange réellement enregistré le prouve."
 
 #. js-lingui-id: fSPjtl
 #: src/pages/auth/SignInUp.tsx
@@ -17370,30 +17790,45 @@ msgstr "KovaaLab CRM fills each level with the best model that meets your requir
 msgid "KovaaLab CRM works better with your team"
 msgstr "KovaaLab CRM works better with your team"
 
+#. js-lingui-id: JVfzeq
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "L’état d’un membre n’est pas publié par le serveur pour un espace de travail : il n’existe pas de champ actif, invité ou suspendu sur cet objet. Il est donc dit non publié plutôt que deviné d’après les rôles."
+msgstr "L’état d’un membre n’est pas publié par le serveur pour un espace de travail : il n’existe pas de champ actif, invité ou suspendu sur cet objet. Il est donc dit non publié plutôt que deviné d’après les rôles."
+
 #. js-lingui-id: x4430i
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
 msgid "L’état n’a pas pu être lu, aucun test n’est proposé sur cette base."
 msgstr "L’état n’a pas pu être lu, aucun test n’est proposé sur cette base."
+
+#. js-lingui-id: Q5iym6
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "L’indicateur CRM « accès à tous les outils » n’est pas une autorisation de bot. Une délégation au bot se donne par société, par canal et par conversation, avec un responsable et une époque, ce que cet indicateur ne connaît pas."
+msgstr "L’indicateur CRM « accès à tous les outils » n’est pas une autorisation de bot. Une délégation au bot se donne par société, par canal et par conversation, avec un responsable et une époque, ce que cet indicateur ne connaît pas."
+
+#. js-lingui-id: 04r1wo
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "La boîte est enregistrée dans le magasin chiffré natif du produit. Ses identifiants ne sont conservés nulle part ailleurs et ne sont jamais relus par cet écran."
+msgstr "La boîte est enregistrée dans le magasin chiffré natif du produit. Ses identifiants ne sont conservés nulle part ailleurs et ne sont jamais relus par cet écran."
+
+#. js-lingui-id: a9eiHi
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "La clé que le fournisseur Evolution attend sur ses appels."
+msgstr "La clé que le fournisseur Evolution attend sur ses appels."
 
 #. js-lingui-id: I7DcJN
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "La réponse du serveur n’a pas pu être lue : cet enregistrement est incertain. Rechargez pour voir ce qui a été retenu."
 msgstr "La réponse du serveur n’a pas pu être lue : cet enregistrement est incertain. Rechargez pour voir ce qui a été retenu."
 
+#. js-lingui-id: ryaF9T
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Vérifiez la liste des comptes avant de réessayer, pour ne pas créer de doublon."
+msgstr "La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Vérifiez la liste des comptes avant de réessayer, pour ne pas créer de doublon."
+
 #. js-lingui-id: U+w9L+
 #: src/modules/hermes-admin-ui/components/HermesCompanyActionNote.tsx
 msgid "La réponse du serveur n’a pas pu être lue : le résultat est inconnu. Rechargez pour voir ce qui a été retenu."
 msgstr "La réponse du serveur n’a pas pu être lue : le résultat est inconnu. Rechargez pour voir ce qui a été retenu."
-
-#. js-lingui-id: jPSlmI
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "La réponse du test n’a pas pu être lue : le résultat est inconnu, ni réussi ni échoué."
-msgstr "La réponse du test n’a pas pu être lue : le résultat est inconnu, ni réussi ni échoué."
-
-#. js-lingui-id: 7fhHFE
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-msgid "La réponse du test n’a pas pu être lue : le résultat est inconnu, ni réussi ni échoué. Rechargez pour voir l’état retenu."
-msgstr "La réponse du test n’a pas pu être lue : le résultat est inconnu, ni réussi ni échoué. Rechargez pour voir l’état retenu."
 
 #. js-lingui-id: pOGpKa
 #: src/modules/hermes-admin-ui/components/HermesAdminSettingsCenter.tsx
@@ -17405,10 +17840,10 @@ msgstr "La société active a changé. Les réglages affichés appartenaient à 
 msgid "La société active n’a pas pu être lue. Aucun réglage n’est présenté comme portant sur une société tant qu’elle est inconnue."
 msgstr "La société active n’a pas pu être lue. Aucun réglage n’est présenté comme portant sur une société tant qu’elle est inconnue."
 
-#. js-lingui-id: yS96SX
+#. js-lingui-id: ElO9vM
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "La valeur enregistrée reste côté serveur : elle n’est jamais renvoyée au navigateur, donc ni affichée ni relue ici. Laissez ce champ vide pour la conserver telle quelle, ou saisissez une nouvelle valeur pour la remplacer."
-msgstr "La valeur enregistrée reste côté serveur : elle n’est jamais renvoyée au navigateur, donc ni affichée ni relue ici. Laissez ce champ vide pour la conserver telle quelle, ou saisissez une nouvelle valeur pour la remplacer."
+msgid "La valeur enregistrée reste côté serveur : elle n’est jamais renvoyée au navigateur, donc ni affichée ni relue ici. Laissez ces champs vides pour la conserver telle quelle, ou saisissez une nouvelle valeur pour la remplacer."
+msgstr "La valeur enregistrée reste côté serveur : elle n’est jamais renvoyée au navigateur, donc ni affichée ni relue ici. Laissez ces champs vides pour la conserver telle quelle, ou saisissez une nouvelle valeur pour la remplacer."
 
 #. js-lingui-id: QWE/qJ
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
@@ -17822,6 +18257,11 @@ msgstr "Layout permissions"
 msgid "Layouts"
 msgstr "Layouts"
 
+#. js-lingui-id: omgD32
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Le nom identifie cette boîte dans la liste des connexions : nommez la boîte de la société, pas une personne. L’adresse est celle de la boîte elle-même."
+msgstr "Le nom identifie cette boîte dans la liste des connexions : nommez la boîte de la société, pas une personne. L’adresse est celle de la boîte elle-même."
+
 #. js-lingui-id: Wam+eO
 #: src/modules/hermes-admin-ui/components/HermesCompanySummary.tsx
 msgid "Le récapitulatif n’a pas pu être lu, donc il n’est pas affiché : une liste partielle laisserait croire que les autres sociétés n’existent pas."
@@ -17838,20 +18278,16 @@ msgstr "Le serveur a appliqué la demande sur la société {0}."
 msgid "Le serveur a appliqué la demande."
 msgstr "Le serveur a appliqué la demande."
 
-#. js-lingui-id: CXOL7t
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Le serveur a répondu que le test est passé et l’a daté."
-msgstr "Le serveur a répondu que le test est passé et l’a daté."
+#. js-lingui-id: DtEQZA
+#. placeholder {0}: outcome.reason
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Le serveur a refusé l’enregistrement : {0}"
+msgstr "Le serveur a refusé l’enregistrement : {0}"
 
-#. js-lingui-id: vOIyYO
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Le serveur a répondu que le test est passé, sans date. Sans date, cette connexion n’est pas présentée comme vérifiée."
-msgstr "Le serveur a répondu que le test est passé, sans date. Sans date, cette connexion n’est pas présentée comme vérifiée."
-
-#. js-lingui-id: tIKmLJ
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-msgid "Le serveur a répondu que le test est passé, sans en donner la date. Sans date, cette connexion n’est pas présentée comme vérifiée."
-msgstr "Le serveur a répondu que le test est passé, sans en donner la date. Sans date, cette connexion n’est pas présentée comme vérifiée."
+#. js-lingui-id: 4oIxXA
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Le serveur a refusé l’enregistrement de cette boîte. Rien n’a été écrit."
+msgstr "Le serveur a refusé l’enregistrement de cette boîte. Rien n’a été écrit."
 
 #. js-lingui-id: SMIp/A
 #: src/modules/hermes-admin-ui/components/HermesCompanyActionNote.tsx
@@ -17961,11 +18397,6 @@ msgstr "Lecture des sociétés autorisées…"
 msgid "Lecture du récapitulatif…"
 msgstr "Lecture du récapitulatif…"
 
-#. js-lingui-id: A805Gy
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-msgid "Lecture seule"
-msgstr "Lecture seule"
-
 #. js-lingui-id: UlKSMd
 #: src/modules/side-panel/pages/email-block-settings/components/EmailBoxSidesInput.tsx
 msgid "Left"
@@ -18019,10 +18450,10 @@ msgstr "Les connexions n’ont pas pu être lues, leur état est donc inconnu : 
 msgid "Les connexions n’ont pas pu être lues, leur état est donc inconnu. Rechargez pour réessayer."
 msgstr "Les connexions n’ont pas pu être lues, leur état est donc inconnu. Rechargez pour réessayer."
 
-#. js-lingui-id: 5qr8th
+#. js-lingui-id: 7baNVa
 #: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-msgid "Les droits d’un membre s’arrêtent à cette société. Un membre en lecture seule ne peut ni écrire, ni ouvrir le détail d’une connexion."
-msgstr "Les droits d’un membre s’arrêtent à cette société. Un membre en lecture seule ne peut ni écrire, ni ouvrir le détail d’une connexion."
+msgid "Les droits d’un membre s’arrêtent à cette société. Ils sont lus sur les indicateurs de permission du rôle, pas sur son nom : un rôle appelé « Administrateur » qui ne porte aucun indicateur n’ouvre rien, et un rôle au nom inattendu peut être celui qui configure les connexions."
+msgstr "Les droits d’un membre s’arrêtent à cette société. Ils sont lus sur les indicateurs de permission du rôle, pas sur son nom : un rôle appelé « Administrateur » qui ne porte aucun indicateur n’ouvre rien, et un rôle au nom inattendu peut être celui qui configure les connexions."
 
 #. js-lingui-id: DA69m7
 #. placeholder {0}: read.message
@@ -18329,6 +18760,11 @@ msgctxt "Field type"
 msgid "Links"
 msgstr "Links"
 
+#. js-lingui-id: Vv6j56
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Lire les fiches"
+msgstr "Lire les fiches"
+
 #. js-lingui-id: 82kQhK
 #: src/modules/advanced-text-editor/extensions/slash-command/DefaultSlashCommands.ts
 #: src/modules/advanced-text-editor/extensions/slash-command/DefaultSlashCommands.ts
@@ -18362,6 +18798,11 @@ msgstr "List widget"
 #: src/modules/advanced-text-editor/extensions/slash-command/DefaultSlashCommands.ts
 msgid "List with checkboxes"
 msgstr "List with checkboxes"
+
+#. js-lingui-id: 7AWwok
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "List without a published name"
+msgstr "List without a published name"
 
 #. js-lingui-id: Ap948/
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApps.tsx
@@ -18822,6 +19263,7 @@ msgstr "Mail folders"
 
 #. js-lingui-id: UCxRMK
 #: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
+#: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
 #: src/pages/hermes/HermesMailboxRuntimePage.tsx
 msgid "Mailbox"
 msgstr "Mailbox"
@@ -19341,7 +19783,6 @@ msgstr "Members & invitees"
 #. js-lingui-id: ot0Ekl
 #: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
 #: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
 msgid "Membre"
 msgstr "Membre"
 
@@ -19414,6 +19855,7 @@ msgid "Merging..."
 msgstr "Merging..."
 
 #. js-lingui-id: xDAtGP
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
 #: src/modules/log-console/components/LogConsoleDetailPanel.tsx
@@ -19722,6 +20164,11 @@ msgstr "Models for this provider. Toggle to enable or disable."
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Modifier la connexion {kindLabel}"
 msgstr "Modifier la connexion {kindLabel}"
+
+#. js-lingui-id: mWdQvU
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Modifier les fiches"
+msgstr "Modifier les fiches"
 
 #. js-lingui-id: IQ/+J9
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
@@ -20153,6 +20600,11 @@ msgstr "Name details"
 #: src/modules/settings/data-model/object-details/components/tabs/ObjectSettings.tsx
 msgid "Name in both singular (e.g., 'Invoice') and plural (e.g., 'Invoices') forms."
 msgstr "Name in both singular (e.g., 'Invoice') and plural (e.g., 'Invoices') forms."
+
+#. js-lingui-id: saMTTk
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Name of the new campaign"
+msgstr "Name of the new campaign"
 
 #. js-lingui-id: z+6jaZ
 #: src/pages/settings/developers/api-keys/SettingsDevelopersApiKeyDetail.tsx
@@ -20609,6 +21061,11 @@ msgstr "Next: {nextTitles}"
 msgid "Ninth"
 msgstr "Ninth"
 
+#. js-lingui-id: 69vkBp
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "no"
+msgstr "no"
+
 #. js-lingui-id: 1UzENP
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApps.tsx
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApps.tsx
@@ -20860,6 +21317,11 @@ msgstr "No campaign audience yet."
 #: src/pages/hermes/HermesCampaignRuntimePage.tsx
 msgid "No campaign is open. Open one from the campaigns list to see its audience, its sender and its results."
 msgstr "No campaign is open. Open one from the campaigns list to see its audience, its sender and its results."
+
+#. js-lingui-id: gTUtsI
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "No campaign yet"
+msgstr "No campaign yet"
 
 #. js-lingui-id: hiHzk0
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
@@ -21485,6 +21947,16 @@ msgstr "No provenance attestation was found for this package. Publish it from Gi
 msgid "No rate limit hit in this period"
 msgstr "No rate limit hit in this period"
 
+#. js-lingui-id: DgGghz
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "No recipient was read for this campaign, so there is nobody to render a preview for."
+msgstr "No recipient was read for this campaign, so there is nobody to render a preview for."
+
+#. js-lingui-id: lebF3N
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudienceSection.tsx
+msgid "No recipient was resolved for this campaign. Choose an audience list above; the server then resolves who is reachable."
+msgstr "No recipient was resolved for this campaign. Choose an audience list above; the server then resolves who is reachable."
+
 #. js-lingui-id: m1OG2V
 #: src/modules/activities/emails/hooks/useSendMessageCampaign.ts
 msgid "No recipients to send to ({skipReasons})"
@@ -21700,6 +22172,11 @@ msgstr "No structure has an entry point delegated to it. Delegation happens outs
 #: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
 msgid "No subject"
 msgstr "No subject"
+
+#. js-lingui-id: lfzeGV
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "No subject recorded yet."
+msgstr "No subject recorded yet."
 
 #. js-lingui-id: L4Miic
 #: src/modules/side-panel/pages/page-layout/components/dropdown-content/ChartGroupByFieldSelectionMorphRelationFieldView.tsx
@@ -21939,6 +22416,11 @@ msgstr "Node options"
 msgid "Node settings"
 msgstr "Node settings"
 
+#. js-lingui-id: Dw6eC8
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Nom de l’instance"
+msgstr "Nom de l’instance"
+
 #. js-lingui-id: 0CElhK
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Nom de la connexion"
@@ -21949,10 +22431,20 @@ msgstr "Nom de la connexion"
 msgid "Nom de la société"
 msgstr "Nom de la société"
 
+#. js-lingui-id: B05HVC
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "non"
+msgstr "non"
+
 #. js-lingui-id: k3sHUT
 #: src/modules/hermes-admin-ui/components/HermesConnectionStateTag.tsx
 msgid "Non configuré"
 msgstr "Non configuré"
+
+#. js-lingui-id: lBBjOP
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Non publié par le serveur"
+msgstr "Non publié par le serveur"
 
 #. js-lingui-id: EdQY6l
 #: src/modules/ai/components/AiChatThreadDetailsDropdown.tsx
@@ -22121,6 +22613,11 @@ msgstr "Not available"
 msgid "Not available for default view"
 msgstr "Not available for default view"
 
+#. js-lingui-id: gpNpsk
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
+msgid "Not available in this version: no operation is published yet to carry out this capability. The server was not asked."
+msgstr "Not available in this version: no operation is published yet to carry out this capability. The server was not asked."
+
 #. js-lingui-id: 0qBE9S
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownCustomView.tsx
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownCustomView.tsx
@@ -22216,6 +22713,11 @@ msgstr "Not recorded"
 msgid "Not Recorded"
 msgstr "Not Recorded"
 
+#. js-lingui-id: 8DdfD1
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "Not recorded yet: what is on screen differs from what the server holds."
+msgstr "Not recorded yet: what is on screen differs from what the server holds."
+
 #. js-lingui-id: Z6/avU
 #: src/modules/messaging-inbox/components/MessagingInboxMessageStatus.tsx
 msgid "Not reported"
@@ -22281,6 +22783,11 @@ msgstr "Not shared with"
 #: src/modules/workflow/workflow-diagram/utils/getWorkflowRunStatusTagProps.ts
 msgid "Not started"
 msgstr "Not started"
+
+#. js-lingui-id: awsH92
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "not stated"
+msgstr "not stated"
 
 #. js-lingui-id: jL13Vu
 #: src/pages/settings/structures/SettingsStructuresDashboard.tsx
@@ -22350,6 +22857,16 @@ msgstr "Nothing is sent until you ask for it."
 #: src/modules/client-context/components/ClientContextTimelineSection.tsx
 msgid "Nothing received for this client yet."
 msgstr "Nothing received for this client yet."
+
+#. js-lingui-id: Bg0E/T
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Nothing scheduled and nothing sent."
+msgstr "Nothing scheduled and nothing sent."
+
+#. js-lingui-id: bD17oH
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "Nothing to record."
+msgstr "Nothing to record."
 
 #. js-lingui-id: DYCPYF
 #: src/modules/page-layout/widgets/components/StandaloneWidgetPlaceholder.tsx
@@ -22736,6 +23253,11 @@ msgstr "One or more filters reference deactivated or deleted fields and will be 
 msgid "One per run"
 msgstr "One per run"
 
+#. js-lingui-id: wwIwa1
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "One real message goes to this address. The server applies no staging restriction to it, so never type a prospect's address here."
+msgstr "One real message goes to this address. The server applies no staging restriction to it, so never type a prospect's address here."
+
 #. js-lingui-id: K+DKwY
 #: src/pages/settings/enterprise/SettingsEnterprise.tsx
 msgid "One subscription provides one Organization key that powers one production instance and one potential staging or test instance. To run a staging or test environment, install KovaaLab CRM on a second server, activate it with this same Organization key, then register that server as a development instance. Development instances unlock premium features without extra billing and do not count toward your production seats."
@@ -23033,6 +23555,11 @@ msgstr "Open settings"
 msgid "Open side panel"
 msgstr "Open side panel"
 
+#. js-lingui-id: YgF9xq
+#: src/modules/prospection/components/HermesCampaignDraftForm.tsx
+msgid "Open the campaign editor"
+msgstr "Open the campaign editor"
+
 #. js-lingui-id: tirDue
 #: src/modules/log-console/constants/LogConsoleSources.tsx
 msgid "Open webhook settings"
@@ -23042,6 +23569,11 @@ msgstr "Open webhook settings"
 #: src/modules/navigation-menu-item/display/sections/components/NavigationDrawerOpenedSection.tsx
 msgid "Opened"
 msgstr "Opened"
+
+#. js-lingui-id: sAwkRT
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Opening a campaign shows what the server holds for it. Nothing in this list sends anything."
+msgstr "Opening a campaign shows what the server holds for it. Nothing in this list sends anything."
 
 #. js-lingui-id: QuR8Kc
 #: src/modules/hermes-mailbox-ui/components/HermesMailbox.tsx
@@ -23365,6 +23897,11 @@ msgstr "Others"
 #: src/modules/auth/sign-in-up/hooks/useTwoFactorAuthenticationForm.ts
 msgid "OTP must be exactly 6 digits"
 msgstr "OTP must be exactly 6 digits"
+
+#. js-lingui-id: vJzGr3
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "oui"
+msgstr "oui"
 
 #. js-lingui-id: 5h8sBX
 #: src/modules/onboarding/constants/ImportContactsPreviewEmails.ts
@@ -23994,6 +24531,11 @@ msgstr "Pick a date"
 msgid "Pick a date."
 msgstr "Pick a date."
 
+#. js-lingui-id: Qlgpwf
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Pick a recipient"
+msgstr "Pick a recipient"
+
 #. js-lingui-id: T1yaeQ
 #: src/modules/activities/emails/utils/buildCampaignDeliveryHint.ts
 msgid "Pick a send time in the future."
@@ -24028,6 +24570,16 @@ msgstr "Pick a time."
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionEmailBase.tsx
 msgid "Pick an address to send from or set a workspace member as variable"
 msgstr "Pick an address to send from or set a workspace member as variable"
+
+#. js-lingui-id: mRtdat
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Pick an audience list"
+msgstr "Pick an audience list"
+
+#. js-lingui-id: ljhqMM
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Pick an unsubscribe topic"
+msgstr "Pick an unsubscribe topic"
 
 #. js-lingui-id: c1JeA3
 #: src/modules/workflow/workflow-steps/workflow-actions/pick-record-action/components/WorkflowEditActionPickRecord.tsx
@@ -24324,6 +24876,11 @@ msgstr "Post Code"
 #: src/modules/settings/data-model/fields/forms/address/constants/DefaultSelectionAddressWithMessages.ts
 msgid "Postcode"
 msgstr "Postcode"
+
+#. js-lingui-id: UxZsyA
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Pour les fiches, un membre portant plusieurs rôles cumule ce qu’ils accordent. Pour les connexions, le serveur ne retient qu’un seul rôle : si les rôles ne concordent pas, le résultat est dit inconnu plutôt que deviné."
+msgstr "Pour les fiches, un membre portant plusieurs rôles cumule ce qu’ils accordent. Pour les connexions, le serveur ne retient qu’un seul rôle : si les rôles ne concordent pas, le résultat est dit inconnu plutôt que deviné."
 
 #. js-lingui-id: 8LyT38
 #: src/modules/advanced-text-editor/constants/RichTextBlockSlashCommands.ts
@@ -25000,6 +25557,11 @@ msgstr "Raw JSON"
 msgid "Raycast"
 msgstr "Raycast"
 
+#. js-lingui-id: wv6moe
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Re-read the list"
+msgstr "Re-read the list"
+
 #. js-lingui-id: hNHCC1
 #: src/modules/ai/utils/tool-display/getToolDisplayMessage.ts
 msgid "Reacted with {emoji}"
@@ -25111,6 +25673,11 @@ msgstr "Read/Edit/Delete permissions"
 msgid "Reading folders and threads"
 msgstr "Reading folders and threads"
 
+#. js-lingui-id: v8viVY
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Reading the audience lists…"
+msgstr "Reading the audience lists…"
+
 #. js-lingui-id: 8aOXcr
 #: src/modules/hermes-wa-runtime/components/HermesWaRuntimeAttachment.tsx
 msgid "Reading this media was refused."
@@ -25126,20 +25693,20 @@ msgstr "Reading…"
 msgid "Ready"
 msgstr "Ready"
 
-#. js-lingui-id: yl/zUM
+#. js-lingui-id: vhG4MU
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
-msgid "Real emission · staging destinations only"
-msgstr "Real emission · staging destinations only"
+msgid "Real emission · to the address you typed"
+msgstr "Real emission · to the address you typed"
 
 #. js-lingui-id: J76GNe
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
 msgid "Real emission · to the retained recipients"
 msgstr "Real emission · to the retained recipients"
 
-#. js-lingui-id: 9wdzai
+#. js-lingui-id: 5k0iwJ
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
-msgid "Really sends one message, which the server restricts to staging destinations. It never reaches a prospect, and it is not a preview."
-msgstr "Really sends one message, which the server restricts to staging destinations. It never reaches a prospect, and it is not a preview."
+msgid "Really sends one message, to the address above and to nobody else. It is not a preview, and it does not send the campaign."
+msgstr "Really sends one message, to the address above and to nobody else. It is not a preview, and it does not send the campaign."
 
 #. js-lingui-id: VJScHU
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceCreditGrantModal.tsx
@@ -25245,6 +25812,11 @@ msgstr "Recent Users"
 msgid "Réception"
 msgstr "Réception"
 
+#. js-lingui-id: UH4fb2
+#: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
+msgid "réception IMAP (liste des dossiers et compteurs)"
+msgstr "réception IMAP (liste des dossiers et compteurs)"
+
 #. js-lingui-id: 3UYara
 #: src/modules/hermes-admin-ui/components/HermesReloadRequest.tsx
 msgid "Rechargement nécessaire"
@@ -25266,6 +25838,17 @@ msgstr "Recipient"
 #: src/modules/side-panel/pages/send-campaign/components/SendCampaignForm.tsx
 msgid "Recipient count unavailable"
 msgstr "Recipient count unavailable"
+
+#. js-lingui-id: Iq7yro
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Recipient to preview"
+msgstr "Recipient to preview"
+
+#. js-lingui-id: 0MFThW
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Recipient without a readable name or address"
+msgstr "Recipient without a readable name or address"
 
 #. js-lingui-id: p8GO5h
 #: src/modules/side-panel/pages/send-campaign-test/components/SidePanelSendCampaignTestPage.tsx
@@ -25481,6 +26064,22 @@ msgstr "Record Table Settings"
 msgid "Record text"
 msgstr "Record text"
 
+#. js-lingui-id: HbAiuW
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Record the content"
+msgstr "Record the content"
+
+#. js-lingui-id: HpviWu
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Record the sender"
+msgstr "Record the sender"
+
+#. js-lingui-id: MZ5lJH
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "Record this sender"
+msgstr "Record this sender"
+
 #. js-lingui-id: CV/ZuS
 #: src/modules/object-core/agents/components/CoreAgentTriggerCard.tsx
 msgid "Record type"
@@ -25520,6 +26119,11 @@ msgstr "Recorded action"
 msgid "Recorded actions"
 msgstr "Recorded actions"
 
+#. js-lingui-id: OYwE3N
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "Recorded on the campaign. It will still be here after a reload."
+msgstr "Recorded on the campaign. It will still be here after a reload."
+
 #. js-lingui-id: 3esxl/
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
 msgid "Recorder Joining"
@@ -25531,6 +26135,11 @@ msgstr "Recorder Joining"
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
 msgid "Recording"
 msgstr "Recording"
+
+#. js-lingui-id: XcTlEi
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "Recording a sender is not permission to use it. The engine reads the registered mailbox again at departure and refuses the send if it is no longer authorised."
+msgstr "Recording a sender is not permission to use it. The engine reads the registered mailbox again at departure and refuses the send if it is no longer authorised."
 
 #. js-lingui-id: nHfxK5
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
@@ -25567,10 +26176,30 @@ msgstr "Recording Scheduled"
 msgid "Recording stopped because of an error. Nothing was kept."
 msgstr "Recording stopped because of an error. Nothing was kept."
 
+#. js-lingui-id: hEb5Ev
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Recording the audience list…"
+msgstr "Recording the audience list…"
+
+#. js-lingui-id: pfwTZk
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "Recording the sender…"
+msgstr "Recording the sender…"
+
+#. js-lingui-id: A58KjC
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Recording the unsubscribe topic…"
+msgstr "Recording the unsubscribe topic…"
+
 #. js-lingui-id: Bzi3zj
 #: src/modules/hermes-wa-ui/components/HermesWaVoiceRecorder.tsx
 msgid "Recording, {elapsedSeconds} seconds."
 msgstr "Recording, {elapsedSeconds} seconds."
+
+#. js-lingui-id: YGSzvb
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "Recording…"
+msgstr "Recording…"
 
 #. js-lingui-id: ECgtG5
 #: src/modules/settings/billing/constants/UsageLimitUnitLabels.ts
@@ -25687,6 +26316,11 @@ msgstr "Refused"
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
 msgid "Refused because the sender identity this would run under is not authorised."
 msgstr "Refused because the sender identity this would run under is not authorised."
+
+#. js-lingui-id: TH9uz+
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
+msgid "Refused for sending, not for choosing: this mailbox can still be recorded on the campaign, and the server is asked again about the address it actually holds."
+msgstr "Refused for sending, not for choosing: this mailbox can still be recorded on the campaign, and the server is asked again about the address it actually holds."
 
 #. js-lingui-id: xIkbUC
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
@@ -25807,6 +26441,11 @@ msgstr "Release & transfer Organization key"
 #: src/pages/settings/enterprise/SettingsEnterprise.tsx
 msgid "Release & transfer to this server"
 msgstr "Release & transfer to this server"
+
+#. js-lingui-id: r9QwQf
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Relire la liste des comptes"
+msgstr "Relire la liste des comptes"
 
 #. js-lingui-id: HpK/8d
 #: src/modules/error-handler/components/AppRootErrorFallback.tsx
@@ -26126,13 +26765,14 @@ msgstr "Rendering the preview…"
 msgid "Renders the content for one recipient. Emits nothing: no transport is contacted."
 msgstr "Renders the content for one recipient. Emits nothing: no transport is contacted."
 
-#. js-lingui-id: Eg4tL1
+#. js-lingui-id: GnhUSG
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
-msgid "Renders the subject and the message for one recipient, in this screen. No transport is contacted and nobody receives anything."
-msgstr "Renders the subject and the message for one recipient, in this screen. No transport is contacted and nobody receives anything."
+msgid "Renders the subject and the message for the chosen recipient, in this screen. No transport is contacted and nobody receives anything."
+msgstr "Renders the subject and the message for the chosen recipient, in this screen. No transport is contacted and nobody receives anything."
 
 #. js-lingui-id: 2FPxK2
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Rendez-vous"
 msgstr "Rendez-vous"
@@ -26146,6 +26786,11 @@ msgstr "Renewal date"
 #: src/pages/settings/enterprise/SettingsEnterprise.tsx
 msgid "Renews on"
 msgstr "Renews on"
+
+#. js-lingui-id: Iy9eoU
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Renseignez la réception (IMAP) et l’envoi (SMTP) de la boîte de cette société. L’enregistrement ne vérifie pas que le serveur répond."
+msgstr "Renseignez la réception (IMAP) et l’envoi (SMTP) de la boîte de cette société. L’enregistrement ne vérifie pas que le serveur répond."
 
 #. js-lingui-id: M7SqjM
 #: src/modules/ai/components/AiChatThreadTriageButtons.tsx
@@ -26309,6 +26954,11 @@ msgstr "requests"
 #: src/modules/settings/billing/constants/UsageLimitUnitLabels.ts
 msgid "Requests"
 msgstr "Requests"
+
+#. js-lingui-id: alhAVC
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Requêtes acceptées par minute"
+msgstr "Requêtes acceptées par minute"
 
 #. js-lingui-id: +gFBV8
 #: src/modules/settings/logic-functions/components/triggers/SettingsLogicFunctionHttpTriggerSection.tsx
@@ -26766,6 +27416,11 @@ msgstr "Rien n’a été fait : {0}"
 msgid "Rien n’a été fait."
 msgstr "Rien n’a été fait."
 
+#. js-lingui-id: 7p/ofP
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Rien n’est coché par défaut. Une source non cochée n’est pas acceptée, et choisir à votre place reviendrait à décider de votre politique de collecte."
+msgstr "Rien n’est coché par défaut. Une source non cochée n’est pas acceptée, et choisir à votre place reviendrait à décider de votre politique de collecte."
+
 #. js-lingui-id: MMxOO6
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
 msgid "Rien n’est configuré, il n’y a donc rien à tester."
@@ -26785,6 +27440,11 @@ msgstr "Rien ne peut être envoyé : cette connexion a été lue sans sa révisi
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Rien ne peut être envoyé : la société affichée n’est plus la société active. Rechargez pour repartir du bon contexte."
 msgstr "Rien ne peut être envoyé : la société affichée n’est plus la société active. Rechargez pour repartir du bon contexte."
+
+#. js-lingui-id: F3Tpc+
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Rien ne sera envoyé : un seul des deux secrets est renseigné, et l’envoyer seul effacerait l’autre. Renseignez les deux, ou videz celui que vous avez saisi pour les conserver tels quels."
+msgstr "Rien ne sera envoyé : un seul des deux secrets est renseigné, et l’envoyer seul effacerait l’autre. Renseignez les deux, ou videz celui que vous avez saisi pour les conserver tels quels."
 
 #. js-lingui-id: nOPbWJ
 #: src/modules/side-panel/pages/email-block-settings/components/EmailBoxSidesInput.tsx
@@ -26813,12 +27473,6 @@ msgstr "role"
 msgid "Role"
 msgstr "Role"
 
-#. js-lingui-id: sqe6xC
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-msgid "Rôle"
-msgstr "Rôle"
-
 #. js-lingui-id: mZjYrm
 #: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordContent.tsx
 msgid "Role and field permissions still apply."
@@ -26828,11 +27482,6 @@ msgstr "Role and field permissions still apply."
 #: src/modules/object-core/agents/components/CoreAgentRoleTab.tsx
 msgid "Role for {agentLabel} agent"
 msgstr "Role for {agentLabel} agent"
-
-#. js-lingui-id: sEMin4
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-msgid "Rôle inconnu"
-msgstr "Rôle inconnu"
 
 #. js-lingui-id: iSfzXo
 #: src/modules/settings/roles/role-settings/components/SettingsRoleSettings.tsx
@@ -26845,16 +27494,15 @@ msgstr "Role name"
 msgid "Role name cannot be empty"
 msgstr "Role name cannot be empty"
 
-#. js-lingui-id: U7R20s
-#. placeholder {0}: member.unknownRole
-#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
-msgid "Rôle non reconnu : {0}"
-msgstr "Rôle non reconnu : {0}"
-
 #. js-lingui-id: VMX1Oy
 #: src/modules/metadata-error-handler/hooks/useMetadataErrorHandler.ts
 msgid "role permission flag"
 msgstr "role permission flag"
+
+#. js-lingui-id: q9S1Pb
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Rôle sans libellé renvoyé"
+msgstr "Rôle sans libellé renvoyé"
 
 #. js-lingui-id: mPGttZ
 #: src/modules/settings/roles/role/components/SettingsRole.tsx
@@ -26883,11 +27531,22 @@ msgstr "Role updated successfully"
 msgid "Roles"
 msgstr "Roles"
 
+#. js-lingui-id: yZC9OF
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Rôles"
+msgstr "Rôles"
+
 #. js-lingui-id: //zMaz
 #: src/modules/ai/components/NavigationDrawerAiChatChannelRolesSubmenu.tsx
 #: src/modules/ai/components/NavigationDrawerAiChatChannelRolesSubmenu.tsx
 msgid "Roles in this channel"
 msgstr "Roles in this channel"
+
+#. js-lingui-id: rIWS1D
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Rôles non lus"
+msgstr "Rôles non lus"
 
 #. js-lingui-id: Q6o/eX
 #: src/modules/settings/admin-panel/constants/CreditGrantTypeLabels.ts
@@ -27298,6 +27957,7 @@ msgstr "Schedule the campaign"
 
 #. js-lingui-id: 4ba0NE
 #: src/modules/activities/calendar/components/CalendarEventCallRecorderAvatar.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
 #: src/modules/settings/billing/hooks/useBillingPlanActions.ts
 msgid "Scheduled"
@@ -27315,6 +27975,12 @@ msgstr "Scheduled change"
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
 msgid "Scheduled for {0} at {1} ({2})."
 msgstr "Scheduled for {0} at {1} ({2})."
+
+#. js-lingui-id: HEv0ko
+#. placeholder {0}: entry.scheduledAt
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Scheduled for {0}."
+msgstr "Scheduled for {0}."
 
 #. js-lingui-id: f5yMQc
 #: src/modules/information-banner/components/maintenance/InformationBannerMaintenance.tsx
@@ -27846,11 +28512,6 @@ msgstr "Seconds"
 msgid "Secret"
 msgstr "Secret"
 
-#. js-lingui-id: 8UjxXv
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Secret (clé, jeton ou mot de passe)"
-msgstr "Secret (clé, jeton ou mot de passe)"
-
 #. js-lingui-id: e1v+J3
 #: src/modules/settings/developers/components/SettingsDevelopersWebhookForm.tsx
 msgid "Secret (optional)"
@@ -27860,6 +28521,16 @@ msgstr "Secret (optional)"
 #: src/pages/settings/admin-panel/SettingsAdminNewAiProvider.tsx
 msgid "Secret Access Key"
 msgstr "Secret Access Key"
+
+#. js-lingui-id: DKOWDj
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Secret de signature (secret)"
+msgstr "Secret de signature (secret)"
+
+#. js-lingui-id: NNoGX0
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Secret de webhook (webhookSecret)"
+msgstr "Secret de webhook (webhookSecret)"
 
 #. js-lingui-id: YTsmM8
 #: src/modules/advanced-text-editor/constants/AdvancedTextEditorBlockCatalog.ts
@@ -28385,11 +29056,6 @@ msgstr "Selection"
 msgid "Send"
 msgstr "Send"
 
-#. js-lingui-id: 1FgS7P
-#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
-msgid "Send a synthetic test"
-msgstr "Send a synthetic test"
-
 #. js-lingui-id: h3fYlJ
 #: src/modules/ai/components/AiChatApprovalEmailReviewDeck.tsx
 msgid "Send all {pendingEmailCount}"
@@ -28500,6 +29166,11 @@ msgstr "Send the attachment"
 msgid "Send the campaign now"
 msgstr "Send the campaign now"
 
+#. js-lingui-id: Y/904O
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Send the test to this address"
+msgstr "Send the test to this address"
+
 #. js-lingui-id: r4KAFf
 #: src/modules/hermes-wa-ui/components/HermesWaMediaComposer.tsx
 msgid "Send this attachment"
@@ -28532,12 +29203,18 @@ msgstr "Sender identity"
 msgid "Sender name"
 msgstr "Sender name"
 
+#. js-lingui-id: cuE5PF
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "Sender recorded on the campaign. It will still be here after a reload."
+msgstr "Sender recorded on the campaign. It will still be here after a reload."
+
 #. js-lingui-id: nGuwvi
 #: src/modules/hermes-wa-ui/components/HermesWaMessageBubble.tsx
 msgid "Sender unknown"
 msgstr "Sender unknown"
 
 #. js-lingui-id: 9bG48P
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
 msgid "Sending"
 msgstr "Sending"
@@ -28639,6 +29316,7 @@ msgid "Sending..."
 msgstr "Sending..."
 
 #. js-lingui-id: h69WC6
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxMessageCard.tsx
 #: src/modules/hermes-mailbox-ui/hooks/useHermesMailboxFolderLabels.ts
@@ -28669,6 +29347,12 @@ msgstr "Sent as an ISO 8601 instant."
 #: src/modules/ai/constants/ActionToolStatusLabels.ts
 msgid "Sent email"
 msgstr "Sent email"
+
+#. js-lingui-id: p3hDV3
+#. placeholder {0}: entry.sentAt
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Sent on {0}."
+msgstr "Sent on {0}."
 
 #. js-lingui-id: axS4Jq
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
@@ -28756,11 +29440,6 @@ msgstr "Session remplacée : la session et le cookie natif ne désignent plus le
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Session remplacée : la session et le cookie natif ne désignent plus le même utilisateur, le même espace de travail ou la même appartenance. Rien n’a été enregistré."
 msgstr "Session remplacée : la session et le cookie natif ne désignent plus le même utilisateur, le même espace de travail ou la même appartenance. Rien n’a été enregistré."
-
-#. js-lingui-id: O/0jSN
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-msgid "Session remplacée : rien n’a été vérifié. Rechargez les réglages, aucun test n’est relancé automatiquement."
-msgstr "Session remplacée : rien n’a été vérifié. Rechargez les réglages, aucun test n’est relancé automatiquement."
 
 #. js-lingui-id: uRGnZ7
 #: src/modules/log-console/utils/getLogConsoleSecurityEvent.ts
@@ -29144,6 +29823,11 @@ msgstr "Show logs"
 msgid "Show more"
 msgstr "Show more"
 
+#. js-lingui-id: fKV0qS
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Show more campaigns"
+msgstr "Show more campaigns"
+
 #. js-lingui-id: wdogIE
 #: src/modules/validation-rules/components/SettingsValidationRuleForm.tsx
 msgid "Show on"
@@ -29185,6 +29869,11 @@ msgstr "Shown above the fields, for example what to fill in and why"
 #: src/modules/hermes-wa-ui/components/HermesWaMediaComposer.tsx
 msgid "Shown as"
 msgstr "Shown as"
+
+#. js-lingui-id: Jb2XUc
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "Shown as plain text on purpose: the panel stays inert, so no layout is executed, no remote image is fetched and this recipient's open marker is never loaded. A preview cannot record an open that nobody performed. The real message is laid out in HTML, so it will not look exactly like this."
+msgstr "Shown as plain text on purpose: the panel stays inert, so no layout is executed, no remote image is fetched and this recipient's open marker is never loaded. A preview cannot record an open that nobody performed. The real message is laid out in HTML, so it will not look exactly like this."
 
 #. js-lingui-id: P7rcbf
 #: src/modules/navigation/constants/OpenRecordInOptions.ts
@@ -29761,6 +30450,11 @@ msgstr "Source URL must carry no credentials."
 msgid "Source URL required."
 msgstr "Source URL required."
 
+#. js-lingui-id: FMe0Cy
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Sources autorisées"
+msgstr "Sources autorisées"
+
 #. js-lingui-id: xqlr9R
 #: src/modules/settings/experience/components/NumberFormatSelect.tsx
 msgid "Spaces and comma"
@@ -29981,6 +30675,11 @@ msgstr "Starts at"
 #: src/modules/ui/field/input/components/AddressInput.tsx
 msgid "State"
 msgstr "State"
+
+#. js-lingui-id: EYYNJZ
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "State not published"
+msgstr "State not published"
 
 #. js-lingui-id: WxgrxN
 #: src/modules/hermes-wa-ui/components/HermesWaDeliveryLabel.tsx
@@ -30565,6 +31264,11 @@ msgstr "Suppression register unavailable."
 msgid "Supprimer cette connexion arrêtera les réponses automatiques sur ce canal : elles devront être réactivées explicitement."
 msgstr "Supprimer cette connexion arrêtera les réponses automatiques sur ce canal : elles devront être réactivées explicitement."
 
+#. js-lingui-id: UM5e9u
+#: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
+msgid "Supprimer des fiches"
+msgstr "Supprimer des fiches"
+
 #. js-lingui-id: ExN3wX
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Supprimer la connexion"
@@ -30960,48 +31664,16 @@ msgstr "Terms of Service"
 msgid "Test"
 msgstr "Test"
 
-#. js-lingui-id: RshMg8
-#. placeholder {0}: testState.errorCode
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Test échoué : {0}"
-msgstr "Test échoué : {0}"
-
-#. js-lingui-id: 8Rkr+4
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Test échoué, sans motif renvoyé."
-msgstr "Test échoué, sans motif renvoyé."
+#. js-lingui-id: SN1pLA
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Test destination"
+msgstr "Test destination"
 
 #. js-lingui-id: 1QHjf8
 #. placeholder {0}: params.toAddress
 #: src/modules/activities/emails/hooks/useSendMessageCampaignTest.ts
 msgid "Test email sent to {0}"
 msgstr "Test email sent to {0}"
-
-#. js-lingui-id: Ya6Z5+
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Test en cours côté serveur…"
-msgstr "Test en cours côté serveur…"
-
-#. js-lingui-id: GmbFxN
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-msgid "Test passé. Vérifiée le {verifiedAtLabel}."
-msgstr "Test passé. Vérifiée le {verifiedAtLabel}."
-
-#. js-lingui-id: 3QJzUo
-#. placeholder {0}: testState.reason
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Test refusé : {0}"
-msgstr "Test refusé : {0}"
-
-#. js-lingui-id: MNIQZo
-#: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
-#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
-msgid "Test refusé. Rien n’a été vérifié."
-msgstr "Test refusé. Rien n’a été vérifié."
 
 #. js-lingui-id: XZcrB5
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/HttpRequestTestVariableInput.tsx
@@ -31107,6 +31779,11 @@ msgstr "The accepted file types are not known either."
 msgid "The address your workspace will send and receive email from (e.g. support@mycompany.com). Outbound sending requires the domain to be verified in Outbound Domains."
 msgstr "The address your workspace will send and receive email from (e.g. support@mycompany.com). Outbound sending requires the domain to be verified in Outbound Domains."
 
+#. js-lingui-id: iwYIjE
+#: src/modules/prospection/components/HermesCampaignDraftForm.tsx
+msgid "The answer carried no campaign identifier, so this screen cannot open the editor for it. Find it in the campaign list."
+msgstr "The answer carried no campaign identifier, so this screen cannot open the editor for it. Find it in the campaign list."
+
 #. js-lingui-id: nFVfdo
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadPanel.tsx
 msgid "The answer could not be prepared, so no editor is opened."
@@ -31138,15 +31815,25 @@ msgstr "The attachment is ready in the workspace and has not been sent."
 msgid "The audience could not be read"
 msgstr "The audience could not be read"
 
-#. js-lingui-id: 0n/x/z
-#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
-msgid "The audience declares no variable, so the message cannot carry one."
-msgstr "The audience declares no variable, so the message cannot carry one."
-
 #. js-lingui-id: EQZOZR
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignAudienceSection.tsx
 msgid "The audience is computed from qualified records. Import and qualification come first."
 msgstr "The audience is computed from qualified records. Import and qualification come first."
+
+#. js-lingui-id: ZS+a5J
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "The audience is read-only: this campaign is no longer a draft."
+msgstr "The audience is read-only: this campaign is no longer a draft."
+
+#. js-lingui-id: Xax9LP
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "The audience lists could not be read."
+msgstr "The audience lists could not be read."
+
+#. js-lingui-id: UDZ6Cp
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "The audience published no variable list, so the variables written here are checked when the campaign is sent."
+msgstr "The audience published no variable list, so the variables written here are checked when the campaign is sent."
 
 #. js-lingui-id: qjNojw
 #: src/pages/settings/admin-panel/SettingsAdminNewAiProvider.tsx
@@ -31208,6 +31895,21 @@ msgstr "The call recording is being processed…"
 msgid "The campaign answered with an unknown status. Open it before doing anything with it."
 msgstr "The campaign answered with an unknown status. Open it before doing anything with it."
 
+#. js-lingui-id: Lnj1eq
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "The campaign was not created."
+msgstr "The campaign was not created."
+
+#. js-lingui-id: +LkET6
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "The campaigns could not be read"
+msgstr "The campaigns could not be read"
+
+#. js-lingui-id: tjRFP6
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "The campaigns of this company. Opening one does not send it, and creating one sends nothing."
+msgstr "The campaigns of this company. Opening one does not send it, and creating one sends nothing."
+
 #. js-lingui-id: ejqgDV
 #: src/modules/settings/two-factor-authentication/components/TwoFactorAuthenticationRecoveryCodeConfirmationDialog.tsx
 msgid "The code lets {memberName} sign in to this workspace once without their authenticator app. Using it removes their current authenticator and signs them out of their other sessions here. They will be notified by email."
@@ -31222,6 +31924,11 @@ msgstr "The collection contract carries no origin yet."
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 msgid "The content is read-only: this campaign is no longer a draft."
 msgstr "The content is read-only: this campaign is no longer a draft."
+
+#. js-lingui-id: SsnjkW
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "The content was recorded on the campaign."
+msgstr "The content was recorded on the campaign."
 
 #. js-lingui-id: aXzQ65
 #: src/modules/ai/components/AiChatCompactionIndicator.tsx
@@ -31451,6 +32158,16 @@ msgstr "The name recipients see next to your address in their inbox, instead of 
 msgid "The name recipients see next to your address. It is set when the channel is created."
 msgstr "The name recipients see next to your address. It is set when the channel is created."
 
+#. js-lingui-id: o8HnK1
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "The native campaign engine is not enabled on this workspace, so there is nothing to list and nothing can be sent."
+msgstr "The native campaign engine is not enabled on this workspace, so there is nothing to list and nothing can be sent."
+
+#. js-lingui-id: cgexOd
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "The number accepted by the transport is unknown."
+msgstr "The number accepted by the transport is unknown."
+
 #. js-lingui-id: ohrl9q
 #: src/modules/validation-rules/constants/ValidationRuleFunctionDescriptions.ts
 msgid "The number of items in the list, or 0 when it is not a list."
@@ -31466,6 +32183,31 @@ msgstr "The number of retained recipients is unknown, so the reach of this send 
 msgid "The objections could not be read"
 msgstr "The objections could not be read"
 
+#. js-lingui-id: P/Uqn3
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "The outcome of creating the campaign is not known."
+msgstr "The outcome of creating the campaign is not known."
+
+#. js-lingui-id: nirXFK
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "The outcome of recording this audience list is not known. Reload the campaign to see which one it holds; nothing is retried on its own."
+msgstr "The outcome of recording this audience list is not known. Reload the campaign to see which one it holds; nothing is retried on its own."
+
+#. js-lingui-id: KXHm7C
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "The outcome of recording this sender is not known. Reload the campaign to see which one it holds; nothing is retried on its own."
+msgstr "The outcome of recording this sender is not known. Reload the campaign to see which one it holds; nothing is retried on its own."
+
+#. js-lingui-id: orbnR1
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "The outcome of recording this unsubscribe topic is not known. Reload the campaign before changing it again."
+msgstr "The outcome of recording this unsubscribe topic is not known. Reload the campaign before changing it again."
+
+#. js-lingui-id: w2my+U
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "The outcome of this recording is not known."
+msgstr "The outcome of this recording is not known."
+
 #. js-lingui-id: L97sPr
 #: src/pages/not-found/NotFound.tsx
 msgid "The page you're seeking is either gone or never was. Let's get you back on track"
@@ -31480,6 +32222,11 @@ msgstr "The PDF is pre-signed by KovaaLab CRM and executed with your legal entit
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 msgid "The preview could not be rendered"
 msgstr "The preview could not be rendered"
+
+#. js-lingui-id: n4nzgl
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "The preview resolves the variables against this recipient's record."
+msgstr "The preview resolves the variables against this recipient's record."
 
 #. js-lingui-id: YzkNq3
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
@@ -31568,15 +32315,20 @@ msgstr "The selected records (up to {maxRecordsFormatted}) will be passed to you
 msgid "The send request failed."
 msgstr "The send request failed."
 
+#. js-lingui-id: HCEYTd
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "The sender was recorded on the campaign."
+msgstr "The sender was recorded on the campaign."
+
 #. js-lingui-id: z69b5e
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
 msgid "The server accepted the send."
 msgstr "The server accepted the send."
 
-#. js-lingui-id: JmeYRY
+#. js-lingui-id: n/mzVl
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
-msgid "The server accepted the synthetic test for its staging destinations."
-msgstr "The server accepted the synthetic test for its staging destinations."
+msgid "The server accepted the test message for the address you typed."
+msgstr "The server accepted the test message for the address you typed."
 
 #. js-lingui-id: L9dr9Y
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
@@ -31598,10 +32350,29 @@ msgstr "The server checks again and can still refuse."
 msgid "The server did not publish a match status for this conversation, so whether it has a contact is unknown."
 msgstr "The server did not publish a match status for this conversation, so whether it has a contact is unknown."
 
+#. js-lingui-id: 7hs222
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "The server did not say whether this recipient would be sent to, so it is unknown rather than assumed."
+msgstr "The server did not say whether this recipient would be sent to, so it is unknown rather than assumed."
+
 #. js-lingui-id: Nma7N1
 #: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
 msgid "The server found more than one possible contact for this number. No contact is created automatically and nothing is merged."
 msgstr "The server found more than one possible contact for this number. No contact is created automatically and nothing is merged."
+
+#. js-lingui-id: 7vZdf7
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "The server gave no reason for the exclusion."
+msgstr "The server gave no reason for the exclusion."
+
+#. js-lingui-id: ab3MG8
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "The server gave no reason."
+msgstr "The server gave no reason."
 
 #. js-lingui-id: 0Veav8
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
@@ -31633,6 +32404,11 @@ msgstr "The server published no readable answer for this capability. Unverified 
 msgid "The server published no verdict for this identity. An unverified right is an unavailable right."
 msgstr "The server published no verdict for this identity. An unverified right is an unavailable right."
 
+#. js-lingui-id: 6Kjd4k
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "The server re-resolves who is reachable from this list, applying its own rights and the standing objections."
+msgstr "The server re-resolves who is reachable from this list, applying its own rights and the standing objections."
+
 #. js-lingui-id: Hr8e4q
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
 msgid "The server recorded the schedule."
@@ -31653,10 +32429,36 @@ msgstr "The server refused this identity."
 msgid "The server refused this reply."
 msgstr "The server refused this reply."
 
+#. js-lingui-id: HbJnmZ
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "The server refused to record this audience list. The campaign still holds the previous one."
+msgstr "The server refused to record this audience list. The campaign still holds the previous one."
+
+#. js-lingui-id: UxrIIQ
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "The server refused to record this sender. The campaign still holds the previous one."
+msgstr "The server refused to record this sender. The campaign still holds the previous one."
+
+#. js-lingui-id: v3cY07
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "The server refused to record this unsubscribe topic. The campaign still holds the previous one."
+msgstr "The server refused to record this unsubscribe topic. The campaign still holds the previous one."
+
+#. js-lingui-id: j/dFS4
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "The server refused to record this. Nothing was saved."
+msgstr "The server refused to record this. Nothing was saved."
+
 #. js-lingui-id: ECqnX0
 #: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
 msgid "The server reported no bot policy for this company."
 msgstr "The server reported no bot policy for this company."
+
+#. js-lingui-id: u4jkp0
+#. placeholder {0}: previewState.preview.envelope.senderStatus
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "The server reports the sender as {0}. That is what it checked, not proof that a send would succeed."
+msgstr "The server reports the sender as {0}. That is what it checked, not proof that a send would succeed."
 
 #. js-lingui-id: H02xt6
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
@@ -31712,6 +32514,11 @@ msgstr "The staged batch could not be read back."
 #: src/modules/hermes-wa-ui/components/HermesWaMediaUnavailable.tsx
 msgid "The state the server reported is not one this version knows, so the file is not opened."
 msgstr "The state the server reported is not one this version knows, so the file is not opened."
+
+#. js-lingui-id: 1b7rM0
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "The stored message could not be read as an email document, so it is not shown rather than shown as something else."
+msgstr "The stored message could not be read as an email document, so it is not shown rather than shown as something else."
 
 #. js-lingui-id: t6wT6E
 #. placeholder {0}: i18n.number(limit)
@@ -32041,10 +32848,20 @@ msgstr "This browser does not know that time zone."
 msgid "This call is being recorded…"
 msgstr "This call is being recorded…"
 
-#. js-lingui-id: Cj/Hoi
-#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudienceSection.tsx
-msgid "This campaign has no audience list yet, so it has no recipients."
-msgstr "This campaign has no audience list yet, so it has no recipients."
+#. js-lingui-id: 3pJv3O
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "This campaign has no audience list yet, so it has no recipients at all. Choose one here."
+msgstr "This campaign has no audience list yet, so it has no recipients at all. Choose one here."
+
+#. js-lingui-id: tOZdHv
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
+msgid "This campaign has recorded no sender. The one shown is the mailbox actually registered in the connection centre, offered as a proposal: choose it to record it."
+msgstr "This campaign has recorded no sender. The one shown is the mailbox actually registered in the connection centre, offered as a proposal: choose it to record it."
+
+#. js-lingui-id: l/l3KA
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "This campaign is no longer a draft, so its content can no longer be recorded."
+msgstr "This campaign is no longer a draft, so its content can no longer be recorded."
 
 #. js-lingui-id: C7AzHv
 #. placeholder {0}: getBeautifiedRenewDate()
@@ -32067,6 +32884,16 @@ msgstr "This chat could not be opened. Try selecting it again."
 #: src/modules/side-panel/pages/search-ai-chats/components/SidePanelAiChatPickerList.tsx
 msgid "This chat is no longer available."
 msgstr "This chat is no longer available."
+
+#. js-lingui-id: TjW9QK
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "This company has no unsubscribe topic yet."
+msgstr "This company has no unsubscribe topic yet."
+
+#. js-lingui-id: 6TOCEc
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "This company holds no audience list yet. One is built from qualified records, in the Hermès reception."
+msgstr "This company holds no audience list yet. One is built from qualified records, in the Hermès reception."
 
 #. js-lingui-id: WCa/7U
 #: src/pages/settings/applications/tabs/SettingsApplicationFrontComponentPreviewTab.tsx
@@ -32198,6 +33025,11 @@ msgstr "This function has no trigger configured, so it can only be invoked from 
 #: src/modules/front-components/media-session/components/FrontComponentMediaPermissionModal.tsx
 msgid "This grants access to this app for everyone in your workspace."
 msgstr "This grants access to this app for everyone in your workspace."
+
+#. js-lingui-id: kfzYEg
+#: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
+msgid "This identity cannot be recorded: the server published no address for it, so there is nothing to store as the sender."
+msgstr "This identity cannot be recorded: the server published no address for it, so there is nothing to store as the sender."
 
 #. js-lingui-id: ImMMDC
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
@@ -32380,6 +33212,11 @@ msgstr "This provider doesn't have a native SDK yet — it will use OpenAI-compa
 msgid "This provider is built in. Set its API key from its page."
 msgstr "This provider is built in. Set its API key from its page."
 
+#. js-lingui-id: FyfMha
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "This recipient is currently excluded, so a send would skip them. The rendering is shown anyway."
+msgstr "This recipient is currently excluded, so a send would skip them. The rendering is shown anyway."
+
 #. js-lingui-id: Wf1hgt
 #: src/modules/ai/components/internal/AiChatToolCallApprovalRecord.tsx
 msgid "This record could not be loaded."
@@ -32434,6 +33271,26 @@ msgstr "This rule is disabled. Records are not checked against it."
 #: src/modules/prospection/components/HermesIntakeSection.tsx
 msgid "This screen cannot read the entry point state yet: the query is not published. Nothing is missing from your workspace."
 msgstr "This screen cannot read the entry point state yet: the query is not published. Nothing is missing from your workspace."
+
+#. js-lingui-id: IsICc4
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "This screen has nothing wired to create a campaign, so the control does nothing."
+msgstr "This screen has nothing wired to create a campaign, so the control does nothing."
+
+#. js-lingui-id: aXDU3I
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "This screen has nothing wired to open a campaign, so the rows do nothing."
+msgstr "This screen has nothing wired to open a campaign, so the rows do nothing."
+
+#. js-lingui-id: f/abPu
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "This screen has nothing wired to read the next page, so the control does nothing."
+msgstr "This screen has nothing wired to read the next page, so the control does nothing."
+
+#. js-lingui-id: iOQen6
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignSaveControl.tsx
+msgid "This screen has nothing wired to record this, so the control does nothing."
+msgstr "This screen has nothing wired to record this, so the control does nothing."
 
 #. js-lingui-id: dv4ZSH
 #: src/modules/settings/unsubscribers/components/SettingsUnsubscribePreview.tsx
@@ -33435,6 +34292,16 @@ msgstr "Type non reconnu"
 msgid "Type non reconnu : {0}"
 msgstr "Type non reconnu : {0}"
 
+#. js-lingui-id: VLKMjo
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Type the destination of the test first."
+msgstr "Type the destination of the test first."
+
+#. js-lingui-id: +bB3Jr
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
+msgid "Type the mailbox that should receive the test"
+msgstr "Type the mailbox that should receive the test"
+
 #. js-lingui-id: oLtL6j
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxAttachmentStrip.tsx
 msgid "Type unknown"
@@ -33475,6 +34342,11 @@ msgstr "ul"
 #: src/modules/hermes-admin-ui/components/HermesCompanyList.tsx
 msgid "Un enregistrement est en cours : la bascule attend qu’il se termine. Basculer maintenant ne l’annulerait pas — ce qui est parti est parti."
 msgstr "Un enregistrement est en cours : la bascule attend qu’il se termine. Basculer maintenant ne l’annulerait pas — ce qui est parti est parti."
+
+#. js-lingui-id: 5evnZ2
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Un entier entre 1 et 60. Au-delà, les requêtes sont refusées plutôt que mises en attente."
+msgstr "Un entier entre 1 et 60. Au-delà, les requêtes sont refusées plutôt que mises en attente."
 
 #. js-lingui-id: pC0cNV
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
@@ -33534,6 +34406,11 @@ msgstr "Unassigned"
 #: src/pages/settings/structures/SettingsStructuresDashboard.tsx
 msgid "Unavailable"
 msgstr "Unavailable"
+
+#. js-lingui-id: AytO7F
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
+msgid "Unavailable in this version: no operation is published yet to carry out this step. This is a missing feature, not a refusal by the server."
+msgstr "Unavailable in this version: no operation is published yet to carry out this step. This is a missing feature, not a refusal by the server."
 
 #. js-lingui-id: IxJVNJ
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
@@ -33600,6 +34477,11 @@ msgstr "Undisplayed data: max {maxItems} slices per chart."
 #: src/modules/ai/components/AiChatParticipantMentionBar.tsx
 msgid "Undo"
 msgstr "Undo"
+
+#. js-lingui-id: 4Lkdu4
+#: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
+msgid "Une collecte signée est un point d’entrée que l’on appelle, pas un service à joindre : il n’y a donc aucune adresse à saisir. Ce qui se règle ici, c’est ce qu’elle accepte."
+msgstr "Une collecte signée est un point d’entrée que l’on appelle, pas un service à joindre : il n’y a donc aucune adresse à saisir. Ce qui se règle ici, c’est ce qu’elle accepte."
 
 #. js-lingui-id: r4+NLj
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
@@ -33862,6 +34744,12 @@ msgstr "Unknown speaker"
 msgid "Unknown state"
 msgstr "Unknown state"
 
+#. js-lingui-id: 5NIQXr
+#. placeholder {0}: entry.unknownStatus
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
+msgid "Unknown state: {0}"
+msgstr "Unknown state: {0}"
+
 #. js-lingui-id: E9BG1O
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
 msgid "Unknown state: {unknownState}"
@@ -34093,6 +34981,17 @@ msgstr "Unsubscribe record not verified"
 msgid "Unsubscribe settings"
 msgstr "Unsubscribe settings"
 
+#. js-lingui-id: BEZcuL
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Unsubscribe topic"
+msgstr "Unsubscribe topic"
+
+#. js-lingui-id: /diH/9
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "Unsubscribe topic recorded on the campaign."
+msgstr "Unsubscribe topic recorded on the campaign."
+
 #. js-lingui-id: WukjCJ
 #: src/modules/settings/unsubscribe-topics/components/SettingsWorkspaceUnsubscribeTopicSection.tsx
 msgid "Unsubscribe topics"
@@ -34178,6 +35077,7 @@ msgid "Untitled audience"
 msgstr "Untitled audience"
 
 #. js-lingui-id: I8j5OO
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
 msgid "Untitled campaign"
 msgstr "Untitled campaign"
@@ -35076,6 +35976,12 @@ msgstr "Variables"
 msgid "Variables available: {availableTokens}"
 msgstr "Variables available: {availableTokens}"
 
+#. js-lingui-id: 4ddMo/
+#. placeholder {0}: previewState.preview.variablesUsed.map((name) => `{{${name}}}`).join(' ')
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+msgid "Variables resolved for this recipient: {0}"
+msgstr "Variables resolved for this recipient: {0}"
+
 #. js-lingui-id: QDEWii
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
 #: src/modules/settings/emailing-domains/utils/getEmailingDomainStatusDisplay.ts
@@ -35797,6 +36703,11 @@ msgstr "Welcome to your workspace"
 msgid "Welcome, {workspaceName}."
 msgstr "Welcome, {workspaceName}."
 
+#. js-lingui-id: Gg1QNO
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
+msgid "What a recipient opts out of when they unsubscribe. A standing objection is kept by the server and is not undone here."
+msgstr "What a recipient opts out of when they unsubscribe. A standing objection is kept by the server and is not undone here."
+
 #. js-lingui-id: Itn+J7
 #: src/modules/ai/components/suggested-prompts/AiChatSuggestedPrompts.tsx
 msgid "What can I help you with?"
@@ -35857,6 +36768,7 @@ msgstr "Whatsapp"
 #: src/modules/connectors/constants/EvolutionWhatsappConnector.ts
 #: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
 #: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
+#: src/modules/hermes-shell/hooks/useHermesNavigationSections.ts
 #: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxChannelTabs.tsx
 #: src/pages/hermes/HermesWaRuntimePage.tsx
@@ -36556,6 +37468,7 @@ msgid "Yellow"
 msgstr "Yellow"
 
 #. js-lingui-id: 3d1wCB
+#: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 #: src/modules/settings/applications/components/SettingsApplicationUninstallButton.tsx
 #: src/modules/settings/developers/components/SettingsDevelopersWebhookForm.tsx
 #: src/modules/settings/developers/components/SettingsDevelopersWebhookForm.tsx
