@@ -38839,4 +38839,3 @@ msgstr "Proposition"
 msgctxt "fieldMetadata.label"
 msgid "Screening"
 msgstr "Présélection"
-
