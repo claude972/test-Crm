@@ -60,3 +60,11 @@ Complément 04:36 UTC : les deux suites campagnes non chargées ont été relanc
 - R13 : root62testsPASS sur b0ef31d0c pour sonde WA/états mail/identité des grants ; droits UI corrigés ba31adf23 relus mais nouveau recheck frontend non chargé faute résolution ESM locale, à vérifier en CI propre.
 - R07 : preuve native positive médias demandée à CJ03, reprise non encore confirmée ; ancienne fixture Map avec octets de texte ne prouve pas des médias affichables.
 - R15/R16 : **outil de navigation CUA indisponible malgré réinitialisation**. Pas de recette visuelle nouvelle possible à ce checkpoint ; développement/PG/HTTP continuent. Aucune ancienne capture ni curl200 promu en preuve navigateur, Safari propriétaire toujours non confirmé.
+
+
+## Checkpoint — 31 octobre 05:45 UTC
+
+- Codage Claude **bloqué par quota jusqu'à remise annoncée03:50Martinique/07:50UTC**. Reprise de la même session programmée, pas d'achat. Handoff concret hermes-quota-resume-20261031.md ; tests/revues/CI indépendants continuent.
+- R10 : code audience/sender/save concurrent2f1e8e705 publié, root31testsPASS ; corps natif7c2e94e12 root13frontend+3serveurPASS. Pas encore assemblés ni montés/testés dans les routes finales. Warning DOM du loader à corriger.
+- R09/R13 : DI MCP3413fd8c3 root14testsPASS ; droits effectifs/mock de suppressionb0ef31d0c root35testsfrontendPASS. Création première boîte, bot dans mailbox et reprise après reload toujours inachevés.
+- Deux CI nouvelles en cours, sources séparées : MCP41173344142 et frontend41173424054. Recette visuelle toujours bloquée par CUA ; aucun nouveau lien livré.
