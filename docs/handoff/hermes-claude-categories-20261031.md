@@ -156,7 +156,54 @@ catalogue et ne le démontre pas ; root l'a dit et c'est exact. Ce qui est étab
 | SHA | Objet | État |
 |---|---|---|
 | `10dada84b` | juger l'éligibilité à la délégation AUTO depuis l'autorité MCP | poussé, non assemblé, non relu |
-| `b48ff0074` | ouvrir un chemin humain explicite vers AUTO par conversation | poussé, non assemblé, non relu |
+| `b48ff0074` | ouvrir un chemin humain explicite vers AUTO par conversation | **assemblé** |
+| `6e48535a2` | couvrir la porte mail du contrôle de bot partagé | **assemblé** |
+| `0f6796a9a` | ne plus relire un état de message que la boîte avait rejeté | **assemblé**, ready_for_review |
+| `7e62bc2f8` | prouver le parcours upload puis envoi humain sur un vrai vocal Opus | **assemblé** |
+| `a475749ad` | prouver la lecture d'un média reçu et la libération de ses octets | **assemblé** |
+
+Assemblage Claude à `8c8a64734`, qui contient désormais aussi la base root `8fbd0773b`.
+71/71 verts sur les six suites du lot à l'assemblage ; le lot mesure 260/260 sur
+24 suites dans son périmètre complet, contre 170/170 à sa base — **+71 tests, zéro
+régression**, dont la porte mail couverte comme la condition l'exigeait.
+
+**Troisième défaut trouvé par le lot, et vérifié par le parent :** le panneau de fil
+WhatsApp relisait la chaîne de statut brute par le lecteur de la bibliothèque. Les
+deux lecteurs ne normalisent pas pareil — celui de la boîte compare les quatre noms
+**exactement**, celui de WhatsApp **met d'abord en majuscules**. Donc un statut que
+la boîte avait marqué *inconnu*, `received` en minuscules, revenait en `RECEIVED` et
+la bulle affichait « Reçu ». Le commentaire du panneau affirmait « An unrecognised
+status stays unrecognised on both sides », ce qui était faux. Corrigé en portant la
+lecture déjà réduite sans jamais la réanalyser. Non atteignable depuis les constantes
+majuscules de ce serveur aujourd'hui ; atteignable depuis tout écho fournisseur ou
+dérive de schéma — et le commentaire affirmait un invariant que le code ne tenait pas.
+
+**Huit preuves négatives**, dont la réversion du correctif d'essence MIME Opus qui
+fait mourir neuf tests : le correctif historique ne peut plus être annulé en silence.
+Cette preuve a aussi révélé une faiblesse dans les tests du lot — quatre cas
+passaient pour la mauvaise raison — qu'il a resserrés avant de livrer.
+
+**OFF empêche réellement la réponse automatique suivante**, à quatre couches serveur
+indépendantes, *lues* et non testées : le backend est hors périmètre. Ce que le lot
+a changé, c'est que l'UI ne travestit plus les refus autour.
+
+**Dix défauts restants nommés et non corrigés**, dont : un champ absent rabattu sur
+`false` fait afficher « Aucun brouillon sur cette conversation » — décision serveur
+que le serveur n'a jamais prise, fail-closed donc sûre mais malhonnête dans les mots ;
+le tag de brouillon repose sur `canDraft`, qui vaut presque `effectiveMode !== 'OFF'`
+et ne veut pas dire « aucun bot configuré » ; la mutation bot v1 reste instanciée,
+ne peut pas exprimer OFF et ne peut pas être refusée par une politique de société,
+donc elle demeure un contournement latent d'OFF pour tout futur appelant ; et le
+parcours vocal n'a **aucun plafond de durée**, l'enregistreur étant monté sans
+`maxDurationMs`, donc une personne peut enregistrer dix minutes et ne l'apprendre
+qu'à la soumission. Le lot a refusé d'inventer un débit pour en déduire un plafond,
+et a laissé ce chemin — le plus fragile de la mission — intact à dessein.
+
+**Éligibilité workspace, pas par canal** : `hermesMcpToolSurface` ne prend aucun
+argument et il n'existe **aucune autorité MCP par canal ni par conversation** dans
+le serveur. Un fil mail et une conversation WhatsApp reçoivent donc aujourd'hui la
+même réponse d'éligibilité. Si la capacité MCP peut réellement différer par canal,
+il faut un champ serveur avant que l'UI puisse les distinguer.
 
 Autorité d'éligibilité, vérifiée par le parent dans le source :
 
