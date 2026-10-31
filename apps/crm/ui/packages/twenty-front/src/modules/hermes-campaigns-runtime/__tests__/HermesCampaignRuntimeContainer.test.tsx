@@ -12,7 +12,10 @@ import { SEND_MESSAGE_CAMPAIGN } from '@/activities/emails/graphql/mutations/sen
 import { SEND_MESSAGE_CAMPAIGN_TEST } from '@/activities/emails/graphql/mutations/sendMessageCampaignTest';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { HermesCampaignRuntimeContainer } from '@/hermes-campaigns-runtime/components/HermesCampaignRuntimeContainer';
+import { HERMES_RUNTIME_CAMPAIGN_RECIPIENTS } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignRecipients';
 import { HERMES_RUNTIME_CAMPAIGN_RECORD } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignRecord';
+import { HERMES_RUNTIME_UPDATE_CAMPAIGN } from '@/hermes-campaigns-runtime/graphql/mutations/hermesRuntimeUpdateCampaign';
+import { PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT } from '@/hermes-campaigns-runtime/graphql/queries/previewMessageCampaignRecipient';
 import { GET_MY_MESSAGE_CHANNELS } from '@/settings/accounts/graphql/queries/getMyMessageChannels';
 import {
   jotaiStore,
@@ -98,6 +101,68 @@ const sendPreviewMock = {
         blockers: [],
       },
     },
+  },
+};
+
+const recipientsMock = {
+  request: {
+    query: HERMES_RUNTIME_CAMPAIGN_RECIPIENTS,
+    variables: { listId: '30303030-1111-4222-8333-444455556666', limit: 50 },
+  },
+  result: {
+    data: {
+      messageListMembers: {
+        __typename: 'MessageListMemberConnection',
+        edges: [
+          {
+            __typename: 'MessageListMemberEdge',
+            node: {
+              __typename: 'MessageListMember',
+              id: '40404040-1111-4222-8333-444455556666',
+              listId: '30303030-1111-4222-8333-444455556666',
+              personId: '50505050-1111-4222-8333-444455556666',
+              person: {
+                __typename: 'Person',
+                id: '50505050-1111-4222-8333-444455556666',
+                name: {
+                  __typename: 'FullName',
+                  firstName: 'Camille',
+                  lastName: 'Roy',
+                },
+                emails: {
+                  __typename: 'Emails',
+                  primaryEmail: 'camille.roy@atelier-fontaine.fr',
+                },
+              },
+            },
+          },
+        ],
+        totalCount: 1,
+      },
+    },
+  },
+};
+
+// Writing to the campaign record is not an emission, but it must still not
+// happen on its own: this trap proves no save is attempted at mount.
+const persistenceTrap = {
+  request: { query: HERMES_RUNTIME_UPDATE_CAMPAIGN },
+  variableMatcher: () => true,
+  result: () => {
+    emissionTrap('HermesRuntimeUpdateCampaign');
+
+    return { data: null };
+  },
+};
+
+// Rendering a preview emits nothing, but it must not run unasked either.
+const recipientPreviewTrap = {
+  request: { query: PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT },
+  variableMatcher: () => true,
+  result: () => {
+    emissionTrap('PreviewMessageCampaignRecipient');
+
+    return { data: null };
   },
 };
 
@@ -258,6 +323,9 @@ const renderContainer = () => {
             recordingLink,
             new MockLink([
               campaignRecordMock,
+            recipientsMock,
+            persistenceTrap,
+            recipientPreviewTrap,
               sendPreviewMock,
               messageChannelsMock,
               unsubscribeTopicsMock,
@@ -309,11 +377,12 @@ describe('HermesCampaignRuntimeContainer', () => {
     expect(sentOperationNames).toContain('PreviewMessageCampaignSend');
     expect(sentOperationNames).toContain('MyMessageChannels');
 
-    // The two steps the server publishes no capability for stay shut, each
-    // with its reason in the page.
+    // Both steps are wired now, and both still start shut — but for their
+    // real reason, stated as this screen's own requirement rather than as a
+    // refusal by the server or as a missing callback.
     for (const label of [
       'Render a recipient preview',
-      'Send a synthetic test',
+      'Send the test to this address',
     ]) {
       expect(screen.getByRole('button', { name: label })).toHaveAttribute(
         'aria-disabled',
@@ -322,10 +391,28 @@ describe('HermesCampaignRuntimeContainer', () => {
     }
 
     expect(
-      screen.getAllByText(
-        'Unavailable: the server published no readable answer for this step. The campaign stays a draft.',
-      ).length,
-    ).toBeGreaterThanOrEqual(2);
+      screen.getByText('Choose the recipient to preview first.'),
+    ).toBeVisible();
+    expect(
+      screen.getByText('Type the destination of the test first.'),
+    ).toBeVisible();
+
+    // The test destination is a field the operator fills in. There is no
+    // default and no implicit fallback to the signed-in user's mailbox.
+    const destinationField = screen.getByLabelText('Test destination');
+
+    expect(destinationField).toBeVisible();
+    expect(destinationField).toHaveValue('');
+
+    // The content can actually be recorded, which is what makes an edit
+    // survive a reload.
+    expect(
+      screen.getByRole('button', { name: 'Record the content' }),
+    ).toBeVisible();
+
+    // The recipients of the campaign's own list were read, so a preview can
+    // be asked for a named person.
+    expect(sentOperationNames).toContain('HermesRuntimeCampaignRecipients');
 
     // A draft cannot be cancelled, and that is the server's own refusal code.
     expect(

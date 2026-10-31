@@ -93,7 +93,21 @@ const renderScreen = (overrides: Partial<HermesCampaignScreenProps> = {}) =>
         }}
         content={{ subject: 'Rethink your shopfront', body: 'Hello {{city}}' }}
         onContentChange={jest.fn()}
+        contentSaveState={{ kind: 'idle' }}
+        onSaveContent={jest.fn()}
+        senderSaveState={{ kind: 'idle' }}
         previewState={{ kind: 'idle' }}
+        previewRecipients={[
+          {
+            id: 'person-1',
+            label: 'Camille Roy',
+            address: 'camille.roy@atelier-fontaine.fr',
+          },
+        ]}
+        selectedPreviewRecipientId="person-1"
+        onSelectPreviewRecipient={jest.fn()}
+        testDestination="recette@atelier-fontaine.fr"
+        onTestDestinationChange={jest.fn()}
         scheduleDraft={{
           date: '2026-11-04',
           time: '09:00',
@@ -103,6 +117,7 @@ const renderScreen = (overrides: Partial<HermesCampaignScreenProps> = {}) =>
         timeZones={['Europe/Paris', 'UTC']}
         scheduledAt={null}
         actionOutcome={null}
+        hasUncertainEmission={false}
         onPreview={jest.fn()}
         onSendSyntheticTest={jest.fn()}
         onSchedule={jest.fn()}
@@ -151,8 +166,12 @@ describe('HermesCampaignScreen', () => {
     renderScreen();
 
     expect(screen.getAllByText('Emits nothing').length).toBeGreaterThan(0);
+    // Deliberately changed: the server validates the test destination as an
+    // e-mail address and applies no staging allowlist, so the old
+    // "staging destinations only" label asserted a restriction that does not
+    // exist. The label now names what really happens.
     expect(
-      screen.getByText('Real emission · staging destinations only'),
+      screen.getByText('Real emission · to the address you typed'),
     ).toBeVisible();
     expect(
       screen.getByText('Real emission · to the retained recipients'),
@@ -186,7 +205,7 @@ describe('HermesCampaignScreen', () => {
     renderScreen({ selectedIdentityId: 'si-3' });
 
     expect(
-      screen.getByRole('button', { name: 'Send a synthetic test' }),
+      screen.getByRole('button', { name: 'Send the test to this address' }),
     ).toHaveAttribute('aria-disabled', 'true');
     expect(
       screen.getAllByText(
@@ -241,5 +260,199 @@ describe('HermesCampaignScreen', () => {
     expect(
       screen.getByRole('button', { name: 'Send the campaign now' }),
     ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('says the content is not recorded yet rather than letting it look saved', () => {
+    renderScreen({ contentSaveState: { kind: 'unsaved' } });
+
+    expect(
+      screen.getByText(
+        'Not recorded yet: what is on screen differs from what the server holds.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('offers a wired control to record the content', () => {
+    const onSaveContent = jest.fn();
+
+    renderScreen({ contentSaveState: { kind: 'unsaved' }, onSaveContent });
+
+    const saveButton = screen.getByRole('button', {
+      name: 'Record the content',
+    });
+
+    expect(saveButton).toHaveAttribute('aria-disabled', 'false');
+
+    saveButton.click();
+
+    expect(onSaveContent).toHaveBeenCalledTimes(1);
+  });
+
+  it('shuts the recording control when the content does not pass its checks', () => {
+    renderScreen({
+      content: { subject: '', body: '' },
+      contentSaveState: { kind: 'unsaved' },
+    });
+
+    expect(
+      screen.getByRole('button', { name: 'Record the content' }),
+    ).toHaveAttribute('aria-disabled', 'true');
+    expect(
+      screen.getByText('Fix the problems listed above before recording.'),
+    ).toBeVisible();
+  });
+
+  it('reports a recording whose outcome is unknown without offering a retry', () => {
+    renderScreen({
+      contentSaveState: {
+        kind: 'unconfirmed',
+        reasonCode: 'FAILED',
+        reason: null,
+      },
+    });
+
+    expect(
+      screen.getByText('The outcome of this recording is not known.'),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'It may or may not have been recorded. Reload the campaign to see what the server holds before editing again — nothing is retried on its own, on purpose.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('shuts the test until a destination is typed, and never implies one', () => {
+    renderScreen({ testDestination: '' });
+
+    expect(
+      screen.getByRole('button', { name: 'Send the test to this address' }),
+    ).toHaveAttribute('aria-disabled', 'true');
+    expect(
+      screen.getByText('Type the destination of the test first.'),
+    ).toBeVisible();
+  });
+
+  it('shuts the test when what was typed cannot be an address', () => {
+    renderScreen({ testDestination: 'not-an-address' });
+
+    expect(
+      screen.getByRole('button', { name: 'Send the test to this address' }),
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('warns that the server does not restrict the test destination', () => {
+    renderScreen();
+
+    expect(
+      screen.getByText(
+        /The server applies no staging restriction to it, so never type a prospect.s address here\./,
+      ),
+    ).toBeVisible();
+  });
+
+  it('shuts every emitting step after an emission whose outcome is unknown', () => {
+    renderScreen({
+      hasUncertainEmission: true,
+      capabilitiesLoad: {
+        kind: 'ready',
+        value: {
+          ...capabilities,
+          send: { allowed: true, reasonCode: null, reason: null },
+        },
+      },
+      actionOutcome: {
+        kind: 'unconfirmed',
+        action: 'send',
+        reasonCode: 'FAILED',
+        reason: null,
+      },
+    });
+
+    for (const name of [
+      'Send the campaign now',
+      'Send the test to this address',
+    ]) {
+      expect(screen.getByRole('button', { name })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    }
+
+    expect(
+      screen.getAllByText('PREVIOUS_EMISSION_OUTCOME_UNKNOWN').length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByText('Send the campaign now \u2014 outcome unknown.'),
+    ).toBeVisible();
+  });
+
+  it('shuts the preview until a recipient is chosen', () => {
+    renderScreen({ selectedPreviewRecipientId: null });
+
+    expect(
+      screen.getByRole('button', { name: 'Render a recipient preview' }),
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('shows an excluded recipient rather than hiding the rendering', () => {
+    renderScreen({
+      previewState: {
+        kind: 'ready',
+        preview: {
+          recipientLabel: null,
+          recipientAddress: 'camille.roy@atelier-fontaine.fr',
+          subject: 'Rethink your shopfront',
+          body: 'Hello Nantes',
+          missingVariables: [],
+          variablesUsed: ['city'],
+          isRecipientSendable: false,
+          exclusionReason: 'GLOBALLY_UNSUBSCRIBED',
+          envelope: {
+            fromAddress: 'contact@atelier-fontaine.fr',
+            senderStatus: 'DOMAIN_PREREQUISITES_MET',
+            openMarkerWouldBeIncluded: false,
+            clickTrackingWouldBeApplied: false,
+            unsubscribeLinkWouldBeIncluded: true,
+          },
+        },
+      },
+    });
+
+    expect(
+      screen.getByText(
+        'This recipient is currently excluded, so a send would skip them. The rendering is shown anyway.',
+      ),
+    ).toBeVisible();
+    expect(screen.getByText('GLOBALLY_UNSUBSCRIBED')).toBeVisible();
+    // The rendering itself is still shown.
+    expect(screen.getByText('Hello Nantes')).toBeVisible();
+  });
+
+  it('keeps the preview inert and says so, so no open can be fabricated', () => {
+    renderScreen({
+      previewState: {
+        kind: 'ready',
+        preview: {
+          recipientLabel: null,
+          recipientAddress: 'camille.roy@atelier-fontaine.fr',
+          subject: 'Rethink your shopfront',
+          body: 'Hello Nantes',
+          missingVariables: [],
+          variablesUsed: [],
+          isRecipientSendable: true,
+          exclusionReason: null,
+          envelope: null,
+        },
+      },
+    });
+
+    expect(
+      screen.getByText(
+        /Shown as plain text on purpose: the panel stays inert/,
+      ),
+    ).toBeVisible();
+    // Nothing in the panel loads a remote resource, so no tracking marker of
+    // the real recipient can be requested by looking at a preview.
+    expect(document.querySelectorAll('img')).toHaveLength(0);
   });
 });

@@ -11,11 +11,14 @@ export { HermesCampaignContentSection } from '@/hermes-campaigns-ui/components/H
 export { HermesCampaignCountValue } from '@/hermes-campaigns-ui/components/HermesCampaignCountValue';
 export { HermesCampaignIssueList } from '@/hermes-campaigns-ui/components/HermesCampaignIssueList';
 export { HermesCampaignJourneySection } from '@/hermes-campaigns-ui/components/HermesCampaignJourneySection';
+export { HermesCampaignListView } from '@/hermes-campaigns-ui/components/HermesCampaignListView';
+export type { HermesCampaignListViewProps } from '@/hermes-campaigns-ui/components/HermesCampaignListView';
 export { HermesCampaignLoadView } from '@/hermes-campaigns-ui/components/HermesCampaignLoadView';
 export { HermesCampaignMetricValue } from '@/hermes-campaigns-ui/components/HermesCampaignMetricValue';
 export { HermesCampaignNote } from '@/hermes-campaigns-ui/components/HermesCampaignNote';
 export { HermesCampaignReason } from '@/hermes-campaigns-ui/components/HermesCampaignReason';
 export { HermesCampaignResultsSection } from '@/hermes-campaigns-ui/components/HermesCampaignResultsSection';
+export { HermesCampaignSaveControl } from '@/hermes-campaigns-ui/components/HermesCampaignSaveControl';
 export { HermesCampaignScreen } from '@/hermes-campaigns-ui/components/HermesCampaignScreen';
 export type { HermesCampaignScreenProps } from '@/hermes-campaigns-ui/components/HermesCampaignScreen';
 export { HermesMarketingObjectionSection } from '@/hermes-campaigns-ui/components/HermesMarketingObjectionSection';
@@ -46,6 +49,7 @@ export type {
 } from '@/hermes-campaigns-ui/types/HermesCampaignCapability';
 export type {
   HermesCampaignContent,
+  HermesCampaignPreviewEnvelope,
   HermesCampaignPreviewState,
   HermesCampaignRecipientPreview,
 } from '@/hermes-campaigns-ui/types/HermesCampaignContent';
@@ -60,7 +64,10 @@ export type {
   HermesCampaignSchedule,
   HermesCampaignState,
 } from '@/hermes-campaigns-ui/types/HermesCampaignJourney';
+export type { HermesCampaignListEntry } from '@/hermes-campaigns-ui/types/HermesCampaignListEntry';
 export type { HermesCampaignLoad } from '@/hermes-campaigns-ui/types/HermesCampaignLoad';
+export type { HermesCampaignPreviewRecipient } from '@/hermes-campaigns-ui/types/HermesCampaignPreviewRecipient';
+export type { HermesCampaignSaveState } from '@/hermes-campaigns-ui/types/HermesCampaignSaveState';
 export type {
   HermesCampaignEvidence,
   HermesCampaignMetric,
@@ -95,5 +102,7 @@ export {
   validateCampaignContent,
 } from '@/hermes-campaigns-ui/utils/validateCampaignContent';
 export { validateCampaignSchedule } from '@/hermes-campaigns-ui/utils/validateCampaignSchedule';
+export { validateTestDestination } from '@/hermes-campaigns-ui/utils/validateTestDestination';
+export type { HermesTestDestinationVerdict } from '@/hermes-campaigns-ui/utils/validateTestDestination';
 export type { ValidatedCampaignContent } from '@/hermes-campaigns-ui/utils/validateCampaignContent';
 export type { ValidatedCampaignSchedule } from '@/hermes-campaigns-ui/utils/validateCampaignSchedule';

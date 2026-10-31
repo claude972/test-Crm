@@ -16,6 +16,11 @@ export type HermesCampaignCapability = {
   reasonCode: string | null;
   // The server's sentence, when it published one.
   reason: string | null;
+  // Who closed this step. Omitted means the server did, which is the normal
+  // case. It is set to 'client' only for a step this build has no operation
+  // for, so the screen does not report a missing feature as a refusal the
+  // server issued.
+  origin?: HermesCampaignRefusalOrigin;
 };
 
 export type HermesCampaignCapabilities = {
@@ -33,7 +38,14 @@ export type HermesCampaignCapabilities = {
 // Where a refusal came from. The server's own refusal is one thing; a refusal
 // because the identity the action would run under is not authorised is
 // another, and the person reading the screen needs to know which.
-export type HermesCampaignRefusalOrigin = 'server' | 'sender-identity';
+// 'client' is this build itself: the server may well permit the step, but no
+// operation is wired here to carry it out. It is kept distinct from a server
+// refusal because attributing a missing implementation to the server would
+// send somebody looking for a permission problem that does not exist.
+export type HermesCampaignRefusalOrigin =
+  | 'server'
+  | 'sender-identity'
+  | 'client';
 
 // What the interface may do with a capability. Three answers, not two:
 // refused and unknown read differently on screen, and both keep the control

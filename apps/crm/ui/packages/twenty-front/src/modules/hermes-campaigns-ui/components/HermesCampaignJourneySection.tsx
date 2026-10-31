@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
+import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { IconAlertTriangle, IconCheck } from 'kovaa-lab-ui/icon';
@@ -22,9 +23,11 @@ import {
   type HermesCampaignSchedule,
   type HermesCampaignState,
 } from '@/hermes-campaigns-ui/types/HermesCampaignJourney';
+import { type HermesCampaignPreviewRecipient } from '@/hermes-campaigns-ui/types/HermesCampaignPreviewRecipient';
 import { type HermesSenderIdentityAuthorization } from '@/hermes-campaigns-ui/types/HermesSenderIdentityAuthorization';
 import { readCampaignCapability } from '@/hermes-campaigns-ui/utils/readCampaignCapability';
 import { validateCampaignSchedule } from '@/hermes-campaigns-ui/utils/validateCampaignSchedule';
+import { validateTestDestination } from '@/hermes-campaigns-ui/utils/validateTestDestination';
 
 const StyledLayout = styled.div`
   display: grid;
@@ -79,6 +82,22 @@ type HermesCampaignJourneySectionProps = {
   // unknown, and an unknown count is said out loud.
   retainedCount: number | null;
   outcome: HermesCampaignActionOutcome | null;
+  // True once an emission ended with no known result. Every emitting step is
+  // then shut: a message may already be in flight, so a second press could
+  // duplicate it. The campaign has to be re-read first.
+  hasUncertainEmission: boolean;
+
+  // Who the preview is rendered for. Chosen explicitly: a preview of
+  // "somebody" would not tell the operator what any actual person receives.
+  previewRecipients: HermesCampaignPreviewRecipient[];
+  selectedPreviewRecipientId: string | null;
+  onSelectPreviewRecipient?: (recipientId: string) => void;
+
+  // Where the test message really goes. The operator types it, and there is
+  // no default: a destination nobody chose is how a test reaches a prospect.
+  testDestination: string;
+  onTestDestinationChange: (destination: string) => void;
+
   onPreview?: () => void;
   onSendSyntheticTest?: () => void;
   onSchedule?: (schedule: HermesCampaignSchedule) => void;
@@ -98,6 +117,12 @@ export const HermesCampaignJourneySection = ({
   scheduledAt,
   retainedCount,
   outcome,
+  hasUncertainEmission,
+  previewRecipients,
+  selectedPreviewRecipientId,
+  onSelectPreviewRecipient,
+  testDestination,
+  onTestDestinationChange,
   onPreview,
   onSendSyntheticTest,
   onSchedule,
@@ -120,8 +145,11 @@ export const HermesCampaignJourneySection = ({
     [scheduleDraft.date, scheduleDraft.time, scheduleDraft.timeZone],
   );
 
+  // Only the steps that have a published capability behind them. Recording
+  // the content or the sender is not one of them: it emits nothing and is
+  // gated by the campaign being a draft, not by a send capability.
   const permissionFor = (
-    name: HermesCampaignActionName,
+    name: Exclude<HermesCampaignActionName, 'saveContent' | 'saveSender'>,
   ): HermesCampaignPermission => {
     const capabilityName = name === 'cancelSchedule' ? 'cancel' : name;
 
@@ -134,6 +162,22 @@ export const HermesCampaignJourneySection = ({
 
   const isRunning = (name: HermesCampaignActionName) =>
     outcome?.kind === 'running' && outcome.action === name;
+
+  // Shuts an emitting step after an emission whose result is unknown. This
+  // overrides a permission the server granted, which is the one direction the
+  // interface is allowed to refuse in: never more permissive than the server,
+  // sometimes stricter.
+  const emissionPermission = (
+    permission: HermesCampaignPermission,
+  ): HermesCampaignPermission =>
+    hasUncertainEmission
+      ? {
+          kind: 'refused',
+          origin: 'client',
+          reasonCode: 'PREVIOUS_EMISSION_OUTCOME_UNKNOWN',
+          reason: t`A previous emission ended without a known result. Reload the campaign and check what actually left before sending anything again.`,
+        }
+      : permission;
 
   const isEditable = campaignState === 'draft' || campaignState === 'scheduled';
 
@@ -149,31 +193,61 @@ export const HermesCampaignJourneySection = ({
     ? t`Scheduled for ${scheduledAt.date} at ${scheduledAt.time} (${scheduledAt.timeZone}).`
     : t`Nothing is scheduled.`;
 
+  // A recipient with neither a name nor an address is still offered, named by
+  // what it is rather than dropped: a silently shorter list would misstate
+  // the audience.
+  const previewRecipientItems = useMemo(
+    () =>
+      previewRecipients.map((recipient) => ({
+        value: recipient.id,
+        label: isNonEmptyString(recipient.label)
+          ? isNonEmptyString(recipient.address)
+            ? `${recipient.label} · ${recipient.address}`
+            : recipient.label
+          : isNonEmptyString(recipient.address)
+            ? recipient.address
+            : t`Recipient without a readable name or address`,
+      })),
+    [previewRecipients, t],
+  );
+
+  const isTestDestinationUsable = useMemo(
+    () => validateTestDestination(testDestination).usable,
+    [testDestination],
+  );
+
   const recipientsLabel = isDefined(retainedCount)
     ? t`${i18n.number(retainedCount)} retained recipients, as the server counted them.`
     : t`The number of retained recipients is unknown, so the reach of this send is unknown.`;
 
   const actionLabels: Record<HermesCampaignActionName, string> = {
     preview: t`Render a recipient preview`,
-    testSynthetic: t`Send a synthetic test`,
+    testSynthetic: t`Send the test to this address`,
     schedule: t`Schedule the campaign`,
     cancelSchedule: t`Cancel the schedule`,
     send: t`Send the campaign now`,
+    saveContent: t`Record the content`,
+    saveSender: t`Record the sender`,
   };
 
   const outcomeLabels: Record<HermesCampaignActionName, string> = {
     preview: t`The preview was rendered.`,
-    testSynthetic: t`The server accepted the synthetic test for its staging destinations.`,
+    // Accepted by the server, which is a handover and not a delivery, and to
+    // the typed address — no staging restriction is claimed, because none is
+    // applied.
+    testSynthetic: t`The server accepted the test message for the address you typed.`,
     schedule: t`The server recorded the schedule.`,
     cancelSchedule: t`The server cancelled the still-avoidable departures.`,
     send: t`The server accepted the send.`,
+    saveContent: t`The content was recorded on the campaign.`,
+    saveSender: t`The sender was recorded on the campaign.`,
   };
 
   return (
     <Section.Root>
       <Section.Header
         title={t`Journey`}
-        description={t`A preview emits nothing. A test is a real emission restricted to staging destinations. A send is a send.`}
+        description={t`A preview emits nothing. A test really sends one message, to the address you type and to no other. A send is a send.`}
       />
 
       <StyledLayout>
@@ -206,25 +280,146 @@ export const HermesCampaignJourneySection = ({
           </>
         )}
 
+        {/* The dangerous one: the call left and nobody knows what it did. It
+            is reported as neither a success nor a refusal, and no retry is
+            offered — the engine quarantines such a result server side and
+            never releases it on its own. */}
+        {outcome?.kind === 'unconfirmed' && (
+          <>
+            <Banner
+              role="alert"
+              status="warning"
+              variant="soft"
+              icon={<IconAlertTriangle aria-hidden="true" />}
+            >
+              {t`${actionLabels[outcome.action]} — outcome unknown.`}
+            </Banner>
+            <HermesCampaignReason
+              reasonCode={outcome.reasonCode}
+              reason={outcome.reason}
+              fallback={t`The server gave no reason.`}
+            />
+            <HermesCampaignNote>
+              <Trans>
+                It may have happened, in whole or in part. Nothing is retried
+                automatically and no step is offered again: reload the
+                campaign and read what actually left before deciding. Pressing
+                again now could send the same message twice.
+              </Trans>
+            </HermesCampaignNote>
+          </>
+        )}
+
         <StyledSteps>
+          {/* The preview is asked for one named recipient. The picker stays
+              on screen even while the render step is closed, so the operator
+              can still see which recipients the campaign resolved. */}
+          <Field.Root render={<StyledField />}>
+            <Field.Label>{t`Recipient to preview`}</Field.Label>
+            <Select.Root
+              items={previewRecipientItems}
+              value={selectedPreviewRecipientId ?? ''}
+              disabled={previewRecipientItems.length === 0}
+              onValueChange={(value) => {
+                if (
+                  typeof value === 'string' &&
+                  isDefined(onSelectPreviewRecipient)
+                ) {
+                  onSelectPreviewRecipient(value);
+                }
+              }}
+            >
+              <Select.Trigger size="md" aria-label={t`Recipient to preview`}>
+                <Select.Value placeholder={t`Pick a recipient`} />
+                <Select.Icon />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner sideOffset={8} align="start">
+                  <Select.Popup>
+                    {previewRecipientItems.map((item) => (
+                      <Select.Item key={item.value} value={item.value}>
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <Field.Description>
+              {previewRecipientItems.length === 0
+                ? t`No recipient was read for this campaign, so there is nobody to render a preview for.`
+                : t`The preview resolves the variables against this recipient's record.`}
+            </Field.Description>
+          </Field.Root>
+
           <HermesCampaignActionButton
             id="hermes-campaign-action-preview"
             label={actionLabels.preview}
-            effect={t`Renders the subject and the message for one recipient, in this screen. No transport is contacted and nobody receives anything.`}
+            effect={t`Renders the subject and the message for the chosen recipient, in this screen. No transport is contacted and nobody receives anything.`}
             emissionKind="none"
-            permission={permissionFor('preview')}
+            permission={
+              // No recipient chosen, nothing to render for. Said as this
+              // screen's own requirement rather than left to look like a
+              // missing callback or a refusal by the server.
+              permissionFor('preview').kind === 'allowed' &&
+              !isDefined(selectedPreviewRecipientId)
+                ? {
+                    kind: 'refused',
+                    origin: 'client',
+                    reasonCode: null,
+                    reason: t`Choose the recipient to preview first.`,
+                  }
+                : permissionFor('preview')
+            }
             isRunning={isRunning('preview')}
-            onActivate={onPreview}
+            onActivate={
+              isDefined(selectedPreviewRecipientId) ? onPreview : undefined
+            }
           />
+
+          {/* The test destination, typed by the operator. There is no
+              default and no implicit fallback to the signed-in user: the
+              server accepts any address here, so the field is the guard. */}
+          <Field.Root render={<StyledField />}>
+            <Field.Label>{t`Test destination`}</Field.Label>
+            <Input
+              type="email"
+              value={testDestination}
+              inputMode="email"
+              autoComplete="off"
+              placeholder={t`Type the mailbox that should receive the test`}
+              onChange={(event) => onTestDestinationChange(event.target.value)}
+            />
+            <Field.Description>
+              {t`One real message goes to this address. The server applies no staging restriction to it, so never type a prospect's address here.`}
+            </Field.Description>
+          </Field.Root>
 
           <HermesCampaignActionButton
             id="hermes-campaign-action-test"
             label={actionLabels.testSynthetic}
-            effect={t`Really sends one message, which the server restricts to staging destinations. It never reaches a prospect, and it is not a preview.`}
-            emissionKind="staging-destinations-only"
-            permission={permissionFor('testSynthetic')}
+            effect={t`Really sends one message, to the address above and to nobody else. It is not a preview, and it does not send the campaign.`}
+            emissionKind="typed-destination"
+            permission={emissionPermission(
+              // An address that cannot be one is refused here rather than
+              // sent for the server to reject.
+              permissionFor('testSynthetic').kind === 'allowed' &&
+                !isTestDestinationUsable
+                ? {
+                    kind: 'refused',
+                    origin: 'client',
+                    reasonCode: null,
+                    reason: t`Type the destination of the test first.`,
+                  }
+                : permissionFor('testSynthetic'),
+            )}
             isRunning={isRunning('testSynthetic')}
-            onActivate={onSendSyntheticTest}
+            onActivate={
+              isTestDestinationUsable && !hasUncertainEmission
+                ? onSendSyntheticTest
+                : undefined
+            }
           />
 
           <HermesCampaignActionButton
@@ -347,18 +542,22 @@ export const HermesCampaignJourneySection = ({
             label={actionLabels.send}
             effect={t`Puts the campaign on the transport for the retained recipients. This one reaches people.`}
             emissionKind="recipients"
-            permission={
+            permission={emissionPermission(
               sendPermission.kind === 'allowed' && !isSendConfirmed
                 ? {
                     kind: 'refused',
-                    origin: 'server',
+                    // The confirmation is this screen's own requirement, not
+                    // something the server withheld.
+                    origin: 'client',
                     reasonCode: null,
                     reason: t`Confirm below first. A send is not undone by a cancellation.`,
                   }
-                : sendPermission
-            }
+                : sendPermission,
+            )}
             isRunning={isRunning('send')}
-            onActivate={isSendConfirmed ? onSend : undefined}
+            onActivate={
+              isSendConfirmed && !hasUncertainEmission ? onSend : undefined
+            }
           >
             <HermesCampaignNote>{recipientsLabel}</HermesCampaignNote>
           </HermesCampaignActionButton>
@@ -366,7 +565,9 @@ export const HermesCampaignJourneySection = ({
           <StyledConfirmation>
             <Checkbox
               checked={isSendConfirmed}
-              disabled={sendPermission.kind !== 'allowed'}
+              disabled={
+                sendPermission.kind !== 'allowed' || hasUncertainEmission
+              }
               onCheckedChange={(checked) => setIsSendConfirmed(checked)}
             >
               {t`I am sending this campaign to the retained recipients.`}

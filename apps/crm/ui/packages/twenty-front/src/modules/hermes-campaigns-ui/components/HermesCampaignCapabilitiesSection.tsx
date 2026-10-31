@@ -201,7 +201,9 @@ export const HermesCampaignCapabilitiesSection = ({
                       fallback={
                         permission.origin === 'sender-identity'
                           ? t`Refused because the sender identity this would run under is not authorised.`
-                          : t`The server refused this capability without giving a reason.`
+                          : permission.origin === 'client'
+                            ? t`Not available in this version: no operation is published yet to carry out this capability. The server was not asked.`
+                            : t`The server refused this capability without giving a reason.`
                       }
                     />
                   )}
