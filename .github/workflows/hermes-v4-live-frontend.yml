@@ -1,0 +1,91 @@
+name: Hermes V4 live frontend verification
+on:
+  push:
+    branches: [feat/hermes-v4-live-preview]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hermes-v4-live-frontend-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  live-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      FORCE_COLOR: '0'
+      NODE_OPTIONS: --max-old-space-size=6144
+      NX_DAEMON: 'false'
+    defaults:
+      run:
+        working-directory: apps/crm/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install immutable native workspace dependencies
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build native shared, SDK and frontend runtime dependencies
+        id: dependencies
+        run: |
+          node .yarn/releases/yarn-4.18.1.cjs nx run-many --target=build --projects=kovaa-lab-shared,kovaa-lab-ui,kovaa-lab-front-component-renderer --parallel=1 --skip-nx-cache
+          test -s packages/twenty-shared/dist/index.cjs
+          test -d packages/twenty-ui/dist
+      - name: Generate isolated frontend configuration
+        working-directory: .
+        run: node scripts/local-project.mjs setup
+      - name: Compile existing translation catalogues
+        run: node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
+      - name: Verify the four journeys, their libraries, auth and the Apollo seam
+        id: unit_tests
+        working-directory: apps/crm/ui/packages/twenty-front
+        run: |
+          node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --silent --reporters=default --cacheDirectory /tmp/hermes-v4-front-jest --json --outputFile "$RUNNER_TEMP/hermes-v4-front-tests.json" \
+            src/modules/hermes-wa-ui src/modules/hermes-mailbox-ui src/modules/hermes-admin-ui src/modules/hermes-campaigns-ui \
+            src/modules/hermes-wa-runtime src/modules/hermes-mailbox-runtime src/modules/hermes-admin-runtime src/modules/hermes-campaigns-runtime \
+            src/modules/hermes-thread-inspector src/modules/hermes-shell src/modules/hermes-bot-settings \
+            src/modules/messaging-inbox src/modules/auth src/modules/users src/modules/client-config \
+            src/modules/apollo/utils/__tests__ src/modules/app src/utils/i18n
+      - name: Typecheck the complete frontend against the native dependency declarations
+        id: frontend_types
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        working-directory: apps/crm/ui/packages/twenty-front
+        run: |
+          set +e
+          node ../../node_modules/.bin/tsgo -p tsconfig.json --noEmit --singleThreaded > "$RUNNER_TEMP/hermes-v4-front-types.txt" 2>&1
+          result=$?
+          set -e
+          cat "$RUNNER_TEMP/hermes-v4-front-types.txt"
+          exit "$result"
+      - name: Build the frontend bundle that will be deployed
+        id: bundle
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: |
+          node .yarn/releases/yarn-4.18.1.cjs nx build kovaa-lab-front --skip-nx-cache
+          test -d packages/twenty-front/dist
+          du -sh packages/twenty-front/dist
+      - name: Record the revision this bundle was built from
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: |
+          printf 'source_sha=%s\nbuilt_at=%s\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > packages/twenty-front/dist/HERMES_V4_SOURCE.txt
+          cat packages/twenty-front/dist/HERMES_V4_SOURCE.txt
+      - name: Publish the exact bundle for deployment
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-v4-frontend-dist-${{ github.sha }}
+          path: apps/crm/ui/packages/twenty-front/dist
+          retention-days: 2
+          if-no-files-found: error
+      - name: Preserve exact unit and typecheck evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-v4-frontend-evidence-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/hermes-v4-front-tests.json
+            ${{ runner.temp }}/hermes-v4-front-types.txt
+          retention-days: 2
+          if-no-files-found: warn
