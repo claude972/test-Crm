@@ -672,9 +672,18 @@ Root possède intégration/QA/hosting et coordination ; agent coordination seul 
 ### HERMES-V4-LIVRAISON-CLAUDE-20261030 — reprise finale
 
 - Instruction utilisateur : déléguer uniquement à des agents Claude ; Codex conserve supervision, revue et recette. Délai visé une heure à compter du 30 octobre 2026 vers 19:51 America/Martinique ; aucune réussite promise sans preuve.
-- agent: claude ; status: in_progress — ACK réel et dispatchs complémentaires observés ; parent 8f3db32e-4613-45e3-94f3-16e664f3cbfc possède l’assemblage. Réutiliser ses quatre workers runtime existants, ne pas dupliquer.
+- agent: claude ; status: verified_preview — ACK réel et dispatchs complémentaires observés ; parent 8f3db32e-4613-45e3-94f3-16e664f3cbfc possède l’assemblage. Réutiliser ses quatre workers runtime existants, ne pas dupliquer.
 - Propriété d'assemblage transférée au parent à son ACK : /private/tmp/hermes-v4-live-integration, feat/hermes-v4-live-preview, base assemblée 6dd0b3dce. Tous les edits code restants sont attribués à Claude ; nouveaux workers backend/tests autorisés, périmètres disjoints à annoncer. Codex n'édite pas de code.
 - Reprendre deltas Auth d73a1083e,09c0619cb,57f1f7f9d,d8b51af78, mail ee0943bd8 ; ne pas doubler Auth d5 déjà copié dans le parent. Monter les quatre runtime dans les routes, terminer build commun et tests natifs puis preview Vercel hors production et navigateur.
 - Reprendre constat MAIL006 de l'ancien agent C : révocation pendant copie Sent après SMTP ACCEPTED doit refuser la réponse privée sans rejouer SMTP ni altérer le ledger. Le worktree mail contient un test non commité ; le préserver, vérifier le repro et corriger avant revue.
 - Source de preuve : C ee0943bd8 run 41145406389 success ; D compiled/barriers run 41145150959 failure, cause à diagnostiquer sans masquer la vérification. Aucun nouveau runtime V4 livré.
-- agent: codex ; status: in_progress — supervision GitHub, contrôle des SHAs et preuves, recette et communication. Aucun agent Codex supplémentaire lancé.
+- agent: codex ; status: verified_preview — supervision GitHub, contrôle des SHAs et preuves, recette et communication. Aucun agent Codex supplémentaire lancé.
+
+
+### Livraison de recette V4 — 30 octobre2026,22:32 America/Martinique
+
+- Intégration et recette de preview vérifiées, pas une déclaration de production prête avec fournisseurs actifs. Codage agents Claude ; Codex supervision et tests navigateur. Source backendc12718d1c, frontend servi9c21c0841, runtime41158391678.
+- Frontend9c run41156819291, frontendc127 run41158274052 et backendc127 run41158274254 entièrement verts. Vercel READY, partage privé sans compte Vercel préalable, connexions normales un et deux workspaces, bascule B→A et dashboard commun testés par root. Recette API corrigée native A/B + commercial/opposition durable vérifiée ; échecs des helpers initiaux conservés et distingués des défauts produit.
+- Rapport public sans identifiant ni clé : docs/verification/hermes-v4-final-41158391678.md. Accès et compte remis dans le chat uniquement. Partage expire30octobre23:39:06Martinique, API23:41:05.
+- Restent non configurés et non validés avec fournisseur : Evolution/WA et médias, SMTP/IMAP et envoi campagne réel, MCP Hermès, collectes externes, Forms/agenda. Installation PWA/offline non testés ; préférence française garantie pour les deux comptes de recette seulement. Aucun envoi réel.
+- Source figée pour la recette, pas de nouvelle mutation de test ni relance de session, pas de production/nouveau service payant. Checkout original et sauvegardes préservés.
