@@ -50,11 +50,6 @@ msgstr " per {intervalLabel}"
 msgid "—"
 msgstr "—"
 
-#. js-lingui-id: Terfvz
-#: src/modules/ai/components/AiChatThreadSubtitle.tsx
-#~ msgid ", assigned to {assigneeName}"
-#~ msgstr ", toegewezen aan {assigneeName}"
-
 #. js-lingui-id: /c8CZ4
 #: src/modules/ai/components/AiChatThreadTitle.tsx
 #: src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItem.tsx
@@ -284,11 +279,6 @@ msgstr "{0, plural, one {# object} other {# objecten}}"
 msgid "{0, plural, one {# Object} other {# Objects}}"
 msgstr "{0, plural, one {# Object} other {# Objecten}}"
 
-#. js-lingui-id: CO4o97
-#: src/modules/ai/components/AiChatQueuedMessages.tsx
-#~ msgid "{0, plural, one {# Queued} other {# Queued}}"
-#~ msgstr "{0, plural, one {# In wachtrij} other {# In wachtrij}}"
-
 #. js-lingui-id: 8ob0vY
 #. placeholder {0}: failedCount + behindCount
 #: src/modules/settings/admin-panel/utils/getWorkspacesUpgradeHealthText.ts
@@ -376,6 +366,12 @@ msgstr ""
 msgid "{0} at least — {1} entries unreadable"
 msgstr ""
 
+#. js-lingui-id: Pcogwu
+#. placeholder {0}: message.unreadableAttachmentCount
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "{0} attachment(s) could not be read."
+msgstr ""
+
 #. js-lingui-id: 6lE3tD
 #. placeholder {0}: formatNumber(counts.hardSuppressed)
 #: src/modules/activities/emails/utils/buildExcludedRecipientReasons.ts
@@ -388,6 +384,12 @@ msgstr "{0} gebounced of klacht ingediend"
 #. placeholder {2}: i18n.number(HERMES_PURPOSE_MAX_LENGTH)
 #: src/modules/prospection/components/HermesQualificationForm.tsx
 msgid "{0} characters, {1} to {2}."
+msgstr ""
+
+#. js-lingui-id: DlvX4W
+#. placeholder {0}: list.unreadableItemCount
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+msgid "{0} conversation(s) could not be read and are not shown."
 msgstr ""
 
 #. js-lingui-id: C+O9y6
@@ -444,6 +446,12 @@ msgstr "{0}-indeling bewerken"
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. js-lingui-id: NDATjQ
+#. placeholder {0}: list.unreadableItemCount
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "{0} message(s) could not be read and are not shown."
+msgstr ""
+
 #. js-lingui-id: uLS8YU
 #. placeholder {0}: provider.displayName
 #: src/pages/settings/applications/tabs/SettingsApplicationConnectionsSection.tsx
@@ -470,6 +478,7 @@ msgstr "{0} van {1}"
 #. placeholder {1}: i18n.number(HERMES_CAMPAIGN_SUBJECT_MAX_LENGTH)
 #. placeholder {1}: i18n.number(MESSAGING_INBOX_REPLY_MAX_LENGTH)
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 msgid "{0} of {1} characters."
 msgstr ""
@@ -1985,6 +1994,11 @@ msgstr ""
 msgid "Accepted and signed DPAs for this workspace, with their template version and date."
 msgstr "Geaccepteerde en ondertekende DPA’s voor deze werkruimte, met hun sjabloonversie en datum."
 
+#. js-lingui-id: HcBNto
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Accepted by the provider. Delivery is not confirmed."
+msgstr ""
+
 #. js-lingui-id: SBpnG3
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignResultsSection.tsx
 msgid "Accepted by the SMTP server"
@@ -2457,12 +2471,6 @@ msgstr "BCC toevoegen"
 msgid "Add block"
 msgstr "Blok toevoegen"
 
-#. js-lingui-id: We0vOO
-#: src/modules/blocknote-editor/components/CustomSideMenu.tsx
-#: src/modules/page-layout/widgets/standalone-rich-text/components/DashboardEditorSideMenu.tsx
-#~ msgid "Add Block"
-#~ msgstr "Blok toevoegen"
-
 #. js-lingui-id: 46YgRZ
 #: src/modules/advanced-text-editor/components/AdvancedTextEditorBlockHandleMenu.tsx
 msgid "Add block below"
@@ -2723,11 +2731,6 @@ msgstr "Betaalmethode toevoegen"
 #: src/modules/object-record/record-sharing/components/RecordSharingInvitation.tsx
 msgid "Add people or everyone"
 msgstr ""
-
-#. js-lingui-id: jsfM8s
-#: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordAddPeopleItem.tsx
-#~ msgid "Add people or roles"
-#~ msgstr "Personen of rollen toevoegen"
 
 #. js-lingui-id: aYtHO6
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowAiAgentPermissionsTab.tsx
@@ -4640,6 +4643,11 @@ msgstr "Vraag een beheerder om de limiet te verhogen."
 msgid "Ask for human input"
 msgstr "Vraag om menselijke invoer"
 
+#. js-lingui-id: PFgA++
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Ask the server for this reply's outcome"
+msgstr ""
+
 #. js-lingui-id: mc9nK2
 #: src/modules/ai/hooks/useAiChatEditor.ts
 msgid "Ask, search or make anything..."
@@ -4715,11 +4723,6 @@ msgstr "Toegewezen {roleTargetDisplayName}"
 msgid "Assigned to"
 msgstr "Toegewezen aan"
 
-#. js-lingui-id: ArzUbT
-#: src/modules/ai/components/AiChatThreadSubtitle.tsx
-#~ msgid "Assigned to {assigneeName}"
-#~ msgstr "Toegewezen aan {assigneeName}"
-
 #. js-lingui-id: TzM/0+
 #: src/modules/settings/roles/components/SettingsRolesDefaultRole.tsx
 msgid "Assigned to users who join via invite link, approved domain, or SSO, and used as fallback when an assigned role is deleted"
@@ -4751,11 +4754,6 @@ msgstr "Assistent"
 #: src/modules/settings/admin-panel/health-status/components/SettingsAdminHealthStatus.tsx
 msgid "Asymmetric public keys used to sign and verify access tokens. Revoking a key immediately invalidates every JWT signed with it."
 msgstr "Asymmetrische openbare sleutels die worden gebruikt om toegangstokens te ondertekenen en te verifiëren. Het intrekken van een sleutel maakt elke JWT die ermee is ondertekend onmiddellijk ongeldig."
-
-#. js-lingui-id: uJmPzF
-#: src/modules/settings/admin-panel/constants/SettingsAdminFeatureFlagMetadata.ts
-#~ msgid "Async CSV export"
-#~ msgstr "Asynchrone CSV-export"
 
 #. js-lingui-id: UHs3Ds
 #: src/utils/cron-to-human/descriptors/getHoursDescription.ts
@@ -4925,6 +4923,7 @@ msgid "Attachment withheld"
 msgstr ""
 
 #. js-lingui-id: w/Sphq
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxMessageCard.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadListPanel.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionEmailBase.tsx
@@ -5086,8 +5085,17 @@ msgid "Authentication"
 msgstr "Authenticatie"
 
 #. js-lingui-id: htuqBH
+#: src/modules/auth/hooks/useAuth.ts
+#: src/modules/auth/hooks/useAuth.ts
+#: src/modules/auth/hooks/useAuth.ts
+#: src/modules/auth/hooks/useAuth.ts
+#: src/modules/auth/hooks/useAuth.ts
+#: src/modules/auth/hooks/useAuth.ts
+#: src/modules/auth/hooks/useAuth.ts
 #: src/modules/auth/hooks/useRedeemSsoExchangeToken.ts
 #: src/modules/auth/hooks/useVerifyLogin.ts
+#: src/modules/auth/utils/assertAuthSessionUnchanged.ts
+#: src/modules/auth/utils/resetWorkspaceSessionAndReload.ts
 msgid "Authentication failed"
 msgstr "Authenticatie mislukt"
 
@@ -6088,6 +6096,11 @@ msgstr "Oproepen"
 msgid "Camera"
 msgstr "Camera"
 
+#. js-lingui-id: D02dD9
+#: src/pages/hermes/HermesCampaignRuntimePage.tsx
+msgid "Campaign"
+msgstr ""
+
 #. js-lingui-id: hPLCly
 #: src/pages/prospection/ProspectionCampaignAudiencePage.tsx
 msgid "Campaign audience"
@@ -6533,12 +6546,6 @@ msgstr ""
 msgid "Change assignee"
 msgstr ""
 
-#. js-lingui-id: tHntRt
-#: src/modules/blocknote-editor/components/CustomSideMenu.tsx
-#: src/modules/page-layout/widgets/standalone-rich-text/components/DashboardEditorSideMenu.tsx
-#~ msgid "Change Color"
-#~ msgstr "Kleur wijzigen"
-
 #. js-lingui-id: feCRNv
 #: src/modules/auth/sign-in-up/components/EmailVerificationSent.tsx
 msgid "Change email"
@@ -6783,6 +6790,11 @@ msgstr "Alleen gecontroleerd wanneer het record waartoe deze regel behoort wordt
 #. js-lingui-id: KnEY6F
 #: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
 msgid "Checking the connection…"
+msgstr ""
+
+#. js-lingui-id: zeK5Sm
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Checking the uploaded file. Nothing has been sent."
 msgstr ""
 
 #. js-lingui-id: RLe7Vk
@@ -7271,11 +7283,6 @@ msgstr "Importeren sluiten"
 #: src/modules/keyboard-shortcut-menu/components/KeyboardShortcutMenuDialog.tsx
 msgid "Close keyboard shortcuts"
 msgstr "Sneltoetsen sluiten"
-
-#. js-lingui-id: vcpc5o
-#: src/modules/blocknote-editor/components/BlockEditor.tsx
-#~ msgid "Close menu"
-#~ msgstr "Menu sluiten"
 
 #. js-lingui-id: sUQBA7
 #: src/modules/settings/data-model/graph-overview/components/SettingsDataModelOverview.tsx
@@ -8182,6 +8189,12 @@ msgstr "De verbinding met de assistent is verbroken. Laad opnieuw om het antwoor
 msgid "Connection unknown"
 msgstr ""
 
+#. js-lingui-id: 8vPD2W
+#: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
+#: src/pages/hermes/HermesAdminRuntimePage.tsx
+msgid "Connections and companies"
+msgstr ""
+
 #. js-lingui-id: Jkj2bb
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
 msgid "Connectors"
@@ -8935,6 +8948,11 @@ msgstr "{0} maken"
 #: src/modules/command-menu-item/hooks/useGlobalRecordCreationCommandMenuItems.ts
 msgid "Create {objectLabelSingular}"
 msgstr "{objectLabelSingular} maken"
+
+#. js-lingui-id: +KOqPl
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "Create a contact from this number"
+msgstr ""
 
 #. js-lingui-id: jmGqEp
 #. placeholder {0}: objectMetadataItem.labelPlural
@@ -10986,6 +11004,12 @@ msgstr "Uitgeschakeld"
 msgid "Discard"
 msgstr "Weggooien"
 
+#. js-lingui-id: HbsQDk
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Discard the draft attachment"
+msgstr ""
+
 #. js-lingui-id: aG0+np
 #: src/modules/hermes-wa-ui/components/HermesWaVoiceRecorder.tsx
 msgid "Discarding deletes the recording and releases the microphone resources."
@@ -11263,6 +11287,7 @@ msgstr "Downgraden naar maandelijks"
 #: src/modules/activities/files/components/AttachmentDropdown.tsx
 #: src/modules/activities/files/components/DocumentViewer.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxAttachmentStrip.tsx
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxAttachmentStrip.tsx
 #: src/modules/hermes-wa-ui/components/HermesWaMediaAttachment.tsx
 #: src/modules/page-layout/widgets/field/components/FieldWidgetFilesPreview.tsx
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceDataExportSection.tsx
@@ -11275,6 +11300,11 @@ msgstr "Downloaden"
 #: src/modules/ai/components/CodeExecutionDisplay.tsx
 msgid "Download {filename}"
 msgstr "{filename} downloaden"
+
+#. js-lingui-id: wWYCUL
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxAttachmentStrip.tsx
+msgid "Download {name}"
+msgstr ""
 
 #. js-lingui-id: WVXUu3
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxAttachmentStrip.tsx
@@ -14398,11 +14428,6 @@ msgstr ""
 msgid "File is not valid XML"
 msgstr "Bestand is geen geldige XML"
 
-#. js-lingui-id: N793lP
-#: src/modules/object-record/record-field/ui/meta-types/input/components/FilesFieldInput.tsx
-#~ msgid "File label"
-#~ msgstr "Bestandslabel"
-
 #. js-lingui-id: REA7PV
 #: src/modules/ui/field/display/components/FileChip.tsx
 msgid "File no longer exists - {label}"
@@ -14716,11 +14741,6 @@ msgstr ""
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
 msgid "Follow the company"
 msgstr ""
-
-#. js-lingui-id: Ovfdx1
-#: src/pages/settings/communications/SettingsWorkspaceCommunicationGroupChannelDetail.tsx
-#~ msgid "Follow the guide for your email provider."
-#~ msgstr "Volg de handleiding voor je e-mailprovider."
 
 #. js-lingui-id: I7Exsw
 #: src/pages/settings/community/SettingsCommunity.tsx
@@ -15123,11 +15143,6 @@ msgstr "Algemeen"
 msgid "General - Settings"
 msgstr "Algemeen - Instellingen"
 
-#. js-lingui-id: xXYV+r
-#: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordContent.tsx
-#~ msgid "General access"
-#~ msgstr "Algemene toegang"
-
 #. js-lingui-id: Ye6I4I
 #: src/pages/settings/general/SettingsGeneral.tsx
 msgid "General settings"
@@ -15153,21 +15168,11 @@ msgstr "Een herstelcode genereren"
 msgid "Generate code"
 msgstr "Code genereren"
 
-#. js-lingui-id: /Sq+WF
-#: src/modules/settings/admin-panel/constants/SettingsAdminFeatureFlagMetadata.ts
-#~ msgid "Generate CSV exports in the background with progress and automatic downloads."
-#~ msgstr "Genereer CSV-exports op de achtergrond met voortgang en automatische downloads."
-
 #. js-lingui-id: H3rta9
 #: src/pages/settings/legal/SettingsLegalDpa.tsx
 #: src/pages/settings/legal/SettingsLegalDpaNew.tsx
 msgid "Generate DPA"
 msgstr "DPA genereren"
-
-#. js-lingui-id: CjKOAP
-#: src/modules/workflow/workflow-steps/workflow-actions/code-action/components/WorkflowEditActionCode.tsx
-#~ msgid "Generate Function Output"
-#~ msgstr "Functie-uitvoer genereren"
 
 #. js-lingui-id: loqHRi
 #: src/modules/settings/members/components/MemberTwoFactorAuthenticationRecoverySection.tsx
@@ -18413,6 +18418,7 @@ msgid "Load limit"
 msgstr "Laadlimiet"
 
 #. js-lingui-id: yQ2kGp
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadListPanel.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxLoadMore.tsx
 #: src/modules/object-record/record-table/record-table-section/components/RecordTableRecordGroupSectionLoadMore.tsx
 #: src/modules/prospection/components/CampaignAudiencesSection.tsx
@@ -18554,6 +18560,16 @@ msgstr "Vaardigheden laden..."
 #. js-lingui-id: hpUOhW
 #: src/modules/hermes-wa-ui/components/HermesWaMediaUnavailable.tsx
 msgid "Loading the attachment…"
+msgstr ""
+
+#. js-lingui-id: KVNwFh
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+msgid "Loading the conversations."
+msgstr ""
+
+#. js-lingui-id: ZquW2l
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "Loading this conversation."
 msgstr ""
 
 #. js-lingui-id: FhX7/o
@@ -18807,6 +18823,12 @@ msgstr "Mailaccount"
 #. js-lingui-id: NLg81y
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxFolderPanel.tsx
 msgid "Mail folders"
+msgstr ""
+
+#. js-lingui-id: UCxRMK
+#: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
+#: src/pages/hermes/HermesMailboxRuntimePage.tsx
+msgid "Mailbox"
 msgstr ""
 
 #. js-lingui-id: B4mCwZ
@@ -19123,6 +19145,11 @@ msgstr "Overeenkomst met {entry}"
 #: src/modules/spreadsheet-import/steps/components/SpreadsheetImportStepperContainer.tsx
 msgid "Match Columns"
 msgstr "Kolommen overeenkomen"
+
+#. js-lingui-id: p0OC2a
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "Matched by the server"
+msgstr ""
 
 #. js-lingui-id: CK1KXz
 #: src/modules/ai/utils/getAiModelEffortLabel.ts
@@ -20381,6 +20408,12 @@ msgstr "Nieuwe Sleutel"
 msgid "New limit"
 msgstr "Nieuwe limiet"
 
+#. js-lingui-id: mTBAsF
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadListPanel.tsx
+msgid "New message"
+msgstr ""
+
 #. js-lingui-id: ROxeMs
 #: src/pages/settings/admin-panel/SettingsAdminNewAiModel.tsx
 #: src/pages/settings/admin-panel/SettingsAdminNewAiModel.tsx
@@ -20828,6 +20861,11 @@ msgstr "Zonder landnummer"
 msgid "No campaign audience yet."
 msgstr ""
 
+#. js-lingui-id: +8Pzuv
+#: src/pages/hermes/HermesCampaignRuntimePage.tsx
+msgid "No campaign is open. Open one from the campaigns list to see its audience, its sender and its results."
+msgstr ""
+
 #. js-lingui-id: hiHzk0
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
 msgid "No capability published"
@@ -20909,11 +20947,6 @@ msgstr ""
 #: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
 msgid "No conversation on this channel."
 msgstr ""
-
-#. js-lingui-id: r1vGgi
-#: src/pages/ai-chat/AiChatInboxPage.tsx
-#~ msgid "No conversation selected"
-#~ msgstr "Geen gesprek geselecteerd"
 
 #. js-lingui-id: ICXANZ
 #: src/modules/page-layout/widgets/chat-threads/components/ChatThreadsCardContent.tsx
@@ -21251,6 +21284,7 @@ msgid "No limit matches your search."
 msgstr "Geen limiet voldoet aan je zoekopdracht."
 
 #. js-lingui-id: PZxBIy
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxContactLink.tsx
 msgid "No linked contact"
 msgstr ""
@@ -21285,6 +21319,11 @@ msgstr ""
 msgid "No marketing objection"
 msgstr ""
 
+#. js-lingui-id: /R/DKK
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "No match found by the server"
+msgstr ""
+
 #. js-lingui-id: WqPs8R
 #: src/modules/activities/timeline-activities/components/EventList.tsx
 msgid "No matching activity"
@@ -21310,6 +21349,11 @@ msgstr "Geen leden toegewezen"
 #: src/pages/settings/members/tabs/SettingsWorkspaceMembersTeamTab.tsx
 msgid "No members match your search"
 msgstr "Geen leden voldoen aan je zoekopdracht"
+
+#. js-lingui-id: RamR2b
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "No message in this conversation yet."
+msgstr ""
 
 #. js-lingui-id: 3dSO5v
 #: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
@@ -21808,6 +21852,16 @@ msgstr "Geen variabelen om in te stellen voor deze app"
 msgid "No version reported in this period"
 msgstr ""
 
+#. js-lingui-id: ydUUcV
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "No WhatsApp connection is configured, so nothing can be sent from here."
+msgstr ""
+
+#. js-lingui-id: 0BLFMB
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+msgid "No WhatsApp conversation yet."
+msgstr ""
+
 #. js-lingui-id: 4aGcYH
 #: src/modules/hermes-wa-ui/components/HermesWaMediaComposer.tsx
 #: src/modules/hermes-wa-ui/components/HermesWaVoiceRecorder.tsx
@@ -22276,6 +22330,11 @@ msgstr ""
 #: src/modules/command-menu-item/engine-command/record/single-record/message-campaign/components/CancelMessageCampaignSingleRecordCommand.tsx
 msgid "Nothing has gone out yet. The campaign returns to your drafts and you can edit or schedule it again."
 msgstr "Er is nog niets verzonden. De campagne keert terug naar je concepten en je kunt deze opnieuw bewerken of inplannen."
+
+#. js-lingui-id: Wy/EQA
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Nothing is retried automatically. Asking again reuses the same request identifier, so the server returns the original result instead of sending a second message."
+msgstr ""
 
 #. js-lingui-id: cjKieX
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
@@ -22798,6 +22857,11 @@ msgstr "Alleen u kunt uw e-mails en agenda-afspraken zien"
 msgid "Open"
 msgstr "Open"
 
+#. js-lingui-id: m9p2Xu
+#: src/modules/hermes-wa-runtime/components/HermesWaInboxContainer.tsx
+msgid "Open a conversation to read it."
+msgstr ""
+
 #. js-lingui-id: Kkq3xr
 #: src/modules/settings/mcp/utils/buildMcpSetupCategories.tsx
 msgid "Open a maintained integration or prefill clients that accept MCP install links."
@@ -22846,6 +22910,7 @@ msgid "Open column menu"
 msgstr ""
 
 #. js-lingui-id: jtbJpG
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxContactLink.tsx
 msgid "Open contact"
 msgstr ""
@@ -23721,11 +23786,6 @@ msgstr ""
 msgid "People added to the list."
 msgstr "Personen toegevoegd aan de lijst."
 
-#. js-lingui-id: R/RRKy
-#: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordContent.tsx
-#~ msgid "People and roles with access"
-#~ msgstr "Personen en rollen met toegang"
-
 #. js-lingui-id: PxBA+g
 #: src/modules/settings/accounts/components/SettingsAccountsMessageAutoCreationCard.tsx
 msgid "People I’ve sent emails to and received emails from."
@@ -24303,6 +24363,11 @@ msgstr "Een actie voorbereiden om goed te keuren..."
 #. js-lingui-id: k5jQSR
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadPanel.tsx
 msgid "Preparing the answer on the server…"
+msgstr ""
+
+#. js-lingui-id: U1hQRF
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Preparing the upload. Nothing has been sent."
 msgstr ""
 
 #. js-lingui-id: dVCM1s
@@ -25051,6 +25116,11 @@ msgstr "Machtigingen voor lezen/bewerken/verwijderen"
 msgid "Reading folders and threads"
 msgstr ""
 
+#. js-lingui-id: 8aOXcr
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeAttachment.tsx
+msgid "Reading this media was refused."
+msgstr ""
+
 #. js-lingui-id: YGt+0e
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignLoadView.tsx
 msgid "Reading…"
@@ -25253,11 +25323,6 @@ msgstr "Aanbevolen"
 #: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
 msgid "Reconnect"
 msgstr "Opnieuw verbinden"
-
-#. js-lingui-id: PrI9jr
-#: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
-#~ msgid "Reconnect and share"
-#~ msgstr "Opnieuw verbinden en delen"
 
 #. js-lingui-id: XsIxsL
 #: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
@@ -25600,6 +25665,8 @@ msgid "Redirection URI"
 msgstr "Redirectie-URI"
 
 #. js-lingui-id: lCF0wC
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
 #: src/modules/log-console/components/LogConsoleResults.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxConversationList.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxThread.tsx
@@ -26150,6 +26217,7 @@ msgstr "Replit-installatielinks vereisen een HTTPS MCP-URL."
 #: src/modules/ai/components/AiChatThreadRequestActions.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadPanel.tsx
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
 #: src/modules/object-core/agents/components/CoreAgentRunDetails.tsx
 #: src/modules/page-layout/widgets/email-thread/components/EmailThreadComposer.tsx
 #: src/modules/side-panel/hooks/useOpenComposeEmailInSidePanel.ts
@@ -26586,6 +26654,11 @@ msgstr "omgekeerd alfabetisch"
 msgid "Reverse Alphabetical"
 msgstr "Omgekeerd alfabetisch"
 
+#. js-lingui-id: yv9mkj
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "Review the possible contacts"
+msgstr ""
+
 #. js-lingui-id: 35zlhZ
 #: src/modules/ai/components/internal/AiChatToolCallApprovalEmailCard.tsx
 msgid "Review this email before it goes out"
@@ -26662,9 +26735,24 @@ msgstr ""
 msgid "Rien n’a été enregistré."
 msgstr ""
 
+#. js-lingui-id: 6kNBvR
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "Rien n’a été envoyé : ce canal n’a pas de configuration centrale propre. L’envoi de courrier s’appuie sur le compte connecté natif choisi pour la réception, et les formulaires comme les rendez-vous sont des sources d’une collecte signée, pas des connexions distinctes."
+msgstr ""
+
+#. js-lingui-id: S8Wz+K
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "Rien n’a été envoyé : cette connexion attend deux secrets distincts — une clé d’API et un secret de webhook de soixante-quatre caractères hexadécimaux minuscules qui en diffère — et cet écran n’offre qu’un seul champ. En envoyer un seul effacerait l’autre, donc rien ne part. Un second champ de secret est requis dans la bibliothèque."
+msgstr ""
+
 #. js-lingui-id: KVCgAJ
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Rien n’a été envoyé : le contexte de société n’était plus valable."
+msgstr ""
+
+#. js-lingui-id: y8Qke+
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "Rien n’a été envoyé : une collecte signée attend ses sources autorisées et sa limite de requêtes par minute, et cet écran n’offre aucun contrôle pour les choisir. Les choisir à votre place serait décider de votre politique de collecte."
 msgstr ""
 
 #. js-lingui-id: TFQpQD
@@ -27137,11 +27225,6 @@ msgstr "Sla de dashboardwijzigingen op of annuleer ze voordat u de lay-out bewer
 msgid "Save settings"
 msgstr "Instellingen opslaan"
 
-#. js-lingui-id: bL2pm9
-#: src/modules/object-record/record-field/ui/form-types/components/FormRecordRichTextFieldInput.tsx
-#~ msgid "Save the record before attaching a file"
-#~ msgstr "Sla het record op voordat je een bestand bijvoegt"
-
 #. js-lingui-id: kv9Dnn
 #: src/modules/settings/translations/components/SettingsTranslationsCard.tsx
 msgid "Save your changes first"
@@ -27602,11 +27685,6 @@ msgstr "Zoek bewerkingen"
 #: src/modules/side-panel/pages/page-layout/components/dropdown-content/ChartRatioOptionValueSelectionDropdownContent.tsx
 msgid "Search options"
 msgstr "Opties zoeken"
-
-#. js-lingui-id: 0baLFk
-#: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordAddPeopleItem.tsx
-#~ msgid "Search people or roles"
-#~ msgstr "Zoek personen of rollen"
 
 #. js-lingui-id: IMeaSJ
 #: src/modules/ai/components/AiChatAddMenuRecordsPage.tsx
@@ -28305,6 +28383,7 @@ msgstr "Selectie"
 #: src/modules/ai/components/AiChatApprovalEmailReviewDeck.tsx
 #: src/modules/ai/components/internal/AiChatToolCallApprovalEmailCard.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 #: src/modules/page-layout/widgets/email-thread/components/EmailThreadComposer.tsx
 #: src/modules/side-panel/pages/compose-email/components/SidePanelComposeEmailPage.tsx
@@ -28416,6 +28495,11 @@ msgstr "Test-e-mail verzenden"
 msgid "Send Test Email"
 msgstr "Test-e-mail verzenden"
 
+#. js-lingui-id: FQ7OXb
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Send the attachment"
+msgstr ""
+
 #. js-lingui-id: GuOBSE
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
 msgid "Send the campaign now"
@@ -28493,6 +28577,11 @@ msgstr ""
 msgid "Sending is closed for this conversation."
 msgstr ""
 
+#. js-lingui-id: fmeiBN
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Sending is not available on this connection right now."
+msgstr ""
+
 #. js-lingui-id: fqoN0h
 #: src/modules/hermes-wa-ui/components/HermesWaMediaComposer.tsx
 msgid "Sending is not available on this screen. The file stays in this browser."
@@ -28541,6 +28630,11 @@ msgstr ""
 #. js-lingui-id: PfoOyS
 #: src/modules/prospection/components/HermesCampaignDraftForm.tsx
 msgid "Sending unavailable"
+msgstr ""
+
+#. js-lingui-id: MtlSq6
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Sending was refused."
 msgstr ""
 
 #. js-lingui-id: IoAuJG
@@ -28857,6 +28951,11 @@ msgstr "Stel uw 2FA in"
 msgid "Seventh"
 msgstr "Zevende"
 
+#. js-lingui-id: kMAidY
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "Several possible contacts"
+msgstr ""
+
 #. js-lingui-id: Z8lGw6
 #: src/modules/ai/components/AiChatThreadShareButton.tsx
 #: src/modules/ai/components/AiChatThreadShareButton.tsx
@@ -28864,11 +28963,6 @@ msgstr "Zevende"
 #: src/modules/side-panel/hooks/useOpenShareRecordInSidePanel.ts
 msgid "Share"
 msgstr "Delen"
-
-#. js-lingui-id: Mt/oXT
-#: src/modules/side-panel/hooks/useOpenShareRecordInSidePanel.ts
-#~ msgid "Share {objectLabel}"
-#~ msgstr "{objectLabel} delen"
 
 #. js-lingui-id: nmXzns
 #: src/modules/settings/admin-panel/constants/SettingsAdminFeatureFlagMetadata.ts
@@ -28884,16 +28978,6 @@ msgstr "Deel deze code met {memberName} via een kanaal dat je vertrouwt. Deze we
 #: src/pages/settings/members/tabs/SettingsWorkspaceMembersInviteTab.tsx
 msgid "Share this link to invite users to join your workspace"
 msgstr "Deel deze link om gebruikers uit te nodigen voor uw werkruimte"
-
-#. js-lingui-id: bM7Rp3
-#: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
-#~ msgid "Share with workspace"
-#~ msgstr "Delen met werkruimte"
-
-#. js-lingui-id: lX0SIS
-#: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
-#~ msgid "Share with workspace?"
-#~ msgstr "Delen met werkruimte?"
 
 #. js-lingui-id: gaJRur
 #: src/pages/settings/applications/tabs/SettingsApplicationRegistrationDistributionTab.tsx
@@ -28945,11 +29029,6 @@ msgstr "Record delen"
 #: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordContent.tsx
 msgid "Sharing settings could not be loaded."
 msgstr "De instellingen voor delen konden niet worden geladen."
-
-#. js-lingui-id: Xzq3Vx
-#: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
-#~ msgid "Sharing this connection with the workspace requires reconnecting it. You will be redirected to authorize it again."
-#~ msgstr "Als je deze verbinding met de werkruimte deelt, moet je deze opnieuw verbinden. Je wordt doorgestuurd om deze opnieuw te autoriseren."
 
 #. js-lingui-id: PGetcZ
 #: src/modules/ui/navigation/hooks/useShortcutAccessibleKeyLabels.ts
@@ -29835,6 +29914,11 @@ msgstr "Start een nieuw Organisatie-abonnement om premiumfuncties opnieuw in te 
 #: src/pages/settings/enterprise/SettingsEnterprise.tsx
 msgid "Start a new Organization subscription."
 msgstr "Start een nieuw Organisatie-abonnement."
+
+#. js-lingui-id: y3jBzO
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Start a new reply"
+msgstr ""
 
 #. js-lingui-id: WAjFYI
 #: src/modules/settings/admin-panel/health-status/maintenance-mode/components/SettingsAdminMaintenanceMode.tsx
@@ -31044,6 +31128,16 @@ msgstr ""
 msgid "The API endpoint for your OpenAI-compatible provider"
 msgstr "Het API-eindpunt voor je OpenAI-compatibele aanbieder"
 
+#. js-lingui-id: 9FPCt5
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "The attachment did not get through."
+msgstr ""
+
+#. js-lingui-id: fO8dLL
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "The attachment is ready in the workspace and has not been sent."
+msgstr ""
+
 #. js-lingui-id: 8uU3ew
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignAudienceSection.tsx
 msgid "The audience could not be read"
@@ -31139,6 +31233,11 @@ msgstr ""
 msgid "The conversation has been compacted"
 msgstr "Het gesprek is gecomprimeerd"
 
+#. js-lingui-id: aN/6n+
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+msgid "The conversations could not be read."
+msgstr ""
+
 #. js-lingui-id: /kfzmx
 #: src/pages/settings/legal/SettingsLegalDpa.tsx
 msgid "The Data Processing Agreement could not be loaded. Please try again."
@@ -31192,6 +31291,11 @@ msgstr ""
 #. js-lingui-id: BmfFQD
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
 msgid "The domain, the displayed address, the connection login and the mailbox actually delegated are four separate facts. An identity on the right domain but without a delegation is refused, and its reason is shown next to it."
+msgstr ""
+
+#. js-lingui-id: G8bIX7
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "The draft attachment was discarded."
 msgstr ""
 
 #. js-lingui-id: OBurlH
@@ -31253,6 +31357,11 @@ msgstr "De volledige overeenkomst met velden ingevuld voor jouw implementatie."
 #: src/modules/workflow/workflow-trigger/components/WorkflowEditTriggerManual.tsx
 msgid "The icon your workflow trigger will display in the command menu"
 msgstr "Het pictogram dat je workflow-trigger zal weergeven in het commando menu."
+
+#. js-lingui-id: ZwL+dr
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "The limits for this file are unknown here, so it was not offered for sending."
+msgstr ""
 
 #. js-lingui-id: XqwfGL
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentitySection.tsx
@@ -31489,6 +31598,16 @@ msgstr ""
 msgid "The server checks again and can still refuse."
 msgstr ""
 
+#. js-lingui-id: 5pk8gp
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "The server did not publish a match status for this conversation, so whether it has a contact is unknown."
+msgstr ""
+
+#. js-lingui-id: Nma7N1
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "The server found more than one possible contact for this number. No contact is created automatically and nothing is merged."
+msgstr ""
+
 #. js-lingui-id: 0Veav8
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 msgid "The server gave no reason. A failed preview is not an empty one: nothing is shown rather than something invented."
@@ -31532,6 +31651,11 @@ msgstr ""
 #. js-lingui-id: hj4aQX
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
 msgid "The server refused this identity."
+msgstr ""
+
+#. js-lingui-id: nrRN2b
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "The server refused this reply."
 msgstr ""
 
 #. js-lingui-id: ECqnX0
@@ -31887,6 +32011,11 @@ msgstr "Deze toepassing is niet gecontroleerd door KovaaLab CRM. Gebruik op eige
 msgid "This application's registration is claimed by your workspace"
 msgstr "De registratie van deze applicatie is geclaimd door uw werkruimte"
 
+#. js-lingui-id: BiwI0U
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "This attachment was refused."
+msgstr ""
+
 #. js-lingui-id: kciPHv
 #: src/modules/settings/billing/constants/UsageLimitPeriodSpanLabels.ts
 msgid "This billing period"
@@ -31959,10 +32088,15 @@ msgstr "Deze voorwaarde leest geen enkel veld."
 msgid "This connection does not exist or is not available for this application."
 msgstr "Deze verbinding bestaat niet of is niet beschikbaar voor deze toepassing."
 
-#. js-lingui-id: 2bcQ5P
-#: src/modules/object-record/record-field/ui/form-types/components/FormRecordRichTextFieldInput.tsx
-#~ msgid "This content was saved in an older format and cannot be edited here"
-#~ msgstr "Deze inhoud is opgeslagen in een oudere indeling en kan hier niet worden bewerkt"
+#. js-lingui-id: zbs3Sy
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "This conversation could not be read."
+msgstr ""
+
+#. js-lingui-id: WxvY1U
+#: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
+msgid "This conversation has no contact. Creating one is not available from this screen."
+msgstr ""
 
 #. js-lingui-id: HWM4G8
 #: src/modules/ai/components/AiChatEditorSection.tsx
@@ -32025,6 +32159,21 @@ msgstr ""
 msgid "This file is empty, so it cannot be sent."
 msgstr ""
 
+#. js-lingui-id: i9laiI
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "This file is empty."
+msgstr ""
+
+#. js-lingui-id: IXfUKP
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxAttachmentStrip.tsx
+msgid "This file is imported, but no reader is available on this screen."
+msgstr ""
+
+#. js-lingui-id: hVT9Ax
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "This file is larger than the documented limit."
+msgstr ""
+
 #. js-lingui-id: o8m6l0
 #: src/modules/hermes-wa-ui/components/HermesWaMediaComposer.tsx
 msgid "This file is too large for this channel."
@@ -32038,6 +32187,11 @@ msgstr "Voor dit bestandstype is geen voorbeeldweergave mogelijk. Download het b
 #. js-lingui-id: RIvFyB
 #: src/modules/hermes-wa-ui/components/HermesWaMediaComposer.tsx
 msgid "This file type is not accepted on this channel."
+msgstr ""
+
+#. js-lingui-id: nNMHuP
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "This file type is not accepted on WhatsApp."
 msgstr ""
 
 #. js-lingui-id: 2UWdFd
@@ -32100,6 +32254,11 @@ msgstr "Dit is vereist om handmatig rijen te herschikken."
 msgid "This is the current signing key. Revoking it will invalidate every JWT signed with it and users may need to sign in again. A new signing key will be generated automatically on the next request."
 msgstr "Dit is de huidige ondertekeningssleutel. Het intrekken ervan maakt elk JWT dat ermee is ondertekend ongeldig en gebruikers moeten mogelijk opnieuw inloggen. Een nieuwe ondertekeningssleutel wordt automatisch gegenereerd bij het volgende verzoek."
 
+#. js-lingui-id: 5afVxq
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadListPanel.tsx
+msgid "This is the newest page of this folder, not all of it."
+msgstr ""
+
 #. js-lingui-id: yLvOxg
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/KeyValuePairInput.tsx
 msgid "This key should be set through body input"
@@ -32120,6 +32279,11 @@ msgstr ""
 msgid "This mailbox's own address."
 msgstr ""
 
+#. js-lingui-id: rg4Zvd
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeAttachment.tsx
+msgid "This media could not be read. Asking again may work."
+msgstr ""
+
 #. js-lingui-id: V6FP3d
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
 msgid "This meeting was not recorded."
@@ -32129,6 +32293,11 @@ msgstr "Deze vergadering is niet opgenomen."
 #: src/modules/settings/members/components/MemberTwoFactorAuthenticationRecoverySection.tsx
 msgid "This member hasn't set up two-factor authentication."
 msgstr "Dit lid heeft tweefactorauthenticatie niet ingesteld."
+
+#. js-lingui-id: ESVahK
+#: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
+msgid "This message answers nothing, so there is nothing for the server to prepare: the recipients are the ones you type."
+msgstr ""
 
 #. js-lingui-id: Xib4Mk
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxBodyView.tsx
@@ -32235,6 +32404,16 @@ msgstr "Dit record bestaat niet meer of je kunt het niet zien."
 #: src/modules/ai/components/internal/AiChatToolCallApprovalRecord.tsx
 msgid "This record will be deleted:"
 msgstr "Dit record wordt verwijderd:"
+
+#. js-lingui-id: qo16+6
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "This reply is longer than the contract allows."
+msgstr ""
+
+#. js-lingui-id: 6KQ0Ci
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "This reply left and the outcome is unknown. It is not a failure and it is not a send."
+msgstr ""
 
 #. js-lingui-id: vbLBMd
 #: src/modules/settings/roles/role-permissions/object-level-permissions/object-form/components/SettingsRolePermissionsObjectLevelObjectFormObjectLevelTableRow.tsx
@@ -33228,11 +33407,6 @@ msgstr "Tweefactorauthenticatie is opnieuw ingesteld voor deze werkruimte. Stel 
 msgid "Type"
 msgstr "Soort"
 
-#. js-lingui-id: RS98db
-#: src/modules/object-record/record-field/ui/form-types/components/FormRecordRichTextFieldInput.tsx
-#~ msgid "Type '/' for commands"
-#~ msgstr "Typ '/' voor opdrachten"
-
 #. js-lingui-id: SKD2e4
 #: src/modules/object-record/record-field/ui/form-types/components/FormRecordRichTextFieldInput.tsx
 #: src/modules/object-record/record-field/ui/meta-types/input/components/RichTextFieldEditor.tsx
@@ -33660,6 +33834,12 @@ msgstr "Onbekend veld \"{fieldName}\" op \"{relationFieldName}\""
 msgid "Unknown file"
 msgstr "Onbekend bestand"
 
+#. js-lingui-id: TTDtQt
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "Unknown number"
+msgstr ""
+
 #. js-lingui-id: num3KD
 #: src/modules/mention/components/MentionRecordChip.tsx
 msgid "Unknown object"
@@ -34031,11 +34211,6 @@ msgstr "Naamloze lijst"
 #: src/modules/client-context/components/ClientRecordNoteCard.tsx
 msgid "Untitled note"
 msgstr ""
-
-#. js-lingui-id: NbOWt/
-#: src/modules/command-menu-item/engine-command/record/single-record/components/ExportNoteSingleRecordCommand.tsx
-#~ msgid "Untitled Note"
-#~ msgstr "Naamloze notitie"
 
 #. js-lingui-id: s+FRCn
 #: src/modules/page-layout/utils/createDefaultStandaloneRichTextWidget.ts
@@ -34411,6 +34586,11 @@ msgstr "Upload het XML-bestand met uw verbindingsinformatie"
 #: src/modules/apollo/services/ApolloFactory.ts
 msgid "Uploaded content is too large."
 msgstr "Geüploade inhoud is te groot."
+
+#. js-lingui-id: 1PtI44
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
+msgid "Uploading the file to the workspace. Nothing has been sent."
+msgstr ""
 
 #. js-lingui-id: GxkJXS
 #: src/modules/object-record/record-field/ui/meta-types/input/components/FilesFieldInput.tsx
@@ -35681,7 +35861,10 @@ msgstr "WhatsApp"
 #. js-lingui-id: 2+ExvJ
 #: src/modules/connectors/constants/EvolutionWhatsappConnector.ts
 #: src/modules/hermes-bot-settings/components/HermesBotPolicySection.tsx
+#: src/modules/hermes-shell/components/HermesModulesNavigationSection.tsx
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxChannelTabs.tsx
+#: src/pages/hermes/HermesWaRuntimePage.tsx
 msgid "WhatsApp"
 msgstr ""
 
@@ -35689,6 +35872,16 @@ msgstr ""
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "WhatsApp (Evolution)"
+msgstr ""
+
+#. js-lingui-id: C8NVrF
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "WhatsApp conversation"
+msgstr ""
+
+#. js-lingui-id: /Wo88L
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+msgid "WhatsApp conversations"
 msgstr ""
 
 #. js-lingui-id: 1ZF9KQ
@@ -36264,6 +36457,7 @@ msgid "Write a description for this agent"
 msgstr "Schrijf een beschrijving voor deze agent"
 
 #. js-lingui-id: EGrEzh
+#: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
 msgid "Write a reply."
 msgstr ""
@@ -36430,6 +36624,16 @@ msgstr "U bewerkt de vertaling in {currentLanguageLabel}. Als u in plaats daarva
 #: src/modules/object-record/record-index/components/RecordIndexEmptyState.tsx
 msgid "You are not allowed to create records for this object"
 msgstr "U mag geen records maken voor dit object"
+
+#. js-lingui-id: hHknRx
+#: src/modules/hermes-wa-runtime/components/HermesWaThreadPanel.tsx
+msgid "You are not allowed to read this conversation."
+msgstr ""
+
+#. js-lingui-id: QaKPJa
+#: src/modules/hermes-wa-runtime/components/HermesWaConversationListPanel.tsx
+msgid "You are not allowed to read this inbox."
+msgstr ""
 
 #. js-lingui-id: iibZbD
 #: src/pages/settings/developers/tabs/SettingsDevelopersAppsTab.tsx
