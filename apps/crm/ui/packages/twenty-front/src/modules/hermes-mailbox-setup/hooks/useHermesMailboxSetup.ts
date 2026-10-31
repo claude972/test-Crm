@@ -46,19 +46,47 @@ export type HermesMailboxSetupOutcome =
   | { kind: 'not-sent'; missing: HermesMailboxMissingProtocol[] }
   | { kind: 'unconfirmed'; listReread: boolean };
 
-// Whether a creation may be attempted, as an ALLOWLIST — the same inversion
-// the domain hook uses, and for the same reason: the panel's denylist showed
-// Save on 'unconfirmed', and a second denylist in a second file would miss the
-// next state added too. Anything unforeseen falls through to false.
+// Whether the write's outcome is KNOWN. That is the whole test, and it is not
+// the same question as whether the write succeeded: a refusal is as settled as
+// a success. What must stay closed is not-knowing, because only there does a
+// second attempt risk a duplicate.
 //
-// 'idle' attempted nothing, 'refused' is a refusal raised before the write,
-// and 'not-sent' never left the browser. Every other outcome may hide an
-// applied write — and this is the one mutation in this module that creates a
-// real connected account nothing here can delete.
-const SETTLED_FOR_RETRY = ['idle', 'refused', 'not-sent'] as const;
+// Written as an exhaustive switch, not a list of state names. The first
+// version of this rule was too open and the second too closed, and both came
+// from enumerating names instead of asking what each state knows. A state
+// added later fails to COMPILE here until someone answers that question for
+// it, which neither an allowlist nor a denylist would have forced.
+const isOutcomeSettled = (outcome: HermesMailboxSetupOutcome): boolean => {
+  switch (outcome.kind) {
+    // Nothing was attempted, or the request never left the browser.
+    case 'idle':
+    case 'not-sent':
+    // The server refused BEFORE writing: nothing was created.
+    case 'refused':
+    // The server ACCEPTED: the account exists and its identifier is known.
+    // These three differ only in what the list re-read managed to show, which
+    // says nothing about the write.
+    case 'saved-unverified':
+    case 'saved-not-reread':
+    case 'rereading':
+      return true;
+    // The write itself is in flight: there is no outcome yet.
+    case 'saving':
+    // The server may or may not have applied it. A second attempt here is how
+    // one mailbox becomes two, and nothing here can delete one.
+    case 'write-unknown':
+    case 'unconfirmed':
+      return false;
+  }
+};
 
-const isSettledForRetry = (outcome: HermesMailboxSetupOutcome): boolean =>
-  (SETTLED_FOR_RETRY as readonly string[]).includes(outcome.kind);
+// The write was ACCEPTED and the account exists. A new creation from here is a
+// deliberate second mailbox, so it starts from a cleared form rather than
+// resubmitting the one that already succeeded.
+const hasAcceptedWrite = (outcome: HermesMailboxSetupOutcome): boolean =>
+  outcome.kind === 'saved-unverified' ||
+  outcome.kind === 'saved-not-reread' ||
+  outcome.kind === 'rereading';
 
 // The protocols the MAIL connection requires, and which of them the form is
 // still missing.
@@ -195,8 +223,9 @@ export const useHermesMailboxSetup = ({
       getConfiguredProtocols(watchedValues).length > 0 &&
       // Both protocols, because the server requires both of a MAIL connection.
       protocolRequirement.kind === 'met' &&
-      // And nothing pending: a write that may have landed is never re-offered.
-      isSettledForRetry(outcome) &&
+      // And the previous outcome is known: a write that MAY have landed is
+      // never re-offered, while one that certainly did is no obstacle.
+      isOutcomeSettled(outcome) &&
       !isSubmitting,
     [
       getConfiguredProtocols,
@@ -212,7 +241,7 @@ export const useHermesMailboxSetup = ({
       // The guard that actually refuses, as opposed to the button that merely
       // looks unavailable: a stray submit on an unsettled outcome must not
       // reach the server, because the account may already exist.
-      if (!isSettledForRetry(outcome)) {
+      if (!isOutcomeSettled(outcome)) {
         return;
       }
 
@@ -398,7 +427,10 @@ export const useHermesMailboxSetup = ({
     protocolRequirement,
     // The single source of truth for whether a creation may be attempted, so
     // the control and the guard cannot disagree.
-    canRetryWrite: isSettledForRetry(outcome),
+    canRetryWrite: isOutcomeSettled(outcome),
+    // Whether the account from a previous attempt exists, so a new attempt
+    // begins on a cleared form instead of the one that already succeeded.
+    hasAcceptedWrite: hasAcceptedWrite(outcome),
     resetSetup,
     retryAccountsRead,
   };

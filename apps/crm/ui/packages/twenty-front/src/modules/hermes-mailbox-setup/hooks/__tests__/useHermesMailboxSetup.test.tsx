@@ -62,6 +62,17 @@ const accountsMock: MockedResponse = {
   result: { data: { myConnectedAccounts: [] } },
 };
 
+// A request that never got an answer. `error:` is what makes MockLink reject;
+// a throw inside `result` would be a received answer instead.
+const lostAnswerMock = (): MockedResponse => ({
+  request: {
+    query: SaveImapSmtpCaldavAccountDocument,
+    variables: () => true,
+  },
+  maxUsageCount: 10,
+  error: new Error('socket hang up'),
+});
+
 const renderSetup = (saveMock: MockedResponse = buildSaveMock(NEW_ACCOUNT_ID)) => {
   // Each operation's context is recorded on its way out: that is where the
   // retry decision is read from.
@@ -192,5 +203,60 @@ describe('useHermesMailboxSetup', () => {
     // And re-reading never re-authorises the creation: the account may exist,
     // and nothing here could delete a second one.
     expect(result.current.canRetryWrite).toBe(false);
+  });
+
+  // The regression root's reviewer found in f12cb9280: the predicate excluded
+  // `saved-unverified`, so after one mailbox succeeded no second one could be
+  // created at all. Settled means the outcome is KNOWN — a success is settled,
+  // and only not-knowing may close the control.
+  it('allows a second creation once the first one is established', async () => {
+    const { result, operations } = renderSetup();
+
+    await act(async () => {
+      await result.current.handleSave(completeFormValues);
+    });
+
+    expect(result.current.outcome).toEqual({
+      kind: 'saved-unverified',
+      connectedAccountId: NEW_ACCOUNT_ID,
+    });
+
+    // An established success is settled: the account exists, nothing is
+    // pending, and a deliberate second mailbox is not a duplicate risk.
+    expect(result.current.canRetryWrite).toBe(true);
+    expect(result.current.hasAcceptedWrite).toBe(true);
+
+    await act(async () => {
+      await result.current.handleSave(completeFormValues);
+    });
+
+    expect(
+      operations.filter(
+        (operation) => operation.name === 'SaveImapSmtpCaldavAccount',
+      ).length,
+    ).toBe(2);
+  });
+
+  it('still refuses a second creation when the answer was lost', async () => {
+    const { result, operations } = renderSetup(lostAnswerMock());
+
+    await act(async () => {
+      await result.current.handleSave(completeFormValues);
+    });
+
+    expect(result.current.outcome.kind).toBe('write-unknown');
+    expect(result.current.canRetryWrite).toBe(false);
+    // Not an accepted write either, so no reset path opens from here.
+    expect(result.current.hasAcceptedWrite).toBe(false);
+
+    await act(async () => {
+      await result.current.handleSave(completeFormValues);
+    });
+
+    expect(
+      operations.filter(
+        (operation) => operation.name === 'SaveImapSmtpCaldavAccount',
+      ).length,
+    ).toBe(1);
   });
 });
