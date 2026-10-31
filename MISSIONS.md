@@ -802,3 +802,8 @@ agent: codex root ; status: in_progress. Fichiers exclusifs nouveaux scripts/che
 - Worktree neuf `/private/tmp/hermes-wa-upload-recovery`, branche `fix/hermes-wa-upload-identity-20261031`, base poussée `9eea9c8ed7b01846fb7e3046669c41ef4a4af066` (ba35 + correction des tampons de fixture TypeScript). Aucun WIP Claude repris ou modifié.
 - Fichiers exclusifs : HermesWaRuntimeComposer.tsx, useHermesWaMediaUpload.ts, HermesWaRuntimeComposer.test.tsx ; extension autorisée de useHermesWaMediaUpload.test.tsx pour vérifier acceptation synchrone, reset et annulation. Pas d'édition bot/fixture Opus ni d'autre lot.
 - Correction attendue : seule une tentative réellement acceptée par le hook peut devenir uploadedSource ; une demande B rejetée pendant A ne doit pas rendre A envoyable sous l'aperçu B. Tests du vrai compositeur avec choix B + clic upload B pendant A, changement après READY, fichier/vocal et réponses tardives après reset/annulation. Aucun build lourd ni base locale ; tests ciblés et checkpoint poussé pour revue.
+
+
+### CAT-I18N-SOURCE / root Codex —31octobre16:44UTC
+
+agent: codexroot ; status: in_progress. Aprèsauditcatalogue,61messagesactifsdesnouveauxmodulesmanquentaucataloguesourceEN : enproductionLingui retiremessageinlineetcesIDsrisquentapparaîtreenanglais/préférenceexistante. Rootétendsonownershipcatalogueàsrc/locales/en.po etgenerated/en.ts enplusFR, uniquementnouvellesentréesmanquantescapturéesparLingui, pasrefonte/traductiondecodeUI. Conserverbaselineexacte+placeholders, compilerseulelocaleEN puisverifierruntimeIDs. AucuneéditionfichiersClaudeUIactifs. CATWA005transféréCodexpreview_pwaaprèsACKparent16:41:38, claim28f9a72e2avantcode,4fichiersupload/composer/tests surbase9ee ; rootn'éditepascecode.
