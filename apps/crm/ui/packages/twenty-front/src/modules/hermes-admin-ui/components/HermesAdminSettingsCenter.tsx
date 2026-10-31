@@ -20,11 +20,14 @@ import {
   type HermesCompanyMembersRead,
 } from '@/hermes-admin-ui/types/HermesCompany';
 import {
+  type HermesConnectionCheckOutcome,
+  type HermesConnectionProbe,
+} from '@/hermes-admin-ui/types/HermesConnectionCheck';
+import {
   type HermesConnectionFormSubject,
   type HermesConnectionFormSubmission,
   type HermesConnectionFormValues,
   type HermesConnectionSaveState,
-  type HermesConnectionTestState,
   type HermesNativeConnectedAccount,
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
 import { shouldDiscardHermesResult } from '@/hermes-admin-ui/utils/hermesAdminWrite';
@@ -62,10 +65,13 @@ type HermesAdminSettingsCenterProps = {
   // from. Nothing is typed in their place.
   nativeAccounts?: readonly HermesNativeConnectedAccount[];
   connectionSaveState: HermesConnectionSaveState;
-  connectionTestStateByConnectionId: Readonly<
-    Record<string, HermesConnectionTestState>
+  // The last outcome of each read-only probe, shared by the cards and the open
+  // form. Keyed by probe because a probe is a channel's own operation.
+  checkByProbe: Readonly<
+    Partial<Record<HermesConnectionProbe, HermesConnectionCheckOutcome>>
   >;
-  connectionFormTestState: HermesConnectionTestState;
+  checkedConnectionId: string | null;
+  isChecking: boolean;
 
   onRequestSwitchCompany: (companyId: string) => void;
   onRequestAddCompany: (draft: HermesCompanyDraft) => void;
@@ -100,8 +106,9 @@ export const HermesAdminSettingsCenter = ({
   connectionFormInitialValues,
   nativeAccounts,
   connectionSaveState,
-  connectionTestStateByConnectionId,
-  connectionFormTestState,
+  checkByProbe,
+  checkedConnectionId,
+  isChecking,
   onRequestSwitchCompany,
   onRequestAddCompany,
   onRequestTestConnection,
@@ -161,7 +168,9 @@ export const HermesAdminSettingsCenter = ({
         read={connectionsRead}
         activeCompanyId={activeCompany?.id ?? null}
         activeCompanyName={activeCompany?.name ?? null}
-        testStateByConnectionId={connectionTestStateByConnectionId}
+        checkByProbe={checkByProbe}
+        checkedConnectionId={checkedConnectionId}
+        isChecking={isChecking}
         onRequestTest={onRequestTestConnection}
         onRequestEdit={onRequestEditConnection}
         onRequestCreate={onRequestCreateConnection}
@@ -174,7 +183,13 @@ export const HermesAdminSettingsCenter = ({
           initialValues={connectionFormInitialValues}
           nativeAccounts={nativeAccounts}
           saveState={connectionSaveState}
-          testState={connectionFormTestState}
+          checkByProbe={
+            connectionFormSubject.mode === 'edit' &&
+            connectionFormSubject.connectionId === checkedConnectionId
+              ? checkByProbe
+              : {}
+          }
+          isChecking={isChecking}
           contextValidity={contextValidity}
           onSubmit={onSubmitConnection}
           onRequestDelete={(expectedRevision) => {

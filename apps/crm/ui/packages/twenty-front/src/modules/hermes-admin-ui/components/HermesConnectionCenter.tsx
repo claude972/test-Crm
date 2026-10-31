@@ -13,7 +13,10 @@ import {
   type HermesConnectionKind,
   type HermesConnectionsRead,
 } from '@/hermes-admin-ui/types/HermesConnection';
-import { type HermesConnectionTestState } from '@/hermes-admin-ui/types/HermesConnectionForm';
+import {
+  type HermesConnectionCheckOutcome,
+  type HermesConnectionProbe,
+} from '@/hermes-admin-ui/types/HermesConnectionCheck';
 import { filterHermesConnectionsByCompany } from '@/hermes-admin-ui/utils/hermesConnectionCapability';
 import {
   buildHermesConnectionSlots,
@@ -39,8 +42,13 @@ type HermesConnectionCenterProps = {
   // was editing would be the worst possible screen in this product.
   activeCompanyId: string | null;
   activeCompanyName: string | null;
-  // The test state of one connection at a time, keyed by connection id.
-  testStateByConnectionId: Readonly<Record<string, HermesConnectionTestState>>;
+  // The last outcome of each read-only probe. Keyed by probe, not by
+  // connection: a probe is the channel's own operation, and mail has two.
+  checkByProbe: Readonly<
+    Partial<Record<HermesConnectionProbe, HermesConnectionCheckOutcome>>
+  >;
+  checkedConnectionId: string | null;
+  isChecking: boolean;
   onRequestTest: (connectionId: string) => void;
   onRequestEdit: (connectionId: string) => void;
   onRequestCreate: (connectionKind: HermesConnectionKind) => void;
@@ -54,7 +62,9 @@ export const HermesConnectionCenter = ({
   read,
   activeCompanyId,
   activeCompanyName,
-  testStateByConnectionId,
+  checkByProbe,
+  checkedConnectionId,
+  isChecking,
   onRequestTest,
   onRequestEdit,
   onRequestCreate,
@@ -113,13 +123,9 @@ export const HermesConnectionCenter = ({
               key={readHermesConnectionSlotKey(slot)}
               slot={slot}
               companyName={activeCompanyName}
-              testState={
-                slot.kind === 'registered'
-                  ? (testStateByConnectionId[slot.connection.id] ?? {
-                      kind: 'idle',
-                    })
-                  : { kind: 'idle' }
-              }
+              checkByProbe={checkByProbe}
+              checkedConnectionId={checkedConnectionId}
+              isChecking={isChecking}
               onRequestTest={onRequestTest}
               onRequestEdit={onRequestEdit}
               onRequestCreate={onRequestCreate}

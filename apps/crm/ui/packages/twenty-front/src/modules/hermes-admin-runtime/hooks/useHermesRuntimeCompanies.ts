@@ -1,3 +1,4 @@
+import { useQuery } from '@apollo/client/react';
 import { useCallback, useMemo, useState } from 'react';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
@@ -14,6 +15,11 @@ import {
   type HermesCompanyMember,
   type HermesCompanyMembersRead,
 } from '@/hermes-admin-ui/types/HermesCompany';
+import { HERMES_MEMBER_ROLES } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesMemberRoles';
+import {
+  readHermesMemberRolesPayload,
+  readHermesRolesForMember,
+} from '@/hermes-admin-runtime/utils/readHermesMemberRolesPayload';
 import { readHermesRuntimeFailure } from '@/hermes-admin-runtime/utils/readHermesRuntimeFailure';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
@@ -51,6 +57,16 @@ export const useHermesRuntimeCompanies = (): HermesRuntimeCompanies => {
   const isSameOriginMultiWorkspaceEnabled = useAtomStateValue(
     isSameOriginMultiWorkspaceEnabledState,
   );
+
+  // The roles of the active company, with their permission flags. Asked for
+  // here because the shared member fragment loaded at sign-in does not select
+  // `roles`, which is why every member's role used to read « inconnu ».
+  //
+  // errorPolicy 'all': a member who may not list roles still sees the member
+  // table, with their rights reported as unknown rather than as refusals.
+  const { data: rolesData, error: rolesError } = useQuery<{
+    getRoles: unknown;
+  }>(HERMES_MEMBER_ROLES, { errorPolicy: 'all' });
 
   const [switchState, setSwitchState] = useState<HermesCompanyActionState>({
     kind: 'idle',
@@ -105,6 +121,16 @@ export const useHermesRuntimeCompanies = (): HermesRuntimeCompanies => {
     };
   }, [activeCompanyId, availableWorkspaces, currentWorkspace]);
 
+  // The roles, inverted from roles→members into member→roles. A failed read
+  // stays 'unknown', so every right reports « inconnu » rather than a refusal.
+  const rolesRead = useMemo(
+    () =>
+      isDefined(rolesError)
+        ? ({ kind: 'unknown' } as const)
+        : readHermesMemberRolesPayload(rolesData?.getRoles),
+    [rolesData, rolesError],
+  );
+
   const membersRead = useMemo<HermesCompanyMembersRead>(() => {
     if (!isDefined(currentWorkspace)) {
       return { kind: 'unknown', message: null };
@@ -118,12 +144,11 @@ export const useHermesRuntimeCompanies = (): HermesRuntimeCompanies => {
           .filter((part) => part.length > 0)
           .join(' ');
 
-        // A role is kept verbatim in `unknownRole`, never folded into one of
-        // the three published roles. Showing a member as « Lecture seule »
-        // when the server named a custom role would be a lie about what that
-        // person may do. The member state is not published at all, so it stays
-        // null rather than being guessed from the role.
-        const roleLabel = member.roles?.[0]?.label?.trim() ?? null;
+        // Every role held, with its flags. Rights come from the flags, never
+        // from a label. `role` stays null because the three published roles
+        // are a vocabulary this product does not use, and folding several real
+        // roles into one value would misstate what the person may do.
+        const roles = readHermesRolesForMember(rolesRead, member.id);
 
         return {
           id: member.id,
@@ -131,15 +156,20 @@ export const useHermesRuntimeCompanies = (): HermesRuntimeCompanies => {
           displayName: displayName.length > 0 ? displayName : null,
           email: member.userEmail ?? null,
           role: null,
-          unknownRole: isDefined(roleLabel) && roleLabel.length > 0 ? roleLabel : null,
+          unknownRole: null,
+          // Not published for a workspace member: there is no active,
+          // invited or suspended field on the native object. It stays null
+          // rather than being guessed from the roles, which would invent a
+          // state the server never reported.
           state: null,
           unknownState: null,
+          roles,
         };
       },
     );
 
     return { kind: 'reported', members, unreadableEntryCount: 0 };
-  }, [currentWorkspace, currentWorkspaceMembers]);
+  }, [currentWorkspace, currentWorkspaceMembers, rolesRead]);
 
   // The capability is the published configuration flag and nothing else. When
   // same-origin selection is off, the control is not rendered at all rather

@@ -9,16 +9,21 @@ import {
   HermesAdminRuleNote,
 } from '@/hermes-admin-ui/components/HermesAdminNote';
 import { HermesConnectionCapabilityList } from '@/hermes-admin-ui/components/HermesConnectionCapabilityList';
+import { HermesConnectionCheckNote } from '@/hermes-admin-ui/components/HermesConnectionCheckNote';
 import { HermesConnectionStateTag } from '@/hermes-admin-ui/components/HermesConnectionStateTag';
 import { type HermesConnectionKind } from '@/hermes-admin-ui/types/HermesConnection';
-import { type HermesConnectionTestState } from '@/hermes-admin-ui/types/HermesConnectionForm';
+import {
+  isHermesKindProbable,
+  readHermesProbesForUiKind,
+  type HermesConnectionCheckOutcome,
+  type HermesConnectionProbe,
+} from '@/hermes-admin-ui/types/HermesConnectionCheck';
 import {
   isHermesConnectionEditable,
   isHermesConnectionTestable,
   readHermesConnectionStateDescriptor,
 } from '@/hermes-admin-ui/utils/hermesConnectionState';
 import { type HermesConnectionSlot } from '@/hermes-admin-ui/utils/hermesConnectionSlots';
-import { parseHermesInstant } from '@/hermes-admin-ui/utils/parseHermesInstant';
 
 const StyledCard = styled.article`
   border: 1px solid ${themeCssVariables.border.color.light};
@@ -64,9 +69,16 @@ type HermesConnectionCardProps = {
   // The company this card belongs to, named on the card itself so a setting
   // can be seen to stop at one company.
   companyName: string | null;
-  // This connection's test state only. The parent narrows it by connection id
-  // so one card's result never shows up on another.
-  testState: HermesConnectionTestState;
+  // The last outcome of each read-only probe. Keyed by probe rather than by
+  // connection because a probe IS the channel's operation: mail has two, and
+  // showing one verdict for both would hide a broken direction.
+  checkByProbe: Readonly<
+    Partial<Record<HermesConnectionProbe, HermesConnectionCheckOutcome>>
+  >;
+  // Which connection those outcomes were computed for. A result is rendered
+  // only on that connection's card, never on a neighbour's.
+  checkedConnectionId: string | null;
+  isChecking: boolean;
   // All three callbacks raise an intention. This card decides nothing: it does
   // not know whether a test succeeded until the parent tells it.
   onRequestTest: (connectionId: string) => void;
@@ -79,12 +91,14 @@ type HermesConnectionCardProps = {
 export const HermesConnectionCard = ({
   slot,
   companyName,
-  testState,
+  checkByProbe,
+  checkedConnectionId,
+  isChecking,
   onRequestTest,
   onRequestEdit,
   onRequestCreate,
 }: HermesConnectionCardProps) => {
-  const { t, i18n } = useLingui();
+  const { t } = useLingui();
 
   const kindLabels: Record<HermesConnectionKind, string> = {
     WHATSAPP_EVOLUTION: t`WhatsApp (Evolution)`,
@@ -144,21 +158,10 @@ export const HermesConnectionCard = ({
         ? t`Connexion non reconnue : ${connection.unknownKind}`
         : t`Connexion sans type`;
 
-  const isTesting = testState.kind === 'testing';
-
-  const verifiedAtLabel =
-    testState.kind === 'verified'
-      ? (() => {
-          const instant = parseHermesInstant(testState.verifiedAt);
-
-          return instant.kind === 'at'
-            ? i18n.date(instant.date, {
-                dateStyle: 'medium',
-                timeStyle: 'short',
-              })
-            : null;
-        })()
-      : null;
+  // The read-only probes published for this channel. None means this build
+  // has no authorised operation to call for it.
+  const probes = readHermesProbesForUiKind(connection.kind);
+  const isProbable = isHermesKindProbable(connection.kind);
 
   return (
     <StyledCard aria-label={title}>
@@ -218,8 +221,8 @@ export const HermesConnectionCard = ({
         <Button
           variant="outline"
           size="sm"
-          loading={isTesting}
-          disabled={!isHermesConnectionTestable(descriptor)}
+          loading={isChecking}
+          disabled={!isHermesConnectionTestable(descriptor) || !isProbable}
           onClick={() => onRequestTest(connection.id)}
         >
           {t`Tester la connexion`}
@@ -245,49 +248,28 @@ export const HermesConnectionCard = ({
         </HermesAdminNote>
       )}
 
+      {/* No read-only operation is published for this channel. Not a failure,
+          and not a reason to present anything as verified. */}
+      {!isProbable && isHermesConnectionTestable(descriptor) && (
+        <HermesAdminNote role="status">
+          {t`Aucun test de connexion n’est publié pour ce canal dans cette version. Rien ne peut être joint depuis ici.`}
+        </HermesAdminNote>
+      )}
+
       {/* The outcome is whatever the parent handed over. Nothing here is
-          deduced from the button having been pressed. */}
-      {isTesting && (
-        <HermesAdminNote role="status">
-          {t`Test en cours côté serveur…`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'verified' && (
-        <HermesAdminNote role="status">
-          {verifiedAtLabel === null
-            ? t`Le serveur a répondu que le test est passé, sans en donner la date. Sans date, cette connexion n’est pas présentée comme vérifiée.`
-            : t`Test passé. Vérifiée le ${verifiedAtLabel}.`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'failed' && (
-        <HermesAdminNote role="alert">
-          {isNonEmptyString(testState.errorCode)
-            ? t`Test échoué : ${testState.errorCode}`
-            : t`Test échoué, sans motif renvoyé.`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'refused' && (
-        <HermesAdminNote role="alert">
-          {isNonEmptyString(testState.reason)
-            ? t`Test refusé : ${testState.reason}`
-            : t`Test refusé. Rien n’a été vérifié.`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'session-replaced' && (
-        <HermesAdminNote role="alert">
-          {t`Session remplacée : rien n’a été vérifié. Rechargez les réglages, aucun test n’est relancé automatiquement.`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'unconfirmed' && (
-        <HermesAdminNote role="alert">
-          {t`La réponse du test n’a pas pu être lue : le résultat est inconnu, ni réussi ni échoué. Rechargez pour voir l’état retenu.`}
-        </HermesAdminNote>
-      )}
+          deduced from the button having been pressed, and one result is shown
+          per probe so the two mail directions stay distinguishable. */}
+      {probes.map((probe) => (
+        <HermesConnectionCheckNote
+          key={probe}
+          probe={probe}
+          outcome={
+            checkedConnectionId === connection.id
+              ? checkByProbe[probe]
+              : undefined
+          }
+        />
+      ))}
     </StyledCard>
   );
 };

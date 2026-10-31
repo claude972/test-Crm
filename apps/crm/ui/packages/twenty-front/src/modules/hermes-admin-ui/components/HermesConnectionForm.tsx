@@ -11,16 +11,22 @@ import {
   HermesAdminNote,
   HermesAdminRuleNote,
 } from '@/hermes-admin-ui/components/HermesAdminNote';
+import { HermesConnectionCheckNote } from '@/hermes-admin-ui/components/HermesConnectionCheckNote';
 import { HermesReloadRequest } from '@/hermes-admin-ui/components/HermesReloadRequest';
 import { type HermesAdminContextValidity } from '@/hermes-admin-ui/types/HermesAdminContext';
 import { type HermesConnectionKind } from '@/hermes-admin-ui/types/HermesConnection';
+import {
+  isHermesKindProbable,
+  readHermesProbesForUiKind,
+  type HermesConnectionCheckOutcome,
+  type HermesConnectionProbe,
+} from '@/hermes-admin-ui/types/HermesConnectionCheck';
 import {
   HERMES_CONNECTION_FORM_EMPTY_VALUES,
   type HermesConnectionFormSubject,
   type HermesConnectionFormSubmission,
   type HermesConnectionFormValues,
   type HermesConnectionSaveState,
-  type HermesConnectionTestState,
   type HermesNativeConnectedAccount,
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
 import {
@@ -113,7 +119,13 @@ type HermesConnectionFormProps = {
   // server side. An e-mail link picks one of these; it never types credentials.
   nativeAccounts?: readonly HermesNativeConnectedAccount[];
   saveState: HermesConnectionSaveState;
-  testState: HermesConnectionTestState;
+  // The last outcome of each read-only probe published for this kind. Mail has
+  // two — reception and sending — and they are shown as two answers, because a
+  // mailbox that receives is not a mailbox that sends.
+  checkByProbe: Readonly<
+    Partial<Record<HermesConnectionProbe, HermesConnectionCheckOutcome>>
+  >;
+  isChecking: boolean;
   contextValidity: HermesAdminContextValidity;
   onSubmit: (submission: HermesConnectionFormSubmission) => void;
   onRequestDelete: (expectedRevision: string) => void;
@@ -132,7 +144,8 @@ export const HermesConnectionForm = ({
   initialValues,
   nativeAccounts,
   saveState,
-  testState,
+  checkByProbe,
+  isChecking,
   contextValidity,
   onSubmit,
   onRequestDelete,
@@ -184,7 +197,12 @@ export const HermesConnectionForm = ({
   const writeGate = readHermesConnectionWriteGate(subject, contextValidity);
 
   const isSaving = saveState.kind === 'saving';
-  const isTesting = testState.kind === 'testing';
+
+  // The probes published for this kind. An empty list means this build has no
+  // read-only operation for the channel, which is said plainly rather than
+  // left as a button that appears to work.
+  const probes = readHermesProbesForUiKind(subject.kind);
+  const isProbable = isHermesKindProbable(subject.kind);
 
   const labelId = `${fieldIdPrefix}-label`;
   const endpointId = `${fieldIdPrefix}-endpoint`;
@@ -489,13 +507,17 @@ export const HermesConnectionForm = ({
         </Button>
 
         {/* The test asks the parent, which asks the server. This button never
-            interprets anything: it shows the result it is given. */}
+            interprets anything: it shows the result it is given.
+
+            Disabled on a create — there is nothing saved to reach — and
+            disabled when no probe exists for the kind, rather than offered and
+            silently doing nothing. */}
         <Button
           type="button"
           variant="outline"
           size="sm"
-          loading={isTesting}
-          disabled={subject.mode === 'create'}
+          loading={isChecking}
+          disabled={subject.mode === 'create' || !isProbable}
           onClick={onRequestTest}
         >
           {t`Tester la connexion`}
@@ -580,41 +602,23 @@ export const HermesConnectionForm = ({
         </HermesAdminNote>
       )}
 
-      {isTesting && (
+      {/* No probe exists for this channel in this build. Said before the
+          operator wonders why the button does nothing. */}
+      {subject.mode === 'edit' && !isProbable && (
         <HermesAdminNote role="status">
-          {t`Test en cours côté serveur…`}
+          {t`Aucun test de connexion n’est publié pour ce canal dans cette version. Rien ne peut être joint depuis ici, et rien n’est présenté comme vérifié pour autant.`}
         </HermesAdminNote>
       )}
 
-      {testState.kind === 'verified' && (
-        <HermesAdminNote role="status">
-          {isNonEmptyString(testState.verifiedAt)
-            ? t`Le serveur a répondu que le test est passé et l’a daté.`
-            : t`Le serveur a répondu que le test est passé, sans date. Sans date, cette connexion n’est pas présentée comme vérifiée.`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'failed' && (
-        <HermesAdminNote role="alert">
-          {isNonEmptyString(testState.errorCode)
-            ? t`Test échoué : ${testState.errorCode}`
-            : t`Test échoué, sans motif renvoyé.`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'refused' && (
-        <HermesAdminNote role="alert">
-          {isNonEmptyString(testState.reason)
-            ? t`Test refusé : ${testState.reason}`
-            : t`Test refusé. Rien n’a été vérifié.`}
-        </HermesAdminNote>
-      )}
-
-      {testState.kind === 'unconfirmed' && (
-        <HermesAdminNote role="alert">
-          {t`La réponse du test n’a pas pu être lue : le résultat est inconnu, ni réussi ni échoué.`}
-        </HermesAdminNote>
-      )}
+      {/* One result per probe. A single verdict for mail would hide a broken
+          direction behind a working one. */}
+      {probes.map((probe) => (
+        <HermesConnectionCheckNote
+          key={probe}
+          probe={probe}
+          outcome={checkByProbe[probe]}
+        />
+      ))}
 
       {saveState.kind === 'saved' && (
         <>

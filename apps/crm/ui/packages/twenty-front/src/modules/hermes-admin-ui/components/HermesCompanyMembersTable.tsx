@@ -5,10 +5,15 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesAdminNote } from '@/hermes-admin-ui/components/HermesAdminNote';
 import {
-  type HermesCompanyMemberRole,
   type HermesCompanyMemberState,
   type HermesCompanyMembersRead,
 } from '@/hermes-admin-ui/types/HermesCompany';
+import {
+  readHermesMemberRights,
+  readHermesMemberRoleLabels,
+  type HermesMemberRight,
+  type HermesMemberRightStanding,
+} from '@/hermes-admin-ui/types/HermesMemberRights';
 import { filterHermesMembersByCompany } from '@/hermes-admin-ui/utils/hermesCompanyAction';
 
 const StyledTable = styled.table`
@@ -79,10 +84,23 @@ export const HermesCompanyMembersTable = ({
 }: HermesCompanyMembersTableProps) => {
   const { t } = useLingui();
 
-  const roleLabels: Record<HermesCompanyMemberRole, string> = {
-    ADMIN: t`Administrateur`,
-    MEMBER: t`Membre`,
-    READ_ONLY: t`Lecture seule`,
+  // What each right actually permits, in the operator's terms rather than the
+  // flag's name.
+  const rightLabels: Record<HermesMemberRight, string> = {
+    CONFIGURE_CONNECTIONS: t`Configurer les connexions`,
+    READ_RECORDS: t`Lire les fiches`,
+    WRITE_RECORDS: t`Modifier les fiches`,
+    DELETE_RECORDS: t`Supprimer des fiches`,
+    USE_BOT_TOOLS: t`Utiliser les outils du bot`,
+  };
+
+  // « Inconnu » is a flag the server did not publish. It is never shown as a
+  // refusal: telling an administrator that someone lacks a right, when the
+  // right was simply not reported, would be a false statement about a person.
+  const standingLabels: Record<HermesMemberRightStanding, string> = {
+    granted: t`oui`,
+    denied: t`non`,
+    unknown: t`inconnu`,
   };
 
   const stateLabels: Record<HermesCompanyMemberState, string> = {
@@ -143,7 +161,8 @@ export const HermesCompanyMembersTable = ({
         <thead>
           <tr>
             <th scope="col">{t`Membre`}</th>
-            <th scope="col">{t`Rôle`}</th>
+            <th scope="col">{t`Rôles`}</th>
+            <th scope="col">{t`Droits effectifs`}</th>
             <th scope="col">{t`État`}</th>
           </tr>
         </thead>
@@ -157,19 +176,32 @@ export const HermesCompanyMembersTable = ({
                     ? member.email
                     : t`Membre sans nom renvoyé`}
               </td>
-              <td data-label={t`Rôle`}>
-                {member.role !== null
-                  ? roleLabels[member.role]
-                  : isNonEmptyString(member.unknownRole)
-                    ? t`Rôle non reconnu : ${member.unknownRole}`
-                    : t`Rôle inconnu`}
+              {/* The server's own wording for every role the member holds.
+                  A label says what somebody called the role; the next column
+                  says what it actually opens. */}
+              <td data-label={t`Rôles`}>
+                {member.roles === null
+                  ? t`Rôles non lus`
+                  : member.roles.length === 0
+                    ? t`Aucun rôle`
+                    : readHermesMemberRoleLabels(member.roles).join(' · ') ||
+                      t`Rôle sans libellé renvoyé`}
+              </td>
+              {/* Read from the role's permission flags, never from its name. */}
+              <td data-label={t`Droits effectifs`}>
+                {readHermesMemberRights(member.roles)
+                  .map(
+                    ({ right, standing }) =>
+                      `${rightLabels[right]} : ${standingLabels[standing]}`,
+                  )
+                  .join(' · ')}
               </td>
               <td data-label={t`État`}>
                 {member.state !== null
                   ? stateLabels[member.state]
                   : isNonEmptyString(member.unknownState)
                     ? t`État non reconnu : ${member.unknownState}`
-                    : t`État inconnu`}
+                    : t`Non publié par le serveur`}
               </td>
             </tr>
           ))}
@@ -189,7 +221,15 @@ export const HermesCompanyMembersTable = ({
       )}
 
       <HermesAdminNote>
-        {t`Les droits d’un membre s’arrêtent à cette société. Un membre en lecture seule ne peut ni écrire, ni ouvrir le détail d’une connexion.`}
+        {t`Les droits d’un membre s’arrêtent à cette société. Ils sont lus sur les indicateurs de permission du rôle, pas sur son nom : un rôle appelé « Administrateur » qui ne porte aucun indicateur n’ouvre rien, et un rôle au nom inattendu peut être celui qui configure les connexions.`}
+      </HermesAdminNote>
+
+      <HermesAdminNote>
+        {t`Un membre peut porter plusieurs rôles : ses droits sont alors la réunion de ce qu’ils accordent. « Inconnu » signifie que le serveur n’a pas publié l’indicateur, ce qui n’est pas un refus.`}
+      </HermesAdminNote>
+
+      <HermesAdminNote>
+        {t`L’état d’un membre n’est pas publié par le serveur pour un espace de travail : il n’existe pas de champ actif, invité ou suspendu sur cet objet. Il est donc dit non publié plutôt que deviné d’après les rôles.`}
       </HermesAdminNote>
     </>
   );
