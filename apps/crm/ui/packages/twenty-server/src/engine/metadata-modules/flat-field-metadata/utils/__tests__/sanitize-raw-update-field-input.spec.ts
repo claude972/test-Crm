@@ -5,6 +5,7 @@ import {
 } from 'kovaa-lab-shared/types';
 
 import { type UpdateFieldInput } from 'src/engine/metadata-modules/field-metadata/dtos/update-field.input';
+import { KOVAALAB_STANDARD_APPLICATION } from 'src/engine/workspace-manager/twenty-standard-application/constants/twenty-standard-applications';
 import { getFlatFieldMetadataMock } from 'src/engine/metadata-modules/flat-field-metadata/__mocks__/get-flat-field-metadata.mock';
 import { sanitizeRawUpdateFieldInput } from 'src/engine/metadata-modules/flat-field-metadata/utils/sanitize-raw-update-field-input';
 
@@ -130,6 +131,102 @@ describe('sanitizeRawUpdateFieldInput', () => {
           morphId: '0d3f8a52-6c1e-4f7b-9a2d-5e8c7b4a1f30',
         }),
       ).toThrow('Cannot edit system-managed field');
+    });
+  });
+  // These run through the public sanitizer, not the helper: the ordering against
+  // the minted ids and the standard/system gates only exist at this surface.
+  describe('echoed option labels', () => {
+    const STORED_SCREENING = {
+      id: '20202020-e685-4671-ac32-26d304dacb6e',
+      label: 'Screening',
+      value: 'SCREENING',
+      position: 1,
+      color: 'purple' as TagColor,
+    };
+
+    const sanitizeStageOptions = ({
+      options,
+      applicationUniversalIdentifier = KOVAALAB_STANDARD_APPLICATION.universalIdentifier,
+      isSystemBuild = false,
+    }: {
+      options: UpdateFieldInput['options'];
+      applicationUniversalIdentifier?: string;
+      isSystemBuild?: boolean;
+    }) =>
+      sanitizeRawUpdateFieldInput({
+        existingFlatFieldMetadata: getFlatFieldMetadataMock({
+          id: FIELD_ID,
+          type: FieldMetadataType.SELECT,
+          universalIdentifier: 'ab0e6d76-67d8-466f-918a-4b8a8d044131',
+          objectMetadataId: '6450cd8f-c202-498f-8be4-65e1b1c93e32',
+          applicationUniversalIdentifier,
+          options: [STORED_SCREENING],
+        }),
+        rawUpdateFieldInput: { id: FIELD_ID, options } as UpdateFieldInput,
+        isSystemBuild,
+        workspaceCustomApplicationUniversalIdentifier:
+          WORKSPACE_CUSTOM_APPLICATION_UNIVERSAL_IDENTIFIER,
+      }).updatedEditableFieldProperties.options?.map((option) => option.label);
+
+    it('keeps the shipped label when the client echoes the translation back', () => {
+      expect(
+        sanitizeStageOptions({
+          options: [
+            { ...STORED_SCREENING, label: 'Présélection' },
+          ] as FieldMetadataComplexOption[],
+        }),
+      ).toEqual(['Screening']);
+    });
+
+    it('keeps the shipped label when the client sends no option id', () => {
+      // Ids are minted inside the sanitizer: matching after that point would make
+      // this option look identified and never reach the match on the api value.
+      expect(
+        sanitizeStageOptions({
+          options: [
+            {
+              label: 'Présélection',
+              value: 'SCREENING',
+              position: 1,
+              color: 'purple' as TagColor,
+            },
+          ] as FieldMetadataComplexOption[],
+        }),
+      ).toEqual(['Screening']);
+    });
+
+    it('persists a real rename through the sanitizer', () => {
+      expect(
+        sanitizeStageOptions({
+          options: [
+            { ...STORED_SCREENING, label: 'Premier contact' },
+          ] as FieldMetadataComplexOption[],
+        }),
+      ).toEqual(['Premier contact']);
+    });
+
+    it('leaves a custom field untouched even when its label is a catalog translation', () => {
+      // Nothing shipped these labels, so there is no translation to undo
+      expect(
+        sanitizeStageOptions({
+          applicationUniversalIdentifier:
+            WORKSPACE_CUSTOM_APPLICATION_UNIVERSAL_IDENTIFIER,
+          options: [
+            { ...STORED_SCREENING, label: 'Présélection' },
+          ] as FieldMetadataComplexOption[],
+        }),
+      ).toEqual(['Présélection']);
+    });
+
+    it('leaves a system build untouched, which writes canonical labels on purpose', () => {
+      expect(
+        sanitizeStageOptions({
+          isSystemBuild: true,
+          options: [
+            { ...STORED_SCREENING, label: 'Présélection' },
+          ] as FieldMetadataComplexOption[],
+        }),
+      ).toEqual(['Présélection']);
     });
   });
 });

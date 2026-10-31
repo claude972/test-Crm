@@ -88,23 +88,30 @@ export const sanitizeRawUpdateFieldInput = ({
   }
 
   if (isDefined(updatedEditableFieldProperties.options)) {
-    const optionsWithIds = updatedEditableFieldProperties.options.map(
-      (option) => ({
-        id: v4(),
-        ...option,
-      }),
-    );
+    // Only a standard field's options were ever shipped from a catalog, so only
+    // they can be read back translated. A custom field's labels were typed by
+    // the operator, and a system build writes canonical labels on purpose:
+    // both must reach the merge exactly as sent. Matching runs before the ids
+    // below are minted, which would otherwise make an id-less option look
+    // identified and strand the match on the api value.
+    const optionsWithPreservedLabels =
+      isStandardField && !isSystemBuild
+        ? preserveEchoedOptionLabels({
+            storedOptions: existingFlatFieldMetadata.options,
+            updatedOptions: updatedEditableFieldProperties.options,
+          })
+        : updatedEditableFieldProperties.options;
 
-    const optionsWithPreservedLabels = preserveEchoedOptionLabels({
-      storedOptions: existingFlatFieldMetadata.options,
-      updatedOptions: optionsWithIds,
-    });
+    const optionsWithIds = optionsWithPreservedLabels.map((option) => ({
+      id: v4(),
+      ...option,
+    }));
 
     updatedEditableFieldProperties.options = isFieldMetadataSelectKind(
       existingFlatFieldMetadata.type,
     )
-      ? sanitizeSelectOptionColors(optionsWithPreservedLabels)
-      : optionsWithPreservedLabels;
+      ? sanitizeSelectOptionColors(optionsWithIds)
+      : optionsWithIds;
   }
 
   if (

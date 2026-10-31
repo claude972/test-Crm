@@ -223,5 +223,28 @@ describe('resolveEffectiveTranslatedFlatEntity', () => {
     it('leaves a field with no options alone', () => {
       expect(resolveOptions(null, realI18n())).toBeNull();
     });
+
+    it("does not translate a custom application's options", () => {
+      // Nothing shipped those labels, and the write guard is gated the same way
+      const customFieldOption: TestOption = {
+        value: 'SCREENING',
+        label: 'Screening',
+      };
+
+      expect(
+        resolveEffectiveTranslatedFlatEntity({
+          metadataName: 'fieldMetadata',
+          flatEntity: {
+            ...flatFieldMetadata,
+            label: 'Stage',
+            options: [customFieldOption],
+          },
+          i18nContext: buildI18nContext({
+            isStandardApp: false,
+            i18nInstance: realI18n(),
+          }),
+        }).options,
+      ).toEqual([customFieldOption]);
+    });
   });
 });

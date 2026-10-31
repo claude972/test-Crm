@@ -16,11 +16,14 @@ const hasStringLabel = (value: unknown): value is { label: string } =>
 // property registry the rest of the resolver walks. Only the label is resolved:
 // the api value, the id, the position and the color are carried through as read.
 // A label the catalog does not know -- a renamed stage -- is returned unchanged.
+// Restricted to the standard app, the only owner that ships option labels: a
+// custom field's labels were typed by the operator, and the write guard is gated
+// the same way, so the two sides cannot disagree on what was ever shipped.
 export const resolveEffectiveTranslatedOptions = (
   options: unknown,
   i18nContext: EffectiveEntityI18nContext,
 ): unknown => {
-  if (!Array.isArray(options)) {
+  if (!Array.isArray(options) || !i18nContext.isStandardApp) {
     return options;
   }
 
