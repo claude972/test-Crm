@@ -95,3 +95,8 @@ Après vérification de l'heure et inventaire officiel (même PID21548/session8f
 ## Checkpoint08:07UTC
 
 Parent actif, ACK et sept relances enfants réels. Assemblagec5354f29d (quatre sources +harnais8489e4eb1 +prop test), revue et tests root15PASS/2suites et harnais6PASS, diagnostics conservés (voir CORRECTIONS). Nouveaux checkpoints5513687f4 onboarding et a0fa3dc3a campagnes **ne ferment pas** CJ-SETUP001/002 ni CJ-CAMPAIGN010/011 : relecture détaillée et suivi parent transmis ; corrections demandées au seul auteur propriétaire. Root QA maintenant détaché c5354f29d. Aucun nouveau runtime/preview ni recette navigateur CRM.
+
+
+## Checkpoint08:22UTC
+
+Dernière source QAroot e35ddba6a, inclutmailCJ04d. Root26testsPASS/3suites sursetup/réconciliation/mailbox, mais mocksBotPolicy/listrefetch absents et warningsact signalés CJ-TEST-001. Nouveaux findings source : CJ-MAIL-002 identités brouillons localStorage globaux non purgés/non scopés au workspace/compte ; CJ-SETUP-003 réseau inconnu/callback après acceptation classésrefused. Parent prévenu, à corriger/tester par vraisClaude. CI41183428603(d0a7) en cours ; root a déclenché SMTPopt-in41183947336(e35, pending) et fullfrontend41184065339(e35, in_progress). Toujoursaucune recette CRM nouvelle ni lienfinal.
