@@ -2046,3 +2046,12 @@ Utilisateur prévenu du remplacement du lien temporaire et de la nouvelle base s
 ### Hostinger sélectionné — claim avant code
 
 Root a reçu « Ok celui là » après identification de srv2081633. SSH lecture seule confirmé avec clé existante et StrictHostKeyChecking ; RAM32GiB/disque342GiB libres au checkpoint, Docker Compose existant, autres services conservés. Aucun changement distant effectué. preview_pwa chargé du packaging isolé ; root conserve workflow/build/revue/déploiement. Domaine proposé sans A record à ce stade, préférence demandée. Front94441232493836 SUCCESS exactSHA ; combined41232496500 encore en cours. Preview601 reste la seule session active jusqu'à20:07UTC ; pas de remplacement lancé.
+
+
+### kovaalabcrm — checkpoint 31 octobre19:24UTC
+
+Nom produit corrigé explicitement par le propriétaire : kovaalabcrm ; ressources nouvelles kovaalabcrm-staging. Chemins historiques conservés, pas de remplacement transversal. VPS srv2081633 sélectionné, linux/amd64 et8CPU confirmés en SSH lecture seule. Domaine encore à choisir, aucun changement distant.
+
+CI exacte9445ee2c5 : frontend41232493836 SUCCESS,114suites/1348tests ; combined41232496500 SUCCESS,82suites/966units plus helper5tests, parcours SMTP isolé/PG/DI et bundle production. Les dossiers Drafts/Sent/Trash restent non provisionnés sur runtime601 courant, donc leur recette UI reste ouverte malgré smokefixture944 vert.
+
+Root a poussé c7b7bc900, workflow manuel .github/workflows/hermes-staging-image.yml : build image exacte puis smoke isolé, export artifact privé1jour, aucun registre ni déploiement automatique. YAML et diffcheck PASS seulement ; workflow pas exécuté avant packaging auteur. preview_pwa a confirmé contrat et nouvelles ressources kovaalabcrm-staging, code en cours,11tests légers annoncés auteur sans construction image. Reviewerbackend_review chargé en lecture seule de vérifier contrats de migration natifs avant revue livrable. Aucun Claude actif prétendu, app gelée, autres projets intacts.
