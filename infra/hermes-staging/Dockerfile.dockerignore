@@ -15,8 +15,11 @@
 **/.nx
 **/.swc
 **/.yarn/cache
-**/dist
-**/build
+# Package outputs only: src/**/build and src/**/dist are legitimate source.
+apps/crm/ui/dist
+apps/crm/ui/build
+apps/crm/ui/packages/*/dist
+apps/crm/ui/packages/twenty-front/build
 **/coverage
 **/.backups
 **/.secrets
