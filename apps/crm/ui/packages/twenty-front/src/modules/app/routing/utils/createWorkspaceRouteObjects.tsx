@@ -10,6 +10,7 @@ import { type WorkspaceRouteObject } from '@/app/routing/types/WorkspaceRouteObj
 import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
 import {
   HERMES_ADMIN_RUNTIME_PATH,
+  HERMES_CAMPAIGN_LIST_PATH,
   HERMES_CAMPAIGN_RUNTIME_PATH,
   HERMES_MAILBOX_RUNTIME_PATH,
   HERMES_WA_RUNTIME_PATH,
@@ -103,6 +104,12 @@ const HermesMailboxRuntimePage = lazy(() =>
 const HermesAdminRuntimePage = lazy(() =>
   import('~/pages/hermes/HermesAdminRuntimePage').then((module) => ({
     default: module.HermesAdminRuntimePage,
+  })),
+);
+
+const HermesCampaignListPage = lazy(() =>
+  import('~/pages/hermes/HermesCampaignListPage').then((module) => ({
+    default: module.HermesCampaignListPage,
   })),
 );
 
@@ -269,6 +276,14 @@ export const createWorkspaceRouteObjects = ({
       element: (
         <LazyRoute>
           <HermesAdminRuntimePage />
+        </LazyRoute>
+      ),
+    },
+    {
+      path: HERMES_CAMPAIGN_LIST_PATH,
+      element: (
+        <LazyRoute>
+          <HermesCampaignListPage />
         </LazyRoute>
       ),
     },

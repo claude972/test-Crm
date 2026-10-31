@@ -6,6 +6,7 @@ import { getAppPath, getSettingsPath } from 'kovaa-lab-shared/utils';
 import {
   IconBrandWhatsapp,
   IconBuildingSkyscraper,
+  IconSend,
   IconGauge,
   IconInbox,
   IconMail,
@@ -17,6 +18,7 @@ import {
 import { HERMES_RECORD_NAVIGATION_ORDER } from '@/hermes-shell/constants/HermesRecordNavigationOrder';
 import {
   HERMES_ADMIN_RUNTIME_PATH,
+  HERMES_CAMPAIGN_LIST_PATH,
   HERMES_MAILBOX_RUNTIME_PATH,
   HERMES_WA_RUNTIME_PATH,
 } from '@/hermes-shell/constants/HermesRuntimeRoutePaths';
@@ -109,6 +111,12 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
             label: t`Mailbox`,
             to: HERMES_MAILBOX_RUNTIME_PATH,
             Icon: IconMail,
+          },
+          {
+            key: 'campaigns',
+            label: t`Campaigns`,
+            to: HERMES_CAMPAIGN_LIST_PATH,
+            Icon: IconSend,
           },
           {
             key: 'reception',
