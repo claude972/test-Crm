@@ -2144,3 +2144,12 @@ Les services dédiés kovaalabcrm-staging-db-1 etredis-1 démarrés ethealthy, u
 Migration stricte VPS initiale EXIT0, puis rerun même version déclenché par dépendanceCompose EXIT0. Serveur lancéhealthy, worker lancé ; vraie inscription BullMQ campaign-send-queue=1 vérifiée sans données sensibles. PG/Redishealthy,volumesprivéspropres ; aucune boîte/provider/userCRM seedé pour prétendre UI.
 
 Contrôles HTTP PRIVÉS sur127.0.0.1:13000 : healthz200statusok, marker52f exact, client-config sameOrigintrue/multiworkspacefalse, documentdashboard200 HTML. CescontrôlesNEsontPASune recette visuelle,niTLS/publiclogin. ProxyCaddy/DNS inchangés etpasdelienpublicopérationnel. Sauvegarde/restaurationVPS et recette UI restent à faire ; protocolelectureseule /private/tmp/kovaalabcrm-staging-backup-restore-protocol.md prêt. Cloud52f avait déjà prouvé le restart/persistenceisolés, pas encore redémarrage/restaurationsurVPS.
+
+
+### Sauvegarde/restauration VPS initiale — 2026-10-31 22:14 UTC
+
+Test réellement exécuté sur NOUVEAU staging52f : writersserver/workerstoppés, dumpcustomPG16tousschemas +stockageRO +Redisfroid +config/clefsprivées correspondantes. Restauration dans nouveaux containers/volumes/réseauinternal kovaalabcrm-restore-* sansports niappworker. PASScomparaisontouteslignes/tablecounts+datadigests,extensions/indexes,hashes/modes/ownershipstockage ; RedisrestauréchargeetauthentifiePING. Aucune émission niworkerderestorelancé. CleanupdesseulesressourcescrééesPASS. SourceRedis/server/workerrepris, HTTPhealthprivérecontrôléOK,PG/Redis/serverhealthy.
+
+Limiteexplicite : workspaceCount=0,userCount=0,stockagevide. Cettepreuvevalidelarestaurationdebootstrap, PASencoredonnéesCRM/fichiersd'unutilisateur ; réexécuteravecsyntheticrecord/attachmentaprèsonboardingUI. Evidenceprivéelatest-backup-evidence.json,sauvegardes0700/0600etclefspréservéeshorschampsGit ; protocoleinitialread-onlydevenutestopérateurprivatebackup-restore-initial.py.
+
+CandidatCaddyadditifpréparésansreload : fichierprivé0600 validationparcheminrefuséepermissionCaddy, conservéeprivée ; validationDANScontainerparstdinPASS(envexistant), aucunepermissionglobaleaffaiblie. Caddyfileactifhashinchangé6dded35e34e1cbba7af48c3981f90bc34b92b5400b552c452a5aa00f2e1b31ce,candidateca691560561304c53a37ad68f1791efa6d63390874ee83435d13e759948faaf7. Backuporiginalprivéenplace. PasdepublicationproxyniDNSmodifiée ; userdoitajouterAcrm-recette,domaineconfirmé. Recontrôleroriginaljusteavantswapetpréservermode/owneroriginaux, nepascopiercandidate0600inaccessiblecommeactif.
