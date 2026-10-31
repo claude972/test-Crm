@@ -31,4 +31,6 @@ command([yarn, 'workspace', 'kovaa-lab-front', 'build'], root, { REACT_APP_SERVE
 cpSync(path.join(root, 'packages/twenty-front/build'), path.join(server, 'dist/front'), { recursive: true });
 writeFileSync(path.join(server, 'dist/front/KOVAALABCRM_SOURCE.txt'), `${process.env.HERMES_SOURCE_SHA}\n`);
 for (const name of ['packages/twenty-server/dist/main.js', 'packages/twenty-server/dist/queue-worker/queue-worker.js', 'packages/twenty-server/dist/front/index.html', 'packages/twenty-server/dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts']) requireFile(name);
-command([yarn, 'workspaces', 'focus', '--production', 'kovaa-lab-server', 'kovaa-lab-shared', 'kovaa-lab-emails', 'kovaa-lab-client-sdk']);
+// The native constraint hook imports dev-only @yarnpkg/types, removed by production focus.
+command([yarn, 'constraints']);
+command([yarn, 'workspaces', 'focus', '--production', 'kovaa-lab-server', 'kovaa-lab-shared', 'kovaa-lab-emails', 'kovaa-lab-client-sdk'], root, { YARN_ENABLE_CONSTRAINTS_CHECKS: 'false' });
