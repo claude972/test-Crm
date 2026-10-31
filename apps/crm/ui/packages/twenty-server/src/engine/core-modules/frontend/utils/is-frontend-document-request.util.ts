@@ -15,10 +15,23 @@ export const isFrontendDocumentRequest = (request: Request): boolean => {
   );
 
   const destination = request.get('Sec-Fetch-Dest');
+  // Service-worker forwarding can give a document navigation an empty destination.
+  const isForwardedNavigation =
+    destination === 'empty' &&
+    request.get('Sec-Fetch-Mode') === 'navigate' &&
+    request
+      .get('Accept')
+      ?.split(',')
+      .some(
+        (mediaRange) =>
+          mediaRange.split(';')[0].trim().toLowerCase() === 'text/html',
+      ) === true;
 
   return (
     !isApiPath &&
     request.accepts('html') !== false &&
-    (!isDefined(destination) || NAVIGATION_DESTINATIONS.includes(destination))
+    (!isDefined(destination) ||
+      NAVIGATION_DESTINATIONS.includes(destination) ||
+      isForwardedNavigation)
   );
 };
