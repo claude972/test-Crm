@@ -233,9 +233,8 @@ export const HermesMailboxThreadPanel = ({
       {openThread.draft === null && openThread.isDraftIdentityUnknown && (
         <HermesMailboxNote role="status">
           <Trans>
-            This draft was not saved from this browser, so its identity is
-            unknown here and it cannot be resumed. It is still on the
-            provider, and it was never sent.
+            The server published no identity for this draft, so it cannot be
+            resumed here. It is still on the provider, and it was never sent.
           </Trans>
         </HermesMailboxNote>
       )}

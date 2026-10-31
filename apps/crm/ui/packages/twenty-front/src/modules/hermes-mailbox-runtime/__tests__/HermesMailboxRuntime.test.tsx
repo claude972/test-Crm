@@ -6,6 +6,8 @@ import userEvent from '@testing-library/user-event';
 import { Provider as JotaiProvider } from 'jotai';
 
 import { myConnectedAccountsState } from '@/accounts/states/myConnectedAccountsState';
+import { currentUserState } from '@/auth/states/currentUserState';
+import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { HermesMailboxRuntime } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntime';
 import { HERMES_MAILBOX_RUNTIME_PAGE_SIZE } from '@/hermes-mailbox-runtime/constants/HermesMailboxRuntimeContract';
 import { HERMES_MAIL_CLONE_ATTACHMENT_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailCloneAttachmentV4';
@@ -29,6 +31,16 @@ import {
 const ACCOUNT_ID = '11111111-2222-3333-4444-555555555555';
 const OTHER_ACCOUNT_ID = '99999999-8888-7777-6666-555555555555';
 const CONVERSATION_ID = '6f1d1f8e-3a2b-4c55-9f10-7d3b2a9c4e01';
+// Two people and two companies. A draft identity belongs to exactly one pair
+// of them, and the same mailbox address on both is the point.
+// What the server publishes for a message that really is this account's
+// Hermes stable draft. Opaque on the wire and handed straight back.
+const NATIVE_DRAFT_ID = 'd7a11f00-0001-4001-8001-aaaaaaaaaaaa';
+const NATIVE_DRAFT_REVISION = 'f'.repeat(64);
+const USER_A = { id: 'u5a1f0de-0001-4001-8001-aaaaaaaaaaaa' } as never;
+const USER_B = { id: 'u5a1f0de-0002-4002-8002-bbbbbbbbbbbb' } as never;
+const WORKSPACE_A = { id: 'w0a1f0de-0001-4001-8001-aaaaaaaaaaaa' } as never;
+const WORKSPACE_B = { id: 'w0a1f0de-0002-4002-8002-bbbbbbbbbbbb' } as never;
 const FORWARD_CONVERSATION_ID = '7a2e2f9f-4b3c-5d66-af21-8e4c3bad5f12';
 const SOURCE_ASSET_ID = 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa';
 const CLONED_ASSET_ID = 'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb';
@@ -103,6 +115,8 @@ const DRAFTS_PAGE_PAYLOAD = {
 const DRAFT_MESSAGE_PAYLOAD = {
   state: 'AVAILABLE',
   conversationId: CONVERSATION_ID,
+  draftId: NATIVE_DRAFT_ID,
+  draftRevision: NATIVE_DRAFT_REVISION,
   folder: 'Drafts',
   uid: '21',
   uidValidity: '3421553009',
@@ -115,6 +129,14 @@ const DRAFT_MESSAGE_PAYLOAD = {
   text: 'Voici le devis corrigé.',
   remoteImagesBlocked: true,
   attachments: [],
+};
+
+// The same native message with no stable identity published: another client's
+// draft, or an older reply draft that minted none.
+const UNIDENTIFIED_DRAFT_MESSAGE_PAYLOAD = {
+  ...DRAFT_MESSAGE_PAYLOAD,
+  draftId: undefined,
+  draftRevision: undefined,
 };
 
 const MESSAGES_PAYLOAD = {
@@ -218,7 +240,16 @@ const variablesOf = (mock: Recorder, call = 0): Record<string, unknown> =>
 const renderMailbox = ({
   connections = CONNECTIONS_PAYLOAD,
   botPolicy = null,
-}: { connections?: unknown; botPolicy?: Record<string, unknown> | null } = {}) => {
+  user = USER_A,
+  workspace = WORKSPACE_A,
+  draftIdentity = true,
+}: {
+  connections?: unknown;
+  botPolicy?: Record<string, unknown> | null;
+  user?: never;
+  workspace?: never;
+  draftIdentity?: boolean;
+} = {}) => {
   // Every mutation is mocked with a recording result and a matcher that
   // accepts any variables, so both the absence of an emission and the exact
   // input of one are observed here rather than inferred.
@@ -377,7 +408,13 @@ const renderMailbox = ({
           },
         },
       },
-      result: { data: { hermesMailMessageV4: DRAFT_MESSAGE_PAYLOAD } },
+      result: {
+        data: {
+          hermesMailMessageV4: draftIdentity
+            ? DRAFT_MESSAGE_PAYLOAD
+            : UNIDENTIFIED_DRAFT_MESSAGE_PAYLOAD,
+        },
+      },
       maxUsageCount: Number.POSITIVE_INFINITY,
     },
     { request: { query: HERMES_MAIL_PLAN_V4, variables: anyVariables }, result: plan, maxUsageCount: Number.POSITIVE_INFINITY },
@@ -390,6 +427,9 @@ const renderMailbox = ({
 
   resetJotaiStore();
   jotaiStore.set(myConnectedAccountsState.atom, CONNECTED_ACCOUNTS);
+  // A draft identity is scoped to a person in a company, so both are stated.
+  jotaiStore.set(currentUserState.atom, user);
+  jotaiStore.set(currentWorkspaceState.atom, workspace);
 
   const { unmount } = render(
     <I18nProvider i18n={i18n}>
@@ -412,6 +452,35 @@ const renderMailbox = ({
     setPolicy,
     unmount,
   };
+};
+
+// Save one draft from a freshly rendered mailbox and hand back its identity.
+const saveOneDraft = async (view: { createDraft: Recorder }) => {
+  await screen.findByText('Devis chantier Lyon');
+  await userEvent.click(screen.getByRole('button', { name: 'New message' }));
+  await screen.findByRole('form', { name: 'New message' });
+
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'To' }),
+    'marie@client.test',
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Subject' }),
+    'Devis révisé',
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
+  await waitFor(() => expect(view.createDraft).toHaveBeenCalledTimes(1));
+
+  return variablesOf(view.createDraft, 0);
+};
+
+// Walk into the provider's Drafts folder and open the saved message.
+const openSavedDraft = async () => {
+  await screen.findByText('Devis chantier Lyon');
+  await userEvent.click(screen.getByRole('button', { name: /Drafts/ }));
+  await userEvent.click(await screen.findByText('Devis révisé'));
+
+  return screen.findByText('Voici le devis corrigé.');
 };
 
 const openFirstMessage = async () => {
@@ -628,7 +697,7 @@ describe('HermesMailboxRuntime', () => {
     expect(variablesOf(plan).clientRequestId).toBe(sent.clientRequestId);
   });
 
-  it('resumes a saved draft from the provider Drafts folder, keeping its stable id and opaque revision', async () => {
+  it('resumes a saved draft from the provider Drafts folder, replaying the identity the server published', async () => {
     const { createDraft } = renderMailbox();
 
     await screen.findByText('Devis chantier Lyon');
@@ -646,11 +715,11 @@ describe('HermesMailboxRuntime', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
     await waitFor(() => expect(createDraft).toHaveBeenCalledTimes(1));
 
-    const draftId = variablesOf(createDraft, 0).draftId;
+    expect(typeof variablesOf(createDraft, 0).draftId).toBe('string');
 
     // Walking into the Drafts folder remounts the list and the editor. The
-    // draft's stable identity has to survive that, which is the whole point of
-    // holding it above the folder.
+    // identity is read back from the server there, so nothing has to survive
+    // the move in the browser.
     await userEvent.click(screen.getByRole('button', { name: /Drafts/ }));
     await userEvent.click(await screen.findByText('Devis révisé'));
 
@@ -676,12 +745,13 @@ describe('HermesMailboxRuntime', () => {
 
     const resumedSave = variablesOf(createDraft, 1);
 
-    expect(resumedSave.draftId).toBe(draftId);
-    // The revision the first save handed back, returned verbatim.
-    expect(resumedSave.draftRevision).toBe('a'.repeat(63) + '1');
+    // Both come from the server's read of the native draft — not from the
+    // save answer, and not from anything this browser kept.
+    expect(resumedSave.draftId).toBe(NATIVE_DRAFT_ID);
+    expect(resumedSave.draftRevision).toBe(NATIVE_DRAFT_REVISION);
   });
 
-  it('resumes a draft after a reload, replaying the identity and the revision the server issued', async () => {
+  it('resumes a draft after a reload, from the identity the server published', async () => {
     const first = renderMailbox();
 
     await screen.findByText('Devis chantier Lyon');
@@ -699,7 +769,7 @@ describe('HermesMailboxRuntime', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
     await waitFor(() => expect(first.createDraft).toHaveBeenCalledTimes(1));
 
-    const issued = variablesOf(first.createDraft, 0);
+    expect(typeof variablesOf(first.createDraft, 0).draftId).toBe('string');
 
     // The reload. Every piece of React state the session held is gone with
     // the tree, which is exactly what used to take the resume with it.
@@ -731,14 +801,14 @@ describe('HermesMailboxRuntime', () => {
 
     const resumed = variablesOf(second.createDraft, 0);
 
-    // The stable identity and the opaque revision the first save was given,
-    // handed back byte for byte across the reload.
-    expect(resumed.draftId).toBe(issued.draftId);
-    expect(resumed.draftRevision).toBe('a'.repeat(63) + '1');
+    // Handed back byte for byte, and sourced from the server's read rather
+    // than from the session that happened to save it.
+    expect(resumed.draftId).toBe(NATIVE_DRAFT_ID);
+    expect(resumed.draftRevision).toBe(NATIVE_DRAFT_REVISION);
   });
 
-  it('offers no resume on a native draft this browser was never issued an identity for', async () => {
-    renderMailbox();
+  it('offers no resume on a native draft the server published no identity for', async () => {
+    renderMailbox({ draftIdentity: false });
 
     await screen.findByText('Devis chantier Lyon');
     await userEvent.click(screen.getByRole('button', { name: /Drafts/ }));
@@ -751,7 +821,7 @@ describe('HermesMailboxRuntime', () => {
       screen.queryByRole('button', { name: 'Resume this draft' }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText(/its identity is unknown here/),
+      screen.getByText(/published no identity for this draft/),
     ).toBeVisible();
   });
 
@@ -878,5 +948,52 @@ describe('HermesMailboxRuntime', () => {
       screen.queryByRole('button', { name: 'Ask the bot for a draft' }),
     ).not.toBeInTheDocument();
     expect(draftReply).not.toHaveBeenCalled();
+  });
+
+  it('resumes a draft in a browser that never saved it', async () => {
+    // No save in this session, and nothing in storage: the only source of the
+    // identity is the server's read of the native draft.
+    const view = renderMailbox({ user: USER_B, workspace: WORKSPACE_B });
+
+    expect(await openSavedDraft()).toBeVisible();
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Resume this draft' }),
+    );
+
+    expect(await screen.findByRole('textbox', { name: 'To' })).toHaveValue(
+      'marie@client.test',
+    );
+    expect(screen.getByRole('textbox', { name: 'Message' })).toHaveValue(
+      'Voici le devis corrigé.',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
+    await waitFor(() => expect(view.createDraft).toHaveBeenCalledTimes(1));
+
+    const resumed = variablesOf(view.createDraft, 0);
+
+    expect(resumed.draftId).toBe(NATIVE_DRAFT_ID);
+    expect(resumed.draftRevision).toBe(NATIVE_DRAFT_REVISION);
+  });
+
+  it('keeps no draft metadata in the browser at all', async () => {
+    const view = renderMailbox();
+    const issued = await saveOneDraft(view);
+
+    await userEvent.click(screen.getByRole('button', { name: /Drafts/ }));
+    await userEvent.click(await screen.findByText('Devis révisé'));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Resume this draft' }),
+    );
+
+    // Saving and resuming leave nothing behind on the device: no key of our
+    // own, and no draft identity inside anybody else's.
+    const stored = JSON.stringify(window.localStorage);
+
+    expect(stored).not.toContain('draftIdentities');
+    expect(stored).not.toContain(String(issued.draftId));
+    expect(stored).not.toContain(NATIVE_DRAFT_ID);
+    expect(stored).not.toContain(NATIVE_DRAFT_REVISION);
   });
 });
