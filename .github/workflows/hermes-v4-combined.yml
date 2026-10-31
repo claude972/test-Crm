@@ -3,6 +3,11 @@ on:
   push:
     branches: [feat/hermes-v4-live-preview, test/hermes-v4-combined-checks]
   workflow_dispatch:
+    inputs:
+      campaign-mailbox:
+        description: Run the campaign mailbox SMTP stage. Needs Docker, never yet executed, off by default.
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -109,6 +114,13 @@ jobs:
           REDIS_URL: redis://127.0.0.1:6379
           P0_INTEGRATION_DISPOSABLE: "true"
         run: node scripts/check-hermes-v4-combined.mjs postgres-legacy
+      - name: Verify the campaign mailbox journey against an isolated SMTP relay
+        if: ${{ !cancelled() && inputs.campaign-mailbox && steps.backend_build.outcome == 'success' && steps.backend_types.outcome == 'success' }}
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+          P0_INTEGRATION_DISPOSABLE: "true"
+        run: node scripts/check-hermes-v4-combined.mjs postgres-campaign-mailbox
       - name: Verify isolated opt-in native tenancy PostgreSQL races and zero writes
         id: tenancy_pg
         if: ${{ !cancelled() && steps.backend_build.outcome == 'success' && steps.backend_types.outcome == 'success' }}

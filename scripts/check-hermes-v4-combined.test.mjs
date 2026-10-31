@@ -11,8 +11,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { buildIntegrationChildEnvironment } from "./check-hermes-integration-p0.mjs";
 import {
   BACKEND_EXTRAS,
+  CAMPAIGN_MAILBOX_SUITES,
   discoverBackendSuites,
   discoverFrontendSuites,
   parseConnectionProof,
@@ -201,5 +203,55 @@ test("specs outside the hermes-* scan stay declared explicitly", () => {
     [...new Set(BACKEND_EXTRAS)],
     BACKEND_EXTRAS,
     "Extras must not repeat",
+  );
+
+  // An integration suite among the unit extras would run with no PostgreSQL.
+  // The suffix is -spec.ts, not .spec.ts, so the check above already rejects
+  // it; asserted by name so that stays true if it is ever reworded.
+  for (const extra of BACKEND_EXTRAS)
+    assert.ok(
+      !extra.includes("integration-spec") && !extra.startsWith("test/"),
+      `Integration suites belong in an integration stage: ${extra}`,
+    );
+});
+
+test("the campaign mailbox suite is isolated and asks for SMTP explicitly", () => {
+  assert.deepEqual(CAMPAIGN_MAILBOX_SUITES, [
+    "test/integration/graphql/suites/hermes-campaign-mailbox-journey.integration-spec.ts",
+  ]);
+  // The validator the integration runner applies to every suite path.
+  for (const suite of CAMPAIGN_MAILBOX_SUITES)
+    assert.match(
+      suite,
+      /^test\/integration\/graphql\/suites\/hermes-[a-z0-9-]+\.integration-spec\.ts$/,
+    );
+
+  // The four proven suites keep their own stage, and their driver.
+  const legacy = buildIntegrationChildEnvironment({}, "synthetic-secret");
+  assert.equal(legacy.EMAILING_DOMAIN_DRIVER, "LOG");
+  assert.equal(legacy.IMAP_SMTP_ALLOW_SELF_SIGNED, undefined);
+
+  const mailbox = buildIntegrationChildEnvironment({}, "synthetic-secret", {
+    emailingDomainDriver: "SMTP",
+    allowSelfSignedSmtp: true,
+  });
+  assert.equal(mailbox.EMAILING_DOMAIN_DRIVER, "SMTP");
+  assert.equal(mailbox.IMAP_SMTP_ALLOW_SELF_SIGNED, "true");
+
+  // A driver nobody vetted, and self-signed acceptance while mail goes nowhere
+  // near a socket, are both refused.
+  assert.throws(
+    () =>
+      buildIntegrationChildEnvironment({}, "synthetic-secret", {
+        emailingDomainDriver: "RESEND",
+      }),
+    /Unknown integration emailing driver/,
+  );
+  assert.throws(
+    () =>
+      buildIntegrationChildEnvironment({}, "synthetic-secret", {
+        allowSelfSignedSmtp: true,
+      }),
+    /Self-signed SMTP acceptance requires the SMTP driver/,
   );
 });
