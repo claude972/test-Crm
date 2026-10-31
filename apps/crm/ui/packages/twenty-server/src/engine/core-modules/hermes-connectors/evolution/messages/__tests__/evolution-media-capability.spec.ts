@@ -8,6 +8,7 @@ import {
   EVOLUTION_UPSERT_EVENT,
   judgeEvolutionReception,
   judgeEvolutionVoice,
+  readEvolutionDeliveryForm,
   readEvolutionIngressOrigins,
   readEvolutionIngressToken,
 } from '../evolution-media-capability';
@@ -328,6 +329,27 @@ describe('Evolution media capabilities, derived from a demonstration provider', 
     ).toBe('WEBHOOK_TOKEN_UNVERIFIABLE');
   });
 
+  // The provider appends a per-event segment when webhookByEvents is on, so the
+  // POST lands on `<url>/messages-upsert` and our ingress never sees it.
+  it('refuses reception when the provider appends a per-event segment to the URL', async () => {
+    webhook = configuredWebhook({ webhookByEvents: true });
+
+    expect(await adapter().mediaCapability(workspaceId)).toMatchObject({
+      canReceiveMedia: false,
+      receptionReason: 'WEBHOOK_PER_EVENT_PATH_NOT_SERVED',
+    });
+  });
+
+  it('does not assume the simple form when the row does not say', async () => {
+    for (const webhookByEvents of [undefined, null, 'true', 1]) {
+      webhook = configuredWebhook({ webhookByEvents });
+
+      expect(
+        (await adapter().mediaCapability(workspaceId)).receptionReason,
+      ).toBe('WEBHOOK_DELIVERY_FORM_UNPROVEN');
+    }
+  });
+
   it('accepts the delivery token header whatever case the operator typed', async () => {
     webhook = configuredWebhook({
       headers: { 'X-Hermes-Evolution-Token': webhookSecret },
@@ -347,6 +369,7 @@ describe('The capability judgements themselves, without a listener', () => {
       enabled: true,
       url: `${ingressOrigin}${EVOLUTION_INGRESS_PATH}/${connectionId}`,
       events: [EVOLUTION_UPSERT_EVENT],
+      webhookByEvents: false,
     },
   };
   const evidence = (
@@ -429,6 +452,31 @@ describe('The capability judgements themselves, without a listener', () => {
       expect(judgeEvolutionReception(evidence({ ingressToken: token }))).toEqual(
         { canReceiveMedia: false, reason },
       );
+  });
+
+  it('refuses a per-event destination before it ever looks at the URL', () => {
+    // The URL is this exact ingress, and it still cannot receive, because that
+    // is not the address the provider will call.
+    expect(
+      judgeEvolutionReception(
+        evidence({
+          webhook: {
+            kind: 'row',
+            row: { ...webhookRow.row, webhookByEvents: true },
+          },
+        }),
+      ),
+    ).toEqual({
+      canReceiveMedia: false,
+      reason: 'WEBHOOK_PER_EVENT_PATH_NOT_SERVED',
+    });
+  });
+
+  it('reads the delivery form only from an explicit boolean', () => {
+    expect(readEvolutionDeliveryForm(false)).toBe('SIMPLE');
+    expect(readEvolutionDeliveryForm(true)).toBe('PER_EVENT');
+    for (const value of [undefined, null, 'false', 0, 1, {}])
+      expect(readEvolutionDeliveryForm(value)).toBe('UNPROVEN');
   });
 
   it('reads a configured origin down to its origin and drops what is unusable', () => {
