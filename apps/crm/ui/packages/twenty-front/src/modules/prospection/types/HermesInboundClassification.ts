@@ -167,3 +167,47 @@ export type HermesScrapingClassificationReadState =
       deposits: HermesScrapingDeposit[];
       automaticDealCreated: boolean | null;
     };
+
+// One bridge receipt as a list read reports it. Every field is a defensive
+// read, so null always means "the payload did not carry a usable value".
+export type HermesInboundReceipt = {
+  noteId: string | null;
+  // 'HEYFORM' or 'CAL_DIY'. Null when the stored receipt no longer names a
+  // provider the server knows, which it reports as unattributable rather than
+  // assigning a source.
+  provider: string | null;
+  // The provider's own event identifier, which is what an operator matches
+  // against the provider console. Only proven when attribution is 'verified'.
+  eventId: string | null;
+  // ALWAYS null on a list read: the receipt does not store the booking
+  // identifier. It means unknown, never "this booking has no uid", and the
+  // inspection below therefore reports no calendar record for a booking.
+  bookingUid: string | null;
+  connectionId: string | null;
+  structureId: string | null;
+  receivedAt: string | null;
+  attribution: HermesAttribution | null;
+};
+
+// What the client knows about the receipts of this company.
+//
+// - 'denied' is an authorisation answer, not a failure;
+// - 'not-configured' is a fact the server stated: no signed connection grants
+//   Forms or Calendar, so nothing could be attributed and nothing was read;
+// - 'unreadable' is an absence of knowledge and never reads as "no receipt";
+// - only 'listed' carries receipts, and it carries `truncated` with them: a
+//   page is a prefix, and an empty page is not proof of no receipt either,
+//   because a receipt whose marker was edited away is found by no list read.
+export type HermesInboundReceiptsReadState =
+  | { kind: 'loading' }
+  | { kind: 'denied' }
+  | { kind: 'not-configured' }
+  | { kind: 'unreadable'; problem: HermesPayloadProblem }
+  | {
+      kind: 'listed';
+      receipts: HermesInboundReceipt[];
+      // When we asked. Not a claim that the page is still current.
+      checkedAt: string | null;
+      cap: number | null;
+      truncated: boolean | null;
+    };

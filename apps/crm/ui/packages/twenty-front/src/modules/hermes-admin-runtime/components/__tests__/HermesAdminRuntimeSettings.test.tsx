@@ -16,6 +16,7 @@ import { HERMES_SAVE_CONNECTION_V4 } from '@/hermes-admin-runtime/graphql/metada
 import { HERMES_CONNECTIONS_V4 } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesConnectionsV4';
 import { HERMES_EVOLUTION_CONNECTION } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesEvolutionConnection';
 import { HERMES_MEMBER_ROLES } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesMemberRoles';
+import { HERMES_MCP_TOOL_SURFACE } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesMcpToolSurface';
 import { HermesAdminRuntimeSettings } from '@/hermes-admin-runtime/components/HermesAdminRuntimeSettings';
 import { HERMES_WORKSPACE_BOT_POLICIES } from '@/hermes-bot-settings/graphql/metadata-queries/hermesWorkspaceBotPolicies';
 import { GET_MY_CONNECTED_ACCOUNTS } from '@/settings/accounts/graphql/queries/getMyConnectedAccounts';
@@ -167,6 +168,28 @@ const botPoliciesMock: MockedResponse = {
 // Two roles whose LABELS mislead. « Lecture seule » satisfies the server's
 // whole connection gate; « Administrateur » carries only the settings flag,
 // which the server refuses with a 403. The rights must follow the server.
+// La surface d'outils MCP que le panneau de ce centre lit désormais. Non
+// configurée ici : la société de ce test n'a pas de serveur MCP, et c'est un
+// fait énoncé plutôt qu'une surface vide.
+const mcpToolSurfaceMock: MockedResponse = {
+  request: { query: HERMES_MCP_TOOL_SURFACE },
+  maxUsageCount: 10,
+  result: {
+    data: {
+      hermesMcpToolSurface: {
+        __typename: 'HermesMcpToolSurface',
+        status: 'NOT_CONFIGURED',
+        checkedAt: '2026-10-31T08:00:00.000Z',
+        errorCode: null,
+        authorizedTools: [],
+        draftingTool: null,
+        truncated: false,
+        tools: [],
+      },
+    },
+  },
+};
+
 const memberRolesMock: MockedResponse = {
   request: { query: HERMES_MEMBER_ROLES },
   maxUsageCount: 10,
@@ -248,6 +271,7 @@ const renderSettings = (
           nativeAccountsMock,
           botPoliciesMock,
           memberRolesMock,
+          mcpToolSurfaceMock,
           ...extraMocks,
         ]}
       >

@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class HermesInboundOrigin {
@@ -87,4 +87,42 @@ export class HermesScrapingClassification {
   @Field(() => [HermesScrapingBatchClassification])
   batches: HermesScrapingBatchClassification[];
   @Field(() => Boolean) automaticDealCreated: boolean;
+}
+
+@ObjectType()
+export class HermesInboundReceipt {
+  @Field(() => String) noteId: string;
+  // Null when the stored receipt no longer names a provider this build knows.
+  // The row is then reported as unattributable rather than given a source.
+  @Field(() => String, { nullable: true }) provider:
+    | 'HEYFORM'
+    | 'CAL_DIY'
+    | null;
+  // The provider's own event identifier, so an operator can match the receipt
+  // against the provider console. It is only proven when VERIFIED below.
+  @Field(() => String, { nullable: true }) eventId: string | null;
+  // The receipt never stores the booking identifier, so a list read cannot
+  // name it. Null means unknown here, never "this booking has no uid".
+  @Field(() => String, { nullable: true }) bookingUid: string | null;
+  @Field(() => String, { nullable: true }) connectionId: string | null;
+  @Field(() => String) structureId: string;
+  // The time the provider reported, read from the receipt body.
+  @Field(() => String, { nullable: true }) receivedAt: string | null;
+  // VERIFIED means the stored row was reached under the identifier this
+  // company, connection, provider and event deterministically produce, so the
+  // attribution is recomputed rather than trusted.
+  @Field(() => String) attribution: 'VERIFIED' | 'NOT_ATTRIBUTABLE';
+}
+
+@ObjectType()
+export class HermesInboundReceiptPage {
+  @Field(() => String) status: 'LISTED' | 'NOT_CONFIGURED';
+  // When we asked, not a claim that the page is still current.
+  @Field(() => String) checkedAt: string;
+  @Field(() => Int) cap: number;
+  // True when more receipts exist than the cap returns: the page is a prefix,
+  // never the whole set. A receipt whose body lost its marker is found by no
+  // list read at all, so absence from this page is not absence of a receipt.
+  @Field(() => Boolean) truncated: boolean;
+  @Field(() => [HermesInboundReceipt]) receipts: HermesInboundReceipt[];
 }

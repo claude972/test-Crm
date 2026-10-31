@@ -14,6 +14,8 @@ import { centralIntakeRecord } from 'src/engine/core-modules/hermes-prospection/
 import {
   type HermesInboundItemClassification,
   type HermesInboundLinks,
+  type HermesInboundReceipt,
+  type HermesInboundReceiptPage,
   type HermesScrapingClassification,
 } from 'src/engine/core-modules/hermes-prospection/intake/hermes-inbound-classification.dto';
 import {
@@ -32,6 +34,12 @@ import { CalendarEventWorkspaceEntity } from 'src/modules/calendar/common/standa
 import { OpportunityWorkspaceEntity } from 'src/modules/opportunity/standard-objects/opportunity.workspace-entity';
 
 const RECEIPT_MARKER = 'Hermes receipt SHA256 ';
+// One page of receipts. The neighbouring Hermes reads cap and report the cut
+// instead of paging a cursor, so this returns a prefix plus `truncated`.
+const RECEIPT_CAP = 100;
+// Exact inverse of the markdown escaping the receipt body was written with.
+const unescapeReceiptText = (value: string) =>
+  value.replace(/\\([\\`*_{}[\]()#+.!<>|~])/g, '$1');
 const bridgeInputSchema = z
   .object({
     provider: z.enum(['HEYFORM', 'CAL_DIY']),
@@ -182,6 +190,112 @@ export class HermesInboundClassificationService {
     // A role revoked while the records were read must not deliver them.
     await this.access.assertAllowed(actor);
     return result;
+  }
+
+  // Lists the Forms and Calendar receipts of the authorized company. Rows are
+  // reached by their receipt marker, then each identifier is reproven by
+  // recomputing the record key from (company, connection, provider, event).
+  // No secret, digest, title or receipt body leaves this method.
+  async listBridgeReceipts(
+    actor: HermesProspectionActor,
+  ): Promise<HermesInboundReceiptPage> {
+    await this.access.assertAllowed(actor);
+    const checkedAt = new Date().toISOString();
+    const connections = await this.connectionsOf(actor.workspaceId);
+    const bridging = (connection: HermesIntakeConnection) =>
+      connection.allowedSources.includes('FORMS') ||
+      connection.allowedSources.includes('CALENDAR');
+    const candidates = Object.entries(connections).filter(([, connection]) =>
+      bridging(connection),
+    );
+    const empty = {
+      checkedAt,
+      cap: RECEIPT_CAP,
+      truncated: false,
+      receipts: [],
+    };
+    if (!candidates.length) return { status: 'NOT_CONFIGURED', ...empty };
+    const workspace = await this.workspaces.findOneBy({
+      id: actor.workspaceId,
+    });
+    if (!workspace) return { status: 'NOT_CONFIGURED', ...empty };
+    const roleId = await this.roles.getRoleIdForUserWorkspace(actor);
+    const page = await this.orm.executeInWorkspaceContext(
+      async (): Promise<HermesInboundReceiptPage> => {
+        const notes = this.orm.getRepository<NoteWorkspaceEntity>(
+          'note',
+          buildEmailingRolePermissionConfig(roleId),
+        );
+        const rows = await notes
+          .createQueryBuilder('note')
+          .where('"note"."bodyV2Markdown" LIKE :marker', {
+            marker: `${RECEIPT_MARKER}%`,
+          })
+          .orderBy('"note"."createdAt"', 'DESC')
+          .take(RECEIPT_CAP + 1)
+          .getMany<NoteWorkspaceEntity>();
+        return {
+          status: 'LISTED',
+          checkedAt,
+          cap: RECEIPT_CAP,
+          truncated: rows.length > RECEIPT_CAP,
+          receipts: rows
+            .slice(0, RECEIPT_CAP)
+            .map((note) => this.receiptOf(actor.workspaceId, candidates, note)),
+        };
+      },
+      buildSystemAuthContext({
+        workspace: fromWorkspaceEntityToFlat(workspace),
+      }),
+    );
+    // A role revoked while the rows were read must not deliver them.
+    await this.access.assertAllowed(actor);
+    return page;
+  }
+
+  // Reads one receipt row into its reported shape. The provider and event are
+  // taken from the stored header, then the row identifier is recomputed from
+  // them: a row no candidate connection reproduces stays listed, but as
+  // unattributable rather than credited to a connection.
+  private receiptOf(
+    workspaceId: string,
+    candidates: [string, HermesIntakeConnection][],
+    note: NoteWorkspaceEntity,
+  ): HermesInboundReceipt {
+    const markdown = note.bodyV2?.markdown ?? '';
+    const header = (prefix: string) => {
+      const line = markdown
+        .split('\n')
+        .find((value) => value.startsWith(prefix));
+      return line ? line.slice(prefix.length).trim() : null;
+    };
+    const named = header('Source: ');
+    const provider =
+      named === 'HEYFORM' || named === 'CAL_DIY' ? named : null;
+    const eventId = header('Event: ');
+    const canonical = eventId ? unescapeReceiptText(eventId) : null;
+    const required = provider === 'HEYFORM' ? 'FORMS' : 'CALENDAR';
+    const connectionId =
+      provider && canonical
+        ? (candidates.find(
+            ([connectionId, connection]) =>
+              connection.allowedSources.includes(required) &&
+              v5(
+                `note:${JSON.stringify([workspaceId, connectionId, provider, canonical])}`,
+                v5.URL,
+              ) === note.id,
+          )?.[0] ?? null)
+        : null;
+    return {
+      noteId: note.id,
+      provider,
+      eventId: canonical,
+      bookingUid: null,
+      connectionId,
+      structureId: workspaceId,
+      receivedAt: this.reportedAt(markdown) ?? null,
+      attribution: connectionId ? 'VERIFIED' : 'NOT_ATTRIBUTABLE',
+    };
   }
 
   private async bookingId(
