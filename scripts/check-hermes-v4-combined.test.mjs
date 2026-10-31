@@ -154,6 +154,18 @@ test("backend discovery covers the auth and messaging lots of this checkout", ()
       suites.includes(extra),
       `Declared extra never reaches the run: ${extra}`,
     );
+  // The hermes-* scan recurses, so a spec in a nested __tests__ under a
+  // hermes-* root needs no declaration. Pinned here because the alternative is
+  // trusting a reading of the scan, and a wrong reading means a silent hole or
+  // a redundant entry.
+  assert.ok(
+    suites.some((name) =>
+      name.startsWith(
+        "src/engine/core-modules/hermes-prospection/intake/__tests__/",
+      ),
+    ),
+    "The hermes-* scan must reach nested __tests__ directories",
+  );
 });
 
 // Asserts the LIST, so it holds on a checkout that does not yet carry the
@@ -165,6 +177,7 @@ test("specs outside the hermes-* scan stay declared explicitly", () => {
     "src/modules/emailing/services/__tests__/campaign-native-mailbox-smtp-acceptance.spec.ts",
     "src/engine/core-modules/twenty-config/__tests__/default-locale.config-variable.spec.ts",
     "src/engine/core-modules/user-workspace/__tests__/user-workspace-locale.service.spec.ts",
+    "src/modules/emailing/utils/__tests__/campaign-body-round-trip.util.spec.ts",
   ])
     assert.ok(
       BACKEND_EXTRAS.includes(required),
