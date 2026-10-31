@@ -21,6 +21,7 @@ import { AppPath } from 'kovaa-lab-shared/types';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 import {
   type AuthToken,
+  type AvailableWorkspace,
   CheckUserExistsDocument,
   GetAuthTokensFromLoginTokenDocument,
   GetAuthTokensFromOtpDocument,
@@ -170,51 +171,6 @@ export const useAuth = () => {
     assignLocation(AppPath.SignInUp);
   }, [store, setLastAuthenticateWorkspaceDomain]);
 
-  const navigateAfterMultiWorkspaceSignInUp = useCallback(
-    async (
-      availableWorkspaces: Parameters<typeof countAvailableWorkspaces>[0],
-      email: string,
-    ) => {
-      const availableWorkspacesCount =
-        countAvailableWorkspaces(availableWorkspaces);
-
-      // Set by the in-app "Create Workspace" entry point to skip workspace selection.
-      const wantsToCreateNewWorkspace =
-        new URLSearchParams(window.location.search).get('action') ===
-        'create-new-workspace';
-
-      if (availableWorkspacesCount === 0 || wantsToCreateNewWorkspace) {
-        await apolloClient.query({
-          query: GetWorkspaceCreationDefaultsDocument,
-        });
-        setSignInUpStep(SignInUpStep.WorkspaceCreation);
-        return;
-      }
-
-      if (
-        availableWorkspacesCount === 1 &&
-        !isChooseWorkspaceActionRequested()
-      ) {
-        const targetWorkspace =
-          getFirstAvailableWorkspaces(availableWorkspaces);
-
-        return await redirectToWorkspaceDomain(
-          getWorkspaceUrl(targetWorkspace.workspaceUrls),
-          targetWorkspace.loginToken ? AppPath.Verify : AppPath.SignInUp,
-          {
-            ...(targetWorkspace.loginToken && {
-              loginToken: targetWorkspace.loginToken,
-            }),
-            email,
-          },
-        );
-      }
-
-      setSignInUpStep(SignInUpStep.WorkspaceSelection);
-    },
-    [apolloClient, redirectToWorkspaceDomain, setSignInUpStep],
-  );
-
   const handleGetLoginTokenFromCredentials = useCallback(
     async (email: string, password: string, captchaToken?: string) => {
       try {
@@ -273,51 +229,6 @@ export const useAuth = () => {
       return loginTokenResult.data.verifyEmailAndGetLoginToken;
     },
     [verifyEmailAndGetLoginToken, origin],
-  );
-
-  const handleverifyEmailAndGetWorkspaceAgnosticToken = useCallback(
-    async (
-      emailVerificationToken: string,
-      email: string,
-      captchaToken?: string,
-    ) => {
-      const requestSessionGeneration = getSessionGeneration();
-      const { data, error } = await verifyEmailAndGetWorkspaceAgnosticToken({
-        variables: {
-          email,
-          emailVerificationToken,
-          captchaToken,
-        },
-      });
-
-      if (isDefined(error)) {
-        throw error;
-      }
-
-      if (!data?.verifyEmailAndGetWorkspaceAgnosticToken) {
-        throw new Error(
-          doNotTranslate('No workspace agnostic token in result'),
-        );
-      }
-
-      if (isSameOriginMultiWorkspaceEnabled)
-        assertAuthSessionUnchanged(requestSessionGeneration);
-      markSessionActive();
-
-      const { user } = await loadCurrentUser();
-
-      await navigateAfterMultiWorkspaceSignInUp(
-        user.availableWorkspaces,
-        user.email,
-      );
-    },
-    [
-      isSameOriginMultiWorkspaceEnabled,
-      verifyEmailAndGetWorkspaceAgnosticToken,
-      markSessionActive,
-      loadCurrentUser,
-      navigateAfterMultiWorkspaceSignInUp,
-    ],
   );
 
   const handleSetLoginToken = useCallback(
@@ -436,6 +347,136 @@ export const useAuth = () => {
       handleLoadWorkspaceAfterAuthentication,
       setSignInUpStep,
       navigate,
+    ],
+  );
+
+  // Entering a workspace on a same-origin deployment is a token exchange, not
+  // a navigation: there is no second host to hand the session to. The login
+  // token the server just issued for that workspace is redeemed here, bound to
+  // the workspace it names, and the session only exists once that exchange has
+  // returned and been checked.
+  const signInToAvailableWorkspaceOnSameOrigin = useCallback(
+    async (availableWorkspace: AvailableWorkspace) => {
+      if (
+        !isSameOriginMultiWorkspaceEnabled ||
+        !isNonEmptyString(availableWorkspace.loginToken) ||
+        !isUuid(availableWorkspace.id)
+      )
+        throw new Error(t`Authentication failed`);
+
+      await handleGetAuthTokensFromLoginToken(
+        availableWorkspace.loginToken,
+        availableWorkspace.id,
+      );
+    },
+    [isSameOriginMultiWorkspaceEnabled, handleGetAuthTokensFromLoginToken],
+  );
+
+  const navigateAfterMultiWorkspaceSignInUp = useCallback(
+    async (
+      availableWorkspaces: Parameters<typeof countAvailableWorkspaces>[0],
+      email: string,
+    ) => {
+      const availableWorkspacesCount =
+        countAvailableWorkspaces(availableWorkspaces);
+
+      // Set by the in-app "Create Workspace" entry point to skip workspace selection.
+      const wantsToCreateNewWorkspace =
+        new URLSearchParams(window.location.search).get('action') ===
+        'create-new-workspace';
+
+      if (availableWorkspacesCount === 0 || wantsToCreateNewWorkspace) {
+        await apolloClient.query({
+          query: GetWorkspaceCreationDefaultsDocument,
+        });
+        setSignInUpStep(SignInUpStep.WorkspaceCreation);
+        return;
+      }
+
+      if (
+        availableWorkspacesCount === 1 &&
+        !isChooseWorkspaceActionRequested()
+      ) {
+        const targetWorkspace =
+          getFirstAvailableWorkspaces(availableWorkspaces);
+
+        // Same-origin with a token already in hand: redeem it in place rather
+        // than route to a domain that is this one. The sign-up-in-workspace
+        // path below already falls back to the in-place exchange off this same
+        // flag; the global sign-in path was missing that branch, so it handed
+        // the only workspace to a cross-domain redirect that has nowhere to go.
+        if (
+          isSameOriginMultiWorkspaceEnabled &&
+          isNonEmptyString(targetWorkspace.loginToken)
+        ) {
+          return await signInToAvailableWorkspaceOnSameOrigin(targetWorkspace);
+        }
+
+        return await redirectToWorkspaceDomain(
+          getWorkspaceUrl(targetWorkspace.workspaceUrls),
+          targetWorkspace.loginToken ? AppPath.Verify : AppPath.SignInUp,
+          {
+            ...(targetWorkspace.loginToken && {
+              loginToken: targetWorkspace.loginToken,
+            }),
+            email,
+          },
+        );
+      }
+
+      setSignInUpStep(SignInUpStep.WorkspaceSelection);
+    },
+    [
+      apolloClient,
+      isSameOriginMultiWorkspaceEnabled,
+      redirectToWorkspaceDomain,
+      setSignInUpStep,
+      signInToAvailableWorkspaceOnSameOrigin,
+    ],
+  );
+
+  const handleverifyEmailAndGetWorkspaceAgnosticToken = useCallback(
+    async (
+      emailVerificationToken: string,
+      email: string,
+      captchaToken?: string,
+    ) => {
+      const requestSessionGeneration = getSessionGeneration();
+      const { data, error } = await verifyEmailAndGetWorkspaceAgnosticToken({
+        variables: {
+          email,
+          emailVerificationToken,
+          captchaToken,
+        },
+      });
+
+      if (isDefined(error)) {
+        throw error;
+      }
+
+      if (!data?.verifyEmailAndGetWorkspaceAgnosticToken) {
+        throw new Error(
+          doNotTranslate('No workspace agnostic token in result'),
+        );
+      }
+
+      if (isSameOriginMultiWorkspaceEnabled)
+        assertAuthSessionUnchanged(requestSessionGeneration);
+      markSessionActive();
+
+      const { user } = await loadCurrentUser();
+
+      await navigateAfterMultiWorkspaceSignInUp(
+        user.availableWorkspaces,
+        user.email,
+      );
+    },
+    [
+      isSameOriginMultiWorkspaceEnabled,
+      verifyEmailAndGetWorkspaceAgnosticToken,
+      markSessionActive,
+      loadCurrentUser,
+      navigateAfterMultiWorkspaceSignInUp,
     ],
   );
 
@@ -882,6 +923,7 @@ export const useAuth = () => {
   return {
     selectWorkspaceOnSameOrigin,
     createWorkspaceOnSameOrigin,
+    signInToAvailableWorkspaceOnSameOrigin,
     getLoginTokenFromCredentials: handleGetLoginTokenFromCredentials,
     verifyEmailAndGetWorkspaceAgnosticToken:
       handleverifyEmailAndGetWorkspaceAgnosticToken,
