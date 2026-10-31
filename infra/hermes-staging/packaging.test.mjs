@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { spawnSync, execFileSync } from 'node:child_process';
 import { actionCommands, assertCronSummary, assertUpgradeSummary, assertDatabaseState, main, runCommands, validateEnvironment } from './entrypoint.mjs';
 import { validateSmokeEnvironment } from '../../scripts/check-hermes-staging-image.mjs';
 
@@ -112,4 +113,28 @@ test('partial bootstrap and unowned preexisting databases cannot be silently ado
   assert.equal(assertDatabaseState({ tableCount: 0, markerPresent: false }), false);
   assert.equal(assertDatabaseState({ tableCount: 30, markerPresent: true, complete: true }), true);
   for (const state of [{ tableCount: 1, markerPresent: false }, { tableCount: 30, markerPresent: true, complete: false }, { tableCount: 30, markerPresent: true }]) assert.throws(() => assertDatabaseState(state));
+});
+
+test('real tracked SDK/CLI build source survives context filtering while outputs and secrets do not', () => {
+  const root = new URL('../../', import.meta.url);
+  const tracked = execFileSync('git', ['ls-files', '-z', ':(glob)apps/crm/ui/**/build/**', ':(glob)apps/crm/ui/**/dist/**'], { cwd: root }).toString().split('\0').filter((file) => /\/(build|dist)\//.test(file));
+  assert.ok(tracked.includes('apps/crm/ui/packages/twenty-sdk/src/front-component-renderer/build/index.ts'));
+  assert.ok(tracked.includes('apps/crm/ui/packages/twenty-cli/src/commands/app/build/run-app-build-command.ts'));
+  const temporary = mkdtempSync(path.join(os.tmpdir(), 'kovaalabcrm-context-test-'));
+  try {
+    execFileSync('git', ['init', '--quiet', temporary]);
+    writeFileSync(path.join(temporary, '.gitignore'), source('Dockerfile.dockerignore'));
+    const excluded = ['apps/crm/ui/packages/twenty-front/build/index.html', 'apps/crm/ui/packages/twenty-server/dist/main.js', 'apps/crm/ui/.env', 'apps/crm/ui/packages/twenty-server/.env.production', 'apps/crm/ui/node_modules/anything.js', 'apps/crm/bot/index.ts'];
+    const syntheticSource = ['apps/crm/ui/packages/twenty-sdk/src/example/dist/index.ts', 'apps/crm/ui/packages/twenty-sdk/src/secret/token.ts'];
+    const candidates = [...tracked, ...syntheticSource, ...excluded];
+    const result = spawnSync('git', ['-c', 'core.excludesFile=/dev/null', 'check-ignore', '--no-index', '--stdin', '-z'], { cwd: temporary, input: candidates.join('\0') + '\0', encoding: 'utf8' });
+    assert.equal(result.status, 0);
+    const ignored = new Set(result.stdout.split('\0').filter(Boolean));
+    for (const file of [...tracked, ...syntheticSource]) assert.equal(ignored.has(file), false, `Required source excluded: ${file}`);
+    for (const file of excluded) assert.equal(ignored.has(file), true, `Private/output file included: ${file}`);
+    assert.doesNotMatch(source('Dockerfile.dockerignore'), /^\*\*\/(?:build|dist)$/m);
+    writeFileSync(path.join(temporary, '.gitignore'), source('Dockerfile.dockerignore') + '\n**/build\n');
+    const regression = spawnSync('git', ['-c', 'core.excludesFile=/dev/null', 'check-ignore', '--no-index', '--stdin', '-z'], { cwd: temporary, input: tracked.join('\0') + '\0', encoding: 'utf8' });
+    assert.ok(regression.stdout.split('\0').includes('apps/crm/ui/packages/twenty-sdk/src/front-component-renderer/build/index.ts'), 'Original broad exclusion must reproduce the lost source');
+  } finally { rmSync(temporary, { recursive: true }); }
 });
