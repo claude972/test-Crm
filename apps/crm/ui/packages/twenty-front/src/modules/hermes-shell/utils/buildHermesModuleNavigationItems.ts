@@ -8,7 +8,13 @@ import { PROSPECTION_RECEPTION_PATH } from '@/prospection/constants/ProspectionR
 import { HERMES_SHELL_ROUTE_PATHS } from '@/hermes-shell/constants/HermesShellRoutePaths';
 
 export type HermesModuleNavigationItem = {
-  key: 'dashboard' | 'reception' | 'messaging';
+  key:
+    | 'dashboard'
+    | 'reception'
+    | 'messaging'
+    | 'whatsapp'
+    | 'mailbox'
+    | 'connections';
   to: string;
   isActive: boolean;
 };
