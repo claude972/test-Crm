@@ -633,7 +633,10 @@ export const useAuth = () => {
       });
       if (isDefined(result.error)) throw result.error;
       const selected = result.data?.selectWorkspaceOnSameOrigin;
-      if (!selected || selected.workspace.id !== workspaceId)
+      if (
+        !selected ||
+        selected.workspace.id.toLowerCase() !== workspaceId.toLowerCase()
+      )
         throw new Error(t`Authentication failed`);
       assertAuthSessionUnchanged(requestSessionGeneration);
       await handleGetAuthTokensFromLoginToken(
