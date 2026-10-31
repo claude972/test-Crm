@@ -282,6 +282,38 @@ et `hooks/useMessagingInboxBotMode.ts` accordés avec condition, car le **mail**
 consomme aussi — un changement doit laisser le contrôle du fil mail fonctionnel et
 couvert par un test.
 
+## Round de revue — réponses aux findings root
+
+| Catégorie | SHA | Finding fermé |
+|---|---|---|
+| CAT-UI-MAIL | `0a7da5236` | relecture exigée avant toute seconde écriture (domaine) |
+| CAT-UI-MAIL | `8e6d1dbed` | CATMAIL003 — `skipRetry` sur la création de boîte |
+| CAT-UI-MAIL | `c605a51d9` | CATMAIL004 — lecture en échec distinguée d'une absence |
+| CAT-UI-WA | `b4bcf64de` | CATWA004 — relecture réelle après un refus STALE |
+| CAT-UI-WA | `8f285f8bd` | fausse preuve Opus remplacée par un vrai flux Ogg/Opus |
+| CAT-UI-WA | `2d28197c0` | CATWA005 verrou/génération + CATWA006 genre validé serveur |
+
+Assemblé à `a83b7152d`. CAT-UI-WA mesure 26 suites / 277 tests sur son périmètre
+complet, contre 260 au round précédent : +17 tests, zéro régression.
+
+Trois points qui méritent d'être lus :
+
+- **CATWA005 reproduit exactement**, preuve négative à l'appui : l'état IMAGE
+  survivant était écrasé par l'AUDIO supervenu — `assetKind`, `assetId` et
+  `mimeType` divergeaient tous les trois. Le verrou plus la génération de requête
+  empêchent désormais une tentative dépassée de repeindre l'écran **et** de pousser
+  ses octets, le contrôle étant refait après l'await de préparation.
+- **Un commentaire affirmait encore un invariant que le code ne tenait pas** : le
+  composeur prétendait que le cas `video/webm` « says so rather than sending it as a
+  video », alors que `startsWith('video/')` l'envoyait en VIDEO. Troisième
+  occurrence de ce motif dans la mission.
+- **La preuve Opus était 2048 octets nuls étiquetés.** Remplacée par deux pages Ogg
+  correctement encadrées portant `OpusHead` et `OpusTags`, avec sommes de contrôle
+  valides — et la validité est **vérifiée** par une seconde implémentation sans
+  table, pas affirmée en commentaire. La revendication a été rétrécie à ce qu'elle
+  démontre : traitement du type et de la séquence sur un conteneur réellement
+  conforme, ni lecture audio, ni intégration fournisseur.
+
 ## Défauts restants, à ne pas lire comme des détails
 
 1. **IMAP+SMTP.** Une boîte créée en SMTP seul ne crée aucun canal de message, et
