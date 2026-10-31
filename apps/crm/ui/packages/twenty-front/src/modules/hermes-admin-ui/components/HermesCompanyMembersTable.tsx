@@ -91,7 +91,8 @@ export const HermesCompanyMembersTable = ({
     READ_RECORDS: t`Lire les fiches`,
     WRITE_RECORDS: t`Modifier les fiches`,
     DELETE_RECORDS: t`Supprimer des fiches`,
-    USE_BOT_TOOLS: t`Utiliser les outils du bot`,
+    // Named as the CRM flag, not as a Hermès delegation right.
+    CRM_ALL_TOOLS_FLAG: t`Indicateur CRM « accès à tous les outils »`,
   };
 
   // « Inconnu » is a flag the server did not publish. It is never shown as a
@@ -225,7 +226,19 @@ export const HermesCompanyMembersTable = ({
       </HermesAdminNote>
 
       <HermesAdminNote>
-        {t`Un membre peut porter plusieurs rôles : ses droits sont alors la réunion de ce qu’ils accordent. « Inconnu » signifie que le serveur n’a pas publié l’indicateur, ce qui n’est pas un refus.`}
+        {t`« Configurer les connexions » reprend exactement le contrôle du serveur : il exige les droits non restreints sur les réglages, la lecture et l’écriture de toutes les fiches, et refuse tout rôle portant des permissions de champ ou des conditions par ligne. Un rôle qui n’a que les réglages est refusé.`}
+      </HermesAdminNote>
+
+      <HermesAdminNote>
+        {t`Pour les fiches, un membre portant plusieurs rôles cumule ce qu’ils accordent. Pour les connexions, le serveur ne retient qu’un seul rôle : si les rôles ne concordent pas, le résultat est dit inconnu plutôt que deviné.`}
+      </HermesAdminNote>
+
+      <HermesAdminNote>
+        {t`L’indicateur CRM « accès à tous les outils » n’est pas une autorisation de bot. Une délégation au bot se donne par société, par canal et par conversation, avec un responsable et une époque, ce que cet indicateur ne connaît pas.`}
+      </HermesAdminNote>
+
+      <HermesAdminNote>
+        {t`« Inconnu » signifie que le serveur n’a pas publié le fait, ou que cet écran ne peut pas le trancher. Ce n’est jamais un refus.`}
       </HermesAdminNote>
 
       <HermesAdminNote>

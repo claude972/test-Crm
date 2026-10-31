@@ -33,17 +33,34 @@ export class HermesConnectorsService {
     actor: HermesConnectorActor,
   ): Promise<HermesEvolutionConnectionDTO> {
     await this.assertAllowed(actor);
+
+    // The transport is awaited in its own try, so a provider failure stays a
+    // provider failure and nothing else is swallowed with it.
+    let probed: Awaited<
+      ReturnType<EvolutionConnectionAdapter['probe']>
+    > | null = null;
+
     try {
-      const result = this.central
+      probed = this.central
         ? await new HermesConnectedEvolutionAdapter(
             this.central,
           ).connectionState(actor.workspaceId)
         : await new EvolutionConnectionAdapter(
             this.config.get('HERMES_EVOLUTION_CONNECTIONS'),
           ).probe(actor.workspaceId);
-
-      return { ...result, checkedAt: new Date(result.checkedAt) };
     } catch {
+      probed = null;
+    }
+
+    // The caller's rights, re-affirmed after the I/O and deliberately OUTSIDE
+    // the catch above. `resolve` revalidates the CONFIGURATOR, not the caller,
+    // so a second administrator revoked mid-probe would otherwise receive
+    // private provider state. Raising it here also stops a 403 being
+    // disguised as « the provider is unreachable », which would send the
+    // operator to debug a provider that is perfectly fine.
+    await this.assertAllowed(actor);
+
+    if (probed === null) {
       return {
         workspaceId: actor.workspaceId,
         provider: 'EVOLUTION',
@@ -53,6 +70,8 @@ export class HermesConnectorsService {
         errorCode: 'REQUEST_FAILED',
       };
     }
+
+    return { ...probed, checkedAt: new Date(probed.checkedAt) };
   }
 
   private async assertAllowed(actor: HermesConnectorActor): Promise<void> {

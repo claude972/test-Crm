@@ -106,6 +106,14 @@ export function connectionIdentity(
             settings.toolName,
             settings.protocolVersion,
             settings.argumentMap,
+            // Widening what the bot may call without consent is an identity
+            // change: it rotates the connection ID so old conversation and
+            // ledger context is not reused, and it forces the secrets to be
+            // supplied again. Appended only when present, so records stored
+            // before this field keep their digest and still resolve.
+            ...(settings.authorizedTools === undefined
+              ? []
+              : [settings.authorizedTools]),
           ]
         : kind === 'MAIL'
           ? [settings.connectedAccountId, settings.mailbox, settings.handle]

@@ -179,6 +179,56 @@ describe('Hermes connector workspace authorization', () => {
     expect(probe).not.toHaveBeenCalled();
   });
 
+  it('returns no private provider state to a caller revoked mid-probe', async () => {
+    // The caller is a SECOND administrator. The central reader revalidates the
+    // CONFIGURATOR, not the caller, so only an explicit recheck after the I/O
+    // stops their revocation being ignored.
+    const { service, roleTargets, probe } = setup();
+
+    probe.mockImplementation(async () => {
+      // Revoked while the provider request is in flight.
+      roleTargets.findOne.mockResolvedValue(null);
+
+      return {
+        workspaceId: actor.workspaceId,
+        provider: 'EVOLUTION',
+        status: 'PROVIDER_REPORTED_OPEN',
+        providerState: 'open',
+        checkedAt: '2026-10-30T04:00:00Z',
+        errorCode: null,
+      };
+    });
+
+    await expect(service.evolutionConnection(actor)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+
+    // The probe did run; its private state is simply not handed back.
+    expect(probe).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not disguise an authority refusal as a provider failure', async () => {
+    // A 403 reported as « the provider is unreachable » would send the
+    // operator to debug a provider that is fine. The refusal is raised outside
+    // the transport catch, so it must not become UNAVAILABLE.
+    const { service, roleTargets, probe } = setup();
+
+    probe.mockImplementation(async () => {
+      roleTargets.findOne.mockResolvedValue(null);
+
+      throw new Error('provider timeout');
+    });
+
+    const outcome = await service
+      .evolutionConnection(actor)
+      .then(() => 'resolved')
+      .catch((failure: unknown) =>
+        failure instanceof ForbiddenException ? 'forbidden' : 'other',
+      );
+
+    expect(outcome).toBe('forbidden');
+  });
+
   it('does not expose invalid configuration or unexpected adapter diagnostics', async () => {
     const { service, probe } = setup();
 

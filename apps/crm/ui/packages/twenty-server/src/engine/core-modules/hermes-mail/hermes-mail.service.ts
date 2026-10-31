@@ -195,31 +195,38 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
     };
   }
 
+  // Reports the mail configuration WITHOUT claiming to have reached anything.
+  //
+  // This used to return AVAILABLE when the sync cursor was fresh. A cursor is
+  // the trace of a past poll, not reachability now: credentials can be revoked
+  // and a server can go down a second after a successful sync. Publishing that
+  // as AVAILABLE showed a mailbox as reachable that nobody had reached.
+  //
+  // It stays CONFIGURED_UNVERIFIED on purpose. No probe is attempted here
+  // either: this runs on the connections listing and on every AUTO activation,
+  // so dialling IMAP and SMTP from it would turn a page load into provider
+  // traffic. The dated, deliberate check is `hermesTestMailConnectionV4`.
   async probe(workspaceId: string): Promise<HermesMessagingProbe> {
     try {
       const item = await this.connection(workspaceId);
       if (!item)
         return { status: 'NOT_CONFIGURED', canSend: false, canSync: false };
-      const cursor = await this.cursors.findOneBy({
-        workspaceId,
-        connectionId: item.binding.connectionId,
-        mailbox: item.binding.mailbox,
-      });
-      const verifiedAt = cursor?.updatedAt?.getTime() ?? 0;
-      const credentialsAt = item.account.updatedAt?.getTime() ?? 0;
-      const verified =
-        verifiedAt >= credentialsAt &&
-        verifiedAt > Date.now() - 600000 &&
-        verifiedAt <= Date.now() + 1000;
+      // SMTP security is a property of the stored configuration, so it is a
+      // statement about what the account is ALLOWED to attempt — never about
+      // whether a server answered.
+      const canSend = secure(
+        item.account.connectionParameters?.SMTP?.connectionSecurity,
+      );
+
       return {
-        status: verified ? 'AVAILABLE' : 'CONFIGURED_UNVERIFIED',
+        // Configured, and nothing has verified it. The only honest state for a
+        // read that touched no provider.
+        status: 'CONFIGURED_UNVERIFIED',
         canSync: true,
-        canComposeRichEmail:
-          verified &&
-          secure(item.account.connectionParameters?.SMTP?.connectionSecurity),
-        canSend: secure(
-          item.account.connectionParameters?.SMTP?.connectionSecurity,
-        ),
+        canSend,
+        // Previously gated on cursor freshness, which is reception evidence
+        // and says nothing about SMTP. It is the same permission as canSend.
+        canComposeRichEmail: canSend,
       };
     } catch {
       return {

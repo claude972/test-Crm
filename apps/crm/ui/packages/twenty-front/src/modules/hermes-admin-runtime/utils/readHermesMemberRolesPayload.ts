@@ -27,6 +27,12 @@ const readText = (value: unknown): string | null => {
   return trimmed === '' ? null : trimmed;
 };
 
+// A restriction list that is not an array was not reported. Null, not zero:
+// the server refuses any role carrying one, so guessing zero would claim a
+// grant the server will deny.
+const readCount = (value: unknown): number | null =>
+  Array.isArray(value) ? value.length : null;
+
 const readFlags = (record: Record<string, unknown>): HermesMemberRoleFlags => ({
   canUpdateAllSettings: readFlag(record.canUpdateAllSettings),
   canReadAllObjectRecords: readFlag(record.canReadAllObjectRecords),
@@ -34,6 +40,11 @@ const readFlags = (record: Record<string, unknown>): HermesMemberRoleFlags => ({
   canSoftDeleteAllObjectRecords: readFlag(record.canSoftDeleteAllObjectRecords),
   canDestroyAllObjectRecords: readFlag(record.canDestroyAllObjectRecords),
   canAccessAllTools: readFlag(record.canAccessAllTools),
+  fieldPermissionCount: readCount(record.fieldPermissions),
+  rowLevelPredicateCount: readCount(record.rowLevelPermissionPredicates),
+  rowLevelPredicateGroupCount: readCount(
+    record.rowLevelPermissionPredicateGroups,
+  ),
 });
 
 export type HermesMemberRolesRead =
