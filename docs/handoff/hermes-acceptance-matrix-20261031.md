@@ -36,3 +36,11 @@ Les états de la colonne « à la reprise » restent historiques. Les deltas sui
 
 
 Complément 04:36 UTC : les deux suites campagnes non chargées ont été relancées avec résolution explicite des dépendances, sans mutation du checkout original : 14 tests PASS, soit les sept suites/86 tests recontrôlés en deux runs. Correction du périmètre de preuve relue `32059faa5`, onboarding HTTP/PG encore non recetté. Locale : root 7 tests PASS sur service/configuration. PWA : root 26 tests isolés PASS sur `936a21c65`, correction de police et rapport relus, intégration finale/installation/Safari toujours attendus.
+
+
+## Checkpoint — 31 octobre 04:46 UTC
+
+- R10 : premier frontend `b4d89be46` livré mais **non approuvé**. Quatre défauts de parcours concrets ouverts : format EmailDocument absent, saisie perdue pendant save, sélection de From impossible pour nouveau brouillon et audience non sélectionnable. Les callbacks branchés et tests de mocks ne ferment pas ces critères.
+- R07 : root 67 tests isolés PASS sur `19cb1c968`, correction origine/jeton vérifiée dans ce périmètre. Nouveau défaut byEvents/suffixe404 à corriger. Vrai stockage natif et Evolution réel non validés.
+- R05/R09/R13 : nouvelles queries classification et découverte MCP poussées ; affichage utilisateur encore à intégrer. Course de révision MCP ouverte ; premier run groupé de tests 20PASS/1FAIL, relance fichier seul7PASS, instabilité à expliquer.
+- CI intégration `cc7243140`, run41169707939 en cours, harnais de sélection6testsPASS. Aucune nouvelle recette navigateur ni preview finale à ce checkpoint.
