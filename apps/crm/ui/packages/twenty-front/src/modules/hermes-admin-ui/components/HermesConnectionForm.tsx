@@ -192,6 +192,8 @@ export const HermesConnectionForm = ({
 
   const [issues, setIssues] = useState<HermesConnectionFormIssues>({});
 
+  const hasSelectableAccounts = (nativeAccounts ?? []).length > 0;
+
   // Nothing is written before the operator has read what the write will stop.
   const [pending, setPending] = useState<'none' | 'save' | 'delete'>('none');
 
@@ -368,7 +370,10 @@ export const HermesConnectionForm = ({
             <StyledSelect
               id={nativeAccountId}
               value={values.nativeAccountId}
-              disabled={isSaving}
+              // An empty list is not a choice: offering it as a live control
+              // presents « choose an account » as though the choice were
+              // merely empty.
+              disabled={isSaving || !hasSelectableAccounts}
               aria-invalid={
                 issues.nativeAccountId === 'required' ? true : undefined
               }
@@ -384,7 +389,11 @@ export const HermesConnectionForm = ({
                 }))
               }
             >
-              <option value="">{t`Choisir un compte connecté`}</option>
+              <option value="">
+                {hasSelectableAccounts
+                  ? t`Choisir un compte connecté`
+                  : t`Aucun compte à choisir`}
+              </option>
               {(nativeAccounts ?? []).map((account) => (
                 <option key={account.id} value={account.id}>
                   {/* The account's own name, then the address the server
@@ -403,11 +412,14 @@ export const HermesConnectionForm = ({
               ))}
             </StyledSelect>
 
-            {(nativeAccounts ?? []).length === 0 && (
+            {/* This form never says the company HAS no native account: it did
+                not read the list, it was handed one, and an empty hand-off is
+                not a verdict. Whoever performed the read states what it
+                established — in flight, unreadable, or reported empty — and
+                those three never collapse into one sentence here. */}
+            {!hasSelectableAccounts && mailboxSetupSlot === undefined && (
               <HermesAdminNote role="status">
-                {mailboxSetupSlot === undefined
-                  ? t`Aucun compte connecté natif IMAP ou SMTP n’est disponible. Il faut en connecter un dans les comptes du produit : rien ne se saisit ici à sa place.`
-                  : t`Aucun compte connecté natif IMAP ou SMTP n’est disponible. Vous pouvez en connecter un ci-dessous ; les identifiants restent dans le magasin chiffré natif.`}
+                {t`Aucun compte connecté natif IMAP ou SMTP n’a été transmis à ce formulaire. Connectez-en un dans les comptes du produit : rien ne se saisit ici à sa place.`}
               </HermesAdminNote>
             )}
 

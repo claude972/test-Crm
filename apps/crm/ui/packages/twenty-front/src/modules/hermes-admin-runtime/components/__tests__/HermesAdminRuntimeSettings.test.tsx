@@ -760,10 +760,14 @@ describe('HermesAdminRuntimeSettings', () => {
       screen.getByRole('button', { name: 'Relire la liste des comptes' }),
     ).toBeInTheDocument();
 
-    // And the absence the server never stated is NOT claimed.
+    // And the absence the server never stated is NOT claimed — neither by the
+    // creation panel nor by the form's own selector note, which is the stack
+    // the operator used to be shown: a false absence with the correction
+    // directly underneath it.
     expect(
       screen.queryByText(/Aucune boîte mail n’est encore enregistrée/),
     ).toBeNull();
+    expect(screen.queryByText(/Aucun compte connecté natif/)).toBeNull();
   });
 
   it('reports an absence only when the server reported one', async () => {
@@ -785,6 +789,32 @@ describe('HermesAdminRuntimeSettings', () => {
       screen.queryByText(
         /La liste des comptes connectés natifs n’a pas pu être lue/,
       ),
+    ).toBeNull();
+
+    // The form still states nothing of its own: it did not read the list.
+    expect(screen.queryByText(/Aucun compte connecté natif/)).toBeNull();
+  });
+
+  it('does not offer an empty account list as a live choice', async () => {
+    renderSettings([], emptyAccountsMock);
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
+
+    // « Choisir un compte connecté » over no options reads as a choice that
+    // merely happens to be empty. There is nothing to choose, and the control
+    // says so and is not operable.
+    const select = await screen.findByLabelText('Compte connecté natif');
+
+    expect(select).toBeDisabled();
+    expect(
+      screen.getByRole('option', { name: 'Aucun compte à choisir' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', { name: 'Choisir un compte connecté' }),
     ).toBeNull();
   });
 });
