@@ -22,12 +22,9 @@ type HermesMailboxRuntimeBotPanelProps = {
 
 // The bot, on the mail message that is open.
 //
-// The same V3 policy as every other channel: it is read from the server for
-// this exact conversation, and the effective mode is the server's answer. The
-// mode is never recomputed here, and a policy that cannot be read says so.
-//
-// Shown outside the editor on purpose, so stopping the bot on a thread does
-// not require opening a reply first. Replying by hand never depends on it.
+// The same V3 policy as every other channel: the effective mode is the
+// server's answer, never recomputed, and an unreadable one says so. Shown
+// outside the editor so stopping the bot needs no reply open first.
 export const HermesMailboxRuntimeBotPanel = ({
   conversationId,
 }: HermesMailboxRuntimeBotPanelProps) => {

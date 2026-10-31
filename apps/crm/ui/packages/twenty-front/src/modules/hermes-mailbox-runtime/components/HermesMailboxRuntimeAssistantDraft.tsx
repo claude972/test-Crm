@@ -39,13 +39,9 @@ type HermesMailboxRuntimeAssistantDraftProps = {
 
 // A bot draft for the mail answer being written.
 //
-// It asks and stops there. There is no path from here to any send mutation,
-// and no caller can give it one: a proposal is inserted by a person and sent
-// by a person, which is the separate explicit human call the contract wants.
-//
-// The policy decides whether asking is even offered, and the policy is the
-// server's. Under OFF nothing is offered and nothing is called. An unreadable
-// policy closes the action rather than opening it on a guess.
+// It asks and stops there: no path from here reaches a send mutation. The
+// server's policy decides whether asking is offered at all — under OFF
+// nothing is offered or called, and an unreadable policy closes the action.
 export const HermesMailboxRuntimeAssistantDraft = ({
   conversationId,
   messageId,

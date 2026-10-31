@@ -22,18 +22,9 @@ export type HermesMailboxRuntimeDraftIdentities = {
 
 // The draft identities this mailbox has been issued, kept across reloads.
 //
-// Why this exists: no operation publishes a native draft's stable id or its
-// opaque revision, so a reload used to lose both and the resume button went
-// with them. What is kept here is never computed — it is the server's own
-// answer to a save, stored verbatim and replayed verbatim.
-//
-// What is kept is only an identity. The recipients, the subject and the body
-// of a resumed draft still come from the server's read of the native message,
-// and the save that follows is still the server's compare-and-swap: a stored
-// revision the provider has moved past is refused there, not accepted here.
-//
-// Scoped to the mailbox the central connection resolved. Without one, nothing
-// is read or written: a UID means nothing without the account it belongs to.
+// Only identities: a resumed draft's recipients and body still come from the
+// server's read, and the save that follows is still its compare-and-swap.
+// Scoped to the resolved mailbox, since a UID means nothing without one.
 export const useHermesMailboxRuntimeDraftIdentities = (
   mailbox: string | null,
 ): HermesMailboxRuntimeDraftIdentities => {
