@@ -1,4 +1,9 @@
 import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
+import {
+  HERMES_ADMIN_RUNTIME_PATH,
+  HERMES_MAILBOX_RUNTIME_PATH,
+  HERMES_WA_RUNTIME_PATH,
+} from '@/hermes-shell/constants/HermesRuntimeRoutePaths';
 import { PROSPECTION_RECEPTION_PATH } from '@/prospection/constants/ProspectionRoutePaths';
 import { HERMES_SHELL_ROUTE_PATHS } from '@/hermes-shell/constants/HermesShellRoutePaths';
 
@@ -46,6 +51,24 @@ export const buildHermesModuleNavigationItems = ({
       // startsWith, so an opened conversation carried in the search parameters
       // keeps the section marked as current.
       isActive: pathname.startsWith(MESSAGING_INBOX_PATH),
+    });
+
+    items.push({
+      key: 'whatsapp',
+      to: HERMES_WA_RUNTIME_PATH,
+      isActive: pathname.startsWith(HERMES_WA_RUNTIME_PATH),
+    });
+
+    items.push({
+      key: 'mailbox',
+      to: HERMES_MAILBOX_RUNTIME_PATH,
+      isActive: pathname.startsWith(HERMES_MAILBOX_RUNTIME_PATH),
+    });
+
+    items.push({
+      key: 'connections',
+      to: HERMES_ADMIN_RUNTIME_PATH,
+      isActive: pathname.startsWith(HERMES_ADMIN_RUNTIME_PATH),
     });
 
     items.push({

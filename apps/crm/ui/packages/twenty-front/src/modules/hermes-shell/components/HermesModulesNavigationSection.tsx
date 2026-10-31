@@ -1,5 +1,12 @@
 import { useLingui } from '@lingui/react/macro';
-import { IconGauge, IconInbox, IconMessage } from 'kovaa-lab-ui/icon';
+import {
+  IconBrandWhatsapp,
+  IconGauge,
+  IconInbox,
+  IconMail,
+  IconMessage,
+  IconSettings,
+} from 'kovaa-lab-ui/icon';
 import { useLocation } from 'react-router-dom';
 
 import {
@@ -25,12 +32,18 @@ export const HermesModulesNavigationSection = () => {
   const labels: Record<HermesModuleNavigationItem['key'], string> = {
     dashboard: t`Dashboard`,
     messaging: t`Messaging`,
+    whatsapp: t`WhatsApp`,
+    mailbox: t`Mailbox`,
+    connections: t`Connections and companies`,
     reception: t`Hermès collections`,
   };
 
   const icons: Record<HermesModuleNavigationItem['key'], typeof IconGauge> = {
     dashboard: IconGauge,
     messaging: IconMessage,
+    whatsapp: IconBrandWhatsapp,
+    mailbox: IconMail,
+    connections: IconSettings,
     reception: IconInbox,
   };
 
