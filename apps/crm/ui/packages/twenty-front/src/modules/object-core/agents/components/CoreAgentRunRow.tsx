@@ -13,6 +13,8 @@ import { TableCell } from '@/ui/layout/table/components/TableCell';
 import { TableRow } from '@/ui/layout/table/components/TableRow';
 import { formatDuration } from '~/utils/format/formatDuration';
 import { beautifyPastDateRelativeToNow } from '~/utils/date-utils';
+import { dateLocaleState } from '@/localization/states/dateLocaleState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { formatNumber } from '@/localization/utils/formatNumber';
 
 type CoreAgentRunRowProps = {
@@ -38,6 +40,7 @@ export const CoreAgentRunRow = ({
   onToggle,
   isNested = false,
 }: CoreAgentRunRowProps) => {
+  const { localeCatalog } = useAtomStateValue(dateLocaleState);
   const tokens = getRunTokens(run);
   const durationMs = getRunDurationMs(run);
 
@@ -60,7 +63,10 @@ export const CoreAgentRunRow = ({
           <CoreAgentRunStatus status={run.status} />
         </TableCell>
         <TableCell color={themeCssVariables.font.color.tertiary}>
-          {beautifyPastDateRelativeToNow(run.startedAt ?? run.createdAt)}
+          {beautifyPastDateRelativeToNow(
+            run.startedAt ?? run.createdAt,
+            localeCatalog,
+          )}
         </TableCell>
         <TableCell overflow="hidden">
           <CoreAgentRunSource

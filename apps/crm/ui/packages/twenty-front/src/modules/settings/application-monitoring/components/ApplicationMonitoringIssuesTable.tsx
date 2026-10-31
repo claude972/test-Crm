@@ -16,6 +16,8 @@ import { TableCell } from '@/ui/layout/table/components/TableCell';
 import { TableHeader } from '@/ui/layout/table/components/TableHeader';
 import { TableRow } from '@/ui/layout/table/components/TableRow';
 import { beautifyPastDateRelativeToNow } from '~/utils/date-utils';
+import { dateLocaleState } from '@/localization/states/dateLocaleState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 const ISSUES_GRID_TEMPLATE_COLUMNS = `96px minmax(0, 1.4fr) minmax(0, 1fr) ${APPLICATION_MONITORING_TABLE_METRIC_COLUMNS}`;
 
@@ -36,6 +38,7 @@ export const ApplicationMonitoringIssuesTable = ({
   issues,
   affectedLabel,
 }: ApplicationMonitoringIssuesTableProps) => {
+  const { localeCatalog } = useAtomStateValue(dateLocaleState);
   const { t, i18n } = useLingui();
 
   if (issues.length === 0) {
@@ -99,7 +102,7 @@ export const ApplicationMonitoringIssuesTable = ({
                 align="right"
                 color={themeCssVariables.font.color.tertiary}
               >
-                {beautifyPastDateRelativeToNow(issue.lastSeenAt)}
+                {beautifyPastDateRelativeToNow(issue.lastSeenAt, localeCatalog)}
               </TableCell>
             </TableRow>
           );

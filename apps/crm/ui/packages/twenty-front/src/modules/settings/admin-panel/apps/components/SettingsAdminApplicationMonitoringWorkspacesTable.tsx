@@ -15,6 +15,8 @@ import { TableCell } from '@/ui/layout/table/components/TableCell';
 import { TableHeader } from '@/ui/layout/table/components/TableHeader';
 import { TableRow } from '@/ui/layout/table/components/TableRow';
 import { beautifyPastDateRelativeToNow } from '~/utils/date-utils';
+import { dateLocaleState } from '@/localization/states/dateLocaleState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
 
 const WORKSPACES_GRID_TEMPLATE_COLUMNS = `minmax(0, 1fr) 96px 96px ${APPLICATION_MONITORING_TABLE_METRIC_COLUMNS}`;
@@ -26,6 +28,7 @@ type SettingsAdminApplicationMonitoringWorkspacesTableProps = {
 export const SettingsAdminApplicationMonitoringWorkspacesTable = ({
   workspaces,
 }: SettingsAdminApplicationMonitoringWorkspacesTableProps) => {
+  const { localeCatalog } = useAtomStateValue(dateLocaleState);
   const { t, i18n } = useLingui();
 
   if (workspaces.length === 0) {
@@ -91,7 +94,7 @@ export const SettingsAdminApplicationMonitoringWorkspacesTable = ({
               align="right"
               color={themeCssVariables.font.color.tertiary}
             >
-              {beautifyPastDateRelativeToNow(workspace.lastEventAt)}
+              {beautifyPastDateRelativeToNow(workspace.lastEventAt, localeCatalog)}
             </TableCell>
           </TableRow>
         ))}
