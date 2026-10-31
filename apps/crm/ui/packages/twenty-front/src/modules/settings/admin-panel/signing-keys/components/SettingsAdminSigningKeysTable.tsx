@@ -26,6 +26,8 @@ import {
   beautifyExactDateTime,
   beautifyPastDateRelativeToNow,
 } from '~/utils/date-utils';
+import { dateLocaleState } from '@/localization/states/dateLocaleState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 const REVOKE_MODAL_ID = 'revoke-signing-key-modal';
 
@@ -53,6 +55,7 @@ const getStatusTag = (
 };
 
 export const SettingsAdminSigningKeysTable = () => {
+  const { localeCatalog } = useAtomStateValue(dateLocaleState);
   const apolloAdminClient = useApolloAdminClient();
   const { openDialog } = useDialog();
   const { copyToClipboard } = useCopyToClipboard();
@@ -135,7 +138,10 @@ export const SettingsAdminSigningKeysTable = () => {
                 <TableCell>
                   {isDefined(signingKey.revokedAt) ? (
                     <OverflowingTextWithTooltip
-                      text={beautifyPastDateRelativeToNow(signingKey.revokedAt)}
+                      text={beautifyPastDateRelativeToNow(
+                        signingKey.revokedAt,
+                        localeCatalog,
+                      )}
                       tooltipContent={beautifyExactDateTime(
                         signingKey.revokedAt,
                       )}

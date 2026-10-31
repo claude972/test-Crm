@@ -12,6 +12,8 @@ import { handleCoreAgentRunToggleKeyDown } from '@/object-core/agents/utils/hand
 import { TableCell } from '@/ui/layout/table/components/TableCell';
 import { TableRow } from '@/ui/layout/table/components/TableRow';
 import { beautifyPastDateRelativeToNow } from '~/utils/date-utils';
+import { dateLocaleState } from '@/localization/states/dateLocaleState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { formatNumber } from '@/localization/utils/formatNumber';
 
 type CoreAgentRunConversationProps = {
@@ -31,6 +33,7 @@ export const CoreAgentRunConversation = ({
   expandedRunIds,
   onToggleRun,
 }: CoreAgentRunConversationProps) => {
+  const { localeCatalog } = useAtomStateValue(dateLocaleState);
   const theme = useTheme();
   const [latestRun] = runs;
   const ChevronIcon = isExpanded ? IconChevronDown : IconChevronRight;
@@ -63,6 +66,7 @@ export const CoreAgentRunConversation = ({
         <TableCell color={themeCssVariables.font.color.tertiary}>
           {beautifyPastDateRelativeToNow(
             latestRun.startedAt ?? latestRun.createdAt,
+            localeCatalog,
           )}
         </TableCell>
         <TableCell color={themeCssVariables.font.color.secondary}>

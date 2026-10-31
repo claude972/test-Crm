@@ -321,6 +321,19 @@ describe('French locale tests', () => {
       expect(result).toContain('minute'); // Should contain French minute formatting
     });
 
+    // CJ-R14: "1 minute ago" was showing in a French workspace because callers omitted the locale.
+    it('should format one minute ago in French when the locale is passed', () => {
+      const pastDate = '2023-12-31T23:59:00.000Z'; // 1 minute ago
+
+      expect(beautifyPastDateRelativeToNow(pastDate, fr)).toBe('il y a 1 minute');
+    });
+
+    it('should fall back to English when no locale is passed', () => {
+      const pastDate = '2023-12-31T23:59:00.000Z'; // 1 minute ago
+
+      expect(beautifyPastDateRelativeToNow(pastDate)).toBe('1 minute ago');
+    });
+
     it('should format hours ago in French', () => {
       const pastDate = '2023-12-31T21:00:00.000Z'; // 3 hours ago
       const result = beautifyPastDateRelativeToNow(pastDate, fr);

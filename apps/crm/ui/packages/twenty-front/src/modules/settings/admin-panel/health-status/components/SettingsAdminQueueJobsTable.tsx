@@ -27,6 +27,8 @@ import {
   GetQueueJobsDocument,
 } from '~/generated-admin/graphql';
 import { beautifyPastDateRelativeToNow } from '~/utils/date-utils';
+import { dateLocaleState } from '@/localization/states/dateLocaleState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 type SettingsAdminQueueJobsTableProps = {
   queueName: string;
@@ -77,6 +79,7 @@ export const SettingsAdminQueueJobsTable = ({
   queueName,
   onRetentionConfigLoaded,
 }: SettingsAdminQueueJobsTableProps) => {
+  const { localeCatalog } = useAtomStateValue(dateLocaleState);
   const apolloAdminClient = useApolloAdminClient();
   const [page, setPage] = useState(0);
   const [stateFilter, setStateFilter] = useState<JobState>(JobState.COMPLETED);
@@ -202,7 +205,7 @@ export const SettingsAdminQueueJobsTable = ({
   const formatTimestampRelative = (timestamp?: number | null) => {
     if (!timestamp) return '-';
 
-    return beautifyPastDateRelativeToNow(timestamp);
+    return beautifyPastDateRelativeToNow(timestamp, localeCatalog);
   };
 
   const formatTimestampFull = (timestamp?: number | null) => {
