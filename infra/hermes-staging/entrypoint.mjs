@@ -56,15 +56,29 @@ export function assertCronSummary(output) {
   assert.equal(summaries.length, 1, 'Cron registration must publish one readable result');
   assert.ok(Number(summaries[0][1]) > 0 && Number(summaries[0][2]) === 0, 'Cron registration reported failure or registered no jobs');
 }
+export function readUpgradeSummary(output) {
+  const lines = output.replace(/\u001b\[[0-9;]*m/g, '').replace(/\r\n?/g, '\n').split('\n').map((line) => line.trim());
+  const headings = lines.flatMap((line, index) => line === 'Summary' ? [index] : []);
+  const details = { summaryCount: headings.length, instanceHealth: 'unrecognized', noWorkspaces: false, retrievalFailed: lines.some((line) => line.includes('Failed to retrieve upgrade status:')), unexpectedLineCount: 0 };
+  if (headings.length !== 1) return details;
+  const section = lines.slice(headings[0] + 1).filter(Boolean);
+  const health = { 'Instance: Up to date': 'up-to-date', 'Instance: Behind': 'behind', 'Instance: Failed': 'failed' };
+  details.instanceHealth = health[section[0]] ?? 'unrecognized';
+  const counts = section[1]?.match(/^Workspaces: (\d+) up to date, (\d+) behind, (\d+) failed \((\d+) total\)$/);
+  if (counts && counts.slice(1).every((count) => Number.isSafeInteger(Number(count)))) details.workspaceCounts = { upToDate: Number(counts[1]), behind: Number(counts[2]), failed: Number(counts[3]), total: Number(counts[4]) };
+  details.noWorkspaces = section[1] === 'No workspaces';
+  // Nest closes connections after printing the summary; only its info-level log framing may follow.
+  details.unexpectedLineCount = section.slice(2).filter((line) => !/^\[Nest\] \d+\s+.*\s+(?:LOG|DEBUG|VERBOSE)\s+\[[A-Za-z][A-Za-z0-9]*\]/.test(line)).length;
+  return details;
+}
 export function assertUpgradeSummary(output) {
-  const clean = output.replace(/\u001b\[[0-9;]*m/g, '');
-  const summaries = clean.split(/^Summary\s*$/m);
-  assert.equal(summaries.length, 2, 'Upgrade status must publish exactly one summary');
-  const summary = summaries[1].trim();
-  assert.match(summary, /^Instance: Up to date\n/);
-  const workspaces = summary.match(/\n\s*Workspaces: (\d+) up to date, 0 behind, 0 failed \((\d+) total\)\s*$/);
-  assert.ok(/\n\s*No workspaces\s*$/.test(summary) || (workspaces && Number(workspaces[1]) === Number(workspaces[2])), 'All workspaces must be explicitly up to date');
-  assert.doesNotMatch(clean, /Failed to retrieve upgrade status:/);
+  const status = readUpgradeSummary(output);
+  assert.equal(status.summaryCount, 1, 'Upgrade status must publish exactly one summary');
+  assert.equal(status.instanceHealth, 'up-to-date', 'Instance must explicitly be up to date');
+  const counts = status.workspaceCounts;
+  assert.ok(status.noWorkspaces || (counts && counts.behind === 0 && counts.failed === 0 && counts.upToDate === counts.total), 'All workspaces must be explicitly up to date');
+  assert.equal(status.unexpectedLineCount, 0, 'Unexpected status output must be investigated');
+  assert.equal(status.retrievalFailed, false);
 }
 export function assertDatabaseState({ tableCount, markerPresent, complete }) {
   if (Number(tableCount) === 0) return false;
@@ -87,6 +101,7 @@ export function commandDiagnostic(args, output, exitCode, reason) {
   }
   const diagnostic = { action: 'migrate', command, category: FAILURE_CATEGORIES.includes(category) ? category : 'unknown' };
   if (Number.isInteger(exitCode) && exitCode >= 0 && exitCode <= 255) diagnostic.exitCode = exitCode;
+  if (command === 'upgrade:status') diagnostic.upgradeStatus = readUpgradeSummary(output);
   if (diagnostic.category === 'configuration') {
     const key = CONFIG_KEYS.find((candidate) => output.includes(candidate));
     if (key) diagnostic.configKey = key;

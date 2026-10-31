@@ -21,6 +21,11 @@ export function readMigrationDiagnostic(output, secrets) {
     const result = { action: 'migrate', command: value.command, category: value.category };
     if (Number.isInteger(value.exitCode) && value.exitCode >= 0 && value.exitCode <= 255) result.exitCode = value.exitCode;
     if (['APP_VERSION', 'PG_DATABASE_URL', 'REDIS_URL', 'APP_SECRET', 'ENCRYPTION_KEY', 'SERVER_URL', 'FRONTEND_URL', 'STORAGE_TYPE', 'STORAGE_LOCAL_PATH'].includes(value.configKey)) result.configKey = value.configKey;
+    const status = value.upgradeStatus;
+    if (status && ['up-to-date', 'behind', 'failed', 'unrecognized'].includes(status.instanceHealth) && Number.isSafeInteger(status.summaryCount) && status.summaryCount >= 0 && Number.isSafeInteger(status.unexpectedLineCount) && status.unexpectedLineCount >= 0 && typeof status.noWorkspaces === 'boolean' && typeof status.retrievalFailed === 'boolean') {
+      result.upgradeStatus = { summaryCount: status.summaryCount, instanceHealth: status.instanceHealth, noWorkspaces: status.noWorkspaces, retrievalFailed: status.retrievalFailed, unexpectedLineCount: status.unexpectedLineCount };
+      if (status.workspaceCounts && ['upToDate', 'behind', 'failed', 'total'].every((key) => Number.isSafeInteger(status.workspaceCounts[key]) && status.workspaceCounts[key] >= 0)) result.upgradeStatus.workspaceCounts = Object.fromEntries(['upToDate', 'behind', 'failed', 'total'].map((key) => [key, status.workspaceCounts[key]]));
+    }
     return result;
   } catch { return undefined; }
 }
