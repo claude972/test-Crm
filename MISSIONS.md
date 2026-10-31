@@ -672,7 +672,7 @@ Root possède intégration/QA/hosting et coordination ; agent coordination seul 
 ### HERMES-V4-LIVRAISON-CLAUDE-20261030 — reprise finale
 
 - Instruction utilisateur : déléguer uniquement à des agents Claude ; Codex conserve supervision, revue et recette. Délai visé une heure à compter du 30 octobre 2026 vers 19:51 America/Martinique ; aucune réussite promise sans preuve.
-- agent: claude ; status: pending — instruction envoyée au parent 8f3db32e-4613-45e3-94f3-16e664f3cbfc, ACK et dispatch complémentaires attendus. Réutiliser ses quatre workers runtime existants, ne pas dupliquer.
+- agent: claude ; status: in_progress — ACK réel et dispatchs complémentaires observés ; parent 8f3db32e-4613-45e3-94f3-16e664f3cbfc possède l’assemblage. Réutiliser ses quatre workers runtime existants, ne pas dupliquer.
 - Propriété d'assemblage transférée au parent à son ACK : /private/tmp/hermes-v4-live-integration, feat/hermes-v4-live-preview, base assemblée 6dd0b3dce. Tous les edits code restants sont attribués à Claude ; nouveaux workers backend/tests autorisés, périmètres disjoints à annoncer. Codex n'édite pas de code.
 - Reprendre deltas Auth d73a1083e,09c0619cb,57f1f7f9d,d8b51af78, mail ee0943bd8 ; ne pas doubler Auth d5 déjà copié dans le parent. Monter les quatre runtime dans les routes, terminer build commun et tests natifs puis preview Vercel hors production et navigateur.
 - Reprendre constat MAIL006 de l'ancien agent C : révocation pendant copie Sent après SMTP ACCEPTED doit refuser la réponse privée sans rejouer SMTP ni altérer le ledger. Le worktree mail contient un test non commité ; le préserver, vérifier le repro et corriger avant revue.
