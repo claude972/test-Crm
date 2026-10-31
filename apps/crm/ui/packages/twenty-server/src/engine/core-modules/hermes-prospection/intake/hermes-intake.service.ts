@@ -4,6 +4,7 @@ import { centralIntake } from 'src/engine/core-modules/hermes-prospection/intake
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -67,7 +68,13 @@ export class HermesIntakeService {
           this.config.get('HERMES_INTAKE_CONNECTIONS'),
         );
       }
-    } catch {
+    } catch (error) {
+      // Same boundary as the event endpoint: resolve() re-authorizes the
+      // stored owner inside this block, so an owner revocation is raised here
+      // and is a refusal, not a configuration failure. Note this is distinct
+      // from a removed or disabled binding, which resolves to null and is
+      // answered by the authentication check below.
+      if (error instanceof ForbiddenException) throw error;
       throw new ServiceUnavailableException(
         'HERMES_INTAKE_CONFIGURATION_UNAVAILABLE',
       );
