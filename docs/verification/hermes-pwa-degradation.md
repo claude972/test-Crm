@@ -29,6 +29,15 @@ supprimant la cause plutôt qu'en ajoutant une validation.
 C'est le même mécanisme que le blocage Safari signalé : voir
 `hermes-preview-access-safari-20261031.md` §3.
 
+### Typographie
+
+La page est une surface produit, donc elle suit les règles du produit. Elle
+emploie les jetons existants, `--t-font-family` et `--t-code-font-family`, avec
+leur repli, et ne déclare aucune police à elle : `DESIGN.md` interdit Inter,
+Poppins, Roboto et system-ui. Comme cette page ne charge aucune feuille de style
+— c'est le but — c'est le repli du jeton qui s'applique en pratique. Une
+régression interdit le retour d'une police bannie dans ce fichier.
+
 ## Ce que le service worker refuse de toucher
 
 Un seul filtre, et il est positif : seules les navigations `GET`
@@ -85,21 +94,15 @@ que CacheStorage est indisponible (navigation privée, stockage bloqué, context
 non sécurisé). Elle est démarrée en parallèle de la purge IndexedDB et attendue
 avant la navigation, pour que `location.assign` ne l'interrompe pas.
 
-## Enregistrement — pas encore actif
+## Enregistrement — actif
 
-`registerHermesServiceWorker()` existe et est testé, mais **n'est appelé par
-personne** : le bootstrap frontend appartient au parent. Tant que l'appel n'est
-pas ajouté, la PWA n'est pas active et rien de ce document n'est observable.
+`registerHermesServiceWorker()` est appelé depuis `src/index.tsx`, dans un
+`.finally()` après le premier rendu, donc un échec d'enregistrement ne peut ni
+retarder ni empêcher l'affichage. Câblé par le parent, commit `7efd64983` sur
+`feat/hermes-complete-journeys`.
 
-Ligne à ajouter par le parent dans `src/index.tsx` :
-
-```ts
-import { registerHermesServiceWorker } from '@/hermes-pwa/utils/registerHermesServiceWorker';
-// Après le rendu : l'enregistrement ne doit pas retarder le premier écran.
-hydrateMetadataStore().then(renderApp, renderApp).finally(() => {
-  void registerHermesServiceWorker();
-});
-```
+Cela rend l'installabilité et la page hors connexion observables. Cela ne rend
+pas R15 vérifié pour autant : voir « Non vérifié » plus bas.
 
 L'enregistrement ne fait rien en développement, et y retire au contraire un
 worker Hermès resté d'une visite de build de production sur la même origine, qui
