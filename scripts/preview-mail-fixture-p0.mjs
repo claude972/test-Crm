@@ -136,20 +136,32 @@ async function start(env) {
   assert.ok(!existsSync(directory), 'Fixture has already been prepared');
   mkdirSync(directory, { mode: 0o700 });
   privateWrite(path.join(directory, 'state.json'), JSON.stringify(plan));
+  let phase = 'certificates';
   try {
     generateFixtureCertificates(plan, directory);
     const users = plan.users.map((user) => `${user.login}:${plan.password}@${plan.domain}`).join(',');
     privateWrite(path.join(directory, 'greenmail.env'), `GREENMAIL_OPTS=-Dgreenmail.setup.test.imaps -Dgreenmail.setup.test.smtps -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=${users} -Dgreenmail.tls.keystore.file=/fixture/server.p12 -Dgreenmail.tls.keystore.password=${plan.keystorePassword}\n`);
+    phase = 'network';
     command('docker', ['network', 'create', '--internal', plan.network]);
+    phase = 'container';
     command('docker', dockerArguments(plan, directory, process.getuid(), process.getgid()));
+    phase = 'verified-bindings-and-TLS';
     await verifyFixture(plan, directory);
+    phase = 'host-mapping';
     writeHosts(plan);
     const runtime = runtimeEnvironment(plan, directory);
     assert.ok(env.GITHUB_ENV && path.isAbsolute(env.GITHUB_ENV));
     // Only non-secret paths, TLS enforcement and one exact hostname enter GITHUB_ENV.
     writeFileSync(env.GITHUB_ENV, Object.entries(runtime).map(([key, value]) => `${key}=${value}\n`).join(''), { flag: 'a' });
     console.info(`Isolated mail capture ready (no external delivery); expires=${plan.expiresAt}`);
-  } catch {
+  } catch (error) {
+    console.error(`Isolated mail fixture failed during ${phase}; category=${error?.name === 'AssertionError' ? 'boundary' : 'command-or-protocol'}`);
+    if (phase === 'verified-bindings-and-TLS') {
+      try {
+        const value = JSON.parse(command('docker', ['inspect', plan.name]).toString())[0];
+        console.error(JSON.stringify({ status: value.State.Status, exitCode: value.State.ExitCode, oomKilled: value.State.OOMKilled, bindings: value.NetworkSettings.Ports }));
+      } catch { /* Never dump raw docker errors or container environment. */ }
+    }
     await cleanup(env);
     throw new Error('Isolated mail fixture setup failed; details and secrets withheld');
   }
