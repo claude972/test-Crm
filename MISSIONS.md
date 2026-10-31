@@ -698,3 +698,11 @@ Root possède intégration/QA/hosting et coordination ; agent coordination seul 
 - Preview V4 ne constitue pas la livraison fonctionnelle complète. Accès Safari signalé bloqué et non résolu ; conserve statut ouvert malgré succès curl/IAB. Plus aucune annonce prêt/global avant critères métier exécutés.
 
 - Claims réellement démarrés23:22–23:25Martinique : CJ01a7770455c90caeb1a (campaign frontend), CJ02a5ecf88955c726ef5 (campaign engine/API), CJ03aff18cfa439def9ed (WA médias/vocal), CJ04a65175da6d0fb8988 (réglages/intégrations), CJ05a76ee32a68b13e841 (accès/PWA/preview). Agents Claude CLI, métadonnées réelles et outils de démarrage observés ; aucun nouveau sous-agent Codex. Contrats/branches/deliverables dans le handoff, état de livraison encore in_progress.
+
+
+### Cible de recette du 31octobre2026 à08hMartinique
+
+- Demande nouvelle du propriétaire : poursuivre en autonomie et viser un résultat complet à08:00America/Martinique le31octobre2026, soit12:00UTC. Ce créneau ne transforme pas un critère non vérifié en succès.
+- Suivi réel créé dans ce chat : herm-s-terminer-les-parcours-et-recette-du-31-octobre-8-h, actif, reprises aux quarts d'heure jusqu'au compte rendu de08h puis arrêt. Pas de nouvelle session Claude doublon, aucun relais d'un autre projet modifié. Machine maintenue hors veille automatique jusqu'à08:05, app locale à garder ouverte.
+- CJ04 partagé désormais en CJ04a (centre/WA/SMTP/IMAP/comptes/membres, a65175da6d0fb8988) et CJ04b (MCP/intake/Forms/agenda/provenance, a2e482b4f7f1e9560), ownership détaillé par parent avant code ; six agents de code Claude observés, plus leurs recherches délimitées.
+- Bilan attendu : demande R01–R16, route/action utilisable, persistance et preuve d'exécution, source exacte/CI, distinction fournisseurs isolés/réels, limites et accès indispensables explicites. Fournir lien utilisable, compte et durée utile après08h ; ne pas réutiliser l'ancienne preview V4 expirée.
