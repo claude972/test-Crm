@@ -2064,3 +2064,10 @@ Auteur preview_pwa61418022f poussé,14tests légers PASS. Root a relu Dockerfile
 Rootworkflow c7b7bc900 puis1338c574e : dispatch a été rejeté422 car runner.temp n'est pas disponible dans env de job ; aucun run créé. Corrigé289b376a9 par calcul du chemin au niveau step. Dispatch UNIQUE accepté41235265710 source289b376a9d809fbc57285327eeeb2c48b3e8b120, queued au dernier contrôle. Build/smoke réels encore à prouver. Aucun Docker build local/VPS, registre public ou changement distant. Le nom ressources est kovaalabcrm-staging ; chemins historiques restent conservés.
 
 VPS sélectionné et ressources confirmées, domaine non choisi ; aucun DNS/proxy/production modifié. Preview601 courante expire20:07UTC, et l'installation durable n'est pas encore disponible.
+
+
+### CAT-STAGING-BUILD-001 — 31octobre19:54UTC
+
+Cloud41235265710 sur289b376a9 FAILURE au build SDK : entrée src/front-component-renderer/build/index.ts introuvable. Hypothèse concrète : Dockerfile.dockerignore exclut **/build, qui correspond aussi à ce répertoire SOURCE suivi. Tests légers14PASS n'avaient pas couvert cette collision. Aucune image produite, smoke non exécuté, aucun service VPS modifié. Assigned auteurCodexpreview_pwa même branche/arbre/exclusivité Dockerfile.dockerignore/build/tests ; reprise réellement envoyée, correction demandée par chemins de sorties précis et contrepreuve sources build/dist conservées. Root ne modifie pas ces fichiers pendant correction. Pas de relance du même SHA.
+
+Domaine durable demandé à nouveau après absence de réponse : proposition crm-recette.kovvalab.online, DNSLWS vers2.24.89.251. Installation peut continuer indépendamment de la publication TLS, aucune DNS/proxy changée. Preview601 expire16:07MT et ne constitue toujours pas une installation durable.
