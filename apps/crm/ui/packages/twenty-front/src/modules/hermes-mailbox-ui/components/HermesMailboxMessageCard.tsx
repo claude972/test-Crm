@@ -108,6 +108,9 @@ type HermesMailboxMessageCardProps = {
   message: HermesMailboxMessage;
   // Embedded images the parent already resolved for this message.
   inlineImages?: HermesMailboxInlineImage[];
+  // Performs the private read for one attachment. Absent means no download is
+  // offered, whatever an attachment's availability says.
+  onDownloadAttachment?: (attachmentId: string) => void;
 };
 
 // One message in the reading pane.
@@ -118,6 +121,7 @@ type HermesMailboxMessageCardProps = {
 export const HermesMailboxMessageCard = ({
   message,
   inlineImages,
+  onDownloadAttachment,
 }: HermesMailboxMessageCardProps) => {
   const { t } = useLingui();
 
@@ -189,6 +193,7 @@ export const HermesMailboxMessageCard = ({
       <HermesMailboxAttachmentStrip
         title={t`Attachments`}
         attachments={message.attachments}
+        onDownloadAttachment={onDownloadAttachment}
       />
     </StyledCard>
   );

@@ -1,6 +1,9 @@
 import {
   type HermesMailboxRuntimeAttachment,
+  type HermesMailboxRuntimeClonedAsset,
   type HermesMailboxRuntimeDraftOutcome,
+  type HermesMailboxRuntimeMailConnection,
+  type HermesMailboxRuntimeNewDraftOutcome,
   type HermesMailboxRuntimeFolders,
   type HermesMailboxRuntimeMediaRead,
   type HermesMailboxRuntimeMessage,
@@ -336,6 +339,7 @@ export const readHermesMailboxRuntimeMessage = (
       bcc: readBcc(payload),
       subject: readString(payload.subject),
       body: readBody(payload),
+      text: readBodyText(payload.text),
       // The provider's own answer. A direction outside the published pair
       // leaves it unknown rather than picking a side.
       direction:
@@ -394,6 +398,127 @@ export const readHermesMailboxRuntimePlan = (
   };
 };
 
+// The central MAIL connection out of the connections list.
+//
+// Closed by default: anything short of a configured connection carrying a
+// usable `connectedAccountId` is reported as such, and the caller then offers
+// no sender at all rather than falling back on a guessed account.
+export const readHermesMailboxRuntimeMailConnection = (
+  payload: unknown,
+): HermesMailboxRuntimeRead<HermesMailboxRuntimeMailConnection> => {
+  if (!Array.isArray(payload)) {
+    return {
+      kind: 'unreadable',
+      problem:
+        payload === null || payload === undefined ? 'missing' : 'malformed',
+    };
+  }
+
+  const entry = payload.find(
+    (candidate) => isJsonObject(candidate) && readString(candidate.kind) === 'MAIL',
+  );
+
+  if (!isJsonObject(entry)) {
+    return { kind: 'unreadable', problem: 'malformed' };
+  }
+
+  const connectionId = readString(entry.connectionId);
+
+  if (
+    readString(entry.state) === 'NOT_CONFIGURED' ||
+    connectionId === null
+  ) {
+    return { kind: 'notConfigured' };
+  }
+
+  if (!isJsonObject(entry.settings)) {
+    return { kind: 'unreadable', problem: 'malformed' };
+  }
+
+  const connectedAccountId = readString(entry.settings.connectedAccountId);
+
+  if (connectedAccountId === null) {
+    return { kind: 'unreadable', problem: 'malformed' };
+  }
+
+  return {
+    kind: 'read',
+    value: {
+      connectionId,
+      revision: readCount(entry.revision),
+      connectedAccountId,
+      mailbox: readString(entry.settings.mailbox),
+      handle: readString(entry.settings.handle),
+    },
+  };
+};
+
+export const readHermesMailboxRuntimeNewDraftOutcome = (
+  payload: unknown,
+): HermesMailboxRuntimeRead<HermesMailboxRuntimeNewDraftOutcome> => {
+  if (!isJsonObject(payload)) {
+    return {
+      kind: 'unreadable',
+      problem:
+        payload === null || payload === undefined ? 'missing' : 'malformed',
+    };
+  }
+
+  if (readString(payload.state) === 'NOT_CONFIGURED') {
+    return { kind: 'notConfigured' };
+  }
+
+  return {
+    kind: 'read',
+    value: {
+      state: readString(payload.state),
+      replay: readBoolean(payload.replay),
+      // Opaque, both of them. Read as strings and handed straight back.
+      draftId: readString(payload.draftId),
+      draftRevision: readString(payload.draftRevision),
+      conversationId: readString(payload.conversationId),
+      folder: readString(payload.folder),
+      uid:
+        readString(payload.uid) ??
+        (typeof payload.uid === 'number' && Number.isFinite(payload.uid)
+          ? String(payload.uid)
+          : null),
+      uidValidity: readString(payload.uidValidity),
+    },
+  };
+};
+
+export const readHermesMailboxRuntimeClonedAsset = (
+  payload: unknown,
+): HermesMailboxRuntimeRead<HermesMailboxRuntimeClonedAsset> => {
+  if (!isJsonObject(payload)) {
+    return {
+      kind: 'unreadable',
+      problem:
+        payload === null || payload === undefined ? 'missing' : 'malformed',
+    };
+  }
+
+  // Without the target asset id there is nothing a send may reference, so the
+  // clone counts as not done rather than as done with an unknown id.
+  const assetId = readString(payload.id);
+
+  if (assetId === null) {
+    return { kind: 'unreadable', problem: 'malformed' };
+  }
+
+  return {
+    kind: 'read',
+    value: {
+      assetId,
+      filename: readString(payload.filename),
+      mimeType: readString(payload.mimeType),
+      sizeBytes: readCount(payload.size),
+      status: readString(payload.status),
+    },
+  };
+};
+
 export const readHermesMailboxRuntimeSendOutcome = (
   payload: unknown,
 ): HermesMailboxRuntimeRead<HermesMailboxRuntimeSendOutcome> => {
@@ -406,6 +531,7 @@ export const readHermesMailboxRuntimeSendOutcome = (
   }
 
   const sentCopy = payload.sentCopy;
+  const draftDisposition = payload.draftDisposition;
 
   return {
     kind: 'read',
@@ -415,6 +541,9 @@ export const readHermesMailboxRuntimeSendOutcome = (
       conversationId: readString(payload.conversationId),
       errorCode: readString(payload.errorCode),
       sentCopyState: isJsonObject(sentCopy) ? readString(sentCopy.state) : null,
+      draftDispositionState: isJsonObject(draftDisposition)
+        ? readString(draftDisposition.state)
+        : null,
     },
   };
 };

@@ -159,6 +159,12 @@ type HermesMailboxProps = {
   selectedThreadId: string | null;
   onSelectThread: (threadId: string) => void;
   onReloadThreads?: () => void;
+  // Absent means the parent has no further page to ask for.
+  onLoadMoreThreads?: () => void;
+  isLoadingMoreThreads?: boolean;
+  // Opens an editor for a message that answers nothing. Absent means the
+  // parent cannot compose one, and the action is left out.
+  onComposeNew?: () => void;
 
   thread: HermesMailboxLoad<HermesMailboxThread | null>;
   envelope: HermesMailboxLoad<HermesMailboxEnvelope | null>;
@@ -177,6 +183,10 @@ type HermesMailboxProps = {
   draftSaveState: HermesMailboxDraftSaveState;
   onRequestSend: (composition: HermesMailboxComposition) => void;
   onSaveDraft: (composition: HermesMailboxComposition) => void;
+
+  // Performs the private read for one attachment of the opened message.
+  // Absent means no download is offered.
+  onDownloadAttachment?: (attachmentId: string) => void;
 
   // Offered only when the parent can really route somewhere. Absent means no
   // button, and the screen says who connects a mailbox instead.
@@ -198,6 +208,9 @@ export const HermesMailbox = ({
   selectedThreadId,
   onSelectThread,
   onReloadThreads,
+  onLoadMoreThreads,
+  isLoadingMoreThreads,
+  onComposeNew,
   thread,
   envelope,
   onPlanAnswer,
@@ -211,6 +224,7 @@ export const HermesMailbox = ({
   draftSaveState,
   onRequestSend,
   onSaveDraft,
+  onDownloadAttachment,
   onConnectProvider,
 }: HermesMailboxProps) => {
   const { t } = useLingui();
@@ -276,8 +290,13 @@ export const HermesMailbox = ({
     );
   }
 
+  // An open editor lives in the thread column, and a message that answers
+  // nothing has no thread to select — so the depth follows the editor too,
+  // otherwise composing on a narrow screen would happen in a hidden panel.
+  const isComposing = envelope.kind === 'ready' && envelope.value !== null;
+
   const level =
-    selectedThreadId !== null
+    selectedThreadId !== null || isComposing
       ? 'thread'
       : selectedFolderId !== null
         ? 'threads'
@@ -320,6 +339,9 @@ export const HermesMailbox = ({
           selectedThreadId={selectedThreadId}
           onSelectThread={onSelectThread}
           onReloadThreads={onReloadThreads}
+          onLoadMoreThreads={onLoadMoreThreads}
+          isLoadingMoreThreads={isLoadingMoreThreads}
+          onComposeNew={onComposeNew}
           folderLabel={isNonEmptyString(folderLabel) ? folderLabel : null}
         />
       </StyledColumn>
@@ -349,6 +371,7 @@ export const HermesMailbox = ({
           draftSaveState={draftSaveState}
           onRequestSend={onRequestSend}
           onSaveDraft={onSaveDraft}
+          onDownloadAttachment={onDownloadAttachment}
         />
       </StyledColumn>
     </StyledMailbox>

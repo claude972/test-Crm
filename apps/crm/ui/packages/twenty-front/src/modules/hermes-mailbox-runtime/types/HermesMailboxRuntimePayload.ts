@@ -62,6 +62,9 @@ export type HermesMailboxRuntimeMessage = {
   // Already sanitised by the server, with no remote image left in it. Nothing
   // here re-sanitises and nothing offers to show remote images.
   body: HermesMailboxBody | null;
+  // The plain-text part on its own, kept so resuming a draft can refill a
+  // text editor with what the server actually holds instead of a local copy.
+  text: string | null;
   direction: 'INBOUND' | 'OUTBOUND' | null;
   attachments: HermesMailboxRuntimeAttachment[];
 };
@@ -89,6 +92,9 @@ export type HermesMailboxRuntimeSendOutcome = {
   // Reconciliation of the provider's Sent copy is a separate fact from
   // acceptance and is never read as one.
   sentCopyState: string | null;
+  // What became of the native draft after a real receipt. Also independent of
+  // acceptance, and never reported as part of it.
+  draftDispositionState: string | null;
 };
 
 export type HermesMailboxRuntimeDraftOutcome = {
@@ -104,4 +110,43 @@ export type HermesMailboxRuntimeMediaRead = {
   // Relative, session-bound and short-lived.
   downloadPath: string;
   expiresAt: string | null;
+};
+
+// The central MAIL connection, which names the connected account this
+// workspace is actually bound to.
+//
+// `connectedAccountId` is the authority. `handle` is the mailbox address the
+// central reader recorded for it; when both it and the native account are
+// known they must agree, and a disagreement leaves the identity unknown rather
+// than picking one.
+export type HermesMailboxRuntimeMailConnection = {
+  connectionId: string;
+  revision: number | null;
+  connectedAccountId: string;
+  mailbox: string | null;
+  handle: string | null;
+};
+
+export type HermesMailboxRuntimeNewDraftOutcome = {
+  state: string | null;
+  // True when the server recognised identical content and appended nothing.
+  replay: boolean | null;
+  // Stable identity and opaque revision. Both kept verbatim and sent back
+  // unchanged; neither is ever rebuilt here.
+  draftId: string | null;
+  draftRevision: string | null;
+  conversationId: string | null;
+  folder: string | null;
+  uid: string | null;
+  uidValidity: string | null;
+};
+
+// One attachment after it was cloned into the forward's own conversation. The
+// `assetId` is the target id, and it is the only one a send may reference.
+export type HermesMailboxRuntimeClonedAsset = {
+  assetId: string;
+  filename: string | null;
+  mimeType: string | null;
+  sizeBytes: number | null;
+  status: string | null;
 };
