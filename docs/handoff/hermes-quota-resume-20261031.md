@@ -85,3 +85,8 @@ Root a exécuté la suite native `HermesCampaignListView.test.tsx` sur2f1e8e705 
 ## Recheck WA07:31UTC
 
 Sur le checkpoint Claudec69a4d733, root a exécuté les trois suites natives UI VoiceRecorder/MediaAttachment/VoicePlayer : **3 suites/46 tests PASS**, sans changement de code. Les API MediaRecorder, pistes, URL blob et états de lecture sont simulés sous jsdom ; cela prouve des comportements locaux du composant, pas un microphone réel, le décodage réel de codecs, un blob natif HTTP/PG ou Evolution. La preuve positive fournisseur/média et la recette navigateur R07 restent à faire. Relecture du conteneur constate déjà key={selectedConversation.id} sur le panneau de fil, donc changement de conversation démonte ce panneau ; ne pas inventer une absence de key. Checkout QA root détaché maintenant surc69a4d733, aucun checkout d'agent édité.
+
+
+## Reprise effective07:50–07:51UTC
+
+Après vérification de l'heure et inventaire officiel (même PID21548/session8f3db32e), root a envoyé UNE reprise au PTY2418 existant à07:50:10UTC, sans nouveau parent ni achat. Inventaire ensuite busy/working ; journal assistant montre de vrais appels Bash à07:50:30 fetch/lecture du handoff,07:50:49 fetch des quatre branches et07:51:02 inspection du conflit du ContentSection. Le quota n'empêche donc plus ces actions. Pas encore de nouvelle livraison ou ACK de tous les enfants prouvé. Automation existante mise à jour pour éviter une reprise doublon, même cible/fréquence/échéance12UTC, consignes de silence et arrêt préservées. Tous les critères non recettés demeurent ouverts.
