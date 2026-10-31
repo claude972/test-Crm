@@ -16,3 +16,11 @@ Source exacte : `508d36d60c024eb3f72f00dee82ebf87d019c626`. Frontend 41223824108
 ## Restant / limites
 
 Lecture MIME bloquée ; réponse/transfert/PJ non validés. Opposition durable, seconde société/bascule et connexion après logout, viewport mobile et Safari de cette preview restent à vérifier. WA/Evolution/MCP/Forms/Cal externes non configurés ; aucun succès fournisseur réel revendiqué. PWA installation/offline et iPhone non testés. Session DB jetable de 90 minutes, aucun hébergement durable livré. Aucun envoi à un vrai prospect. Captures locales privées dans /private/tmp/hermes-final-preview-508d36d60/recipe.
+
+## Complément 18:18 UTC — cloisonnement et Safari
+
+- Seconde société Recette Hermès Bêta créée via le centre puis profil et invitations ignorées dans l’UI. Connexions Bêta vides, politique ASSISTED par défaut, dashboard Bêta 5 entreprises / 5 personnes / 6 opportunités (Alpha 6/6/7). Politique Alpha explicitement réglée OFF, bascule Bêta → Alpha : OFF et compte operator conservés. Cela ne prouve pas un rôle non-admin, encore non recetté.
+- Logout UI → welcome, login avec le même compte → sélection des deux sociétés, retour Alpha et CRM persisté.
+- Safari du Mac : fenêtre privée neuve, lien privé → welcome CRM sans login Vercel ; login applicatif, sélection Alpha, tableau des entreprises visible. Mot de passe temporaire non sauvegardé ; seule fenêtre privée de recette fermée après capture. iPhone toujours non testé.
+- Viewport390x844 réellement exercé : dashboard Bêta et navigation lisibles ; tableau /settings/structures présente des entêtes qui se chevauchent. Capture mobile-structures-content-390.png. Correction bornée auteur intake_backend e97b2c50b, revue puis intégration root601143e27, nouvelle CI stricte 41228398385 et combined41228401635 en cours. Viewport restauré. Pas encore de validation navigateur du correctif mobile.
+- Cause mail prouvée par deux CI protocolaires : GreenMail2.1.9 annonce40octets pour445deMIME ; 2.1.15 annonce445=445. Fix fixture937c0bfa1 intégréroot4825f4668, 11testsrootPASS ; CI41227923056SUCCESS TLS/SMTP/IMAP/cleanup. Aucun garde backend modifié. La fixture du runtime508 actuellement partagé reste ancienne : lecture UI non corrigée avant prochain runtime unique.
