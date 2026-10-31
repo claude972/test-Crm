@@ -1842,3 +1842,12 @@ Résidusanglaisréels nouveauxobservés : Bridge receipts/paragrapheFormsCal etc
 ## RECOVERY — Codex reprend l'implémentation, 31octobre2026
 
 Le propriétaire autorise explicitement Codex à coder si Claude est bloqué. Aucun correctif n'a été appliqué entre le bilan08h et cette reprise. Première cible CJ-FRONT-TYPE004 : previewRecipientMock?:object efface le contrat Apollo MockedResponse et bloque le typecheck. Deuxième cible : helper natif metadata saveImapSmtpCaldavAccount utilise le token administrateur par défaut, distinct de l'identité fixture, ce qui bloque8/14 tests R10. Les corrections, tests et SHAs seront consignés ici, pas déclarés acquis avant exécution. Revue Claude du code Codex reste en attente de disponibilité, aucune revue croisée inventée.
+
+
+### RECOVERY-001 / agent codex — correctifs poussés
+
+Branchefix/hermes-autonomous-recovery-20261031, basec46. Commit0c9d373ab : remplace le typeobject/cast du mock aperçu par le contrat natifMockLink.MockedResponse ; passe explicitement tokenA au helper de créationIMAP/SMTP et conserve le comportement historique si la clé token est absente. Refuse une clé explicitementundefined, qui ferait sinon retomber sur un autre utilisateur ; null reste requête non authentifiée. Guards, scopes, TLS et services métier inchangés. Tests locaux existants frontend2PASS, nouvelle régression identité5PASS, orchestration7PASS. Première insertion de l'unit helper dansBACKEND_EXTRAS refusée par le contrôle de séparation integration/unit ; modification retirée et étape unitaire dédiée ajoutée au workflow, contrôles7PASS après correction.
+
+Commit32e54fe30 : la recette construisait un schémaSQL avecUUIDsans tirets, alors que getWorkspaceSchemaName utiliseUUIDenbase36. Cela explique la relationcampaignDelivery introuvable dans cette requête de quarantaine ; remplacement par le helper natif existant, sans création manuelle de table ni modification de persistance. Pas de résultatSMTP acquis avant la CI.
+
+Premiers runs41207575981/41207578379 sur0c9 annulés explicitement avant étapes métier au profit des runs sur32e54, pour ne pas tester l'ancienne requête de schéma déjà reconnue erronée. Nouveaux IDs à consigner dès réponse. Les succès locaux ne ferment niR10 complet ni la revue croiséeClaude (quota). Le propriétaire a explicitement autorisé Codex frontend/backend en l'absence de quotaClaude ; aucun nouveau workerClaude prétendu.
