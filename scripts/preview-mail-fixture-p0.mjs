@@ -1,6 +1,7 @@
 // Disposable, opt-in capture server. Never configures CRM accounts or sends mail.
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
+import net from 'node:net';
 import { createHmac } from 'node:crypto';
 import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -65,7 +66,6 @@ export function dockerArguments(plan, directory, uid, gid) {
     '--label', 'hermes.preview.fixture=isolated-mail', '--label', `hermes.preview.expires=${plan.expiresAt}`,
     '--user', `${uid}:${gid}`, '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
     '--memory', '256m', '--cpus', '0.5', '--tmpfs', '/tmp:rw,noexec,nosuid,size=64m',
-    '--publish', '127.0.0.1:3993:3993', '--publish', '127.0.0.1:3465:3465',
     '--mount', `type=bind,src=${path.join(directory, 'server.p12')},dst=/fixture/server.p12,readonly`,
     '--env-file', path.join(directory, 'greenmail.env'), IMAGE];
 }
@@ -85,12 +85,7 @@ function tlsGreeting(plan, ca, port) {
 }
 async function verifyFixture(plan, directory) {
   const inspect = JSON.parse(command('docker', ['inspect', plan.name]).toString())[0];
-  for (const port of Object.values(PORTS)) {
-    const binding = inspect.NetworkSettings.Ports[`${port}/tcp`];
-    assert.deepEqual(binding, [{ HostIp: '127.0.0.1', HostPort: String(port) }], 'Only loopback TLS ports may be published');
-  }
-  const published = Object.values(inspect.NetworkSettings.Ports).filter((entry) => entry !== null);
-  assert.equal(published.length, 2, 'No plaintext or administration port may be published');
+  assert.equal(Object.values(inspect.NetworkSettings.Ports).filter((entry) => entry !== null).length, 0, 'Internal container must publish no ports');
   const network = JSON.parse(command('docker', ['network', 'inspect', plan.network]).toString())[0];
   assert.equal(network.Internal, true, 'Fixture must not reach external mail servers');
   const ca = readFileSync(path.join(directory, 'ca.pem'));
@@ -100,6 +95,65 @@ async function verifyFixture(plan, directory) {
     catch { await new Promise((resolve) => setTimeout(resolve, 500)); }
   }
   throw new Error('Isolated mail TLS/protocol readiness failed');
+}
+export function assertInternalAddress(value) {
+  assert.match(value ?? '', /^(?:10\.\d+\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)$/);
+  assert.equal(net.isIP(value), 4);
+  return value;
+}
+async function startForwarding(plan, directory, env) {
+  // Docker does not publish ports for exclusively --internal networks. Keep
+  // that isolation; the runner forwards two loopback sockets to one fixed IP.
+  const container = JSON.parse(command('docker', ['inspect', plan.name]).toString())[0];
+  const target = assertInternalAddress(container.NetworkSettings.Networks[plan.network].IPAddress);
+  const state = { ...plan, target };
+  writeFileSync(path.join(directory, 'state.json'), JSON.stringify(state), { mode: 0o600 });
+  const child = spawn(process.execPath, [fileURLToPath(import.meta.url), 'forward'], {
+    env: { PATH: env.PATH, RUNNER_TEMP: env.RUNNER_TEMP, GITHUB_ACTIONS: 'true', GITHUB_WORKSPACE: env.GITHUB_WORKSPACE },
+    detached: true, stdio: 'ignore',
+  });
+  await new Promise((resolve, reject) => { child.once('spawn', resolve); child.once('error', reject); });
+  child.unref();
+  writeFileSync(path.join(directory, 'state.json'), JSON.stringify({ ...state, forwardPid: child.pid }), { mode: 0o600 });
+  const deadline = Math.min(Date.now() + 5000, Date.parse(plan.expiresAt));
+  while (!existsSync(path.join(directory, 'forward-ready.json')) && Date.now() < deadline) {
+    process.kill(child.pid, 0);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(existsSync(path.join(directory, 'forward-ready.json')), 'Loopback forwarding did not start');
+}
+export function createLoopbackForwarder(target, port) {
+  assertInternalAddress(target);
+  assert.ok(Object.values(PORTS).includes(port));
+  const sockets = new Set();
+  const server = net.createServer((incoming) => {
+    if (sockets.size >= 32) { incoming.destroy(); return; }
+    const outgoing = net.connect({ host: target, port });
+    for (const socket of [incoming, outgoing]) {
+      sockets.add(socket);
+      socket.setTimeout(120_000, () => socket.destroy());
+      socket.once('close', () => sockets.delete(socket));
+      socket.on('error', () => { incoming.destroy(); outgoing.destroy(); });
+    }
+    incoming.pipe(outgoing); outgoing.pipe(incoming);
+  });
+  return { server, stop: () => { for (const socket of sockets) socket.destroy(); server.close(); } };
+}
+async function forward(env) {
+  assert.equal(env.GITHUB_ACTIONS, 'true');
+  const directory = privateDirectory(env);
+  const plan = JSON.parse(readFileSync(path.join(directory, 'state.json'), 'utf8'));
+  const remaining = Date.parse(plan.expiresAt) - Date.now();
+  assert.ok(remaining > 0 && remaining <= 90 * 60_000);
+  const forwarders = Object.values(PORTS).map((port) => createLoopbackForwarder(plan.target, port));
+  const stop = () => { for (const value of forwarders) value.stop(); process.exit(); };
+  process.once('SIGTERM', stop); process.once('SIGINT', stop);
+  setTimeout(stop, remaining);
+  for (const [index, value] of forwarders.entries()) {
+    await new Promise((resolve, reject) => { value.server.once('error', reject); value.server.listen(Object.values(PORTS)[index], '127.0.0.1', resolve); });
+    assert.equal(value.server.address().address, '127.0.0.1');
+  }
+  privateWrite(path.join(directory, 'forward-ready.json'), JSON.stringify({ host: '127.0.0.1', ports: Object.values(PORTS), expiresAt: plan.expiresAt }));
 }
 function writeHosts(plan, remove = false) {
   const marker = `${MARKER}${plan.id}`;
@@ -145,6 +199,8 @@ async function start(env) {
     command('docker', ['network', 'create', '--internal', plan.network]);
     phase = 'container';
     command('docker', dockerArguments(plan, directory, process.getuid(), process.getgid()));
+    phase = 'loopback-forwarding';
+    await startForwarding(plan, directory, env);
     phase = 'verified-bindings-and-TLS';
     await verifyFixture(plan, directory);
     phase = 'host-mapping';
@@ -179,6 +235,11 @@ async function cleanup(env) {
   let failure;
   // Best effort independent operations; never skip one because another failed.
   for (const operation of [
+    () => {
+      if (!plan.forwardPid) return;
+      assert.ok(Number.isInteger(plan.forwardPid) && plan.forwardPid > 1);
+      try { process.kill(-plan.forwardPid, 'SIGTERM'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+    },
     () => command('docker', ['rm', '--force', plan.name]),
     () => command('docker', ['network', 'rm', plan.network]),
     () => writeHosts(plan, true),
@@ -188,6 +249,7 @@ async function cleanup(env) {
 }
 export async function main(env, action) {
   if (action === 'start') return start(env);
+  if (action === 'forward') return forward(env);
   if (action === 'cleanup') return cleanup(env);
   if (action === 'parameters') {
     // Owner derives the same ephemeral credentials locally from the existing origin

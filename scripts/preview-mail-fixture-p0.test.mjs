@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import tls from 'node:tls';
-import { IMAGE, PORTS, dockerArguments, fixturePlan, generateFixtureCertificates, main, privateDirectory, runtimeEnvironment } from './preview-mail-fixture-p0.mjs';
+import { IMAGE, PORTS, assertInternalAddress, createLoopbackForwarder, dockerArguments, fixturePlan, generateFixtureCertificates, main, privateDirectory, runtimeEnvironment } from './preview-mail-fixture-p0.mjs';
 
 const now = Date.parse('2026-10-31T16:00:00Z');
 const env = (extra = {}) => ({ P0_PREVIEW_MAIL_FIXTURE: 'true', GITHUB_RUN_ID: '123456', GITHUB_RUN_ATTEMPT: '2',
@@ -59,7 +59,7 @@ test('Docker uses pinned image and private env file, internal network, loopback 
   assert.equal(args.at(-1), IMAGE);
   assert.match(IMAGE, /@sha256:[a-f0-9]{64}$/);
   const ports = args.flatMap((value, index) => value === '--publish' ? [args[index + 1]] : []);
-  assert.deepEqual(ports, ['127.0.0.1:3993:3993', '127.0.0.1:3465:3465']);
+  assert.deepEqual(ports, []); // Internal Docker networks deliberately publish none.
   assert.equal(args[args.indexOf('--network') + 1], plan.network);
   assert.equal(args[args.indexOf('--env-file') + 1], '/runner/private/greenmail.env');
   assert.ok(!args.join(' ').includes(plan.password));
@@ -126,4 +126,14 @@ test('workflow cleanup is unconditional and no private fixture artifact is uploa
   assert.match(source, /\['network', 'create', '--internal', plan.network\]/);
   assert.ok(!source.includes('greenmail.auth.disabled'));
   assert.ok(!source.includes('NODE_TLS_REJECT_UNAUTHORIZED'));
+});
+
+test('forwarders accept only private fixed IPv4 targets and two TLS ports', async () => {
+  for (const target of ['8.8.8.8', 'mail.example.com', '127.0.0.1', '169.254.169.254', '172.32.1.1', '10.999.0.1', '::1']) assert.throws(() => assertInternalAddress(target));
+  assert.equal(assertInternalAddress('172.18.0.2'), '172.18.0.2');
+  assert.throws(() => createLoopbackForwarder('172.18.0.2', 25));
+  const forwarder = createLoopbackForwarder('172.18.0.2', PORTS.imaps);
+  await new Promise((resolve) => forwarder.server.listen(0, '127.0.0.1', resolve));
+  assert.equal(forwarder.server.address().address, '127.0.0.1');
+  await new Promise((resolve) => forwarder.server.close(resolve));
 });
