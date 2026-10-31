@@ -30,6 +30,7 @@ import { EmailConnectionSecurity } from 'src/engine/core-modules/imap-smtp-calda
 import { type KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { type UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 import { type RoleService } from 'src/engine/metadata-modules/role/role.service';
 import { MessageCampaignStatus } from 'kovaa-lab-shared/types';
@@ -143,6 +144,12 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
     user: UserEntity,
     workspaceId: string,
   ): Promise<string> => {
+    // addUserToWorkspaceIfUserNotInWorkspace takes the entity, not its id: it
+    // reads workspace.id itself, exactly as the proven suites resolve it.
+    const workspace = await getCoreRepository<WorkspaceEntity>(
+      WorkspaceEntity,
+    ).findOneByOrFail({ id: workspaceId });
+
     const role = await provider<RoleService>(
       'RoleService',
     ).getRoleByUniversalIdentifier({
@@ -150,9 +157,12 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
       workspaceId,
     });
 
+    // getRoleByUniversalIdentifier resolves to RoleDTO | null.
+    assert.ok(role, `The admin standard role is missing in ${workspaceId}`);
+
     await provider<UserWorkspaceService>(
       'UserWorkspaceService',
-    ).addUserToWorkspaceIfUserNotInWorkspace(user, workspaceId, role.id);
+    ).addUserToWorkspaceIfUserNotInWorkspace(user, workspace, role.id);
 
     const issued = await provider<AccessTokenService>(
       'AccessTokenService',
