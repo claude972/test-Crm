@@ -44,3 +44,12 @@ Complément 04:36 UTC : les deux suites campagnes non chargées ont été relanc
 - R07 : root 67 tests isolés PASS sur `19cb1c968`, correction origine/jeton vérifiée dans ce périmètre. Nouveau défaut byEvents/suffixe404 à corriger. Vrai stockage natif et Evolution réel non validés.
 - R05/R09/R13 : nouvelles queries classification et découverte MCP poussées ; affichage utilisateur encore à intégrer. Course de révision MCP ouverte ; premier run groupé de tests 20PASS/1FAIL, relance fichier seul7PASS, instabilité à expliquer.
 - CI intégration `cc7243140`, run41169707939 en cours, harnais de sélection6testsPASS. Aucune nouvelle recette navigateur ni preview finale à ce checkpoint.
+
+
+## Checkpoint — 31 octobre 05:04 UTC
+
+- CI41169707939 entièrement verte sur cc7243140, **source antérieure aux nouveaux lots mail/réglages/MCP**. Aucune déduction de livraison globale.
+- R13 : rechecks root serveur17PASS et frontend29PASS pour droits de l'appelant et résultats périmés ; droits effectifs affichés encore inexacts pour un rôle restreint, création première boîte absente du centre et sonde WA à durcir. CJ04c lancé pour le vrai onboarding natif.
+- R08/R09 : défaut de reprise après reload et contrôles bot absents de la vraie mailbox constatés, nouveau lot CJ04d lancé. MCP32testsPASS mais injection du client central dans le module surface incorrecte à corriger.
+- R10 : sélection From débloquée partiellement, attestation centrale encore à corriger. Suite produit HTTP/PG réattribuée au vrai CJ02. Format riche/audience/save concurrent toujours en cours.
+- R07 : forme webhookByEvents corrigée et root28testsPASS ; vrai stockage natif et fournisseur non validés. R15/R16 toujours aucune installation PWA ni nouvelle preview/Safari utilisateur prouvés.
