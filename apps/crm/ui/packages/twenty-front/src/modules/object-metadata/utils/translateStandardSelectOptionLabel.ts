@@ -31,10 +31,10 @@ export const translateStandardSelectOptionLabel = ({
     ({ optionId }) => optionId === option.id,
   );
 
-  if (
-    !isDefined(shippedOption) ||
-    shippedOption.shippedLabel.message !== option.label
-  ) {
+  // sourceLabel, never shippedLabel.message: a production build strips the
+  // descriptor down to its id, which would make this comparison always fail and
+  // leave every stage in its stored wording.
+  if (!isDefined(shippedOption) || shippedOption.sourceLabel !== option.label) {
     return option.label;
   }
 

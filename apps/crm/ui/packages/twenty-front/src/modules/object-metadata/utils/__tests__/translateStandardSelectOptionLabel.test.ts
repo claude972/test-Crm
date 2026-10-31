@@ -124,7 +124,7 @@ describe('translateStandardSelectOptionLabel', () => {
 
     expect(
       STANDARD_SELECT_OPTION_LABELS[STAGE_FIELD].map(
-        ({ optionId, shippedLabel }) => [optionId, shippedLabel.message],
+        ({ optionId, sourceLabel }) => [optionId, sourceLabel],
       ),
     ).toEqual(
       STANDARD_SELECT_OPTION_LABELS[STAGE_FIELD].map(({ optionId }) => [
@@ -136,5 +136,54 @@ describe('translateStandardSelectOptionLabel', () => {
     expect(STANDARD_SELECT_OPTION_LABELS[STAGE_FIELD]).toHaveLength(
       shippedLabelByOptionId.size,
     );
+  });
+  // Root found this by compiling: the Lingui SWC plugin strips `message` from a
+  // descriptor in a production build, leaving `{ id }`. These three guard the
+  // shape the comparison depends on. They run in dev, so they prove the logic
+  // does not read a compile-time field -- they do not exercise a real build.
+  describe('durability through a production build', () => {
+    const stageLabels = STANDARD_SELECT_OPTION_LABELS[STAGE_FIELD];
+
+    it('carries the shipped wording as a plain string, not a descriptor field', () => {
+      for (const { sourceLabel } of stageLabels) {
+        expect(typeof sourceLabel).toBe('string');
+        expect(sourceLabel.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('keeps the plain string and the descriptor in step while the build keeps both', () => {
+      for (const { sourceLabel, shippedLabel } of stageLabels) {
+        if (typeof shippedLabel.message === 'string') {
+          expect(shippedLabel.message).toBe(sourceLabel);
+        }
+      }
+    });
+
+    it('still translates once the descriptor is reduced to its id', () => {
+      const restoreMessages = stageLabels.map(({ shippedLabel }) => ({
+        shippedLabel,
+        message: shippedLabel.message,
+      }));
+
+      // exactly what the production build emits
+      for (const { shippedLabel } of stageLabels) {
+        shippedLabel.message = undefined;
+      }
+
+      try {
+        activateFrench();
+
+        expect(translate({ id: SCREENING_ID, label: 'Screening' })).toBe(
+          'Présélection',
+        );
+        expect(translate({ id: SCREENING_ID, label: 'Premier contact' })).toBe(
+          'Premier contact',
+        );
+      } finally {
+        for (const { shippedLabel, message } of restoreMessages) {
+          shippedLabel.message = message;
+        }
+      }
+    });
   });
 });
