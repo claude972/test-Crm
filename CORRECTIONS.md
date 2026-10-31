@@ -1496,3 +1496,15 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - Résultat observé avant envoi : conteneur réglages b2692543d livré et fusionné parent, 84 tests annoncés ; trois runtime encore en cours. Les anciens agents Codex ont échoué sur quota, ils ne sont plus actifs.
 - Root intégration 6dd0b3dce contient backend assemblé et frontend e21, sans recette finale. C ee0943bd8 cloud 41145406389 success ; D compiled/barriers 41145150959 failure. Pas de preview V4 accessible annoncée.
 - Prochain contrôle : ACK réel parent, correction CI D et MAIL006, quatre montages, build combiné, preview neuve et navigateur.
+
+### 2026-10-30 20:02 America/Martinique — supervision intégration Claude
+
+- Parent 8f3db32e a réellement accepté l'ownership d'assemblage ; dispatchs observés runtime WA/mail/campagnes + backend livraison + harnais D. Codex reste en supervision, aucun nouveau sous-agent Codex.
+- Checkpoints distants vérifiés : réglages b2692543d, WA e65363e87, mail d522e0af0, campagnes c4b67d2e9. Routes montées 167fb8038 puis fusionnées dans la branche commune ; deltas Auth repris, HEAD commun poussé fc260e860. Cela ne constitue pas encore un build combiné ni une preview.
+- D-HARNESS-001 : revue Codex de a95ebd896 confirme changement limité aux casts UUID du même paramètre SQL, aucune assertion retirée. Exécution PostgreSQL combinée encore attendue.
+- FRONT-MAIL-IDENTITY-002 : reviewer Codex, assigned Claude mail, source d522e0af0. useHermesMailboxRuntimeIdentity choisit le premier compte actif au lieu du connectedAccountId central MAIL et qualifie ses alias d'autorisés sans preuve serveur. status in_progress, correction déléguée ; le serveur conserve le refus des identités non autorisées.
+- FRONT-NAV-003 : reviewer Codex, assigned Claude parent, source 167fb8038. Routes présentes mais non référencées dans le menu ; pages sans HermesShellLayout et campagne sans identifiant rendue null. status in_progress, correction navigation/empty transmise ; frontière de société à vérifier séparément.
+- CAMPAIGN-MAIL-004 : reviewer Codex, assigned Claude worker SMTP, source fc260e860. emailing-domain-driver.factory.ts lit EMAILING_SMTP_CONNECTIONS ; MAIL central natif ne suffit pas à alimenter ce pilote. status in_progress ; réutiliser le moteur natif et les oppositions, From exact et résolution centrale fail closed, sans nouveau moteur ni émission réelle.
+- MAIL006 : fix partiel ad97f03c1 ajoute un contrôle enfin après sentCopy. Revue Codex constate aussi awaits closeClient dans session, catch global disposeAcceptedDraft et release du verrou après contrôle ; rechecks et repros ciblés demandés au worker. status in_progress, non vérifié globalement.
+- Média : le supposé besoin d'un nouveau Bearer n'est pas confirmé. Revue source JwtAuthGuard / AccessTokenService.validateTokenByRequest accepte les cookies de session ; le PUT utilise FileUploadTokenGuard et son URL token native. Pas de relâchement des guards, pas de nouveau jeton exposé. Recette réseau encore attendue.
+- Nouvelle preview V4 : aucune disponible à ce checkpoint. En attente du build exact et de la recette navigateur.
