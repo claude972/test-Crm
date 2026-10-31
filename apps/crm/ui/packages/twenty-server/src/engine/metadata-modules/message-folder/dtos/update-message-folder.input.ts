@@ -27,7 +27,7 @@ export class UpdateMessageFolderInput {
 
 @InputType()
 export class UpdateMessageFoldersInput {
-  @IsUUID('4', { each: true })
+  @IsUUID('all', { each: true })
   @IsNotEmpty({ each: true })
   @Field(() => [UUIDScalarType])
   ids: string[];
