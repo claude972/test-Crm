@@ -53,3 +53,10 @@ Dernier disque contrôlé : système11GiB libres, externe1,1GiB, donc aucun gros
 ## Mise à jour CI05:49UTC — à corriger dès reprise
 
 Frontend41173424054 a terminé FAILURE sur2f1e8e705. Erreur unique du log failed : `HermesCampaignContentPersistence.test.tsx(51,44)` TS2344, `typeof MockLink` est une classe utilisée avec Parameters (contrainte fonction). CJ01 doit utiliser le type des paramètres du constructeur, sans enlever le test ni assouplir le check, puis relancer la CI stricte. Le test s'exécute en Jest mais ne passe pas le typecheck ; ne pas confondre les deux. MCP41173344142 en cours, conclusion à relire.
+
+
+## Mise à jour05:57UTC
+
+MCP3413 run41173344142 est SUCCESS sur tout le pipeline natif. Full frontend réglagesb0ef run41174465769 démarré, conclusion à vérifier. Frontend2f reste rouge sur son type MockLink (CJ-FRONT-TYPE-001).
+
+Deux constats préliminaires CJ04c à prendre avant sa livraison : CJ-SETUP-001, le vrai save natif peut contacter les protocoles (test conditionnel activable), donc ne pas afficher « aucun serveur n'a été contacté » ni désactiver les contrôles natifs ; CJ-SETUP-002, refetch en échec après mutation acceptée n'est pas un refus d'écriture ni une preuve « rien écrit ». Distinguer l'état accepté et la lecture non rafraîchie/inconnue, conserver l'id confirmé et tester ce cas.
