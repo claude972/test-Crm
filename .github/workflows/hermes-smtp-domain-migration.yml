@@ -1,0 +1,124 @@
+name: Hermes SMTP domain migration
+on:
+  push:
+    branches: [fix/hermes-autonomous-recovery-20261031]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hermes-smtp-domain-migration-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  migration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: p0_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+        ports: ["127.0.0.1:5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p0_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7
+        ports: ["127.0.0.1:6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      FORCE_COLOR: "0"
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 90f180a5aed985be373fc577005a8a62ed04152e
+          path: .smtp-domain-baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Free only unused preinstalled SDKs on the fresh GitHub-hosted runner
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          df -h .
+          for unused_sdk_path in /usr/local/lib/android /opt/ghc /usr/share/dotnet; do
+            case "$unused_sdk_path" in
+              /usr/local/lib/android|/opt/ghc|/usr/share/dotnet) sudo rm -rf -- "$unused_sdk_path" ;;
+              *) exit 1 ;;
+            esac
+          done
+          df -h .
+      - name: Validate disposable fixture drift and SMTP ownership SQL guards
+        run: node --test scripts/check-hermes-smtp-domain-migration-ci.test.mjs
+      - name: Install immutable workspace dependencies
+        working-directory: apps/crm/ui
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Build shared, client SDK and email dependencies without provider traffic
+        working-directory: apps/crm/ui
+        run: |
+          set -eu
+          for package in twenty-shared twenty-client-sdk twenty-emails; do
+            (
+              cd "packages/$package"
+              node --input-type=module -e "const { build } = await import('vite'); await build();"
+              if test "$package" = twenty-client-sdk; then
+                node --input-type=module -e "const { build } = await import('vite'); await build({ configFile: 'vite.metadata.config.ts' });"
+              fi
+              node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --composite false --singleThreaded
+              node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+            )
+          done
+      - name: Typecheck and compile feature production sources
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          node ../../node_modules/.bin/tsgo -p tsconfig.build.json --noEmit --singleThreaded
+          node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+      - name: Compile exact baseline using the installed dependency tree
+        run: |
+          set -eu
+          test "$(git -C .smtp-domain-baseline rev-parse HEAD)" = 90f180a5aed985be373fc577005a8a62ed04152e
+          ln -s "$GITHUB_WORKSPACE/apps/crm/ui/node_modules" .smtp-domain-baseline/apps/crm/ui/node_modules
+          cd .smtp-domain-baseline/apps/crm/ui/packages/twenty-server
+          node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+      - name: Install the built SDK assets in both isolated server outputs
+        run: |
+          set -eu
+          for checkout in . .smtp-domain-baseline; do
+            destination="$checkout/apps/crm/ui/packages/twenty-server/dist/assets/kovaa-lab-client-sdk"
+            mkdir -p "$destination"
+            cp apps/crm/ui/packages/twenty-client-sdk/package.json "$destination/"
+            cp -r apps/crm/ui/packages/twenty-client-sdk/dist "$destination/dist"
+            test -s "$destination/dist/metadata.mjs"
+          done
+      - name: Remove only tracked test environment fixtures from disposable checkouts
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          for checkout in . .smtp-domain-baseline; do
+            git -C "$checkout" ls-files --error-unmatch apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server >/dev/null
+            git -C "$checkout" diff --quiet HEAD -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+            rm -- "$checkout/apps/crm/ui/packages/twenty-server/.env.test" "$checkout/apps/crm/ui/packages/twenty-server/.env.e2e-testing-server"
+          done
+      - name: Compare native upgrade-aware baseline, generate official 2.52 SMTP domain delta and prove PostgreSQL up/down/up
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+        run: node scripts/check-hermes-smtp-domain-migration-ci.mjs
+      - name: Publish exact migration patch and verification evidence for human review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-smtp-domain-migration-${{ github.sha }}
+          path: hermes-smtp-domain-migration-artifacts
+          if-no-files-found: warn
+          retention-days: 7
