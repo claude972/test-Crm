@@ -34,7 +34,14 @@ describe('buildHermesModuleNavigationItems', () => {
           pathname: '/dashboard',
         }),
       ),
-    ).toEqual(['dashboard', 'messaging', 'reception']);
+    ).toEqual([
+      'dashboard',
+      'messaging',
+      'whatsapp',
+      'mailbox',
+      'connections',
+      'reception',
+    ]);
   });
 
   // Its operations are refused server side for everyone else, and a link that
