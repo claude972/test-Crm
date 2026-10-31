@@ -1,6 +1,5 @@
 import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
-import type React from 'react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -20,6 +19,7 @@ import { HERMES_MCP_TOOL_SURFACE } from '@/hermes-admin-runtime/graphql/metadata
 import { HermesAdminRuntimeSettings } from '@/hermes-admin-runtime/components/HermesAdminRuntimeSettings';
 import { HERMES_WORKSPACE_BOT_POLICIES } from '@/hermes-bot-settings/graphql/metadata-queries/hermesWorkspaceBotPolicies';
 import { GET_MY_CONNECTED_ACCOUNTS } from '@/settings/accounts/graphql/queries/getMyConnectedAccounts';
+import { ToastProvider } from 'kovaa-lab-ui/components/feedback';
 
 // The authentication hook is not re-implemented and not exercised here: this
 // container only calls its two company methods and maps their promises. They
@@ -235,10 +235,7 @@ const memberRolesMock: MockedResponse = {
   },
 };
 
-const renderSettings = (
-  extraMocks: MockedResponse[] = [],
-  mailboxSetupSlot?: React.ReactNode,
-) => {
+const renderSettings = (extraMocks: MockedResponse[] = []) => {
   const store = createStore();
 
   store.set(currentWorkspaceState.atom, {
@@ -276,7 +273,12 @@ const renderSettings = (
         ]}
       >
         <I18nProvider i18n={i18n}>
-          <HermesAdminRuntimeSettings mailboxSetupSlot={mailboxSetupSlot} />
+          {/* HARNESS: the toast host is an application-level provider, mounted
+              in App.tsx. The real one is used rather than a stub, so the
+              mailbox panel this container now renders runs as it does there. */}
+          <ToastProvider>
+            <HermesAdminRuntimeSettings />
+          </ToastProvider>
         </I18nProvider>
       </MockedProvider>
     </Provider>,
@@ -565,7 +567,7 @@ describe('HermesAdminRuntimeSettings', () => {
   it('names a native account by its name and address, never by its identifier', async () => {
     // A UUID read as a mailbox is how the wrong account gets bound, so a raw
     // identifier is never shown where a name belongs.
-    renderSettings([], <div>Panneau de création de boîte</div>);
+    renderSettings();
 
     await screen.findByText('E-mail entrant (IMAP)');
 
@@ -596,28 +598,36 @@ describe('HermesAdminRuntimeSettings', () => {
       );
     }
 
-    // The creation panel is rendered in the slot this form owns. Its contents
-    // belong to another lot; this screen only provides the hole.
+    // The real creation panel, not a hole: the container mounts it itself, so
+    // the operator can add a mailbox from the centre instead of being sent
+    // away to the product's own account pages.
     expect(
-      screen.getByText('Panneau de création de boîte'),
+      screen.getByRole('button', { name: 'Connecter une boîte' }),
     ).toBeInTheDocument();
   });
 
-  it('renders nothing in place of an absent mailbox creation panel', async () => {
+  it('offers the mailbox creation panel in the mail form, never a dead end', async () => {
+    // The regression this covers: the slot existed and nobody filled it, so
+    // the form told the operator to go and connect a mailbox elsewhere. That
+    // left the configured-mailbox-becomes-campaign-sender chain cut at its
+    // first link.
     renderSettings();
 
     await screen.findByText('E-mail entrant (IMAP)');
 
-    const editButtons = screen.getAllByRole('button', {
-      name: 'Modifier les paramètres',
-    });
+    await userEvent.click(
+      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+    );
 
-    await userEvent.click(editButtons[1]);
-
-    // No panel supplied, so the operator is told where to go instead of being
-    // shown an empty area.
     expect(
-      screen.queryByText('Panneau de création de boîte'),
+      screen.getByRole('button', { name: 'Connecter une boîte' }),
+    ).toBeInTheDocument();
+
+    // And the wording that sent the operator away is gone.
+    expect(
+      screen.queryByText(
+        /Il faut en connecter un dans les comptes du produit/,
+      ),
     ).toBeNull();
   });
 
