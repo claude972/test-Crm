@@ -1,0 +1,121 @@
+name: Hermes campaign mailbox focused verification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hermes-campaign-mailbox-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  combined:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: p0_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+        ports: ["127.0.0.1:5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p0_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7
+        ports: ["127.0.0.1:6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      FORCE_COLOR: "0"
+      NODE_OPTIONS: --max-old-space-size=6144
+      NX_DAEMON: "false"
+      EMAIL_DRIVER: logger
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Free only fixed unused SDK paths on the disposable hosted runner
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          for unused_sdk_path in /usr/local/lib/android /opt/ghc /usr/share/dotnet; do
+            case "$unused_sdk_path" in
+              /usr/local/lib/android|/opt/ghc|/usr/share/dotnet) sudo rm -rf -- "$unused_sdk_path" ;;
+              *) exit 1 ;;
+            esac
+          done
+      - name: Install immutable native workspace dependencies
+        working-directory: apps/crm/ui
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+      - name: Verify orchestration and existing disposable wrapper boundaries
+        run: node --test scripts/check-hermes-v4-combined.test.mjs scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-tenancy-ci.test.mjs scripts/check-hermes-connections-migration-ci.test.mjs scripts/check-hermes-media-migration-ci.test.mjs scripts/check-hermes-swc-isolation.test.mjs scripts/check-hermes-pwa-service-worker.test.mjs scripts/check-preview-access.test.mjs scripts/check-preview-session-env.test.mjs
+      - name: Build native shared SDK UI and renderer dependency graph
+        id: dependencies
+        working-directory: apps/crm/ui
+        run: |
+          node .yarn/releases/yarn-4.18.1.cjs nx run-many --target=build --projects=kovaa-lab-shared,kovaa-lab-ui,kovaa-lab-front-component-renderer --parallel=1 --skip-nx-cache
+          test -s packages/twenty-shared/dist/index.cjs
+          test -d packages/twenty-sdk/dist
+          test -s packages/twenty-client-sdk/dist/core.cjs
+          test -s packages/twenty-client-sdk/dist/metadata.mjs
+      - name: Build native email runtime and declarations without sending mail
+        id: email_build
+        working-directory: apps/crm/ui/packages/twenty-emails
+        run: |
+          node --input-type=module -e "const { build } = await import('vite'); await build();"
+          node ../../node_modules/.bin/tsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src --composite false --singleThreaded
+          node ../../node_modules/tsc-alias/dist/bin/index.js -p tsconfig.lib.json --outDir dist
+          test -s dist/index.js
+          test -s dist/index.d.ts
+      - name: Remove only unchanged tracked environment fixtures in this disposable checkout
+        run: |
+          set -eu
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          git ls-files --error-unmatch apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server >/dev/null
+          git diff --quiet HEAD -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+          rm -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+      - name: Verify mailbox test helper preserves the selected identity
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath test/integration/metadata/suites/connected-account/utils/save-imap-smtp-caldav-account.util.spec.ts
+      - name: Typecheck all backend production sources
+        id: backend_types
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: node ../../node_modules/.bin/tsgo -p tsconfig.build.json --noEmit --singleThreaded
+      - name: Compile native Nest server worker and client SDK assets
+        id: backend_build
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.email_build.outcome == 'success' }}
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: |
+          node ../../node_modules/.bin/nest build --path ./tsconfig.build.json
+          test -s dist/main.js
+          test -s dist/queue-worker/queue-worker.js
+          mkdir -p dist/assets/kovaa-lab-client-sdk
+          cp ../twenty-client-sdk/package.json dist/assets/kovaa-lab-client-sdk/
+          cp -r ../twenty-client-sdk/dist dist/assets/kovaa-lab-client-sdk/dist
+          test -s dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts
+      - name: Verify the native campaign journey against isolated SMTP and IMAP
+        env:
+          PG_DATABASE_URL: postgres://postgres:${{ github.run_id }}@127.0.0.1:5432/p0_ci
+          REDIS_URL: redis://127.0.0.1:6379
+          P0_INTEGRATION_DISPOSABLE: "true"
+        run: node scripts/check-hermes-v4-combined.mjs postgres-campaign-mailbox
+      - name: Record the exact source and the limited verification scope
+        if: always()
+        run: |
+          mkdir -p hermes-v4-combined-artifacts
+          git rev-parse HEAD > hermes-v4-combined-artifacts/source-sha.txt
+          echo 'Focused SMTP/IMAP fixture only; not the complete CRM acceptance suite.' > hermes-v4-combined-artifacts/scope.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hermes-campaign-mailbox-${{ github.sha }}
+          path: hermes-v4-combined-artifacts
+          if-no-files-found: warn
+          retention-days: 7
