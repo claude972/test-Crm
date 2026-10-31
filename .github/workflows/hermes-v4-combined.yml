@@ -124,6 +124,29 @@ jobs:
           REDIS_URL: redis://127.0.0.1:6379
           P0_INTEGRATION_DISPOSABLE: "true"
         run: node scripts/check-hermes-v4-combined.mjs connections-pg
+      - name: Build the exact native production frontend bundle
+        id: front_bundle
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        working-directory: apps/crm/ui
+        run: |
+          node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front exec lingui compile --typescript
+          node .yarn/releases/yarn-4.18.1.cjs workspace kovaa-lab-front build
+          test -s packages/twenty-front/build/index.html
+      - name: Stamp the bundle with the source revision that produced it
+        if: ${{ steps.front_bundle.outcome == 'success' }}
+        run: |
+          set -eu
+          git rev-parse HEAD > apps/crm/ui/packages/twenty-front/build/SOURCE_REVISION.txt
+          git status --short --untracked-files=no > apps/crm/ui/packages/twenty-front/build/SOURCE_TRACKED_CHANGES.txt
+          test -s apps/crm/ui/packages/twenty-front/build/SOURCE_REVISION.txt
+      - name: Publish the verified frontend bundle with its source revision
+        uses: actions/upload-artifact@v4
+        if: ${{ steps.front_bundle.outcome == 'success' && steps.backend_build.outcome == 'success' && steps.backend_types.outcome == 'success' }}
+        with:
+          name: hermes-v4-frontend-bundle-${{ github.sha }}
+          path: apps/crm/ui/packages/twenty-front/build
+          if-no-files-found: error
+          retention-days: 7
       - name: Preserve exact source identity and test proof
         if: always()
         run: |

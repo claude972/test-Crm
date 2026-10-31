@@ -10,7 +10,9 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
+  discoverBackendSuites,
   discoverFrontendSuites,
   parseConnectionProof,
   runCombined,
@@ -122,4 +124,27 @@ test("arbitrary suites and flags cannot become an executable combined stage", as
     "postgres-tenancy --extra",
   ])
     await assert.rejects(runCombined(mode), /Unknown fixed combined stage/);
+});
+
+test("backend discovery covers the auth and messaging lots of this checkout", () => {
+  const suites = discoverBackendSuites(
+    path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "../apps/crm/ui/packages/twenty-server",
+    ),
+  );
+  for (const lot of [
+    "src/engine/core-modules/auth/",
+    "src/engine/core-modules/hermes-messaging/",
+    "src/engine/core-modules/hermes-mail/",
+  ])
+    assert.ok(
+      suites.some((name) => name.startsWith(lot)),
+      `Missing discovered lot: ${lot}`,
+    );
+  assert.ok(
+    suites.every((name) => name.endsWith(".spec.ts")),
+    "Only unit specs may reach the combined backend stage",
+  );
+  assert.deepEqual([...new Set(suites)], suites, "Suites must not repeat");
 });
