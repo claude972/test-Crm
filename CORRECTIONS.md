@@ -1880,3 +1880,12 @@ Six anciens cachesJest régénérables supprimés(219MiB), ancien serveur de maq
 Espace disponible observé avant/après : Mac5.5→19GiB ; externe3.9→14GiB, variation arrondie et autres travaux simultanés. Environ23GiB récupérés ; la pression mémoire reste à surveiller (8GiBRAM, swapencoreprésent). Les disquesVM occupent200GiB dansDeplacement-Mac/colima et80GiB dansruntime-local/lima : pas considérés comme des caches jetables car données métier potentiellement uniques. Pas de purgeDocker/Colima ni démarrageVM.
 
 Consigne d'exécution : ne pas recréer les anciens58arbres. Les lots de reprise restent dans hermes-claude-recovery-frontend / hermes-cj01-slice4 / hermes-cjr14 ; après intégration et revue, retirer leurs futurs arbres devenus inutiles en préservant branches et WIP. Détail de l'audit et sauvegardes uniquement en local privé : /Users/claudebrafa/.codex/private-preview/test-Crm-p0/cleanup-20261031. Aucun secret ni archiveWIP publié.
+
+
+### Complément nettoyage externe — 31octobre2026
+
+Demande du propriétaire de libérer davantage l'externe et d'identifier les2sessions actives. Inventaire officiel : parentHermès8f3db32e et parentDépannageb4b555f0 busy/working, chemins externes ; sessioninteractiveDesign56596idle sur le disqueinterne. Aucun processusColima/Lima/Docker actif trouvé : les200+80GiB de disquesVM sont des données arrêtées, pas2sessionsClaude.
+
+Cinq caches de paquets régénérables supprimés après contrôle de chemins réels et absence de fichiers ouverts : npm_cacache transféré, ancienGradle/cachesHermès, npm_cacacheHermès, piphttp-v2, CocoaPodsPods. Total mesuré8.74GiB, dossiers vides recréés et vérifiés. Aucun_npx, cacheUV/Python installé, source, VM, base ni sauvegarde supprimé. Manifestelocalprivéexternal-package-cache-removal.json. Espace externe14→23GiB disponibles, contrôleagents toujoursworking après nettoyage.
+
+Sauvegarde locale28octobre17:50UTC : tailles etSHA256 des11fichiers conformes au manifeste. DisqueVMHermès modifié29octobre00:50UTC, soit APRÈS la sauvegarde : ce contrôle ne garantit donc pas la récupération des dernières données et ne justifie pas de supprimer les80GiB. Restauration complète non exécutée. Préserver cesVM tant que leur dernier état n'est pas sauvegardé/restaurable ou explicitement jugé jetable par le propriétaire.
