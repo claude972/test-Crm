@@ -186,4 +186,89 @@ describe('translateStandardSelectOptionLabel', () => {
       }
     });
   });
+  // A locale with no entry for these ids must read the shipped English. In a
+  // production build the descriptor is id-only, so without this the hash itself
+  // reaches the screen.
+  describe('a locale the catalog does not cover', () => {
+    const stageLabels = STANDARD_SELECT_OPTION_LABELS[STAGE_FIELD];
+    const screeningMessageId = messageId('Screening');
+
+    const activateGermanWithoutTheStageIds = () => {
+      i18n.load('de-DE', { someOtherId: 'Irgendetwas' });
+      i18n.activate('de-DE');
+    };
+
+    const withProductionDescriptors = (assert: () => void) => {
+      const restoreMessages = stageLabels.map(({ shippedLabel }) => ({
+        shippedLabel,
+        message: shippedLabel.message,
+      }));
+
+      for (const { shippedLabel } of stageLabels) {
+        shippedLabel.message = undefined;
+      }
+
+      try {
+        assert();
+      } finally {
+        for (const { shippedLabel, message } of restoreMessages) {
+          shippedLabel.message = message;
+        }
+      }
+    };
+
+    it('reads the shipped English, not the message id', () => {
+      activateGermanWithoutTheStageIds();
+
+      expect(translate({ id: SCREENING_ID, label: 'Screening' })).toBe(
+        'Screening',
+      );
+    });
+
+    it('reads the shipped English once the descriptor is id-only', () => {
+      activateGermanWithoutTheStageIds();
+
+      withProductionDescriptors(() => {
+        const translated = translate({
+          id: SCREENING_ID,
+          label: 'Screening',
+        });
+
+        expect(translated).toBe('Screening');
+        expect(translated).not.toBe(screeningMessageId);
+      });
+    });
+
+    it('never borrows another locale that does have the entry', () => {
+      // French is loaded, German is active: German must not read French
+      i18n.load('fr-FR', { [screeningMessageId]: 'Présélection' });
+      activateGermanWithoutTheStageIds();
+
+      withProductionDescriptors(() => {
+        expect(translate({ id: SCREENING_ID, label: 'Screening' })).toBe(
+          'Screening',
+        );
+      });
+    });
+
+    it('still keeps a renamed stage verbatim', () => {
+      activateGermanWithoutTheStageIds();
+
+      withProductionDescriptors(() => {
+        expect(translate({ id: SCREENING_ID, label: 'Premier contact' })).toBe(
+          'Premier contact',
+        );
+      });
+    });
+
+    it('resolves normally again on a locale that does have the entry', () => {
+      activateFrench();
+
+      withProductionDescriptors(() => {
+        expect(translate({ id: SCREENING_ID, label: 'Screening' })).toBe(
+          'Présélection',
+        );
+      });
+    });
+  });
 });

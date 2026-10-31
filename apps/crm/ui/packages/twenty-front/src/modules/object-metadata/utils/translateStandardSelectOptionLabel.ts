@@ -38,6 +38,16 @@ export const translateStandardSelectOptionLabel = ({
     return option.label;
   }
 
+  // Most locales have no entry for these ids yet, and a production descriptor is
+  // id-only, so i18n._() would hand back the hash itself. The active catalog is
+  // asked directly rather than inferred from what it returns; with no entry the
+  // honest answer is the shipped English, never another locale's wording.
+  const messageId = shippedOption.shippedLabel.id;
+
+  if (!isDefined(messageId) || !isDefined(i18n.messages[messageId])) {
+    return shippedOption.sourceLabel;
+  }
+
   return i18n._(shippedOption.shippedLabel);
 };
 
