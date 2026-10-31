@@ -54,3 +54,8 @@ Preuves locales : /private/tmp/hermes-preview-41197244441/recipe/ . Aucun fourni
 Depuis le centre, création native « Hermès Démo B — cloisonnement », profil terminé et invitations ignorées sans contacter personne. B possède une liste campagne vide (« Aucune campagne »), tandis que la campagne de démonstration réapparaît après la bascule vers A. Dashboard B : entreprises5/personnes5/opportunités6/tâches0. Vue « Vos sociétés autorisées » : A6/6/7/0, B5/5/6/0, total11/11/13/0 ; cohérent avec le contact/client qualifiés et l'opportunité manuelle dans A. Capture authorized-dashboard-two-companies.png observée, b-campaigns-empty.png conservée. Cela prouve la distinction entre sociétés autorisées de ce compte, PAS le refus d'un membre non autorisé ni le rôle lecture seule.
 
 Centre A : groupe « Toute la société »→Arrêt complet→reload : boutonpressed/disabled confirmé, politiqueOFFpersistée. BasculeB→centre : Brouillon seulementpressed/disabled encore présent, politiqueASSISTEDconservée. Retour à A puis dashboard pour le propriétaire. Aucun MCP fournisseur ni réponsebot réelle testés. Ces données de recette vivent uniquement jusqu’à expiration de la session.
+
+
+## Écrans messageries vérifiés11:54UTC
+
+Sur la société A finale : WhatsApp affiche « À configurer », aucune conversation, réponses/synchro désactivées et médias entrants/envoi/vocaux indisponibles. Mail affiche « Aucune boîte aux lettres n'est connectée », dossiers/réponse-transfert/brouillons/PJ indisponibles. Ce ne sont pas des réceptions vides validées ; aucun fournisseur n'a été récupéré. Retour au dashboard A, ongletIAB22 conservé comme livrable.
