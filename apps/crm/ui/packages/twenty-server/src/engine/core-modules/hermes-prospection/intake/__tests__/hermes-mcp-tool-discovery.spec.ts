@@ -72,6 +72,8 @@ describe('Hermes MCP tool discovery and authorization — isolated loopback', ()
   let server: Server;
   let endpoint: string;
   let mode = 'normal';
+  let deferredList: Promise<void> = Promise.resolve();
+  let releaseDeferredList: () => void = () => undefined;
   const requests: { method: string; params?: Record<string, unknown> }[] = [];
   const configuration = (overrides: Record<string, unknown> = {}) =>
     JSON.stringify({
@@ -90,10 +92,14 @@ describe('Hermes MCP tool discovery and authorization — isolated loopback', ()
         ...overrides,
       },
     });
-  const adapter = (overrides?: Record<string, unknown>) =>
+  const adapter = (
+    overrides?: Record<string, unknown>,
+    assertCurrent?: () => Promise<void>,
+  ) =>
     new HermesMcpBotAdapter(configuration(overrides), {
       allowedInternalHosts: ['127.0.0.1'],
       timeoutMs: 1500,
+      ...(assertCurrent ? { assertCurrent } : {}),
     });
   const byName = (
     tools: { name: string }[],
@@ -139,6 +145,9 @@ describe('Hermes MCP tool discovery and authorization — isolated loopback', ()
             ? { tools: [advertised[1]], nextCursor: `${String(cursor)}-next` }
             : { tools: [advertised[0]], nextCursor: 'page-2' };
         } else result = { tools: advertised };
+        // Hold the final tools/list response open so a rotation can land
+        // while it is in flight.
+        if (mode === 'deferred-list') await deferredList;
       } else if (body.method === 'tools/call')
         result = { content: [{ type: 'text', text: 'Proposition rédigée' }] };
       response.setHeader('Content-Type', 'application/json');
@@ -155,6 +164,14 @@ describe('Hermes MCP tool discovery and authorization — isolated loopback', ()
   beforeEach(() => {
     mode = 'normal';
     requests.length = 0;
+    deferredList = new Promise<void>((resolve) => {
+      releaseDeferredList = resolve;
+    });
+  });
+
+  afterEach(() => {
+    // Never leave the fixture server holding a response open.
+    releaseDeferredList();
   });
 
   it('discovers the advertised tools and reports each authorization refusal without calling any tool', async () => {
@@ -298,6 +315,59 @@ describe('Hermes MCP tool discovery and authorization — isolated loopback', ()
     const calls = requests.filter((entry) => entry.method === 'tools/call');
     expect(calls).toHaveLength(1);
     expect(calls[0].params?.name).toBe(draftTool);
+  });
+
+  // CJ-MCP-001 — the per-request guard runs before each POST, so the final
+  // tools/list response had nothing behind it. A rotation landing while that
+  // response is in flight must not publish the surface it described.
+  it('refuses a stale tool surface when the connection rotates behind the last tools/list response', async () => {
+    mode = 'deferred-list';
+    let rotated = false;
+    const assertCurrent = jest.fn(async () => {
+      if (rotated) throw new Error('MCP_CONFIGURATION_CHANGED');
+    });
+    const pending = adapter(undefined, assertCurrent).discoverTools({
+      workspaceId,
+    });
+    // Wait until the server is holding the tools/list response open, then
+    // rotate the connection and let that response arrive.
+    while (!requests.some((entry) => entry.method === 'tools/list'))
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    rotated = true;
+    releaseDeferredList();
+
+    const result = await pending;
+
+    // No stale surface and no stale grants survive the rotation.
+    expect(result).toEqual({
+      status: 'UNAVAILABLE',
+      provider: 'HERMES_MCP',
+      authorizedTools: [],
+      draftingTool: null,
+      tools: [],
+      truncated: false,
+    });
+    // The guard ran again after the complete collection, not only before the
+    // POSTs, and discovery never invoked a tool.
+    expect(assertCurrent.mock.calls.length).toBeGreaterThan(3);
+    expect(requests.some((entry) => entry.method === 'tools/call')).toBe(false);
+  });
+
+  it('still publishes the surface when the connection is unchanged behind the last response', async () => {
+    mode = 'deferred-list';
+    const assertCurrent = jest.fn(async () => undefined);
+    const pending = adapter(undefined, assertCurrent).discoverTools({
+      workspaceId,
+    });
+    while (!requests.some((entry) => entry.method === 'tools/list'))
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    releaseDeferredList();
+
+    const result = await pending;
+
+    expect(result.status).toBe('READY');
+    expect(result.authorizedTools).toEqual(granted);
+    expect(byName(result.tools, draftTool)).toMatchObject({ callable: true });
   });
 
   it('keeps an absent grant list meaning exactly the drafting tool', async () => {

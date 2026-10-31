@@ -257,9 +257,17 @@ export class HermesMcpBotAdapter {
           truncated: false,
         };
       const granted = authorizedToolNames(connection);
-      const listed = await this.withSession(connection, ({ listTools }) =>
-        listTools(),
-      );
+      const listed = await this.withSession(connection, async ({ listTools }) => {
+        const collected = await listTools();
+        // The per-request guard only runs before each POST, so the last
+        // `tools/list` response has nothing behind it. Recheck the connection
+        // and its revision after the COMPLETE collection — including after the
+        // final page — so a rotation or deletion that lands while that
+        // response is in flight cannot publish a stale tool list or stale
+        // grants as READY.
+        await this.options.assertCurrent?.();
+        return collected;
+      });
       const advertised = listed.tools
         .map((candidate) => advertisedToolSchema.safeParse(candidate))
         .flatMap((parsed) => (parsed.success ? [parsed.data] : []));
