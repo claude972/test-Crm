@@ -6,6 +6,7 @@ import { AuthGraphqlApiExceptionFilter } from 'src/engine/core-modules/auth/filt
 import { type FlatAuthContextUser } from 'src/engine/core-modules/auth/types/flat-auth-context-user.type';
 import {
   HermesInboundItemClassification,
+  HermesInboundReceiptPage,
   HermesScrapingClassification,
 } from 'src/engine/core-modules/hermes-prospection/intake/hermes-inbound-classification.dto';
 import { HermesInboundClassificationService } from 'src/engine/core-modules/hermes-prospection/intake/hermes-inbound-classification.service';
@@ -51,6 +52,21 @@ export class HermesInboundClassificationResolver {
       { workspaceId: workspace.id, userId: user.id, userWorkspaceId },
       { provider, eventId, bookingUid },
     );
+  }
+
+  // No argument selects a company or a connection: the page lists the
+  // receipts of the authenticated session's own workspace.
+  @Query(() => HermesInboundReceiptPage)
+  hermesInboundReceipts(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() userWorkspaceId: string,
+  ) {
+    return this.classification.listBridgeReceipts({
+      workspaceId: workspace.id,
+      userId: user.id,
+      userWorkspaceId,
+    });
   }
 
   @Query(() => HermesScrapingClassification)

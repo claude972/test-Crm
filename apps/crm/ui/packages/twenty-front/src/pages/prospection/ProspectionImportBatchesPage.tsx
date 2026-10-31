@@ -12,6 +12,7 @@ import { CampaignAudiencesSection } from '@/prospection/components/CampaignAudie
 import { HermesCapabilitiesNote } from '@/prospection/components/HermesCapabilitiesNote';
 import { HermesImportBatchDetail } from '@/prospection/components/HermesImportBatchDetail';
 import { HermesImportBatchesTable } from '@/prospection/components/HermesImportBatchesTable';
+import { HermesInboundReceiptsSection } from '@/prospection/components/HermesInboundReceiptsSection';
 import { HermesIntakeSection } from '@/prospection/components/HermesIntakeSection';
 import { HermesManualDepositSection } from '@/prospection/components/HermesManualDepositSection';
 import { HermesPayloadProblemNote } from '@/prospection/components/HermesPayloadProblemNote';
@@ -168,6 +169,11 @@ const HermesCollectionsContent = () => {
   return (
     <StyledContent>
       <HermesIntakeSection state={intakeState} />
+
+      {/* The bridge receipts, next to the endpoint state that brings them in:
+          the entry point says whether a connection accepts, this says what
+          actually arrived through it. */}
+      <HermesInboundReceiptsSection />
 
       <Section.Root>
         <Section.Header
