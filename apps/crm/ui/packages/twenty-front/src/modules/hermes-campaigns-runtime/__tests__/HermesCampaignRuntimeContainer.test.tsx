@@ -192,8 +192,7 @@ const recipientsMock = {
 // Writing to the campaign record is not an emission, but it must still not
 // happen on its own: this trap proves no save is attempted at mount.
 const persistenceTrap = {
-  request: { query: HERMES_RUNTIME_UPDATE_CAMPAIGN },
-  variableMatcher: () => true,
+  request: { query: HERMES_RUNTIME_UPDATE_CAMPAIGN, variables: () => true },
   result: () => {
     emissionTrap('HermesRuntimeUpdateCampaign');
 
@@ -203,8 +202,10 @@ const persistenceTrap = {
 
 // Rendering a preview emits nothing, but it must not run unasked either.
 const recipientPreviewTrap = {
-  request: { query: PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT },
-  variableMatcher: () => true,
+  request: {
+    query: PREVIEW_MESSAGE_CAMPAIGN_RECIPIENT,
+    variables: () => true,
+  },
   result: () => {
     emissionTrap('PreviewMessageCampaignRecipient');
 
@@ -325,8 +326,7 @@ const suppressionsMock = {
 const emissionTrap = jest.fn();
 
 const sendCampaignTrap = {
-  request: { query: SEND_MESSAGE_CAMPAIGN },
-  variableMatcher: () => true,
+  request: { query: SEND_MESSAGE_CAMPAIGN, variables: () => true },
   result: () => {
     emissionTrap('SendMessageCampaign');
 
@@ -335,8 +335,7 @@ const sendCampaignTrap = {
 };
 
 const sendTestTrap = {
-  request: { query: SEND_MESSAGE_CAMPAIGN_TEST },
-  variableMatcher: () => true,
+  request: { query: SEND_MESSAGE_CAMPAIGN_TEST, variables: () => true },
   result: () => {
     emissionTrap('SendMessageCampaignTest');
 

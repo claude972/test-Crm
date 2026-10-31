@@ -26,7 +26,9 @@ const StyledField = styled.div`
   min-width: 0;
 `;
 
-const StyledStatus = styled.p`
+// A div rather than a p: this line can contain the loader, which renders a
+// div, and a div inside a p is invalid DOM. It is a status line, not prose.
+const StyledStatus = styled.div`
   align-items: center;
   color: ${themeCssVariables.font.color.secondary};
   display: flex;

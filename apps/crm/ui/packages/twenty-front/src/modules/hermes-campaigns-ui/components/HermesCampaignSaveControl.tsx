@@ -24,7 +24,8 @@ const StyledRow = styled.div`
   min-width: 0;
 `;
 
-const StyledStatus = styled.span`
+// A div rather than a span: it can contain the loader, which renders a div.
+const StyledStatus = styled.div`
   align-items: center;
   color: ${themeCssVariables.font.color.secondary};
   display: flex;
