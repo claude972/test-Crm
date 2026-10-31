@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+
 import { ImapFlow } from 'imapflow';
 import {
   GenericContainer,
@@ -31,11 +33,37 @@ export type CampaignMailboxServer = {
 export const startCampaignMailboxContainer = async ({
   username,
   password,
+  recipientAddresses = [],
 }: {
   username: string;
   password: string;
+  recipientAddresses?: string[];
 }): Promise<CampaignMailboxServer> => {
-  const [localPart, domain] = username.split('@');
+  const [, domain] = username.split('@');
+  const addresses = [username, ...recipientAddresses];
+
+  assert.ok(
+    domain?.endsWith('.test'),
+    'Fixture mailboxes must use a test domain',
+  );
+  assert.ok(
+    /^[A-Za-z0-9_-]+$/.test(password),
+    'Invalid fixture password format',
+  );
+  assert.equal(new Set(addresses).size, addresses.length);
+
+  const users = addresses.map((address) => {
+    const [localPart, recipientDomain, extra] = address.split('@');
+
+    assert.ok(
+      recipientDomain === domain &&
+        extra === undefined &&
+        /^[A-Za-z0-9._+-]+$/.test(localPart),
+      'Fixture recipients must belong to the same test domain',
+    );
+
+    return `${localPart}:${password}@${domain}`;
+  });
 
   // The mailbox is declared up front: saving the account authenticates against
   // IMAP immediately, before any mail exists to create the user implicitly.
@@ -47,7 +75,7 @@ export const startCampaignMailboxContainer = async ({
         '-Dgreenmail.setup.test.imaps',
         '-Dgreenmail.setup.test.smtps',
         '-Dgreenmail.hostname=0.0.0.0',
-        `-Dgreenmail.users=${localPart}:${password}@${domain}`,
+        `-Dgreenmail.users=${users.join(',')}`,
       ].join(' '),
     })
     .withExposedPorts(GREENMAIL_IMAPS_PORT, GREENMAIL_SMTPS_PORT)
@@ -89,7 +117,7 @@ export const readCapturedMessages = async ({
     host,
     port,
     secure: true,
-    auth: { user: username, pass: password },
+    auth: { user: username.split('@')[0], pass: password },
     logger: false,
     // The fixture's certificate is self-signed by design.
     tls: { rejectUnauthorized: false },

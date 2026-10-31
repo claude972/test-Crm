@@ -62,6 +62,8 @@ const MAILBOX_DOMAIN = `${PREFIX}.test`;
 const MAILBOX_HANDLE = `operator@${MAILBOX_DOMAIN}`;
 const MAILBOX_PASSWORD = `pw-${randomUUID()}`;
 const TEST_DESTINATION = `operator@${MAILBOX_DOMAIN}`;
+const SENDABLE_ADDRESS = `ada-${suffix}@${MAILBOX_DOMAIN}`;
+const OPPOSED_ADDRESS = `grace-${suffix}@${MAILBOX_DOMAIN}`;
 
 type ApiResult<TData> = { data?: TData; errors?: { message: string }[] };
 
@@ -141,6 +143,20 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
 
   const previousFeatureFlags = new Map<string, boolean>();
 
+  const readFixtureMessages = async () =>
+    (
+      await Promise.all(
+        [MAILBOX_HANDLE, SENDABLE_ADDRESS, OPPOSED_ADDRESS].map((username) =>
+          readCapturedMessages({
+            host: mailbox.host,
+            port: mailbox.imapsPort,
+            username,
+            password: MAILBOX_PASSWORD,
+          }),
+        ),
+      )
+    ).flat();
+
   const join = async (
     user: UserEntity,
     workspaceId: string,
@@ -214,6 +230,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
     mailbox = await startCampaignMailboxContainer({
       username: MAILBOX_HANDLE,
       password: MAILBOX_PASSWORD,
+      recipientAddresses: [SENDABLE_ADDRESS, OPPOSED_ADDRESS],
     });
 
     // The SSRF guard must reach the fixture, and it is NOT relaxed here. The
@@ -351,7 +368,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
         {
           data: {
             name: { firstName: 'Ada', lastName: 'Lovelace' },
-            emails: { primaryEmail: `ada-${suffix}@${MAILBOX_DOMAIN}` },
+            emails: { primaryEmail: SENDABLE_ADDRESS },
           },
         },
         '/graphql',
@@ -367,7 +384,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
         {
           data: {
             name: { firstName: 'Grace', lastName: 'Hopper' },
-            emails: { primaryEmail: `grace-${suffix}@${MAILBOX_DOMAIN}` },
+            emails: { primaryEmail: OPPOSED_ADDRESS },
           },
         },
         '/graphql',
@@ -449,12 +466,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
   });
 
   it('renders a per-recipient preview and emits nothing', async () => {
-    const before = await readCapturedMessages({
-      host: mailbox.host,
-      port: mailbox.imapsPort,
-      username: MAILBOX_HANDLE,
-      password: MAILBOX_PASSWORD,
-    });
+    const before = await readFixtureMessages();
 
     const preview = successful<{
       previewMessageCampaignRecipient: {
@@ -482,12 +494,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
     expect(rendered.envelope.fromAddress).toBe(MAILBOX_HANDLE);
     expect(rendered.isRecipientSendable).toBe(true);
 
-    const after = await readCapturedMessages({
-      host: mailbox.host,
-      port: mailbox.imapsPort,
-      username: MAILBOX_HANDLE,
-      password: MAILBOX_PASSWORD,
-    });
+    const after = await readFixtureMessages();
 
     // A preview emits nothing: the isolated server captured no new message.
     expect(after.length).toBe(before.length);
@@ -522,12 +529,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
     );
 
     await expectEventually(async () => {
-      const captured = await readCapturedMessages({
-        host: mailbox.host,
-        port: mailbox.imapsPort,
-        username: MAILBOX_HANDLE,
-        password: MAILBOX_PASSWORD,
-      });
+      const captured = await readFixtureMessages();
 
       const match = captured.find((message) =>
         message.subject.includes(subject),
@@ -607,7 +609,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
   });
 
   it('keeps a durable opposition out of the audience', async () => {
-    const opposedEmail = `grace-${suffix}@${MAILBOX_DOMAIN}`;
+    const opposedEmail = OPPOSED_ADDRESS;
 
     successful(
       await api(
@@ -696,12 +698,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
 
     await expectEventually(
       async () => {
-        const captured = await readCapturedMessages({
-          host: mailbox.host,
-          port: mailbox.imapsPort,
-          username: MAILBOX_HANDLE,
-          password: MAILBOX_PASSWORD,
-        });
+        const captured = await readFixtureMessages();
 
         const match = captured.find((message) =>
           message.subject.includes(`${PREFIX}-immediate`),
@@ -716,18 +713,20 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
     );
 
     // The opposed recipient must not have been sent to at all.
-    const captured = await readCapturedMessages({
-      host: mailbox.host,
-      port: mailbox.imapsPort,
-      username: MAILBOX_HANDLE,
-      password: MAILBOX_PASSWORD,
-    });
+    const captured = await readFixtureMessages();
 
     expect(
       captured.filter((message) =>
         message.subject.includes(`${PREFIX}-immediate`),
       ).length,
     ).toBe(1);
+    expect(
+      captured.some(
+        (message) =>
+          message.subject.includes(`${PREFIX}-immediate`) &&
+          message.to === OPPOSED_ADDRESS,
+      ),
+    ).toBe(false);
   });
 
   it('does not resend a delivery quarantined by an uncertain outcome', async () => {
@@ -756,12 +755,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
 
     expect(quarantined.length).toBeGreaterThanOrEqual(1);
 
-    const capturedBefore = await readCapturedMessages({
-      host: mailbox.host,
-      port: mailbox.imapsPort,
-      username: MAILBOX_HANDLE,
-      password: MAILBOX_PASSWORD,
-    });
+    const capturedBefore = await readFixtureMessages();
 
     const countImmediate = (messages: { subject: string }[]) =>
       messages.filter((message) =>
@@ -782,12 +776,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
       { input: { campaignId: immediateCampaign.id } },
     );
 
-    const capturedAfter = await readCapturedMessages({
-      host: mailbox.host,
-      port: mailbox.imapsPort,
-      username: MAILBOX_HANDLE,
-      password: MAILBOX_PASSWORD,
-    });
+    const capturedAfter = await readFixtureMessages();
 
     expect(countImmediate(capturedAfter)).toBe(countImmediate(capturedBefore));
 
