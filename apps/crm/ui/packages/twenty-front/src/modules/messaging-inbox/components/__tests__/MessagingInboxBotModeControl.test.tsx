@@ -378,7 +378,7 @@ describe('MessagingInboxBotModeControl — the AUTO delegation path', () => {
     );
 
     expect(
-      await screen.findByText(/cannot be made until it has been read/i),
+      await screen.findByText(/did not get through/i),
     ).toBeVisible();
 
     // The success sentence must NOT be on screen beside it.
@@ -462,9 +462,7 @@ describe('MessagingInboxBotModeControl — the AUTO delegation path', () => {
     // The failure wording is gone, replaced by the outcome that really
     // happened, and the retry withdraws itself.
     expect(await screen.findByText(/it has been read again/i)).toBeVisible();
-    expect(
-      screen.queryByText(/cannot be made until it has been read/i),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/did not get through/i)).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /read the policy again/i }),
     ).not.toBeInTheDocument();
@@ -478,6 +476,74 @@ describe('MessagingInboxBotModeControl — the AUTO delegation path', () => {
       ).toHaveLength(3);
     });
   });
+
+  // Root's three cases. `data !== undefined` claimed a policy had been read on
+  // the strength of the FIELD EXISTING — the same error as claiming a file was
+  // uploaded on the strength of having asked. A container is not an answer.
+  //
+  // Each yields 'unreadable': the retry is offered, the success wording is
+  // absent, and the generic note is not duplicated beside the specific one.
+  it.each([
+    ['null', null],
+    ['malformed', 'not-an-object'],
+    [
+      'about another conversation',
+      {
+        conversationId: '00000000-0000-4000-8000-000000000999',
+        localMode: 'ASSISTED',
+        effectiveMode: 'ASSISTED',
+        reason: 'LOCAL_POLICY',
+        revision: NEXT_REVISION,
+        canDraft: true,
+        canAutoReply: false,
+      },
+    ],
+  ])(
+    'treats a re-read payload that is %s as unreadable, with the retry',
+    async (_label, payload) => {
+      renderControl([
+        policyRead(policy()),
+        readySurface(),
+        setPolicyDenied('BOT_POLICY_STALE'),
+        // No error at all: the request succeeded and carried this.
+        {
+          request: {
+            query: HERMES_CONVERSATION_BOT_POLICY,
+            variables: { input: { conversationId: CONVERSATION_ID } },
+          },
+          result: { data: { hermesConversationBotPolicy: payload } },
+        },
+      ]);
+
+      await userEvent.click(
+        await screen.findByRole('button', { name: /follow the company/i }),
+      );
+
+      expect(
+        await screen.findByText(/could not be read as this conversation/i),
+      ).toBeVisible();
+
+      // Never "it has been read again" over a payload that was not a policy.
+      expect(
+        screen.queryByText(/it has been read again/i),
+      ).not.toBeInTheDocument();
+
+      // A failed request is a different fact and must not be claimed either.
+      expect(
+        screen.queryByText(/did not get through/i),
+      ).not.toBeInTheDocument();
+
+      // One note for one fact.
+      expect(
+        screen.queryByText(/replying by hand still works/i),
+      ).not.toBeInTheDocument();
+
+      // And the way forward exists.
+      expect(
+        screen.getByRole('button', { name: /read the policy again/i }),
+      ).toBeVisible();
+    },
+  );
 
   it('offers no re-read retry for a refusal that called for no re-read', async () => {
     renderControl([

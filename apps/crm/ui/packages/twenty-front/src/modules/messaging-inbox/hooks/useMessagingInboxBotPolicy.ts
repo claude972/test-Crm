@@ -5,6 +5,7 @@ import { HERMES_SET_CONVERSATION_BOT_POLICY } from '@/messaging-inbox/graphql/me
 import { HERMES_CONVERSATION_BOT_POLICY } from '@/messaging-inbox/graphql/metadata-queries/hermesConversationBotPolicy';
 import {
   type MessagingInboxBotMode,
+  type MessagingInboxBotPolicy,
   type MessagingInboxBotPolicyRead,
 } from '@/messaging-inbox/types/MessagingInboxBotPolicy';
 import { readMessagingInboxBotPolicy } from '@/messaging-inbox/utils/readMessagingInboxPayload';
@@ -42,7 +43,32 @@ export type MessagingInboxBotPolicyRereadState =
   | { kind: 'none' }
   | { kind: 'reading' }
   | { kind: 'done' }
-  | { kind: 'failed' };
+  // The request failed. Nothing came back.
+  | { kind: 'failed' }
+  // Something came back and it was not this conversation's policy: null, the
+  // wrong shape, or another thread's. Kept apart from 'failed' because the
+  // cause differs — a connectivity blip versus an answer that cannot be
+  // trusted — while the way out is the same retry.
+  | { kind: 'unreadable' };
+
+// The one validation both reads apply.
+//
+// Presence of a container is not presence of an answer: a payload of null or
+// of the wrong shape is not a policy, and one naming another conversation is
+// not THIS conversation's policy. The id check is the authority check — the
+// answer has to prove it is about what was asked.
+const readPolicyForConversation = (
+  payload: unknown,
+  conversationId: string,
+): MessagingInboxBotPolicy | null => {
+  const read = readMessagingInboxBotPolicy(payload);
+
+  if (read.kind !== 'read') {
+    return null;
+  }
+
+  return read.value.conversationId === conversationId ? read.value : null;
+};
 
 export type MessagingInboxBotPolicyControl = {
   read: MessagingInboxBotPolicyRead;
@@ -116,36 +142,50 @@ export const useMessagingInboxBotPolicy = (
       return { kind: 'unknown' };
     }
 
-    const payload = readMessagingInboxBotPolicy(
-      data?.hermesConversationBotPolicy,
-    );
-
-    if (payload.kind !== 'read') {
-      return { kind: 'unknown' };
-    }
-
     // A policy is published only when it names this exact thread. An absent
     // or different id is not this conversation's policy, and showing it would
     // describe one thread with another's rules.
-    if (payload.value.conversationId !== conversationId) {
-      return { kind: 'unknown' };
-    }
+    const policy = readPolicyForConversation(
+      data?.hermesConversationBotPolicy,
+      conversationId,
+    );
 
-    return { kind: 'reported', policy: payload.value };
+    return policy === null
+      ? { kind: 'unknown' }
+      : { kind: 'reported', policy };
   }, [conversationId, data, error, loading]);
 
-  // The re-read, with its outcome reported rather than discarded. A result
-  // carrying errors is a failed read even though the promise resolved, which
-  // is what `errorPolicy: 'all'` makes possible.
+  // The re-read, with its outcome reported rather than discarded.
+  //
+  // Two things a resolved promise does not prove. A result carrying errors is
+  // a failed read even though it resolved, which `errorPolicy: 'all'` makes
+  // possible. And a result with no error whose payload is null, malformed or
+  // about another conversation is not a policy that was read — judging it on
+  // `data !== undefined` claimed success from the field merely existing.
   const runReread = useCallback(() => {
     setRereadState({ kind: 'reading' });
 
     return refetch()
       .then((result) => {
+        if (result.error !== undefined) {
+          setRereadState({ kind: 'failed' });
+
+          return;
+        }
+
+        if (conversationId === null) {
+          setRereadState({ kind: 'unreadable' });
+
+          return;
+        }
+
         setRereadState(
-          result.error === undefined && result.data !== undefined
-            ? { kind: 'done' }
-            : { kind: 'failed' },
+          readPolicyForConversation(
+            result.data?.hermesConversationBotPolicy,
+            conversationId,
+          ) === null
+            ? { kind: 'unreadable' }
+            : { kind: 'done' },
         );
       })
       .catch(() => {
@@ -153,7 +193,7 @@ export const useMessagingInboxBotPolicy = (
         // let the "read again" sentence render over a read that never landed.
         setRereadState({ kind: 'failed' });
       });
-  }, [refetch]);
+  }, [conversationId, refetch]);
 
   const setMode = useCallback(
     (mode: MessagingInboxBotMode) => {
@@ -248,7 +288,10 @@ export const useMessagingInboxBotPolicy = (
     writeState,
     rereadState,
     setMode,
-    retryReread: rereadState.kind === 'failed' ? runReread : null,
+    retryReread:
+      rereadState.kind === 'failed' || rereadState.kind === 'unreadable'
+        ? runReread
+        : null,
     resetWriteState,
   };
 };
