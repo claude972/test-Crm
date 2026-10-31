@@ -80,3 +80,8 @@ Le blocage CUA décrit plus haut n'est plus total : inventaire IAB2 et création
 ## Recheck liste06:50UTC
 
 Root a exécuté la suite native `HermesCampaignListView.test.tsx` sur2f1e8e705 dans son seul checkout QA détaché : **1 suite/10 tests PASS**. Affichage/états et callback d'ouverture testés, aucune recette navigateur/HTTP/PG. Le test d'issue inconnue a toujours un nom vide et vérifie seulement le texte ; il ne réfute pas CJ-CAMPAIGN-010 (bouton actif avec nom non vide). CJ-CAMPAIGN-011 pagination et CJ-FRONT-TYPE-001 restent ouverts. Aucun test changé ni check strict rendu vert. Le checkout QA root est maintenant détaché sur2f1e et ses seules dépendances non suivies demeurent son symlink.
+
+
+## Recheck WA07:31UTC
+
+Sur le checkpoint Claudec69a4d733, root a exécuté les trois suites natives UI VoiceRecorder/MediaAttachment/VoicePlayer : **3 suites/46 tests PASS**, sans changement de code. Les API MediaRecorder, pistes, URL blob et états de lecture sont simulés sous jsdom ; cela prouve des comportements locaux du composant, pas un microphone réel, le décodage réel de codecs, un blob natif HTTP/PG ou Evolution. La preuve positive fournisseur/média et la recette navigateur R07 restent à faire. Relecture du conteneur constate déjà key={selectedConversation.id} sur le panneau de fil, donc changement de conversation démonte ce panneau ; ne pas inventer une absence de key. Checkout QA root détaché maintenant surc69a4d733, aucun checkout d'agent édité.
