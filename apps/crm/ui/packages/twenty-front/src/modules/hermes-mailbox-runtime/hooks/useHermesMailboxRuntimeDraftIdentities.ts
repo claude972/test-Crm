@@ -7,11 +7,12 @@ import {
   readHermesMailboxRuntimeDraftIdentities,
   writeHermesMailboxRuntimeDraftIdentities,
   type HermesMailboxRuntimeDraftIdentity,
+  type HermesMailboxRuntimeDraftScope,
 } from '@/hermes-mailbox-runtime/utils/hermesMailboxRuntimeDraftIdentities';
 
 export type HermesMailboxRuntimeDraftIdentities = {
-  // The identity for one native message of this mailbox, or null when none is
-  // known — which is the answer whenever this browser did not receive one.
+  // The identity for one native message of this scope, or null when none is
+  // known — the answer whenever this browser was issued none.
   find: (
     folder: string | null,
     uid: string | null,
@@ -20,52 +21,52 @@ export type HermesMailboxRuntimeDraftIdentities = {
   remember: (draft: HermesMailboxRuntimeSavedDraft) => void;
 };
 
-// The draft identities this mailbox has been issued, kept across reloads.
+// The draft identities one scope has been issued, kept across reloads.
 //
-// Only identities: a resumed draft's recipients and body still come from the
-// server's read, and the save that follows is still its compare-and-swap.
-// Scoped to the resolved mailbox, since a UID means nothing without one.
+// Only identities: a resumed draft's recipients and body come from the
+// server's read, and the save that follows is still its compare-and-swap. A
+// null scope reads and writes nothing, which is what a signed-out or
+// not-yet-loaded session is. `scope` must be stable across renders.
 export const useHermesMailboxRuntimeDraftIdentities = (
-  mailbox: string | null,
+  scope: HermesMailboxRuntimeDraftScope | null,
 ): HermesMailboxRuntimeDraftIdentities => {
-  const [identities, setIdentities] = useState<
-    HermesMailboxRuntimeDraftIdentity[]
-  >(() => readHermesMailboxRuntimeDraftIdentities());
+  // Storage is the state. This only says which read is current, so a write
+  // re-reads instead of answering from a copy taken before it.
+  const [generation, setGeneration] = useState(0);
+
+  const identities = useMemo<HermesMailboxRuntimeDraftIdentity[]>(
+    () => (scope === null ? [] : readHermesMailboxRuntimeDraftIdentities(scope)),
+    [generation, scope],
+  );
 
   const find = useCallback(
     (folder: string | null, uid: string | null, uidValidity: string | null) =>
-      mailbox === null || folder === null || uid === null || uidValidity === null
+      folder === null || uid === null || uidValidity === null
         ? null
         : findHermesMailboxRuntimeDraftIdentity(identities, {
-            mailbox,
             folder,
             uid,
             uidValidity,
           }),
-    [identities, mailbox],
+    [identities],
   );
 
   const remember = useCallback(
     (draft: HermesMailboxRuntimeSavedDraft) => {
-      if (mailbox === null) {
+      if (scope === null) {
         return;
       }
 
-      setIdentities((current) => {
-        const next = putHermesMailboxRuntimeDraftIdentity(
-          current,
-          mailbox,
-          draft,
-        );
+      const next = putHermesMailboxRuntimeDraftIdentity(identities, draft);
 
-        if (next !== current) {
-          writeHermesMailboxRuntimeDraftIdentities(next);
-        }
+      if (next === identities) {
+        return;
+      }
 
-        return next;
-      });
+      writeHermesMailboxRuntimeDraftIdentities(scope, next);
+      setGeneration((current) => current + 1);
     },
-    [mailbox],
+    [identities, scope],
   );
 
   return useMemo(() => ({ find, remember }), [find, remember]);

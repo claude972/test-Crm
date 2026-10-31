@@ -6,6 +6,12 @@ import userEvent from '@testing-library/user-event';
 import { Provider as JotaiProvider } from 'jotai';
 
 import { myConnectedAccountsState } from '@/accounts/states/myConnectedAccountsState';
+import {
+  clearHermesMailboxRuntimeDraftIdentities,
+  HERMES_MAILBOX_RUNTIME_DRAFT_IDENTITY_PREFIX,
+} from '@/hermes-mailbox-runtime/utils/hermesMailboxRuntimeDraftIdentities';
+import { currentUserState } from '@/auth/states/currentUserState';
+import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { HermesMailboxRuntime } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntime';
 import { HERMES_MAILBOX_RUNTIME_PAGE_SIZE } from '@/hermes-mailbox-runtime/constants/HermesMailboxRuntimeContract';
 import { HERMES_MAIL_CLONE_ATTACHMENT_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-mutations/hermesMailCloneAttachmentV4';
@@ -29,6 +35,12 @@ import {
 const ACCOUNT_ID = '11111111-2222-3333-4444-555555555555';
 const OTHER_ACCOUNT_ID = '99999999-8888-7777-6666-555555555555';
 const CONVERSATION_ID = '6f1d1f8e-3a2b-4c55-9f10-7d3b2a9c4e01';
+// Two people and two companies. A draft identity belongs to exactly one pair
+// of them, and the same mailbox address on both is the point.
+const USER_A = { id: 'u5a1f0de-0001-4001-8001-aaaaaaaaaaaa' } as never;
+const USER_B = { id: 'u5a1f0de-0002-4002-8002-bbbbbbbbbbbb' } as never;
+const WORKSPACE_A = { id: 'w0a1f0de-0001-4001-8001-aaaaaaaaaaaa' } as never;
+const WORKSPACE_B = { id: 'w0a1f0de-0002-4002-8002-bbbbbbbbbbbb' } as never;
 const FORWARD_CONVERSATION_ID = '7a2e2f9f-4b3c-5d66-af21-8e4c3bad5f12';
 const SOURCE_ASSET_ID = 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa';
 const CLONED_ASSET_ID = 'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb';
@@ -50,6 +62,11 @@ const CONNECTIONS_PAYLOAD = [
     },
   },
 ];
+
+// The same binding after a rotation: same account, newer revision.
+const ROTATED_CONNECTIONS_PAYLOAD = CONNECTIONS_PAYLOAD.map((entry) =>
+  entry.kind === 'MAIL' ? { ...entry, revision: 8 } : entry,
+);
 
 // Two accounts, and the wrong one comes first on purpose: picking the first
 // non-archived account is exactly the defect these tests guard against.
@@ -218,7 +235,14 @@ const variablesOf = (mock: Recorder, call = 0): Record<string, unknown> =>
 const renderMailbox = ({
   connections = CONNECTIONS_PAYLOAD,
   botPolicy = null,
-}: { connections?: unknown; botPolicy?: Record<string, unknown> | null } = {}) => {
+  user = USER_A,
+  workspace = WORKSPACE_A,
+}: {
+  connections?: unknown;
+  botPolicy?: Record<string, unknown> | null;
+  user?: never;
+  workspace?: never;
+} = {}) => {
   // Every mutation is mocked with a recording result and a matcher that
   // accepts any variables, so both the absence of an emission and the exact
   // input of one are observed here rather than inferred.
@@ -390,6 +414,9 @@ const renderMailbox = ({
 
   resetJotaiStore();
   jotaiStore.set(myConnectedAccountsState.atom, CONNECTED_ACCOUNTS);
+  // A draft identity is scoped to a person in a company, so both are stated.
+  jotaiStore.set(currentUserState.atom, user);
+  jotaiStore.set(currentWorkspaceState.atom, workspace);
 
   const { unmount } = render(
     <I18nProvider i18n={i18n}>
@@ -412,6 +439,40 @@ const renderMailbox = ({
     setPolicy,
     unmount,
   };
+};
+
+const prefixedKeys = () =>
+  Object.keys(window.localStorage).filter((key) =>
+    key.startsWith(HERMES_MAILBOX_RUNTIME_DRAFT_IDENTITY_PREFIX),
+  );
+
+// Save one draft from a freshly rendered mailbox and hand back its identity.
+const saveOneDraft = async (view: { createDraft: Recorder }) => {
+  await screen.findByText('Devis chantier Lyon');
+  await userEvent.click(screen.getByRole('button', { name: 'New message' }));
+  await screen.findByRole('form', { name: 'New message' });
+
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'To' }),
+    'marie@client.test',
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Subject' }),
+    'Devis révisé',
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
+  await waitFor(() => expect(view.createDraft).toHaveBeenCalledTimes(1));
+
+  return variablesOf(view.createDraft, 0);
+};
+
+// Walk into the provider's Drafts folder and open the saved message.
+const openSavedDraft = async () => {
+  await screen.findByText('Devis chantier Lyon');
+  await userEvent.click(screen.getByRole('button', { name: /Drafts/ }));
+  await userEvent.click(await screen.findByText('Devis révisé'));
+
+  return screen.findByText('Voici le devis corrigé.');
 };
 
 const openFirstMessage = async () => {
@@ -878,5 +939,91 @@ describe('HermesMailboxRuntime', () => {
       screen.queryByRole('button', { name: 'Ask the bot for a draft' }),
     ).not.toBeInTheDocument();
     expect(draftReply).not.toHaveBeenCalled();
+  });
+
+  it('keeps the same mailbox and the same UID apart in two companies', async () => {
+    const first = renderMailbox({ user: USER_A, workspace: WORKSPACE_A });
+    const issued = await saveOneDraft(first);
+
+    first.unmount();
+
+    // The same person, the same mailbox address, the same native UID — in
+    // another company. The identity belongs to the company that was issued it.
+    const other = renderMailbox({ user: USER_A, workspace: WORKSPACE_B });
+
+    expect(await openSavedDraft()).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Resume this draft' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/its identity is unknown here/)).toBeVisible();
+
+    other.unmount();
+
+    // Back in the company it was issued to, it resumes.
+    const back = renderMailbox({ user: USER_A, workspace: WORKSPACE_A });
+
+    expect(await openSavedDraft()).toBeVisible();
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Resume this draft' }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
+    await waitFor(() => expect(back.createDraft).toHaveBeenCalledTimes(1));
+
+    expect(variablesOf(back.createDraft, 0).draftId).toBe(issued.draftId);
+  });
+
+  it('leaves nothing readable after the session purge, for this user or the next', async () => {
+    const first = renderMailbox({ user: USER_A, workspace: WORKSPACE_A });
+
+    await saveOneDraft(first);
+    expect(prefixedKeys()).toHaveLength(1);
+
+    first.unmount();
+
+    // The hook Auth calls from purgeSessionStorage on sign-out and on a
+    // workspace switch.
+    clearHermesMailboxRuntimeDraftIdentities();
+
+    expect(prefixedKeys()).toEqual([]);
+
+    // Another person on the same device sees no trace of the first one.
+    renderMailbox({ user: USER_B, workspace: WORKSPACE_A });
+
+    expect(await openSavedDraft()).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Resume this draft' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/its identity is unknown here/)).toBeVisible();
+  });
+
+  it('does not offer an identity issued under a previous binding of the account', async () => {
+    const first = renderMailbox();
+
+    await saveOneDraft(first);
+    first.unmount();
+
+    // The account was rebound: same mailbox, newer revision.
+    const rotated = renderMailbox({
+      connections: ROTATED_CONNECTIONS_PAYLOAD,
+    });
+
+    expect(await openSavedDraft()).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Resume this draft' }),
+    ).not.toBeInTheDocument();
+
+    // And saving under the new binding supersedes the old record rather than
+    // leaving it on the device.
+    await userEvent.click(screen.getByRole('button', { name: 'New message' }));
+    await screen.findByRole('form', { name: 'New message' });
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Subject' }),
+      'Autre brouillon',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
+    await waitFor(() => expect(rotated.createDraft).toHaveBeenCalledTimes(1));
+
+    await waitFor(() => expect(prefixedKeys()).toHaveLength(1));
+    expect(prefixedKeys()[0]).toContain('8');
   });
 });

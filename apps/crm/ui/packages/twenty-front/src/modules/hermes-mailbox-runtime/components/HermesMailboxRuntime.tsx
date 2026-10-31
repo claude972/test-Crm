@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { currentUserState } from '@/auth/states/currentUserState';
+import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { HermesMailboxRuntimeAssistantDraft } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft';
 import { HermesMailboxRuntimeBotPanel } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntimeBotPanel';
-
 import {
   type HermesMailboxRuntimeSavedDraft,
   useHermesMailboxRuntimeComposer,
@@ -22,6 +23,7 @@ import { useHermesMailboxRuntimeMessage } from '@/hermes-mailbox-runtime/hooks/u
 import { useHermesMailboxRuntimeMessages } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeMessages';
 import { type HermesMailboxRuntimeMessage } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimePayload';
 import { type HermesMailboxRuntimeScope } from '@/hermes-mailbox-runtime/types/HermesMailboxRuntimeScope';
+import { type HermesMailboxRuntimeDraftScope } from '@/hermes-mailbox-runtime/utils/hermesMailboxRuntimeDraftIdentities';
 import { readHermesMailboxRuntimeMessageAttachments } from '@/hermes-mailbox-runtime/utils/readHermesMailboxRuntimeAttachments';
 import {
   HermesMailbox,
@@ -34,6 +36,7 @@ import {
   type HermesMailboxThread,
   type HermesMailboxThreadSummary,
 } from '@/hermes-mailbox-ui/types/HermesMailboxThread';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 type HermesMailboxRuntimeProps = {
   // Offered only when the parent can really route somewhere. Absent means the
@@ -308,14 +311,37 @@ export const HermesMailboxRuntime = ({
 
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
+  const currentUser = useAtomStateValue(currentUserState);
+  const currentWorkspace = useAtomStateValue(currentWorkspaceState);
+
+  // Who an identity belongs to: this person, in this company, on this bound
+  // account, under this generation of the binding. One part missing and there
+  // is no scope, so nothing is read or written at all.
+  const draftScope = useMemo<HermesMailboxRuntimeDraftScope | null>(() => {
+    const userId = currentUser?.id ?? null;
+    const workspaceId = currentWorkspace?.id ?? null;
+
+    if (
+      userId === null ||
+      workspaceId === null ||
+      identity.identity.kind !== 'known' ||
+      identity.identity.connectionRevision === null
+    ) {
+      return null;
+    }
+
+    return {
+      userId,
+      workspaceId,
+      connectedAccountId: identity.identity.connectedAccountId,
+      connectionRevision: identity.identity.connectionRevision,
+    };
+  }, [currentUser?.id, currentWorkspace?.id, identity.identity]);
+
   // Outside the component tree on purpose: a draft is saved from the inbox
   // and resumed from the provider's Drafts folder, so the identity the server
   // issued has to survive that move and a reload with it.
-  const draftIdentities = useHermesMailboxRuntimeDraftIdentities(
-    identity.identity.kind === 'known'
-      ? identity.identity.mailboxAddress
-      : null,
-  );
+  const draftIdentities = useHermesMailboxRuntimeDraftIdentities(draftScope);
 
   // The inbox is opened once the folders are known, so the screen lands on a
   // list rather than on a folder picker. A mailbox the provider publishes
