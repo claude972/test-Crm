@@ -39,9 +39,41 @@ describe('buildHermesModuleNavigationItems', () => {
       'messaging',
       'whatsapp',
       'mailbox',
+      'campaigns',
       'connections',
       'reception',
     ]);
+  });
+
+  // A browser pass found the campaigns reachable only by a typed address: the
+  // entry existed in the Hermes shell sidebar, not in this drawer.
+  it('offers the campaigns to a workspace administrator', () => {
+    expect(
+      buildHermesModuleNavigationItems({
+        hasWorkspacePermission: true,
+        pathname: '/dashboard',
+      }).find((item) => item.key === 'campaigns')?.to,
+    ).toBe('/hermes/campagnes');
+  });
+
+  it('does not offer the campaigns without the workspace permission', () => {
+    expect(
+      keysOf(
+        buildHermesModuleNavigationItems({
+          hasWorkspacePermission: false,
+          pathname: '/dashboard',
+        }),
+      ),
+    ).not.toContain('campaigns');
+  });
+
+  it('keeps the campaigns current on an opened campaign', () => {
+    expect(
+      buildHermesModuleNavigationItems({
+        hasWorkspacePermission: true,
+        pathname: '/hermes/campagnes/cmp-1',
+      }).find((item) => item.key === 'campaigns')?.isActive,
+    ).toBe(true);
   });
 
   // Its operations are refused server side for everyone else, and a link that

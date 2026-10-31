@@ -1,6 +1,7 @@
 import { MESSAGING_INBOX_PATH } from '@/messaging-inbox/constants/MessagingInboxRoutePaths';
 import {
   HERMES_ADMIN_RUNTIME_PATH,
+  HERMES_CAMPAIGN_LIST_PATH,
   HERMES_MAILBOX_RUNTIME_PATH,
   HERMES_WA_RUNTIME_PATH,
 } from '@/hermes-shell/constants/HermesRuntimeRoutePaths';
@@ -14,6 +15,7 @@ export type HermesModuleNavigationItem = {
     | 'messaging'
     | 'whatsapp'
     | 'mailbox'
+    | 'campaigns'
     | 'connections';
   to: string;
   isActive: boolean;
@@ -69,6 +71,17 @@ export const buildHermesModuleNavigationItems = ({
       key: 'mailbox',
       to: HERMES_MAILBOX_RUNTIME_PATH,
       isActive: pathname.startsWith(HERMES_MAILBOX_RUNTIME_PATH),
+    });
+
+    // Campaigns sit behind the same gate as the mailbox they send through.
+    // The list was reachable only by a typed address until now: the entry
+    // existed in the Hermes shell sidebar, which is not the drawer an
+    // operator works from.
+    items.push({
+      key: 'campaigns',
+      to: HERMES_CAMPAIGN_LIST_PATH,
+      // startsWith, so an opened campaign keeps the section marked current.
+      isActive: pathname.startsWith(HERMES_CAMPAIGN_LIST_PATH),
     });
 
     items.push({

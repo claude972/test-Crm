@@ -5,6 +5,7 @@ import {
   IconInbox,
   IconMail,
   IconMessage,
+  IconSend,
   IconSettings,
 } from 'kovaa-lab-ui/icon';
 import { useLocation } from 'react-router-dom';
@@ -34,6 +35,7 @@ export const HermesModulesNavigationSection = () => {
     messaging: t`Messaging`,
     whatsapp: t`WhatsApp`,
     mailbox: t`Mailbox`,
+    campaigns: t`Campaigns`,
     connections: t`Connections and companies`,
     reception: t`Hermès collections`,
   };
@@ -43,6 +45,7 @@ export const HermesModulesNavigationSection = () => {
     messaging: IconMessage,
     whatsapp: IconBrandWhatsapp,
     mailbox: IconMail,
+    campaigns: IconSend,
     connections: IconSettings,
     reception: IconInbox,
   };
