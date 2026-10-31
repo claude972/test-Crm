@@ -70,3 +70,8 @@ Run réglages41174465769 terminé FAILURE surb0ef31d0c, une TS2741 dans `hermesC
 ## Revue liste06:20UTC — CJ01
 
 Deux points de parcours supplémentaires sur2f1e à corriger/tester sans régression des autres lots (voir CORRECTIONS CJ-CAMPAIGN-010/011) : création incertaine laisse le bouton actif et régénère un nouvel UUID au clic suivant, malgré le commentaire de réutilisation ; réconcilier l'id tenté et bloquer les répétitions aveugles/concurrentes. Le test actuel d'incertitude n'a pas de nom rempli et manque ce cas. Campagnes et audiences bloquées sur les50 plus récentes sans pagination/recherche : la51e est inaccessible par ces contrôles ; exploiter le curseur natif et garder l'audience actuellement assignée visible. Source relue seulement, aucune preuve navigateur ni modification applicative root.
+
+
+## Mise à jour navigateur06:33UTC
+
+Le blocage CUA décrit plus haut n'est plus total : inventaire IAB2 et création d'un nouvel onglet about:blank/tab18 avec état AX réussis. Canal techniquement de nouveau disponible, à employer dès preview assemblée prête. Aucune recette CRM nouvelle effectuée, aucun succès Safari utilisateur déduit. Ne pas prendre l'ancien paragraphe de blocage comme raison de renoncer au prochain test CUA.
