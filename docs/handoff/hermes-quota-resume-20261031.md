@@ -147,3 +147,10 @@ D3preview41188341880déployée : dpl_4noqH7Zb3Bo4QnJjzmnYdw4DDHMC, contrôle6ed2
 RootUIcampaigncreate/save/reload/reopencontenuTipTapPASS. Importmanuel1fauxB2B→qualif→audience+brouillonPASS. MAISvraisblockersR10 : UUIDv5deprospectionrejetéparIsUUID4(CJ013,CJ02), etAperçucampagnev4échoueuseMutation(documentQUERY)(CJ014,CJ01). Menuabsentd3(CJ015parent,fix9c0144125observéplusrécent), faussepromessetestpréprod(CJ016), classificationstaleaprèsqualif(CJINTAKEUI002). Parent prévenu de tous, attendrefixes puiscontre-épreuves. Rapportpublic docs/verification/hermes-auth-recipe-41188341880.md.
 
 Rootaépinglébranche **preview/cj-r10-75c7b4ff8**, source75c7b4ff874825cea0408d311ebe4d9f753da4fe, lancé**41189235623**combinedSMTPoptinvrai et**41189235656**fullfrontend. FrontSUCCESS ; étapeSMTProuge, jobencoursaucheck, récupérerlogaprèsfin etrelancerCJ02/05. PasdeP0concurrenttantquerecetteactive, finalefraîchevers11:30–11:40UTCtoujoursnécessaire.
+
+
+## Checkpoint10:00UTC
+
+Previewd3/tab20 : vrai ajout sociétéBêta via centre→profil→invitesignorées→Companies5 ; listecampagnesBêta vide ; dashboardBêta5/5/6/0. Récapitulatif autorisé montreAlpha6/6/6/0+Bêta5/5/6/0,total11/11/12/0. Bascule nativeBêta→Alpha aboutie, clientfictifAtelierRecetteAlpha visible seulementAlpha. Capturelocale /private/tmp/hermes-preview-41188341880/recipe/alpha-company-after-switch.jpg horsGit. Rapportpublic complété. CUAauthRecipe/tab20 retourcampagnesAlpha ; réobservationnécessaire aprèschargement. Toujoursaucunvraifournisseur ni send/schedule.
+
+R10combined41189235623finiFAILURE8failed6passed14 : premierhelper saveImapSmtpCaldavAccount utiliseAPPLE_JANE_ADMIN_ACCESS_TOKEN implicite, pas tokenA dynamique (helpern'acceptepas token). Parentprévenu2foisavecsourceexacte etfail-fast, CJ02nouvelenfanta8766413cef31ca51 attribuéUUIDv5puisfixture. Front41189235656SUCCESS75c7. Parent096d5d379 inclutclassificationrefetch87c8 etdateLocale9b2, nonservi/nonrecettéencore. PrévoircorrectifsCJ013/014 puisnouvellepreview, finalefraîche11:30–11:40UTC ; actuelleexpire10:56:50UTC.
