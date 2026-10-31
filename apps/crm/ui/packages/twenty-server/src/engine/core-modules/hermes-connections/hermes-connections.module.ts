@@ -10,7 +10,11 @@ import { RoleTargetEntity } from 'src/engine/metadata-modules/role-target/role-t
 
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
+import { MessagingIMAPDriverModule } from 'src/modules/messaging/message-import-manager/drivers/imap/messaging-imap-driver.module';
+import { MessagingSmtpDriverModule } from 'src/modules/messaging/message-import-manager/drivers/smtp/messaging-smtp-driver.module';
+
 import { HermesConnectionEntity } from './hermes-connection.entity';
+import { HermesConnectionTestService } from './hermes-connection-test.service';
 import { HermesConnectionsResolver } from './hermes-connections.resolver';
 import { HermesConnectionsService } from './hermes-connections.service';
 
@@ -27,10 +31,17 @@ import { HermesConnectionsService } from './hermes-connections.service';
       RoleTargetEntity,
       ConnectedAccountEntity,
     ]),
+    // The existing native IMAP and SMTP client providers. The connection test
+    // opens its sessions through them rather than building a transport of its
+    // own, so it inherits the established host validation, TLS options and
+    // encrypted-credential handling instead of duplicating any of it.
+    MessagingIMAPDriverModule,
+    MessagingSmtpDriverModule,
   ],
   providers: [
     HermesProspectionAccessService,
     HermesConnectionsService,
+    HermesConnectionTestService,
     HermesConnectionsResolver,
     {
       provide: 'HERMES_CONNECTIONS_SERVICE',

@@ -16,6 +16,11 @@ import { AuthPrincipalGuard } from 'src/engine/guards/auth-principal.guard';
 
 import { type HermesConnectionKind } from './hermes-connection.entity';
 import {
+  HermesConnectionTestService,
+  type HermesConnectionTestResult,
+  type HermesMailProbe,
+} from './hermes-connection-test.service';
+import {
   HermesConnectionsService,
   type HermesConnectionView,
 } from './hermes-connections.service';
@@ -26,6 +31,18 @@ export class HermesConnectionScopeInput {
   @IsIn(['EVOLUTION', 'MAIL', 'MCP', 'INTAKE'])
   kind: HermesConnectionKind;
   @Field(() => Int) @IsInt() @Min(0) expectedRevision: number;
+}
+
+// Which read-only probe to run against the bound mail account.
+//
+// The two directions are asked for separately on purpose: a mailbox that
+// receives is not a mailbox that can send, and one combined answer would hide
+// a broken direction behind a working one.
+@InputType()
+export class HermesMailConnectionTestInput {
+  @Field(() => String)
+  @IsIn(['IMAP_LIST_STATUS', 'SMTP_LOGIN_ONLY'])
+  probe: HermesMailProbe;
 }
 
 @InputType()
@@ -57,7 +74,35 @@ export class HermesConnectionSaveInput extends HermesConnectionScopeInput {
 )
 @UsePipes(ResolverValidationPipe)
 export class HermesConnectionsResolver {
-  constructor(private readonly connections: HermesConnectionsService) {}
+  constructor(
+    private readonly connections: HermesConnectionsService,
+    private readonly tests: HermesConnectionTestService,
+  ) {}
+
+  // A connection test the operator asks for.
+  //
+  // Declared as a Mutation although it changes no stored state: it is a
+  // command issued by pressing a button, it must never be served from a cache,
+  // and it must never be replayed by a transport retry. A Query would be
+  // cached and refetched, which would turn one deliberate diagnostic into
+  // repeated provider traffic.
+  //
+  // It sends no mail: the SMTP path stops after authentication and the IMAP
+  // path only lists folders and reads counters. It starts no campaign, no sync
+  // and no poll, and it never promotes a configuration to « verified » — the
+  // store still publishes only NOT_CONFIGURED and CONFIGURED_UNVERIFIED.
+  @Mutation(() => GraphQLJSONObject)
+  hermesTestMailConnectionV4(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: FlatAuthContextUser,
+    @AuthUserWorkspaceId() userWorkspaceId: string,
+    @Args('input') input: HermesMailConnectionTestInput,
+  ): Promise<HermesConnectionTestResult> {
+    return this.tests.testMail(
+      { workspaceId: workspace.id, userId: user.id, userWorkspaceId },
+      input.probe,
+    );
+  }
 
   @Query(() => [GraphQLJSONObject])
   hermesConnectionsV4(
