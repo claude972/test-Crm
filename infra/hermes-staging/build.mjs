@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-assert.match(process.env.HERMES_SOURCE_SHA ?? '', /^[a-f0-9]{40}$/, 'An exact source SHA is required');
 const root = '/app';
 assert.match(readFileSync(path.join(root, 'packages/twenty-server/src/engine/core-modules/upgrade/constants/twenty-current-version.constant.ts'), 'utf8'), /KOVAALAB_CURRENT_VERSION = '2\.52\.0'/, 'Update the packaging native version deliberately when the source changes');
 const yarn = path.join(root, '.yarn/releases/yarn-4.18.1.cjs');
@@ -29,7 +28,6 @@ cpSync(path.join(root, 'packages/twenty-client-sdk/package.json'), path.join(sdk
 cpSync(path.join(root, 'packages/twenty-client-sdk/dist'), path.join(sdkAssets, 'dist'), { recursive: true });
 command([yarn, 'workspace', 'kovaa-lab-front', 'build'], root, { REACT_APP_SERVER_BASE_URL: '' });
 cpSync(path.join(root, 'packages/twenty-front/build'), path.join(server, 'dist/front'), { recursive: true });
-writeFileSync(path.join(server, 'dist/front/KOVAALABCRM_SOURCE.txt'), `${process.env.HERMES_SOURCE_SHA}\n`);
 for (const name of ['packages/twenty-server/dist/main.js', 'packages/twenty-server/dist/queue-worker/queue-worker.js', 'packages/twenty-server/dist/front/index.html', 'packages/twenty-server/dist/assets/kovaa-lab-client-sdk/dist/metadata/index.d.ts']) requireFile(name);
 // The native constraint hook imports dev-only @yarnpkg/types, removed by production focus.
 command([yarn, 'constraints']);
