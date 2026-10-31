@@ -122,6 +122,10 @@ const MEMBER_PERSON_ID = '20202020-0000-4000-8000-000000000004';
 const OUTSIDER_PERSON_ID = '20202020-0000-4000-8000-000000000007';
 const ROLE_ID = '20202020-0000-4000-8000-000000000005';
 const OTHER_ROLE_ID = '20202020-0000-4000-8000-000000000006';
+// The real shape of a bridge-derived campaign id: uuid v5, not v4. The
+// prospection import derives it from the workspace, name, subject and row
+// ids so that re-importing the same rows is idempotent.
+const BRIDGE_V5_CAMPAIGN_ID = '21863c22-e759-5ad5-9550-d4cda60568bc';
 
 const bodyTemplate = JSON.stringify({
   type: 'doc',
@@ -515,6 +519,43 @@ describe('MessageCampaignRecipientPreviewService', () => {
           roleId: ROLE_ID,
         }),
       );
+    });
+
+    // The prospection bridge derives its campaign ids with uuid v5 so that
+    // re-importing the same rows stays idempotent. These two cases pin that
+    // relaxing the uuid version accepted by the input DTOs changed only the
+    // shape check: the company and role scoping still refuses a campaign the
+    // caller cannot read, exactly as it does for a v4 id.
+    it('should render a campaign whose id is a deterministic v5, as the bridge mints it', async () => {
+      const { service } = setup({
+        campaign: { ...defaultCampaign(), id: BRIDGE_V5_CAMPAIGN_ID },
+      });
+
+      const result = await service.previewRecipient({
+        workspaceId: WORKSPACE_ID,
+        userWorkspaceId: USER_WORKSPACE_ID,
+        campaignId: BRIDGE_V5_CAMPAIGN_ID,
+      });
+
+      expect(result.personId).toBe(PERSON_ID);
+      expect(result.isRecipientSendable).toBe(true);
+    });
+
+    it('should still hide a v5 campaign from a caller of another company', async () => {
+      const { service } = setup({
+        campaign: { ...defaultCampaign(), id: BRIDGE_V5_CAMPAIGN_ID },
+        roleId: OTHER_ROLE_ID,
+      });
+
+      await expect(
+        service.previewRecipient({
+          workspaceId: OTHER_WORKSPACE_ID,
+          userWorkspaceId: USER_WORKSPACE_ID,
+          campaignId: BRIDGE_V5_CAMPAIGN_ID,
+        }),
+      ).rejects.toMatchObject({
+        code: EmailingDomainExceptionCode.MESSAGE_CAMPAIGN_NOT_FOUND,
+      });
     });
   });
 

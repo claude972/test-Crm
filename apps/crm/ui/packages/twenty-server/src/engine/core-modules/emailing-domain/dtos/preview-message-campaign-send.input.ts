@@ -5,7 +5,7 @@ import { IsDate, IsOptional, IsUUID } from 'class-validator';
 @InputType()
 export class PreviewMessageCampaignSendInput {
   @Field(() => String)
-  @IsUUID('4')
+  @IsUUID()
   campaignId: string;
 
   @Field(() => Date, { nullable: true })
