@@ -2080,3 +2080,12 @@ Domaine crm-recette.kovvalab.online explicitement confirmé par utilisateur. A r
 Build41236390900 source66f FAILURE après compilation SDK/backend/frontend : hook contraintes Yarn nécessite @yarnpkg/types supprimé par focus production. Auteur85a4c22dd, root relu/ACK/cherry-pick5001b908f poussé ;16testsrootPASS. Contraintes natives exécutées explicitement avant prune, seule répétition post-prune désactivée dans le dernier sous-processus, aucune configuration persistante/lock/sourceapp modifiée. Nouvelle CIIMAGE41237312228 exact5001 en cours, pas encore image/smoke validés.
 
 Configuration durable créée exclusivement dans coffre privé0700 ~/.codex/private-preview/kovaalabcrm-staging, trois fichiers0600 avec nouvelles clefs stables, aucun secret affiché/committé/transmis au VPS. Garder ces clefs pour redémarrages/restauration. TRUST_PROXY limité au Caddy inventorié, à revalider avec ingress exact. Aucun changement distant. Preview601 a atteint son TTL16:07MT ; ne plus annoncer ce lien comme actif. Les captures/rapports restent preuves historiques, pas hébergement durable.
+
+
+### Image construite, contrôle SDK corrigé —31octobre20:27UTC
+
+CI41237312228sur5001 : BUILDimageSUCCESS, imageIdsha256:8a02199800671d72d2351fadbffa41da1573557bb831630cafd1529e4ccba316. SmokeFAIL avant services : le contrôle demandait require.resolve du nom racine clientSDK, alors que le vrai package expose uniquement core/metadata/rest/generate. Preuve artifact13056506150 : exactImage=true,cleanup=true,success=false. Aucun PG/worker/persistence encore validé par ce run.
+
+Auteur65fb1dd1c→root3c0f32b91 poussé : probe réelle4exports, contrepreuve manifeste natif root ERR_PACKAGE_PATH_NOT_EXPORTED, diagnostic public borné étape/code sans sortie privée. Root18testsPASS, revue indépendante65fb demandée backend_review. Root3c9101d3e ajoutecacheBuildKit privé sans registre ; stampSHA final après compilation conserve provenance du contexte exact et permet réutilisation de compilation inchangée. NouveaucloudUNIQUE41238719058source3c0f32b916d3fca67cc874cd4d2c494930d243a4 queued. PasdeDockerMac/VPS ni déploiement.
+
+DNS toujours absent aucontrôle20:22, userdemandeajoutenattente ; domaine déjà confirmé, nepasredemanderlechoix. SSHlectureseule confirme répertoire /home/ops/kovaalabcrm-staging absent et aucun port13000occupé. Aucun changement services existants. Anciennepreview601expirée.
