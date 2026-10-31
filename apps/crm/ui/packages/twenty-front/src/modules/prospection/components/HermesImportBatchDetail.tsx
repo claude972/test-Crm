@@ -10,6 +10,7 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 import { HermesCampaignDraftForm } from '@/prospection/components/HermesCampaignDraftForm';
 import { HermesCollectionOriginTag } from '@/prospection/components/HermesCollectionOriginTag';
 import { HermesImportRowStatusTag } from '@/prospection/components/HermesImportRowStatusTag';
+import { HermesInboundProvenancePanel } from '@/prospection/components/HermesInboundProvenancePanel';
 import { HermesImportRowsTable } from '@/prospection/components/HermesImportRowsTable';
 import { HermesQualificationForm } from '@/prospection/components/HermesQualificationForm';
 import {
@@ -24,6 +25,7 @@ import {
 } from '@/prospection/types/HermesImportRowStatus';
 import { type HermesCapabilities } from '@/prospection/types/HermesImportState';
 import { buildHermesBatchCounts } from '@/prospection/utils/buildHermesCounts';
+import { useHermesScrapingClassification } from '@/prospection/hooks/useHermesScrapingClassification';
 import { readHermesCollectionProvenance } from '@/prospection/utils/readHermesCollectionProvenance';
 import {
   isHermesRowQualifiable,
@@ -84,6 +86,9 @@ export const HermesImportBatchDetail = ({
 
   const counts = buildHermesBatchCounts(batch);
   const provenance = readHermesCollectionProvenance(batch);
+  // The server's classification of this company's signed deposits. Read-only,
+  // and it qualifies nothing: see HermesInboundProvenancePanel.
+  const classification = useHermesScrapingClassification();
 
   const selectableRows = useMemo(
     () => batch.rows.filter((row) => isHermesRowSelectable(row)),
@@ -205,6 +210,15 @@ export const HermesImportBatchDetail = ({
           <dd>{formatDate(provenance.createdAt)}</dd>
         </StyledProvenance>
       </Section.Root>
+
+      {/* The server's own classification of this reception, next to the
+          provenance read off the batch. It answers what the batch fields
+          cannot: which signed connection the deposit is attributable to, and
+          whether that attribution is verified, edited or absent. */}
+      <HermesInboundProvenancePanel
+        batchId={batch.id}
+        state={classification}
+      />
 
       <Section.Root>
         <Section.Header title={t`Row statuses`} />
