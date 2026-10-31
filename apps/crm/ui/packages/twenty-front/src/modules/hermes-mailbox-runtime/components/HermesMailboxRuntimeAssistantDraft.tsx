@@ -62,7 +62,7 @@ export const HermesMailboxRuntimeAssistantDraft = ({
   // computed before the change can still land after it, and keeping it would
   // reopen a door the policy has closed. The human's own text is untouched.
   useEffect(() => {
-    if (isBotStopped === true && state.kind !== 'idle') {
+    if (isBotStopped && state.kind !== 'idle') {
       dismissDraft();
     }
   }, [dismissDraft, isBotStopped, state.kind]);
@@ -78,7 +78,7 @@ export const HermesMailboxRuntimeAssistantDraft = ({
 
   return (
     <StyledBlock>
-      {isBotStopped === true && (
+      {isBotStopped && (
         <HermesMailboxNote role="status">
           <Trans>
             The bot is stopped on this thread, so no draft is prepared. Write
