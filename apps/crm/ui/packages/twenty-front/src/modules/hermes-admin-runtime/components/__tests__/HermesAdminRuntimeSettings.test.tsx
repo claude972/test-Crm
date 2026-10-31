@@ -130,9 +130,9 @@ const botPoliciesMock: MockedResponse = {
   },
 };
 
-// Two roles whose LABELS would mislead and whose FLAGS tell the truth:
-// « Lecture seule » carries the settings flag, « Administrateur » carries
-// nothing. The rights shown must follow the flags.
+// Two roles whose LABELS mislead. « Lecture seule » satisfies the server's
+// whole connection gate; « Administrateur » carries only the settings flag,
+// which the server refuses with a 403. The rights must follow the server.
 const memberRolesMock: MockedResponse = {
   request: { query: HERMES_MEMBER_ROLES },
   maxUsageCount: 10,
@@ -145,22 +145,30 @@ const memberRolesMock: MockedResponse = {
           label: 'Lecture seule',
           canUpdateAllSettings: true,
           canReadAllObjectRecords: true,
-          canUpdateAllObjectRecords: false,
+          canUpdateAllObjectRecords: true,
           canSoftDeleteAllObjectRecords: false,
           canDestroyAllObjectRecords: false,
           canAccessAllTools: false,
+          fieldPermissions: [],
+          rowLevelPermissionPredicates: [],
+          rowLevelPermissionPredicateGroups: [],
           workspaceMembers: [{ __typename: 'WorkspaceMember', id: MEMBER_ID }],
         },
         {
           __typename: 'Role',
-          id: 'role-empty-admin',
+          id: 'role-settings-only',
           label: 'Administrateur',
-          canUpdateAllSettings: false,
+          // Settings without read-all: the server answers 403, so the screen
+          // must not announce the right.
+          canUpdateAllSettings: true,
           canReadAllObjectRecords: false,
           canUpdateAllObjectRecords: false,
           canSoftDeleteAllObjectRecords: false,
           canDestroyAllObjectRecords: false,
-          canAccessAllTools: false,
+          canAccessAllTools: true,
+          fieldPermissions: [],
+          rowLevelPermissionPredicates: [],
+          rowLevelPermissionPredicateGroups: [],
           workspaceMembers: [
             { __typename: 'WorkspaceMember', id: OTHER_MEMBER_ID },
           ],
@@ -233,11 +241,17 @@ describe('HermesAdminRuntimeSettings', () => {
       await screen.findByText(/Configurer les connexions : oui/),
     ).toBeInTheDocument();
 
-    // Marc holds a role called « Administrateur » that carries nothing. The
-    // name promises everything and the flags grant nothing.
+    // Marc holds « Administrateur » with the settings flag but without
+    // read-all. The server refuses that with a 403, so the screen says non
+    // rather than announcing a right that is about to be denied.
     expect(screen.getByText('Marc Léon')).toBeInTheDocument();
     expect(
       screen.getByText(/Configurer les connexions : non/),
+    ).toBeInTheDocument();
+
+    // And the CRM tools flag is named as the flag it is, not as a bot right.
+    expect(
+      screen.getByText(/Indicateur CRM « accès à tous les outils » : oui/),
     ).toBeInTheDocument();
 
     // Both labels are still shown: a label says what somebody called the
@@ -245,10 +259,18 @@ describe('HermesAdminRuntimeSettings', () => {
     expect(screen.getByText('Lecture seule')).toBeInTheDocument();
     expect(screen.getByText('Administrateur')).toBeInTheDocument();
 
-    // The rule is stated on the screen, not only in the code.
+    // The rules are stated on the screen, not only in the code.
     expect(
       screen.getByText(
         /Ils sont lus sur les indicateurs de permission du rôle, pas sur son nom/,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Un rôle qui n’a que les réglages est refusé/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /L’indicateur CRM « accès à tous les outils » n’est pas une autorisation de bot/,
       ),
     ).toBeInTheDocument();
 
@@ -372,6 +394,27 @@ describe('HermesAdminRuntimeSettings', () => {
   });
   it('shows no stale result when a probe lands after the connection was removed', async () => {
     // The badge must not outlive the configuration it describes.
+    //
+    // The removal mock declares the EXACT variables the screen sends, so the
+    // deletion is really served. A catch-all matcher left it unmatched, and
+    // the scenario then only proved invalidation at the attempt.
+    const removeMock = jest.fn();
+
+    // An unmatched operation is reported on the console, not thrown. The
+    // console is therefore watched rather than silenced: gagging it is how an
+    // unresolved request stays invisible.
+    const consoleCalls: string[] = [];
+    const warn = jest
+      .spyOn(console, 'warn')
+      .mockImplementation((...args: unknown[]) => {
+        consoleCalls.push(args.map(String).join(' '));
+      });
+    const error = jest
+      .spyOn(console, 'error')
+      .mockImplementation((...args: unknown[]) => {
+        consoleCalls.push(args.map(String).join(' '));
+      });
+
     renderSettings([
       {
         request: { query: HERMES_EVOLUTION_CONNECTION },
@@ -391,10 +434,17 @@ describe('HermesAdminRuntimeSettings', () => {
         },
       } as MockedResponse,
       {
-        request: { query: HERMES_REMOVE_CONNECTION_V4, variables: {} },
-        maxUsageCount: 10,
-        result: { data: { hermesRemoveConnectionV4: { kind: 'EVOLUTION' } } },
-        variableMatcher: () => true,
+        request: {
+          query: HERMES_REMOVE_CONNECTION_V4,
+          // The revision the server published for EVOLUTION. Matching on it
+          // is itself the assertion that the screen echoed what it read.
+          variables: { input: { kind: 'EVOLUTION', expectedRevision: 4 } },
+        },
+        result: () => {
+          removeMock();
+
+          return { data: { hermesRemoveConnectionV4: { kind: 'EVOLUTION' } } };
+        },
       } as MockedResponse,
     ]);
 
@@ -420,7 +470,13 @@ describe('HermesAdminRuntimeSettings', () => {
       screen.getByRole('button', { name: 'Confirmer la suppression' }),
     );
 
-    // Let the deferred probe resolve well after the write.
+    // The deletion was really served, so what follows is a probe landing
+    // after an ACCEPTED removal and not merely after an attempt.
+    await waitFor(() => {
+      expect(removeMock).toHaveBeenCalledTimes(1);
+    });
+
+    // Let the deferred probe resolve well after the accepted write.
     await new Promise((resolve) => {
       setTimeout(resolve, 150);
     });
@@ -429,6 +485,17 @@ describe('HermesAdminRuntimeSettings', () => {
     // presented as reachable for a connection that has been removed.
     expect(screen.queryByText(/joignable le/)).toBeNull();
     expect(screen.queryByText(/instance:open/)).toBeNull();
+
+    // And the harness really exercised what the test claims: no operation
+    // went unmatched. Without this, an unresolved request would pass quietly.
+    const unmatched = consoleCalls.filter((line) =>
+      /No more mocked responses/.test(line),
+    );
+
+    expect(unmatched).toEqual([]);
+
+    warn.mockRestore();
+    error.mockRestore();
   });
 
   it('sends the MCP save with the revision it read, under its exact operation', async () => {

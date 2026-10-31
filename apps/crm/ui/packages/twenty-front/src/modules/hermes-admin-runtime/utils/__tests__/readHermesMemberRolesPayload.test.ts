@@ -11,14 +11,17 @@ describe('readHermesMemberRolesPayload', () => {
   it('inverts roles into the roles each member holds', () => {
     const read = readHermesMemberRolesPayload([
       {
-        id: 'role-settings',
-        label: 'Réglages',
+        id: 'role-full',
+        label: 'Complet',
         canUpdateAllSettings: true,
-        canReadAllObjectRecords: false,
-        canUpdateAllObjectRecords: false,
+        canReadAllObjectRecords: true,
+        canUpdateAllObjectRecords: true,
         canSoftDeleteAllObjectRecords: false,
         canDestroyAllObjectRecords: false,
         canAccessAllTools: false,
+        fieldPermissions: [],
+        rowLevelPermissionPredicates: [],
+        rowLevelPermissionPredicateGroups: [],
         workspaceMembers: [{ id: 'member-a' }],
       },
       {
@@ -30,20 +33,23 @@ describe('readHermesMemberRolesPayload', () => {
         canSoftDeleteAllObjectRecords: false,
         canDestroyAllObjectRecords: false,
         canAccessAllTools: false,
-        workspaceMembers: [{ id: 'member-a' }, { id: 'member-b' }],
+        fieldPermissions: [],
+        rowLevelPermissionPredicates: [],
+        rowLevelPermissionPredicateGroups: [],
+        workspaceMembers: [{ id: 'member-b' }],
       },
     ]);
 
     expect(read.kind).toBe('reported');
 
-    // Member A holds two roles, so their rights are the union of both.
+    // Member A holds the role that satisfies the server's whole gate.
     const aRoles = readHermesRolesForMember(read, 'member-a');
 
-    expect(aRoles).toHaveLength(2);
+    expect(aRoles).toHaveLength(1);
     expect(canHermesMemberConfigureConnections(aRoles)).toBe(true);
     expect(readHermesMemberRight(aRoles, 'READ_RECORDS')).toBe('granted');
 
-    // Member B holds only the reading role.
+    // Member B holds only the reading role, which the gate refuses.
     const bRoles = readHermesRolesForMember(read, 'member-b');
 
     expect(canHermesMemberConfigureConnections(bRoles)).toBe(false);
@@ -94,12 +100,62 @@ describe('readHermesMemberRolesPayload', () => {
     ).toBe('unknown');
   });
 
+  it('reads an unreported restriction list as null, never as zero', () => {
+    // The server refuses any role carrying a restriction, so an unread list
+    // cannot be assumed empty.
+    const read = readHermesMemberRolesPayload([
+      {
+        id: 'r',
+        label: 'Sans restrictions lues',
+        canUpdateAllSettings: true,
+        canReadAllObjectRecords: true,
+        canUpdateAllObjectRecords: true,
+        workspaceMembers: [{ id: 'm' }],
+      },
+    ]);
+
+    expect(
+      readHermesMemberRight(
+        readHermesRolesForMember(read, 'm'),
+        'CONFIGURE_CONNECTIONS',
+      ),
+    ).toBe('unknown');
+  });
+
+  it('counts a reported restriction and refuses the gate on it', () => {
+    const read = readHermesMemberRolesPayload([
+      {
+        id: 'r',
+        label: 'Restreint par champ',
+        canUpdateAllSettings: true,
+        canReadAllObjectRecords: true,
+        canUpdateAllObjectRecords: true,
+        fieldPermissions: [{ id: 'f1' }],
+        rowLevelPermissionPredicates: [],
+        rowLevelPermissionPredicateGroups: [],
+        workspaceMembers: [{ id: 'm' }],
+      },
+    ]);
+
+    expect(
+      readHermesMemberRight(
+        readHermesRolesForMember(read, 'm'),
+        'CONFIGURE_CONNECTIONS',
+      ),
+    ).toBe('denied');
+  });
+
   it('does not accept a non-boolean as a granted flag', () => {
     const read = readHermesMemberRolesPayload([
       {
         id: 'r',
         label: 'Truqué',
         canUpdateAllSettings: 'true',
+        canReadAllObjectRecords: true,
+        canUpdateAllObjectRecords: true,
+        fieldPermissions: [],
+        rowLevelPermissionPredicates: [],
+        rowLevelPermissionPredicateGroups: [],
         workspaceMembers: [{ id: 'm' }],
       },
     ]);
@@ -117,8 +173,13 @@ describe('readHermesMemberRolesPayload', () => {
       { id: 'no-members', label: 'Sans membres' },
       {
         id: 'r',
-        label: 'Réglages',
+        label: 'Complet',
         canUpdateAllSettings: true,
+        canReadAllObjectRecords: true,
+        canUpdateAllObjectRecords: true,
+        fieldPermissions: [],
+        rowLevelPermissionPredicates: [],
+        rowLevelPermissionPredicateGroups: [],
         workspaceMembers: [null, { id: '  ' }, { id: 'm' }],
       },
     ]);
@@ -134,6 +195,11 @@ describe('readHermesMemberRolesPayload', () => {
         id: 'r',
         label: '   ',
         canUpdateAllSettings: true,
+        canReadAllObjectRecords: true,
+        canUpdateAllObjectRecords: true,
+        fieldPermissions: [],
+        rowLevelPermissionPredicates: [],
+        rowLevelPermissionPredicateGroups: [],
         workspaceMembers: [{ id: 'm' }],
       },
     ]);

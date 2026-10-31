@@ -14,6 +14,9 @@ const NOTHING_REPORTED: HermesMemberRoleFlags = {
   canSoftDeleteAllObjectRecords: null,
   canDestroyAllObjectRecords: null,
   canAccessAllTools: null,
+  fieldPermissionCount: null,
+  rowLevelPredicateCount: null,
+  rowLevelPredicateGroupCount: null,
 };
 
 const ALL_DENIED: HermesMemberRoleFlags = {
@@ -23,6 +26,16 @@ const ALL_DENIED: HermesMemberRoleFlags = {
   canSoftDeleteAllObjectRecords: false,
   canDestroyAllObjectRecords: false,
   canAccessAllTools: false,
+  fieldPermissionCount: 0,
+  rowLevelPredicateCount: 0,
+  rowLevelPredicateGroupCount: 0,
+};
+
+// Everything the server's connection gate requires, and no restriction.
+const GATE_PASSES: Partial<HermesMemberRoleFlags> = {
+  canUpdateAllSettings: true,
+  canReadAllObjectRecords: true,
+  canUpdateAllObjectRecords: true,
 };
 
 const role = (
@@ -49,13 +62,10 @@ describe('readHermesMemberRight', () => {
     expect(readHermesMemberRight([], 'READ_RECORDS')).toBe('denied');
   });
 
-  it('grants a right from the published flag, not from the role name', () => {
-    // A role called « Lecture seule » that carries the settings flag really
-    // does configure connections. The label is somebody's wording; the flag is
-    // the permission.
-    const misleadinglyNamed = [
-      role('Lecture seule', { canUpdateAllSettings: true }),
-    ];
+  it('grants a right from the published facts, not from the role name', () => {
+    // A role called « Lecture seule » that satisfies the whole server gate
+    // really does configure connections. The label is somebody's wording.
+    const misleadinglyNamed = [role('Lecture seule', GATE_PASSES)];
 
     expect(
       readHermesMemberRight(misleadinglyNamed, 'CONFIGURE_CONNECTIONS'),
@@ -70,17 +80,15 @@ describe('readHermesMemberRight', () => {
     );
   });
 
-  it('takes the union across roles rather than the first or the strictest', () => {
+  it('takes the union across roles for record rights', () => {
     const several = [
       role('Lecture', { canReadAllObjectRecords: true }),
-      role('Réglages', { canUpdateAllSettings: true }),
+      role('Écriture', { canUpdateAllObjectRecords: true }),
     ];
 
-    expect(readHermesMemberRight(several, 'CONFIGURE_CONNECTIONS')).toBe(
-      'granted',
-    );
     expect(readHermesMemberRight(several, 'READ_RECORDS')).toBe('granted');
-    expect(readHermesMemberRight(several, 'WRITE_RECORDS')).toBe('denied');
+    expect(readHermesMemberRight(several, 'WRITE_RECORDS')).toBe('granted');
+    expect(readHermesMemberRight(several, 'DELETE_RECORDS')).toBe('denied');
   });
 
   it('reports an unreported flag as unknown instead of as a refusal', () => {
@@ -89,17 +97,16 @@ describe('readHermesMemberRight', () => {
     expect(readHermesMemberRight(unreported, 'CONFIGURE_CONNECTIONS')).toBe(
       'unknown',
     );
+    expect(readHermesMemberRight(unreported, 'READ_RECORDS')).toBe('unknown');
   });
 
-  it('prefers an explicit grant over another role that reported nothing', () => {
+  it('prefers an explicit record grant over a role that reported nothing', () => {
     const mixed = [
       { ...role('Inconnu'), flags: NOTHING_REPORTED },
-      role('Réglages', { canUpdateAllSettings: true }),
+      role('Lecture', { canReadAllObjectRecords: true }),
     ];
 
-    expect(readHermesMemberRight(mixed, 'CONFIGURE_CONNECTIONS')).toBe(
-      'granted',
-    );
+    expect(readHermesMemberRight(mixed, 'READ_RECORDS')).toBe('granted');
   });
 
   it('treats either kind of deletion as the deletion right', () => {
@@ -117,18 +124,120 @@ describe('readHermesMemberRight', () => {
   });
 });
 
+describe('readHermesMemberRight — the connection gate mirrors the server', () => {
+  it('refuses a settings-only role, which the server answers with 403', () => {
+    // The exact case from the review: settings true, read-all false. Saying
+    // « granted » here tells an administrator they may configure connections
+    // and then hands them a refusal.
+    const settingsOnly = [
+      role('Réglages seuls', {
+        canUpdateAllSettings: true,
+        canReadAllObjectRecords: false,
+        canUpdateAllObjectRecords: true,
+      }),
+    ];
+
+    expect(
+      readHermesMemberRight(settingsOnly, 'CONFIGURE_CONNECTIONS'),
+    ).toBe('denied');
+    expect(canHermesMemberConfigureConnections(settingsOnly)).toBe(false);
+  });
+
+  it('requires all three unrestricted rights, not just the settings one', () => {
+    expect(
+      readHermesMemberRight(
+        [role('Sans écriture', {
+          canUpdateAllSettings: true,
+          canReadAllObjectRecords: true,
+          canUpdateAllObjectRecords: false,
+        })],
+        'CONFIGURE_CONNECTIONS',
+      ),
+    ).toBe('denied');
+  });
+
+  it('refuses a role restricted by field permissions or row conditions', () => {
+    // The server refuses any role carrying these, however unrestricted its
+    // flags look.
+    for (const restriction of [
+      { fieldPermissionCount: 1 },
+      { rowLevelPredicateCount: 1 },
+      { rowLevelPredicateGroupCount: 1 },
+    ]) {
+      expect(
+        readHermesMemberRight(
+          [role('Restreint', { ...GATE_PASSES, ...restriction })],
+          'CONFIGURE_CONNECTIONS',
+        ),
+      ).toBe('denied');
+    }
+  });
+
+  it('does not claim a grant when a restriction list was never read', () => {
+    // Null is not zero: an unread restriction list could be the one the
+    // server refuses on.
+    expect(
+      readHermesMemberRight(
+        [role('Partiel', { ...GATE_PASSES, fieldPermissionCount: null })],
+        'CONFIGURE_CONNECTIONS',
+      ),
+    ).toBe('unknown');
+  });
+
+  it('reports unknown when several roles disagree, because the server picks one', () => {
+    // The server resolves one role target with `findOne`, so its choice is not
+    // predictable from here. Neither verdict may be claimed.
+    const disagreeing = [
+      role('Complet', GATE_PASSES),
+      role('Réglages seuls', { canUpdateAllSettings: true }),
+    ];
+
+    expect(
+      readHermesMemberRight(disagreeing, 'CONFIGURE_CONNECTIONS'),
+    ).toBe('unknown');
+    expect(canHermesMemberConfigureConnections(disagreeing)).toBe(false);
+  });
+
+  it('grants only when every role held satisfies the gate', () => {
+    const allPass = [role('A', GATE_PASSES), role('B', GATE_PASSES)];
+
+    expect(readHermesMemberRight(allPass, 'CONFIGURE_CONNECTIONS')).toBe(
+      'granted',
+    );
+  });
+
+  it('denies when no role satisfies the gate', () => {
+    const nonePass = [role('A'), role('B', { canUpdateAllSettings: true })];
+
+    expect(readHermesMemberRight(nonePass, 'CONFIGURE_CONNECTIONS')).toBe(
+      'denied',
+    );
+  });
+});
+
+describe('the CRM tools flag is not a bot delegation', () => {
+  it('is reported as the CRM flag it is', () => {
+    // Bot delegation is per company, channel and thread, with an owner and an
+    // epoch. This flag knows none of that, so it is named for itself.
+    expect(
+      readHermesMemberRight(
+        [role('Outils', { canAccessAllTools: true })],
+        'CRM_ALL_TOOLS_FLAG',
+      ),
+    ).toBe('granted');
+  });
+});
+
 describe('readHermesMemberRights', () => {
   it('answers for every published right, so none is silently omitted', () => {
-    const resolved = readHermesMemberRights([
-      role('Réglages', { canUpdateAllSettings: true }),
-    ]);
+    const resolved = readHermesMemberRights([role('Complet', GATE_PASSES)]);
 
     expect(resolved).toEqual([
       { right: 'CONFIGURE_CONNECTIONS', standing: 'granted' },
-      { right: 'READ_RECORDS', standing: 'denied' },
-      { right: 'WRITE_RECORDS', standing: 'denied' },
+      { right: 'READ_RECORDS', standing: 'granted' },
+      { right: 'WRITE_RECORDS', standing: 'granted' },
       { right: 'DELETE_RECORDS', standing: 'denied' },
-      { right: 'USE_BOT_TOOLS', standing: 'denied' },
+      { right: 'CRM_ALL_TOOLS_FLAG', standing: 'denied' },
     ]);
   });
 });
@@ -142,9 +251,7 @@ describe('canHermesMemberConfigureConnections', () => {
       ]),
     ).toBe(false);
     expect(
-      canHermesMemberConfigureConnections([
-        role('Réglages', { canUpdateAllSettings: true }),
-      ]),
+      canHermesMemberConfigureConnections([role('Complet', GATE_PASSES)]),
     ).toBe(true);
   });
 });

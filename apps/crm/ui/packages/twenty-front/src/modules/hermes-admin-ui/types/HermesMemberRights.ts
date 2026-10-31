@@ -1,20 +1,20 @@
 // What a member may actually do here. Nothing is derived from a role's LABEL,
-// which is a name somebody chose: every right comes from the permission flags
-// the server publishes on the role. Roles are additive, so a member holding
-// several has the union of what they grant.
+// which is a name somebody chose. Every value is read from the authority that
+// will enforce it, or reported as unknown — a right shown as granted and then
+// refused by the server is worse than one shown as unknown.
 
-// The rights the settings centre is accountable for showing. Each one maps to
-// published permission flags and to nothing else.
+// The rights the settings centre is accountable for showing.
 export const HERMES_MEMBER_RIGHTS = [
-  // The gate for this whole screen: configuring a connection requires the
-  // unrestricted settings right, which is what the connections contract means
-  // by an unrestricted workspace administrator.
+  // Mirrors the server's own connection gate in full. The settings flag alone
+  // is NOT this right; see the predicate below.
   'CONFIGURE_CONNECTIONS',
   'READ_RECORDS',
   'WRITE_RECORDS',
   'DELETE_RECORDS',
-  // Whether the member may use the tools a bot would call.
-  'USE_BOT_TOOLS',
+  // Named as the CRM flag it is, not as a Hermès right. Bot delegation is per
+  // company, per channel and per thread, with an owner and an epoch; this flag
+  // knows nothing about any of that and does not imply it.
+  'CRM_ALL_TOOLS_FLAG',
 ] as const;
 
 export type HermesMemberRight = (typeof HERMES_MEMBER_RIGHTS)[number];
@@ -25,14 +25,15 @@ export const isHermesMemberRight = (
   typeof value === 'string' &&
   (HERMES_MEMBER_RIGHTS as readonly string[]).includes(value);
 
-// Whether a right is held. 'unknown' is a flag the server did not publish; it
-// is kept apart from 'denied' and never shown as a refusal, which would be a
-// false statement about a person.
+// Whether a right is held. 'unknown' is a fact the server did not publish, or
+// one this screen cannot resolve unambiguously. It is kept apart from 'denied'
+// and never shown as a refusal.
 export type HermesMemberRightStanding = 'granted' | 'denied' | 'unknown';
 
-// The permission flags of one role, exactly as published. Every field is
-// nullable because a query that did not select a flag reports nothing about
-// it, which is not the same as reporting false.
+// The published facts of one role.
+//
+// Every field is nullable because a query that did not select something
+// reports nothing about it, which is not the same as false or zero.
 export type HermesMemberRoleFlags = {
   canUpdateAllSettings: boolean | null;
   canReadAllObjectRecords: boolean | null;
@@ -40,48 +41,117 @@ export type HermesMemberRoleFlags = {
   canSoftDeleteAllObjectRecords: boolean | null;
   canDestroyAllObjectRecords: boolean | null;
   canAccessAllTools: boolean | null;
+  // The restrictions the server's connection gate refuses outright. Counts,
+  // not booleans: zero is the only value it accepts, and null means the
+  // restriction list was not read at all.
+  fieldPermissionCount: number | null;
+  rowLevelPredicateCount: number | null;
+  rowLevelPredicateGroupCount: number | null;
 };
 
-// One role a member holds: the server's own label, and the flags it carries.
 export type HermesMemberRole = {
   id: string | null;
   label: string | null;
   flags: HermesMemberRoleFlags;
 };
 
-// Which flags decide one right. A right backed by several flags is granted
-// when any of them is, because each one independently allows the action.
 const FLAGS_BY_RIGHT: Record<
   HermesMemberRight,
   readonly (keyof HermesMemberRoleFlags)[]
 > = {
-  CONFIGURE_CONNECTIONS: ['canUpdateAllSettings'],
+  // Resolved by its own predicate, not by this table.
+  CONFIGURE_CONNECTIONS: [],
   READ_RECORDS: ['canReadAllObjectRecords'],
   WRITE_RECORDS: ['canUpdateAllObjectRecords'],
-  // Either kind of deletion is a deletion as far as the operator is concerned.
   DELETE_RECORDS: [
     'canSoftDeleteAllObjectRecords',
     'canDestroyAllObjectRecords',
   ],
-  USE_BOT_TOOLS: ['canAccessAllTools'],
+  CRM_ALL_TOOLS_FLAG: ['canAccessAllTools'],
 };
 
-// One right across every role held. Granted as soon as one role grants it;
-// unknown if any relevant flag went unreported, since it could have been the
-// granting one; denied only when every one came back false.
+// Whether ONE role satisfies the server's connection gate.
+//
+// The server requires unrestricted settings AND read-all AND update-all, and
+// refuses any role carrying field permissions, row-level predicates or
+// predicate groups. Settings without read-all is a 403, so it is not granted.
+const roleSatisfiesConnectionGate = (
+  role: HermesMemberRole,
+): HermesMemberRightStanding => {
+  const { flags } = role;
+
+  const required = [
+    flags.canUpdateAllSettings,
+    flags.canReadAllObjectRecords,
+    flags.canUpdateAllObjectRecords,
+  ];
+
+  // An explicit false anywhere is a refusal the server will make.
+  if (required.includes(false)) {
+    return 'denied';
+  }
+
+  const restrictions = [
+    flags.fieldPermissionCount,
+    flags.rowLevelPredicateCount,
+    flags.rowLevelPredicateGroupCount,
+  ];
+
+  // Any restriction present is also a refusal.
+  if (restrictions.some((count) => count !== null && count > 0)) {
+    return 'denied';
+  }
+
+  // Nothing refuses it, but something went unreported: the server's verdict
+  // cannot be predicted from here, so it is not claimed.
+  if (required.includes(null) || restrictions.includes(null)) {
+    return 'unknown';
+  }
+
+  return 'granted';
+};
+
+// The connection right across the roles a member holds.
+//
+// The server resolves it through ONE role target chosen by `findOne`, so with
+// several roles its choice is not predictable from here. Certainty is only
+// possible when every role agrees: all pass, or none does.
+const readConnectionRight = (
+  roles: readonly HermesMemberRole[],
+): HermesMemberRightStanding => {
+  const verdicts = roles.map(roleSatisfiesConnectionGate);
+
+  if (verdicts.every((verdict) => verdict === 'granted')) {
+    return 'granted';
+  }
+
+  if (verdicts.every((verdict) => verdict === 'denied')) {
+    return 'denied';
+  }
+
+  return 'unknown';
+};
+
+// One right across every role held.
+//
+// The record rights stay additive, which is how the native permission model
+// resolves them. The connection right does not: it mirrors the server's gate.
 export const readHermesMemberRight = (
   roles: readonly HermesMemberRole[] | null,
   right: HermesMemberRight,
 ): HermesMemberRightStanding => {
-  // The roles were not read at all. Nothing can be said.
+  // The roles were not read at all, so nothing can be said.
   if (roles === null) {
     return 'unknown';
   }
 
-  // Genuinely no role. A member holding no role holds no right through one,
-  // and that is a real answer rather than a missing one.
+  // Genuinely no role: the server finds no role target and refuses.
   if (roles.length === 0) {
     return 'denied';
+  }
+
+  if (right === 'CONFIGURE_CONNECTIONS') {
+    return readConnectionRight(roles);
   }
 
   const flagNames = FLAGS_BY_RIGHT[right];
@@ -114,15 +184,15 @@ export const readHermesMemberRights = (
   }));
 
 // Whether this member is an administrator the connections contract accepts
-// writes from. Only an explicit grant counts: an unknown flag is not
+// writes from. Only an explicit grant counts: an unknown verdict is not
 // permission, and a role's name never is.
 export const canHermesMemberConfigureConnections = (
   roles: readonly HermesMemberRole[] | null,
-): boolean => readHermesMemberRight(roles, 'CONFIGURE_CONNECTIONS') === 'granted';
+): boolean =>
+  readHermesMemberRight(roles, 'CONFIGURE_CONNECTIONS') === 'granted';
 
-// The labels the server gave for the roles a member holds, in order, with
-// blanks dropped. Shown next to the rights rather than instead of them: the
-// label says what somebody called the role, the rights say what it does.
+// The labels the server gave for the roles held, with blanks dropped. Shown
+// next to the rights rather than instead of them.
 export const readHermesMemberRoleLabels = (
   roles: readonly HermesMemberRole[] | null,
 ): readonly string[] => {
