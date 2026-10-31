@@ -48,3 +48,8 @@ Copie privée additionnelle du travail dirty CJ04a et des trois fichiers CJ04c :
 Le canal CUA est indisponible depuis05:15UTC : inventaire timeout, transport fermé, reprise du navigateur connu puis onglet vierge échoués, js_reset puis nouvelle création timeout. Aucune recette visuelle nouvelle, aucun ancien screenshot ni curl200 promu en preuve. Réessayer à un checkpoint utile par CUA seulement, ne pas substituer une automatisation navigateur shell. Pas de redémarrage de l'application utilisateur ni de permission élargie effectué. Prévenir honnêtement si cela reste bloqué.
 
 Dernier disque contrôlé : système11GiB libres, externe1,1GiB, donc aucun gros build sur externe ni nettoyage de travail d'autrui. Pas de production, nouveau service payant, vrais prospects, secrets Git, ou affaiblissement de protection globale Vercel. L'ancienne preview V4 est expirée. Aucun nouveau lien de livraison ne doit être annoncé avant contrôle du vrai backend, du bundle exact et des parcours. Safari propriétaire encore non confirmé.
+
+
+## Mise à jour CI05:49UTC — à corriger dès reprise
+
+Frontend41173424054 a terminé FAILURE sur2f1e8e705. Erreur unique du log failed : `HermesCampaignContentPersistence.test.tsx(51,44)` TS2344, `typeof MockLink` est une classe utilisée avec Parameters (contrainte fonction). CJ01 doit utiliser le type des paramètres du constructeur, sans enlever le test ni assouplir le check, puis relancer la CI stricte. Le test s'exécute en Jest mais ne passe pas le typecheck ; ne pas confondre les deux. MCP41173344142 en cours, conclusion à relire.

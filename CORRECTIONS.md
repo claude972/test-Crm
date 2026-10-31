@@ -1679,3 +1679,10 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - CJ-MCP-002 : correction3413fd8c3 relue, export et import du même module/connecteur, aucune duplication du registre. Recheck root **2 suites/14 tests PASS**, provenance DI centrale vérifiée sous Nest avec infrastructure simulée. **Verified dans ce périmètre** ; bootstrap natif complet en cours de CI.
 - CJ-CONN-003 : recheck réussi dans le checkout QA propre, depuis le vrai dossier frontend (sinon résolution SWC incorrecte) : **3 suites/35 tests PASS** sur sourceb0ef31d0c incluantba31adf23, zéro warning de mock Apollo. **Verified source/tests ciblés**, pas une recette utilisateur. Les essais non chargés précédents restent des limites de lancement, pas des tests passés.
 - CI déclenchées par root sur sources livrées : **41173344142** combined native pour3413fd8c3, **41173424054** full frontend pour2f1e8e705 ; en cours au dernier contrôle. Ne pas les annoncer vertes ni comme assemblage final. Le checkout original et tous les fichiers WIP préservés, aucun code Claude remplacé par Codex.
+
+
+### HERMES-COMPLETE-JOURNEYS-20261031 — CI frontend du 31 octobre 05:49 UTC
+
+- CI **41173424054 FAILURE** sur le SHA exact2f1e8e705 : étape full frontend TypeScript échouée. Root a lu le log failed, une erreur TS2344 : `hermes-campaigns-runtime/__tests__/HermesCampaignContentPersistence.test.tsx:51:44`, `typeof MockLink` ne satisfait pas une contrainte de fonction. C'est un type de **test**, pas une panne d'exécution utilisateur démontrée ; cela bloque toutefois le contrôle strict et interdit de le présenter comme vert.
+- CJ-FRONT-TYPE-001, reviewer root, assigned CJ01, status **open** : la classe MockLink est typée avec Parameters (fonction) au lieu de ses paramètres de constructeur. Corriger avec l'utilitaire de constructeur approprié et relancer le contrôle complet, sans exclure le fichier ni assouplir TypeScript. Aucun changement de code par root pendant le quota.
+- CI native MCP41173344142 encore en cours au dernier contrôle (PG legacy atteint, pas d'échec). Les conclusions des builds ne sont pas substituées à l'assemblage/recette manquants.
