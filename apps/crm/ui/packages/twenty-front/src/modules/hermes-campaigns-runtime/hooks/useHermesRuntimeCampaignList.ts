@@ -6,6 +6,7 @@ import { v4 } from 'uuid';
 
 import { HERMES_RUNTIME_CREATE_CAMPAIGN } from '@/hermes-campaigns-runtime/graphql/mutations/hermesRuntimeCreateCampaign';
 import { HERMES_RUNTIME_CAMPAIGN_LIST } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignList';
+import { HERMES_RUNTIME_CAMPAIGN_RECORD } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignRecord';
 import { readRuntimeCampaignState } from '@/hermes-campaigns-runtime/utils/readRuntimeCampaign';
 import { readRuntimeFailure } from '@/hermes-campaigns-runtime/utils/readRuntimeFailure';
 import { readHermesCallFailure } from '@/prospection/utils/readHermesCallFailure';
@@ -28,7 +29,20 @@ export type HermesCampaignCreateState =
   | { kind: 'creating' }
   | { kind: 'created'; campaignId: string }
   | { kind: 'failed'; reasonCode: string | null; reason: string | null }
-  | { kind: 'unconfirmed'; reasonCode: string | null; reason: string | null };
+  | { kind: 'unconfirmed'; reasonCode: string | null; reason: string | null }
+  // Reconciling: the campaign is being looked up by its id to find out what
+  // actually happened.
+  | { kind: 'reconciling' }
+  // Reconciled and it is not there. The id is kept, so the next attempt
+  // replays it rather than minting a second one, and creating reopens.
+  | { kind: 'absent' }
+  // The lookup itself failed, so the outcome is still unknown. Creating stays
+  // shut: this is not permission to press again.
+  | {
+      kind: 'reconcileFailed';
+      reasonCode: string | null;
+      reason: string | null;
+    };
 
 type CampaignListNode = {
   id?: string | null;
@@ -228,19 +242,22 @@ export const useHermesRuntimeCampaignList = () => {
 
         // A refusal the server reasoned about is a refusal; anything else
         // leaves the outcome unknown and is not retried on its own.
-        const isRefusal =
-          classified.kind === 'denied' ||
-          classified.kind === 'rejected-input' ||
-          classified.kind === 'conflict';
+        // A conflict is NOT a settled refusal here. It is the server saying
+        // something is already there under this id — which is precisely the
+        // evidence that a previous write landed. Dropping the id on a
+        // conflict is how a second campaign gets created later, so it is
+        // kept and reconciled like any other unknown outcome.
+        const isSettledRefusal =
+          classified.kind === 'denied' || classified.kind === 'rejected-input';
 
-        // A refusal is settled: nothing was created, so the id is dropped.
-        // An unknown outcome keeps it, so a retry cannot duplicate.
-        if (isRefusal) {
+        // A settled refusal means nothing was created, so the id is dropped.
+        // Everything else keeps it, so a retry cannot duplicate.
+        if (isSettledRefusal) {
           pendingAttemptRef.current = null;
         }
 
         setCreateState(
-          isRefusal
+          isSettledRefusal
             ? { kind: 'failed', ...failure }
             : { kind: 'unconfirmed', ...failure },
         );
@@ -252,17 +269,58 @@ export const useHermesRuntimeCampaignList = () => {
     [createCampaign, refetch],
   );
 
-  // The unresolved creation is acknowledged by re-reading the list: that is
-  // the only way to find out whether the campaign exists. Pressing create
-  // again on a guess is exactly what must not happen, so the control stays
-  // shut until this is done.
+  // Reconciles an unresolved creation by looking the campaign up by its own
+  // id, and says which case it is.
+  //
+  // Re-reading the list and returning to idle was not enough: it swallowed
+  // any error and left the operator to guess, which is the guessing this
+  // defect is about. The id is known, so the question is answerable.
   const onRecheckAfterUncertainCreation = useCallback(async () => {
-    await refetch().catch(() => undefined);
+    const pending = pendingAttemptRef.current;
 
-    // The id is kept: if the campaign did not in fact exist, the next attempt
-    // replays the same one rather than minting a second.
-    setCreateState({ kind: 'idle' });
-  }, [refetch]);
+    if (!isDefined(pending)) {
+      setCreateState({ kind: 'idle' });
+
+      return;
+    }
+
+    setCreateState({ kind: 'reconciling' });
+
+    try {
+      const { data: found } = await apolloCoreClient.query<{
+        messageCampaign?: { id?: string | null } | null;
+      }>({
+        query: HERMES_RUNTIME_CAMPAIGN_RECORD,
+        variables: { campaignId: pending.campaignId },
+        // A point-in-time fact. The cache must not answer this.
+        fetchPolicy: 'no-cache',
+      });
+
+      await refetch().catch(() => undefined);
+
+      const existingId = found?.messageCampaign?.id;
+
+      if (isNonEmptyString(existingId)) {
+        // It was created after all. Settled, so the id is released and the
+        // campaign can be opened.
+        pendingAttemptRef.current = null;
+        setCreateState({ kind: 'created', campaignId: existingId });
+
+        return;
+      }
+
+      // Genuinely absent. The id is deliberately kept, so a further attempt
+      // replays it and still cannot produce two campaigns.
+      setCreateState({ kind: 'absent' });
+    } catch (error_) {
+      // The lookup failed, so nothing was learned. Reported rather than
+      // swallowed, and creating stays shut.
+      setCreateState({
+        kind: 'reconcileFailed',
+        ...readRuntimeFailure(error_),
+      });
+    }
+  }, [apolloCoreClient, refetch]);
 
   const pageInfo = data?.messageCampaigns?.pageInfo;
   const hasNextPage = pageInfo?.hasNextPage === true;
@@ -309,8 +367,14 @@ export const useHermesRuntimeCampaignList = () => {
     onCreateCampaign,
     // Shut while a creation is in flight, and while its outcome is unknown:
     // a second press then could create a second campaign.
+    // Shut while the outcome is unknown, while it is being reconciled, and
+    // when the reconciliation itself failed. Reopened by 'absent', which is
+    // a reconciled answer rather than a guess.
     isCreateBlocked:
-      createState.kind === 'creating' || createState.kind === 'unconfirmed',
+      createState.kind === 'creating' ||
+      createState.kind === 'unconfirmed' ||
+      createState.kind === 'reconciling' ||
+      createState.kind === 'reconcileFailed',
     onRecheckAfterUncertainCreation,
     hasNextPage,
     isLoadingMore: loading && isDefined(data),

@@ -67,6 +67,9 @@ const renderListView = (
         isCreateUnconfirmed={false}
         isCreateBlocked={false}
         onRecheckAfterUncertainCreation={jest.fn()}
+        isReconcilingCreation={false}
+        isCreationReconciledAbsent={false}
+        reconcileFailure={null}
         hasNextPage={false}
         isLoadingMore={false}
         onLoadMore={jest.fn()}
@@ -245,7 +248,7 @@ describe('HermesCampaignListView', () => {
       ),
     ).toBeVisible();
 
-    screen.getByRole('button', { name: 'Re-read the list' }).click();
+    screen.getByRole('button', { name: 'Check whether it was created' }).click();
 
     expect(onRecheckAfterUncertainCreation).toHaveBeenCalledTimes(1);
   });
@@ -271,5 +274,57 @@ describe('HermesCampaignListView', () => {
     expect(
       screen.queryByRole('button', { name: 'Show more campaigns' }),
     ).not.toBeInTheDocument();
+  });
+
+  // CJ-CAMPAIGN-010, reconciliation. Re-reading must answer the question, not
+  // return to idle and leave the operator guessing.
+  it('says the campaign was not created, and reopens creating with the same id', () => {
+    renderListView({
+      isCreationReconciledAbsent: true,
+      isCreateBlocked: false,
+    });
+
+    expect(
+      screen.getByText('Checked: this campaign was not created.'),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'You can create it again. It will reuse the same identifier, so there is no risk of ending up with two.',
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: 'Create the campaign' }),
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('keeps creating shut when the check itself failed, and says nothing was learned', () => {
+    const onCreateCampaign = jest.fn();
+
+    renderListView({
+      isCreateBlocked: true,
+      reconcileFailure: { reasonCode: 'FAILED', reason: null },
+      onCreateCampaign,
+    });
+
+    expect(
+      screen.getByText(
+        'The check itself failed, so it is still unknown whether the campaign was created.',
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Creating stays shut: a failed check is not permission to press again. Try the check again once the connection is back.',
+      ),
+    ).toBeVisible();
+
+    const createButton = screen.getByRole('button', {
+      name: 'Create the campaign',
+    });
+
+    expect(createButton).toHaveAttribute('aria-disabled', 'true');
+
+    createButton.click();
+
+    expect(onCreateCampaign).not.toHaveBeenCalled();
   });
 });

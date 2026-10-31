@@ -128,6 +128,13 @@ export const HermesCampaignListContainer = ({
       onRecheckAfterUncertainCreation={() => {
         void onRecheckAfterUncertainCreation();
       }}
+      isReconcilingCreation={createState.kind === 'reconciling'}
+      isCreationReconciledAbsent={createState.kind === 'absent'}
+      reconcileFailure={
+        createState.kind === 'reconcileFailed'
+          ? { reasonCode: createState.reasonCode, reason: createState.reason }
+          : null
+      }
       hasNextPage={hasNextPage}
       isLoadingMore={isLoadingMore}
       onLoadMore={() => {

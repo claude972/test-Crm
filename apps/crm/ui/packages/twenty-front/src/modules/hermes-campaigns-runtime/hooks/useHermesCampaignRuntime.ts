@@ -452,10 +452,15 @@ export const useHermesCampaignRuntime = ({
     ]);
   }, [refetchCampaign, refetchPreview, isEngineReachable]);
 
-  const { audiencesLoad, onRetryAudiences } =
-    useHermesRuntimeCampaignAudiences({
-      isEngineEnabled: isMessageCampaignEnabled,
-    });
+  const {
+    audiencesLoad,
+    onRetryAudiences,
+    hasMoreAudiences,
+    isLoadingMoreAudiences,
+    onLoadMoreAudiences,
+  } = useHermesRuntimeCampaignAudiences({
+    isEngineEnabled: isMessageCampaignEnabled,
+  });
 
   const { recipients: previewRecipients } = useHermesRuntimeCampaignRecipients({
     listId: isNonEmptyString(campaign?.listId) ? campaign.listId : null,
@@ -933,6 +938,9 @@ export const useHermesCampaignRuntime = ({
 
     audiencesLoad,
     onRetryAudiences,
+    hasMoreAudiences,
+    isLoadingMoreAudiences,
+    onLoadMoreAudiences,
     selectedListId: isNonEmptyString(campaign?.listId) ? campaign.listId : null,
     onSelectList,
     listSaveState,

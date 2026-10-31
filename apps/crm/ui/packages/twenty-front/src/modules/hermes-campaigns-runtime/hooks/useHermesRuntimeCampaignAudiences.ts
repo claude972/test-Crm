@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client/react';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
@@ -23,6 +23,10 @@ type AudiencesQueryResult = {
           } | null;
         } | null)[]
       | null;
+    pageInfo?: {
+      hasNextPage?: boolean | null;
+      endCursor?: string | null;
+    } | null;
     totalCount?: number | null;
   } | null;
 };
@@ -44,9 +48,8 @@ export const useHermesRuntimeCampaignAudiences = ({
 }) => {
   const apolloCoreClient = useApolloCoreClient();
 
-  const { data, loading, error, refetch } = useQuery<AudiencesQueryResult>(
-    HERMES_RUNTIME_CAMPAIGN_AUDIENCES,
-    {
+  const { data, loading, error, refetch, fetchMore } =
+    useQuery<AudiencesQueryResult>(HERMES_RUNTIME_CAMPAIGN_AUDIENCES, {
       variables: {
         orderBy: [{ createdAt: 'DescNullsLast' }],
         limit: HERMES_RUNTIME_AUDIENCE_PAGE_SIZE,
@@ -54,8 +57,8 @@ export const useHermesRuntimeCampaignAudiences = ({
       client: apolloCoreClient,
       skip: !isEngineEnabled,
       fetchPolicy: 'cache-and-network',
-    },
-  );
+      notifyOnNetworkStatusChange: true,
+    });
 
   const audiences: HermesCampaignAudienceOption[] = useMemo(() => {
     const edges = data?.messageLists?.edges ?? [];
@@ -96,9 +99,46 @@ export const useHermesRuntimeCampaignAudiences = ({
               { kind: 'empty' }
             : { kind: 'ready', value: audiences };
 
+  const pageInfo = data?.messageLists?.pageInfo;
+  const hasNextPage = pageInfo?.hasNextPage === true;
+  const endCursor = isNonEmptyString(pageInfo?.endCursor)
+    ? pageInfo.endCursor
+    : null;
+
+  // Reads the next page of lists and appends it. Without this the picker
+  // stopped at the page size, so a company with more audiences than that
+  // could not select the rest of them at all.
+  const onLoadMoreAudiences = useCallback(async () => {
+    if (!hasNextPage || !isDefined(endCursor)) {
+      return;
+    }
+
+    await fetchMore({
+      variables: { lastCursor: endCursor },
+      updateQuery: (previous, { fetchMoreResult }) => {
+        const nextEdges = fetchMoreResult?.messageLists?.edges ?? [];
+
+        if (nextEdges.length === 0) {
+          return previous;
+        }
+
+        return {
+          messageLists: {
+            ...previous.messageLists,
+            ...fetchMoreResult.messageLists,
+            edges: [...(previous.messageLists?.edges ?? []), ...nextEdges],
+          },
+        };
+      },
+    }).catch(() => undefined);
+  }, [fetchMore, hasNextPage, endCursor]);
+
   return {
     audiencesLoad,
     totalCount: data?.messageLists?.totalCount ?? null,
+    hasMoreAudiences: hasNextPage,
+    isLoadingMoreAudiences: loading && isDefined(data),
+    onLoadMoreAudiences,
     onRetryAudiences: () => {
       void refetch();
     },

@@ -157,9 +157,16 @@ export type HermesCampaignListViewProps = {
   // Shut while a creation is in flight or unresolved. Kept separate from
   // `isCreating` so an unresolved outcome also closes the control.
   isCreateBlocked: boolean;
-  // Re-reads the list, which is the only way to find out whether an
-  // unresolved creation actually happened.
+  // Reconciles an unresolved creation by looking the campaign up by its id.
   onRecheckAfterUncertainCreation?: () => void;
+  // The reconciliation is running.
+  isReconcilingCreation: boolean;
+  // Reconciled and the campaign is genuinely not there. Creating reopens,
+  // and the next attempt replays the same id.
+  isCreationReconciledAbsent: boolean;
+  // The lookup itself failed, so nothing was learned. Not permission to
+  // press again.
+  reconcileFailure: { reasonCode: string | null; reason: string | null } | null;
   // More campaigns than this page holds.
   hasNextPage: boolean;
   isLoadingMore: boolean;
@@ -182,6 +189,9 @@ export const HermesCampaignListView = ({
   isCreateUnconfirmed,
   isCreateBlocked,
   onRecheckAfterUncertainCreation,
+  isReconcilingCreation,
+  isCreationReconciledAbsent,
+  reconcileFailure,
   hasNextPage,
   isLoadingMore,
   onLoadMore,
@@ -299,12 +309,62 @@ export const HermesCampaignListView = ({
             <Button
               variant="outline"
               size="sm"
-              disabled={!isDefined(onRecheckAfterUncertainCreation)}
+              loading={isReconcilingCreation}
+              disabled={
+                !isDefined(onRecheckAfterUncertainCreation) ||
+                isReconcilingCreation
+              }
               focusableWhenDisabled
               onClick={() => onRecheckAfterUncertainCreation?.()}
             >
-              {t`Re-read the list`}
+              {t`Check whether it was created`}
             </Button>
+          </>
+        )}
+
+        {isReconcilingCreation && (
+          <StyledStatus aria-busy="true" aria-live="polite">
+            <Loader />
+            {t`Looking the campaign up by its identifier…`}
+          </StyledStatus>
+        )}
+
+        {/* A reconciled answer, not a guess: the campaign was looked up by
+            its own id and is not there. Creating reopens, and the next
+            attempt replays the same id. */}
+        {isCreationReconciledAbsent && (
+          <>
+            <Banner
+              status="info"
+              variant="soft"
+              icon={<IconAlertTriangle aria-hidden="true" />}
+            >
+              {t`Checked: this campaign was not created.`}
+            </Banner>
+            <HermesCampaignNote>
+              {t`You can create it again. It will reuse the same identifier, so there is no risk of ending up with two.`}
+            </HermesCampaignNote>
+          </>
+        )}
+
+        {isDefined(reconcileFailure) && (
+          <>
+            <Banner
+              role="alert"
+              status="warning"
+              variant="soft"
+              icon={<IconAlertTriangle aria-hidden="true" />}
+            >
+              {t`The check itself failed, so it is still unknown whether the campaign was created.`}
+            </Banner>
+            <HermesCampaignReason
+              reasonCode={reconcileFailure.reasonCode}
+              reason={reconcileFailure.reason}
+              fallback={t`The server gave no reason.`}
+            />
+            <HermesCampaignNote>
+              {t`Creating stays shut: a failed check is not permission to press again. Try the check again once the connection is back.`}
+            </HermesCampaignNote>
           </>
         )}
       </Section.Root>
