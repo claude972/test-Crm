@@ -2025,3 +2025,8 @@ Rapport privé `/private/tmp/hermes-review-claude-wa-bot.md`, section de tête54
 ### Gel508 / preuves frontend finales31octobre17:33UTC
 
 Frontend41223824108SUCCESSsur508 :114suites1348tests0FAIL/0pending,types/bundlePASS. Artefact13051106413digestarchivevérifié8c7be0609e5d8c606cd374c0052246556eeb705360775b95f0b4fd849e34cc16,2151fichiers ; preuveJSON/typagedigestégalementvérifié. Rapport docs/verification/hermes-release-508d36d60.md, manifestelocalprivéprêt. Combined41223827218encours(SMTPstage), pasnouveauruntime/déploiement. Claudedeuxcommits3d/5adifférésaprèslecturecarpasdéfautreproduitsurvraicatalogue508/CIfrontendverte ; gelmaintenu, instructionparentrelayée. AucunancienlienréutiliséniBuildvertprésentélivraison.
+
+
+### Runtimefinalpréparé31octobre17:42UTC
+
+DeuxCIexactes508SUCCESS : frontend41223824108(1348tests114suites,types,bundle)etcombined41223827218(backend/PG/SMTPisolé/DI/bundle). Bundlefront13051106413téléchargé/hashvérifié. DéclenchementUNIQUEP0runtime41225410843avecworker/sameorigin/fixtureTLSisolé/90min, source508 vérifiéeAPI. Phaseconstructionbackendencours, aucunlienremis/expirationsupposée/déploiementVercelactif. Watchartefactborné30sparlecturepourrécupérertunnel; contrôlepublicseulementaprèsREADYVercelpreview. Modèlepreview90minDBjetableetsourcesfournisseursnonconfigurésrestentexplicités.

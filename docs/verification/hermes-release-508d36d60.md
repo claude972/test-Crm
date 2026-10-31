@@ -23,3 +23,8 @@ Les services réels Evolution/WhatsApp, MCP Hermès, Forms/Cal et SMTP personnel
 Les correctifs ciblés de payload bot54, pipeline production/a0/dashboard0a2/fallbackc604, media7bd et loader8c sont intégrés/revus dans leur périmètre. Préférences, scopes, sources canoniques et absence de réémission sont conservés dans les contrôles cités ; les limites des revues et de la matrice R01–R16 restent valables jusqu'à recette.
 
 Deux commits supplémentaires proposés par Claude sont différés : 5a93d9aba ajuste seulement le budget asynchrone de tests, inutile pour cette CI frontend déjà verte ; 3d0d629ec durcit une entrée de catalogue vide, sans reproduction contre les cinq libellés du bundle508 actuel (présents uniquement EN/FR, non vides, autres langues avec fallbackEN). Les accepter ultérieurement nécessite une preuve concrète ou un lot distinct, sans invalider cette recette par ajout opportuniste.
+
+
+## Passage en déploiement —31octobre17:42UTC
+
+CIcombinée41223827218SUCCESSsur508, front41223824108SUCCESS. RuntimeP0[41225410843](https://github.com/claude972/test-Crm/actions/runs/41225410843) lancéunefois, source508 confirmée, worker=true/same-origin-workspaces=true/isolated-mail-fixture=true/session90min. Le backend est en construction àcepoint, aucun déploiementVercelni URLactive/compteannoncé. Expirationabsolueattendue dansnouvelartefacttunnel, jamaisestiméeàpartirdel'heuredelancement. Pasnouvellemodificationapplicative.
