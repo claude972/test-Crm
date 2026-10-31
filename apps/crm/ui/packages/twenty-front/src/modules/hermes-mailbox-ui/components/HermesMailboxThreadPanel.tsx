@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
+import { type ReactNode } from 'react';
 import { IconCornerDownRight, IconShare, IconUsers } from 'kovaa-lab-ui/icon';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
@@ -86,6 +87,12 @@ type HermesMailboxThreadPanelProps = {
   onPlanAnswer: (kind: HermesMailboxComposeKind) => void;
   onResumeDraft: (draftId: string) => void;
   onCloseComposer: () => void;
+  // The bot on the open message. Rendered outside the editor, so taking a
+  // thread back from the bot never requires opening a reply first.
+  botModeSlot?: ReactNode;
+  // Handed to the editor, which gives it the one function able to fill the
+  // body. This module never calls a bot itself.
+  renderAssistantDraft?: (insertBody: (text: string) => void) => ReactNode;
   inlineImagesByMessageId?: Record<string, HermesMailboxInlineImage[]>;
   sendAvailability: HermesMailboxSendAvailability;
   sendState: HermesMailboxSendState;
@@ -107,6 +114,8 @@ export const HermesMailboxThreadPanel = ({
   onPlanAnswer,
   onResumeDraft,
   onCloseComposer,
+  botModeSlot,
+  renderAssistantDraft,
   inlineImagesByMessageId = {},
   sendAvailability,
   sendState,
@@ -195,6 +204,8 @@ export const HermesMailboxThreadPanel = ({
         </StyledMessages>
       )}
 
+      {botModeSlot}
+
       {/* A draft saved against this thread. Picking it up asks the server to
           plan it, which is what returns its saved recipients and text. */}
       {openThread.draft !== null && plannedEnvelope === null && !isPlanning && (
@@ -217,6 +228,18 @@ export const HermesMailboxThreadPanel = ({
         </StyledDraftBlock>
       )}
 
+      {/* An unsent draft nothing here can address. No resume is offered:
+          a button with no identity behind it would be a false affordance. */}
+      {openThread.draft === null && openThread.isDraftIdentityUnknown && (
+        <HermesMailboxNote role="status">
+          <Trans>
+            This draft was not saved from this browser, so its identity is
+            unknown here and it cannot be resumed. It is still on the
+            provider, and it was never sent.
+          </Trans>
+        </HermesMailboxNote>
+      )}
+
       {isPlanning && (
         <HermesMailboxNote role="status">
           <Trans>Preparing the answer on the server…</Trans>
@@ -236,6 +259,11 @@ export const HermesMailboxThreadPanel = ({
         <HermesMailboxComposer
           key={`${plannedEnvelope.threadId}:${plannedEnvelope.kind}`}
           envelope={plannedEnvelope}
+          // Only an answer has a message for the bot to answer. A message
+          // that answers nothing is written by its author alone.
+          renderAssistantDraft={
+            plannedEnvelope.kind === 'new' ? undefined : renderAssistantDraft
+          }
           sendAvailability={sendAvailability}
           sendState={sendState}
           draftSaveState={draftSaveState}

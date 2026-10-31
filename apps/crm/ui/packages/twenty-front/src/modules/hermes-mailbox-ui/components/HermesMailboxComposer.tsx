@@ -1,6 +1,6 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { IconDeviceFloppy, IconSend, IconX } from 'kovaa-lab-ui/icon';
 import { Button, Field, Input, Textarea } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
@@ -91,6 +91,10 @@ type HermesMailboxComposerProps = {
   sendState: HermesMailboxSendState;
   draftSaveState: HermesMailboxDraftSaveState;
   // Intentions, not actions. This module emits nothing and reaches no server.
+  // A slot above the body, given the one function that can fill the editor.
+  // Passing the setter rather than the text keeps insertion an explicit act:
+  // nothing can write into the message on arrival.
+  renderAssistantDraft?: (insertBody: (text: string) => void) => ReactNode;
   onRequestSend: (composition: HermesMailboxComposition) => void;
   onSaveDraft: (composition: HermesMailboxComposition) => void;
   onDiscard: () => void;
@@ -106,6 +110,7 @@ export const HermesMailboxComposer = ({
   sendAvailability,
   sendState,
   draftSaveState,
+  renderAssistantDraft,
   onRequestSend,
   onSaveDraft,
   onDiscard,
@@ -303,6 +308,11 @@ export const HermesMailboxComposer = ({
           disabled={isSendRequestInFlight}
         />
       </Field.Root>
+
+      {/* Rendered above the body, so a proposal is read before it replaces
+          anything. Inserting goes through setBody and nothing else: there is
+          no path from this slot to a send. */}
+      {renderAssistantDraft?.(setBody)}
 
       <Field.Root render={<StyledField />}>
         <Field.Label>{t`Message`}</Field.Label>

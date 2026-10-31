@@ -74,6 +74,7 @@ const thread = (
   subject: 'Devis chantier Nantes',
   messages: [],
   draft: null,
+  isDraftIdentityUnknown: false,
   ...overrides,
   participants: {
     from: address('Claire Morel <claire@client.example>'),

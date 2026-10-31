@@ -54,4 +54,8 @@ export type HermesMailboxThread = {
   participants: HermesMailboxParticipants;
   messages: HermesMailboxMessage[];
   draft: HermesMailboxSavedDraft | null;
+  // True when this is an unsent native draft for which no stable identity is
+  // known here, so it cannot be resumed. Said in words rather than offered as
+  // a button, because a resume without an identity cannot resume anything.
+  isDraftIdentityUnknown: boolean;
 };

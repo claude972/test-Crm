@@ -51,6 +51,9 @@ export type HermesMailboxRuntimeMessage = {
   // The canonical conversation the server hydrated for this message. Opaque,
   // kept as it arrived, and the scope every private attachment read needs.
   conversationId: string | null;
+  // The canonical message the server hydrated. Opaque, and the one a bot
+  // draft is asked against; null means no draft can be asked for.
+  messageId: string | null;
   uid: string;
   uidValidity: string | null;
   folder: string | null;
