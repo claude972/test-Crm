@@ -10,7 +10,6 @@ export { useHermesMailboxRuntimeAttachmentDownload } from '@/hermes-mailbox-runt
 export {
   useHermesMailboxRuntimeComposer,
   type HermesMailboxRuntimeComposer,
-  type HermesMailboxRuntimeSavedDraft,
 } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeComposer';
 export {
   useHermesMailboxRuntimeFolders,
