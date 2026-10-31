@@ -18,6 +18,7 @@ import { mailAddress } from 'src/engine/core-modules/hermes-mail/hermes-mail.pol
 import { HermesMailService } from 'src/engine/core-modules/hermes-mail/hermes-mail.service';
 import {
   type HermesMailComposeInput,
+  type HermesMailDraftIdentity,
   type HermesMailMessageInput,
   type HermesMailNewDraftInput,
   type HermesMailPageInput,
@@ -394,7 +395,15 @@ export class HermesMailboxService {
           () => this.alive(client),
           parsed.mimeSha256,
         );
+        const draft = await this.draftIdentity(
+          client,
+          item,
+          input,
+          parsed,
+          actor,
+        );
         return {
+          ...(draft ?? {}),
           conversationId: observed.conversationId,
           messageId: observed.messageId,
           providerConnectionId: observed.providerConnectionId,
@@ -427,6 +436,58 @@ export class HermesMailboxService {
         };
       }),
     );
+  }
+
+  // Publishes the stable identity of a Hermes draft so a resume can be driven
+  // from the server instead of a browser-local store. Returns nothing unless
+  // all three conditions hold, so an ordinary message never gains a draft
+  // identity and nothing is fabricated:
+  //
+  //  1. the Message-ID is exactly the one the save path mints for a draft;
+  //  2. the sender is a sendable handle of this account — the same identity
+  //     rule the save path enforces with MAIL_DRAFT_IDENTITY_CONFLICT, so a
+  //     foreign message carrying a forged Hermes draft Message-ID is never
+  //     published as this account's draft;
+  //  3. it actually sits in this account's special-use Drafts folder.
+  //
+  // The two free checks run first, so no extra IMAP round trip happens while
+  // reading an ordinary message. `draftRevision` is the same parsed-content
+  // signature the save path compares against, so a browser can hand it back
+  // and get MAIL_DRAFT_REVISION_CONFLICT instead of overwriting a newer draft.
+  private async draftIdentity(
+    client: ImapFlow,
+    item: NonNullable<Awaited<ReturnType<HermesMailService['connection']>>>,
+    input: HermesMailMessageInput,
+    parsed: Awaited<ReturnType<HermesMailboxService['source']>>,
+    actor: HermesMessagingActor,
+  ): Promise<HermesMailDraftIdentity | undefined> {
+    const match = /^<hermes-draft-([0-9a-fA-F-]{36})@hermes\.invalid>$/.exec(
+      parsed.messageId ?? '',
+    );
+    const draftId = match?.[1];
+
+    if (
+      !draftId ||
+      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+        draftId,
+      ) ||
+      !getSendableEmailHandles(item.account)
+        .map(mailAddress)
+        .includes(mailAddress(parsed.from?.address))
+    )
+      return undefined;
+
+    const drafts = (await client.list()).find(
+      (folder) =>
+        folder.specialUse === '\\Drafts' && !folder.flags.has('\\Noselect'),
+    );
+
+    if (!drafts || drafts.path !== input.folder) return undefined;
+    // A round trip happened above, so the caller's authorization is rechecked
+    // behind it before an identity is published.
+    await this.current(actor, client);
+
+    return { draftId, draftRevision: mailParsedContentSignature(parsed) };
   }
 
   async update(actor: HermesMessagingActor, input: HermesMailUpdateInput) {

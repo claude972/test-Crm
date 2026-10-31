@@ -136,3 +136,15 @@ export type HermesMailPage = {
   }[];
   nextCursor: string | null;
 };
+
+// Stable identity of a Hermes draft, published by hermesMailMessageV4 only
+// when the message sits in the special-use Drafts folder AND carries the
+// Message-ID the save path minted for that draft. Both values are opaque to
+// the browser: `draftId` is the identifier to resume, `draftRevision` the
+// content signature to hand back so a concurrent newer draft is refused with
+// MAIL_DRAFT_REVISION_CONFLICT rather than overwritten. Absent on any message
+// that is not a Hermes stable draft.
+export type HermesMailDraftIdentity = {
+  draftId: string;
+  draftRevision: string;
+};
