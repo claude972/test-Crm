@@ -2,7 +2,7 @@ import { type Request } from 'express';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { type APP_LOCALES, SOURCE_LOCALE } from 'kovaa-lab-shared/translations';
+import { type APP_LOCALES } from 'kovaa-lab-shared/translations';
 import { FileFolder, OpenRecordIn } from 'kovaa-lab-shared/types';
 import { assertIsDefinedOrThrow, isDefined } from 'kovaa-lab-shared/utils';
 import { IsNull, Not, type QueryRunner, type Repository } from 'typeorm';

@@ -4,7 +4,6 @@ import assert from 'assert';
 
 import { msg } from '@lingui/core/macro';
 import { isNonEmptyString } from '@sniptt/guards';
-import { SOURCE_LOCALE } from 'kovaa-lab-shared/translations';
 import { assertIsDefinedOrThrow, isDefined } from 'kovaa-lab-shared/utils';
 import {
   isWorkspaceProvisioned,
