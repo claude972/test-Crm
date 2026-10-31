@@ -58,6 +58,7 @@ const AUTH_EXTRAS = [
 // NODE_PATH=<shared node_modules> node <shared>/jest/bin/jest.js \
 //   --config jest.config.mjs --runInBand --runTestsByPath <specs>
 export const BACKEND_EXTRAS = [
+  "src/engine/core-modules/frontend/utils/__tests__/is-frontend-document-request.util.spec.ts",
   "src/engine/core-modules/emailing-domain/services/__tests__/shared-smtp-domain.service.spec.ts",
   "src/modules/emailing/services/__tests__/campaign-message-channel.service.spec.ts",
   "src/engine/core-modules/workspace/structure-dashboard/__tests__/structure-dashboard.service.spec.ts",
