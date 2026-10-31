@@ -57,7 +57,60 @@ const buildOpusFile = () =>
     type: 'audio/webm;codecs=opus',
   });
 
-const prepareMock = (size: number): MockedResponse => ({
+const SECOND_ASSET_ID = 'ace613e4-bf75-4a8c-d39e-e4a6c3d4e011';
+const SECOND_UPLOAD_URL =
+  '/rest/hermes/media/quarantine/ace613e4?token=short-lived';
+
+const imageFile = () =>
+  new File([new Uint8Array(4096)], 'devis.jpg', { type: 'image/jpeg' });
+
+const imagePrepareMock = (): MockedResponse => ({
+  request: {
+    query: HERMES_WA_PREPARE_MEDIA_UPLOAD,
+    variables: {
+      input: {
+        conversationId: CONVERSATION_ID,
+        kind: 'IMAGE',
+        filename: 'devis.jpg',
+        mimeType: 'image/jpeg',
+        size: 4096,
+      },
+    },
+  },
+  result: {
+    data: {
+      hermesPrepareMediaUpload: {
+        assetId: SECOND_ASSET_ID,
+        uploadUrl: SECOND_UPLOAD_URL,
+        contentType: 'image/jpeg',
+        expiresAt: '2026-10-31T09:01:00.000Z',
+      },
+    },
+  },
+});
+
+const imageFinalizeMock = (): MockedResponse => ({
+  request: {
+    query: HERMES_WA_FINALIZE_MEDIA_UPLOAD,
+    variables: {
+      input: { conversationId: CONVERSATION_ID, assetId: SECOND_ASSET_ID },
+    },
+  },
+  result: {
+    data: {
+      hermesFinalizeMediaUpload: {
+        id: SECOND_ASSET_ID,
+        kind: 'IMAGE',
+        filename: 'devis.jpg',
+        mimeType: 'image/jpeg',
+        size: 4096,
+        status: 'READY',
+      },
+    },
+  },
+});
+
+const prepareMock = (size: number, delay?: number): MockedResponse => ({
   request: {
     query: HERMES_WA_PREPARE_MEDIA_UPLOAD,
     variables: {
@@ -70,6 +123,7 @@ const prepareMock = (size: number): MockedResponse => ({
       },
     },
   },
+  ...(delay === undefined ? {} : { delay }),
   result: {
     data: {
       hermesPrepareMediaUpload: {
@@ -234,5 +288,160 @@ describe('HermesWaRuntimeComposer — the reply kind of an uploaded asset', () =
     expect(input.conversationId).toBe(CONVERSATION_ID);
     // A voice note carries no caption, as the contract requires.
     expect(input.text).toBe('');
+  });
+});
+
+// CATWA005, at the layer where the claim is made. The upload hook's own lock
+// made the hook internally consistent, but nothing bound the panel's displayed
+// file to the asset Send transmitted — so this is driven through the real
+// composer and its real preview panel, which is exactly why a passing hook
+// suite did not catch it.
+describe('HermesWaRuntimeComposer — displayed file versus transmitted asset', () => {
+  const stubOk = () => {
+    globalThis.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        blob: () => Promise.resolve(new Blob([])),
+      } as unknown as Response),
+    ) as unknown as typeof fetch;
+  };
+
+  it('does not offer Send when the prepared asset is not the file on screen', async () => {
+    const audio = buildOpusFile();
+
+    const { operationNames, variablesOf } = renderComposer([
+      // The audio prepare is slow, so a second file can be chosen while it is
+      // still in flight. This is root's reproduction, in order.
+      prepareMock(audio.size, 120),
+      finalizeMock(audio.size),
+      imagePrepareMock(),
+      imageFinalizeMock(),
+    ]);
+
+    stubOk();
+
+    const user = userEvent.setup({ applyAccept: false });
+    const input = screen.getByLabelText(/choose a file/i);
+
+    // A is chosen and its upload is started.
+    await user.upload(input, audio);
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+
+    // B is chosen while A is still uploading. The panel now shows B.
+    await user.upload(input, imageFile());
+
+    expect(screen.getByText(/devis\.jpg/)).toBeVisible();
+
+    // A finishes and becomes ready in the workspace.
+    await screen.findByText(/ready in the workspace/i);
+
+    // The mismatch is stated, and Send is simply not there.
+    expect(
+      await screen.findByText(/not the file now selected/i),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: /send the attachment/i }),
+    ).not.toBeInTheDocument();
+
+    // Nothing was transmitted at all, least of all A under B's preview.
+    expect(operationNames()).not.toContain('HermesWaReplyV3');
+    expect(variablesOf('HermesWaReplyV3')).toEqual([]);
+
+    // The prepared asset is still the operator's to revoke.
+    expect(
+      screen.getByRole('button', { name: /discard the draft attachment/i }),
+    ).toBeVisible();
+  });
+
+  it('sends the file on screen once that file is the one prepared', async () => {
+    const audio = buildOpusFile();
+
+    const { variablesOf } = renderComposer([
+      prepareMock(audio.size, 120),
+      finalizeMock(audio.size),
+      imagePrepareMock(),
+      imageFinalizeMock(),
+    ]);
+
+    stubOk();
+
+    const user = userEvent.setup({ applyAccept: false });
+    const input = screen.getByLabelText(/choose a file/i);
+
+    await user.upload(input, audio);
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+
+    const image = imageFile();
+
+    await user.upload(input, image);
+    await screen.findByText(/not the file now selected/i);
+
+    // The operator uploads what is actually on screen. Identities agree again.
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+
+    const sendButton = await screen.findByRole('button', {
+      name: /send the attachment/i,
+    });
+
+    expect(
+      screen.queryByText(/not the file now selected/i),
+    ).not.toBeInTheDocument();
+
+    await user.click(sendButton);
+
+    await waitFor(() => {
+      expect(variablesOf('HermesWaReplyV3')).toHaveLength(1);
+    });
+
+    const [variables] = variablesOf('HermesWaReplyV3');
+    const sent = (variables as { input: Record<string, unknown> }).input;
+
+    // The asset transmitted is the one built from the displayed file, and the
+    // superseded audio asset is nowhere near it.
+    expect(sent.assetId).toBe(SECOND_ASSET_ID);
+    expect(sent.assetId).not.toBe(ASSET_ID);
+    expect(sent.kind).toBe('IMAGE');
+  });
+
+  it('withdraws Send when the selection is cleared under a prepared asset', async () => {
+    const audio = buildOpusFile();
+
+    const { operationNames } = renderComposer([
+      prepareMock(audio.size),
+      finalizeMock(audio.size),
+    ]);
+
+    stubOk();
+
+    const user = userEvent.setup({ applyAccept: false });
+
+    await user.upload(screen.getByLabelText(/choose a file/i), audio);
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+
+    // With the file still on screen, Send is offered.
+    expect(
+      await screen.findByRole('button', { name: /send the attachment/i }),
+    ).toBeVisible();
+
+    // The operator clears the selection. There is now nothing on screen that
+    // the prepared asset corresponds to.
+    await user.click(screen.getAllByRole('button', { name: /^cancel$/i })[0]);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: /send the attachment/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    expect(operationNames()).not.toContain('HermesWaReplyV3');
   });
 });

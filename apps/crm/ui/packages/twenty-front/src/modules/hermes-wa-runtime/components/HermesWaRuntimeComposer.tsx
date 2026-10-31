@@ -107,11 +107,35 @@ export const HermesWaRuntimeComposer = ({
     });
   }, [conversationId, reply, text]);
 
+  // WHAT THE OPERATOR IS LOOKING AT, and WHAT WAS UPLOADED — held as the two
+  // source objects themselves, not as flags derived from them.
+  //
+  // The bug this closes: the upload hook's own lock made the hook internally
+  // consistent, but nothing tied the panel's displayed file to the asset Send
+  // transmitted. Pick A, upload it, pick B while A is in flight, and the panel
+  // showed B while Send carried A's asset id — the wrong bytes to a real
+  // customer under a selection the operator believed.
+  //
+  // So the identity is carried rather than the trust re-derived. These are the
+  // very objects the panels hand over, compared by reference.
+  const [displayedSource, setDisplayedSource] = useState<Blob | null>(null);
+  const [uploadedSource, setUploadedSource] = useState<Blob | null>(null);
+
+  // Every change of selection, including a clear. The upload is deliberately
+  // NOT reset here: an asset the server already prepared stays cancellable by
+  // a person, which is the only durable revocation there is. What changes is
+  // that Send is withdrawn below, because the identities no longer agree.
+  const handleFileSelected = useCallback((file: File | null) => {
+    setDisplayedSource(file);
+  }, []);
+
   // A file the operator chose. The library already refused anything the
   // documented limits rule out before this is reached; the upload hook checks
   // again, because the verdict and the request belong together.
   const submitFile = useCallback(
     (file: File) => {
+      setDisplayedSource(file);
+      setUploadedSource(file);
       upload.upload(conversationId, file, file.name);
     },
     [conversationId, upload],
@@ -126,6 +150,8 @@ export const HermesWaRuntimeComposer = ({
       // the parameters before prepare. The filename is this client's, since a
       // recording has none, and it carries no caption: a voice note has no
       // caption to carry.
+      setDisplayedSource(clip.blob);
+      setUploadedSource(clip.blob);
       upload.upload(conversationId, clip.blob, 'voice-note');
     },
     [conversationId, upload],
@@ -137,7 +163,17 @@ export const HermesWaRuntimeComposer = ({
   // recording whose native sniff said `video/webm` is AUDIO on the server:
   // reading the MIME instead would send it as a video, the server refuses
   // that, and the voice note never arrives.
-  const readyAsset = upload.state.kind === 'ready' ? upload.state : null;
+  const uploadedAsset = upload.state.kind === 'ready' ? upload.state : null;
+
+  // The one gate. A ready asset is sendable only while the thing on screen is
+  // the thing it was built from, so "displayed B, sendable A" is not a state
+  // this component can be in.
+  const isAssetForDisplayedSource =
+    uploadedAsset !== null &&
+    uploadedSource !== null &&
+    uploadedSource === displayedSource;
+
+  const readyAsset = isAssetForDisplayedSource ? uploadedAsset : null;
 
   const sendAsset = useCallback(() => {
     if (readyAsset === null) {
@@ -327,6 +363,9 @@ export const HermesWaRuntimeComposer = ({
           limits={HERMES_WA_DOCUMENTED_MEDIA_LIMITS}
           sendCapability={mediaCapability}
           onSubmitRequested={submitFile}
+          // Every change of selection is reported, so the identity gate above
+          // knows what the panel is actually showing.
+          onFileSelected={handleFileSelected}
         />
       </StyledSection>
 
@@ -381,24 +420,39 @@ export const HermesWaRuntimeComposer = ({
         </StyledSection>
       )}
 
-      {readyAsset !== null && (
+      {/* The section follows the asset the server prepared, so it can still be
+          discarded. The SEND button follows the identity gate, so it exists
+          only while the prepared asset is the thing on screen. */}
+      {uploadedAsset !== null && (
         <StyledSection>
           <HermesWaNote>
             <Trans>
               The attachment is ready in the workspace and has not been sent.
             </Trans>
           </HermesWaNote>
+
+          {!isAssetForDisplayedSource && (
+            <HermesWaAlertNote role="alert">
+              {/* Said rather than silently disabled: the operator chose
+                  something else after this one was prepared, so sending it now
+                  would send bytes they are no longer looking at. */}
+              {t`This prepared attachment is not the file now selected, so it cannot be sent. Press "Send this attachment" to upload the selected file, or discard this one.`}
+            </HermesWaAlertNote>
+          )}
+
           <StyledActions>
-            <Button
-              variant="solid"
-              color="accent"
-              size="sm"
-              startIcon={<IconSend />}
-              disabled={sendCapability.kind !== 'available' || isSending}
-              onClick={sendAsset}
-            >
-              {t`Send the attachment`}
-            </Button>
+            {readyAsset !== null && (
+              <Button
+                variant="solid"
+                color="accent"
+                size="sm"
+                startIcon={<IconSend />}
+                disabled={sendCapability.kind !== 'available' || isSending}
+                onClick={sendAsset}
+              >
+                {t`Send the attachment`}
+              </Button>
+            )}
             {upload.cancel !== null && (
               <Button variant="outline" size="sm" onClick={upload.cancel}>
                 {t`Discard the draft attachment`}
