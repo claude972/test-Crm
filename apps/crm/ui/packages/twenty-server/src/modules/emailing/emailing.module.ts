@@ -48,6 +48,7 @@ import { ThrottlerModule } from 'src/engine/core-modules/throttler/throttler.mod
 import { EmailBillingService } from 'src/modules/emailing/services/email-billing.service';
 import { EmailingDomainSenderService } from 'src/modules/emailing/services/emailing-domain-sender.service';
 import { MessageCampaignDraftService } from 'src/modules/emailing/services/message-campaign-draft.service';
+import { MessageCampaignRecipientPreviewService } from 'src/modules/emailing/services/message-campaign-recipient-preview.service';
 import { MessageCampaignRecoveryService } from 'src/modules/emailing/services/message-campaign-recovery.service';
 import { MessageCampaignStatisticsService } from 'src/modules/emailing/services/message-campaign-statistics.service';
 import { MessageCampaignAudienceService } from 'src/modules/emailing/services/message-campaign-audience.service';
@@ -107,6 +108,7 @@ import { SaveCampaignTool } from 'src/modules/emailing/tools/save-campaign-tool'
     MessageCampaignLifecycleService,
     MessageCampaignMaterializationService,
     MessageCampaignDraftService,
+    MessageCampaignRecipientPreviewService,
     MessageCampaignRecoveryService,
     MessageCampaignStatisticsService,
     MessageSuppressionService,

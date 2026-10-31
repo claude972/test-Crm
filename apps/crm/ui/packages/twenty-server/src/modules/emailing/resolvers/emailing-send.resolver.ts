@@ -12,7 +12,9 @@ import { CancelMessageCampaignInput } from 'src/engine/core-modules/emailing-dom
 import { CancelMessageCampaignOutputDTO } from 'src/engine/core-modules/emailing-domain/dtos/cancel-message-campaign-output.dto';
 import { EmailGroupAccessGraphqlApiExceptionFilter } from 'src/engine/core-modules/emailing-domain/filters/email-group-access-graphql-api-exception.filter';
 import { EmailingDomainGraphqlApiExceptionFilter } from 'src/engine/core-modules/emailing-domain/filters/emailing-domain-graphql-api-exception.filter';
+import { MessageCampaignRecipientPreviewDTO } from 'src/engine/core-modules/emailing-domain/dtos/message-campaign-recipient-preview-output.dto';
 import { PreviewMessageCampaignAudienceInput } from 'src/engine/core-modules/emailing-domain/dtos/preview-message-campaign-audience.input';
+import { PreviewMessageCampaignRecipientInput } from 'src/engine/core-modules/emailing-domain/dtos/preview-message-campaign-recipient.input';
 import { PreviewMessageCampaignSendInput } from 'src/engine/core-modules/emailing-domain/dtos/preview-message-campaign-send.input';
 import { PreviewMessageCampaignSendOutputDTO } from 'src/engine/core-modules/emailing-domain/dtos/preview-message-campaign-send-output.dto';
 import { SendEmailViaDomainOutputDTO } from 'src/engine/core-modules/emailing-domain/dtos/send-email-via-domain-output.dto';
@@ -37,6 +39,7 @@ import { AuthPrincipalGuard } from 'src/engine/guards/auth-principal.guard';
 import { ThrottlerGraphqlApiExceptionFilter } from 'src/engine/core-modules/throttler/filters/throttler-graphql-api-exception.filter';
 import { EmailBillingService } from 'src/modules/emailing/services/email-billing.service';
 import { MessageCampaignAudienceService } from 'src/modules/emailing/services/message-campaign-audience.service';
+import { MessageCampaignRecipientPreviewService } from 'src/modules/emailing/services/message-campaign-recipient-preview.service';
 import { MessageCampaignLifecycleService } from 'src/modules/emailing/services/message-campaign-lifecycle.service';
 import { MessageCampaignScheduleService } from 'src/modules/emailing/services/message-campaign-schedule.service';
 import { MessageCampaignService } from 'src/modules/emailing/services/message-campaign.service';
@@ -74,6 +77,7 @@ export class EmailingSendResolver {
     private readonly messageCampaignService: MessageCampaignService,
     private readonly messageCampaignScheduleService: MessageCampaignScheduleService,
     private readonly messageCampaignAudienceService: MessageCampaignAudienceService,
+    private readonly messageCampaignRecipientPreviewService: MessageCampaignRecipientPreviewService,
     private readonly messageCampaignLifecycleService: MessageCampaignLifecycleService,
     private readonly emailGroupAccessService: EmailGroupAccessService,
     private readonly emailBillingService: EmailBillingService,
@@ -215,6 +219,40 @@ export class EmailingSendResolver {
       campaignId: input.campaignId,
       scheduledAt: input.scheduledAt,
       locale: context.req.locale,
+    });
+  }
+
+  // Renders one recipient's message exactly as the send path would compose it,
+  // and emits nothing: no transport, no staged message, no ledger row, no
+  // quota. Variable substitution lives on the server, so a client-side render
+  // would misstate what is actually sent.
+  @Query(() => MessageCampaignRecipientPreviewDTO)
+  @UseGuards(
+    AuthPrincipalGuard({
+      userSession: {
+        standard: true,
+        impersonated: true,
+        playground: false,
+        workspaceAgnostic: false,
+      },
+      apiKey: false,
+      oauthClient: false,
+      application: false,
+    }),
+    FeatureFlagGuard(FeatureFlagKey.IS_MESSAGE_CAMPAIGN_ENABLED),
+  )
+  async previewMessageCampaignRecipient(
+    @Args('input') input: PreviewMessageCampaignRecipientInput,
+    @AuthWorkspace() currentWorkspace: WorkspaceEntity,
+    @AuthUserWorkspaceId() userWorkspaceId: string,
+  ): Promise<MessageCampaignRecipientPreviewDTO> {
+    this.emailGroupAccessService.validateEmailGroupAccessOrThrow();
+
+    return this.messageCampaignRecipientPreviewService.previewRecipient({
+      workspaceId: currentWorkspace.id,
+      userWorkspaceId,
+      campaignId: input.campaignId,
+      ...(isDefined(input.personId) && { personId: input.personId }),
     });
   }
 
