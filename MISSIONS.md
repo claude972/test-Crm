@@ -687,3 +687,12 @@ Root possède intégration/QA/hosting et coordination ; agent coordination seul 
 - Rapport public sans identifiant ni clé : docs/verification/hermes-v4-final-41158391678.md. Accès et compte remis dans le chat uniquement. Partage expire30octobre23:39:06Martinique, API23:41:05.
 - Restent non configurés et non validés avec fournisseur : Evolution/WA et médias, SMTP/IMAP et envoi campagne réel, MCP Hermès, collectes externes, Forms/agenda. Installation PWA/offline non testés ; préférence française garantie pour les deux comptes de recette seulement. Aucun envoi réel.
 - Source figée pour la recette, pas de nouvelle mutation de test ni relance de session, pas de production/nouveau service payant. Checkout original et sauvegardes préservés.
+
+
+### HERMES-COMPLETE-JOURNEYS-20261031 — réouverture fonctionnelle
+
+- Objectif : terminer les demandes historiques, au-delà des builds verts et de la preview V4 ; voir docs/handoff/hermes-complete-journeys-20261031.md, critères CJ-01 à CJ-06. Les manques sont reconnus, aucune nouvelle autorisation du propriétaire requise.
+- Base c12718d1ce47a59ecf6a74d88e305f816e435645 ; intégration feat/hermes-complete-journeys, worktree /private/tmp/hermes-complete-journeys. Parent Claude8f3db32e ; six lots disjoints et branches explicites dans le contrat. Agents existants à réutiliser après ACK, pas de duplication.
+- agent: claude ; status: pending — dispatch réel à suivre ; propriétaire de tout code selon dernière consigne utilisateur, parent assemble et délègue aux seuls agents Claude.
+- agent: codex ; status: in_progress — supervision, revue source, coordination et recette indépendante ; aucun nouvel agent Codex ni édition applicative Codex.
+- Preview V4 ne constitue pas la livraison fonctionnelle complète. Accès Safari signalé bloqué et non résolu ; conserve statut ouvert malgré succès curl/IAB. Plus aucune annonce prêt/global avant critères métier exécutés.
