@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import tls from 'node:tls';
-import { IMAGE, PORTS, assertInternalAddress, createLoopbackForwarder, dockerArguments, fixturePlan, generateFixtureCertificates, main, privateDirectory, runtimeEnvironment } from './preview-mail-fixture-p0.mjs';
+import { IMAGE, PORTS, matchesForwardProcess, assertInternalAddress, createLoopbackForwarder, dockerArguments, fixturePlan, generateFixtureCertificates, main, privateDirectory, runtimeEnvironment } from './preview-mail-fixture-p0.mjs';
 
 const now = Date.parse('2026-10-31T16:00:00Z');
 const env = (extra = {}) => ({ P0_PREVIEW_MAIL_FIXTURE: 'true', GITHUB_RUN_ID: '123456', GITHUB_RUN_ATTEMPT: '2',
@@ -136,4 +136,14 @@ test('forwarders accept only private fixed IPv4 targets and two TLS ports', asyn
   await new Promise((resolve) => forwarder.server.listen(0, '127.0.0.1', resolve));
   assert.equal(forwarder.server.address().address, '127.0.0.1');
   await new Promise((resolve) => forwarder.server.close(resolve));
+});
+
+test('cleanup identity refuses reused PIDs or another command/session', () => {
+  const state = { ...plan, forwardBirth: '1234' };
+  const script = new URL('./preview-mail-fixture-p0.mjs', import.meta.url).pathname;
+  const command = `node\0${script}\0forward\0${plan.id}\0`;
+  assert.equal(matchesForwardProcess(state, command, '1234'), true);
+  assert.equal(matchesForwardProcess(state, command, '5678'), false);
+  assert.equal(matchesForwardProcess(state, command.replace('forward', 'parameters'), '1234'), false);
+  assert.equal(matchesForwardProcess(state, command.replace(plan.id, '999-1'), '1234'), false);
 });

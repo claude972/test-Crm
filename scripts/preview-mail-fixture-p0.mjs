@@ -106,15 +106,16 @@ async function startForwarding(plan, directory, env) {
   // that isolation; the runner forwards two loopback sockets to one fixed IP.
   const container = JSON.parse(command('docker', ['inspect', plan.name]).toString())[0];
   const target = assertInternalAddress(container.NetworkSettings.Networks[plan.network].IPAddress);
+  assert.equal(Object.keys(container.NetworkSettings.Networks).length, 1, 'Fixture must join its internal network only');
   const state = { ...plan, target };
   writeFileSync(path.join(directory, 'state.json'), JSON.stringify(state), { mode: 0o600 });
-  const child = spawn(process.execPath, [fileURLToPath(import.meta.url), 'forward'], {
+  const child = spawn(process.execPath, [fileURLToPath(import.meta.url), 'forward', plan.id], {
     env: { PATH: env.PATH, RUNNER_TEMP: env.RUNNER_TEMP, GITHUB_ACTIONS: 'true', GITHUB_WORKSPACE: env.GITHUB_WORKSPACE },
     detached: true, stdio: 'ignore',
   });
   await new Promise((resolve, reject) => { child.once('spawn', resolve); child.once('error', reject); });
   child.unref();
-  writeFileSync(path.join(directory, 'state.json'), JSON.stringify({ ...state, forwardPid: child.pid }), { mode: 0o600 });
+  writeFileSync(path.join(directory, 'state.json'), JSON.stringify({ ...state, forwardPid: child.pid, forwardBirth: readFileSync(`/proc/${child.pid}/stat`, 'utf8').split(') ')[1].split(' ')[19] }), { mode: 0o600 });
   const deadline = Math.min(Date.now() + 5000, Date.parse(plan.expiresAt));
   while (!existsSync(path.join(directory, 'forward-ready.json')) && Date.now() < deadline) {
     process.kill(child.pid, 0);
@@ -139,10 +140,15 @@ export function createLoopbackForwarder(target, port) {
   });
   return { server, stop: () => { for (const socket of sockets) socket.destroy(); server.close(); } };
 }
-async function forward(env) {
+export function matchesForwardProcess(plan, cmdline, birth) {
+  const args = cmdline.split('\0').filter(Boolean);
+  return args.length === 4 && args[1] === fileURLToPath(import.meta.url) && args[2] === 'forward' && args[3] === plan.id && birth === plan.forwardBirth;
+}
+async function forward(env, identity) {
   assert.equal(env.GITHUB_ACTIONS, 'true');
   const directory = privateDirectory(env);
   const plan = JSON.parse(readFileSync(path.join(directory, 'state.json'), 'utf8'));
+  assert.equal(identity, plan.id);
   const remaining = Date.parse(plan.expiresAt) - Date.now();
   assert.ok(remaining > 0 && remaining <= 90 * 60_000);
   const forwarders = Object.values(PORTS).map((port) => createLoopbackForwarder(plan.target, port));
@@ -238,7 +244,12 @@ async function cleanup(env) {
     () => {
       if (!plan.forwardPid) return;
       assert.ok(Number.isInteger(plan.forwardPid) && plan.forwardPid > 1);
-      try { process.kill(-plan.forwardPid, 'SIGTERM'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+      try {
+        const base = `/proc/${plan.forwardPid}`;
+        const birth = readFileSync(`${base}/stat`, 'utf8').split(') ')[1].split(' ')[19];
+        assert.ok(matchesForwardProcess(plan, readFileSync(`${base}/cmdline`, 'utf8'), birth), 'Refusing to kill a reused PID');
+        process.kill(-plan.forwardPid, 'SIGTERM');
+      } catch (error) { if (!['ESRCH', 'ENOENT'].includes(error.code)) throw error; }
     },
     () => command('docker', ['rm', '--force', plan.name]),
     () => command('docker', ['network', 'rm', plan.network]),
@@ -249,7 +260,7 @@ async function cleanup(env) {
 }
 export async function main(env, action) {
   if (action === 'start') return start(env);
-  if (action === 'forward') return forward(env);
+  if (action === 'forward') return forward(env, process.argv[3]);
   if (action === 'cleanup') return cleanup(env);
   if (action === 'parameters') {
     // Owner derives the same ephemeral credentials locally from the existing origin

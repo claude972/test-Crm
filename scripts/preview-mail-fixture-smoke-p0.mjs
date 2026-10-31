@@ -1,7 +1,9 @@
 // Provider-only runner smoke: real TLS/SMTP/IMAP, no CRM and no outside recipients.
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import net from 'node:net';
 import path from 'node:path';
 import tls from 'node:tls';
 import { fixturePlan, privateDirectory, PORTS } from './preview-mail-fixture-p0.mjs';
@@ -94,4 +96,23 @@ async function smoke() {
   } finally { imap.close(); }
   console.info('Isolated fixture: authenticated IMAPS read the captured MIME; CA/SAN validated on both protocols');
 }
-smoke().catch(() => { console.error('Isolated fixture SMTP/IMAP smoke failed; protocol details withheld to protect credentials'); process.exitCode = 1; });
+async function verifyCleanup() {
+  assert.equal(process.env.GITHUB_ACTIONS, 'true');
+  const plan = fixturePlan(process.env);
+  assert.ok(plan);
+  assert.equal(existsSync(privateDirectory(process.env)), false, 'Private fixture directory must be gone');
+  assert.ok(!readFileSync('/etc/hosts', 'utf8').includes(`# hermes-isolated-mail-${plan.id}`));
+  for (const args of [['inspect', plan.name], ['network', 'inspect', plan.network]]) {
+    assert.throws(() => execFileSync('docker', args, { stdio: 'pipe', timeout: 5000 }), 'Fixture Docker resources must be gone');
+  }
+  for (const port of Object.values(PORTS)) {
+    await new Promise((resolve, reject) => {
+      const socket = net.connect({ host: '127.0.0.1', port });
+      socket.setTimeout(2000, () => { socket.destroy(); reject(new Error('Cleanup probe timed out')); });
+      socket.once('connect', () => { socket.destroy(); reject(new Error('Fixture loopback forwarding survived cleanup')); });
+      socket.once('error', (error) => error.code === 'ECONNREFUSED' ? resolve() : reject(error));
+    });
+  }
+  console.info('Isolated fixture cleanup verified: no forwarders, Docker resources, host mapping or private files remain');
+}
+(process.argv[2] === 'after-cleanup' ? verifyCleanup() : smoke()).catch(() => { console.error('Isolated fixture SMTP/IMAP smoke failed; protocol details withheld to protect credentials'); process.exitCode = 1; });

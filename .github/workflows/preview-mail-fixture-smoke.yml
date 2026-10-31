@@ -40,3 +40,6 @@ jobs:
       - name: Always remove provider, network, host mapping and private files
         if: ${{ always() }}
         run: node scripts/preview-mail-fixture-p0.mjs cleanup
+      - name: Prove loopback forwarders and private resources are gone
+        if: ${{ always() && env.P0_PREVIEW_MAIL_FIXTURE == 'true' }}
+        run: node scripts/preview-mail-fixture-smoke-p0.mjs after-cleanup
