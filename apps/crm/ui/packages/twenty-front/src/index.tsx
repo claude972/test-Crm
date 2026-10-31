@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from '@/app/components/App';
 import '@/app/utils/setupMonacoEnvironment';
 import { hydrateMetadataStore } from '@/metadata-store/storage/metadataStoreStorage';
+import { registerHermesServiceWorker } from '@/hermes-pwa/utils/registerHermesServiceWorker';
 import '@fontsource/dm-mono/400.css';
 import '@fontsource/dm-mono/500.css';
 import '@fontsource/inter/400.css';
@@ -22,4 +23,10 @@ const renderApp = () => {
   root.render(<App />);
 };
 
-hydrateMetadataStore().then(renderApp, renderApp);
+// Registered after the app is on screen, so a worker failure can never
+// delay or block the first render. It no-ops in development.
+hydrateMetadataStore()
+  .then(renderApp, renderApp)
+  .finally(() => {
+    void registerHermesServiceWorker();
+  });
