@@ -2082,7 +2082,7 @@ Build41236390900 source66f FAILURE après compilation SDK/backend/frontend : hoo
 Configuration durable créée exclusivement dans coffre privé0700 ~/.codex/private-preview/kovaalabcrm-staging, trois fichiers0600 avec nouvelles clefs stables, aucun secret affiché/committé/transmis au VPS. Garder ces clefs pour redémarrages/restauration. TRUST_PROXY limité au Caddy inventorié, à revalider avec ingress exact. Aucun changement distant. Preview601 a atteint son TTL16:07MT ; ne plus annoncer ce lien comme actif. Les captures/rapports restent preuves historiques, pas hébergement durable.
 
 
-### Image construite, contrôle SDK corrigé —31octobre20:27UTC
+### Image construite, contrôle SDK corrigé —31octobre20:24UTC
 
 CI41237312228sur5001 : BUILDimageSUCCESS, imageIdsha256:8a02199800671d72d2351fadbffa41da1573557bb831630cafd1529e4ccba316. SmokeFAIL avant services : le contrôle demandait require.resolve du nom racine clientSDK, alors que le vrai package expose uniquement core/metadata/rest/generate. Preuve artifact13056506150 : exactImage=true,cleanup=true,success=false. Aucun PG/worker/persistence encore validé par ce run.
 
