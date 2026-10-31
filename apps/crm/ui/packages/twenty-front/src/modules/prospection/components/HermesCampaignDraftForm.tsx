@@ -1,11 +1,14 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { isNonEmptyString } from '@sniptt/guards';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { Tag } from 'kovaa-lab-ui/primitives/data-display';
 import { Button, Field, Input } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import { HERMES_CAMPAIGN_RUNTIME_PATH } from '@/hermes-shell/constants/HermesRuntimeRoutePaths';
 import { HermesCallFailureNote } from '@/prospection/components/HermesCallFailureNote';
 import { HermesIssueList } from '@/prospection/components/HermesIssueList';
 import { HermesPayloadProblemNote } from '@/prospection/components/HermesPayloadProblemNote';
@@ -18,6 +21,23 @@ import { validateHermesCampaignDraftInput } from '@/prospection/utils/validateHe
 const StyledForm = styled.form`
   display: grid;
   gap: ${themeCssVariables.spacing[3]};
+`;
+
+const StyledEditorLink = styled(Link)`
+  color: ${themeCssVariables.font.color.secondary};
+  font-size: ${themeCssVariables.font.size.sm};
+  text-decoration: none;
+  width: fit-content;
+
+  &:hover {
+    color: ${themeCssVariables.font.color.primary};
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 1px solid ${themeCssVariables.border.color.strong};
+    outline-offset: ${themeCssVariables.spacing[0.5]};
+  }
 `;
 
 const StyledFields = styled.div`
@@ -172,6 +192,26 @@ export const HermesCampaignDraftForm = ({
                 editor.
               </Trans>
             </ProspectionNote>
+
+            {/* Without this the screen named the editor and offered no way in.
+                The link appears only with an identifier the server returned. */}
+            {isNonEmptyString(outcome.result.campaignId) ? (
+              <StyledEditorLink
+                to={HERMES_CAMPAIGN_RUNTIME_PATH.replace(
+                  ':campaignId',
+                  outcome.result.campaignId,
+                )}
+              >
+                {t`Open the campaign editor`}
+              </StyledEditorLink>
+            ) : (
+              <ProspectionNote>
+                <Trans>
+                  The answer carried no campaign identifier, so this screen
+                  cannot open the editor for it. Find it in the campaign list.
+                </Trans>
+              </ProspectionNote>
+            )}
           </StyledOutcome>
         )}
 
