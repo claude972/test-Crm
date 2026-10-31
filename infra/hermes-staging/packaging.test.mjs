@@ -138,3 +138,18 @@ test('real tracked SDK/CLI build source survives context filtering while outputs
     assert.ok(regression.stdout.split('\0').includes('apps/crm/ui/packages/twenty-sdk/src/front-component-renderer/build/index.ts'), 'Original broad exclusion must reproduce the lost source');
   } finally { rmSync(temporary, { recursive: true }); }
 });
+
+test('production prune checks native constraints before removing their development-only loader', () => {
+  const build = source('build.mjs');
+  assert.match(build, /command\(\[yarn, 'install', '--immutable'\]\);/);
+  const constraints = build.indexOf("command([yarn, 'constraints']);");
+  const focus = build.indexOf("command([yarn, 'workspaces', 'focus', '--production'");
+  assert.ok(constraints > build.indexOf("writeFileSync(path.join(server, 'dist/front/KOVAALABCRM_SOURCE.txt')") && focus > constraints);
+  assert.equal((build.match(/YARN_ENABLE_CONSTRAINTS_CHECKS/g) ?? []).length, 1);
+  assert.match(build.slice(focus), /\], root, \{ YARN_ENABLE_CONSTRAINTS_CHECKS: 'false' \}\);/);
+  assert.doesNotMatch(source('Dockerfile'), /YARN_ENABLE_CONSTRAINTS_CHECKS/);
+  assert.match(readFileSync(new URL('../../apps/crm/ui/.yarnrc.yml', import.meta.url), 'utf8'), /enableConstraintsChecks: true/);
+  const nativeHook = readFileSync(new URL('../../apps/crm/ui/yarn.config.cjs', import.meta.url), 'utf8');
+  assert.match(nativeHook, /require\('@yarnpkg\/types'\)/);
+  assert.match(nativeHook, /semver.satisfies\(currentNodeVersion, requiredNodeVersion\)/);
+});
