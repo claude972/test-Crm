@@ -90,3 +90,8 @@ Sur le checkpoint Claudec69a4d733, root a exécuté les trois suites natives UI 
 ## Reprise effective07:50–07:51UTC
 
 Après vérification de l'heure et inventaire officiel (même PID21548/session8f3db32e), root a envoyé UNE reprise au PTY2418 existant à07:50:10UTC, sans nouveau parent ni achat. Inventaire ensuite busy/working ; journal assistant montre de vrais appels Bash à07:50:30 fetch/lecture du handoff,07:50:49 fetch des quatre branches et07:51:02 inspection du conflit du ContentSection. Le quota n'empêche donc plus ces actions. Pas encore de nouvelle livraison ou ACK de tous les enfants prouvé. Automation existante mise à jour pour éviter une reprise doublon, même cible/fréquence/échéance12UTC, consignes de silence et arrêt préservées. Tous les critères non recettés demeurent ouverts.
+
+
+## Checkpoint08:07UTC
+
+Parent actif, ACK et sept relances enfants réels. Assemblagec5354f29d (quatre sources +harnais8489e4eb1 +prop test), revue et tests root15PASS/2suites et harnais6PASS, diagnostics conservés (voir CORRECTIONS). Nouveaux checkpoints5513687f4 onboarding et a0fa3dc3a campagnes **ne ferment pas** CJ-SETUP001/002 ni CJ-CAMPAIGN010/011 : relecture détaillée et suivi parent transmis ; corrections demandées au seul auteur propriétaire. Root QA maintenant détaché c5354f29d. Aucun nouveau runtime/preview ni recette navigateur CRM.
