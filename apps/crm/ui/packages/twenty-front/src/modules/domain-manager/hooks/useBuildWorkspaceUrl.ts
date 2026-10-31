@@ -1,6 +1,9 @@
 import { isDefined } from 'kovaa-lab-shared/utils';
+import { useCallback } from 'react';
 export const useBuildWorkspaceUrl = () => {
-  const buildWorkspaceUrl = (
+  // Memoized: a pure function of its arguments, so a new identity every render
+  // only churned the callbacks and effects that depend on it.
+  const buildWorkspaceUrl = useCallback((
     endpoint: string,
     pathname?: string,
     searchParams?: Record<string, string | boolean>,
@@ -17,7 +20,7 @@ export const useBuildWorkspaceUrl = () => {
       );
     }
     return url.toString();
-  };
+  }, []);
 
   return {
     buildWorkspaceUrl,

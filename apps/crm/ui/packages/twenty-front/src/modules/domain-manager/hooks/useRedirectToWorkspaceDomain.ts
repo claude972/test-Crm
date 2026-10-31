@@ -5,6 +5,7 @@ import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUr
 import { useOrigin } from '@/domain-manager/hooks/useOrigin';
 import { useRedirect } from '@/domain-manager/hooks/useRedirect';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { useCallback } from 'react';
 
 // A same-origin deployment has exactly one host, so the only legitimate
 // destination is the origin this page is already on. Comparing against the
@@ -32,31 +33,43 @@ export const useRedirectToWorkspaceDomain = () => {
   const { buildSearchParamsFromUrlSyncedStates } =
     useBuildSearchParamsFromUrlSyncedStates();
 
-  const redirectToWorkspaceDomain = async (
-    baseUrl: string,
-    pathname?: string,
-    searchParams?: Record<string, string | boolean>,
-    target?: string,
-  ) => {
-    if (!isMultiWorkspaceEnabled) {
-      // Without either multi-workspace mode there is no second domain and no
-      // workspace routing to perform: staying put is the existing behaviour of
-      // the single-domain configuration and is left untouched.
-      if (!isSameOriginMultiWorkspaceEnabled) return;
-      // With the same-origin opt-in the navigation is legitimate, but only to
-      // this very origin. A cross-host target under this configuration is a
-      // caller passing a domain that cannot serve this session, so it is
-      // refused instead of followed.
-      if (!isOnCapturedOrigin(baseUrl, origin)) return;
-    }
-    redirect(
-      buildWorkspaceUrl(baseUrl, pathname, {
-        ...searchParams,
-        ...(await buildSearchParamsFromUrlSyncedStates()),
-      }),
-      target,
-    );
-  };
+  // Memoized: consumers list this in dependency arrays, and a fresh identity
+  // every render re-ran their effects. Every dependency below is stable.
+  const redirectToWorkspaceDomain = useCallback(
+    async (
+      baseUrl: string,
+      pathname?: string,
+      searchParams?: Record<string, string | boolean>,
+      target?: string,
+    ) => {
+      if (!isMultiWorkspaceEnabled) {
+        // Without either multi-workspace mode there is no second domain and no
+        // workspace routing to perform: staying put is the existing behaviour of
+        // the single-domain configuration and is left untouched.
+        if (!isSameOriginMultiWorkspaceEnabled) return;
+        // With the same-origin opt-in the navigation is legitimate, but only to
+        // this very origin. A cross-host target under this configuration is a
+        // caller passing a domain that cannot serve this session, so it is
+        // refused instead of followed.
+        if (!isOnCapturedOrigin(baseUrl, origin)) return;
+      }
+      redirect(
+        buildWorkspaceUrl(baseUrl, pathname, {
+          ...searchParams,
+          ...(await buildSearchParamsFromUrlSyncedStates()),
+        }),
+        target,
+      );
+    },
+    [
+      isMultiWorkspaceEnabled,
+      isSameOriginMultiWorkspaceEnabled,
+      origin,
+      buildWorkspaceUrl,
+      redirect,
+      buildSearchParamsFromUrlSyncedStates,
+    ],
+  );
 
   return {
     redirectToWorkspaceDomain,
