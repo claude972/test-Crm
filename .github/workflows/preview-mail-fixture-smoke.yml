@@ -1,7 +1,7 @@
 name: Isolated preview mail fixture smoke
 on:
   push:
-    branches: ['fix/hermes-preview-fixture-20261031']
+    branches: ['fix/hermes-preview-fixture-20261031', 'fix/hermes-mailbox-source-20261031']
     paths:
       - 'scripts/preview-mail-fixture*.mjs'
       - '.github/workflows/preview-mail-fixture-smoke.yml'
