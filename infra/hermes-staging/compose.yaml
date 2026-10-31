@@ -1,0 +1,130 @@
+name: kovaalabcrm-staging
+
+x-application: &application
+  image: ${KOVAALABCRM_STAGING_IMAGE:?Set the verified staging image reference}
+  pull_policy: never
+  env_file:
+    - path: ${KOVAALABCRM_STAGING_RUNTIME_ENV_FILE:?Set the private runtime env file}
+      format: raw
+  environment: &application-environment
+    NODE_ENV: production
+    NODE_HOST: 0.0.0.0
+    NODE_PORT: '3000'
+    DISABLE_DB_MIGRATIONS: 'true'
+    DISABLE_CRON_JOBS_REGISTRATION: 'true'
+    STORAGE_TYPE: local
+    STORAGE_LOCAL_PATH: /app/packages/twenty-server/.local-storage
+    SIGN_IN_PREFILLED: 'false'
+    IS_CONFIG_VARIABLES_IN_DB_ENABLED: 'false'
+    OUTBOUND_HTTP_SAFE_MODE_ENABLED: 'true'
+    IMAP_SMTP_ALLOW_SELF_SIGNED: 'false'
+  volumes:
+    - storage:/app/packages/twenty-server/.local-storage
+  networks: [data, edge]
+  read_only: true
+  tmpfs: ['/tmp:size=512m,mode=1777']
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  init: true
+  stop_grace_period: 30s
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: '3'}
+
+services:
+  migrate:
+    <<: *application
+    command: [migrate]
+    environment:
+      NODE_ENV: production
+      NODE_HOST: 0.0.0.0
+      NODE_PORT: '3000'
+      DISABLE_DB_MIGRATIONS: 'true'
+      DISABLE_CRON_JOBS_REGISTRATION: 'true'
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_PATH: /app/packages/twenty-server/.local-storage
+      KOVAALABCRM_ALLOW_STAGING_MIGRATIONS: 'true'
+      SIGN_IN_PREFILLED: 'false'
+      IS_CONFIG_VARIABLES_IN_DB_ENABLED: 'false'
+      OUTBOUND_HTTP_SAFE_MODE_ENABLED: 'true'
+      IMAP_SMTP_ALLOW_SELF_SIGNED: 'false'
+    mem_limit: 2g
+    cpus: 1.0
+    restart: 'no'
+    healthcheck: {disable: true}
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+
+  server:
+    <<: *application
+    command: [server]
+    ports: ['127.0.0.1:${KOVAALABCRM_STAGING_BIND_PORT:?Choose a free loopback port}:3000']
+    mem_limit: 2g
+    cpus: 1.0
+    restart: unless-stopped
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  worker:
+    <<: *application
+    command: [worker]
+    environment:
+      <<: *application-environment
+      NODE_OPTIONS: --max-old-space-size=1024
+    mem_limit: 1536m
+    cpus: 1.0
+    restart: unless-stopped
+    healthcheck: {disable: true}
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      server: {condition: service_healthy}
+
+  db:
+    image: postgres:16-bookworm@sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938
+    env_file:
+      - path: ${KOVAALABCRM_STAGING_PG_ENV_FILE:?Set the private PostgreSQL env file}
+        format: raw
+    environment:
+      POSTGRES_DB: kovaalabcrm_staging
+      POSTGRES_USER: kovaalabcrm
+    volumes: [postgres:/var/lib/postgresql/data]
+    networks: [data]
+    mem_limit: 2g
+    cpus: 0.75
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U kovaalabcrm -d kovaalabcrm_staging']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-bookworm@sha256:b6b6e3dc0c0952737748e55d5d885272840c7e42ba41ab1d5489f693419882f5
+    env_file:
+      - path: ${KOVAALABCRM_STAGING_REDIS_ENV_FILE:?Set the private Redis env file}
+        format: raw
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - ': "$${REDIS_PASSWORD:?A dedicated Redis password is required}"; exec /usr/local/bin/docker-entrypoint.sh redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes --maxmemory 384mb --maxmemory-policy noeviction'
+    volumes: [redis:/data]
+    networks: [data]
+    mem_limit: 512m
+    cpus: 0.25
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping | grep -qx PONG']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+networks:
+  data: {internal: true}
+  edge: {}
+
+volumes:
+  postgres: {}
+  redis: {}
+  storage: {}
