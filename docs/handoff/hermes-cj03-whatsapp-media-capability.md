@@ -149,14 +149,29 @@ Read at tag 2.3.6, commit `3454bec79f514995df9a5ea36a3554ab35cf1c82`:
   provider recipe stays blocked. No instance URL, api key or webhook secret was
   read, copied or needed for this work.
 - Host-side audio conversion, as above.
-- An end-to-end reception against a real instance: a real inbound image through
-  to private storage, display and playback has not been observed. One inbound
-  image **is** exercised end to end over real loopback HTTP through the real
-  controller, receiver and media adapter into an in-memory `Map` standing in for
-  `HermesMediaService`. That exercises our path and its guards. It is **not**
-  proof of PostgreSQL, of the native quarantine, of a real private blob, or of
-  anything about a real provider: the real storage path is covered separately by
-  the `hermes-media` suites, which run without a database either.
+- An end-to-end reception against a real instance: no inbound media from a real
+  provider has been observed. Two suites cover our own side of it, and they claim
+  different things.
+
+  `evolution-media-capability.spec.ts` and `evolution-media-reception.http.spec.ts`
+  carry one inbound image over real loopback HTTP through the real controller,
+  the real webhook receiver and the real Evolution media adapter, into an
+  in-memory `Map` standing in for `HermesMediaService`. That exercises the
+  ingress path and its guards and nothing about storage.
+
+  `hermes-media.real-blob.spec.ts` covers the storage half with the real
+  `HermesMediaService`, the real native magic-byte sniff over the real
+  `file-type`, a **real private blob** written and streamed back off disk by the
+  real `LocalDriver`, real token minting and verification for an authorised
+  read-back, and genuinely decodable fixtures — a PNG whose IDAT is inflated and
+  whose pixel is asserted, a structurally valid MP4, a real Ogg page carrying
+  OpusHead with a correct checksum, and a WebM container header. Its DataSource,
+  `FileUploadService` and `FileService` are stood in for, because this
+  environment has no PostgreSQL.
+
+  So, precisely: **not** proof of PostgreSQL, **not** proof of the advisory lock,
+  **not** proof of the production quarantine machinery, and **not** provider
+  delivery. No provider is contacted by either suite.
 - Runtime suppression this probe cannot observe: `webhook.controller.ts` returns
   early when its `integration` argument excludes webhooks, and the separate
   global `WEBHOOK.GLOBAL` environment configuration can POST the same event to a
