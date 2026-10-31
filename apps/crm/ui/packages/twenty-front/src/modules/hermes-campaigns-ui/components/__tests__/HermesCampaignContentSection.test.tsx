@@ -11,6 +11,7 @@ import {
 } from 'kovaa-lab-shared/utils';
 
 import { HermesCampaignContentSection } from '@/hermes-campaigns-ui/components/HermesCampaignContentSection';
+import { type HermesPersonalisationVariable } from '@/hermes-campaigns-ui/types/HermesCampaignAudience';
 // {{fullName}} and {{personId}} are native campaign variables, published by
 // useCampaignEmailEditorVariables. Nothing here invents a token.
 const PERSONALISED_BODY = 'Bonjour {{fullName}}, dossier {{personId}}.';
@@ -48,7 +49,7 @@ const ControlledSection = ({
 }: {
   initialContent: HermesCampaignContent;
   onContentChange: (content: HermesCampaignContent) => void;
-  declaredVariables?: { name: string; label: string }[];
+  declaredVariables?: HermesPersonalisationVariable[];
 }) => {
   const [content, setContent] = useState(initialContent);
 
@@ -164,7 +165,7 @@ describe('HermesCampaignContentSection body round trip', () => {
       <ControlledSection
         initialContent={{ subject: 'Sujet', body: '' }}
         onContentChange={() => undefined}
-        declaredVariables={[{ name: 'fullName', label: 'Full name' }]}
+        declaredVariables={[{ name: 'fullName', missingCount: null }]}
       />,
       { wrapper: Wrapper },
     );
