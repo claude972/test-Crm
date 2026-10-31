@@ -2071,3 +2071,12 @@ VPS sélectionné et ressources confirmées, domaine non choisi ; aucun DNS/prox
 Cloud41235265710 sur289b376a9 FAILURE au build SDK : entrée src/front-component-renderer/build/index.ts introuvable. Hypothèse concrète : Dockerfile.dockerignore exclut **/build, qui correspond aussi à ce répertoire SOURCE suivi. Tests légers14PASS n'avaient pas couvert cette collision. Aucune image produite, smoke non exécuté, aucun service VPS modifié. Assigned auteurCodexpreview_pwa même branche/arbre/exclusivité Dockerfile.dockerignore/build/tests ; reprise réellement envoyée, correction demandée par chemins de sorties précis et contrepreuve sources build/dist conservées. Root ne modifie pas ces fichiers pendant correction. Pas de relance du même SHA.
 
 Domaine durable demandé à nouveau après absence de réponse : proposition crm-recette.kovvalab.online, DNSLWS vers2.24.89.251. Installation peut continuer indépendamment de la publication TLS, aucune DNS/proxy changée. Preview601 expire16:07MT et ne constitue toujours pas une installation durable.
+
+
+### kovaalabcrm staging —31octobre20:10UTC
+
+Domaine crm-recette.kovvalab.online explicitement confirmé par utilisateur. A record encore absent au contrôle20:07. PanneauLWS consulté viaCUA, bloqué sur vérification sécurité ; aucune tentative de contournement. Question à l'utilisateur : ajouter A crm-recette→2.24.89.251, sans partager mot de passe. Aucun DNS/proxy changé.
+
+Build41236390900 source66f FAILURE après compilation SDK/backend/frontend : hook contraintes Yarn nécessite @yarnpkg/types supprimé par focus production. Auteur85a4c22dd, root relu/ACK/cherry-pick5001b908f poussé ;16testsrootPASS. Contraintes natives exécutées explicitement avant prune, seule répétition post-prune désactivée dans le dernier sous-processus, aucune configuration persistante/lock/sourceapp modifiée. Nouvelle CIIMAGE41237312228 exact5001 en cours, pas encore image/smoke validés.
+
+Configuration durable créée exclusivement dans coffre privé0700 ~/.codex/private-preview/kovaalabcrm-staging, trois fichiers0600 avec nouvelles clefs stables, aucun secret affiché/committé/transmis au VPS. Garder ces clefs pour redémarrages/restauration. TRUST_PROXY limité au Caddy inventorié, à revalider avec ingress exact. Aucun changement distant. Preview601 a atteint son TTL16:07MT ; ne plus annoncer ce lien comme actif. Les captures/rapports restent preuves historiques, pas hébergement durable.
