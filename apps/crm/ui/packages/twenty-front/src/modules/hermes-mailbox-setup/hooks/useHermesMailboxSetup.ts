@@ -43,7 +43,22 @@ export type HermesMailboxSetupOutcome =
   | { kind: 'rereading'; connectedAccountId: string }
   | { kind: 'write-unknown'; reason: string | null; listReread: boolean }
   | { kind: 'refused'; reason: string | null }
+  | { kind: 'not-sent'; missing: HermesMailboxMissingProtocol[] }
   | { kind: 'unconfirmed' };
+
+// The protocols the MAIL connection requires, and which of them the form is
+// still missing.
+//
+// This is the SERVER's requirement, made legible before the write rather than
+// softened: reception polls IMAP, and the native message channel the campaign
+// sender is resolved from is created only when the submission carries an IMAP
+// block. An SMTP-only account is created and then cannot serve as the MAIL
+// connection, which surfaces later as a missing native channel.
+export type HermesMailboxMissingProtocol = 'IMAP' | 'SMTP';
+
+export type HermesMailboxProtocolRequirement =
+  | { kind: 'met' }
+  | { kind: 'missing'; missing: HermesMailboxMissingProtocol[] };
 
 const readErrorMessage = (error: unknown): string | null =>
   error instanceof Error ? error.message : null;
@@ -145,16 +160,47 @@ export const useHermesMailboxSetup = ({
     [],
   );
 
+  const protocolRequirement = useMemo<HermesMailboxProtocolRequirement>(() => {
+    const missing = (['IMAP', 'SMTP'] as const).filter((protocol) => {
+      const protocolConfig = watchedValues[protocol];
+
+      return !isDefined(protocolConfig) || !isProtocolConfigured(protocolConfig);
+    });
+
+    return missing.length === 0 ? { kind: 'met' } : { kind: 'missing', missing };
+  }, [watchedValues]);
+
   const canSave = useMemo(
     () =>
       Boolean(watchedValues.handle?.trim()) &&
       getConfiguredProtocols(watchedValues).length > 0 &&
+      // Both protocols, because the server requires both of a MAIL connection.
+      protocolRequirement.kind === 'met' &&
       !isSubmitting,
-    [getConfiguredProtocols, watchedValues, isSubmitting],
+    [getConfiguredProtocols, watchedValues, protocolRequirement, isSubmitting],
   );
 
   const handleSave = useCallback(
     async (formValues: ConnectionFormData): Promise<void> => {
+      // Checked again on the submitted values, not on the watched ones: the
+      // button is the first guard, and a request that cannot serve its purpose
+      // must not leave even if something else triggers the submit.
+      const missingProtocols = (['IMAP', 'SMTP'] as const).filter(
+        (protocol) => {
+          const protocolConfig = formValues[protocol];
+
+          return (
+            !isDefined(protocolConfig) || !isProtocolConfigured(protocolConfig)
+          );
+        },
+      );
+
+      if (missingProtocols.length > 0) {
+        setOutcome({ kind: 'not-sent', missing: [...missingProtocols] });
+
+        return;
+      }
+
       const configuredProtocols = getConfiguredProtocols(formValues);
 
       // Submitting nothing configured would create an account that can neither
@@ -310,6 +356,7 @@ export const useHermesMailboxSetup = ({
     isSubmitting,
     loading: saveLoading,
     outcome,
+    protocolRequirement,
     resetSetup,
     retryAccountsRead,
   };

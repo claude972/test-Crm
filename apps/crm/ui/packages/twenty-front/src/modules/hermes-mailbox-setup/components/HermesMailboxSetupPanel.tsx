@@ -5,7 +5,10 @@ import { FormProvider } from 'react-hook-form';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
-import { HermesAdminNote } from '@/hermes-admin-ui/components/HermesAdminNote';
+import {
+  HermesAdminNote,
+  HermesAdminRuleNote,
+} from '@/hermes-admin-ui/components/HermesAdminNote';
 import { useHermesMailboxSetup } from '@/hermes-mailbox-setup/hooks/useHermesMailboxSetup';
 import { SettingsAccountsConnectionForm } from '@/settings/accounts/components/SettingsAccountsConnectionForm';
 
@@ -82,6 +85,7 @@ export const HermesMailboxSetupPanel = ({
     isSubmitting,
     loading,
     outcome,
+    protocolRequirement,
     resetSetup,
     retryAccountsRead,
   } = useHermesMailboxSetup({ onConnected: handleConnected });
@@ -169,6 +173,20 @@ export const HermesMailboxSetupPanel = ({
         <HermesAdminNote role="note">
           {t`Le nom identifie cette boîte dans la liste des connexions : nommez la boîte de la société, pas une personne. L’adresse est celle de la boîte elle-même.`}
         </HermesAdminNote>
+
+        {/* The server's requirement, said before the write and with its
+            reason, rather than carried by a disabled button alone. */}
+        {protocolRequirement.kind === 'missing' && (
+          <HermesAdminRuleNote>
+            {t`Cette boîte doit porter la réception (IMAP) et l’envoi (SMTP) : la liaison centrale ne s’enregistre que sur une boîte qui fait les deux, et c’est la réception qui fait créer le canal natif dont l’expéditeur de campagne est résolu. Il manque ${protocolRequirement.missing.join(' et ')} — renseignez l’hôte et le mot de passe de ce protocole.`}
+          </HermesAdminRuleNote>
+        )}
+
+        {outcome.kind === 'not-sent' && (
+          <HermesAdminNote role="alert">
+            {t`Rien n’a été envoyé : il manque ${outcome.missing.join(' et ')}. Une boîte enregistrée sans les deux protocoles existerait sans pouvoir porter la liaison centrale, et rien ici ne la supprimerait.`}
+          </HermesAdminNote>
+        )}
 
         {outcome.kind === 'refused' && (
           <HermesAdminNote role="alert">

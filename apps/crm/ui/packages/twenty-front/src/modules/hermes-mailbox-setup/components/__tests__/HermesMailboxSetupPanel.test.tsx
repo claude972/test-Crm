@@ -46,6 +46,7 @@ jest.mock('kovaa-lab-ui/components/feedback', () => ({
 const NEW_ACCOUNT_ID = '33333333-3333-4333-8333-333333333333';
 const MAILBOX = 'contact@atelier-fontaine.example';
 const IMAP_HOST = 'imap.atelier-fontaine.example';
+const SMTP_HOST = 'smtp.atelier-fontaine.example';
 const TYPED_PASSWORD = 'mot-de-passe-saisi-une-seule-fois';
 
 // The account the server reports AFTER the creation. There is no password in
@@ -177,10 +178,18 @@ const renderPanel = (mocks: MockedResponse[], onBindMail = jest.fn()) => {
   return { onBindMail };
 };
 
-const fillMinimalMailbox = async (user: ReturnType<typeof userEvent.setup>) => {
+// A mailbox the centre can actually bind: both protocols. The server creates
+// the native message channel only for a submission carrying IMAP, and refuses
+// a MAIL connection that cannot send, so neither protocol alone is a complete
+// mailbox here.
+const fillCompleteMailbox = async (
+  user: ReturnType<typeof userEvent.setup>,
+) => {
   await user.type(screen.getByLabelText(/Email Address/i), MAILBOX);
   await user.type(screen.getByLabelText(/IMAP Server/i), IMAP_HOST);
   await user.type(screen.getByLabelText(/IMAP Password/i), TYPED_PASSWORD);
+  await user.type(screen.getByLabelText(/SMTP Server/i), SMTP_HOST);
+  await user.type(screen.getByLabelText(/SMTP Password/i), TYPED_PASSWORD);
 };
 
 describe('HermesMailboxSetupPanel', () => {
@@ -237,7 +246,7 @@ describe('HermesMailboxSetupPanel', () => {
     // The native field set, not a re-authored one.
     expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
 
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -253,8 +262,12 @@ describe('HermesMailboxSetupPanel', () => {
     expect(variables.handle).toBe(MAILBOX);
     expect(variables.connectionParameters.IMAP.host).toBe(IMAP_HOST);
     expect(variables.connectionParameters.IMAP.password).toBe(TYPED_PASSWORD);
-    // No second store, and no protocol invented from defaults alone.
-    expect(variables.connectionParameters.SMTP).toBeUndefined();
+    // Sending too, because the MAIL connection requires both protocols.
+    expect(variables.connectionParameters.SMTP.host).toBe(SMTP_HOST);
+    expect(variables.connectionParameters.SMTP.password).toBe(TYPED_PASSWORD);
+    // No second store, and no protocol invented from defaults alone: CalDAV
+    // was never filled, so nothing about it leaves.
+    expect(variables.connectionParameters.CALDAV).toBeUndefined();
     expect(variables.id).toBeUndefined();
 
     // An accepted write is followed by a re-read, so the centre stops showing
@@ -281,7 +294,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -312,7 +325,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -397,7 +410,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -447,7 +460,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -486,7 +499,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -542,7 +555,7 @@ describe('HermesMailboxSetupPanel', () => {
       await user.click(
         screen.getByRole('button', { name: /Connecter une boîte/ }),
       );
-      await fillMinimalMailbox(user);
+      await fillCompleteMailbox(user);
       await user.click(
         screen.getByRole('button', { name: /Enregistrer la boîte/ }),
       );
@@ -593,7 +606,7 @@ describe('HermesMailboxSetupPanel', () => {
       await user.click(
         screen.getByRole('button', { name: /Connecter une boîte/ }),
       );
-      await fillMinimalMailbox(user);
+      await fillCompleteMailbox(user);
       await user.click(
         screen.getByRole('button', { name: /Enregistrer la boîte/ }),
       );
@@ -649,7 +662,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -701,7 +714,7 @@ describe('HermesMailboxSetupPanel', () => {
     await user.click(
       screen.getByRole('button', { name: /Connecter une boîte/ }),
     );
-    await fillMinimalMailbox(user);
+    await fillCompleteMailbox(user);
     await user.click(
       screen.getByRole('button', { name: /Enregistrer la boîte/ }),
     );
@@ -716,5 +729,83 @@ describe('HermesMailboxSetupPanel', () => {
     );
     expect(screen.getByLabelText(/Email Address/i)).toHaveValue('');
     expect(screen.getByLabelText(/IMAP Server/i)).toHaveValue('');
+  });
+
+  // The contract: a MAIL connection needs BOTH protocols. The server creates
+  // the native message channel the campaign sender is resolved from only for a
+  // submission carrying IMAP, so an SMTP-only account is created and then
+  // cannot serve. The rule is the server's; these say it is legible here.
+  it('refuses an SMTP-only mailbox and says which protocol is missing and why', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const variablesSpy = jest.fn();
+
+    renderPanel([
+      ...buildAccountsMocks(log),
+      buildSaveMock(variablesSpy, {
+        success: true,
+        connectedAccountId: NEW_ACCOUNT_ID,
+      }),
+    ]);
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+
+    await user.type(screen.getByLabelText(/Email Address/i), MAILBOX);
+    await user.type(screen.getByLabelText(/SMTP Server/i), SMTP_HOST);
+    await user.type(screen.getByLabelText(/SMTP Password/i), TYPED_PASSWORD);
+
+    // The requirement is stated with its reason, not carried by a disabled
+    // button alone, and it names the protocol that is missing.
+    const rule = screen.getByText(/Cette boîte doit porter la réception/);
+    expect(rule).toHaveTextContent(/Il manque IMAP/);
+    expect(rule).toHaveTextContent(/canal natif/);
+
+    // And this is the state that must never read as a usable mail connection.
+    expect(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    ).toBeDisabled();
+
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    // Nothing left the client, so no account exists to be stranded.
+    expect(variablesSpy).not.toHaveBeenCalled();
+    expect(screen.queryByText(/enregistrée, non vérifiée/)).toBeNull();
+  });
+
+  it('refuses an IMAP-only mailbox and names SMTP as the missing half', async () => {
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const variablesSpy = jest.fn();
+
+    renderPanel([
+      ...buildAccountsMocks(log),
+      buildSaveMock(variablesSpy, {
+        success: true,
+        connectedAccountId: NEW_ACCOUNT_ID,
+      }),
+    ]);
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+
+    await user.type(screen.getByLabelText(/Email Address/i), MAILBOX);
+    await user.type(screen.getByLabelText(/IMAP Server/i), IMAP_HOST);
+    await user.type(screen.getByLabelText(/IMAP Password/i), TYPED_PASSWORD);
+
+    expect(
+      screen.getByText(/Cette boîte doit porter la réception/),
+    ).toHaveTextContent(/Il manque SMTP/);
+
+    expect(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    ).toBeDisabled();
+    expect(variablesSpy).not.toHaveBeenCalled();
   });
 });

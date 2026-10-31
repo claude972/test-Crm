@@ -6,6 +6,8 @@ import { render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { MemoryRouter } from 'react-router-dom';
 
+import { ToastProvider } from 'kovaa-lab-ui/components/feedback';
+
 import { myConnectedAccountsState } from '@/accounts/states/myConnectedAccountsState';
 import { HermesCampaignSendingSection } from '@/hermes-admin-runtime/components/HermesCampaignSendingSection';
 import { HERMES_CONNECTIONS_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-queries/hermesConnectionsV4';
@@ -88,9 +90,14 @@ const renderSection = ({
     <Provider store={store}>
       <MockedProvider mocks={mocks}>
         <I18nProvider i18n={i18n}>
-          <MemoryRouter>
-            <HermesCampaignSendingSection />
-          </MemoryRouter>
+          {/* HARNESS: the toast host is an application-level provider, mounted
+              in App.tsx. The native verify button the domain panel reuses
+              calls useToast, so the real provider is used rather than a stub. */}
+          <ToastProvider>
+            <MemoryRouter>
+              <HermesCampaignSendingSection />
+            </MemoryRouter>
+          </ToastProvider>
         </I18nProvider>
       </MockedProvider>
     </Provider>,

@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { IconMailCog, IconSend } from 'kovaa-lab-ui/icon';
@@ -10,6 +9,7 @@ import { Card } from 'kovaa-lab-ui/primitives/surfaces';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesAdminNote } from '@/hermes-admin-ui/components/HermesAdminNote';
+import { HermesCampaignDomainPanel } from '@/hermes-admin-runtime/components/HermesCampaignDomainPanel';
 import { useHermesMailboxRuntimeIdentity } from '@/hermes-mailbox-runtime/hooks/useHermesMailboxRuntimeIdentity';
 import {
   HERMES_ADMIN_RUNTIME_PATH,
@@ -59,6 +59,7 @@ export const HermesCampaignSendingSection = () => {
     data: domainsData,
     loading: domainsLoading,
     error: domainsError,
+    refetch: refetchDomains,
   } = useQuery(GetEmailingDomainsDocument, {
     skip: mailboxDomain === undefined,
   });
@@ -117,9 +118,17 @@ export const HermesCampaignSendingSection = () => {
                   {t`The campaign domains could not be read, so the state of ${mailboxDomain} is unknown. It is neither verified nor refused here.`}
                 </HermesAdminNote>
               ) : !isDefined(domainRecord) || domainDisplay === null ? (
-                <HermesAdminNote role="alert">
-                  {t`No emailing domain record covers ${mailboxDomain}. The server checks the sending domain when a campaign departs, and nothing read here establishes that it would accept this one.`}
-                </HermesAdminNote>
+                <>
+                  <HermesAdminNote role="alert">
+                    {t`No emailing domain record covers ${mailboxDomain}. The server checks the sending domain when a campaign departs, and nothing read here establishes that it would accept this one.`}
+                  </HermesAdminNote>
+
+                  <HermesCampaignDomainPanel
+                    domain={mailboxDomain}
+                    record={null}
+                    refetchDomains={refetchDomains}
+                  />
+                </>
               ) : (
                 <>
                   <HermesAdminNote role="status">
@@ -134,6 +143,12 @@ export const HermesCampaignSendingSection = () => {
                       {t`The unsubscribe record of this domain is not active. The server reports the domain as verified for ordinary mail; campaigns need that record too.`}
                     </HermesAdminNote>
                   )}
+
+                  <HermesCampaignDomainPanel
+                    domain={mailboxDomain}
+                    record={domainRecord}
+                    refetchDomains={refetchDomains}
+                  />
                 </>
               )}
             </>
