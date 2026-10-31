@@ -1,6 +1,8 @@
 name: Hermes campaign mailbox focused verification
 on:
   workflow_dispatch:
+  push:
+    branches: [fix/hermes-autonomous-recovery-20261031]
 permissions:
   contents: read
 concurrency:
