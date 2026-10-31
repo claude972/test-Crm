@@ -25,6 +25,7 @@ import { HermesWaRuntimeComposer } from '@/hermes-wa-runtime/components/HermesWa
 import { useHermesWaMessages } from '@/hermes-wa-runtime/hooks/useHermesWaMessages';
 import { useHermesWaReply } from '@/hermes-wa-runtime/hooks/useHermesWaReply';
 import { readHermesWaContact } from '@/hermes-wa-runtime/types/HermesWaContactMatch';
+import { toHermesWaCapability } from '@/hermes-wa-runtime/utils/toHermesWaCapability';
 
 const StyledThread = styled.section`
   display: flex;
@@ -110,6 +111,24 @@ export const HermesWaThreadPanel = ({
     personMatchStatus: conversation.personMatchStatus,
     contactHandle: conversation.contactHandle,
   });
+
+  // Whether an inbound picture or voice note can arrive at all.
+  //
+  // This gates a sentence, never the thread. An asset already stored for this
+  // workspace is displayed and played whatever the current answer says: it was
+  // received when reception worked, and a provider whose webhook was changed
+  // afterwards does not retract what is already here.
+  //
+  // Only shown for a connection the server actually reported. A failed read and
+  // an absent connection are other facts, and the composer already names the
+  // second one.
+  const receiveCapability = toHermesWaCapability(
+    connectionRead,
+    'canReceiveMedia',
+  );
+  const isReceptionClosed =
+    connectionRead.kind === 'reported' &&
+    receiveCapability.kind !== 'available';
 
   return (
     <StyledThread aria-label={t`WhatsApp conversation`}>
@@ -221,6 +240,15 @@ export const HermesWaThreadPanel = ({
               </li>
             ))}
           </StyledMessageList>
+        )}
+
+        {isReceptionClosed && (
+          <HermesWaNote>
+            {/* Said once, plainly: text still arrives, media does not, and the
+                reason is the provider's own webhook configuration rather than
+                anything missing from this screen. */}
+            {t`Incoming pictures, videos and voice notes cannot reach this workspace yet: the WhatsApp provider is not reporting a delivery configuration for this connection. Text messages are unaffected, and attachments already received stay readable.`}
+          </HermesWaNote>
         )}
 
         {list.unreadableItemCount > 0 && (
