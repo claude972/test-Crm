@@ -38859,3 +38859,13 @@ msgstr "Les réglages de cette conversation ou de la société ont changé penda
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
 msgid "Someone changed this policy, or the company's, while this screen was open. Reading the current one now."
 msgstr "Les réglages de cette conversation ou de la société ont changé. Lecture de la version actuelle…"
+
+#. js-lingui-id: PekcZ0
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open, and the answer could not be read as this conversation's policy. Nothing was changed, and this choice cannot be made until it has been read."
+msgstr "Les réglages ont changé, mais la réponse reçue ne correspond pas aux réglages de cette conversation. Aucun changement effectué. Relisez-les avant de modifier ce choix."
+
+#. js-lingui-id: AV/o/Q
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open, and the request for the current one did not get through. Nothing was changed, and this choice cannot be made until it has been read."
+msgstr "Les réglages ont changé, mais la demande de relecture n’a pas abouti. Aucun changement effectué. Relisez-les avant de modifier ce choix."

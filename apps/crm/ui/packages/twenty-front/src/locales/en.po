@@ -38854,3 +38854,13 @@ msgstr "Someone changed this policy, or the company's, while this screen was ope
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
 msgid "Someone changed this policy, or the company's, while this screen was open. Reading the current one now."
 msgstr "Someone changed this policy, or the company's, while this screen was open. Reading the current one now."
+
+#. js-lingui-id: PekcZ0
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open, and the answer could not be read as this conversation's policy. Nothing was changed, and this choice cannot be made until it has been read."
+msgstr "Someone changed this policy, or the company's, while this screen was open, and the answer could not be read as this conversation's policy. Nothing was changed, and this choice cannot be made until it has been read."
+
+#. js-lingui-id: AV/o/Q
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open, and the request for the current one did not get through. Nothing was changed, and this choice cannot be made until it has been read."
+msgstr "Someone changed this policy, or the company's, while this screen was open, and the request for the current one did not get through. Nothing was changed, and this choice cannot be made until it has been read."
