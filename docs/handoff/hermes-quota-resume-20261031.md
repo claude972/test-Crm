@@ -65,3 +65,8 @@ Deux constats préliminaires CJ04c à prendre avant sa livraison : CJ-SETUP-001,
 ## Mise à jour06:06UTC — deuxième contrôle frontend rouge
 
 Run réglages41174465769 terminé FAILURE surb0ef31d0c, une TS2741 dans `hermesCompanyAction.test.ts:163:73` : fixture HermesCompanyMember sans le nouveau champ obligatoire roles. CJ04a doit compléter la fixture conformément au vrai contrat, sans affaiblir le type ni les permissions (CJ-FRONT-TYPE-002), puis recheck complet. CJ01 garde sa TS2344 distincte. Tous les contrôles ciblés ne remplacent pas ces deux full frontend rouges ; l'assemblage reste à faire. Aucun code changé par Codex.
+
+
+## Revue liste06:20UTC — CJ01
+
+Deux points de parcours supplémentaires sur2f1e à corriger/tester sans régression des autres lots (voir CORRECTIONS CJ-CAMPAIGN-010/011) : création incertaine laisse le bouton actif et régénère un nouvel UUID au clic suivant, malgré le commentaire de réutilisation ; réconcilier l'id tenté et bloquer les répétitions aveugles/concurrentes. Le test actuel d'incertitude n'a pas de nom rempli et manque ce cas. Campagnes et audiences bloquées sur les50 plus récentes sans pagination/recherche : la51e est inaccessible par ces contrôles ; exploiter le curseur natif et garder l'audience actuellement assignée visible. Source relue seulement, aucune preuve navigateur ni modification applicative root.
