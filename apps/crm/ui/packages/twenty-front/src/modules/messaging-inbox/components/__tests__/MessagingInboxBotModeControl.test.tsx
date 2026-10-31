@@ -353,6 +353,154 @@ describe('MessagingInboxBotModeControl — the AUTO delegation path', () => {
     });
   });
 
+  // CATWA004, second half. The three outcomes of that re-read are three
+  // renderings, never two overlapping ones. Promising "it has been read again"
+  // over a read that failed told the operator the read had both failed and
+  // succeeded, and gave them no way to try.
+  it('says the re-read failed, and offers the retry, instead of claiming it succeeded', async () => {
+    renderControl([
+      policyRead(policy()),
+      readySurface(),
+      setPolicyDenied('BOT_POLICY_STALE'),
+      // The re-read itself fails on the network. MockLink needs `error` for
+      // this: a throw inside `result` is not a rejected request.
+      {
+        request: {
+          query: HERMES_CONVERSATION_BOT_POLICY,
+          variables: { input: { conversationId: CONVERSATION_ID } },
+        },
+        error: new Error('network down'),
+      },
+    ]);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: /follow the company/i }),
+    );
+
+    expect(
+      await screen.findByText(/cannot be made until it has been read/i),
+    ).toBeVisible();
+
+    // The success sentence must NOT be on screen beside it.
+    expect(
+      screen.queryByText(/it has been read again/i),
+    ).not.toBeInTheDocument();
+
+    // Nor is the generic note duplicated beside the specific one: two notes
+    // for one fact is how the contradiction read.
+    expect(
+      screen.queryByText(/replying by hand still works/i),
+    ).not.toBeInTheDocument();
+
+    // The retry exists, which is the only thing that can unblock them.
+    expect(
+      screen.getByRole('button', { name: /read the policy again/i }),
+    ).toBeVisible();
+  });
+
+  it('claims the re-read succeeded only when it actually did', async () => {
+    renderControl([
+      policyRead(policy()),
+      readySurface(),
+      setPolicyDenied('BOT_POLICY_STALE'),
+      policyRead(policy({ revision: NEXT_REVISION })),
+    ]);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: /follow the company/i }),
+    );
+
+    expect(await screen.findByText(/it has been read again/i)).toBeVisible();
+
+    // No failure wording, and no retry: there is nothing to retry.
+    expect(
+      screen.queryByText(/cannot be made until it has been read/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/replying by hand still works/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /read the policy again/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  // A retry that is offered must work. Offering a button that cannot unblock
+  // the operator would be the same defect wearing a different hat.
+  it('the offered retry actually re-reads, and the wording follows the new outcome', async () => {
+    const failingRead = {
+      request: {
+        query: HERMES_CONVERSATION_BOT_POLICY,
+        variables: { input: { conversationId: CONVERSATION_ID } },
+      },
+      error: new Error('network down'),
+    };
+
+    const { operationNames } = renderControl([
+      policyRead(policy()),
+      readySurface(),
+      setPolicyDenied('BOT_POLICY_STALE'),
+      failingRead,
+      // The retry's own read, which succeeds and brings the moved revision.
+      policyRead(policy({ revision: NEXT_REVISION })),
+    ]);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: /follow the company/i }),
+    );
+
+    const retry = await screen.findByRole('button', {
+      name: /read the policy again/i,
+    });
+
+    // Mount read plus the failed re-read.
+    expect(
+      operationNames().filter((name) => name === 'HermesConversationBotPolicy'),
+    ).toHaveLength(2);
+
+    await userEvent.click(retry);
+
+    // The failure wording is gone, replaced by the outcome that really
+    // happened, and the retry withdraws itself.
+    expect(await screen.findByText(/it has been read again/i)).toBeVisible();
+    expect(
+      screen.queryByText(/cannot be made until it has been read/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /read the policy again/i }),
+    ).not.toBeInTheDocument();
+
+    // And a third read really went out.
+    await waitFor(() => {
+      expect(
+        operationNames().filter(
+          (name) => name === 'HermesConversationBotPolicy',
+        ),
+      ).toHaveLength(3);
+    });
+  });
+
+  it('offers no re-read retry for a refusal that called for no re-read', async () => {
+    renderControl([
+      policyRead(policy()),
+      readySurface(),
+      setPolicyDenied('BOT_DELEGATION_REQUIRED'),
+      policyRead(policy()),
+    ]);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: /follow the company/i }),
+    );
+
+    await screen.findByText(/has to be chosen explicitly/i);
+
+    expect(
+      screen.queryByRole('button', { name: /read the policy again/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/it has been read again/i),
+    ).not.toBeInTheDocument();
+  });
+
   it('explains a stricter company policy in its own terms', async () => {
     renderControl([
       policyRead(policy()),
