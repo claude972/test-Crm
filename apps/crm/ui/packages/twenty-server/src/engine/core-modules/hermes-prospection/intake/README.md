@@ -77,3 +77,47 @@ query HermesIntakeState {
 Top-level status is NOT_CONFIGURED (no mapping for this workspace), CONFIGURED_UNVERIFIED (mapping exists), or CONFIGURATION_ERROR. Each endpoint providerState is CONFIGURED_UNVERIFIED or DISABLED. `isAccepting` is null for an enabled mapping and false for a disabled mapping; this query performs no Redis, provider, bridge or HTTP probe and never reports true. Source is SCRAPING/FORMS/CALENDAR. Paths are relative server routes; browsers must not invoke or sign them. `nativeContactCreationEnabled` reports policy authorization only, not tested provider readiness. SCRAPING always requires human qualification; Forms/calendar do not grant campaign qualification or marketing consent.
 
 New batches carry an optional server-attested `origin`: `{kind:'MANUAL'}` or `{kind:'SIGNED_INTAKE',connectionId,receivedAt}`. Historical batches have no origin. Only the HMAC-authenticated intake service supplies the internal provenance parameter; GraphQL input DTOs expose no such field. Origin is set on creation only; replay cannot upgrade a manual/historical batch or overwrite an existing receipt. lastCollectionAt is the latest matching SIGNED_INTAKE.receivedAt in the authorized workspace's durable batch state. A caller-chosen externalBatchId prefix, URL, createdByUserId, or provider collectedAt is never used as evidence of automatic receipt. Forms/calendar receipts are native Notes, so this field is not their last-receipt time.
+
+## Inbound classification (R05)
+
+No inbound path creates an opportunity. `hermes-inbound-no-automatic-deal.spec.ts`
+asserts the exact set of native tables each path writes, not merely that the
+request succeeded: a form submission writes `company`, `person`, `note`,
+`noteTarget`; an accepted booking adds `calendarEvent` and
+`calendarEventTarget`; a replayed receipt writes nothing; a scraping deposit
+reaches no contact, company or pipeline table at all before human
+qualification. The probe is verified non-vacuous: injecting an `opportunity`
+write into the event service fails four of those five tests on the assertion
+itself.
+
+Two authenticated metadata queries report the classification. Both take the
+company from the session, never from an argument, and run fresh native
+unrestricted-admin authorization before the read and again after it.
+
+`hermesInboundItemClassification(provider, eventId, bookingUid)` classifies one
+Forms submission or one booking receipt. Every identifier is recomputed from
+`(workspace, connection, provider, eventId)`, so the stored record is reached by
+its own deterministic key and the attribution is proven rather than read from a
+mutable field. The candidate connections are this company's own server-side
+bindings, filtered to the ones granting the matching source: a receipt stored
+under another company's connection is never attributed, and a scraping
+credential cannot classify a form. `attribution` is `VERIFIED`, or
+`EDITED_RECEIPT` when the record was found but no longer carries its receipt
+marker. `links` gives `personId`, `companyId`, `noteId`, the `calendarEventId`
+only when the caller supplies the booking UID it already holds, and
+`existingOpportunityIds` — the opportunities that already point at the contact,
+read and never written. `conversationId` is always null: these inbound items
+have no messaging conversation, and none is invented. `status` is `CLASSIFIED`,
+`NOT_FOUND` for a receipt unknown to this company, or `NOT_CONFIGURED`.
+
+`hermesScrapingClassification` reports each signed deposit: its provenance, the
+real row outcomes (`pending`, `invalid`, `duplicate`, `suppressed`, `conflict`,
+`qualified`), the contacts a human qualification already linked, and
+`qualificationRequired` always true. A manual or historical batch carries
+`attribution: NOT_ATTRIBUTABLE` instead of being presented as an attributed
+automatic reception.
+
+Mail and WhatsApp are deliberately out of this surface: their origin and
+contact match already travel on the inbox conversation read
+(`channel`, `providerConnectionId`, `personId`, `personMatchStatus`), which
+belongs to the messaging module.
