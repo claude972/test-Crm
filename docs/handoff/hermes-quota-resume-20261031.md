@@ -174,3 +174,16 @@ SourceClaudeCJ014578e98e86 intégrée4f9 : client.query impératif/no-cache surd
 Rootépingle739fd6fc6224d5592702685d44e6162e1ff886d5 surpreview/cj014-739fd6fc6 etdispatchfullfrontend **41191835763** ; encours. AUCUNnouveauP0concurrent, bundle739n'inclutpasencore013. AttendreintégrationUUID+fixtureauthpuisnouvellepreviewexacte ; actuelleexpire10:56:50UTC, finalefraîche11:30–11:40pourduréeutileaprès12UTC. CJFIXTUREvraiClaudea345239c30d580799missionprovidersisolésoptionnels surbranchecj-fixture/test-providers, nepasconfondreavecfournisseursréels.
 
 Espace disque observé2.4GiBsystème puis5.9GiB,externe3.9GiB ; parentprévenu, aucun nettoyage destructif ni original/env/base/sauvegarde touché. Tousnouveauxbuildscloud.
+
+
+## Nouveau blocage hebdomadaire et assemblage de supervision10:18–10:22UTC
+
+Inventaire officiel parent8f3db32e idle/blocked. Derniers messages réels du journal : « You've hit your weekly limit · resets11pm(America/Martinique) ». Le reset est horséchéance12UTC, aucun achat/comptealternatif/repriseenboucle. L'utilisateur a été prévenu en commentaire, ne plus affirmerClaudeenactivité. Automationexistante miseàjouraveccefait,mêmeéchéanceetconsigned'arrêt.
+
+WIPCJ02fixtureauth préservé dans /private/tmp/hermes-cj02-signatures,2fichierstrackeddirty+tsconfig.cj02b-scope.json. Copieprivée0600dans /Users/claudebrafa/.codex/private-preview/test-Crm-p0/weekly-quota-wip-20261031T1018, patch11758octets,SHA2562c96e9a98eb8135a88217467b024c60235b5fe54d6d055fc027001afa172f491. Aucun checkoutd'agent modifié. FournisseurfixtureClaudefa7df8176committé maisfragmentseulement, nonintégré ; pasdeserveurGreenMailpreview/montageUIeffectif.
+
+Root a seulement assemblé les commitsClaude déjàécrits/relus par Git merge sansconflit et sansédition applicative, dans SON checkoutQA /private/tmp/hermes-codex-review-complete. Brancheisolée preview/cj-verified-20261031, mergec46f667a62370ec889f775e0b189ccc74f7ebcd5 =739fd6fc6+30ff07af1. Aucun changement du checkoutparent739ouoriginaldirty. Root est coordinateur du merge, pas auteur des correctifs. Pushvalidé.
+
+Nouveaux runs exactsmêmeSHA c46 : fullfrontend41192244151, combined41192246414(SMTPoptinfaux;aucunR10prouvé), runtimeP041192248859(worker/sameorigintrue90min). CeP0remplaceancien41188341880 ; anciennepreviewnepluspartagercommeactive. Gate attendrauneVercelpreviewexacte etnouveaucontrôlepublicaprèsREADY, délai15minaprèsdémarragegate. Préparerbundle/artifacttunnel. Sourcefinalefraîchevers11:30–11:40UTC pourduréeutileaprès12, pasdelivraisonavantrecette.
+
+Front73941191835763 a désormais étapeTypecheckfrontendFAIL, bundleencours ; logàlireaprèsfin, pasvertdéclaré. Root tsgo noEmit(nongrosbuild) surc46encours session20266, /private/tmp/hermes-c46-front-types-local.txt ; nepasmodifierfichierspourmasqueréchec. TouslesnouveauxdéveloppementsClaude sontbloquésquota. Continuerrecette/descriptifdeslimitesetlivraisonhonnêteà12.

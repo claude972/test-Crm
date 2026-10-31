@@ -1800,3 +1800,18 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 ### Revue10:15UTC
 
 CJ-CAMPAIGN013 : 30ff07af1 relu, root70testsPASS/2suitesnatives, fixed_pending_integration_browser. CJ014 : 578e98e86 intégré4f9, queryimpérativeno-cache+testclicréelApolloPASS, fixed_pending_browser. CJ016copieb9bebdd7b corrigéeensource, pasencoreservie. CJ-INTAKE-UI002 : 87c8 refetch lu,5testsseulsPASS ; regroupement3suitesroot4f9 a2testsclassificationFAIL(temps/texte) et31PASS, conserverinstabilité ouverte. ScreenPASSspamUnknownnodehtmlDocument et ancienCJTEST001warnings nonfermés. CIfront41191835763source739encours.
+
+
+## Nouveau blocage hebdomadaire et assemblage de supervision10:18–10:22UTC
+
+Inventaire officiel parent8f3db32e idle/blocked. Derniers messages réels du journal : « You've hit your weekly limit · resets11pm(America/Martinique) ». Le reset est horséchéance12UTC, aucun achat/comptealternatif/repriseenboucle. L'utilisateur a été prévenu en commentaire, ne plus affirmerClaudeenactivité. Automationexistante miseàjouraveccefait,mêmeéchéanceetconsigned'arrêt.
+
+WIPCJ02fixtureauth préservé dans /private/tmp/hermes-cj02-signatures,2fichierstrackeddirty+tsconfig.cj02b-scope.json. Copieprivée0600dans /Users/claudebrafa/.codex/private-preview/test-Crm-p0/weekly-quota-wip-20261031T1018, patch11758octets,SHA2562c96e9a98eb8135a88217467b024c60235b5fe54d6d055fc027001afa172f491. Aucun checkoutd'agent modifié. FournisseurfixtureClaudefa7df8176committé maisfragmentseulement, nonintégré ; pasdeserveurGreenMailpreview/montageUIeffectif.
+
+Root a seulement assemblé les commitsClaude déjàécrits/relus par Git merge sansconflit et sansédition applicative, dans SON checkoutQA /private/tmp/hermes-codex-review-complete. Brancheisolée preview/cj-verified-20261031, mergec46f667a62370ec889f775e0b189ccc74f7ebcd5 =739fd6fc6+30ff07af1. Aucun changement du checkoutparent739ouoriginaldirty. Root est coordinateur du merge, pas auteur des correctifs. Pushvalidé.
+
+Nouveaux runs exactsmêmeSHA c46 : fullfrontend41192244151, combined41192246414(SMTPoptinfaux;aucunR10prouvé), runtimeP041192248859(worker/sameorigintrue90min). CeP0remplaceancien41188341880 ; anciennepreviewnepluspartagercommeactive. Gate attendrauneVercelpreviewexacte etnouveaucontrôlepublicaprèsREADY, délai15minaprèsdémarragegate. Préparerbundle/artifacttunnel. Sourcefinalefraîchevers11:30–11:40UTC pourduréeutileaprès12, pasdelivraisonavantrecette.
+
+Front73941191835763 a désormais étapeTypecheckfrontendFAIL, bundleencours ; logàlireaprèsfin, pasvertdéclaré. Root tsgo noEmit(nongrosbuild) surc46encours session20266, /private/tmp/hermes-c46-front-types-local.txt ; nepasmodifierfichierspourmasqueréchec. TouslesnouveauxdéveloppementsClaude sontbloquésquota. Continuerrecette/descriptifdeslimitesetlivraisonhonnêteà12.
+
+CJ-FIXTURE-001 revuefa7df8176, nonintégré : le commentaire prétend qu'un handle expéditeur sous .invalid empêche un vrai destinataire. Ce handle n'impose pas l'adresse d'enveloppe destinataire ni le comportement du relais : ce n'est pas une barrière d'émission. Le marqueurtestProvider ne dispose pasencoreconsommateurUI visible ni provisioner. Ne jamais promouvoir ce fragment en preuvefournisseur/sécurité ou l'intégrercommeparcoursfini. GarderSMTPrelayisoléetdestinatairesfictifs explicites quand lotrepris.
