@@ -1931,3 +1931,7 @@ ParentClaudeestmaintenantidle/done après livraisonassemblée8c8a64734, rapports
 - CAT-WA-PROOF-001, mêmeowner/status : fixture«realOpus» est2048octetszérosétiquetésOpus+réseaumocké, pasunOpusdécodable/sanitationréelle. Corrigernom/preuveetutiliserfixturecodecvalide, sansprétendremicro/providerexercé.
 
 FindingsI18N001/Mail002 déjàtransmisauparentavantcepoint ; autresfindingsàrelayerensembleavec lienexact. Pasnouveaufournisseurréel ; aucunepreviewactivefinale ; prochaintravailroot : rechecks/integration/catfr +previewfixtureTLS etproblèmeSMTPdomainepartagéencoreouvert.
+
+- CAT-WA-006, reviewerCodexpreview_pwa, assignedclaudeCATUI-WA, statusopen, SHA8c8 : finalisationnativeaudio/webmOpus garde kindAUDIO maismimevideo/webm ; hookjettekind, RuntimeComposer146–177 choisitVIDEOparMIME, serveurrefuseAUDIO≠VIDEO. Conserver/validerkindfinalizecanonique, MIMEpourformatseulement, contre-épreuvefinalizeAUDIO/video-webm→sendAUDIO. Rapportprivéhermes-review-claude-wa-bot.md final ; troisP1média/stale/upload etpreuveOpusàcorriger. AUTOexplicitefailclosed/statutadapter/sourcecleanup approuvésdanspérimètreseulement.
+
+RevueI18Nfinale :38tests/4suiteslivréesPASS,4contre-épreuvesreproduisentlesdéfauts, rapportprivéhermes-review-claude-i18n.md ; cePASSnedonnepasapprobation. Revuemailexplicite : servicenatifrefusecertainsdoublons, nepasprétendredoublonsgarantis ; leconstatporte surlaréémissionautomatiqued'écrituresincertaines/absence derelecture. CespointsontétéassignésauxmêmesClaudecatégories, aucunsecondauteurconcurrent.
