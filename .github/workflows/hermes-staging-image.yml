@@ -1,0 +1,61 @@
+name: kovaalabcrm isolated staging image
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: kovaalabcrm-staging-image-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HERMES_SOURCE_SHA: ${{ github.sha }}
+      HERMES_STAGING_IMAGE: kovaalabcrm-staging:${{ github.sha }}
+      HERMES_STAGING_REPORT_FILE: ${{ runner.temp }}/kovaalabcrm-image-evidence/smoke.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build exact source without deployment or registry publication
+        run: |
+          test "$(git rev-parse HEAD)" = "$HERMES_SOURCE_SHA"
+          docker build --platform linux/amd64 --target runtime \
+            --build-arg "HERMES_SOURCE_SHA=$HERMES_SOURCE_SHA" \
+            --file infra/hermes-staging/Dockerfile \
+            --tag "$HERMES_STAGING_IMAGE" .
+      - name: Exercise image against disposable isolated storage
+        run: |
+          mkdir -p "$(dirname "$HERMES_STAGING_REPORT_FILE")"
+          node scripts/check-hermes-staging-image.mjs
+          test -s "$HERMES_STAGING_REPORT_FILE"
+      - name: Export private image archive and provenance after smoke success
+        run: |
+          set -euo pipefail
+          archive_dir="$RUNNER_TEMP/kovaalabcrm-image-export"
+          mkdir -p "$archive_dir"
+          docker image inspect --format '{{.Id}}' "$HERMES_STAGING_IMAGE" > "$archive_dir/image-id.txt"
+          printf '%s\n' "$HERMES_SOURCE_SHA" > "$archive_dir/source-sha.txt"
+          docker save "$HERMES_STAGING_IMAGE" | gzip -1 > "$archive_dir/image.tar.gz"
+          cd "$archive_dir"
+          sha256sum image.tar.gz > image.tar.gz.sha256
+      - name: Preserve private exact image for reviewed transfer only
+        uses: actions/upload-artifact@v4
+        with:
+          name: kovaalabcrm-staging-image-${{ github.sha }}
+          path: ${{ runner.temp }}/kovaalabcrm-image-export/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+      - name: Preserve bounded non-secret smoke evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kovaalabcrm-staging-image-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/kovaalabcrm-image-evidence/
+          if-no-files-found: ignore
+          retention-days: 3
