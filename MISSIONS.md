@@ -817,3 +817,9 @@ Codex preview_pwa possède aussi HermesWaVoiceRecorder.tsx et son test existant,
 ### CAT-I18N-FALLBACK / root Codex —31octobre17:13UTC
 
 agent: codexroot ; status: in_progress. Fichiers exclusifs utils/i18n/dynamicActivate.ts etson__tests__/dynamicActivate.test.ts(front) : lescataloguesDE/autreslanguesn'ontpaslesnouveauxIDsUIcommis EN/FR, dynamiqueactuellechargeseulecibleetaffichehashes. RootajoutereplidesmessagesENsourcesavantcataloguecible, enpréservanttraductionschoisies/lang/RTL. TestsréelscataloguesDE→FR→DEsanshashnifuiteFR. Aucunhelperpipeline/GUIClaudetouché. Pasnouveauxservices/payloads/permissions. Critèreplusgénéralqueles5labelshelperdéjàprotégésc604, couvreboîtemail/campagnes/botnouveauxmessages.
+
+## CAT-MAILBOX-SOURCE — claim backend_review, diagnostic18hUTC31octobre
+
+- Root autorise arbre isolé neuf fix/hermes-mailbox-source-20261031, base508d36d60c024eb3f72f00dee82ebf87d019c626. Diagnostic réel MAIL_MESSAGE_CHANGED en ouverture d'un mailGreenMail de preview.
+- Ownership exclusif : HermesMailboxService.source et tests ciblés après preuve ; sonde lecture seule UID/RFC822.SIZE/sourceLength dans scripts/preview-mail-fixture-smoke-p0.mjs + branche trigger .github/workflows/preview-mail-fixture-smoke.yml pour CI isolée. Provisionerfixture/previewlive508, workflowsroot, SMTPpartagé et front inchangés. Coordination envoyée au propriétairefixture.
+- Aucune tolérance de taille ni autre garde relâchée avant reproduction CI. Logs uniquement compteurs/UID, jamais MIME/credentials/adresses. Pas de DB/service local ni fournisseur réel. Root préserve la recette live.
