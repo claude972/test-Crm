@@ -1,12 +1,7 @@
-/*
- * Exerce le VRAI fichier public/hermes-service-worker.js dans une portée de
- * service worker simulée.
- *
- * On ne réimplémente pas sa logique ici : le fichier est lu sur le disque et
- * évalué, donc le test échoue si quelqu'un ajoute une mise en cache de GraphQL,
- * de médias ou d'index.html. C'est la seule garantie automatisable sans
- * navigateur, et elle ne remplace pas la recette navigateur.
- */
+// Exerce le VRAI fichier public/hermes-service-worker.js dans une portée de
+// service worker simulée : le fichier est lu sur le disque et évalué, donc ce
+// test échoue si quelqu'un y ajoute une mise en cache ou une requête réseau à
+// l'installation. Ne remplace pas la recette navigateur.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -27,6 +22,9 @@ class FakeResponse {
     this.statusText = init.statusText ?? '';
     this.headers = new Map(Object.entries(init.headers ?? {}));
     this.ok = this.status >= 200 && this.status < 300;
+    this.redirected = init.redirected ?? false;
+    this.url = init.url ?? '';
+    this.type = init.type ?? 'basic';
   }
 }
 
@@ -40,53 +38,35 @@ class FakeRequest {
   }
 }
 
-// Reproduit CacheStorage d'assez près pour que les assertions portent sur un
-// comportement réel : des clés, des suppressions et un `match` par chemin.
-const createCacheStorage = () => {
-  const caches = new Map();
-
-  const openCache = (name) => {
-    if (!caches.has(name)) {
-      caches.set(name, new Map());
-    }
-
-    const entries = caches.get(name);
-
-    return {
-      put: async (request, response) => {
-        const key = typeof request === 'string' ? request : request.url;
-        entries.set(key, { request, response });
-      },
-      match: async (request) => {
-        const key = typeof request === 'string' ? request : request.url;
-
-        return entries.get(key)?.response;
-      },
-    };
-  };
-
-  return {
-    storage: caches,
-    api: {
-      open: async (name) => openCache(name),
-      keys: async () => [...caches.keys()],
-      delete: async (name) => caches.delete(name),
-    },
-  };
-};
-
-// Charge le worker réel et rend ses écouteurs appelables.
 const loadServiceWorker = ({ fetchImplementation }) => {
   const listeners = new Map();
-  const { storage, api } = createCacheStorage();
+  const cacheNames = new Set();
+  const writes = [];
   const fetchCalls = [];
   const skipWaiting = { called: false };
   const claim = { called: false };
 
-  const self = {
-    addEventListener: (type, listener) => {
-      listeners.set(type, listener);
+  const cacheApi = {
+    open: async (name) => {
+      cacheNames.add(name);
+
+      return {
+        // Toute écriture est enregistrée pour être assertée à zéro.
+        put: async (request, response) => {
+          writes.push({ name, request, response });
+        },
+        match: async () => undefined,
+        addAll: async (requests) => {
+          writes.push({ name, request: requests, response: null });
+        },
+      };
     },
+    keys: async () => [...cacheNames],
+    delete: async (name) => cacheNames.delete(name),
+  };
+
+  const self = {
+    addEventListener: (type, listener) => listeners.set(type, listener),
     skipWaiting: async () => {
       skipWaiting.called = true;
     },
@@ -99,7 +79,7 @@ const loadServiceWorker = ({ fetchImplementation }) => {
 
   const context = {
     self,
-    caches: api,
+    caches: cacheApi,
     Request: FakeRequest,
     Response: FakeResponse,
     fetch: async (request) => {
@@ -136,73 +116,93 @@ const loadServiceWorker = ({ fetchImplementation }) => {
     };
   };
 
-  return { dispatch, storage, fetchCalls, skipWaiting, claim, listeners };
+  return {
+    dispatch,
+    cacheNames,
+    writes,
+    fetchCalls,
+    skipWaiting,
+    claim,
+    listeners,
+  };
 };
 
-const installed = async ({ fetchImplementation } = {}) => {
-  const worker = loadServiceWorker({
-    fetchImplementation:
-      fetchImplementation ??
-      (async () => new FakeResponse('contenu public', { status: 200 })),
-  });
+const networkFails = async () => {
+  throw new TypeError('Failed to fetch');
+};
 
+const installed = async (fetchImplementation = networkFails) => {
+  const worker = loadServiceWorker({ fetchImplementation });
   await worker.dispatch('install', {});
 
   return worker;
 };
 
-test('précache uniquement des fichiers publics, demandés sans identifiants', async () => {
+test("l'installation ne fait aucune requête réseau et n'écrit aucun cache", async () => {
   const worker = await installed();
 
-  const cached = [...worker.storage.values()].flatMap((entries) => [
-    ...entries.keys(),
-  ]);
-
-  // La liste fermée. Si index.html, /graphql ou un média apparaît ici, la
-  // promesse de confidentialité est rompue.
-  assert.deepEqual(cached.sort(), ['/hermes-icon.svg', '/hors-connexion.html']);
-
-  for (const request of worker.fetchCalls) {
-    // La garantie à l'écriture : une réponse authentifiée ne peut pas entrer
-    // dans le cache si la requête n'a jamais porté les cookies de session.
-    assert.equal(request.credentials, 'omit');
-    assert.equal(request.cache, 'reload');
-  }
-
+  // Le correctif du défaut relevé en revue : il n'y a plus rien à substituer,
+  // donc une preview protégée ne peut pas faire précacher sa page de connexion.
+  assert.deepEqual(worker.fetchCalls, []);
+  assert.deepEqual(worker.writes, []);
   assert.equal(worker.skipWaiting.called, true);
 });
 
-test("l'installation échoue si une ressource hors connexion manque, plutôt que de précacher une erreur", async () => {
-  const worker = loadServiceWorker({
-    fetchImplementation: async () =>
-      new FakeResponse('introuvable', { status: 404 }),
-  });
+test("sur une origine protégée sans cookie, l'installation réussit quand même", async () => {
+  // L'ancienne version demandait /hors-connexion.html avec credentials omit et
+  // recevait cette redirection : installation en échec, ou page de connexion
+  // précachée comme page hors connexion.
+  const protectedEdge = async (request) =>
+    new FakeResponse('', {
+      status: 302,
+      headers: { location: 'https://vercel.com/sso-api?url=' + request.url },
+    });
 
-  await assert.rejects(
-    () => worker.dispatch('install', {}),
-    /ressource hors connexion indisponible/,
-  );
+  const worker = await installed(protectedEdge);
+
+  assert.deepEqual(worker.fetchCalls, []);
+  assert.deepEqual(worker.writes, []);
+  assert.equal(worker.skipWaiting.called, true);
 });
 
-test("l'activation supprime nos caches de versions antérieures et garde le courant", async () => {
-  const worker = await installed();
-  await worker.storage.set('hermes-offline-v0', new Map());
-  await worker.storage.set('un-cache-d-un-autre-code', new Map());
+test('une redirection de connexion revient telle quelle et n\'est pas mise en cache', async () => {
+  const loginRedirect = new FakeResponse('', {
+    status: 302,
+    headers: { location: 'https://vercel.com/sso-api?url=https://crm.test/' },
+  });
+  const worker = await installed(async () => loginRedirect);
 
-  await worker.dispatch('activate', {});
+  const { respondedWith } = await worker.dispatch('fetch', {
+    request: new FakeRequest('https://crm.test/dashboard', {
+      mode: 'navigate',
+    }),
+  });
 
-  assert.deepEqual([...worker.storage.keys()].sort(), [
-    'hermes-offline-v1',
-    // Pas à nous : l'activation n'y touche pas. C'est la purge de déconnexion,
-    // côté page, qui nettoie tout.
-    'un-cache-d-un-autre-code',
-  ]);
-  assert.equal(worker.claim.called, true);
+  // Substituer la page hors connexion ici cacherait un partage Vercel expiré
+  // derrière un faux diagnostic réseau. C'est précisément le symptôme Safari.
+  assert.equal(respondedWith, loginRedirect);
+  assert.equal(respondedWith.status, 302);
+  assert.deepEqual(worker.writes, []);
+});
+
+test('un document de connexion Vercel en 200 revient tel quel, sans cache', async () => {
+  const loginPage = new FakeResponse('<title>Login – Vercel</title>', {
+    status: 200,
+    redirected: true,
+    url: 'https://vercel.com/login',
+  });
+  const worker = await installed(async () => loginPage);
+
+  const { respondedWith } = await worker.dispatch('fetch', {
+    request: new FakeRequest('https://crm.test/', { mode: 'navigate' }),
+  });
+
+  assert.equal(respondedWith, loginPage);
+  assert.deepEqual(worker.writes, []);
 });
 
 test('ne touche à aucune requête privée : GraphQL, REST, métadonnées, fichiers, médias', async () => {
   const worker = await installed();
-  const before = worker.fetchCalls.length;
 
   const privateRequests = [
     new FakeRequest('https://crm.test/graphql', {
@@ -219,18 +219,16 @@ test('ne touche à aucune requête privée : GraphQL, REST, métadonnées, fichi
       mode: 'no-cors',
     }),
     new FakeRequest('https://crm.test/client-config', { mode: 'cors' }),
-    // Même une navigation, si ce n'est pas un GET, ne passe pas.
-    new FakeRequest('https://crm.test/', {
-      method: 'POST',
-      mode: 'navigate',
+    new FakeRequest('https://crm.test/manifest.json', {
+      mode: 'same-origin',
+      credentials: 'include',
     }),
+    new FakeRequest('https://crm.test/', { method: 'POST', mode: 'navigate' }),
   ];
 
   for (const request of privateRequests) {
     const { didRespond } = await worker.dispatch('fetch', { request });
 
-    // `respondWith` jamais appelé : la requête part au réseau exactement comme
-    // sans service worker. On ne peut ni la lire, ni la stocker, ni la rejouer.
     assert.equal(
       didRespond,
       false,
@@ -238,60 +236,30 @@ test('ne touche à aucune requête privée : GraphQL, REST, métadonnées, fichi
     );
   }
 
-  // Et rien n'est parti dans le cache au passage.
-  assert.equal(worker.fetchCalls.length, before);
-
-  const cached = [...worker.storage.values()].flatMap((entries) => [
-    ...entries.keys(),
-  ]);
-  assert.deepEqual(cached.sort(), ['/hermes-icon.svg', '/hors-connexion.html']);
+  assert.deepEqual(worker.fetchCalls, []);
+  assert.deepEqual(worker.writes, []);
 });
 
-test('une navigation en ligne va au réseau et sa réponse n\'est jamais mise en cache', async () => {
-  const appResponse = new FakeResponse('<!doctype html><div id="root">', {
+test('une navigation en ligne va au réseau, sans écriture de cache', async () => {
+  const document = new FakeResponse('<!doctype html><div id="root">', {
     status: 200,
   });
-  const worker = await installed();
-  const cachedBefore = [...worker.storage.values()].flatMap((entries) => [
-    ...entries.keys(),
-  ]);
+  const worker = await installed(async () => document);
 
   const request = new FakeRequest('https://crm.test/dashboard', {
     mode: 'navigate',
   });
-  // Après l'installation, le réseau rend le document de l'application.
-  worker.fetchCalls.length = 0;
-  const { respondedWith } = await worker.dispatch('fetch', {
-    request,
-  });
+  const { respondedWith } = await worker.dispatch('fetch', { request });
 
   assert.equal(worker.fetchCalls[0], request);
-  assert.equal(respondedWith.status, 200);
-
-  const cachedAfter = [...worker.storage.values()].flatMap((entries) => [
-    ...entries.keys(),
-  ]);
+  assert.equal(respondedWith, document);
   // index.html porte window._env_ : la configuration de déploiement ne doit
-  // pas être figée dans le cache d'un appareil.
-  assert.deepEqual(cachedAfter.sort(), cachedBefore.sort());
-  assert.ok(!cachedAfter.includes('https://crm.test/dashboard'));
-
-  void appResponse;
+  // jamais être figée sur un appareil.
+  assert.deepEqual(worker.writes, []);
 });
 
-test('une navigation hors connexion rend la page hors connexion précachée', async () => {
-  let isOffline = false;
-  const worker = await installed({
-    fetchImplementation: async () => {
-      if (isOffline) {
-        throw new TypeError('Failed to fetch');
-      }
-
-      return new FakeResponse('page hors connexion', { status: 200 });
-    },
-  });
-
-  isOffline = true;
+test('une navigation hors connexion rend la page hors connexion figée', async () => {
+  const worker = await installed();
 
   const { respondedWith } = await worker.dispatch('fetch', {
     request: new FakeRequest('https://crm.test/dashboard', {
@@ -299,34 +267,49 @@ test('une navigation hors connexion rend la page hors connexion précachée', as
     }),
   });
 
-  // C'est aussi ce qui rend l'application installable sur Chrome et Edge :
-  // une navigation obtient une réponse même sans réseau.
-  assert.equal(respondedWith.body, 'page hors connexion');
-  assert.equal(respondedWith.status, 200);
+  // Ce qui rend l'application installable sur Chrome et Edge : une navigation
+  // obtient une réponse même sans réseau.
+  assert.equal(respondedWith.status, 503);
+  assert.equal(
+    respondedWith.headers.get('Content-Type'),
+    'text/html; charset=utf-8',
+  );
+  assert.equal(respondedWith.headers.get('Cache-Control'), 'no-store');
+  assert.match(respondedWith.body, /Vous êtes hors connexion/);
+  // Dit ce qui dégrade, sans promettre un hors ligne complet.
+  assert.match(respondedWith.body, /rien n'est consultable hors connexion/);
+  assert.deepEqual(worker.writes, []);
 });
 
-test('hors connexion sans page précachée, répond 503 plutôt qu\'une page blanche', async () => {
-  const worker = loadServiceWorker({
-    fetchImplementation: async () => {
-      throw new TypeError('Failed to fetch');
-    },
-  });
+test('la page hors connexion ne dépend d\'aucune ressource réseau', async () => {
+  const worker = await installed();
 
-  // Pas d'installation réussie : le cache est vide.
   const { respondedWith } = await worker.dispatch('fetch', {
     request: new FakeRequest('https://crm.test/', { mode: 'navigate' }),
   });
 
-  assert.equal(respondedWith.status, 503);
-  assert.match(respondedWith.body, /Hors connexion/);
-  assert.equal(respondedWith.headers.get('Cache-Control'), 'no-store');
+  // Une balise src/href vers l'origine échouerait exactement quand cette page
+  // sert : hors réseau, ou derrière la connexion Vercel.
+  assert.doesNotMatch(respondedWith.body, /\ssrc="\//);
+  assert.doesNotMatch(respondedWith.body, /\shref="\//);
+});
+
+test("l'activation supprime les caches laissés par une version antérieure", async () => {
+  const worker = await installed();
+  worker.cacheNames.add('hermes-offline-v1');
+  worker.cacheNames.add('un-cache-d-un-autre-code');
+
+  await worker.dispatch('activate', {});
+
+  // Les nôtres partent ; ce qui n'est pas à nous est laissé à la purge de
+  // déconnexion, côté page.
+  assert.deepEqual([...worker.cacheNames], ['un-cache-d-un-autre-code']);
+  assert.equal(worker.claim.called, true);
 });
 
 test("n'expose aucun gestionnaire de messages, donc aucune commande à distance", async () => {
   const worker = await installed();
 
-  // La purge est faite depuis la page (purgeHermesOfflineCaches). Un
-  // gestionnaire `message` ici serait une surface de commande non testée.
   assert.deepEqual([...worker.listeners.keys()].sort(), [
     'activate',
     'fetch',

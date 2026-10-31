@@ -4,29 +4,14 @@ import { logError } from '~/utils/logError';
 
 export type HermesServiceWorkerOutcome =
   | 'registered'
-  // Le navigateur n'a pas l'API, ou la page n'est pas en contexte sécurisé
-  // (http sur un hôte distant) : l'installation PWA n'est pas possible et
-  // l'application fonctionne exactement comme avant.
   | 'unsupported'
   | 'insecure-context'
-  // En développement, un service worker qui répond aux navigations se met en
-  // travers du rechargement à chaud de Vite.
   | 'skipped-development'
   | 'failed';
 
-/*
- * Enregistre public/hermes-service-worker.js.
- *
- * Ce que cela apporte : l'application devient installable (Chrome et Edge
- * exigent un service worker qui répond à une navigation hors connexion ; iOS
- * Safari se contente du manifeste et de l'icône, déjà présents), et une
- * navigation sans réseau affiche /hors-connexion.html au lieu de l'erreur du
- * navigateur.
- *
- * Ce que cela n'apporte pas : aucun fonctionnement hors ligne du CRM. Le
- * service worker ne met en cache ni GraphQL, ni REST, ni les métadonnées, ni
- * les fichiers, ni les médias, ni index.html.
- */
+// Rend l'application installable et donne une page hors connexion ; n'apporte
+// aucun fonctionnement hors ligne du CRM. Ce que cela couvre exactement :
+// docs/verification/hermes-pwa-degradation.md.
 export const registerHermesServiceWorker =
   async (): Promise<HermesServiceWorkerOutcome> => {
     if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
@@ -34,15 +19,11 @@ export const registerHermesServiceWorker =
     }
 
     if (getIsDevelopmentEnvironment()) {
-      /*
-       * Le serveur de développement partage souvent son origine (localhost)
-       * avec un build de production visité auparavant. Un service worker resté
-       * enregistré intercepterait les navigations de Vite, donc on le retire
-       * plutôt que de laisser un bug de rechargement inexplicable.
-       */
+      // Le serveur de développement partage souvent son origine avec un build
+      // de production visité avant : un worker resté là intercepterait les
+      // navigations de Vite et casserait le rechargement à chaud.
       try {
-        const registrations =
-          await navigator.serviceWorker.getRegistrations();
+        const registrations = await navigator.serviceWorker.getRegistrations();
 
         await Promise.all(
           registrations
@@ -60,7 +41,7 @@ export const registerHermesServiceWorker =
       return 'skipped-development';
     }
 
-    // `isSecureContext` couvre https et localhost. Sans lui, register() lève.
+    // Couvre https et localhost. Sans ce garde, register() lève.
     if (typeof window !== 'undefined' && window.isSecureContext === false) {
       return 'insecure-context';
     }
@@ -68,15 +49,13 @@ export const registerHermesServiceWorker =
     try {
       await navigator.serviceWorker.register(HERMES_SERVICE_WORKER_PATH, {
         scope: '/',
-        // Le navigateur ne doit pas servir une version périmée du worker
-        // depuis son cache HTTP lors de la vérification de mise à jour.
         updateViaCache: 'none',
       });
 
       return 'registered';
     } catch (error) {
-      // Dit explicitement : l'application marche sans, mais elle n'est alors
-      // pas installable et n'a pas de page hors connexion.
+      // L'application marche sans : elle n'est alors ni installable, ni dotée
+      // d'une page hors connexion.
       logError(error);
 
       return 'failed';

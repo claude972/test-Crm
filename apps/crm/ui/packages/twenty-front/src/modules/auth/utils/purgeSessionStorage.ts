@@ -25,10 +25,8 @@ export const purgeSessionStorage =
     clearSessionLocalStorageKeys();
     safeRemoveLocalStorageItems(getMetadataStoreKeys());
 
-    // Started now so it runs alongside the IndexedDB purge instead of adding
-    // its own second to the way out. Awaited below, before the caller
-    // navigates, for the same reason the metadata purge is: location.assign
-    // must not interrupt it. It is bounded internally and never rejects, so it
+    // Started here to run alongside the IndexedDB purge, awaited below so
+    // location.assign cannot interrupt it. Bounded and never rejecting, so it
     // cannot change the outcome reported for the metadata store.
     const offlineCachePurge = purgeHermesOfflineCaches();
 

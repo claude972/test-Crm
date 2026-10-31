@@ -1,141 +1,96 @@
-/*
- * Hermès CRM — service worker.
- *
- * Ce fichier a un seul rôle : rendre l'application installable et afficher une
- * page « hors connexion » lorsque le réseau est injoignable. Il ne met PAS
- * l'application en cache, et il n'est donc PAS un mode hors ligne complet.
- *
- * Règle de confidentialité, appliquée à l'écriture et non par liste noire :
- *
- *   1. Seules les navigations (`request.mode === 'navigate'`) en GET passent par
- *      le gestionnaire `fetch`. Tout le reste — GraphQL, REST, métadonnées,
- *      fichiers, médias, pièces jointes, jetons — sort du service worker sans
- *      que `respondWith` soit appelé, donc exactement comme sans service worker.
- *   2. Aucune réponse réseau n'est jamais écrite dans le cache à l'exécution.
- *      Le cache est rempli une seule fois à l'installation, avec une liste
- *      fermée de fichiers publics, demandés sans identifiants
- *      (`credentials: 'omit'`). Une réponse authentifiée ne peut donc pas y
- *      entrer.
- *   3. `index.html` n'est pas mis en cache : il porte la configuration
- *      d'environnement injectée au déploiement (`window._env_`).
- *
- * Conséquence assumée : hors connexion, l'utilisateur obtient la page
- * d'information, pas le CRM. Voir docs/verification/hermes-pwa-degradation.md.
- */
+// Rend l'application installable et rend une page hors connexion. Ce n'est pas
+// un mode hors ligne. Voir docs/verification/hermes-pwa-degradation.md.
 
-// Le préfixe sert à retrouver et supprimer nos caches de versions antérieures.
-const CACHE_PREFIX = 'hermes-offline-';
-const CACHE_NAME = `${CACHE_PREFIX}v1`;
-
-const OFFLINE_PAGE_PATH = '/hors-connexion.html';
-const OFFLINE_ICON_PATH = '/hermes-icon.svg';
-
-// Liste fermée, publique, non authentifiée. Ne jamais y ajouter une ressource
-// qui dépend de la session, de la société ou d'un jeton.
-const PRECACHED_PUBLIC_PATHS = [OFFLINE_PAGE_PATH, OFFLINE_ICON_PATH];
-
-// Dernier recours si même la page précachée manque : jamais une page blanche.
-const INLINE_OFFLINE_HTML = `<!doctype html>
-<html lang="fr"><head><meta charset="utf-8">
+// Contenu figé, jamais récupéré sur le réseau : sur une preview protégée une
+// requête d'installation reçoit la redirection de connexion Vercel, et un
+// précache mettrait cette page de connexion à la place de celle-ci.
+const OFFLINE_DOCUMENT = `<!doctype html>
+<html lang="fr" translate="no"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hors connexion — Hermès CRM</title></head>
-<body><h1>Hors connexion</h1>
-<p>Hermès CRM a besoin du réseau pour afficher vos données. Reconnectez-vous puis réessayez.</p>
-</body></html>`;
+<meta name="robots" content="noindex"><meta name="theme-color" content="#0073ea">
+<title>Hors connexion — Hermès CRM</title>
+<style>
+:root{--surface:#fcfcfc;--panel:#fff;--border:#ebebeb;--text:#141414;--muted:#6b6b6b;--accent:#0073ea;--accent-text:#fff;--step:8px}
+@media (prefers-color-scheme:dark){:root{--surface:#1b1b1b;--panel:#171717;--border:#333;--text:#f1f1f1;--muted:#a0a0a0;--accent:#4799f5;--accent-text:#0a0a0a}}
+*{box-sizing:border-box}
+body{margin:0;padding:calc(var(--step)*5) var(--step);background:var(--surface);color:var(--text);font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+main{max-width:560px;margin:0 auto}
+.brand{font-weight:600;letter-spacing:-.01em;margin-bottom:calc(var(--step)*4)}
+h1{margin:0 0 var(--step);font-size:26px;font-weight:700;letter-spacing:-.02em}
+p{margin:0 0 calc(var(--step)*2);color:var(--muted)}
+.panel{margin:calc(var(--step)*3) 0;border:1px solid var(--border);border-radius:var(--step);background:var(--panel);padding:calc(var(--step)*2)}
+.panel h2{margin:0 0 var(--step);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+ul{margin:0;padding-left:calc(var(--step)*2.5);color:var(--muted)}
+li+li{margin-top:calc(var(--step)*.5)}
+button{appearance:none;min-height:44px;padding:0 calc(var(--step)*2.5);border:1px solid var(--accent);border-radius:6px;background:var(--accent);color:var(--accent-text);font:inherit;font-weight:600;cursor:pointer;transition:opacity 120ms ease}
+button:hover{opacity:.88}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{margin-top:calc(var(--step)*2);font-family:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){button{transition:none}}
+</style></head>
+<body><main>
+<div class="brand">Hermès CRM</div>
+<h1>Vous êtes hors connexion</h1>
+<p>Hermès CRM lit vos clients, vos opportunités et vos conversations sur le serveur à chaque affichage. Sans réseau, ces données ne sont pas disponibles sur cet appareil.</p>
+<div class="panel"><h2>Ce que fait l'application sans réseau</h2><ul>
+<li>Elle reste installée et s'ouvre, mais affiche cette page au lieu du CRM.</li>
+<li>Aucune fiche, aucun message et aucun média n'est conservé sur l'appareil : rien n'est consultable hors connexion.</li>
+<li>Aucune saisie n'est mise en file d'attente. Ce qui n'a pas été enregistré avant la coupure doit être ressaisi.</li>
+</ul></div>
+<button type="button" id="retry">Réessayer</button>
+<p class="status" id="status" role="status" aria-live="polite">Réseau : vérification…</p>
+</main><script>
+(function(){var s=document.getElementById('status'),r=document.getElementById('retry');
+var render=function(){s.textContent=navigator.onLine?'Réseau : rétabli. Réessayez pour revenir au CRM.':'Réseau : toujours indisponible.'};
+r.addEventListener('click',function(){window.location.replace('/')});
+window.addEventListener('online',render);window.addEventListener('offline',render);render()})();
+</script></body></html>`;
 
-const precachePublicAssets = async () => {
-  const cache = await caches.open(CACHE_NAME);
+const offlineResponse = () =>
+  new Response(OFFLINE_DOCUMENT, {
+    status: 503,
+    statusText: 'Service Unavailable',
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+    },
+  });
 
-  await Promise.all(
-    PRECACHED_PUBLIC_PATHS.map(async (path) => {
-      // `credentials: 'omit'` est la garantie : la réponse stockée ne peut pas
-      // être la réponse à une requête porteuse de cookies de session.
-      // `cache: 'reload'` évite de recopier une entrée HTTP périmée.
-      const request = new Request(path, {
-        credentials: 'omit',
-        cache: 'reload',
-        mode: 'same-origin',
-      });
-      const response = await fetch(request);
-
-      if (!response.ok) {
-        throw new Error(
-          `Hermès: ressource hors connexion indisponible (${path}, HTTP ${response.status})`,
-        );
-      }
-
-      await cache.put(request, response);
-    }),
-  );
-};
-
+// Ce worker n'écrit jamais dans CacheStorage. On supprime seulement ce qu'une
+// version antérieure y avait mis.
 const deleteOurPreviousCaches = async () => {
   const names = await caches.keys();
 
   await Promise.all(
     names
-      .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
+      .filter((name) => name.startsWith('hermes-offline-'))
       .map((name) => caches.delete(name)),
   );
 };
 
-const respondToNavigation = async (request) => {
-  try {
-    // Toujours le réseau, et la réponse n'est jamais écrite dans le cache.
-    return await fetch(request);
-  } catch {
-    const cache = await caches.open(CACHE_NAME);
-    const offlinePage = await cache.match(OFFLINE_PAGE_PATH);
-
-    if (offlinePage !== undefined) {
-      return offlinePage;
-    }
-
-    return new Response(INLINE_OFFLINE_HTML, {
-      status: 503,
-      statusText: 'Service Unavailable',
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-store',
-      },
-    });
-  }
-};
-
 self.addEventListener('install', (event) => {
-  event.waitUntil(precachePublicAssets().then(() => self.skipWaiting()));
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    deleteOurPreviousCaches().then(() => self.clients.claim()),
-  );
+  event.waitUntil(deleteOurPreviousCaches().then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
 
-  // Une mutation ne passe jamais par ici.
   if (request.method !== 'GET') {
     return;
   }
 
-  /*
-   * Le seul filtre qui compte. `navigate` ne couvre que le document de la page.
-   * GraphQL, REST, les métadonnées, les fichiers et les médias ont un `mode`
-   * `cors`, `same-origin` ou `no-cors` : on ne les touche pas, donc on ne peut
-   * ni les lire, ni les stocker, ni les rejouer.
-   */
+  // Seul filtre, et il est positif : `navigate` ne couvre que le document.
+  // GraphQL, REST, métadonnées, fichiers et médias ne sont jamais interceptés,
+  // donc jamais lisibles, stockables ni rejouables par ce worker.
   if (request.mode !== 'navigate') {
     return;
   }
 
-  event.respondWith(respondToNavigation(request));
+  // Une redirection de connexion revient telle quelle : la substituer
+  // cacherait une session Vercel ou CRM expirée derrière « hors connexion ».
+  event.respondWith(fetch(request).catch(offlineResponse));
 });
-
-/*
- * Il n'y a volontairement pas de gestionnaire `message` ici. La purge de
- * déconnexion et de bascule de société est faite depuis la page, qui accède au
- * même CacheStorage (voir purgeHermesOfflineCaches). Un seul chemin, testé,
- * plutôt qu'un contrat de messages redondant.
- */
