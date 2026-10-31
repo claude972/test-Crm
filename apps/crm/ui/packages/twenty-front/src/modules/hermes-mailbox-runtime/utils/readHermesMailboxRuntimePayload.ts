@@ -330,6 +330,7 @@ export const readHermesMailboxRuntimeMessage = (
     kind: 'read',
     value: {
       conversationId: readString(payload.conversationId),
+      messageId: readString(payload.messageId),
       uid,
       uidValidity: readString(payload.uidValidity),
       folder: readString(payload.folder),

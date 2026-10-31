@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
+import { type ReactNode } from 'react';
 import { IconArrowLeft, IconMail } from 'kovaa-lab-ui/icon';
 import { Button } from 'kovaa-lab-ui/primitives/input';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'kovaa-lab-ui/theme';
@@ -171,6 +172,10 @@ type HermesMailboxProps = {
   onPlanAnswer: (kind: HermesMailboxComposeKind) => void;
   onResumeDraft: (draftId: string) => void;
   onCloseComposer: () => void;
+  // Passed straight to the reading pane. This component decides nothing about
+  // the bot; it only places what the parent built.
+  botModeSlot?: ReactNode;
+  renderAssistantDraft?: (insertBody: (text: string) => void) => ReactNode;
   inlineImagesByMessageId?: Record<string, HermesMailboxInlineImage[]>;
 
   // Back out of a level on a small screen. The parent decides what that means
@@ -216,6 +221,8 @@ export const HermesMailbox = ({
   onPlanAnswer,
   onResumeDraft,
   onCloseComposer,
+  botModeSlot,
+  renderAssistantDraft,
   inlineImagesByMessageId,
   onBackToFolders,
   onBackToThreads,
@@ -365,6 +372,8 @@ export const HermesMailbox = ({
           onPlanAnswer={onPlanAnswer}
           onResumeDraft={onResumeDraft}
           onCloseComposer={onCloseComposer}
+          botModeSlot={botModeSlot}
+          renderAssistantDraft={renderAssistantDraft}
           inlineImagesByMessageId={inlineImagesByMessageId}
           sendAvailability={sendAvailability}
           sendState={sendState}

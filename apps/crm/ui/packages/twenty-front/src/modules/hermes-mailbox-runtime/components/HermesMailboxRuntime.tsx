@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { HermesMailboxRuntimeAssistantDraft } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft';
+import { HermesMailboxRuntimeBotPanel } from '@/hermes-mailbox-runtime/components/HermesMailboxRuntimeBotPanel';
+
 import {
   type HermesMailboxRuntimeSavedDraft,
   useHermesMailboxRuntimeComposer,
@@ -254,6 +257,26 @@ const HermesMailboxRuntimeFolderView = ({
           : undefined
       }
       thread={thread}
+      // The bot is keyed on the canonical conversation the mail read
+      // published for this message, never on anything derived locally.
+      botModeSlot={
+        openedMessage === null ? undefined : (
+          <HermesMailboxRuntimeBotPanel
+            conversationId={openedMessage.conversationId}
+          />
+        )
+      }
+      renderAssistantDraft={
+        openedMessage === null
+          ? undefined
+          : (insertBody) => (
+              <HermesMailboxRuntimeAssistantDraft
+                conversationId={openedMessage.conversationId}
+                messageId={openedMessage.messageId}
+                onInsert={insertBody}
+              />
+            )
+      }
       envelope={composer.envelope}
       onPlanAnswer={composer.planAnswer}
       onResumeDraft={composer.resumeDraft}

@@ -18,6 +18,9 @@ import { HERMES_CONNECTIONS_V4 } from '@/hermes-mailbox-runtime/graphql/metadata
 import { HERMES_MAIL_FOLDERS_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-queries/hermesMailFoldersV4';
 import { HERMES_MAIL_MESSAGES_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-queries/hermesMailMessagesV4';
 import { HERMES_MAIL_MESSAGE_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-queries/hermesMailMessageV4';
+import { HERMES_INBOX_DRAFT_REPLY } from '@/messaging-inbox/graphql/metadata-mutations/hermesInboxDraftReply';
+import { HERMES_SET_CONVERSATION_BOT_POLICY } from '@/messaging-inbox/graphql/metadata-mutations/hermesSetConversationBotPolicy';
+import { HERMES_CONVERSATION_BOT_POLICY } from '@/messaging-inbox/graphql/metadata-queries/hermesConversationBotPolicy';
 import {
   jotaiStore,
   resetJotaiStore,
@@ -181,6 +184,28 @@ const MESSAGE_PAYLOAD = {
   ],
 };
 
+// The V3 policy of the open mail conversation, as the server resolves it.
+// The effective mode is the server's answer and is never recomputed here.
+const policyPayload = (overrides: Record<string, unknown> = {}) => ({
+  __typename: 'HermesConversationBotPolicy',
+  conversationId: CONVERSATION_ID,
+  localMode: 'INHERIT',
+  effectiveMode: 'ASSISTED',
+  reason: 'WORKSPACE_POLICY',
+  revision: 'a1b2c3d4',
+  canDraft: true,
+  canAutoReply: false,
+  ...overrides,
+});
+
+const DRAFT_REPLY_PAYLOAD = {
+  __typename: 'HermesInboxDraftReply',
+  mode: 'DRAFT',
+  status: 'READY',
+  provider: 'HERMES_MCP',
+  text: 'Bonjour Marie, je vous confirme le devis.',
+};
+
 type Recorder = jest.Mock<{ data: Record<string, unknown> }, [unknown]>;
 
 const recorder = (field: string, payload: unknown): Recorder =>
@@ -192,7 +217,8 @@ const variablesOf = (mock: Recorder, call = 0): Record<string, unknown> =>
 
 const renderMailbox = ({
   connections = CONNECTIONS_PAYLOAD,
-}: { connections?: unknown } = {}) => {
+  botPolicy = null,
+}: { connections?: unknown; botPolicy?: Record<string, unknown> | null } = {}) => {
   // Every mutation is mocked with a recording result and a matcher that
   // accepts any variables, so both the absence of an emission and the exact
   // input of one are observed here rather than inferred.
@@ -260,9 +286,42 @@ const renderMailbox = ({
     draftDisposition: { state: 'MOVED_TO_TRASH' },
   });
 
+  const draftReply = recorder('hermesInboxDraftReply', DRAFT_REPLY_PAYLOAD);
+  const setPolicy = recorder(
+    'hermesSetConversationBotPolicy',
+    policyPayload({ localMode: 'OFF', effectiveMode: 'OFF' }),
+  );
+
   const anyVariables = () => true;
 
   const mocks = [
+    // Mounted only when a test states a policy. Without one the read fails,
+    // which is the 'unknown' the screen is supposed to show.
+    ...(botPolicy === null
+      ? []
+      : [
+          {
+            request: {
+              query: HERMES_CONVERSATION_BOT_POLICY,
+              variables: anyVariables,
+            },
+            result: { data: { hermesConversationBotPolicy: botPolicy } },
+            maxUsageCount: Number.POSITIVE_INFINITY,
+          },
+        ]),
+    {
+      request: { query: HERMES_INBOX_DRAFT_REPLY, variables: anyVariables },
+      result: draftReply,
+      maxUsageCount: Number.POSITIVE_INFINITY,
+    },
+    {
+      request: {
+        query: HERMES_SET_CONVERSATION_BOT_POLICY,
+        variables: anyVariables,
+      },
+      result: setPolicy,
+      maxUsageCount: Number.POSITIVE_INFINITY,
+    },
     {
       request: { query: HERMES_CONNECTIONS_V4 },
       result: { data: { hermesConnectionsV4: connections } },
@@ -342,7 +401,17 @@ const renderMailbox = ({
     </I18nProvider>,
   );
 
-  return { plan, clone, send, saveDraft, createDraft, sendNew, unmount };
+  return {
+    plan,
+    clone,
+    send,
+    saveDraft,
+    createDraft,
+    sendNew,
+    draftReply,
+    setPolicy,
+    unmount,
+  };
 };
 
 const openFirstMessage = async () => {
@@ -684,5 +753,130 @@ describe('HermesMailboxRuntime', () => {
     expect(
       screen.getByText(/its identity is unknown here/),
     ).toBeVisible();
+  });
+
+  it('under OFF, in this mail screen, the bot is never called and the human reply still works', async () => {
+    const { draftReply, send } = renderMailbox({
+      botPolicy: policyPayload({ localMode: 'OFF', effectiveMode: 'OFF' }),
+    });
+
+    expect(await openFirstMessage()).toBeVisible();
+
+    // The mode is the server's answer, read on the open message.
+    expect(await screen.findByText('Bot stopped')).toBeVisible();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reply' }));
+    await screen.findByRole('textbox', { name: 'Message' });
+
+    // Nothing to press, so nothing can be asked for.
+    expect(
+      screen.queryByRole('button', { name: 'Ask the bot for a draft' }),
+    ).not.toBeInTheDocument();
+    expect(draftReply).not.toHaveBeenCalled();
+
+    // Replying by hand does not depend on the bot, including under OFF.
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'To' }),
+      'marie@client.test',
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Message' }),
+      'Je vous réponds moi-même.',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Request send' }));
+
+    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    expect(variablesOf(send).mode).toBe('REPLY');
+    // The planning call seeded the body, so the person's sentence is checked
+    // inside it rather than against it.
+    expect(variablesOf(send).text).toContain('Je vous réponds moi-même.');
+    // Still never called: the only emission was the person's own.
+    expect(draftReply).not.toHaveBeenCalled();
+  });
+
+  it('under ASSISTED, in this mail screen, a draft is prepared and inserted and nothing is sent', async () => {
+    const { draftReply, send, sendNew } = renderMailbox({
+      botPolicy: policyPayload({ localMode: 'ASSISTED', effectiveMode: 'ASSISTED' }),
+    });
+
+    expect(await openFirstMessage()).toBeVisible();
+    expect(await screen.findByText('Bot drafts, you send')).toBeVisible();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reply' }));
+    await screen.findByRole('textbox', { name: 'Message' });
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Ask the bot for a draft' }),
+    );
+
+    await waitFor(() => expect(draftReply).toHaveBeenCalledTimes(1));
+
+    // Asked against the canonical conversation and message the mail read
+    // published, not against anything built here.
+    expect(variablesOf(draftReply)).toEqual({
+      conversationId: CONVERSATION_ID,
+      messageId: 'f0f2c9a0-1111-2222-3333-444455556666',
+    });
+
+    // The proposal is shown and the editor still holds exactly what the
+    // server planned: a proposal never writes itself into the message.
+    expect(
+      await screen.findByText('Bonjour Marie, je vous confirme le devis.'),
+    ).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Message' })).toHaveValue(
+      '--- Message transféré ---',
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Insert this draft' }),
+    );
+
+    expect(screen.getByRole('textbox', { name: 'Message' })).toHaveValue(
+      'Bonjour Marie, je vous confirme le devis.',
+    );
+
+    // Preparing a draft and inserting it sent nothing. ASSISTED never emits.
+    expect(send).not.toHaveBeenCalled();
+    expect(sendNew).not.toHaveBeenCalled();
+  });
+
+  it('changes the bot mode from the mail screen through the V3 policy, with the revision it read', async () => {
+    const { setPolicy } = renderMailbox({
+      botPolicy: policyPayload({ localMode: 'INHERIT', effectiveMode: 'ASSISTED' }),
+    });
+
+    expect(await openFirstMessage()).toBeVisible();
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Stop the bot' }),
+    );
+
+    await waitFor(() => expect(setPolicy).toHaveBeenCalledTimes(1));
+
+    // The write carries the revision the policy read handed over, so a stale
+    // decision is refused by the server instead of overwriting another one.
+    // No delegation travels with anything but an explicit AUTO.
+    expect(variablesOf(setPolicy)).toEqual({
+      conversationId: CONVERSATION_ID,
+      mode: 'OFF',
+      expectedRevision: 'a1b2c3d4',
+    });
+  });
+
+  it('says the bot mode is unknown rather than guessing when the policy cannot be read', async () => {
+    const { draftReply } = renderMailbox();
+
+    expect(await openFirstMessage()).toBeVisible();
+
+    expect(await screen.findByText('Bot mode unknown')).toBeVisible();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reply' }));
+    await screen.findByRole('textbox', { name: 'Message' });
+
+    // An unreadable policy closes the action instead of opening it on a guess.
+    expect(
+      screen.queryByRole('button', { name: 'Ask the bot for a draft' }),
+    ).not.toBeInTheDocument();
+    expect(draftReply).not.toHaveBeenCalled();
   });
 });
