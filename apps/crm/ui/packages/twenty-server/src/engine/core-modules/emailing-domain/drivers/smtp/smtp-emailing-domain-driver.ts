@@ -22,6 +22,10 @@ import { type EmailingDomainSendEmailBatchResult } from 'src/engine/core-modules
 import { EmailingDomainStatus } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-status.type';
 import { applyReplacementTags } from 'src/engine/core-modules/emailing-domain/utils/apply-replacement-tags.util';
 import { type UnsubscribeContentService } from 'src/engine/core-modules/emailing-domain/services/unsubscribe-content.service';
+import {
+  type AuthorizedMailbox,
+  type EmailingDomainMailboxTransportProvider,
+} from 'src/engine/core-modules/emailing-domain/drivers/smtp/providers/emailing-domain-mailbox-transport.provider';
 
 type SmtpTransport = ReturnType<typeof createTransport>;
 
@@ -34,6 +38,11 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
     serializedConnections: string,
     serverUrl: string,
     private readonly unsubscribeContentService: UnsubscribeContentService,
+    // When present, the mailbox the operator registered in the connection
+    // centre is both the sending authority and the transport, and
+    // EMAILING_SMTP_CONNECTIONS is not consulted at all. When absent, the
+    // pre-existing environment relay behaviour stands.
+    private readonly registeredMailbox?: EmailingDomainMailboxTransportProvider,
   ) {
     try {
       this.connections = parseSmtpConnections(serializedConnections);
@@ -59,11 +68,16 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
   async provisionWorkspace(_workspaceId: string): Promise<void> {}
 
   async deprovisionWorkspace(workspaceId: string): Promise<void> {
-    this.transports.get(workspaceId)?.close();
-    this.transports.delete(workspaceId);
+    this.releaseWorkspaceTransports(workspaceId);
   }
 
   async registerDomain(input: EmailingDomainResourceInput): Promise<void> {
+    if (this.registeredMailbox) {
+      await this.registeredMailbox.authorize(input.workspaceId, null);
+
+      return;
+    }
+
     this.getConnection(input);
   }
 
@@ -72,10 +86,12 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
   async verifyDomain(
     input: EmailingDomainResourceInput,
   ): Promise<EmailingDomainVerificationResult> {
-    this.getConnection(input);
+    // A missing or unauthorized configuration is raised, not reported as a
+    // temporary failure: only the connectivity check below may degrade.
+    const transport = await this.getTransport(input, null);
 
     try {
-      await this.getTransport(input).verify();
+      await transport.verify();
     } catch {
       return {
         status: EmailingDomainStatus.TEMPORARY_FAILURE,
@@ -97,7 +113,7 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
   async sendEmail(
     input: EmailingDomainSendEmailRequest,
   ): Promise<EmailingDomainSendEmailResult> {
-    this.assertSender(input);
+    await this.assertSender(input);
     this.assertCallerHeaders(input.headers);
     for (const recipient of [
       ...input.to,
@@ -134,8 +150,12 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
       throw this.configurationError();
     }
 
+    // Resolved before the attempt: a refusal to authorize must surface as a
+    // refusal, never as an unconfirmed outcome that blocks a later retry.
+    const transport = await this.getTransport(email, email.from);
+
     try {
-      const result = await this.getTransport(email).sendMail({
+      const result = await transport.sendMail({
         from: email.from,
         to: email.to,
         cc: email.cc,
@@ -184,7 +204,7 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
   async sendEmailBatch(
     input: EmailingDomainSendEmailBatchRequest,
   ): Promise<EmailingDomainSendEmailBatchResult> {
-    this.assertSender(input);
+    await this.assertSender(input);
 
     if (!input.recipients.length || input.recipients.length > 100) {
       throw this.configurationError();
@@ -237,13 +257,23 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
           headerMessageId: sent.headerMessageId,
           errorMessage: null,
         });
-      } catch {
+      } catch (error) {
+        // A refused send never reached the transport, so it must not be
+        // recorded as an outcome that might have been delivered.
+        const refused =
+          error instanceof EmailingDomainDriverException &&
+          error.code === EmailingDomainDriverExceptionCode.CONFIGURATION_ERROR;
+
         entries.push({
           recipientIndex,
           messageId: null,
           headerMessageId: null,
-          errorMessage: 'SMTP outcome unconfirmed; reconcile before retrying',
-          errorCode: EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED,
+          errorMessage: refused
+            ? error.message
+            : 'SMTP outcome unconfirmed; reconcile before retrying',
+          errorCode: refused
+            ? EmailingDomainDriverExceptionCode.CONFIGURATION_ERROR
+            : EmailingDomainDriverExceptionCode.SEND_OUTCOME_UNCONFIRMED,
         });
       }
     }
@@ -254,6 +284,17 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
   close(): void {
     for (const transport of this.transports.values()) transport.close();
     this.transports.clear();
+  }
+
+  // Transports are keyed by workspace alone on the environment path and by
+  // workspace, connection and revision on the registered-mailbox path.
+  private releaseWorkspaceTransports(workspaceId: string): void {
+    for (const key of [...this.transports.keys()]) {
+      if (key !== workspaceId && !key.startsWith(`${workspaceId}|`)) continue;
+
+      this.transports.get(key)?.close();
+      this.transports.delete(key);
+    }
   }
 
   private assertCallerHeaders(
@@ -299,10 +340,18 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
     );
   }
 
-  private assertSender(
+  private async assertSender(
     input: EmailingDomainSendEmailRequest | EmailingDomainSendEmailBatchRequest,
-  ): void {
-    this.getConnection(input);
+  ): Promise<void> {
+    // With a registered mailbox the authority is that mailbox, resolved here so
+    // a whole batch is refused up front rather than per recipient. Without one,
+    // the operator's environment allowlist still decides.
+    if (this.registeredMailbox) {
+      await this.getTransport(input, input.from);
+    } else {
+      this.getConnection(input);
+    }
+
     const addresses = parseEmailAddressList(input.from);
 
     if (
@@ -330,7 +379,65 @@ export class SmtpEmailingDomainDriver implements EmailingDomainDriverInterface {
     return connection;
   }
 
-  private getTransport(input: EmailingDomainResourceInput): SmtpTransport {
+  // Returns the transport the message must leave through: the registered
+  // mailbox's own SMTP account when the connection centre is installed,
+  // otherwise the operator's environment relay.
+  private async getTransport(
+    input: EmailingDomainResourceInput,
+    fromAddress: string | null,
+  ): Promise<SmtpTransport> {
+    if (this.registeredMailbox) {
+      const mailbox = await this.registeredMailbox.authorize(
+        input.workspaceId,
+        fromAddress,
+      );
+      const cached = this.transports.get(mailbox.cacheKey);
+
+      if (cached) return cached;
+
+      // A rotation changes the cache key, so retire whatever this workspace
+      // was sending through before opening the new account.
+      this.releaseWorkspaceTransports(input.workspaceId);
+
+      const opened = await this.registeredMailbox.openTransport(
+        mailbox.connectedAccountId,
+      );
+
+      // Opening an account is slow, and a rotation or revocation landing during
+      // it would otherwise be served by the connection we just opened. The last
+      // authorization therefore happens here, after the open and before any
+      // SMTP use, and a transport that is no longer authorized is closed rather
+      // than cached or used.
+      let confirmed: AuthorizedMailbox;
+
+      try {
+        confirmed = await this.registeredMailbox.authorize(
+          input.workspaceId,
+          fromAddress,
+        );
+      } catch (error) {
+        opened.close();
+
+        throw error;
+      }
+
+      if (
+        confirmed.cacheKey !== mailbox.cacheKey ||
+        confirmed.connectedAccountId !== mailbox.connectedAccountId
+      ) {
+        opened.close();
+
+        throw new EmailingDomainDriverException(
+          'Campaign sending refused: the registered mail connection changed while its mailbox was being opened',
+          EmailingDomainDriverExceptionCode.CONFIGURATION_ERROR,
+        );
+      }
+
+      this.transports.set(mailbox.cacheKey, opened);
+
+      return opened;
+    }
+
     const connection = this.getConnection(input);
     const existing = this.transports.get(input.workspaceId);
 

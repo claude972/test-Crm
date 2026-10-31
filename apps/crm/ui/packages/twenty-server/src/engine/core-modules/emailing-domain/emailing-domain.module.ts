@@ -13,6 +13,7 @@ import { AwsSesRegisterDomainService } from 'src/engine/core-modules/emailing-do
 import { AwsSesHandleErrorService } from 'src/engine/core-modules/emailing-domain/drivers/aws-ses/services/aws-ses-handle-error.service';
 import { AwsSesSendEmailService } from 'src/engine/core-modules/emailing-domain/drivers/aws-ses/services/aws-ses-send-email.service';
 import { EmailingDomainDriverFactory } from 'src/engine/core-modules/emailing-domain/drivers/emailing-domain-driver.factory';
+import { EmailingDomainMailboxTransportProvider } from 'src/engine/core-modules/emailing-domain/drivers/smtp/providers/emailing-domain-mailbox-transport.provider';
 import { LogEmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/log/services/log-emailing-domain-driver.service';
 import { ResendApiClientService } from 'src/engine/core-modules/emailing-domain/drivers/resend/services/resend-api-client.service';
 import { EmailGroupAccessService } from 'src/engine/core-modules/emailing-domain/services/email-group-access.service';
@@ -29,6 +30,7 @@ import { EnterpriseModule } from 'src/engine/core-modules/enterprise/enterprise.
 import { PermissionsModule } from 'src/engine/metadata-modules/permissions/permissions.module';
 import { SecretEncryptionModule } from 'src/engine/core-modules/secret-encryption/secret-encryption.module';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { MessagingSmtpDriverModule } from 'src/modules/messaging/message-import-manager/drivers/smtp/messaging-smtp-driver.module';
 import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 
 @Module({
@@ -39,6 +41,9 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
     SecretEncryptionModule,
     BillingModule,
     EnterpriseModule,
+    // Supplies the native SmtpClientProvider, which opens a registered
+    // mailbox's own SMTP account without ever exposing its credentials.
+    MessagingSmtpDriverModule,
   ],
   exports: [
     EmailingDomainService,
@@ -60,6 +65,7 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
     DmarcRecordService,
     EmailingDomainResolver,
     EmailingDomainDriverFactory,
+    EmailingDomainMailboxTransportProvider,
     EmailingDomainWorkspaceCleanupJob,
     AwsSesClientProvider,
     AwsSesAccountService,
