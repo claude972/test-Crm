@@ -789,3 +789,8 @@ Le parentClaude et chaque agent lisent MISSIONS/CORRECTIONS/handoff/matriceR01�
 - Validation : tests comportementaux isolés, pas de DB locale/prod/fournisseur réel ni secrets. Commit/push checkpoints et rapport de limites avant recette finale.
 
 Complément ownership CAT-BACKEND-SMTP-SHARED (ACK root avant édition) : seules lignes de snapshot emailingDomains du producteur cleanup dans workspace/services/workspace.service.ts vers833 ; type/payload EmailingDomainWorkspaceCleanupJob ; filtres provenance du cron de vérification ; contrôle domaine de la boîte autorisée dans SMTP register/verify/getTransport. Legacy jobs sans provenance refusés avant effet distant, snapshots préservés au queue ; pas de changement des autres flux workspace ni des permissions.
+
+
+### CAT-SMTP-MIGRATION / root Codex — 31 octobre16:12UTC
+
+agent: codex root ; status: in_progress. Fichiers exclusifs nouveaux scripts/check-hermes-smtp-domain-migration-ci.mjs et tests, .github/workflows/hermes-smtp-domain-migration.yml, puis seule commande générée 2-52 et inscription manifeste après revue du vrai générateur cloud. Base90f, entité/checkpoint agent addb50143 à intégrer sans ses WIP. Baseline exacte90f dans checkout GitHub jetable, PG16p0_ci/Redis, setup/upgrade natifs, preuve dérive JSONB sémantique réutilisée strictement, aucune synchronisation ni DDL rédigée à la main présentée générée. N'accepter que colonne enumdriver et indexes emailingDomain, up/down/up réel puis comparaison metadata, aucun service réel. Agentbackend_review garde application/tests/domaines/cleanup/guards ; root ne les édite pas. Préparation peut précéder appcodefinal, aucune livraison finale déduite.
