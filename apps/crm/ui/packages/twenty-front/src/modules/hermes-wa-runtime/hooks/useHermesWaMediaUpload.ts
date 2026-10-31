@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { readMessagingInboxCallFailure } from '@/messaging-inbox/utils/readMessagingInboxCallFailure';
 
@@ -13,7 +13,10 @@ import {
   HERMES_WA_FINALIZE_MEDIA_UPLOAD,
   HERMES_WA_PREPARE_MEDIA_UPLOAD,
 } from '@/hermes-wa-runtime/graphql/metadata-mutations/hermesWaMediaUpload';
-import { type HermesWaUploadState } from '@/hermes-wa-runtime/types/HermesWaSendState';
+import {
+  type HermesWaUploadState,
+  readHermesWaSendableAssetKind,
+} from '@/hermes-wa-runtime/types/HermesWaSendState';
 import {
   readHermesWaFinalizedAsset,
   readHermesWaUploadTarget,
@@ -112,8 +115,29 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
   // on the thread the asset belongs to and not on the one now on screen.
   const [scope, setScope] = useState<HermesWaScopeInput | null>(null);
 
+  // One attempt owns this hook at a time.
+  //
+  // The lock stops a second upload starting while one is in flight. The
+  // generation is what makes that safe rather than merely tidy: reset and
+  // cancel both release the lock, so a superseded run's promises can still
+  // land afterwards. Every write below is stamped with the generation that
+  // issued it, and a stale stamp is dropped.
+  //
+  // Without this, a voice note and a file in flight together can resolve
+  // inverted and leave the preview of one beside the asset id of the other —
+  // which sends the wrong bytes to a customer under a preview the operator
+  // trusted.
+  const generationRef = useRef(0);
+  const isRunningRef = useRef(false);
+
   const upload = useCallback(
     (conversationId: string, file: Blob, filename: string) => {
+      // The lock. The in-flight attempt keeps its own state, so the operator
+      // goes on seeing its real progress rather than a reset one.
+      if (isRunningRef.current) {
+        return;
+      }
+
       // Everything the request needs is read out here, synchronously, before
       // the first await.
       const capturedConversationId = conversationId;
@@ -155,9 +179,29 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
         return;
       }
 
+      // This attempt's stamp. Taken before the first await, like every other
+      // captured value.
+      const generation = generationRef.current + 1;
+
+      generationRef.current = generation;
+      isRunningRef.current = true;
+
+      const isCurrent = () => generationRef.current === generation;
+
       const run = async () => {
-        setState({ kind: 'preparing' });
-        setScope(null);
+        // Every write this attempt makes goes through here, so a superseded
+        // attempt cannot repaint the screen with its own outcome.
+        const commit = (next: HermesWaUploadState) => {
+          if (isCurrent()) {
+            setState(next);
+          }
+        };
+
+        commit({ kind: 'preparing' });
+
+        if (isCurrent()) {
+          setScope(null);
+        }
 
         let preparedAssetId: string | null = null;
 
@@ -174,12 +218,18 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
             },
           });
 
+          // Superseded while prepare was in flight. The bytes are NOT pushed:
+          // this attempt no longer owns the hook.
+          if (!isCurrent()) {
+            return;
+          }
+
           const target = readHermesWaUploadTarget(
             prepared.data?.hermesPrepareMediaUpload,
           );
 
           if (target.kind === 'unreadable') {
-            setState({
+            commit({
               kind: 'failed',
               assetId: null,
               failure: { kind: 'failed', message: null },
@@ -193,7 +243,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
             conversationId: capturedConversationId,
             assetId: target.value.assetId,
           });
-          setState({ kind: 'uploading', assetId: target.value.assetId });
+          commit({ kind: 'uploading', assetId: target.value.assetId });
 
           // The raw bytes, to the native quarantine target the server named,
           // with EXACTLY the content type it named. No multipart, no base64,
@@ -209,8 +259,12 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
             credentials: 'include',
           });
 
+          if (!isCurrent()) {
+            return;
+          }
+
           if (!response.ok) {
-            setState({
+            commit({
               kind: 'failed',
               assetId: target.value.assetId,
               failure: { kind: 'failed', message: null },
@@ -219,7 +273,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
             return;
           }
 
-          setState({ kind: 'finalizing', assetId: target.value.assetId });
+          commit({ kind: 'finalizing', assetId: target.value.assetId });
 
           const finalized = await finalizeMutation({
             variables: {
@@ -230,12 +284,16 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
             },
           });
 
+          if (!isCurrent()) {
+            return;
+          }
+
           const asset = readHermesWaFinalizedAsset(
             finalized.data?.hermesFinalizeMediaUpload,
           );
 
           if (asset.kind === 'unreadable') {
-            setState({
+            commit({
               kind: 'failed',
               assetId: target.value.assetId,
               failure: { kind: 'failed', message: null },
@@ -248,7 +306,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
           // assumed from the fact that finalize returned. A finalize that came
           // back with another status has not produced a sendable asset.
           if (asset.value.rawStatus?.toUpperCase() !== 'READY') {
-            setState({
+            commit({
               kind: 'failed',
               assetId: asset.value.id,
               failure: { kind: 'failed', message: null },
@@ -257,18 +315,22 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
             return;
           }
 
-          setState({
+          commit({
             kind: 'ready',
             assetId: asset.value.id,
             // The authoritative MIME is the one finalize returned. If the
             // native sniff reported video/webm for audio/webm input, that is
             // the type that stands, and this client does not argue with it.
             mimeType: asset.value.mimeType ?? mimeType,
+            // And the kind the server VALIDATED, which is what a reply must
+            // travel as. For that same video/webm recording the server says
+            // AUDIO, and the MIME would have said video.
+            assetKind: readHermesWaSendableAssetKind(asset.value.rawKind),
           });
         } catch (error) {
           const failure = readMessagingInboxCallFailure(error);
 
-          setState(
+          commit(
             failure.kind === 'denied'
               ? { kind: 'denied', message: failure.message }
               : // The asset id is kept when there is one, so the operator can
@@ -277,6 +339,12 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
                 // durable revocation and belongs to a person.
                 { kind: 'failed', assetId: preparedAssetId, failure },
           );
+        } finally {
+          // Only this attempt's own lock is released. A newer attempt that
+          // superseded it owns the lock now and must keep it.
+          if (isCurrent()) {
+            isRunningRef.current = false;
+          }
         }
       };
 
@@ -290,21 +358,44 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
       // Captured before the await, like every other step.
       const captured = input;
 
+      // A cancel supersedes whatever upload attempt was current, so a late
+      // promise from it cannot overwrite the cancellation, and it takes the
+      // lock for itself rather than leaving it held.
+      const generation = generationRef.current + 1;
+
+      generationRef.current = generation;
+      isRunningRef.current = true;
+
+      const isCurrent = () => generationRef.current === generation;
+
+      const commit = (next: HermesWaUploadState) => {
+        if (isCurrent()) {
+          setState(next);
+        }
+      };
+
       const run = async () => {
-        setState({ kind: 'cancelling', assetId: captured.assetId });
+        commit({ kind: 'cancelling', assetId: captured.assetId });
 
         try {
           await cancelMutation({ variables: { input: captured } });
-          setState({ kind: 'cancelled' });
-          setScope(null);
+          commit({ kind: 'cancelled' });
+
+          if (isCurrent()) {
+            setScope(null);
+          }
         } catch (error) {
           const failure = readMessagingInboxCallFailure(error);
 
-          setState(
+          commit(
             failure.kind === 'denied'
               ? { kind: 'denied', message: failure.message }
               : { kind: 'failed', assetId: captured.assetId, failure },
           );
+        } finally {
+          if (isCurrent()) {
+            isRunningRef.current = false;
+          }
         }
       };
 
@@ -314,6 +405,10 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
   );
 
   const reset = useCallback(() => {
+    // Supersedes any attempt in flight and frees the lock, so the next upload
+    // can start and the superseded one can no longer write.
+    generationRef.current += 1;
+    isRunningRef.current = false;
     setState({ kind: 'idle' });
     setScope(null);
   }, []);
