@@ -40,7 +40,7 @@ export async function smoke(environment) {
     phase = 'network'; docker(['network', 'create', '--internal', network]); createdNetwork = true;
     phase = 'provider'; resources.push(fixture);
     const uid = process.getuid(), gid = process.getgid(); assert.ok(uid > 0);
-    docker(['run', '--detach', '--name', fixture, '--network', network, '--network-alias', plan.hostname, '--user', `${uid}:${gid}`, '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--memory', '256m', '--cpus', '0.5', '--tmpfs', '/tmp:rw,noexec,nosuid,size=64m', '--mount', `type=bind,src=${directory}/server.p12,dst=/fixture/server.p12,readonly`, '--env-file', `${directory}/provider.env`, GREENMAIL_IMAGE]);
+    docker(['run', '--detach', '--name', fixture, '--network', network, '--network-alias', plan.hostname, '--user', `${uid}:${gid}`, '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--memory', '256m', '--cpus', '0.5', '--tmpfs', '/tmp:rw,noexec,nosuid,size=64m', '--mount', `type=bind,src=${directory}/server.p12,dst=/fixture/server.p12,readonly`, '--env-file', `${directory}/provider.env`, '--mount', `type=bind,src=${code},dst=/fixture-code,readonly`, '--entrypoint', '/bin/sh', GREENMAIL_IMAGE, '/fixture-code/provider-init.sh']);
     const container = JSON.parse(docker(['inspect', fixture]))[0];
     assert.deepEqual(Object.keys(container.NetworkSettings.Networks), [network]);
     assert.ok(Object.values(container.NetworkSettings.Ports ?? {}).every((value) => value === null));
@@ -64,12 +64,16 @@ export async function smoke(environment) {
     const routes = docker(['exec', fixture, '/bin/sh', '-ec', 'cat /proc/net/route']);
     assert.ok(!routes.split('\n').slice(1).some((line) => line.trim().split(/\s+/)[1] === '00000000'));
     checks.providerNoDefaultRoute = true;
-    phase = 'expiry'; resources.push(guard);
+    phase = 'term-resistant-expiry'; resources.push(guard);
+    // Suspend the real Java child: TERM cannot be processed, so this requires the hard-kill path.
+    const suspend = `import {javaProcesses,sameProcess} from '/fixture-code/expiry.mjs';const values=javaProcesses(process.env.KOVAALABCRM_FIXTURE_NAMESPACE);if(values.length!==1||!sameProcess(values[0],process.env.KOVAALABCRM_FIXTURE_NAMESPACE))process.exit(1);process.kill(values[0].pid,'SIGSTOP');`;
+    docker(['run', '--rm', '--network', 'none', '--pid', `container:${fixture}`, '--user', `${uid}:${gid}`, '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--env', `KOVAALABCRM_FIXTURE_NAMESPACE=${id}`, '--mount', `type=bind,src=${code},dst=/fixture-code,readonly`, '--entrypoint', 'node', NODE_IMAGE, '--input-type=module', '-e', suspend]);
     const expiry = new Date(Date.now() + 4000).toISOString();
     docker(['run', '--detach', '--name', guard, '--network', 'none', '--pid', `container:${fixture}`, '--user', `${uid}:${gid}`, '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--memory', '64m', '--env', `KOVAALABCRM_MAIL_FIXTURE_EXPIRES_AT=${expiry}`, '--env', `KOVAALABCRM_FIXTURE_NAMESPACE=${id}`, '--mount', `type=bind,src=${code},dst=/fixture-code,readonly`, '--entrypoint', 'node', NODE_IMAGE, '/fixture-code/expiry.mjs']);
     const expires = Date.now() + 20000;
     while (docker(['inspect', '--format', '{{.State.Running}}', fixture]) === 'true') { assert.ok(Date.now() < expires); await new Promise((resolve) => setTimeout(resolve, 500)); }
     checks.expiryStopsProvider = true;
+    checks.expiryStopsTermResistantJava = true;
     phase = 'done';
   } catch { failed = phase; }
   finally {
