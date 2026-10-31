@@ -131,6 +131,11 @@ export const useHermesMailboxSetup = ({
   // creating the account a second time.
   const [saveConnection, { loading: saveLoading }] = useMutation(
     SaveImapSmtpCaldavAccountDocument,
+    // The transport must never replay this one. ApolloFactory's RetryLink runs
+    // with `max: 2` and retries on any network error, so without this a lost
+    // answer could land the write TWICE before the outcome below is computed —
+    // creating a second connected account that nothing here can delete.
+    { context: { skipRetry: true } },
   );
 
   const apolloClient = useApolloClient();
