@@ -8,6 +8,7 @@ import { SEND_MESSAGE_CAMPAIGN } from '@/activities/emails/graphql/mutations/sen
 import { SEND_MESSAGE_CAMPAIGN_TEST } from '@/activities/emails/graphql/mutations/sendMessageCampaignTest';
 import { PREVIEW_MESSAGE_CAMPAIGN_SEND } from '@/activities/emails/graphql/metadata-queries/previewMessageCampaignSend';
 import { UNSUBSCRIBE_TOPICS } from '@/activities/emails/graphql/metadata-queries/unsubscribeTopics';
+import { readCampaignBodyText } from '@/hermes-campaigns-ui/utils/campaignBodyDocument';
 import { type HermesCampaignAudience } from '@/hermes-campaigns-ui/types/HermesCampaignAudience';
 import { type HermesCampaignCapabilities } from '@/hermes-campaigns-ui/types/HermesCampaignCapability';
 import {
@@ -173,47 +174,6 @@ type TopicsQueryResult = {
 // looks for any text node with content, and treats an unparseable value as
 // prose so a legacy plain-text body is still read correctly.
 //
-// SEAM: once `readCampaignBodyText` from
-// `hermes-campaigns-ui/utils/campaignBodyDocument` is on this branch, this
-// helper should be replaced by it so there is one reader rather than two.
-// It is written to err toward "empty", which refuses a test rather than
-// sending a message with nothing in it.
-const hasBodyText = (bodyTemplate: string): boolean => {
-  const trimmed = bodyTemplate.trim();
-
-  if (trimmed.length === 0) {
-    return false;
-  }
-
-  let parsed: unknown;
-
-  try {
-    parsed = JSON.parse(trimmed);
-  } catch {
-    // Not a document: read it as the prose it appears to be.
-    return true;
-  }
-
-  const carriesText = (node: unknown): boolean => {
-    if (Array.isArray(node)) {
-      return node.some(carriesText);
-    }
-
-    if (typeof node !== 'object' || node === null) {
-      return false;
-    }
-
-    const record = node as Record<string, unknown>;
-
-    if (typeof record.text === 'string' && record.text.trim().length > 0) {
-      return true;
-    }
-
-    return carriesText(record.content);
-  };
-
-  return carriesText(parsed);
-};
 
 // An emission that threw. A refusal the server reasoned about is a refusal;
 // anything else leaves the outcome unknown, and an unknown emission is never
@@ -747,7 +707,10 @@ export const useHermesCampaignRuntime = ({
     //
     // The body is checked for actual text rather than for string length: it
     // holds a serialised document, so an empty one is still a long string.
-    if (!isNonEmptyString(publishedSubject) || !hasBodyText(publishedBody)) {
+    if (
+      !isNonEmptyString(publishedSubject) ||
+      readCampaignBodyText(publishedBody).trim().length === 0
+    ) {
       setActionOutcome({
         kind: 'failed',
         action: 'testSynthetic',
