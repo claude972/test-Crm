@@ -240,11 +240,14 @@ export const useAuth = () => {
 
   const handleLoadWorkspaceAfterAuthentication = useCallback(
     async (loginToken: string) => {
-      const expectedWorkspaceId = isSameOriginMultiWorkspaceEnabled
+      const intent = isSameOriginMultiWorkspaceEnabled
         ? getLoginTokenWorkspaceIntent(loginToken)
         : undefined;
-      if (isSameOriginMultiWorkspaceEnabled && !expectedWorkspaceId)
-        throw new Error(t`Authentication failed`);
+      if (intent?.kind === 'invalid') throw new Error(t`Authentication failed`);
+      // An agnostic token asserts no workspace, so the bootstrap read asserts
+      // none either: there is nothing yet for the server to confirm against.
+      const expectedWorkspaceId =
+        intent?.kind === 'workspace' ? intent.workspaceId : undefined;
       markSessionActive();
       const sessionGeneration = getSessionGeneration();
       setIsAppEffectRedirectEnabled(false);
@@ -283,9 +286,14 @@ export const useAuth = () => {
       const requestSessionGeneration = getSessionGeneration();
       if (isSameOriginMultiWorkspaceEnabled) {
         const intent = getLoginTokenWorkspaceIntent(loginToken);
+        // Where a workspace is expected the token must name that very one: an
+        // agnostic or wrong-target token is still refused there. Where none is
+        // expected, only a malformed or wrong-purpose token is refused.
         if (
-          !intent ||
-          (expectedWorkspaceId && intent !== expectedWorkspaceId.toLowerCase())
+          intent.kind === 'invalid' ||
+          (isNonEmptyString(expectedWorkspaceId) &&
+            (intent.kind !== 'workspace' ||
+              intent.workspaceId !== expectedWorkspaceId.toLowerCase()))
         )
           throw new Error(t`Authentication failed`);
       }

@@ -19,17 +19,32 @@ describe('LOGIN workspace intent only', () => {
           roles: ['ignored'],
         }),
       ),
-    ).toBe(A);
+    ).toEqual({ kind: 'workspace', workspaceId: A });
   });
+  it.each([
+    { type: 'LOGIN' },
+    { type: 'LOGIN', workspaceId: null },
+    { type: 'LOGIN', sub: 'user-without-a-workspace' },
+  ])(
+    'reports a LOGIN payload that names no workspace as agnostic, not invalid',
+    (payload) => {
+      expect(getLoginTokenWorkspaceIntent(encode(payload))).toEqual({
+        kind: 'agnostic',
+      });
+    },
+  );
   it.each([
     {},
     { type: 'ACCESS', workspaceId: A },
     { type: 'WORKSPACE_AGNOSTIC', workspaceId: A },
     { type: 'LOGIN', workspaceId: 'not-a-uuid' },
     { type: 'LOGIN', workspaceId: 42 },
+    { type: 'LOGIN', workspaceId: '' },
     null,
   ])('rejects an absent or wrong-purpose workspace intent', (payload) => {
-    expect(getLoginTokenWorkspaceIntent(encode(payload))).toBeUndefined();
+    expect(getLoginTokenWorkspaceIntent(encode(payload))).toEqual({
+      kind: 'invalid',
+    });
   });
   it.each([
     'not-a-jwt',
@@ -40,7 +55,7 @@ describe('LOGIN workspace intent only', () => {
   ])(
     'refuses malformed intent without treating it as authentication',
     (token) => {
-      expect(getLoginTokenWorkspaceIntent(token)).toBeUndefined();
+      expect(getLoginTokenWorkspaceIntent(token)).toEqual({ kind: 'invalid' });
     },
   );
 });
