@@ -833,3 +833,12 @@ Vrai défaut constaté sur preview508, viewport390x844, navigation fermée : ent
 ## CAT-MAILBOX-STANDARD-FOLDERS — 2026-10-31
 
 Owner unique backend_review, autorisation root : scripts fixture et tests/smoke uniquement, base601143e27. Initialiser Drafts/Sent/Trash pour les trois boîtes fictives opt-in par IMAP authentifié TLS CA/SAN ; aucune source applicative, garde, connexion CRM ou donnée CRM modifiée. Preuve CI protocolaire CREATE/LIST puis APPEND brouillon, UID/MIME/taille, TLS/isolation/cleanup inchangés. Aucun nouveau runtime P0 ni Vercel lancé par cet agent. Runtime601 courant préservé. Commit/push checkpoint pour revue root avant intégration.
+
+
+## CAT-HOSTINGER-STAGING-PACKAGING — 31 octobre 2026
+
+agent: codex preview_pwa ; status: in_progress. Propriétaire confirmé par l'utilisateur : VPS srv2081633 (ops), services existants intouchables. Base9445ee2c5a94c8ee062d0c5412ef9900a853105f, branche fix/hermes-hostinger-packaging-20261031, worktree isolé à créer sans reprendre de WIP. Plan relu /private/tmp/hermes-hostinger-staging-plan.md.
+
+Ownership exclusif : nouveaux fichiers infra/hermes-staging/** (Dockerfile, compose, chargeur runtime, migrations strictes, exemples sans secrets, exploitation) et scripts/check-hermes-staging-image.mjs. Root possède .github/workflows/hermes-staging-image.yml, intégration, secrets et déploiement. Aucun Dockerfile natif upstream ni source applicative modifié. Une image exacte Linux/glibc serveur+frontend+assets, worker/migration au même digest ; PG16 et Redis AOF/stockage persistants dédiés, ressources bornées, migrations fail-closed, zéro mot de passe par défaut. Tests légers seulement localement ; construction cloud par root. Pas d'accès SSH, DNS, Caddy, registre public ou déploiement par l'agent. Domaine proposé crm-recette.kovvalab.online encore en attente de préférence utilisateur ; cela ne bloque pas le packaging.
+
+Critères : smoke cloud de l'image sur base neuve, health/config/frontend/worker, conservation après restart et protocole backup/restore à recetter. Rapport exact SHA et limites ; aucune livraison durable déduite de la seule configuration Compose.
