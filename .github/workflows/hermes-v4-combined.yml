@@ -56,7 +56,7 @@ jobs:
         working-directory: apps/crm/ui
         run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
       - name: Verify orchestration and existing disposable wrapper boundaries
-        run: node --test scripts/check-hermes-v4-combined.test.mjs scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-tenancy-ci.test.mjs scripts/check-hermes-connections-migration-ci.test.mjs scripts/check-hermes-media-migration-ci.test.mjs scripts/check-hermes-swc-isolation.test.mjs
+        run: node --test scripts/check-hermes-v4-combined.test.mjs scripts/check-hermes-integration-p0.test.mjs scripts/check-hermes-tenancy-ci.test.mjs scripts/check-hermes-connections-migration-ci.test.mjs scripts/check-hermes-media-migration-ci.test.mjs scripts/check-hermes-swc-isolation.test.mjs scripts/check-hermes-pwa-service-worker.test.mjs scripts/check-preview-access.test.mjs scripts/check-preview-session-env.test.mjs
       - name: Build native shared SDK UI and renderer dependency graph
         id: dependencies
         working-directory: apps/crm/ui

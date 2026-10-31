@@ -45,6 +45,7 @@ jobs:
             src/modules/hermes-wa-ui src/modules/hermes-mailbox-ui src/modules/hermes-admin-ui src/modules/hermes-campaigns-ui \
             src/modules/hermes-wa-runtime src/modules/hermes-mailbox-runtime src/modules/hermes-admin-runtime src/modules/hermes-campaigns-runtime \
             src/modules/hermes-thread-inspector src/modules/hermes-shell src/modules/hermes-bot-settings \
+            src/modules/hermes-pwa \
             src/modules/messaging-inbox src/modules/auth src/modules/users src/modules/client-config \
             src/modules/apollo/utils/__tests__ src/modules/app src/utils/i18n
       - name: Typecheck the complete frontend against the native dependency declarations
