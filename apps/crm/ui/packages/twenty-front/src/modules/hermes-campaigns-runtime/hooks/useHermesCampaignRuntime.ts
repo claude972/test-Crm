@@ -166,6 +166,55 @@ type TopicsQueryResult = {
   unsubscribeTopics?: { id: string; name?: string | null }[] | null;
 };
 
+// Whether the stored body carries any text at all.
+//
+// `bodyTemplate` holds a serialised email document, not prose, so its string
+// length says nothing: an empty document is still a long JSON string. This
+// looks for any text node with content, and treats an unparseable value as
+// prose so a legacy plain-text body is still read correctly.
+//
+// SEAM: once `readCampaignBodyText` from
+// `hermes-campaigns-ui/utils/campaignBodyDocument` is on this branch, this
+// helper should be replaced by it so there is one reader rather than two.
+// It is written to err toward "empty", which refuses a test rather than
+// sending a message with nothing in it.
+const hasBodyText = (bodyTemplate: string): boolean => {
+  const trimmed = bodyTemplate.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(trimmed);
+  } catch {
+    // Not a document: read it as the prose it appears to be.
+    return true;
+  }
+
+  const carriesText = (node: unknown): boolean => {
+    if (Array.isArray(node)) {
+      return node.some(carriesText);
+    }
+
+    if (typeof node !== 'object' || node === null) {
+      return false;
+    }
+
+    const record = node as Record<string, unknown>;
+
+    if (typeof record.text === 'string' && record.text.trim().length > 0) {
+      return true;
+    }
+
+    return carriesText(record.content);
+  };
+
+  return carriesText(parsed);
+};
+
 // An emission that threw. A refusal the server reasoned about is a refusal;
 // anything else leaves the outcome unknown, and an unknown emission is never
 // reported as a failure, because "failed" reads as an invitation to press
@@ -491,6 +540,12 @@ export const useHermesCampaignRuntime = ({
 
   const onSaveContent = useCallback(async () => {
     // Exactly what is being sent, frozen before the call.
+    //
+    // `attempted.body` is persisted as it stands. It is a serialised email
+    // document produced by the native editor, so it must never be passed
+    // through a validator's normalised copy or any text projection on the way
+    // out: that would write flattened prose back into `bodyTemplate` and
+    // break the engine's own parse.
     const attempted = content;
 
     const recorded = await saveContent(attempted);
@@ -689,10 +744,10 @@ export const useHermesCampaignRuntime = ({
 
     // The stored content, not the draft on screen: a test that rehearsed
     // unrecorded text would not rehearse what this campaign will send.
-    if (
-      !isNonEmptyString(publishedSubject) ||
-      !isNonEmptyString(publishedBody)
-    ) {
+    //
+    // The body is checked for actual text rather than for string length: it
+    // holds a serialised document, so an empty one is still a long string.
+    if (!isNonEmptyString(publishedSubject) || !hasBodyText(publishedBody)) {
       setActionOutcome({
         kind: 'failed',
         action: 'testSynthetic',

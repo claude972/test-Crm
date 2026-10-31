@@ -42,8 +42,18 @@ export const HermesCampaignListContainer = ({
   onOpenCampaign,
 }: HermesCampaignListContainerProps = {}) => {
   const { t } = useLingui();
-  const { campaignsLoad, totalCount, createState, onCreateCampaign, onRetry } =
-    useHermesRuntimeCampaignList();
+  const {
+    campaignsLoad,
+    totalCount,
+    createState,
+    onCreateCampaign,
+    isCreateBlocked,
+    onRecheckAfterUncertainCreation,
+    hasNextPage,
+    isLoadingMore,
+    onLoadMore,
+    onRetry,
+  } = useHermesRuntimeCampaignList();
 
   // Which campaign is open when the caller wired no navigation. Held here
   // rather than in a URL so the container needs no route parameter.
@@ -114,6 +124,15 @@ export const HermesCampaignListContainer = ({
           : null
       }
       isCreateUnconfirmed={createState.kind === 'unconfirmed'}
+      isCreateBlocked={isCreateBlocked}
+      onRecheckAfterUncertainCreation={() => {
+        void onRecheckAfterUncertainCreation();
+      }}
+      hasNextPage={hasNextPage}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={() => {
+        void onLoadMore();
+      }}
       totalCount={totalCount}
     />
   );

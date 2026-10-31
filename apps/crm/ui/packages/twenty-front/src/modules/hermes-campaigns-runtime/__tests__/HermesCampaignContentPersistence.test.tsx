@@ -1,3 +1,4 @@
+import { type DocumentNode } from '@apollo/client';
 import { ApolloLink } from '@apollo/client/link';
 import { MockLink } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
@@ -48,16 +49,26 @@ const EDITED_SUBJECT = 'Rethink your shopfront in Nantes';
 // and recorded rather than left to pass as unmatched operations.
 const emissionTrap = jest.fn();
 
-const emissionTrapFor = (query: Parameters<typeof MockLink>[0], name: string) =>
-  ({
-    request: { query },
-    variableMatcher: () => true,
-    result: () => {
-      emissionTrap(name);
+// The parameter is a GraphQL document, so it is typed as one. `MockLink` is a
+// class, so `Parameters<typeof MockLink>` was invalid — a class has
+// constructor parameters, not call parameters — and its first constructor
+// parameter is the whole mocks array anyway, not a single document. Jest runs
+// this file through swc, which never typechecks, so only the full typecheck
+// caught it.
+const emissionTrapFor = (query: DocumentNode, name: string) => ({
+  // The any-variables matcher belongs inside `request.variables`, which is
+  // typed `TVariables | VariableMatcher<TVariables>`. A top-level
+  // `variableMatcher` key is from an older Apollo testing API: it is not in
+  // this version's `MockedResponse` at all, so it was both an excess
+  // property and a trap that would never have matched a call carrying
+  // variables.
+  request: { query, variables: () => true },
+  result: () => {
+    emissionTrap(name);
 
-      return { data: null };
-    },
-  }) as never;
+    return { data: null };
+  },
+});
 
 const campaignRecord = (
   subject: string,
@@ -366,9 +377,9 @@ const renderContainer = (mocks: readonly unknown[]) => {
             recordingLink,
             new MockLink([
               ...(mocks as never[]),
-              emissionTrapFor(SEND_MESSAGE_CAMPAIGN as never, 'SendMessageCampaign'),
+              emissionTrapFor(SEND_MESSAGE_CAMPAIGN, 'SendMessageCampaign'),
               emissionTrapFor(
-                SEND_MESSAGE_CAMPAIGN_TEST as never,
+                SEND_MESSAGE_CAMPAIGN_TEST,
                 'SendMessageCampaignTest',
               ),
             ]),
@@ -948,5 +959,55 @@ describe('campaign audience persistence', () => {
         /the server keeps only rows whose professional purpose and company context were recorded at qualification/,
       ),
     ).toBeVisible();
+  });
+});
+
+// The body is a serialised email document, so its string length says nothing
+// about whether there is anything to send. An empty document is a long JSON
+// string, and a test must not go out with nothing in it.
+describe('campaign body emptiness', () => {
+  beforeEach(() => {
+    emissionTrap.mockClear();
+  });
+
+  const EMPTY_DOCUMENT = JSON.stringify({
+    type: 'doc',
+    attrs: { schemaVersion: 1 },
+    content: [],
+  });
+
+  it('refuses the test when the stored document carries no text, despite a long body string', async () => {
+    renderContainer([
+      recordMock(STORED_SUBJECT, EMPTY_DOCUMENT),
+      sendPreviewMock(),
+      recipientsMock(),
+      audiencesMock(),
+      connectionsMock(),
+      channelsMock([connectedMailbox]),
+      topicsMock(),
+      suppressionsMock(),
+    ]);
+
+    expect(
+      await screen.findByText('Shopfitting — Loire-Atlantique'),
+    ).toBeVisible();
+
+    // The string is far from empty, so a length check would have passed it.
+    expect(EMPTY_DOCUMENT.length).toBeGreaterThan(30);
+
+    const destination = screen.getByLabelText('Test destination');
+
+    fireEvent.change(destination, {
+      target: { value: 'recette@atelier-fontaine.fr' },
+    });
+
+    const testButton = screen.getByRole('button', {
+      name: 'Send the test to this address',
+    });
+
+    testButton.click();
+
+    // Nothing left, whatever the button's own state: the guard is the point.
+    expect(emissionTrap).not.toHaveBeenCalled();
   });
 });

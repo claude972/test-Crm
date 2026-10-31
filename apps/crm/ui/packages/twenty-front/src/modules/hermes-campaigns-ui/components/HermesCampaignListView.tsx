@@ -128,7 +128,8 @@ const StyledRowDetail = styled.span`
   overflow-wrap: anywhere;
 `;
 
-const StyledStatus = styled.p`
+// A div rather than a p, for the same reason: it can contain the loader.
+const StyledStatus = styled.div`
   align-items: center;
   color: ${themeCssVariables.font.color.secondary};
   display: flex;
@@ -153,6 +154,16 @@ export type HermesCampaignListViewProps = {
   // True when a create left without a known result: the list may or may not
   // already hold it, so no second attempt is offered on a guess.
   isCreateUnconfirmed: boolean;
+  // Shut while a creation is in flight or unresolved. Kept separate from
+  // `isCreating` so an unresolved outcome also closes the control.
+  isCreateBlocked: boolean;
+  // Re-reads the list, which is the only way to find out whether an
+  // unresolved creation actually happened.
+  onRecheckAfterUncertainCreation?: () => void;
+  // More campaigns than this page holds.
+  hasNextPage: boolean;
+  isLoadingMore: boolean;
+  onLoadMore?: () => void;
   // Campaigns the server counted, which may exceed the page shown.
   totalCount: number | null;
 };
@@ -169,6 +180,11 @@ export const HermesCampaignListView = ({
   isCreating,
   createFailure,
   isCreateUnconfirmed,
+  isCreateBlocked,
+  onRecheckAfterUncertainCreation,
+  hasNextPage,
+  isLoadingMore,
+  onLoadMore,
   totalCount,
 }: HermesCampaignListViewProps) => {
   const { t, i18n } = useLingui();
@@ -184,7 +200,8 @@ export const HermesCampaignListView = ({
   };
 
   const isNameUsable = draftName.trim().length > 0;
-  const canCreate = isDefined(onCreateCampaign) && isNameUsable && !isCreating;
+  const canCreate =
+    isDefined(onCreateCampaign) && isNameUsable && !isCreateBlocked;
 
   return (
     <StyledLayout>
@@ -274,8 +291,20 @@ export const HermesCampaignListView = ({
               {t`The outcome of creating the campaign is not known.`}
             </Banner>
             <HermesCampaignNote>
-              {t`It may already be in the list below, which has been re-read. Check before creating another one: pressing again could leave you with two.`}
+              {t`It may already be in the list below. Creating is shut until you re-read the list, because pressing again on a guess could leave you with two.`}
             </HermesCampaignNote>
+            <HermesCampaignNote>
+              {t`If it was not created, the next attempt reuses the same identifier, so it cannot produce a second campaign.`}
+            </HermesCampaignNote>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!isDefined(onRecheckAfterUncertainCreation)}
+              focusableWhenDisabled
+              onClick={() => onRecheckAfterUncertainCreation?.()}
+            >
+              {t`Re-read the list`}
+            </Button>
           </>
         )}
       </Section.Root>
@@ -382,6 +411,27 @@ export const HermesCampaignListView = ({
                 {t`${i18n.number(campaignsLoad.value.length)} of ${i18n.number(totalCount)} campaigns shown.`}
               </HermesCampaignNote>
             )}
+
+          {/* Without this the list stopped at its page size with no way
+              past it, so the rest of the campaigns were unreachable. */}
+          {hasNextPage && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={isLoadingMore}
+              disabled={!isDefined(onLoadMore) || isLoadingMore}
+              focusableWhenDisabled
+              onClick={() => onLoadMore?.()}
+            >
+              {t`Show more campaigns`}
+            </Button>
+          )}
+
+          {hasNextPage && !isDefined(onLoadMore) && (
+            <HermesCampaignNote>
+              {t`This screen has nothing wired to read the next page, so the control does nothing.`}
+            </HermesCampaignNote>
+          )}
 
           <HermesCampaignNote>
             <Trans>

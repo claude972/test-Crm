@@ -65,6 +65,11 @@ const renderListView = (
         isCreating={false}
         createFailure={null}
         isCreateUnconfirmed={false}
+        isCreateBlocked={false}
+        onRecheckAfterUncertainCreation={jest.fn()}
+        hasNextPage={false}
+        isLoadingMore={false}
+        onLoadMore={jest.fn()}
         totalCount={3}
         // oxlint-disable-next-line react/jsx-props-no-spreading
         {...overrides}
@@ -182,7 +187,7 @@ describe('HermesCampaignListView', () => {
     ).toBeVisible();
     expect(
       screen.getByText(
-        'It may already be in the list below, which has been re-read. Check before creating another one: pressing again could leave you with two.',
+        'It may already be in the list below. Creating is shut until you re-read the list, because pressing again on a guess could leave you with two.',
       ),
     ).toBeVisible();
     // It is not reported as a plain failure at the same time.
@@ -207,5 +212,64 @@ describe('HermesCampaignListView', () => {
         'This screen has nothing wired to open a campaign, so the rows do nothing.',
       ),
     ).toBeVisible();
+  });
+
+  // CJ-CAMPAIGN-010. An unresolved creation must not be pressable again: the
+  // first call may have succeeded, and a second press on a guess is how one
+  // intention becomes two campaigns.
+  it('shuts creating while an outcome is unknown and offers a re-read instead', () => {
+    const onCreateCampaign = jest.fn();
+    const onRecheckAfterUncertainCreation = jest.fn();
+
+    renderListView({
+      isCreateUnconfirmed: true,
+      isCreateBlocked: true,
+      createFailure: { reasonCode: 'FAILED', reason: null },
+      onCreateCampaign,
+      onRecheckAfterUncertainCreation,
+    });
+
+    const createButton = screen.getByRole('button', {
+      name: 'Create the campaign',
+    });
+
+    expect(createButton).toHaveAttribute('aria-disabled', 'true');
+
+    createButton.click();
+
+    expect(onCreateCampaign).not.toHaveBeenCalled();
+
+    expect(
+      screen.getByText(
+        'If it was not created, the next attempt reuses the same identifier, so it cannot produce a second campaign.',
+      ),
+    ).toBeVisible();
+
+    screen.getByRole('button', { name: 'Re-read the list' }).click();
+
+    expect(onRecheckAfterUncertainCreation).toHaveBeenCalledTimes(1);
+  });
+
+  // CJ-CAMPAIGN-011. The list paginated at its page size with no way past it.
+  it('offers the next page when the company holds more campaigns', () => {
+    const onLoadMore = jest.fn();
+
+    renderListView({ hasNextPage: true, onLoadMore, totalCount: 120 });
+
+    const moreButton = screen.getByRole('button', {
+      name: 'Show more campaigns',
+    });
+
+    moreButton.click();
+
+    expect(onLoadMore).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers no next page control when there is nothing further to read', () => {
+    renderListView({ hasNextPage: false });
+
+    expect(
+      screen.queryByRole('button', { name: 'Show more campaigns' }),
+    ).not.toBeInTheDocument();
   });
 });
