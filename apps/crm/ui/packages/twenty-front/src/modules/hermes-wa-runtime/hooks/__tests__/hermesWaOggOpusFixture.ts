@@ -49,7 +49,11 @@ const oggCrc32 = (bytes: Uint8Array): number => {
   return crc >>> 0;
 };
 
-const writeUint32LE = (target: Uint8Array, offset: number, value: number) => {
+const writeUint32LE = (
+  target: Uint8Array<ArrayBuffer>,
+  offset: number,
+  value: number,
+) => {
   target[offset] = value & 0xff;
   target[offset + 1] = (value >>> 8) & 0xff;
   target[offset + 2] = (value >>> 16) & 0xff;
@@ -68,13 +72,16 @@ const buildOggPage = ({
   serialNumber,
   pageSequence,
 }: {
-  payload: Uint8Array;
+  payload: Uint8Array<ArrayBuffer>;
   headerType: number;
   granulePosition: number;
   serialNumber: number;
   pageSequence: number;
-}): Uint8Array => {
-  const page = new Uint8Array(27 + 1 + payload.length);
+}): Uint8Array<ArrayBuffer> => {
+  // Allocated over a real ArrayBuffer on purpose. `Uint8Array<ArrayBufferLike>`
+  // may be backed by a SharedArrayBuffer, which `BlobPart` does not accept, and
+  // these bytes are handed to a Blob.
+  const page = new Uint8Array(new ArrayBuffer(27 + 1 + payload.length));
 
   page.set(ASCII('OggS'), 0);
   page[4] = 0; // stream structure version
@@ -102,8 +109,8 @@ const buildOggPage = ({
 // The OpusHead identification header, 19 bytes, as the Opus-in-Ogg mapping
 // defines it: magic, version 1, one channel, a 312-sample pre-skip, the
 // original 48 kHz rate, no output gain and channel mapping family 0.
-const buildOpusHead = (): Uint8Array => {
-  const header = new Uint8Array(19);
+const buildOpusHead = (): Uint8Array<ArrayBuffer> => {
+  const header = new Uint8Array(new ArrayBuffer(19));
 
   header.set(ASCII('OpusHead'), 0);
   header[8] = 1; // version
@@ -120,9 +127,11 @@ const buildOpusHead = (): Uint8Array => {
 
 // The OpusTags comment header: magic, a vendor string, then an empty user
 // comment list.
-const buildOpusTags = (): Uint8Array => {
+const buildOpusTags = (): Uint8Array<ArrayBuffer> => {
   const vendor = ASCII('hermes-wa-test-fixture');
-  const header = new Uint8Array(8 + 4 + vendor.length + 4);
+  const header = new Uint8Array(
+    new ArrayBuffer(8 + 4 + vendor.length + 4),
+  );
 
   header.set(ASCII('OpusTags'), 0);
   writeUint32LE(header, 8, vendor.length);
@@ -136,7 +145,7 @@ export const HERMES_WA_OGG_OPUS_SERIAL_NUMBER = 0x4f707573;
 
 // The two header pages, concatenated. `BOS` is set on the first page, as the
 // Ogg framing requires for the start of a logical bitstream.
-export const buildHermesWaOggOpusBytes = (): Uint8Array => {
+export const buildHermesWaOggOpusBytes = (): Uint8Array<ArrayBuffer> => {
   const identification = buildOggPage({
     payload: buildOpusHead(),
     headerType: 0x02, // beginning of stream
@@ -153,7 +162,9 @@ export const buildHermesWaOggOpusBytes = (): Uint8Array => {
     pageSequence: 1,
   });
 
-  const stream = new Uint8Array(identification.length + comment.length);
+  const stream = new Uint8Array(
+    new ArrayBuffer(identification.length + comment.length),
+  );
 
   stream.set(identification, 0);
   stream.set(comment, identification.length);
