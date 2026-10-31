@@ -13,7 +13,7 @@ const OFFLINE_DOCUMENT = `<!doctype html>
 :root{--surface:#fcfcfc;--panel:#fff;--border:#ebebeb;--text:#141414;--muted:#6b6b6b;--accent:#0073ea;--accent-text:#fff;--step:8px}
 @media (prefers-color-scheme:dark){:root{--surface:#1b1b1b;--panel:#171717;--border:#333;--text:#f1f1f1;--muted:#a0a0a0;--accent:#4799f5;--accent-text:#0a0a0a}}
 *{box-sizing:border-box}
-body{margin:0;padding:calc(var(--step)*5) var(--step);background:var(--surface);color:var(--text);font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+body{margin:0;padding:calc(var(--step)*5) var(--step);background:var(--surface);color:var(--text);font-family:var(--t-font-family,sans-serif);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
 main{max-width:560px;margin:0 auto}
 .brand{font-weight:600;letter-spacing:-.01em;margin-bottom:calc(var(--step)*4)}
 h1{margin:0 0 var(--step);font-size:26px;font-weight:700;letter-spacing:-.02em}
@@ -25,7 +25,7 @@ li+li{margin-top:calc(var(--step)*.5)}
 button{appearance:none;min-height:44px;padding:0 calc(var(--step)*2.5);border:1px solid var(--accent);border-radius:6px;background:var(--accent);color:var(--accent-text);font:inherit;font-weight:600;cursor:pointer;transition:opacity 120ms ease}
 button:hover{opacity:.88}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.status{margin-top:calc(var(--step)*2);font-family:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+.status{margin-top:calc(var(--step)*2);font-family:var(--t-code-font-family,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:12px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){button{transition:none}}
 </style></head>
 <body><main>

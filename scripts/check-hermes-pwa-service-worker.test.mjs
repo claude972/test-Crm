@@ -294,6 +294,24 @@ test('la page hors connexion ne dépend d\'aucune ressource réseau', async () =
   assert.doesNotMatch(respondedWith.body, /\shref="\//);
 });
 
+test('la page hors connexion suit la typographie du produit, sans police bannie', () => {
+  const source = readFileSync(SERVICE_WORKER_PATH, 'utf8');
+
+  // DESIGN.md interdit ces polices. La page est une surface produit : elle
+  // emploie les jetons existants et leur repli, jamais sa propre déclaration.
+  for (const banned of ['Inter', 'Poppins', 'Roboto', 'system-ui']) {
+    assert.ok(
+      !source.includes(banned),
+      `police bannie déclarée dans la page hors connexion : ${banned}`,
+    );
+  }
+
+  // Cette page ne charge aucune feuille de style, donc c'est le repli du jeton
+  // qui s'applique réellement.
+  assert.match(source, /font-family:var\(--t-font-family,sans-serif\)/);
+  assert.match(source, /font-family:var\(--t-code-font-family,/);
+});
+
 test("l'activation supprime les caches laissés par une version antérieure", async () => {
   const worker = await installed();
   worker.cacheNames.add('hermes-offline-v1');
