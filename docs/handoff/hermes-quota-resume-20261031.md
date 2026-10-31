@@ -105,3 +105,8 @@ Dernière source QAroot e35ddba6a, inclutmailCJ04d. Root26testsPASS/3suites surs
 ## Recheck média08:20UTC
 
 Root sur e35ddba6a : `hermes-media.real-blob.spec.ts`, **1 suite/17 tests PASS** en configuration native serveur. Vrai reniflage et vrai disque blob ; base et deux services de fichiers doublés. Preuve bornée : acceptation Opus après retrait des paramètres MIME et protections de stockage/jetons, pas lecture audiovisuelle réelle ni PG complet. Source MIME relue, pas de liste blanche élargie. Parent a confirmé relance CJ04b pour contrat opaque brouillon serveur +consommation classification, CJ04d pour scope/purge et CJ04c pour catch réseau/callback ; parent conserve Auth. Les trois run IDs récents sont en cours/en attente, aucun nouveau lien livré.
+
+
+## Checkpoint08:34UTC
+
+CI intermédiaired0a7 run41183428603SUCCESS, mais SMTPsauté(opt-infaux). R10opt-invrai run41183947336(e35) en cours. Frontfull41184065339(e35)FAILURE uniqueTS2322fixturevariables : missingCount requis, parentprévenu CJ-FRONT-TYPE003. RootQA maintenant1c857d598 : draftidentityserveur6PASS +setup12PASS, isolementsannoncés. Setup003vérifié, anciens001/002corrigés ; encore recettebrowser. CJ04d89b33958d/3beb5c1ec supprimentlocalstore pourid/révisionserveur, àintégrer/relire, penserpurgeancienneclé. Aucun nouveau lien utilisable ni succèsSafari prouvé.
