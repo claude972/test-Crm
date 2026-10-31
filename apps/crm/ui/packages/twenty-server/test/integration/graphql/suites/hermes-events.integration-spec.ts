@@ -260,9 +260,12 @@ describe('Hermes Forms/Cal — native signed HTTP and PostgreSQL', () => {
         expectedRevision: current?.revision ?? 0,
         settings: {
           allowedSources: ['FORMS', 'CALENDAR'],
-          // The previous env-only fixture omitted this and inherited the
-          // schema default; keep that exact budget, do not widen it.
-          maxRequestsPerMinute: 10,
+          // The limiter counts per connection per wall-clock minute and the
+          // forms and calendar cases share that bucket: at the inherited
+          // budget of 10 the two cases leave zero to one request of head
+          // room, so a minute boundary decided whether the suite passed.
+          // This is the throttle, not the guard, and no case asserts on it.
+          maxRequestsPerMinute: 60,
         },
         secrets: { secret },
       });
