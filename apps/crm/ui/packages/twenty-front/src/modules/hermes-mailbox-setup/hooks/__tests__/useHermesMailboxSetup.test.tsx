@@ -76,7 +76,12 @@ const lostAnswerMock = (): MockedResponse => ({
 const renderSetup = (saveMock: MockedResponse = buildSaveMock(NEW_ACCOUNT_ID)) => {
   // Each operation's context is recorded on its way out: that is where the
   // retry decision is read from.
-  const operations: { name: string; skipRetry: unknown }[] = [];
+  //
+  // `name` is optional because `operationName` genuinely is — an anonymous
+  // document carries none. The fixture keeps that rather than asserting it
+  // away: every assertion below looks for one exact name, so an unnamed
+  // operation correctly matches nothing instead of being forced to a string.
+  const operations: { name: string | undefined; skipRetry: unknown }[] = [];
 
   const captureLink = new ApolloLink((operation, forward) => {
     operations.push({
