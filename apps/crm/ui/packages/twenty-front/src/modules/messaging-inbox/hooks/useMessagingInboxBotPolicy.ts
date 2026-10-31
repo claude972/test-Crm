@@ -158,7 +158,8 @@ export const useMessagingInboxBotPolicy = (
               : { kind: 'refused', message: null, code: null },
           );
 
-          return refetch();
+          // Same here: an abort at unmount is not an outcome to report.
+          return refetch().catch(() => undefined);
         })
         .catch((error: unknown) => {
           const { failure, code } = readMessagingInboxPolicyRefusal(error);
@@ -171,6 +172,20 @@ export const useMessagingInboxBotPolicy = (
               ? { kind: 'refused', message: failure.message, code }
               : { kind: 'failed', message: failure.message, code },
           );
+
+          // STALE means the revision in hand is the wrong one, so every
+          // further attempt is refused the same way until it is replaced. The
+          // re-read is issued here, which is also the only thing that makes
+          // the message's "it has been read again" true.
+          //
+          // Its own rejection is swallowed: a read aborted because the thread
+          // closed is not a second failure to report, and leaving it unhandled
+          // surfaces as a stray error elsewhere.
+          if (code === 'BOT_POLICY_STALE') {
+            return refetch().catch(() => undefined);
+          }
+
+          return undefined;
         });
     },
     [conversationId, read, refetch, setPolicyMutation],

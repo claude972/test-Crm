@@ -286,7 +286,7 @@ describe('MessagingInboxBotModeControl — the AUTO delegation path', () => {
   // with BOT_DELEGATION_REQUIRED. The refusal has to be explained, and the
   // delegation must NOT be smuggled in under INHERIT.
   it('explains a delegation refusal on INHERIT instead of calling it a failure', async () => {
-    const { variablesOf } = renderControl([
+    const { operationNames, variablesOf } = renderControl([
       policyRead(policy()),
       readySurface(),
       setPolicyDenied('BOT_DELEGATION_REQUIRED'),
@@ -314,6 +314,43 @@ describe('MessagingInboxBotModeControl — the AUTO delegation path', () => {
         },
       },
     ]);
+
+    // This refusal leaves the held revision valid, so nothing is re-read:
+    // only the mount read happened. A spare read mock is available above, so
+    // a refetch would have been answered and counted here rather than hidden.
+    expect(
+      operationNames().filter((name) => name === 'HermesConversationBotPolicy'),
+    ).toHaveLength(1);
+  });
+
+  // CATWA004. The STALE sentence tells the operator the policy has been read
+  // again. Without an actual re-read the stale revision stays in hand and
+  // every further attempt is refused identically — the sentence would be a
+  // promise the code does not keep.
+  it('re-reads the policy after a STALE refusal, as its message says it has', async () => {
+    const { operationNames } = renderControl([
+      policyRead(policy()),
+      readySurface(),
+      setPolicyDenied('BOT_POLICY_STALE'),
+      // The re-read, answering with the revision that moved under the screen.
+      policyRead(policy({ revision: NEXT_REVISION })),
+    ]);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: /follow the company/i }),
+    );
+
+    expect(await screen.findByText(/please choose once more/i)).toBeVisible();
+
+    // Two reads of the policy: the one at mount and the one the refusal
+    // triggered. Counting them is what separates a promise from a fact.
+    await waitFor(() => {
+      expect(
+        operationNames().filter(
+          (name) => name === 'HermesConversationBotPolicy',
+        ),
+      ).toHaveLength(2);
+    });
   });
 
   it('explains a stricter company policy in its own terms', async () => {
