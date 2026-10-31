@@ -95,3 +95,8 @@ Preuves et limites détaillées : docs/verification/hermes-auth-recipe-411883418
 ## Contre-épreuveC46 10:42–10:46UTC
 
 Surc46etpreview41192248859 : CJ013UUIDv5/CJ014queryaperçu/CJ015menu/CJINTAKEUI002classification **validésUI** : collecte→qualifcontact1+société1→campagnev5→contenuenregistré→aperçupersonnaliséréel→reloadcontenuidentique. C'estunprogrèsR05/R06/R10, PASenvoiSMTP. R11 : réglagesuiviON/reloadpuisOFFpersisté, sujetdésinscriptioncréé/lié/reload ; marqueur/footer etoppositioneffectiveparcourspublic/réimportrestentnonvalidés. R16 : SafariMacfenêtreprivéefraîche→welcomeCRM sansloginVercel, capturé ; téléphonepropriétairetoujoursnonconfirmé, installationPWAnonfaite. R14 : textesanglaisvisiblesFormsCal/nouvellescopiescampagne, pasentièrementfrançais. Combined41192246414SUCCESSavecSMTPétapesautée ; fullfront41192244151FAILuniqueTS2322fixture, doncpasbuildstrictvert. Previewactuelleexpire11:54:23UTCavant8hMT ; finaleàrafraîchir.
+
+
+## R03/R15 — complément11:00UTC
+
+Surc46: créationentrepriseetcontacthorsqualification, éditionnom/domaine/email/téléphone/poste/entreprise, reload et recherche/routefichevalidés. Adresseinvalidesignaléearia-invalid=true, valideensuiterelue. CaptureCRMdesktop/mobile390,viewportrestauré. Suppression/restaurationnonessayées, pasCRUDintégralniinstallationPWA. CDPinstallabilitéindisponibleoutil, pasdéfautproduitconclu. BoutoncontactEnvoyermaildirigeconfigurationIMAPSMTPquandaucuncompte, aucunmessageparti.

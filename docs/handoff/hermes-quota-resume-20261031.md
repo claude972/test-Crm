@@ -221,3 +221,14 @@ GlobalprotectionVercel GETprojetvérifiéall_except_custom_domains aprèspartage
 
 
 Question asynchrone10:49UTC : root demande au propriétaire l'autorisation de corriger LUI-MÊME le test TypeScript CJ-FRONT-TYPE004, car consignecodeClaudeuniquement+quotahebdomadaire. Choix OuiCodexpeutcorrigerletest/NonClaudeuniquement. **Réponse encoreabsente, aucuneautorisationimplicite**, nepaséditerlecode enattendant ; continuerQA/preview. Autorisation éventuelleporteseulementsurcecorrectifdetest, nepasinterprétercommego généralnouvelleapplication.
+
+
+## Recette CRM10:51–11:00UTC
+
+Surc46IAB21 : créationnativeentreprise e026a486-e836-4231-9ea8-8b0b073d897a, nom « ClientmanuelC46—recette », domaine https://client-manuel-c46.test, reloadcomplet→nom/domaine relus. Puiscréationnativepersonne f9b5a725-c52f-4212-9d97-b95da72ab605, CamilleRecette. Saisieadresse-invalide+Entrée : éditeurresteouvert, aria-invalid=true observédansDOM ; remplacéepar camille@client-manuel-c46.test→lienmailtoenregistré. Téléphoneabc→riennenregistré/textefiltré, paserreurdevalidationexpliciteprouvée ; téléphonefictif+12025550100→lienvalidé, aucunappellancé. RelationnativeversClientmanuelC46, titre « Responsableachats—recette ». Reloadcomplet : nom/email/téléphone/relation/posterelusdansficheettable. Capturecrm-contact-after-reload.jpg.
+
+Rechercheglobale« CamilleRecette »→contactentêtedesrésultats, puisouverturevraieroute /object/person/f9b5a725-c52f-4212-9d97-b95da72ab605. Recherchefuzzyretientégalementd'autresfichescontenantRecette, pasuneégalitéstricte/ununicerésultat. Chronologiefichepublie « Vousmisàjour5champs » etcréation, cohérentavecsaisies. Pasdesuppression/restaurationtestées, pasCRUDcompletannoncé. BoutonEnvoyerl'email→/settings/accounts/new, lienIMAP/SMTP proposé, aucuneémission.
+
+Viewport390x844montrecontactlisibleavecchamps/relationsetactionsenbas, capturemobile-contact-after-reload.jpg observée. Viewportrestauré. CDPPage.getInstallabilityErrorséchoue« Unabletofetcherrorsfortarget » : limitationoutil, aucuneinstallabilité/installationprouvée. Manifest/HTTPstandalonedejàvalidé, PWAréel/offlinetoujoursnonrecettés.
+
+Rootaajoutécheckpointautomationsansmodifieréchéance/fréquence, pournepasredéployerc46initialeetprévoirrafraîchissement11:25–11:30UTC. Sourcefinalebranchepreview/cj-verified-20261031c46 resteexacte, testTSbloquéavecautorisationCodexTESTseulementencoreENATTENTE, pasnouveaucode.Claudequotainchangé23h. CUA21c46RecipegardéhandOff, maintenantficheCamilleRecettefullroute.
