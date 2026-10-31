@@ -7,9 +7,12 @@ import { Section } from 'kovaa-lab-ui/components/layout';
 import { IconAlertTriangle, IconEye } from 'kovaa-lab-ui/icon';
 import { Tag } from 'kovaa-lab-ui/primitives/data-display';
 import { Banner, Loader } from 'kovaa-lab-ui/primitives/feedback';
-import { Field, Input, Textarea } from 'kovaa-lab-ui/primitives/input';
+import { Field, Input } from 'kovaa-lab-ui/primitives/input';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import { CAMPAIGN_BODY_EDITOR_PROFILE } from '@/activities/emails/editor/constants/CampaignBodyEditorProfile';
+import { EmailEditorCanvas } from '@/activities/emails/editor/components/EmailEditorCanvas';
+import { FormAdvancedTextFieldInput } from '@/advanced-text-editor/components/FormAdvancedTextFieldInput';
 import { HermesCampaignIssueList } from '@/hermes-campaigns-ui/components/HermesCampaignIssueList';
 import { HermesCampaignNote } from '@/hermes-campaigns-ui/components/HermesCampaignNote';
 import { HermesCampaignReason } from '@/hermes-campaigns-ui/components/HermesCampaignReason';
@@ -24,6 +27,10 @@ import {
   type HermesCampaignPreviewState,
 } from '@/hermes-campaigns-ui/types/HermesCampaignContent';
 import { type HermesCampaignSaveState } from '@/hermes-campaigns-ui/types/HermesCampaignSaveState';
+import {
+  readCampaignBodyDocument,
+  readCampaignBodyText,
+} from '@/hermes-campaigns-ui/utils/campaignBodyDocument';
 import { validateCampaignContent } from '@/hermes-campaigns-ui/utils/validateCampaignContent';
 
 const StyledLayout = styled.div`
@@ -87,6 +94,13 @@ const StyledBody = styled.pre`
   white-space: pre-wrap;
 `;
 
+const StyledEditor = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  min-width: 0;
+`;
+
 const StyledLoading = styled.div`
   align-items: center;
   display: flex;
@@ -135,16 +149,28 @@ export const HermesCampaignContentSection = ({
     [declaredVariables],
   );
 
+  const bodyRead = useMemo(
+    () => readCampaignBodyDocument(content.body),
+    [content.body],
+  );
+
+  // Counted on what the recipient reads. Counting the serialised document
+  // would make an empty message look like prose and never report it missing.
+  const bodyText = useMemo(
+    () => readCampaignBodyText(content.body),
+    [content.body],
+  );
+
   const validation = useMemo(
     () =>
       validateCampaignContent({
         subject: content.subject,
-        body: content.body,
+        body: bodyText,
         subjectMaxLength: HERMES_CAMPAIGN_SUBJECT_MAX_LENGTH,
         bodyMaxLength: HERMES_CAMPAIGN_BODY_MAX_LENGTH,
         declaredVariableNames,
       }),
-    [content.subject, content.body, declaredVariableNames],
+    [content.subject, bodyText, declaredVariableNames],
   );
 
   const availableTokens = declaredVariableNames
@@ -157,6 +183,15 @@ export const HermesCampaignContentSection = ({
   const readWouldBeLabel = (flag: boolean | null): string =>
     flag === true ? t`yes` : flag === false ? t`no` : t`not stated`;
 
+  // An audience that published no variable list is not an audience that
+  // forbids every variable. Rejecting tokens against an empty list here would
+  // block a legitimate personalisation, so the server's own check answers.
+  const issues =
+    declaredVariableNames.length > 0
+      ? validation.issues
+      : validation.issues.filter(
+          (issue) => issue.code !== 'body-variable-not-declared',
+        );
 
   return (
     <Section.Root>
@@ -184,24 +219,45 @@ export const HermesCampaignContentSection = ({
 
         <Field.Root render={<StyledField />}>
           <Field.Label>{t`Message`}</Field.Label>
-          <Textarea
-            value={content.body}
-            disabled={!isEditable}
-            rows={10}
-            maxLength={HERMES_CAMPAIGN_BODY_MAX_LENGTH}
-            onChange={(event) =>
-              onContentChange({ ...content, body: event.target.value })
-            }
-            placeholder={t`Write to one company, not to a list.`}
-          />
+          {bodyRead.kind === 'unreadable' ? (
+            <Banner
+              role="alert"
+              status="error"
+              variant="soft"
+              icon={<IconAlertTriangle aria-hidden="true" />}
+            >
+              {t`The stored message could not be read as an email document, so it is not shown rather than shown as something else.`}
+            </Banner>
+          ) : (
+            <StyledEditor>
+              <FormAdvancedTextFieldInput
+                aria-label={t`Message`}
+                value={
+                  bodyRead.kind === 'document'
+                    ? bodyRead.serializedDocument
+                    : ''
+                }
+                readonly={!isEditable}
+                placeholder={t`Write to one company, not to a list.`}
+                profile={CAMPAIGN_BODY_EDITOR_PROFILE}
+                EditorComponent={EmailEditorCanvas}
+                minHeight={320}
+                // The native editor's own serialisation is persisted as it
+                // stands: the send path parses exactly this document.
+                onChange={(serializedDocument) =>
+                  onContentChange({ ...content, body: serializedDocument })
+                }
+              />
+            </StyledEditor>
+          )}
           <Field.Description>
             {availableTokens.length > 0
               ? t`Variables available: ${availableTokens}`
-              : t`The audience declares no variable, so the message cannot carry one.`}
+              : t`The audience published no variable list, so the variables written here are checked when the campaign is sent.`}
           </Field.Description>
         </Field.Root>
 
-        <HermesCampaignIssueList issues={validation.issues} />
+        <HermesCampaignIssueList issues={issues} />
 
         {validation.usedVariableNames.length > 0 && (
           <StyledVariableHint>
@@ -222,11 +278,14 @@ export const HermesCampaignContentSection = ({
           label={t`Record the content`}
           saveState={saveState}
           onSave={onSaveContent}
-          canSave={isEditable && validation.issues.length === 0}
+          // The FILTERED issues, not the raw ones: a legitimate variable
+          // rejected against an audience that published no list would
+          // otherwise block recording for good.
+          canSave={isEditable && issues.length === 0}
           blockedReason={
             !isEditable
               ? t`This campaign is no longer a draft, so its content can no longer be recorded.`
-              : validation.issues.length > 0
+              : issues.length > 0
                 ? t`Fix the problems listed above before recording.`
                 : undefined
           }
