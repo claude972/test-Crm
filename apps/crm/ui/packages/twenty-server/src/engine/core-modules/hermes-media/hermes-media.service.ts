@@ -26,6 +26,8 @@ import { type HermesMessagingActor } from 'src/engine/core-modules/hermes-messag
 import { HermesMediaAssetEntity } from './hermes-media.entity';
 import {
   HERMES_MEDIA_FORMATS,
+  mediaMimeAllowed,
+  mediaMimeEssence,
   mediaMimeMatches,
   mediaScopeSchema,
   parseMedia,
@@ -162,9 +164,7 @@ export class HermesMediaService {
       !file.contentSha256 ||
       !mediaMimeMatches(asset.kind, asset.mimeType, file.mimeType) ||
       file.size !== asset.size ||
-      !(HERMES_MEDIA_FORMATS[asset.kind].mimes as readonly string[]).includes(
-        file.mimeType,
-      )
+      !mediaMimeAllowed(asset.kind, file.mimeType)
     )
       throw new BadRequestException('MEDIA_CONTENT_MISMATCH');
     await this.access.assertAllowed(actor);
@@ -175,7 +175,9 @@ export class HermesMediaService {
         {
           status: 'READY',
           contentSha256: file!.contentSha256,
-          mimeType: file!.mimeType,
+          // The sniffed type without its codec parameters: the authoritative
+          // format is kept, and nothing downstream has to parse a parameter.
+          mimeType: mediaMimeEssence(file!.mimeType),
         },
       );
     if (!updated.affected)
@@ -298,7 +300,10 @@ export class HermesMediaService {
       fileId: asset.fileId,
       allowedFileFolders: [FileFolder.AgentChat],
     });
-    if (!file || file.mimeType !== asset.mimeType)
+    if (
+      !file ||
+      mediaMimeEssence(file.mimeType) !== mediaMimeEssence(asset.mimeType)
+    )
       throw new NotFoundException('MEDIA_FILE_NOT_FOUND');
     try {
       await this.access.assertAllowed(actor);
@@ -509,7 +514,7 @@ export class HermesMediaService {
         ownerUserWorkspaceId: null,
         kind: input.kind,
         filename,
-        mimeType: file.mimeType,
+        mimeType: mediaMimeEssence(file.mimeType),
         size: input.bytes.length,
         status: 'ATTACHED',
         messageId: null,
