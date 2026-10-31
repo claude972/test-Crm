@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
 import { HermesAdminNote } from '@/hermes-admin-ui/components/HermesAdminNote';
 import { HermesAdminSettingsCenter } from '@/hermes-admin-ui/components/HermesAdminSettingsCenter';
@@ -32,7 +32,16 @@ import {
 // This component owns the reads, the writes and the outcomes. The library it
 // renders owns the presentation and decides nothing: every state below was
 // read from a server or is the honest absence of one.
-export const HermesAdminRuntimeSettings = () => {
+export type HermesAdminRuntimeSettingsProps = {
+  // The native mailbox creation panel. Supplied by whoever owns that panel;
+  // this container only forwards it to the centre, and renders nothing of its
+  // own in its place when it is absent.
+  mailboxSetupSlot?: ReactNode;
+};
+
+export const HermesAdminRuntimeSettings = ({
+  mailboxSetupSlot,
+}: HermesAdminRuntimeSettingsProps = {}) => {
   const { t } = useLingui();
 
   const companies = useHermesRuntimeCompanies();
@@ -315,6 +324,7 @@ export const HermesAdminRuntimeSettings = () => {
         connectionFormSubject={formSubject}
         connectionFormInitialValues={initialValues}
         nativeAccounts={nativeAccounts}
+        mailboxSetupSlot={mailboxSetupSlot}
         connectionSaveState={connections.saveState}
         checkByProbe={checks.readOutcomes(checkedTarget)}
         checkedConnectionId={checkedTarget?.connectionId ?? null}

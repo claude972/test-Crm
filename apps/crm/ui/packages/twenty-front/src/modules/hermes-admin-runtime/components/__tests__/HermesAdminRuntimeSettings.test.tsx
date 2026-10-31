@@ -1,5 +1,6 @@
 import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
+import type React from 'react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -96,6 +97,10 @@ const connectionsMock: MockedResponse = {
   result: { data: { hermesConnectionsV4: connectionsPayload } },
 };
 
+// The whole selection set, because Apollo returns nothing usable from a
+// partial one — which is why this account used to be filtered out silently
+// and the account picker was never really exercised. `provider` is the real
+// enum VALUE, 'imap_smtp_caldav', not the TypeScript member name.
 const nativeAccountsMock: MockedResponse = {
   request: { query: GET_MY_CONNECTED_ACCOUNTS },
   maxUsageCount: 10,
@@ -106,10 +111,39 @@ const nativeAccountsMock: MockedResponse = {
           __typename: 'ConnectedAccount',
           id: '22222222-2222-4222-8222-222222222222',
           handle: 'contact@atelier.example',
-          provider: 'IMAP_SMTP_CALDAV',
-          name: 'Atelier',
-          archivedAt: null,
+          provider: 'imap_smtp_caldav',
           authFailedAt: null,
+          authFailedReason: null,
+          archivedAt: null,
+          scopes: null,
+          handleAliases: null,
+          lastSignedInAt: null,
+          userWorkspaceId: null,
+          connectionProviderId: null,
+          applicationId: null,
+          name: 'Atelier',
+          scope: null,
+          lastCredentialsRefreshedAt: null,
+          connectionParameters: {
+            __typename: 'ConnectionParameters',
+            IMAP: {
+              __typename: 'EmailAccountConnectionParameters',
+              host: 'imap.atelier.example',
+              port: 993,
+              connectionSecurity: 'SSL_TLS',
+              username: 'contact@atelier.example',
+            },
+            SMTP: {
+              __typename: 'EmailAccountConnectionParameters',
+              host: 'smtp.atelier.example',
+              port: 465,
+              connectionSecurity: 'SSL_TLS',
+              username: 'contact@atelier.example',
+            },
+            CALDAV: null,
+          },
+          createdAt: '2026-10-29T10:00:00.000Z',
+          updatedAt: '2026-10-29T10:00:00.000Z',
         },
       ],
     },
@@ -178,7 +212,10 @@ const memberRolesMock: MockedResponse = {
   },
 };
 
-const renderSettings = (extraMocks: MockedResponse[] = []) => {
+const renderSettings = (
+  extraMocks: MockedResponse[] = [],
+  mailboxSetupSlot?: React.ReactNode,
+) => {
   const store = createStore();
 
   store.set(currentWorkspaceState.atom, {
@@ -215,7 +252,7 @@ const renderSettings = (extraMocks: MockedResponse[] = []) => {
         ]}
       >
         <I18nProvider i18n={i18n}>
-          <HermesAdminRuntimeSettings />
+          <HermesAdminRuntimeSettings mailboxSetupSlot={mailboxSetupSlot} />
         </I18nProvider>
       </MockedProvider>
     </Provider>,
@@ -320,26 +357,29 @@ describe('HermesAdminRuntimeSettings', () => {
     const removeMock = jest.fn();
 
     renderSettings([
+      // These two must match ANY variables, so they catch a write that should
+      // never have left. The matcher belongs inside `request.variables`; as a
+      // top-level key it matched nothing, and a mock that cannot match turns
+      // « nothing was sent » into a test that passes for the wrong reason.
+      // No cast either: the cast is what hid that from the compiler.
       {
-        request: { query: HERMES_SAVE_CONNECTION_V4, variables: {} },
+        request: { query: HERMES_SAVE_CONNECTION_V4, variables: () => true },
         maxUsageCount: 10,
         result: () => {
           saveMock();
 
           return { data: { hermesSaveConnectionV4: {} } };
         },
-        variableMatcher: () => true,
-      } as MockedResponse,
+      },
       {
-        request: { query: HERMES_REMOVE_CONNECTION_V4, variables: {} },
+        request: { query: HERMES_REMOVE_CONNECTION_V4, variables: () => true },
         maxUsageCount: 10,
         result: () => {
           removeMock();
 
           return { data: { hermesRemoveConnectionV4: {} } };
         },
-        variableMatcher: () => true,
-      } as MockedResponse,
+      },
     ]);
 
     await screen.findByText('E-mail entrant (IMAP)');
@@ -432,7 +472,7 @@ describe('HermesAdminRuntimeSettings', () => {
             },
           },
         },
-      } as MockedResponse,
+      },
       {
         request: {
           query: HERMES_REMOVE_CONNECTION_V4,
@@ -445,7 +485,7 @@ describe('HermesAdminRuntimeSettings', () => {
 
           return { data: { hermesRemoveConnectionV4: { kind: 'EVOLUTION' } } };
         },
-      } as MockedResponse,
+      },
     ]);
 
     await screen.findByText('WhatsApp (Evolution)');
@@ -496,6 +536,65 @@ describe('HermesAdminRuntimeSettings', () => {
 
     warn.mockRestore();
     error.mockRestore();
+  });
+
+  it('names a native account by its name and address, never by its identifier', async () => {
+    // A UUID read as a mailbox is how the wrong account gets bound, so a raw
+    // identifier is never shown where a name belongs.
+    renderSettings([], <div>Panneau de création de boîte</div>);
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    const editButtons = screen.getAllByRole('button', {
+      name: 'Modifier les paramètres',
+    });
+
+    await userEvent.click(editButtons[1]);
+
+    expect(
+      screen.getByRole('form', {
+        name: 'Modifier la connexion E-mail entrant (IMAP)',
+      }),
+    ).toBeInTheDocument();
+
+    // The account's own name, then the address the SERVER attached to it.
+    // Awaited: the accounts come from their own query, after the form opens.
+    expect(
+      await screen.findByRole('option', {
+        name: 'Atelier — contact@atelier.example',
+      }),
+    ).toBeInTheDocument();
+
+    // And its identifier appears in no option label.
+    for (const option of screen.getAllByRole('option')) {
+      expect(option.textContent).not.toContain(
+        '22222222-2222-4222-8222-222222222222',
+      );
+    }
+
+    // The creation panel is rendered in the slot this form owns. Its contents
+    // belong to another lot; this screen only provides the hole.
+    expect(
+      screen.getByText('Panneau de création de boîte'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders nothing in place of an absent mailbox creation panel', async () => {
+    renderSettings();
+
+    await screen.findByText('E-mail entrant (IMAP)');
+
+    const editButtons = screen.getAllByRole('button', {
+      name: 'Modifier les paramètres',
+    });
+
+    await userEvent.click(editButtons[1]);
+
+    // No panel supplied, so the operator is told where to go instead of being
+    // shown an empty area.
+    expect(
+      screen.queryByText('Panneau de création de boîte'),
+    ).toBeNull();
   });
 
   it('sends the MCP save with the revision it read, under its exact operation', async () => {

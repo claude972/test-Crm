@@ -1,7 +1,7 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { isNonEmptyString } from '@sniptt/guards';
-import { useId, useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent, type ReactNode } from 'react';
 import { IconLock } from 'kovaa-lab-ui/icon';
 import { Tag } from 'kovaa-lab-ui/primitives/data-display';
 import { Button, Input } from 'kovaa-lab-ui/primitives/input';
@@ -134,6 +134,11 @@ type HermesConnectionFormProps = {
   // The existing native connected IMAP and SMTP accounts, already encrypted
   // server side. An e-mail link picks one of these; it never types credentials.
   nativeAccounts?: readonly HermesNativeConnectedAccount[];
+  // Where the native mailbox creation panel is rendered. This form owns the
+  // hole, not its contents: the panel and its hook belong to the lot that
+  // extracted them from the native account path, and the credentials stay in
+  // the native encrypted store. No second password store is introduced here.
+  mailboxSetupSlot?: ReactNode;
   saveState: HermesConnectionSaveState;
   // The last outcome of each read-only probe published for this kind. Mail has
   // two — reception and sending — and they are shown as two answers, because a
@@ -159,6 +164,7 @@ export const HermesConnectionForm = ({
   companyName,
   initialValues,
   nativeAccounts,
+  mailboxSetupSlot,
   saveState,
   checkByProbe,
   isChecking,
@@ -381,20 +387,33 @@ export const HermesConnectionForm = ({
               <option value="">{t`Choisir un compte connecté`}</option>
               {(nativeAccounts ?? []).map((account) => (
                 <option key={account.id} value={account.id}>
+                  {/* The account's own name, then the address the server
+                      attached to it. A raw identifier is never shown as a
+                      name: a UUID read as a mailbox is how the wrong account
+                      gets bound. An account the server named neither way is
+                      said to be unnamed, and stays selectable. */}
                   {isNonEmptyString(account.label)
-                    ? account.label
+                    ? isNonEmptyString(account.address)
+                      ? `${account.label} — ${account.address}`
+                      : account.label
                     : isNonEmptyString(account.address)
                       ? account.address
-                      : account.id}
+                      : t`Compte sans nom ni adresse renvoyés par le serveur`}
                 </option>
               ))}
             </StyledSelect>
 
             {(nativeAccounts ?? []).length === 0 && (
               <HermesAdminNote role="status">
-                {t`Aucun compte connecté natif IMAP ou SMTP n’est disponible. Il faut en connecter un dans les comptes du produit : rien ne se saisit ici à sa place.`}
+                {mailboxSetupSlot === undefined
+                  ? t`Aucun compte connecté natif IMAP ou SMTP n’est disponible. Il faut en connecter un dans les comptes du produit : rien ne se saisit ici à sa place.`
+                  : t`Aucun compte connecté natif IMAP ou SMTP n’est disponible. Vous pouvez en connecter un ci-dessous ; les identifiants restent dans le magasin chiffré natif.`}
               </HermesAdminNote>
             )}
+
+            {/* Rendered whatever the account list looks like: an operator may
+                need a second mailbox even when one already works. */}
+            {mailboxSetupSlot}
 
             {issues.nativeAccountId === 'required' && (
               <StyledError id={nativeAccountErrorId} role="alert">
