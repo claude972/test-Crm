@@ -1,6 +1,7 @@
 import { RouterProvider } from 'react-router-dom';
 
 import { AppNavigatorProvider } from '@/app/components/AppNavigatorProvider';
+import { HermesWorkspaceScopeBoundary } from '@/app/components/HermesWorkspaceScopeBoundary';
 import { useCreateWorkspaceAppRouter } from '@/app/hooks/useCreateWorkspaceAppRouter';
 import { currentUserState } from '@/auth/states/currentUserState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
@@ -17,11 +18,13 @@ export const WorkspaceApp = () => {
 
   return (
     <AppNavigatorProvider router={router}>
-      <RouterProvider
-        useTransitions={false}
-        router={router}
-        onError={handleRouterError}
-      />
+      <HermesWorkspaceScopeBoundary>
+        <RouterProvider
+          useTransitions={false}
+          router={router}
+          onError={handleRouterError}
+        />
+      </HermesWorkspaceScopeBoundary>
     </AppNavigatorProvider>
   );
 };
