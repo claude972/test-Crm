@@ -275,6 +275,9 @@ export const runCombined = async (mode) => {
       suites: CAMPAIGN_MAILBOX_SUITES,
       emailingDomainDriver: "SMTP",
       allowSelfSignedSmtp: true,
+      // Both spellings, since the fixture takes whichever getHost() returns.
+      // The suite asserts its host is listed and refuses to run otherwise.
+      allowedInternalHosts: ["localhost", "127.0.0.1"],
     });
     return;
   }

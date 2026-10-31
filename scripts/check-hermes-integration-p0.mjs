@@ -109,6 +109,15 @@ export const validateIntegrationEnvironment = (env, root = ROOT) => {
 // default must stay LOG so the other suites' guarantee is unchanged.
 export const INTEGRATION_EMAILING_DRIVERS = ["LOG", "SMTP"];
 
+// The allowlist matches on hostname alone, so a containerised relay's host is a
+// constant whatever port it is given. Only loopback spellings are accepted: "*"
+// would make the guard return ['*'] and stop being an allowlist at all.
+export const INTEGRATION_ALLOWED_INTERNAL_HOSTS = [
+  "localhost",
+  "127.0.0.1",
+  "::1",
+];
+
 export const buildIntegrationChildEnvironment = (
   source,
   appSecret,
@@ -116,12 +125,22 @@ export const buildIntegrationChildEnvironment = (
     sameOriginMultiworkspace = false,
     emailingDomainDriver = "LOG",
     allowSelfSignedSmtp = false,
+    allowedInternalHosts = [],
   } = {},
 ) => {
   assert.ok(
     INTEGRATION_EMAILING_DRIVERS.includes(emailingDomainDriver),
     "Unknown integration emailing driver",
   );
+  assert.ok(
+    allowedInternalHosts.length === 0 || emailingDomainDriver === "SMTP",
+    "Internal host allowances require the SMTP driver",
+  );
+  for (const host of allowedInternalHosts)
+    assert.ok(
+      INTEGRATION_ALLOWED_INTERNAL_HOSTS.includes(host),
+      `Only loopback hosts may be allowed in an integration stage: ${host}`,
+    );
   // Self-signed acceptance is only ever for a containerised test relay, so it
   // cannot be switched on while mail is going nowhere near a socket.
   assert.ok(
@@ -163,6 +182,11 @@ export const buildIntegrationChildEnvironment = (
     EMAIL_DRIVER: "logger",
     EMAILING_DOMAIN_DRIVER: emailingDomainDriver,
     ...(allowSelfSignedSmtp ? { IMAP_SMTP_ALLOW_SELF_SIGNED: "true" } : {}),
+    ...(allowedInternalHosts.length
+      ? {
+          OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS: allowedInternalHosts.join(","),
+        }
+      : {}),
     TELEMETRY_ENABLED: "false",
     IS_BILLING_ENABLED: "false",
     IS_FDW_ENABLED: "false",
@@ -213,6 +237,7 @@ export const runIntegration = async ({
   suites: fixedSuites,
   emailingDomainDriver = "LOG",
   allowSelfSignedSmtp = false,
+  allowedInternalHosts = [],
 } = {}) => {
   // The native reset precedes Jest's globalSetup and suite-level assertions.
   validateIntegrationEnvironment(process.env);
@@ -243,6 +268,7 @@ export const runIntegration = async ({
     sameOriginMultiworkspace,
     emailingDomainDriver,
     allowSelfSignedSmtp,
+    allowedInternalHosts,
   });
   const secrets = [
     appSecret,
