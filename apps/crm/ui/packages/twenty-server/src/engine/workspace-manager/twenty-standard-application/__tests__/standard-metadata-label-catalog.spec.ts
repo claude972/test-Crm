@@ -5,9 +5,11 @@ import {
   TRANSLATABLE_PROPERTIES_BY_METADATA_NAME,
   type TranslatableMetadataName,
 } from 'kovaa-lab-shared/i18n';
+import { FieldMetadataType } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
 
 import { messages } from 'src/engine/core-modules/i18n/locales/generated/en';
+import { isFlatFieldMetadataOfTypes } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-flat-field-metadata-of-types.util';
 import { getMetadataFlatEntityMapsKey } from 'src/engine/metadata-modules/flat-entity/utils/get-metadata-flat-entity-maps-key.util';
 import { computeKovaaLabCRMStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/twenty-standard-application/utils/twenty-standard-application-all-flat-entity-maps.constant';
 import { AUTHORED_STANDARD_METADATA_MESSAGE_IDS } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
@@ -94,5 +96,55 @@ describe('standard metadata labels reach the catalog under their context', () =>
     }
 
     expect(missing).toEqual([]);
+  });
+
+  // Option labels sit in a jsonb array, outside the registry the loop above walks,
+  // so nothing else proves they reach the catalog under the context the read path
+  // would compute for them. Anchors keep an empty walk from passing silently.
+  it('select and multi-select option labels', () => {
+    const context = getMetadataLabelContext('fieldMetadata', 'label');
+    const missing: string[] = [];
+    const checkedLabels: string[] = [];
+
+    for (const flatFieldMetadata of Object.values(
+      allFlatEntityMaps.flatFieldMetadataMaps.byUniversalIdentifier,
+    )) {
+      if (!isDefined(flatFieldMetadata)) {
+        continue;
+      }
+
+      if (
+        !isFlatFieldMetadataOfTypes(flatFieldMetadata, [
+          FieldMetadataType.SELECT,
+          FieldMetadataType.MULTI_SELECT,
+        ])
+      ) {
+        continue;
+      }
+
+      for (const option of flatFieldMetadata.options ?? []) {
+        if (!isNonEmptyString(option.label)) {
+          continue;
+        }
+
+        checkedLabels.push(option.label);
+
+        const messageId = generateMessageId(option.label, context);
+
+        if (
+          !(messageId in messages) &&
+          !AUTHORED_STANDARD_METADATA_MESSAGE_IDS.has(messageId)
+        ) {
+          missing.push(
+            `(${context}) ${flatFieldMetadata.name}.${option.value}: ${option.label}`,
+          );
+        }
+      }
+    }
+
+    expect(missing).toEqual([]);
+    expect(checkedLabels).toEqual(
+      expect.arrayContaining(['Screening', 'Proposal']),
+    );
   });
 });
