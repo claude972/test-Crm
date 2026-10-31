@@ -104,11 +104,30 @@ export const validateIntegrationEnvironment = (env, root = ROOT) => {
   );
 };
 
+// LOG keeps every existing suite off a socket. A suite that needs a real SMTP
+// conversation asks for SMTP explicitly, per run, and gets its own stage; the
+// default must stay LOG so the other suites' guarantee is unchanged.
+export const INTEGRATION_EMAILING_DRIVERS = ["LOG", "SMTP"];
+
 export const buildIntegrationChildEnvironment = (
   source,
   appSecret,
-  { sameOriginMultiworkspace = false } = {},
+  {
+    sameOriginMultiworkspace = false,
+    emailingDomainDriver = "LOG",
+    allowSelfSignedSmtp = false,
+  } = {},
 ) => {
+  assert.ok(
+    INTEGRATION_EMAILING_DRIVERS.includes(emailingDomainDriver),
+    "Unknown integration emailing driver",
+  );
+  // Self-signed acceptance is only ever for a containerised test relay, so it
+  // cannot be switched on while mail is going nowhere near a socket.
+  assert.ok(
+    !allowSelfSignedSmtp || emailingDomainDriver === "SMTP",
+    "Self-signed SMTP acceptance requires the SMTP driver",
+  );
   const env = {};
   // Runtime paths and CI identity only; cloud tokens and ambient app credentials stay outside Nest.
   for (const key of [
@@ -142,7 +161,8 @@ export const buildIntegrationChildEnvironment = (
     APP_SECRET: appSecret,
     REDIS_CACHE_PREFIX: `hermes-integration-${source.GITHUB_RUN_ID}`,
     EMAIL_DRIVER: "logger",
-    EMAILING_DOMAIN_DRIVER: "LOG",
+    EMAILING_DOMAIN_DRIVER: emailingDomainDriver,
+    ...(allowSelfSignedSmtp ? { IMAP_SMTP_ALLOW_SELF_SIGNED: "true" } : {}),
     TELEMETRY_ENABLED: "false",
     IS_BILLING_ENABLED: "false",
     IS_FDW_ENABLED: "false",
@@ -191,6 +211,8 @@ export const validateIntegrationMode = (
 export const runIntegration = async ({
   sameOriginMultiworkspace = false,
   suites: fixedSuites,
+  emailingDomainDriver = "LOG",
+  allowSelfSignedSmtp = false,
 } = {}) => {
   // The native reset precedes Jest's globalSetup and suite-level assertions.
   validateIntegrationEnvironment(process.env);
@@ -219,6 +241,8 @@ export const runIntegration = async ({
   process.stdout.write(`::add-mask::${appSecret}\n`);
   const env = buildIntegrationChildEnvironment(process.env, appSecret, {
     sameOriginMultiworkspace,
+    emailingDomainDriver,
+    allowSelfSignedSmtp,
   });
   const secrets = [
     appSecret,

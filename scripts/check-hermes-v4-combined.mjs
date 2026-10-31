@@ -27,6 +27,12 @@ const LEGACY_SUITES = [
   "src/engine/core-modules/hermes-messaging/__tests__/hermes-messaging.integration-spec.ts",
   "test/integration/graphql/suites/hermes-events.integration-spec.ts",
 ];
+// Its own stage rather than LEGACY_SUITES: the only suite needing
+// EMAILING_DOMAIN_DRIVER SMTP and a Testcontainers relay, and never yet
+// executed. Isolated so its first run cannot take the four proven suites down.
+export const CAMPAIGN_MAILBOX_SUITES = [
+  "test/integration/graphql/suites/hermes-campaign-mailbox-journey.integration-spec.ts",
+];
 const FRONTEND_GROUPS = [
   "auth",
   "apollo",
@@ -234,6 +240,7 @@ export const runCombined = async (mode) => {
       "frontend-unit",
       "postgres-legacy",
       "postgres-tenancy",
+      "postgres-campaign-mailbox",
       "connections-pg",
     ].includes(mode),
     "Unknown fixed combined stage",
@@ -253,6 +260,22 @@ export const runCombined = async (mode) => {
   }
   if (mode === "postgres-tenancy") {
     await runTenancyIntegration();
+    return;
+  }
+  if (mode === "postgres-campaign-mailbox") {
+    // Docker is required here and nowhere else in this harness. Said by name,
+    // because a missing daemon means the suite is unrunnable, not passing.
+    assert.ok(
+      spawnSync("docker", ["version", "--format", "{{.Server.Version}}"], {
+        stdio: "ignore",
+      }).status === 0,
+      "Docker must be usable by Testcontainers for the campaign mailbox stage",
+    );
+    await runIntegration({
+      suites: CAMPAIGN_MAILBOX_SUITES,
+      emailingDomainDriver: "SMTP",
+      allowSelfSignedSmtp: true,
+    });
     return;
   }
   // Both native integration wrappers already applied the official instance commands.
