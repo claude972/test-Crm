@@ -82,13 +82,25 @@ export const MessagingInboxBotModeControl = ({
   const refusalCode: MessagingInboxPolicyRefusalCode | null =
     policy.writeState.kind === 'refused' ? policy.writeState.code : null;
 
+  // The STALE sentence follows what became of the re-read it triggered.
+  // Promising "it has been read again" over a read that failed told the
+  // operator the read had both failed and succeeded, and offered no way out.
+  const staleSentence =
+    policy.rereadState.kind === 'done'
+      ? t`Someone changed this policy, or the company's, while this screen was open. It has been read again — please choose once more.`
+      : policy.rereadState.kind === 'reading'
+        ? t`Someone changed this policy, or the company's, while this screen was open. Reading the current one now.`
+        : policy.rereadState.kind === 'failed'
+          ? t`Someone changed this policy, or the company's, while this screen was open, and the current one could not be read. Nothing was changed, and this choice cannot be made until it has been read.`
+          : t`Someone changed this policy, or the company's, while this screen was open. Nothing was changed.`;
+
   const refusalSentence =
     refusalCode === 'BOT_DELEGATION_REQUIRED'
       ? t`Following the company would let the bot reply on its own here, and that has to be chosen explicitly. Use "Let the bot reply on its own" below instead. Nothing was changed.`
       : refusalCode === 'BOT_POLICY_RESTRICTION'
         ? t`The company or channel policy is stricter than that, so this conversation cannot be set to it. Nothing was changed.`
         : refusalCode === 'BOT_POLICY_STALE'
-          ? t`Someone changed this policy, or the company's, while this screen was open. It has been read again — please choose once more.`
+          ? staleSentence
           : refusalCode === 'CONVERSATION_CONTACT_REVIEW_REQUIRED'
             ? t`This conversation's phone number changed, so the bot may not reply on its own until someone reviews the contact. Nothing was changed.`
             : refusalCode === 'CONVERSATION_NOT_FOUND'
@@ -130,11 +142,17 @@ export const MessagingInboxBotModeControl = ({
         ))}
       </StyledRow>
 
-      {known === null && (
-        <MessagingInboxNote role="status">
-          {t`The bot policy could not be read, so it cannot be changed here. Replying by hand still works.`}
-        </MessagingInboxNote>
-      )}
+      {/* Suppressed whenever a re-read is in flight or has failed. The refusal
+          above already says which of those it is — and while a read is running
+          this note would claim it "could not be read", which is the same
+          contradiction one state earlier. */}
+      {known === null &&
+        policy.rereadState.kind !== 'failed' &&
+        policy.rereadState.kind !== 'reading' && (
+          <MessagingInboxNote role="status">
+            {t`The bot policy could not be read, so it cannot be changed here. Replying by hand still works.`}
+          </MessagingInboxNote>
+        )}
 
       {/* The delegation path. Mounted only once the policy is readable and
           AUTO is not already the local mode, so its MCP discovery does not
@@ -153,6 +171,22 @@ export const MessagingInboxBotModeControl = ({
               ? t`Change refused: ${policy.writeState.message}`
               : t`Change refused.`)}
         </MessagingInboxNote>
+      )}
+
+      {/* The one action that can unblock a failed re-read. Without a fresh
+          revision every further attempt is refused identically, so offering
+          nothing left the operator stuck. */}
+      {policy.retryReread !== null && (
+        <StyledRow>
+          <Button
+            variant="outline"
+            size="sm"
+            loading={policy.rereadState.kind === 'reading'}
+            onClick={policy.retryReread}
+          >
+            {t`Read the policy again`}
+          </Button>
+        </StyledRow>
       )}
 
       {policy.writeState.kind === 'failed' && (
