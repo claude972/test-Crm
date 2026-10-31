@@ -12,6 +12,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  BACKEND_EXTRAS,
   discoverBackendSuites,
   discoverFrontendSuites,
   parseConnectionProof,
@@ -147,4 +148,45 @@ test("backend discovery covers the auth and messaging lots of this checkout", ()
     "Only unit specs may reach the combined backend stage",
   );
   assert.deepEqual([...new Set(suites)], suites, "Suites must not repeat");
+  // Every explicit extra must actually be executed, not merely declared.
+  for (const extra of BACKEND_EXTRAS)
+    assert.ok(
+      suites.includes(extra),
+      `Declared extra never reaches the run: ${extra}`,
+    );
+});
+
+// Asserts the LIST, so it holds on a checkout that does not yet carry the
+// specs. discoverBackendSuites then fails closed, by name, on any branch where
+// a declared spec is absent.
+test("specs outside the hermes-* scan stay declared explicitly", () => {
+  for (const required of [
+    "src/modules/emailing/services/__tests__/message-campaign-recipient-preview.service.spec.ts",
+    "src/modules/emailing/services/__tests__/campaign-native-mailbox-smtp-acceptance.spec.ts",
+    "src/engine/core-modules/twenty-config/__tests__/default-locale.config-variable.spec.ts",
+    "src/engine/core-modules/user-workspace/__tests__/user-workspace-locale.service.spec.ts",
+  ])
+    assert.ok(
+      BACKEND_EXTRAS.includes(required),
+      `A combined run would pass without executing: ${required}`,
+    );
+
+  for (const extra of BACKEND_EXTRAS) {
+    assert.ok(
+      extra.endsWith(".spec.ts"),
+      `Only unit specs belong in the extras: ${extra}`,
+    );
+    // An entry the scan already reaches would hide a hole instead of covering
+    // one, and would double-run the spec.
+    assert.ok(
+      !/\/hermes-[^/]+\//.test(extra),
+      `Already covered by the hermes-* scan, remove it: ${extra}`,
+    );
+  }
+
+  assert.deepEqual(
+    [...new Set(BACKEND_EXTRAS)],
+    BACKEND_EXTRAS,
+    "Extras must not repeat",
+  );
 });
