@@ -1734,7 +1734,7 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - da72e9052 : progrès réel du test blob disque et correction essence MIME Opus, mais DB et services fichiers encore doublés, conteneurs MP4/Ogg/WebM d'en-tête minimal sans preuve de lecture audiovisuelle. Le rapportc9ae3392d borne ces faits ; ni HTTP/PG positif complet ni Evolution réel validés. Continuer la preuve manquante plutôt que déclarer R07 fini.
 
 
-### Recheck indépendant08:22UTC — e35ddba6a
+### Recheck indépendant08:20UTC — e35ddba6a
 
 - Root : onboarding mail, réconciliation création et vraie mailbox runtime, **3 suites/26 tests PASS**. Les appels réseau sont simulés ; ni preuve de protocole réel ni HTTP/PG. Run conserve des diagnostics : mocks manquants répétés pour HermesConversationBotPolicy dans mailbox et refetch HermesRuntimeCampaignList dans réconciliation, plus act. Les tests verts ne prouvent pas ces appels non appariés.
 - CJ-TEST-001, reviewer root, assigned CJ04d/CJ01 selon leurs suites, status **open** : compléter les réponses de politique bot et les relectures de liste effectivement déclenchées, avec variables/compteurs exacts, et assertions pertinentes. Ne pas désactiver les requêtes métier ou masquer console.warn pour obtenir un log silencieux. Tester OFF/ASSISTED effectifs dans la mailbox, et recheck liste abouti/échoué explicite dans la réconciliation.
