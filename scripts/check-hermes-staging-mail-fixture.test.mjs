@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { fixturePlan, prepare, readPlan, MAX_AGE, GREENMAIL_IMAGE, NODE_IMAGE } from '../infra/hermes-staging/mail-fixture/config.mjs';
+import { javaIdentity } from '../infra/hermes-staging/mail-fixture/expiry.mjs';
 import { validateRunner } from './check-hermes-staging-mail-fixture.mjs';
 const enabled = (extra = {}) => ({ KOVAALABCRM_MAIL_FIXTURE_ENABLED: 'true', KOVAALABCRM_MAIL_FIXTURE_ID: 'isolated-test-20261031', ...extra });
 const file = (name) => readFileSync(new URL(`../infra/hermes-staging/mail-fixture/${name}`, import.meta.url), 'utf8');
@@ -57,9 +58,11 @@ test('expiry guard requires shared non-host namespace evidence and never resets 
   assert.match(guard, /process.pid !== 1/);
   assert.match(guard, /\/proc\/1\/environ/);
   assert.match(guard, /KOVAALABCRM_FIXTURE_NAMESPACE/);
-  assert.match(guard, /process.kill\(1, 'SIGTERM'\)/);
-  assert.match(guard, /process.kill\(1, 'SIGKILL'\)/);
-  assert.doesNotMatch(guard, /exec|docker|rmSync|writeFile|rejectUnauthorized/);
+  assert.match(guard, /process.kill\(target.pid, 'SIGTERM'\)/);
+  assert.match(guard, /process.kill\(target.pid, 'SIGKILL'\)/);
+  assert.doesNotMatch(guard, /process.kill\(1,/);
+  assert.match(guard, /value.pid === target.pid && value.birth === target.birth/);
+  assert.doesNotMatch(guard, /execFile|docker.sock|rmSync|writeFile|rejectUnauthorized/);
 });
 test('probe retains TLS verification and performs negative/authenticated protocol tests, no CRM API', () => {
   const probe = file('probe.mjs');
@@ -74,4 +77,17 @@ test('cloud smoke refuses normal hosts and report escape paths', () => {
     assert.doesNotThrow(() => validateRunner(env));
     assert.throws(() => validateRunner({ ...env, HERMES_STAGING_MAIL_REPORT_FILE: '/outside/report.json' }));
   } finally { rmSync(root, { recursive: true }); }
+});
+
+test('hard expiry targets a verified non-init Java identity and cloud suspends it before expiry', () => {
+  const env = 'KOVAALABCRM_FIXTURE_NAMESPACE=synthetic-test\0GREENMAIL_OPTS=-Dgreenmail.tls.keystore.file=/fixture/server.p12\0';
+  assert.equal(javaIdentity('/opt/java/bin/java\0-jar\0/home/greenmail/greenmail-standalone.jar\0', env, 'synthetic-test'), true);
+  assert.equal(javaIdentity('/bin/sh\0-jar\0/home/greenmail/greenmail-standalone.jar\0', env, 'synthetic-test'), false);
+  assert.equal(javaIdentity('/opt/java/bin/java\0-jar\0/other.jar\0', env, 'synthetic-test'), false);
+  assert.equal(javaIdentity('/opt/java/bin/java\0-jar\0/home/greenmail/greenmail-standalone.jar\0', env, 'other-fixture'), false);
+  const smoke = readFileSync(new URL('./check-hermes-staging-mail-fixture.mjs', import.meta.url), 'utf8');
+  assert.match(smoke, /process.kill\(values\[0\].pid,'SIGSTOP'\)/);
+  assert.match(smoke, /expiryStopsTermResistantJava = true/);
+  assert.match(file('provider-init.sh'), /run_greenmail.sh &/);
+  assert.match(file('provider-init.sh'), /wait "\$child"/);
 });

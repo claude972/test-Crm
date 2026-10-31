@@ -6,7 +6,9 @@ services:
     user: '${KOVAALABCRM_MAIL_FIXTURE_UID:?}:${KOVAALABCRM_MAIL_FIXTURE_GID:?}'
     env_file:
       - {path: '${KOVAALABCRM_MAIL_FIXTURE_PRIVATE_DIR:?}/provider.env', format: raw}
+    entrypoint: [/bin/sh, /fixture-code/provider-init.sh]
     volumes:
+      - '${KOVAALABCRM_MAIL_FIXTURE_SCRIPTS_DIR:?}:/fixture-code:ro'
       - '${KOVAALABCRM_MAIL_FIXTURE_PRIVATE_DIR:?}/server.p12:/fixture/server.p12:ro'
     networks:
       mail-fixture:
