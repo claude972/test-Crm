@@ -1795,3 +1795,8 @@ Aucune de ces corrections n'est marquée fixée. L'approbation des nouveaux docu
 - CJ-R10-CI003, assignedCJ02, **open** : combined41189235623/75c7 FAILURE,8failed6passed14. Premier échec metadata saveImapSmtpCaldavAccount ligne261 Tokeninvalid. Helper n'accepte pas de token et appelle makeMetadataApiRequest sans secondargument, donc APPLE_JANE_ADMIN_ACCESS_TOKEN par défaut au lieu du tokenA émis par la fixture. Corriger l'appel HTTP authentifié natif explicite et les préconditions fail-fast ; ne pas toucher les guards. Les échecs connexion/domaine/IMAP/campaignDelivery sont encore aval, à recontrôler une fois setup réussi. Parent prévenu.
 - R01/R02 : vrai ajout de Bêta depuis centre, onboarding, récapitulatif commun des deux sociétés, campagnes Alpha absentes dans Bêta puis bascule native vers Alpha aboutie. Détail docs/verification/hermes-auth-recipe-41188341880.md. Périmètre UIadministrateur, aucune preuve générale de tous les refus multiutilisateurs.
 - Source parent096d5d379 inclut87c8e92a8 relecture classification et9b2e88ff2 locale dates, livraisons observées mais pas encore contre-épreuve sur nouveau bundle. Preview servie reste d3, pas prétendre que ses bugs déjà corrigés sont retestés.
+
+
+### Revue10:15UTC
+
+CJ-CAMPAIGN013 : 30ff07af1 relu, root70testsPASS/2suitesnatives, fixed_pending_integration_browser. CJ014 : 578e98e86 intégré4f9, queryimpérativeno-cache+testclicréelApolloPASS, fixed_pending_browser. CJ016copieb9bebdd7b corrigéeensource, pasencoreservie. CJ-INTAKE-UI002 : 87c8 refetch lu,5testsseulsPASS ; regroupement3suitesroot4f9 a2testsclassificationFAIL(temps/texte) et31PASS, conserverinstabilité ouverte. ScreenPASSspamUnknownnodehtmlDocument et ancienCJTEST001warnings nonfermés. CIfront41191835763source739encours.

@@ -77,3 +77,16 @@ Complément 04:36 UTC : les deux suites campagnes non chargées ont été relanc
 - R10/R13 : full frontend **41173424054 FAILURE** sur2f1e8e705 et **41174465769 FAILURE** surb0ef31d0c. Respectivement fixture MockLink typée comme fonction et fixture membre dépourvue de roles ; contrôles stricts bloquants, pas des pannes utilisateur démontrées. CJ01/CJ04a doivent corriger puis retester l'assemblage.
 - R10 : liste native **10 tests supplémentaires PASS** sur2f1e. La revue constate toutefois création incertaine autorisant une nouvelle tentative avec UUID différent, et absence de pagination au-delà de50 campagnes/audiences (CJ-CAMPAIGN-010/011). Ces scénarios ne sont pas couverts par les dix tests, demeurent ouverts et ne sont pas validés navigateur.
 - R15/R16 : canal CUA répond de nouveau à06:33UTC (inventaire et onglet vierge lisible). Blocage technique partiellement levé ; aucune nouvelle recette CRM ou installation PWA effectuée, aucune résolution Safari propriétaire déduite. Ancienne preview expirée ; pas de lien utilisable nouveau à ce checkpoint.
+
+
+## Recette actuelle10:15UTC — deltas prouvés surd3eb5df38
+
+- R01 : créationAlpha puisBêta, bascules native sélecteur et centre, logout/relogin normal/choixAlpha exécutés.
+- R02 : dashboardBêta et récapitulatif deux sociétés cohérents ; campagnesAlphaabsentesBêta et réapparuesAlpha. Refus d'un membre non autorisé nonrecettés danscettepasse.
+- R03/R04/R06 : dépôtJSONmanual1fauxB2B→qualification→client/contact→audience/brouillon, puis créationhumaineopportunité, New→Proposal, liens client/contact, reloadnom/étape/relationsPASS. CRUDcomplet/contactvalidation, DnD et externeHermès nonrecettés.
+- R09/R13 : centreAlphaOFFpersistéaprèsreload, BêtaASSISTEDinchangé, canauxhérités. ParamétrageUIvalidé, pas réponsesbot/MCPeffectives.
+- R07/R08 : étatsnonconfigurés réellementobservés, aucun parcours fournisseur validé.
+- R10 : brouillonobjet/corpsTipTap persisté/reouvert, audience1 ; aperçu réel échoueApollo/UUIDv5. CorrectifsClaude578e/30ff relus/testésisolés, nouvellepreviewencoreattendue. TestSMTPHTTP/PG41189235623FAILURE(8/14), donc aucunengagementcomplet.
+- R14/R15 : défautfrançaisobservé, centre+accueil390x844 essayés ; pasinstallationPWA/offline/Safari. R16 : IABsansloginVercelvalidé, previewexpire10:56:50UTCavantdeadline, nepaslivrercommehébergementdurable.
+
+Preuves et limites détaillées : docs/verification/hermes-auth-recipe-41188341880.md. Les états historiques ci-dessus ne remplacent pas ces deltas et aucun critère global n'est déclaré totalement livré.
