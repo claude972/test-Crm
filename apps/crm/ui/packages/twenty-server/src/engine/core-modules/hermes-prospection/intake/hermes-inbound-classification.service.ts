@@ -168,7 +168,7 @@ export class HermesInboundClassificationService {
               connectionId,
               structureId: actor.workspaceId,
               eventId: input.eventId,
-              receivedAt: this.reportedAt(markdown) ?? null,
+              receivedAt: this.receivedAt(note) ?? null,
               // The record exists under the identifier this connection and
               // event produce. A body that lost its receipt marker is still
               // attributed, but reported as edited rather than intact.
@@ -293,7 +293,7 @@ export class HermesInboundClassificationService {
       bookingUid: null,
       connectionId,
       structureId: workspaceId,
-      receivedAt: this.reportedAt(markdown) ?? null,
+      receivedAt: this.receivedAt(note) ?? null,
       attribution: connectionId ? 'VERIFIED' : 'NOT_ATTRIBUTABLE',
     };
   }
@@ -340,12 +340,13 @@ export class HermesInboundClassificationService {
     return existing.map((opportunity) => opportunity.id).slice(0, 100);
   }
 
-  private reportedAt(markdown: string): string | undefined {
-    const line = markdown
-      .split('\n')
-      .find((value) => value.startsWith('Reported at: '));
-    const value = line?.slice('Reported at: '.length).trim();
-    return value && Number.isFinite(Date.parse(value)) ? value : undefined;
+  private receivedAt(note: NoteWorkspaceEntity): string | undefined {
+    // The bridge reports when its event occurred; only native creation records
+    // when this CRM received it, independently of an editable receipt body.
+    const timestamp = Date.parse(note.createdAt);
+    return Number.isFinite(timestamp)
+      ? new Date(timestamp).toISOString()
+      : undefined;
   }
 
   // Classifies the signed scraping deposits of the company: their provenance,
