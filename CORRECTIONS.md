@@ -2089,3 +2089,12 @@ CI41237312228sur5001 : BUILDimageSUCCESS, imageIdsha256:8a02199800671d72d2351fad
 Auteur65fb1dd1c→root3c0f32b91 poussé : probe réelle4exports, contrepreuve manifeste natif root ERR_PACKAGE_PATH_NOT_EXPORTED, diagnostic public borné étape/code sans sortie privée. Root18testsPASS, revue indépendante65fb demandée backend_review. Root3c9101d3e ajoutecacheBuildKit privé sans registre ; stampSHA final après compilation conserve provenance du contexte exact et permet réutilisation de compilation inchangée. NouveaucloudUNIQUE41238719058source3c0f32b916d3fca67cc874cd4d2c494930d243a4 queued. PasdeDockerMac/VPS ni déploiement.
 
 DNS toujours absent aucontrôle20:22, userdemandeajoutenattente ; domaine déjà confirmé, nepasredemanderlechoix. SSHlectureseule confirme répertoire /home/ops/kovaalabcrm-staging absent et aucun port13000occupé. Aucun changement services existants. Anciennepreview601expirée.
+
+
+### Staging — 2026-10-31 20:51 UTC
+
+Cloud41238719058source3c0f BUILD SUCCESS mais smokeFAILdurantmigrate(exit1). Artifact13057475898 exactImage/frontendServerSdk/cleanup=true ; aucune migration/persistence validée. Auteurpreview_pwa repris diagnostic borné, reviewerbackend_review analyse statique indépendante ; aucun gate relâché. Cache privé BuildKit désormais disponible.
+
+Revue ingress /private/tmp/kovaalabcrm-staging-ingress-plan-review.md terminée sans bloquant dans plan additif. Macro securite inventoriée lecture seule : seulement HSTS/nosniff/referrer-policy/-Server, pas basic_auth/CSP. Les autres peers du réseau edge pourront joindre serveur3000 : auth native obligatoire, pas preuve d'isolation cryptographique par le seul proxy.
+
+Première préparation distante autorisée faite sur srv2081633 : répertoire NEUF /home/ops/kovaalabcrm-staging et sous-dossiers0700, trois env0600 privés + Compose/override/blocCaddy0600 transférés par SSH vérifié. Aucun ancien fichier écrasé. Validation réelle docker compose config --quiet sur VPS PASS, sans afficher configuration résolue. Aucun conteneur/volume/réseau lancé, aucun Caddy/DNS/service existant modifié. Image non déployée, configuration préparée seulement. Clefs persistantes conservées dans coffre local, jamais Git/artifact/log. DNS reste attendu du propriétaire.
