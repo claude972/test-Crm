@@ -228,7 +228,37 @@ not pre-empt it.
 All fakes below are isolated protocol fixtures, clearly labelled in the source as demonstration
 doubles. They are never real verified connectors, and no message reaches any real recipient.
 
-Run from `apps/crm/ui/packages/twenty-server`:
+#### Dependency resolution — required, or two suites cannot load
+
+The worktree carries **no** `node_modules` of its own: the dependency tree is borrowed read-only
+from the shared checkout by a symlink, and that symlink is **removed before every commit** so it
+never enters Git. A fresh checkout of this SHA therefore has nothing to resolve against, and the
+two suites that need `nodemailer` (the acceptance spec, directly) and `lodash.chunk` (pulled in
+transitively through the module graph) fail to load. That is the whole cause; nothing is missing
+from the shared tree.
+
+Re-create the symlink first, from the worktree root:
+
+```
+ln -sfn /Volumes/Stockage/dev/hermes-crm/test-Crm/apps/crm/ui/node_modules apps/crm/ui/node_modules
+```
+
+Nothing is installed and nothing is written into the original checkout — it is one symlink, read
+only, and it is deleted again before staging. No `NODE_PATH`, no alternate package directory and
+no cache directory is used. Node's own upward lookup from the jest cwd does the rest, which is
+verifiable:
+
+```
+cd apps/crm/ui/packages/twenty-server
+node -e "console.log(require.resolve('nodemailer'), require.resolve('lodash.chunk'))"
+/Volumes/Stockage/dev/hermes-crm/test-Crm/apps/crm/ui/node_modules/nodemailer/dist/cjs/nodemailer.js
+/Volumes/Stockage/dev/hermes-crm/test-Crm/apps/crm/ui/node_modules/lodash.chunk/index.js
+```
+
+Both are ordinary declared dependencies of the shared tree, so **cloud CI resolves them with no
+symlink and no special step.** The symlink is purely a local-disk workaround for this worktree.
+
+Then run from `apps/crm/ui/packages/twenty-server`:
 
 ```
 node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath \
@@ -241,14 +271,33 @@ node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --
   src/modules/emailing/utils/__tests__/compile-campaign-email-content.util.spec.ts
 ```
 
-### End-to-end SMTP acceptance, across the API
+### SMTP sending-chain acceptance — exact perimeter
 
-`campaign-native-mailbox-smtp-acceptance.spec.ts` drives the whole chain — a central `MAIL`
-connection publishing a `connectedAccountId`, the native client provider, the sender identity,
-`EmailingDomainSenderService.sendEmail`, the real `SmtpEmailingDomainDriver` — into a loopback
-SMTP server that captures the bytes. Two capture servers run at once: the registered mailbox, and
-an `EMAILING_SMTP_CONNECTIONS` environment relay that stays configured and perfectly valid
-throughout. It proves:
+`campaign-native-mailbox-smtp-acceptance.spec.ts` exercises exactly this perimeter:
+
+```
+EmailingDomainSenderService.sendEmail
+  -> real EmailingDomainMailboxTransportProvider
+  -> real SmtpEmailingDomainDriver
+  -> loopback TCP socket speaking SMTP
+```
+
+**What is real:** the sender service, the mailbox transport provider, the SMTP driver, the
+unsubscribe content service, and the SMTP conversation down to captured bytes on a socket.
+
+**What is mocked:** the central `MAIL` connection reader, the native SMTP client provider (so the
+`connectedAccount` and its credentials), the emailing-domain row, and the suppression service.
+
+**What this is therefore NOT:** it is **not** HTTP — no GraphQL resolver, no guard, no auth
+context is executed. It is **not** PostgreSQL — no workspace schema, no `campaignDelivery` row, no
+migration. And it is **not** a real onboarding: because the `MAIL` connection is a double, this
+spec **cannot** show that a user who configured a mailbox through the product can send. It proves
+the *sending chain* given a registered mailbox, not the *acquisition* of that mailbox.
+
+That distinction matters because the user's request is "campaigns from **my own** mailbox". The
+product-level isolated recipe that would close it belongs to integration, not to this spec.
+
+Within that perimeter it proves:
 
 - the campaign is captured by the registered mailbox and the relay captures **nothing**;
 - the envelope and `From` are the registered mailbox's exact address;
@@ -264,9 +313,28 @@ the driver without the mailbox transport provider — the pre-V4 behaviour — t
 tests red: the message then leaves through the environment relay and the same-domain intruder is
 accepted. The assertions are load-bearing.
 
-### Not proved here
+### The real setup is NOT proved, and is kept separate from the send proof
 
-No real delivery, and no SPF/DKIM authenticity: a loopback fixture accepts bytes, it does not
-deliver them, and `VERIFIED` under the SMTP driver means connectivity only. Inbox placement with
-a real provider remains to be verified with authorised access, and the preview's
+The send proof above assumes a mailbox and a sendable domain already exist. **Their acquisition is
+seeded by fixture and is not proved anywhere in this lot:**
+
+- the `MAIL` connection and its `connectedAccountId` are a test double, not a mailbox someone
+  authenticated through the product;
+- the emailing-domain row — `status: VERIFIED`, `unsubscribeHostnameStatus: ACTIVE` — is a fixture
+  object, not a row the product produced.
+
+The earlier section shows those two states are *reachable* through the product without DNS
+control, by reading `SmtpEmailingDomainDriver.verifyDomain` and
+`UnsubscribeHostnameService.sync`. That is a **source reading, not an executed proof.** Nothing
+here demonstrates the user-side onboarding end to end, and it must not be reported as if it did.
+
+The domain and sender refusals are left exactly as the product has them. No relaxation was asked
+for and none was made: the same-domain intruder, the unregistered workspace and the inactive
+unsubscribe hostname all still refuse.
+
+### Also not proved here
+
+No real delivery and no SPF/DKIM authenticity: a loopback fixture accepts bytes, it does not
+deliver them, and `VERIFIED` under the SMTP driver means connectivity only. Inbox placement with a
+real provider remains to be verified with authorised access, and the preview's
 `openMarkerWouldBeIncluded` reports an embedded marker, never a read.

@@ -146,6 +146,11 @@ const startLoopbackSmtp = async (): Promise<LoopbackSmtp> => {
 const stopLoopbackSmtp = async (smtp: LoopbackSmtp) =>
   new Promise<void>((resolve) => smtp.server.close(() => resolve()));
 
+// Perimeter: senderService -> mailbox transport provider -> SMTP driver ->
+// loopback socket. Real down to captured bytes; the MAIL connection, connected
+// account, emailing-domain row and suppressions are doubles. Not HTTP, not
+// PostgreSQL, and not an onboarding: it proves the sending chain given a
+// registered mailbox, never that a user acquired one through the product.
 describe('Campaign send from the natively registered mailbox, captured by an isolated SMTP server', () => {
   let mailbox: LoopbackSmtp;
   let environmentRelay: LoopbackSmtp;
