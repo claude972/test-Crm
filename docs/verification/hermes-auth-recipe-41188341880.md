@@ -20,3 +20,12 @@ Prospection : dépôt JSON manuel de1ligne entièrement fictive (domaine .test),
 - MenuCampagnes absent ; promesse de restriction de test en préproduction dansCapacités contredite par le vrai contrat du test manuel. Points transmis avecsource exacte.
 
 Aucun envoi de test, programmation, envoi de campagne ou fournisseur réel testé sur cette preview. SMTP/Evolution/MCP/Forms/Cal non configurés. Safari propriétaire, installationPWA/offline et mobile encore non validés.
+
+
+## Extension de recette09:50–10:00UTC
+
+Depuis le vrai centre Connexions et sociétés d'Alpha : ajout de « Hermès Recette Bêta », activité fictive, profil puis invitations ignorées. Arrivée normale dans Bêta sans injection d'état. Sa liste Campagnes affiche **Aucune campagne**, alors que deux brouillons existent dans Alpha. Son tableau de bord affiche5entreprises/5personnes/6opportunités/0tâche de démonstration. La vue native Vos sociétés autorisées affiche **les deux seules sociétés de ce compte** et les totaux11entreprises/11personnes/12opportunités/0tâche : Alpha6/6/6/0, Bêta5/5/6/0. Le client fictif et le contact issus de la qualification sont donc comptés seulement dans Alpha. Bascule native du sélecteur Bêta→Alpha aboutit normalement ; la table Alpha affiche « Atelier Recette Alpha » et6entreprises. Preuve visuelle locale enregistrée horsGit : /private/tmp/hermes-preview-41188341880/recipe/alpha-company-after-switch.jpg.
+
+Ceci prouve ce cloisonnement d'affichage et le récapitulatif autorisé pour ce compte administrateur. Ne prouve pas encore les refus d'un autre utilisateur non membre, tous les endpoints ou un pipeline modifié/rechargé. Les fournisseurs du centre sont explicitement Non configuré. Politique bot affichée société ASSISTED, canaux hérités ; aucune réponse bot ou connexion réelle testée.
+
+R10CI41189235623 sur75c7 finit FAILURE :8tests échoués/6passés/14, premier échec saveImapSmtpCaldavAccount Tokeninvalid. Le helper partagé utilise le tokenfixturepar défaut et n'accepte pas tokenA ; l'appel du nouveau test ne transmet pas son jeton dynamique. Les échecs MAIL/domaine/transport/table aval ne constituent pas des parcours validés. Parent informé avec cause source ; aucune barrière affaiblie.
