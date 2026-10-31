@@ -56,8 +56,15 @@ input PreviewMessageCampaignRecipientInput {
 
 `personId` omitted means: render for the **first sendable recipient** of the campaign's resolved
 audience, in the engine's own normalized order. That is the "just show me what this looks like"
-case and needs no picker interaction. When `personId` is given, that person is rendered even if
-they are currently excluded — see `isRecipientSendable`.
+case and needs no picker interaction.
+
+When `personId` is given, **it must be a member of the campaign's list.** Membership is checked
+under the caller's role before any person row is read and before anything is composed; a person
+outside the list is refused with `MESSAGE_CAMPAIGN_NOT_FOUND`, and a campaign with no list at all
+refuses every explicit `personId`. A render is never a way to read someone the caller is not
+entitled to see, nor to reach outside the audience. A list member who is currently *excluded*
+(opposed, or dropped by the audience resolution) **is** previewable, with the reason reported —
+that is the useful case.
 
 ### Output
 
@@ -80,7 +87,7 @@ they are currently excluded — see `isRecipientSendable`.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `fromAddress` | `String` | The persisted sender, or null when none is saved yet. |
-| `senderStatus` | `String!` | Whether that sender could send now (codes below). |
+| `senderStatus` | `String!` | What was verified about that sender's domain (codes below). |
 | `openMarkerWouldBeIncluded` | `Boolean!` | Whether an open marker would be embedded for this recipient. |
 | `clickTrackingWouldBeApplied` | `Boolean!` | Whether links would be rewritten for this recipient. |
 | `unsubscribeLinkWouldBeIncluded` | `Boolean!` | Whether unsubscribe affordances would be attached. |
@@ -88,9 +95,13 @@ they are currently excluded — see `isRecipientSendable`.
 Codes follow the convention already used by `MessageCampaignSendBlockerDTO.code`: plain strings
 from a closed set, not a GraphQL enum, so the parent's codegen needs no new enum.
 
-`senderStatus` is one of:
+`senderStatus` names **only what was inspected: emailing-domain rows.** The mailbox, the central
+`MAIL` connection, the `connectedAccount` and the SMTP transport are **not** consulted by the
+preview, so no value here may be read as "the provider can send". That is why there is no
+`SEND_READY`.
 
-- `SEND_READY` — a verified emailing domain matches the sender and its unsubscribe hostname is active.
+- `DOMAIN_PREREQUISITES_MET` — an emailing domain row matches the sender, is `VERIFIED`, and its
+  unsubscribe hostname is active. Nothing more.
 - `NOT_PERSISTED` — no `fromAddress` saved on the campaign yet.
 - `DOMAIN_NOT_VERIFIED` — no verified emailing domain matches the sender's domain.
 - `UNSUBSCRIBE_HOSTNAME_NOT_READY` — the domain is verified but its unsubscribe hostname is not active.
@@ -98,7 +109,9 @@ from a closed set, not a GraphQL enum, so the parent's codegen needs no new enum
 `recipientExclusionReason` is null, or one of:
 
 - `HARD_SUPPRESSED`, `GLOBALLY_UNSUBSCRIBED`, `TOPIC_UNSUBSCRIBED` — durable opposition.
-- `NO_EMAIL`, `NOT_IN_AUDIENCE` — the person carries no usable address, or is not in the list.
+- `NO_EMAIL` — the member carries no usable address.
+- `NOT_IN_AUDIENCE` — a list member the audience resolution still dropped, for example as a
+  duplicate address.
 
 ### Honesty rules, binding on both lots
 
@@ -114,6 +127,14 @@ from a closed set, not a GraphQL enum, so the parent's codegen needs no new enum
   lot may label this as a read, an "opened" status, or a certainty.
 - **`isRecipientSendable: false` is not a render error.** The content still renders, so the
   operator can see what the message would say, while the flag says they would not get it.
+- **A null read fails.** If the role-scoped person read returns nothing, the operation refuses
+  rather than rendering with empty variables, which would look plausible and be wrong.
+- **No side effect of any kind.** No SMTP or MCP call, no billing or send-slot consumption, no
+  ledger or delivery write, no unsubscribe or suppression mutation. The operation composes and
+  returns.
+- **On the frontend.** The returned `html` must be rendered inertly: no script execution, and no
+  loading of the real recipient's tracking pixel, so a preview can never fabricate an open. The
+  UI states its image and tracking limitations explicitly.
 
 ### Errors
 
@@ -121,10 +142,11 @@ Typed `EmailingDomainException`, surfaced through the resolver's existing
 `EmailingDomainGraphqlApiExceptionFilter`:
 
 - `MESSAGE_CAMPAIGN_NOT_FOUND` — unknown campaign, or not visible to this role.
-- `MESSAGE_CAMPAIGN_NOT_SENDABLE` — no subject, no body, or a body that is not a canonical
-  `EmailDocument`.
-- `MESSAGE_CAMPAIGN_UNKNOWN_VARIABLE` — the subject or body uses a variable the workspace does
-  not define. Raised by the existing `assertKnownVariables`.
+- `MESSAGE_CAMPAIGN_NOT_SENDABLE` — no subject, no body, a body that is not a canonical
+  `EmailDocument`, **or** a variable the workspace does not define. The existing
+  `assertKnownVariables` already raises `MESSAGE_CAMPAIGN_NOT_SENDABLE` for unknown variables,
+  listing the offending names and the available ones in its message, so no new exception code is
+  introduced. CJ-01 should surface `message` to distinguish these cases, not the code alone.
 
 An empty audience with no `personId` given is `MESSAGE_CAMPAIGN_NOT_SENDABLE` with a message
 saying the audience resolved to no sendable recipient.
@@ -163,3 +185,40 @@ that service alone is therefore not sendable. CJ-01 persists the sender through 
 record path instead, which closes the journey; the draft service keeps its gap, and this contract
 records it rather than papering over it. `envelope.senderStatus` is what tells the operator the
 sender is missing.
+
+## Sender prerequisites for a provider-managed mailbox — investigated, not blocked
+
+Root asked whether "campaigns from my own SMTP mailbox" is reachable for someone who
+authenticates a mailbox but does **not** control that mailbox's domain DNS, for example a
+provider-managed address. It is reachable, and no DNS status has to be faked to test it.
+
+Sending a campaign requires an `EmailingDomainEntity` matching the From domain with
+`status = VERIFIED` and `unsubscribeHostnameStatus = ACTIVE`
+(`MessageCampaignService.findSendReadyEmailingDomainOrThrow`, plus
+`EmailingDomainSenderService.assertDomainCanSend`). Both are reachable through the product
+without controlling DNS:
+
+- **`VERIFIED` needs no DNS under the SMTP driver.** `SmtpEmailingDomainDriver.verifyDomain`
+  opens the transport and calls `transport.verify()`; on success it returns `VERIFIED` with an
+  empty `verificationRecords`. Its own comment is explicit: "SMTP connectivity does not prove
+  that SPF or DKIM records are installed." So verification here means the registered mailbox
+  answered, not that the domain is authenticated.
+- **`ACTIVE` needs no customer DNS when no DNS manager is configured.**
+  `UnsubscribeHostnameService.sync` checks `dnsManagerService.isConfigured()`; when it is not, it
+  calls `useServerHostname`, which sets the unsubscribe hostname to the `SERVER_URL` host and the
+  status to `ACTIVE` directly. The only condition is that `SERVER_URL` is `https:` — otherwise it
+  returns early, the hostname stays unset, and the send refuses with
+  `EMAILING_DOMAIN_UNSUBSCRIBE_NOT_READY`.
+
+So the isolated SMTP acceptance can drive the real chain — native `connectedAccount` → central
+`MAIL` connection → sender identity → campaign → capture — with an `https` `SERVER_URL`, no DNS
+manager, and the domain verified by connectivity through the registered mailbox itself. Nothing is
+seeded that the product could not produce.
+
+**Two limits that must not be dressed up.** A `VERIFIED` emailing domain under the SMTP driver
+says nothing about SPF or DKIM, so inbox deliverability remains unproven and must never be
+reported as authenticated. And `DOMAIN_PREREQUISITES_MET` is a statement about domain rows only:
+a mailbox that was revoked, re-keyed or has become unreachable still yields that status, because
+the authority check for the transport happens at send time in
+`EmailingDomainMailboxTransportProvider`, which fails closed there. The preview does not and must
+not pre-empt it.
