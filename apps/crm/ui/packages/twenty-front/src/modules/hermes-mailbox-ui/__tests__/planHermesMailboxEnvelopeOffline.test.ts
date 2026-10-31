@@ -2,7 +2,10 @@ import { type HermesMailboxAddress } from '@/hermes-mailbox-ui/types/HermesMailb
 import { type HermesMailboxAttachment } from '@/hermes-mailbox-ui/types/HermesMailboxAttachment';
 import { type HermesMailboxEnvelope } from '@/hermes-mailbox-ui/types/HermesMailboxComposition';
 import { type HermesMailboxMessage } from '@/hermes-mailbox-ui/types/HermesMailboxMessage';
-import { type HermesMailboxThread } from '@/hermes-mailbox-ui/types/HermesMailboxThread';
+import {
+  type HermesMailboxParticipants,
+  type HermesMailboxThread,
+} from '@/hermes-mailbox-ui/types/HermesMailboxThread';
 import { parseHermesMailboxAddress } from '@/hermes-mailbox-ui/utils/parseHermesMailboxAddress';
 import {
   collectHermesMailboxThreadAttachments,
@@ -60,8 +63,11 @@ const message = (
 });
 
 const thread = (
-  overrides: Partial<HermesMailboxThread> & {
-    participants?: Partial<HermesMailboxThread['participants']>;
+  // `participants` is lifted out of the Partial before being widened: left in
+  // the intersection it had to satisfy the complete type as well, so a fixture
+  // could only override one field by restating all of them.
+  overrides: Omit<Partial<HermesMailboxThread>, 'participants'> & {
+    participants?: Partial<HermesMailboxParticipants>;
   } = {},
 ): HermesMailboxThread => ({
   id: 'thread-1',

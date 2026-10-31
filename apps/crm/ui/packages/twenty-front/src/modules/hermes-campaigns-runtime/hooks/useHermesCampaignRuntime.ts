@@ -81,6 +81,42 @@ type PreviewQueryResult = {
   } | null;
 };
 
+// The two mutation answers, typed from their own selection sets. Only the
+// presence of the payload is read here — an answer this screen cannot read is
+// reported as unreadable rather than as a success — but the shape is written
+// out so a change in the document cannot pass silently.
+type ScheduleMutationResult = {
+  sendMessageCampaign: {
+    campaignId: string;
+    queuedCount: number;
+    audience: {
+      totalMembers: number;
+      withoutEmail: number;
+      duplicateEmails: number;
+      hardSuppressed: number;
+      globallyUnsubscribed: number;
+      topicUnsubscribed: number;
+      trackingRefused: number;
+      sendable: number;
+    };
+  } | null;
+};
+
+type ScheduleMutationVariables = {
+  input: { campaignId: string; scheduledAt: string };
+};
+
+type CancelMutationResult = {
+  cancelMessageCampaign: {
+    campaignId: string;
+    canceledMessageCount: number;
+  } | null;
+};
+
+type CancelMutationVariables = {
+  input: { campaignId: string };
+};
+
 type ChannelsQueryResult = {
   myMessageChannels?: HermesRuntimeMessageChannel[] | null;
 };
@@ -160,8 +196,14 @@ export const useHermesCampaignRuntime = ({
     loading: registerLoading,
   } = useProspectionSuppressionRegister();
 
-  const [scheduleCampaign] = useMutation(SEND_MESSAGE_CAMPAIGN);
-  const [cancelCampaign] = useMutation(CANCEL_MESSAGE_CAMPAIGN);
+  const [scheduleCampaign] = useMutation<
+    ScheduleMutationResult,
+    ScheduleMutationVariables
+  >(SEND_MESSAGE_CAMPAIGN);
+  const [cancelCampaign] = useMutation<
+    CancelMutationResult,
+    CancelMutationVariables
+  >(CANCEL_MESSAGE_CAMPAIGN);
 
   const [contentDraft, setContentDraft] = useState<HermesCampaignContent | null>(
     null,
