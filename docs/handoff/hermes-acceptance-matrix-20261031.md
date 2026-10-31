@@ -68,3 +68,12 @@ Complément 04:36 UTC : les deux suites campagnes non chargées ont été relanc
 - R10 : code audience/sender/save concurrent2f1e8e705 publié, root31testsPASS ; corps natif7c2e94e12 root13frontend+3serveurPASS. Pas encore assemblés ni montés/testés dans les routes finales. Warning DOM du loader à corriger.
 - R09/R13 : DI MCP3413fd8c3 root14testsPASS ; droits effectifs/mock de suppressionb0ef31d0c root35testsfrontendPASS. Création première boîte, bot dans mailbox et reprise après reload toujours inachevés.
 - Deux CI nouvelles en cours, sources séparées : MCP41173344142 et frontend41173424054. Recette visuelle toujours bloquée par CUA ; aucun nouveau lien livré.
+
+
+## Checkpoint — 31 octobre 06:55 UTC
+
+- Aucune nouvelle livraison globale : intégration finale, vrais parcours et nouvelle preview restent à réaliser après reprise des mêmes Claude à07:50UTC (quota). Tous les états historiques ci-dessus gardent leur périmètre. Dernier handoff de reprise à lire intégralement : `hermes-quota-resume-20261031.md`.
+- R09/R13 : CI native MCP **41173344142 SUCCESS** sur3413fd8c3, incluant types/build/units/PG/DI/bundle de cette branche. Ni fournisseur MCP réel ni commandes bot de la vraie mailbox validés. Création première boîte et reprise de brouillons après reload encore inachevées. Revue WIP relève libellé erroné « aucun contact serveur » et confusion refetch échoué/écriture refusée, à corriger par CJ04c.
+- R10/R13 : full frontend **41173424054 FAILURE** sur2f1e8e705 et **41174465769 FAILURE** surb0ef31d0c. Respectivement fixture MockLink typée comme fonction et fixture membre dépourvue de roles ; contrôles stricts bloquants, pas des pannes utilisateur démontrées. CJ01/CJ04a doivent corriger puis retester l'assemblage.
+- R10 : liste native **10 tests supplémentaires PASS** sur2f1e. La revue constate toutefois création incertaine autorisant une nouvelle tentative avec UUID différent, et absence de pagination au-delà de50 campagnes/audiences (CJ-CAMPAIGN-010/011). Ces scénarios ne sont pas couverts par les dix tests, demeurent ouverts et ne sont pas validés navigateur.
+- R15/R16 : canal CUA répond de nouveau à06:33UTC (inventaire et onglet vierge lisible). Blocage technique partiellement levé ; aucune nouvelle recette CRM ou installation PWA effectuée, aucune résolution Safari propriétaire déduite. Ancienne preview expirée ; pas de lien utilisable nouveau à ce checkpoint.
