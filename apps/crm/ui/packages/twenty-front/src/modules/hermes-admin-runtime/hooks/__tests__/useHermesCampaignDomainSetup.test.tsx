@@ -1,10 +1,27 @@
 import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import {
+  act,
+  configure,
+  renderHook,
+  waitFor,
+} from '@testing-library/react';
 import { type ReactNode } from 'react';
 
 import { HERMES_CREATE_EMAILING_DOMAIN } from '@/hermes-admin-runtime/graphql/metadata-mutations/hermesCreateEmailingDomain';
 import { useHermesCampaignDomainSetup } from '@/hermes-admin-runtime/hooks/useHermesCampaignDomainSetup';
+
+// RTL's `asyncUtilTimeout` governs how long a `findBy*` or a `waitFor` waits
+// for something that is genuinely on its way. It defaults to 1000 ms and is
+// unset repo-wide, so a loaded machine blows it long before the 30 s per-test
+// budget is touched — and the failure then reads « Unable to find an element »,
+// an assertion failure, rather than a timeout. That is the shape of the
+// intermittent red this suite showed under contention.
+//
+// Scoped to this file, and it does NOT relax the per-test limit: a query still
+// resolves the moment the element appears, so a fast machine pays nothing and
+// a genuinely missing element still fails.
+configure({ asyncUtilTimeout: 5000 });
 
 const DOMAIN = 'atelier.example';
 

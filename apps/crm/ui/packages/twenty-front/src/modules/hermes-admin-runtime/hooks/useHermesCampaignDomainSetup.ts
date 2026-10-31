@@ -113,7 +113,13 @@ export const useHermesCampaignDomainSetup = ({
     kind: 'idle',
   });
 
-  const [createEmailingDomain, { loading }] = useMutation(
+  // Typed at the call rather than cast at the read. The document is written by
+  // hand, so codegen produces no types for it; declaring the answer's shape
+  // here — and declaring `domain` as `unknown`, which is all we are willing to
+  // assume — leaves the runtime check below as the only thing that narrows it.
+  const [createEmailingDomain, { loading }] = useMutation<{
+    createEmailingDomain: { domain?: unknown } | null;
+  }>(
     HERMES_CREATE_EMAILING_DOMAIN,
     // An accepted create that we replay becomes a second record for the same
     // domain. The transport never retries this on its own.
@@ -146,9 +152,7 @@ export const useHermesCampaignDomainSetup = ({
           variables: { input: { domain } },
         });
 
-        const created = (
-          data as { createEmailingDomain?: { domain?: unknown } } | null
-        )?.createEmailingDomain;
+        const created = data?.createEmailingDomain;
 
         recordedDomain =
           typeof created?.domain === 'string' ? created.domain : null;
