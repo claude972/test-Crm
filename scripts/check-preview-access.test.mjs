@@ -90,11 +90,7 @@ const createProtectedDeployment = ({
       return;
     }
 
-    const pwaPaths = [
-      '/manifest.json',
-      '/hermes-service-worker.js',
-      '/hors-connexion.html',
-    ];
+    const pwaPaths = ['/manifest.json', '/hermes-service-worker.js'];
 
     if (pwaPaths.includes(url.pathname)) {
       if (!servePwaAssets) {

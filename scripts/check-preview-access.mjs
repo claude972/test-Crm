@@ -330,11 +330,9 @@ const checkOfflineAssetsAreServed = async ({
   cookieJar,
   fetchImplementation,
 }) => {
-  const paths = [
-    '/hermes-service-worker.js',
-    '/hors-connexion.html',
-    '/manifest.json',
-  ];
+  // La page hors connexion n'est pas un fichier : elle est figée dans le
+  // worker, justement pour ne pas dépendre de l'edge protégé.
+  const paths = ['/hermes-service-worker.js', '/manifest.json'];
   const results = [];
 
   for (const assetPath of paths) {
