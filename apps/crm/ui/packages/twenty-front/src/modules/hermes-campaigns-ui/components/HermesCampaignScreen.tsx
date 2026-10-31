@@ -37,6 +37,7 @@ import {
   type HermesCampaignSchedule,
   type HermesCampaignState,
 } from '@/hermes-campaigns-ui/types/HermesCampaignJourney';
+import { type HermesCampaignAudienceOption } from '@/hermes-campaigns-ui/types/HermesCampaignAudienceOption';
 import { type HermesCampaignLoad } from '@/hermes-campaigns-ui/types/HermesCampaignLoad';
 import { type HermesCampaignPreviewRecipient } from '@/hermes-campaigns-ui/types/HermesCampaignPreviewRecipient';
 import { type HermesCampaignSaveState } from '@/hermes-campaigns-ui/types/HermesCampaignSaveState';
@@ -112,6 +113,25 @@ export type HermesCampaignScreenProps = {
   audienceLoad: HermesCampaignLoad<HermesCampaignAudience>;
   onRetryAudience?: () => void;
 
+  // Giving the campaign its audience. Without these a draft created here
+  // could never be given a list, and so stayed empty for life.
+  audiencesLoad: HermesCampaignLoad<HermesCampaignAudienceOption[]>;
+  onRetryAudiences?: () => void;
+  selectedListId: string | null;
+  onSelectList?: (listId: string) => void;
+  listSaveState: HermesCampaignSaveState;
+  unsubscribeTopics: HermesCampaignAudienceOption[];
+  selectedTopicId: string | null;
+  onSelectTopic?: (topicId: string) => void;
+  topicSaveState: HermesCampaignSaveState;
+
+  // True once the campaign record itself carries a sender. False means the
+  // one shown is offered, not stored.
+  isSenderRecorded: boolean;
+  // Records whatever the sender control shows. Needed as its own act: the
+  // pre-selected proposal fires no change event when clicked.
+  onRecordSender?: () => void;
+
   content: HermesCampaignContent;
   onContentChange: (content: HermesCampaignContent) => void;
   // How the last recording of the subject and the message went, and the
@@ -169,6 +189,17 @@ export const HermesCampaignScreen = ({
   onRetryCapabilities,
   audienceLoad,
   onRetryAudience,
+  audiencesLoad,
+  onRetryAudiences,
+  selectedListId,
+  onSelectList,
+  listSaveState,
+  unsubscribeTopics,
+  selectedTopicId,
+  onSelectTopic,
+  topicSaveState,
+  isSenderRecorded,
+  onRecordSender,
   content,
   onContentChange,
   contentSaveState,
@@ -266,6 +297,8 @@ export const HermesCampaignScreen = ({
         onSelectIdentity={onSelectIdentity}
         onRetry={onRetrySenderIdentities}
         saveState={senderSaveState}
+        isSenderRecorded={isSenderRecorded}
+        onRecordSender={onRecordSender}
       />
 
       <HermesCampaignCapabilitiesSection
@@ -277,6 +310,18 @@ export const HermesCampaignScreen = ({
       <HermesCampaignAudienceSection
         load={audienceLoad}
         onRetry={onRetryAudience}
+        picker={{
+          audiencesLoad,
+          onRetryAudiences,
+          selectedListId,
+          onSelectList,
+          listSaveState,
+          topics: unsubscribeTopics,
+          selectedTopicId,
+          onSelectTopic,
+          topicSaveState,
+          isEditable: campaignState === 'draft',
+        }}
       />
 
       <HermesCampaignContentSection

@@ -21,8 +21,14 @@ type BuildRuntimeSenderIdentitiesArgs = {
   // it. Null when the record was not read or carries none.
   campaignFromAddress: string | null;
   // The server's verdict on that address, from the send preview. Null when
-  // the preview did not answer.
+  // the preview did not answer. It says nothing about the mailbox: the
+  // preview never resolves the MAIL connection or the transport.
   campaignSenderVerdict: HermesSenderIdentityVerdict | null;
+  // The exact handle of the connected account the central MAIL connection
+  // names, as the connection centre resolved it. Null while that is unknown —
+  // loading, absent, unreadable, or naming an account that does not answer.
+  // An unknown central mailbox attests nothing about any identity.
+  centralMailboxAddress: string | null;
 };
 
 const normalise = (address: string | null | undefined): string | null =>
@@ -31,21 +37,33 @@ const normalise = (address: string | null | undefined): string | null =>
 // The mailboxes that can be offered as a campaign sender, read from the
 // message channels the server publishes.
 //
-// On the delegation, corrected: an earlier version of this helper treated a
-// channel of type EMAIL_GROUP as the delegation record and inferred
-// `delegated: true` from that type alone. That is not what the send path
-// does. The emailing domain provider resolves the registered mailbox from the
-// connection centre and authorises *exactly* the handle of that central MAIL
-// connection's connected account, compared after trimming and lowercasing —
-// a channel type grants nothing, and sharing a verified domain grants
-// nothing either. So the type is no longer read as an authorisation.
+// On the delegation, corrected twice. The first version read a channel of
+// type EMAIL_GROUP as the delegation record; the second read the send
+// preview's verdict. Both were wrong, for the same underlying reason: neither
+// control ever looked at the mailbox.
 //
-// What is read instead is the server's own answer. `delegated` is true only
-// where the send preview's verdict for this exact address says the campaign
-// may depart, and null everywhere else — unknown, which is not a refusal and
-// not a permission. The connection centre is not reachable from this module,
-// so the one fact available about a given address is the verdict the server
-// published for it, and nothing here invents the rest.
+// What the send path actually does is resolve the registered mailbox from the
+// connection centre and authorise *exactly* the handle of that central MAIL
+// connection's connected account, compared after trimming and lowercasing. A
+// channel type grants nothing, and sharing a verified domain grants nothing.
+//
+// And the send preview cannot stand in for it: `checkCampaignSendOrThrow`
+// verifies content, domain, audience and billing, and never resolves the MAIL
+// connection or the transport. So an empty blocker list is entirely
+// compatible with no central connection existing at all, or with a different
+// account being the one that would really send. Reading delegation out of it
+// was a false proof.
+//
+// So the attestation comes from the connection centre, passed in here as
+// `centralMailboxAddress`: the exact handle of the account the central MAIL
+// connection names. The identity carrying that address is the registered
+// mailbox; every other identity is `delegated: null` — unknown, which is
+// neither a refusal nor a permission.
+//
+// Being the registered mailbox is still not proof that a send would succeed.
+// Transport availability is not established by any read here and stays
+// unproven until a probe or an actual send says otherwise, which is why
+// 'verified' additionally requires the server's own send verdict.
 //
 // The domain is left null on purpose. The server publishes no domain on a
 // channel, and taking one out of the address would state a fact it never
@@ -64,11 +82,16 @@ export const buildRuntimeSenderIdentities = ({
   channels,
   campaignFromAddress,
   campaignSenderVerdict,
+  centralMailboxAddress,
 }: BuildRuntimeSenderIdentitiesArgs): {
   identities: HermesSenderIdentity[];
   campaignIdentityId: string | null;
+  // The identity that is genuinely the registered mailbox, when one of them
+  // is. Offered as the sender to record on a campaign that has none.
+  centralIdentityId: string | null;
 } => {
   const normalisedCampaignFrom = normalise(campaignFromAddress);
+  const normalisedCentralMailbox = normalise(centralMailboxAddress);
 
   const identities = channels.map((channel): HermesSenderIdentity => {
     const mailboxAddress = normalise(channel.connectedAccount?.handle);
@@ -80,6 +103,13 @@ export const buildRuntimeSenderIdentities = ({
       mailboxAddress === normalisedCampaignFrom;
 
     const serverVerdict = isCampaignSender ? campaignSenderVerdict : null;
+
+    // The connection centre named this exact account. That is the delegation
+    // fact, and the only one available.
+    const isCentralMailbox =
+      isDefined(normalisedCentralMailbox) &&
+      isDefined(mailboxAddress) &&
+      mailboxAddress === normalisedCentralMailbox;
 
     return {
       id: channel.id,
@@ -93,9 +123,10 @@ export const buildRuntimeSenderIdentities = ({
       delegatedMailbox: {
         label: isNonEmptyString(label) ? label : null,
         address: mailboxAddress,
-        // The server's attestation for this exact address, or nothing. A
-        // channel type is not a delegation, so it is never read as one.
-        delegated: serverVerdict?.allowed === true ? true : null,
+        // Attested by the connection centre naming this exact account, or
+        // unknown. Never inferred from a channel type, and never from the
+        // send preview, which does not look at the mailbox.
+        delegated: isCentralMailbox ? true : null,
         // The channel's creation date is when the channel was made, not when
         // a delegation was attested. The server publishes no attestation
         // moment, so none is shown rather than one implied.
@@ -106,14 +137,19 @@ export const buildRuntimeSenderIdentities = ({
       // alias list.
       authorizedAliases: [],
       replyToAddress: null,
+      // Both facts are required, because each covers what the other does
+      // not: the connection centre attests which mailbox is registered, and
+      // the send verdict covers the content, the domain, the audience and the
+      // billing. Neither alone makes this identity usable, and together they
+      // still do not prove the transport works.
       state:
-        serverVerdict?.allowed === true
-          ? // The verdict covers the sending domain's verification and its
-            // standing, so this is the server's own attestation.
-            'verified'
-          : null,
+        isCentralMailbox && serverVerdict?.allowed === true ? 'verified' : null,
       unknownState:
-        serverVerdict?.allowed === true ? null : 'NOT_ATTESTED_BY_SERVER',
+        isCentralMailbox && serverVerdict?.allowed === true
+          ? null
+          : !isCentralMailbox
+            ? 'NOT_THE_REGISTERED_MAILBOX'
+            : 'NOT_ATTESTED_BY_SERVER',
       serverVerdict,
     };
   });
@@ -124,8 +160,15 @@ export const buildRuntimeSenderIdentities = ({
       identity.displayedAddress === normalisedCampaignFrom,
   );
 
+  const centralIdentity = identities.find(
+    (identity) =>
+      isDefined(normalisedCentralMailbox) &&
+      identity.displayedAddress === normalisedCentralMailbox,
+  );
+
   return {
     identities,
     campaignIdentityId: campaignIdentity?.id ?? null,
+    centralIdentityId: centralIdentity?.id ?? null,
   };
 };

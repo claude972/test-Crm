@@ -19,3 +19,7 @@ export {
   HERMES_RUNTIME_PREVIEW_RECIPIENT_LIMIT,
 } from '@/hermes-campaigns-runtime/hooks/useHermesRuntimeCampaignRecipients';
 export { useHermesCampaignPersistence } from '@/hermes-campaigns-runtime/hooks/useHermesCampaignPersistence';
+export {
+  useHermesRuntimeCampaignAudiences,
+  HERMES_RUNTIME_AUDIENCE_PAGE_SIZE,
+} from '@/hermes-campaigns-runtime/hooks/useHermesRuntimeCampaignAudiences';

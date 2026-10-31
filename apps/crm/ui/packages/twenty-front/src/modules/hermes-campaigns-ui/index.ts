@@ -5,6 +5,8 @@
 // one that will send, and the parent wires it in.
 
 export { HermesCampaignActionButton } from '@/hermes-campaigns-ui/components/HermesCampaignActionButton';
+export { HermesCampaignAudiencePicker } from '@/hermes-campaigns-ui/components/HermesCampaignAudiencePicker';
+export type { HermesCampaignAudiencePickerProps } from '@/hermes-campaigns-ui/components/HermesCampaignAudiencePicker';
 export { HermesCampaignAudienceSection } from '@/hermes-campaigns-ui/components/HermesCampaignAudienceSection';
 export { HermesCampaignCapabilitiesSection } from '@/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection';
 export { HermesCampaignContentSection } from '@/hermes-campaigns-ui/components/HermesCampaignContentSection';
@@ -64,6 +66,7 @@ export type {
   HermesCampaignSchedule,
   HermesCampaignState,
 } from '@/hermes-campaigns-ui/types/HermesCampaignJourney';
+export type { HermesCampaignAudienceOption } from '@/hermes-campaigns-ui/types/HermesCampaignAudienceOption';
 export type { HermesCampaignListEntry } from '@/hermes-campaigns-ui/types/HermesCampaignListEntry';
 export type { HermesCampaignLoad } from '@/hermes-campaigns-ui/types/HermesCampaignLoad';
 export type { HermesCampaignPreviewRecipient } from '@/hermes-campaigns-ui/types/HermesCampaignPreviewRecipient';

@@ -8,6 +8,10 @@ import { Tag } from 'kovaa-lab-ui/primitives/data-display';
 import { Section } from 'kovaa-lab-ui/components/layout';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import {
+  HermesCampaignAudiencePicker,
+  type HermesCampaignAudiencePickerProps,
+} from '@/hermes-campaigns-ui/components/HermesCampaignAudiencePicker';
 import { HermesCampaignCountValue } from '@/hermes-campaigns-ui/components/HermesCampaignCountValue';
 import { HermesCampaignLoadView } from '@/hermes-campaigns-ui/components/HermesCampaignLoadView';
 import { HermesCampaignNote } from '@/hermes-campaigns-ui/components/HermesCampaignNote';
@@ -86,11 +90,15 @@ const StyledVariableName = styled.code`
 type HermesCampaignAudienceSectionProps = {
   load: HermesCampaignLoad<HermesCampaignAudience>;
   onRetry?: () => void;
+  // Everything needed to actually give this campaign an audience. Passed
+  // straight through to the picker, which renders above the figures.
+  picker: HermesCampaignAudiencePickerProps;
 };
 
 export const HermesCampaignAudienceSection = ({
   load,
   onRetry,
+  picker,
 }: HermesCampaignAudienceSectionProps) => {
   const { t, i18n } = useLingui();
 
@@ -121,10 +129,19 @@ export const HermesCampaignAudienceSection = ({
         description={t`Recipients retained, and every record the server set aside, by reason.`}
       />
 
+      {/* The picker sits OUTSIDE the load view on purpose. A campaign with no
+          list reads as an empty or unconfigured audience, and that is exactly
+          when the operator needs to choose one: inside the load view the
+          control would disappear in the only state where it matters. */}
+      <HermesCampaignAudiencePicker
+        // oxlint-disable-next-line react/jsx-props-no-spreading
+        {...picker}
+      />
+
       <HermesCampaignLoadView
         load={load}
         emptyTitle={t`No audience`}
-        emptyDescription={t`This campaign has no audience list yet, so it has no recipients.`}
+        emptyDescription={t`No recipient was resolved for this campaign. Choose an audience list above; the server then resolves who is reachable.`}
         notConfiguredTitle={t`Audience not computed yet`}
         notConfiguredDescription={t`The audience is computed from qualified records. Import and qualification come first.`}
         failedTitle={t`The audience could not be read`}

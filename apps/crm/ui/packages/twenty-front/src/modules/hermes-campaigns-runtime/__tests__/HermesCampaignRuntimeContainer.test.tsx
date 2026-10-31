@@ -12,6 +12,8 @@ import { SEND_MESSAGE_CAMPAIGN } from '@/activities/emails/graphql/mutations/sen
 import { SEND_MESSAGE_CAMPAIGN_TEST } from '@/activities/emails/graphql/mutations/sendMessageCampaignTest';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { HermesCampaignRuntimeContainer } from '@/hermes-campaigns-runtime/components/HermesCampaignRuntimeContainer';
+import { HERMES_CONNECTIONS_V4 } from '@/hermes-mailbox-runtime/graphql/metadata-queries/hermesConnectionsV4';
+import { HERMES_RUNTIME_CAMPAIGN_AUDIENCES } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignAudiences';
 import { HERMES_RUNTIME_CAMPAIGN_RECIPIENTS } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignRecipients';
 import { HERMES_RUNTIME_CAMPAIGN_RECORD } from '@/hermes-campaigns-runtime/graphql/queries/hermesRuntimeCampaignRecord';
 import { HERMES_RUNTIME_UPDATE_CAMPAIGN } from '@/hermes-campaigns-runtime/graphql/mutations/hermesRuntimeUpdateCampaign';
@@ -100,6 +102,50 @@ const sendPreviewMock = {
         },
         blockers: [],
       },
+    },
+  },
+};
+
+const audiencesMock = {
+  request: {
+    query: HERMES_RUNTIME_CAMPAIGN_AUDIENCES,
+    variables: {
+      orderBy: [{ createdAt: 'DescNullsLast' }],
+      limit: 50,
+    },
+  },
+  result: {
+    data: {
+      messageLists: {
+        __typename: 'MessageListConnection',
+        edges: [
+          {
+            __typename: 'MessageListEdge',
+            node: {
+              __typename: 'MessageList',
+              id: '30303030-1111-4222-8333-444455556666',
+              name: 'Architects, Lyon',
+              description: null,
+              createdAt: '2026-10-20T08:00:00.000Z',
+            },
+          },
+        ],
+        totalCount: 1,
+      },
+    },
+  },
+};
+
+// No central MAIL connection on this workspace. So no identity is the
+// registered mailbox, nothing is attested, and the sender stays unknown —
+// which is the closed-by-default state, not a failure.
+const connectionsMock = {
+  request: { query: HERMES_CONNECTIONS_V4, variables: {} },
+  result: {
+    data: {
+      hermesConnectionsV4: [
+        { kind: 'MAIL', state: 'NOT_CONFIGURED', connectionId: null },
+      ],
     },
   },
 };
@@ -324,6 +370,8 @@ const renderContainer = () => {
             new MockLink([
               campaignRecordMock,
               recipientsMock,
+              audiencesMock,
+              connectionsMock,
               persistenceTrap,
               recipientPreviewTrap,
               sendPreviewMock,
@@ -393,9 +441,16 @@ describe('HermesCampaignRuntimeContainer', () => {
     expect(
       screen.getByText('Choose the recipient to preview first.'),
     ).toBeVisible();
+
+    // The test is shut one level earlier than the destination: this workspace
+    // has no central MAIL connection, so no identity is the registered
+    // mailbox and nothing attests one. Closed by default, with the reason in
+    // the page — not because a callback is missing.
     expect(
-      screen.getByText('Type the destination of the test first.'),
-    ).toBeVisible();
+      screen.getAllByText(
+        'Unavailable: the sender identity this would run under is not authorised.',
+      ).length,
+    ).toBeGreaterThan(0);
 
     // The test destination is a field the operator fills in. There is no
     // default and no implicit fallback to the signed-in user's mailbox.
@@ -413,6 +468,21 @@ describe('HermesCampaignRuntimeContainer', () => {
     // The recipients of the campaign's own list were read, so a preview can
     // be asked for a named person.
     expect(sentOperationNames).toContain('HermesRuntimeCampaignRecipients');
+
+    // And the campaign can actually be given an audience from this screen:
+    // the lists were read and the control is here, rather than the operator
+    // being sent elsewhere.
+    expect(sentOperationNames).toContain('HermesRuntimeCampaignAudiences');
+    expect(screen.getByLabelText('Audience list')).toBeVisible();
+    expect(screen.getByLabelText('Unsubscribe topic')).toBeVisible();
+
+    // No central MAIL connection on this workspace, so no mailbox is
+    // attested and the sender is not presented as proven.
+    expect(
+      screen.getByText(
+        'Being the registered mailbox does not prove the transport works. That stays unproven until a test or a send says otherwise.',
+      ),
+    ).toBeVisible();
 
     // A draft cannot be cancelled, and that is the server's own refusal code.
     expect(

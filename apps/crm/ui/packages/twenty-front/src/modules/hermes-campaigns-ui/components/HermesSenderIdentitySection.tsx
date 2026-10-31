@@ -8,6 +8,7 @@ import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
 import { HermesCampaignLoadView } from '@/hermes-campaigns-ui/components/HermesCampaignLoadView';
 import { HermesCampaignNote } from '@/hermes-campaigns-ui/components/HermesCampaignNote';
+import { HermesCampaignSaveControl } from '@/hermes-campaigns-ui/components/HermesCampaignSaveControl';
 import { HermesSenderIdentityCard } from '@/hermes-campaigns-ui/components/HermesSenderIdentityCard';
 import { type HermesCampaignLoad } from '@/hermes-campaigns-ui/types/HermesCampaignLoad';
 import { type HermesCampaignSaveState } from '@/hermes-campaigns-ui/types/HermesCampaignSaveState';
@@ -42,6 +43,12 @@ type HermesSenderIdentitySectionProps = {
   // the campaign, so the choice survives a reload; this says whether that
   // recording actually happened.
   saveState: HermesCampaignSaveState;
+  // False when the campaign record carries no sender yet. The one shown is
+  // then offered, not stored, and the section must not let it read as stored.
+  isSenderRecorded: boolean;
+  // Records whatever is shown. Its own control, because the pre-selected
+  // proposal fires no change event when it is clicked.
+  onRecordSender?: () => void;
 };
 
 export const HermesSenderIdentitySection = ({
@@ -50,6 +57,8 @@ export const HermesSenderIdentitySection = ({
   onSelectIdentity,
   onRetry,
   saveState,
+  isSenderRecorded,
+  onRecordSender,
 }: HermesSenderIdentitySectionProps) => {
   const { t } = useLingui();
 
@@ -115,6 +124,31 @@ export const HermesSenderIdentitySection = ({
               survives a reload. The recording is said out loud, because a
               choice that only lived on screen is exactly the defect this
               replaced. */}
+          {!isSenderRecorded && identities.length > 0 && (
+            <HermesCampaignNote>
+              {t`This campaign has recorded no sender. The one shown is the mailbox actually registered in the connection centre, offered as a proposal: choose it to record it.`}
+            </HermesCampaignNote>
+          )}
+
+          <HermesCampaignNote>
+            {t`Being the registered mailbox does not prove the transport works. That stays unproven until a test or a send says otherwise.`}
+          </HermesCampaignNote>
+
+          {!isSenderRecorded && identities.length > 0 && (
+            <HermesCampaignSaveControl
+              id="hermes-campaign-save-sender"
+              label={t`Record this sender`}
+              saveState={saveState}
+              onSave={onRecordSender}
+              canSave={isDefined(selectedIdentityId)}
+              blockedReason={
+                isDefined(selectedIdentityId)
+                  ? undefined
+                  : t`Choose a mailbox to record it as the sender.`
+              }
+            />
+          )}
+
           <StyledSaveStatus aria-live="polite">
             {saveState.kind === 'saving' && t`Recording the sender…`}
             {saveState.kind === 'saved' &&
