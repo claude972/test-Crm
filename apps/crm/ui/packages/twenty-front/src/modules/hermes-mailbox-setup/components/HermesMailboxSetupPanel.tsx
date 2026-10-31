@@ -87,6 +87,7 @@ export const HermesMailboxSetupPanel = ({
     outcome,
     protocolRequirement,
     canRetryWrite,
+    hasAcceptedWrite,
     resetSetup,
     retryAccountsRead,
   } = useHermesMailboxSetup({ onConnected: handleConnected });
@@ -102,6 +103,20 @@ export const HermesMailboxSetupPanel = ({
   const cancelSetup = () => {
     resetSetup();
     setIsOpen(false);
+  };
+
+  // A new attempt after a write the server ACCEPTED starts clean: the previous
+  // mailbox exists, so this is a deliberate second one and must not resubmit
+  // the form that already succeeded. An outcome that is merely UNKNOWN is
+  // never reset from here — its exits stay the re-read and the explicit
+  // Cancel, because a reset would hand back the control that risks a
+  // duplicate.
+  const openSetup = () => {
+    if (hasAcceptedWrite) {
+      resetSetup();
+    }
+
+    setIsOpen(true);
   };
 
   if (!isOpen) {
@@ -136,7 +151,7 @@ export const HermesMailboxSetupPanel = ({
             type="button"
             variant="solid"
             size="sm"
-            onClick={() => setIsOpen(true)}
+            onClick={openSetup}
           >
             {t`Connecter une boîte`}
           </Button>

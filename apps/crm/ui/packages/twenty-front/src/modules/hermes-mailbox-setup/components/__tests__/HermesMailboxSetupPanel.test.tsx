@@ -870,4 +870,59 @@ describe('HermesMailboxSetupPanel', () => {
       screen.queryByRole('button', { name: /Enregistrer la boîte/ }),
     ).toBeNull();
   });
+
+  it('lets a second mailbox be created after a successful first one', async () => {
+    // The regression: with `saved-unverified` outside the settled set, pressing
+    // « Connecter une boîte » again reopened a form whose Save had been
+    // withdrawn, so a company could never register a second mailbox.
+    const user = userEvent.setup();
+    const log: AccountsReadLog = { count: 0 };
+    const variablesSpy = jest.fn();
+
+    renderPanel([
+      ...buildAccountsMocks(log),
+      buildSaveMock(variablesSpy, {
+        success: true,
+        connectedAccountId: NEW_ACCOUNT_ID,
+      }),
+    ]);
+
+    await waitFor(() => expect(log.count).toBe(1));
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+    await fillCompleteMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    // Awaited on the CLOSED panel's own note, not on the request leaving: the
+    // outcome resolves after the mutation is sent, and the panel closes then.
+    expect(
+      await screen.findByText(/Boîte enregistrée, non vérifiée/),
+    ).toBeInTheDocument();
+    expect(variablesSpy).toHaveBeenCalledTimes(1);
+
+    // Back to the closed panel, then a deliberate second attempt.
+    await user.click(
+      screen.getByRole('button', { name: /Connecter une boîte/ }),
+    );
+
+    // The control is there — this is what the regression removed.
+    expect(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    ).toBeInTheDocument();
+
+    // And on a cleared form: the mailbox that already exists is not resubmitted.
+    expect(screen.getByLabelText(/Email Address/i)).toHaveValue('');
+    expect(screen.getByLabelText(/IMAP Server/i)).toHaveValue('');
+
+    await fillCompleteMailbox(user);
+    await user.click(
+      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+    );
+
+    // A second creation really did leave, deliberately.
+    await waitFor(() => expect(variablesSpy).toHaveBeenCalledTimes(2));
+  });
 });
