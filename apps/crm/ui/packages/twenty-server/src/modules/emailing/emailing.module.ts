@@ -43,6 +43,7 @@ import { MessageListResolver } from 'src/modules/emailing/resolvers/message-list
 import { MessageSuppressionResolver } from 'src/modules/emailing/resolvers/message-suppression.resolver';
 import { UnsubscribeTopicResolver } from 'src/modules/emailing/resolvers/unsubscribe-topic.resolver';
 import { CampaignSendingWorkspaceService } from 'src/modules/emailing/services/campaign-sending-workspace.service';
+import { CampaignMessageChannelService } from 'src/modules/emailing/services/campaign-message-channel.service';
 import { CampaignVariableService } from 'src/modules/emailing/services/campaign-variable.service';
 import { ThrottlerModule } from 'src/engine/core-modules/throttler/throttler.module';
 import { EmailBillingService } from 'src/modules/emailing/services/email-billing.service';
@@ -97,6 +98,7 @@ import { SaveCampaignTool } from 'src/modules/emailing/tools/save-campaign-tool'
   controllers: [UnsubscribeController, CampaignTrackingController],
   providers: [
     CampaignVariableService,
+    CampaignMessageChannelService,
     EmailBillingService,
     MessageCampaignService,
     MessageCampaignScheduleService,

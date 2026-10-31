@@ -6,10 +6,12 @@ import { Button } from 'kovaa-lab-ui/primitives/input';
 import { Tag } from 'kovaa-lab-ui/primitives/data-display';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
+import { MessagingInboxAutoDelegationOffer } from '@/messaging-inbox/components/MessagingInboxAutoDelegationOffer';
 import { MessagingInboxNote } from '@/messaging-inbox/components/MessagingInboxNote';
 import { type MessagingInboxBotModeControl as BotModeControl } from '@/messaging-inbox/hooks/useMessagingInboxBotMode';
 import { useMessagingInboxBotPolicy } from '@/messaging-inbox/hooks/useMessagingInboxBotPolicy';
 import { type MessagingInboxBotMode } from '@/messaging-inbox/types/MessagingInboxBotPolicy';
+import { type MessagingInboxPolicyRefusalCode } from '@/messaging-inbox/utils/readMessagingInboxPolicyRefusal';
 
 const StyledRow = styled.div`
   align-items: center;
@@ -34,6 +36,10 @@ type MessagingInboxBotModeControlProps = {
 // mutation: that mutation knows nothing of the company or channel policy, so
 // using it as a fallback would be a way around OFF.
 //
+// AUTO is reachable, and only through the explicit two-step offer below. It is
+// never a side effect of another choice and never inferred from INHERIT:
+// inheriting a company default is not a delegation.
+//
 // Replying by hand never depends on any of this.
 export const MessagingInboxBotModeControl = ({
   conversationId,
@@ -54,9 +60,9 @@ export const MessagingInboxBotModeControl = ({
           ? t`Bot stopped`
           : t`Bot mode unknown`;
 
-  // Only the transitions the policy can accept are offered. AUTO is offered
-  // only when the server says this conversation may reply on its own, because
-  // it is the one transition that needs a delegation we do not yet ask for.
+  // The three transitions that need no delegation. AUTO is deliberately NOT
+  // here: it carries a delegation, so it has its own explicit two-step path
+  // below and must never sit among one-press buttons.
   // Typed before the filter: an inline literal infers `mode: string`, which no
   // longer matches the mode union once it has been through `filter`.
   const offered: { mode: MessagingInboxBotMode; label: string }[] = [
@@ -69,6 +75,25 @@ export const MessagingInboxBotModeControl = ({
     known === null
       ? []
       : offered.filter((choice) => choice.mode !== known.localMode);
+
+  // Each named precondition in its own words. BOT_DELEGATION_REQUIRED is the
+  // one an operator meets without asking for AUTO: following the company lands
+  // on automatic replies, which is a delegation and has to be chosen outright.
+  const refusalCode: MessagingInboxPolicyRefusalCode | null =
+    policy.writeState.kind === 'refused' ? policy.writeState.code : null;
+
+  const refusalSentence =
+    refusalCode === 'BOT_DELEGATION_REQUIRED'
+      ? t`Following the company would let the bot reply on its own here, and that has to be chosen explicitly. Use "Let the bot reply on its own" below instead. Nothing was changed.`
+      : refusalCode === 'BOT_POLICY_RESTRICTION'
+        ? t`The company or channel policy is stricter than that, so this conversation cannot be set to it. Nothing was changed.`
+        : refusalCode === 'BOT_POLICY_STALE'
+          ? t`Someone changed this policy, or the company's, while this screen was open. It has been read again — please choose once more.`
+          : refusalCode === 'CONVERSATION_CONTACT_REVIEW_REQUIRED'
+            ? t`This conversation's phone number changed, so the bot may not reply on its own until someone reviews the contact. Nothing was changed.`
+            : refusalCode === 'CONVERSATION_NOT_FOUND'
+              ? t`This conversation no longer exists for this company. Nothing was changed.`
+              : null;
 
   return (
     <>
@@ -111,11 +136,22 @@ export const MessagingInboxBotModeControl = ({
         </MessagingInboxNote>
       )}
 
+      {/* The delegation path. Mounted only once the policy is readable and
+          AUTO is not already the local mode, so its MCP discovery does not
+          run on a thread where there is nothing to offer. */}
+      {known !== null && known.localMode !== 'AUTO' && (
+        <MessagingInboxAutoDelegationOffer
+          isBusy={isBusy}
+          onDelegate={() => policy.setMode('AUTO')}
+        />
+      )}
+
       {policy.writeState.kind === 'refused' && (
         <MessagingInboxNote role="alert">
-          {isNonEmptyString(policy.writeState.message)
-            ? t`Change refused: ${policy.writeState.message}`
-            : t`Change refused.`}
+          {refusalSentence ??
+            (isNonEmptyString(policy.writeState.message)
+              ? t`Change refused: ${policy.writeState.message}`
+              : t`Change refused.`)}
         </MessagingInboxNote>
       )}
 

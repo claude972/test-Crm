@@ -46,6 +46,7 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
     MessagingSmtpDriverModule,
   ],
   exports: [
+    EmailingDomainMailboxTransportProvider,
     EmailingDomainService,
     EmailingDomainTenantStatusService,
     EmailingDomainDriverFactory,
