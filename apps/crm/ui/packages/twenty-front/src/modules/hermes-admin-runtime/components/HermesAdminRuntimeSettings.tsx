@@ -17,6 +17,7 @@ import {
   type HermesConnectionFormValues,
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
 import { HermesBotPolicySection } from '@/hermes-bot-settings/components/HermesBotPolicySection';
+import { HermesMcpToolSurfacePanel } from '@/hermes-admin-runtime/components/HermesMcpToolSurfacePanel';
 import { useHermesConnectionCheck } from '@/hermes-admin-runtime/hooks/useHermesConnectionCheck';
 import { useHermesRuntimeCompanies } from '@/hermes-admin-runtime/hooks/useHermesRuntimeCompanies';
 import { useHermesRuntimeConnections } from '@/hermes-admin-runtime/hooks/useHermesRuntimeConnections';
@@ -346,6 +347,11 @@ export const HermesAdminRuntimeSettings = ({
           write — and nothing here offers to resume them: a fresh explicit
           policy action is required, which is exactly what this section is. */}
       <HermesBotPolicySection />
+
+      {/* Ce que le serveur MCP de la société annonce, à côté de la politique
+          qui décide si le bot s'en sert. La découverte n'appelle aucun outil :
+          le panneau rapporte une offre, pas un connecteur vérifié. */}
+      <HermesMcpToolSurfacePanel />
     </>
   );
 };
