@@ -2200,6 +2200,16 @@ msgstr "الوصول إلى بيانات مساحة العمل"
 msgid "Access your workspace data from your favorite MCP client like Claude, Codex or Cursor."
 msgstr "الوصول إلى بيانات مساحة العمل من عميل MCP المفضل مثل Claude أو Codex أو Cursor."
 
+#. js-lingui-id: UOnNmF
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Accord"
+msgstr ""
+
+#. js-lingui-id: 9zgAGl
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Accordé"
+msgstr ""
+
 #. js-lingui-id: AeXO77
 #: src/modules/settings/accounts/components/SettingsConnectedAccountsTableHeader.tsx
 #: src/modules/settings/app-preferences/components/SettingsAccountGroupsSection.tsx
@@ -4414,6 +4424,12 @@ msgstr "المظهر"
 msgid "Appears filled in fewer than 5% of {0}. Fields that stay empty can be deactivated."
 msgstr "يظهر مملوءاً في أقل من 5% من {0}. يمكن إلغاء تفعيل الحقول التي تبقى فارغة."
 
+#. js-lingui-id: KkOQeN
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Appelable"
+msgstr ""
+
 #. js-lingui-id: LqRVps
 #: src/modules/auth/sign-in-up/components/internal/SignInUpWorkspaceCreationForm.tsx
 msgid "apple"
@@ -4808,6 +4824,12 @@ msgstr ""
 msgid "Ask, search or make anything..."
 msgstr "اسأل، ابحث، أو أنشئ أي شيء..."
 
+#. js-lingui-id: 1CUd30
+#. placeholder {0}: state.checkedAt
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Asked at {0}. Nothing since then is reflected here."
+msgstr ""
+
 #. js-lingui-id: 7pYbR6
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 #: src/modules/messaging-inbox/components/MessagingInboxComposer.tsx
@@ -5109,6 +5131,8 @@ msgstr ""
 
 #. js-lingui-id: P23zBB
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Attribution"
 msgstr ""
 
@@ -5147,6 +5171,16 @@ msgstr ""
 msgid "Aucun identifiant n’est saisi ni affiché ici. Une capacité que le serveur n’a pas confirmée est annoncée comme non confirmée, donc indisponible."
 msgstr ""
 
+#. js-lingui-id: Klzzzq
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Aucun outil de rédaction n’est annoncé."
+msgstr ""
+
+#. js-lingui-id: swSd8g
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Aucun refus publié"
+msgstr ""
+
 #. js-lingui-id: XPWV4F
 #: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
 msgid "Aucun rôle"
@@ -5155,6 +5189,11 @@ msgstr ""
 #. js-lingui-id: DVVGWG
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "Aucun secret enregistré"
+msgstr ""
+
+#. js-lingui-id: qhAV2t
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Aucun serveur MCP n’est configuré pour cette société : il n’y a donc aucun outil à annoncer. Enregistrez une connexion MCP pour cette société dans les réglages de connexions, ou renseignez HERMES_MCP_CONNECTIONS sur ce déploiement."
 msgstr ""
 
 #. js-lingui-id: IuekhZ
@@ -5880,6 +5919,8 @@ msgstr "احجز مكالمة"
 
 #. js-lingui-id: xTu9Ic
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Booking"
 msgstr ""
 
@@ -5977,6 +6018,12 @@ msgstr "التفصيل"
 #: src/pages/settings/ai/SettingsAiUsageUserDetail.tsx
 msgid "Breakdown across AI models."
 msgstr "تفصيل حسب نماذج الذكاء الاصطناعي."
+
+#. js-lingui-id: 0miA6q
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Bridge receipts"
+msgstr ""
 
 #. js-lingui-id: qDsMss
 #: src/modules/ai/components/AgentOutputSchemaBuilder.tsx
@@ -6765,6 +6812,16 @@ msgstr ""
 #. js-lingui-id: 5bmzlq
 #: src/modules/hermes-admin-ui/components/HermesConnectionCheckNote.tsx
 msgid "Ce n’est pas une panne réseau : le service répond. L’appairage WhatsApp de cette instance n’est pas terminé, et rien ne peut être envoyé avant qu’il le soit."
+msgstr ""
+
+#. js-lingui-id: Evn2io
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Ce nom est accordé, mais le serveur ne l’a jamais annoncé."
+msgstr ""
+
+#. js-lingui-id: 54Mj+e
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Ce que le serveur MCP de cette société annonce, ce que vous avez accordé, et ce que le serveur a refusé."
 msgstr ""
 
 #. js-lingui-id: HGGrBp
@@ -7999,6 +8056,7 @@ msgstr ""
 #: src/modules/prospection/components/CampaignAudienceMembersTable.tsx
 #: src/modules/prospection/components/HermesImportRowsTable.tsx
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 #: src/pages/settings/structures/SettingsStructuresDashboard.tsx
 msgid "Company"
 msgstr ""
@@ -8598,6 +8656,7 @@ msgstr "جرّب إضافة فلتر لعرض المزيد من البيانات
 
 #. js-lingui-id: jfC/xh
 #: src/modules/prospection/components/CampaignAudienceMembersTable.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Contact"
 msgstr ""
 
@@ -11102,6 +11161,12 @@ msgstr ""
 msgid "Demande en cours côté serveur…"
 msgstr ""
 
+#. js-lingui-id: jgZWGK
+#. placeholder {0}: state.checkedAt
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Demandé le {0}. Rien depuis cet instant n’est reflété ici."
+msgstr ""
+
 #. js-lingui-id: cFCKYZ
 #: src/modules/ai/components/AiChatApprovalReviewDeck.tsx
 msgid "Deny"
@@ -11117,6 +11182,11 @@ msgstr ""
 #: src/modules/settings/applications/components/SettingsApplicationVariableLabelRow.tsx
 msgid "Deprecated"
 msgstr "مهمل"
+
+#. js-lingui-id: kMXFcO
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Des accords ne correspondent à aucun outil annoncé par le serveur. Ils restent affichés : un accord qui pointe vers un outil absent est un fait, pas une absence."
+msgstr ""
 
 #. js-lingui-id: witSc4
 #: src/modules/hermes-admin-ui/components/HermesConnectionCard.tsx
@@ -13458,6 +13528,12 @@ msgstr "تقييم"
 msgid "Event"
 msgstr "حدث"
 
+#. js-lingui-id: Rjtg3l
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Event identifier"
+msgstr ""
+
 #. js-lingui-id: cW8SdW
 #: src/modules/settings/event-logs/components/EventLogFilters.tsx
 msgid "Event type"
@@ -15222,13 +15298,20 @@ msgstr "نسيت كلمة المرور؟"
 
 #. js-lingui-id: QRAWTO
 #: src/modules/ai/components/AiChatFormCardContent.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/constants/actions/FormAction.ts
 msgid "Form"
 msgstr "نموذج"
 
 #. js-lingui-id: QauiEh
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Form answer"
+msgstr ""
+
+#. js-lingui-id: 8m8A5A
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Form answers and bookings received through a signed connection, each with the identifier its provider console shows."
 msgstr ""
 
 #. js-lingui-id: L/tgbO
@@ -17065,6 +17148,12 @@ msgstr "رؤى: اتجاهات الصناعة وأفضل الممارسات"
 msgid "Insights: The latest in industrial equipment and tools"
 msgstr "رؤى: أحدث ما في المعدات والأدوات الصناعية"
 
+#. js-lingui-id: NWSIX1
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Inspect"
+msgstr ""
+
 #. js-lingui-id: IaiiK0
 #: src/pages/settings/developers/tabs/SettingsDevelopersCliTab.tsx
 msgid "Inspect the data model, query records and send raw API requests."
@@ -17847,6 +17936,11 @@ msgstr "العنصر KeyInfo مفقود"
 msgid "Keyword"
 msgstr "كلمة مفتاحية"
 
+#. js-lingui-id: KSCnVQ
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Kind"
+msgstr ""
+
 #. js-lingui-id: h6S9Yz
 #: src/modules/localization/hooks/useLocaleOptions.ts
 msgid "Korean"
@@ -17897,6 +17991,22 @@ msgstr ""
 msgid "La clé que le fournisseur Evolution attend sur ses appels."
 msgstr ""
 
+#. js-lingui-id: gikErA
+#. placeholder {0}: state.errorCode
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "La configuration MCP n’a pas pu être lue ({0}). Ce n’est pas un problème d’outil."
+msgstr ""
+
+#. js-lingui-id: IHwdUY
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "La configuration MCP n’a pas pu être lue. Ce n’est pas un problème d’outil."
+msgstr ""
+
+#. js-lingui-id: kG4Jw1
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "La découverte s’est arrêtée avant la fin : cette liste est incomplète et n’est pas la surface entière du serveur."
+msgstr ""
+
 #. js-lingui-id: I7DcJN
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
 msgid "La réponse du serveur n’a pas pu être lue : cet enregistrement est incertain. Rechargez pour voir ce qui a été retenu."
@@ -17930,6 +18040,11 @@ msgstr ""
 #. js-lingui-id: a07aQZ
 #: src/modules/hermes-admin-ui/components/HermesCompanySection.tsx
 msgid "La société active n’a pas pu être lue. Aucun réglage n’est présenté comme portant sur une société tant qu’elle est inconnue."
+msgstr ""
+
+#. js-lingui-id: JVglwo
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "La surface d’outils n’a pas pu être lue. Aucun outil, aucun accord et aucun refus n’est supposé pour autant."
 msgstr ""
 
 #. js-lingui-id: ElO9vM
@@ -18381,9 +18496,35 @@ msgstr ""
 msgid "Le serveur a refusé l’enregistrement de cette boîte. Rien n’a été écrit."
 msgstr ""
 
+#. js-lingui-id: qt+sz6
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Le serveur a répondu et voici ce qu’il annonce. Aucun outil n’est appelé pendant la découverte : ceci ne prouve pas qu’un outil fonctionne, pas même l’outil de rédaction."
+msgstr ""
+
+#. js-lingui-id: h5tS1b
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Le serveur a répondu sans annoncer d’outil."
+msgstr ""
+
+#. js-lingui-id: xT4i24
+#. placeholder {0}: state.errorCode
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Le serveur MCP n’a pas répondu ({0}). Ce n’est pas un problème d’outil : aucun outil n’a été interrogé."
+msgstr ""
+
+#. js-lingui-id: kmqzdK
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Le serveur MCP n’a pas répondu. Ce n’est pas un problème d’outil : aucun outil n’a été interrogé."
+msgstr ""
+
 #. js-lingui-id: SMIp/A
 #: src/modules/hermes-admin-ui/components/HermesCompanyActionNote.tsx
 msgid "Le serveur n’a pas dit si cette commande est possible. Un état inconnu n’est pas une autorisation : elle reste désactivée."
+msgstr ""
+
+#. js-lingui-id: nJfKQY
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Le serveur n’a pas dit si cette liste est complète : elle n’est donc pas présentée comme la surface entière."
 msgstr ""
 
 #. js-lingui-id: Bcp4vZ
@@ -18394,6 +18535,11 @@ msgstr ""
 #. js-lingui-id: MuQ7NB
 #: src/modules/hermes-admin-ui/components/HermesCompanyList.tsx
 msgid "Le serveur n’a pas indiqué de société active. Aucune n’est supposée active pour autant : les réglages restent sans cible tant qu’elle n’est pas connue."
+msgstr ""
+
+#. js-lingui-id: QfYm3O
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Le serveur n’a pas publié cette valeur."
 msgstr ""
 
 #. js-lingui-id: E45H9F
@@ -18467,6 +18613,11 @@ msgstr "مغادرة مساحة العمل"
 #. js-lingui-id: Wj/dOw
 #: src/modules/hermes-admin-ui/components/HermesCompanySection.tsx
 msgid "Lecture de la société active…"
+msgstr ""
+
+#. js-lingui-id: V6XKrj
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Lecture de la surface d’outils…"
 msgstr ""
 
 #. js-lingui-id: 2dsoJt
@@ -18835,6 +18986,11 @@ msgstr "ربط بسجل"
 #: src/modules/settings/data-model/constants/CompositeFieldSubFieldLabelMessages.ts
 msgid "Link URL"
 msgstr "عنوان URL للرابط"
+
+#. js-lingui-id: jyIicI
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "Linked"
+msgstr ""
 
 #. js-lingui-id: fKQhnY
 #: src/modules/activities/timeline-activities/rows/generic/components/EventRowGenericLinked.tsx
@@ -20408,6 +20564,11 @@ msgstr "مزيد من الخيارات"
 #: src/modules/ai/components/AiChatMessageReactionPickerContent.tsx
 #: src/modules/ai/components/AiChatMessageReactionPickerContent.tsx
 msgid "More reactions"
+msgstr ""
+
+#. js-lingui-id: az+lS9
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "More receipts exist than are listed here."
 msgstr ""
 
 #. js-lingui-id: 3PA8SQ
@@ -21995,6 +22156,11 @@ msgstr ""
 msgid "No opportunity was created by this reception. Any opportunity linked to these contacts already existed and was opened by someone."
 msgstr ""
 
+#. js-lingui-id: en3FRL
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "No opportunity was created by this reception. Any opportunity linked to this contact already existed and was opened by someone."
+msgstr ""
+
 #. js-lingui-id: 1IS5l3
 #: src/modules/hermes-shell/dashboard/components/HermesOperationsDashboard.tsx
 msgid "No opportunity yet."
@@ -22068,6 +22234,11 @@ msgstr "لم يتم العثور على إثبات مصدر المنشأ لهذ�
 #. js-lingui-id: fHi2Mr
 #: src/modules/settings/application-monitoring/components/ApplicationMonitoring.tsx
 msgid "No rate limit hit in this period"
+msgstr ""
+
+#. js-lingui-id: 0kFHsV
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "No receipt is listed for this company. A receipt whose body no longer carries its marker is found by no list read, so this is not proof that none was ever received."
 msgstr ""
 
 #. js-lingui-id: DgGghz
@@ -22255,9 +22426,24 @@ msgstr "لا يوجد عنوان إرسال. اربط نطاقًا تم التح
 msgid "No server administrators found."
 msgstr "لم يتم العثور على أي مسؤول خادم."
 
+#. js-lingui-id: CUSC+V
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "No signed connection accounts for it"
+msgstr ""
+
 #. js-lingui-id: PNiHXd
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "No signed connection accounts for this reception. A manual or historical deposit is in this case, and it is not an automatic reception."
+msgstr ""
+
+#. js-lingui-id: ETaR4Z
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "No signed connection grants Forms or Calendar for this company, so no receipt could be attributed and none was read. Configure an intake connection for Forms or Calendar in the connections settings."
+msgstr ""
+
+#. js-lingui-id: Ys04c+
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "No signed connection grants this source for this company, so the receipt cannot be classified. Configure an intake connection for Forms or Calendar in the connections settings."
 msgstr ""
 
 #. js-lingui-id: XC3Be5
@@ -22559,14 +22745,34 @@ msgstr ""
 msgid "Nom de la société"
 msgstr ""
 
+#. js-lingui-id: 0jzJbk
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Nom non publié"
+msgstr ""
+
 #. js-lingui-id: B05HVC
 #: src/modules/hermes-admin-ui/components/HermesCompanyMembersTable.tsx
 msgid "non"
 msgstr ""
 
+#. js-lingui-id: gLap6l
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Non accordé"
+msgstr ""
+
+#. js-lingui-id: n3TAq/
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Non appelable"
+msgstr ""
+
 #. js-lingui-id: k3sHUT
 #: src/modules/hermes-admin-ui/components/HermesConnectionStateTag.tsx
 msgid "Non configuré"
+msgstr ""
+
+#. js-lingui-id: KNwNtP
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Non publié"
 msgstr ""
 
 #. js-lingui-id: lBBjOP
@@ -22810,6 +23016,11 @@ msgstr ""
 msgid "Not included"
 msgstr "غير متضمَّن"
 
+#. js-lingui-id: KujYYl
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "Not linked to a contact"
+msgstr ""
+
 #. js-lingui-id: i/2ImT
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApps.tsx
 msgid "Not listed"
@@ -22843,6 +23054,12 @@ msgstr "غير مثبّت"
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Not published"
 msgstr ""
 
@@ -23476,6 +23693,12 @@ msgstr "فقط الأشخاص الذين يمكنهم الوصول إلى هذه
 msgid "Only run when one of these fields changes"
 msgstr "شغّل فقط عند تغيّر أحد هذه الحقول"
 
+#. js-lingui-id: mo/1pV
+#. placeholder {0}: i18n.number(state.cap)
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Only the {0} most recent receipts are listed; more exist."
+msgstr ""
+
 #. js-lingui-id: YSJayJ
 #: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordContent.tsx
 msgid "Only the creator of this record and people with full access to it can change who has access."
@@ -23775,6 +23998,11 @@ msgstr "العمليات"
 #: src/modules/hermes-shell/dashboard/components/HermesVolumeSection.tsx
 #: src/pages/settings/structures/SettingsStructuresDashboard.tsx
 msgid "Opportunities"
+msgstr ""
+
+#. js-lingui-id: hfrJ0w
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "Opportunities already pointing at this contact"
 msgstr ""
 
 #. js-lingui-id: EBLSzB
@@ -24077,9 +24305,25 @@ msgstr ""
 msgid "Outcome unknown"
 msgstr ""
 
+#. js-lingui-id: XdwSJC
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Outil"
+msgstr ""
+
+#. js-lingui-id: iXT35h
+#. placeholder {0}: state.draftingTool
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Outil de rédaction annoncé : {0}. Annoncé, pas vérifié."
+msgstr ""
+
 #. js-lingui-id: tkd0kf
 #: src/modules/hermes-admin-ui/components/HermesConnectionCapabilityList.tsx
 msgid "Outils en lecture seule"
+msgstr ""
+
+#. js-lingui-id: pDIyJO
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Outils MCP découverts"
 msgstr ""
 
 #. js-lingui-id: gdC3cZ
@@ -25819,7 +26063,13 @@ msgstr ""
 
 #. js-lingui-id: ct6tnx
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Reading the classification…"
+msgstr ""
+
+#. js-lingui-id: 6gV+Z5
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Reading the receipts…"
 msgstr ""
 
 #. js-lingui-id: 8aOXcr
@@ -25903,6 +26153,11 @@ msgstr "إعادة التفويض"
 #. js-lingui-id: i0yuOj
 #: src/modules/hermes-admin-ui/components/HermesCompanySection.tsx
 msgid "Récapitulatif des sociétés autorisées"
+msgstr ""
+
+#. js-lingui-id: jxvrAJ
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "Receipt classification"
 msgstr ""
 
 #. js-lingui-id: tpMORm
@@ -26077,6 +26332,7 @@ msgstr "السجل"
 #: src/modules/navigation-menu-item/edit/components/NavigationMenuItemTypeTooltip.tsx
 #: src/modules/navigation-menu-item/edit/hooks/useNavigationMenuItemAddOptions.tsx
 #: src/modules/navigation-menu-item/edit/hooks/useNavigationMenuItemAddOptions.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 #: src/modules/side-panel/pages/page-layout/components/dropdown-content/ChartGroupByFieldSelectionTargetObjectFieldsView.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionDeleteRecord.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/components/WorkflowEditActionUpdateRecord.tsx
@@ -26456,6 +26712,11 @@ msgstr "تحديث"
 #: src/pages/settings/admin-panel/SettingsAdminWorkspacesStatus.tsx
 msgid "Refresh status"
 msgstr "تحديث الحالة"
+
+#. js-lingui-id: 9G6sbL
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Refus du serveur"
+msgstr ""
 
 #. js-lingui-id: Yc/6JX
 #: src/modules/hermes-campaigns-ui/components/HermesSenderIdentityCard.tsx
@@ -27055,6 +27316,16 @@ msgstr ""
 #: src/modules/settings/applications/components/SettingsApplicationAboutSidebar.tsx
 msgid "Report an issue"
 msgstr "الإبلاغ عن مشكلة"
+
+#. js-lingui-id: kbEGLp
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Reported"
+msgstr ""
+
+#. js-lingui-id: NXpI+0
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "Reported by the provider"
+msgstr ""
 
 #. js-lingui-id: 7zYguf
 #: src/modules/connectors/components/ConnectorDiagnostics.tsx
@@ -28194,6 +28465,7 @@ msgstr "النتيجة"
 
 #. js-lingui-id: uBypTW
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Scraping deposit"
 msgstr ""
 
@@ -30103,6 +30375,11 @@ msgstr "التسجيل غير متاح مؤقتًا أثناء الصيانة."
 msgid "Signatory title"
 msgstr "المسمّى الوظيفي للموقِّع"
 
+#. js-lingui-id: gloRFI
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "Signed connection"
+msgstr ""
+
 #. js-lingui-id: Lz4j8Q
 #: src/modules/settings/legal/components/SettingsDpaAgreementRow.tsx
 msgid "Signed copy"
@@ -30587,6 +30864,7 @@ msgstr "معايير الترتيب"
 #: src/modules/object-core/agents/components/CoreAgentRunsTab.tsx
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApps.tsx
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceUsageLimitsSection.tsx
 #: src/modules/settings/admin-panel/config-variables/components/ConfigVariableOptionsDropdownContent.tsx
@@ -32022,6 +32300,11 @@ msgstr "منطقة AWS الخاصة بـ Bedrock"
 msgid "The base data model every KovaaLab CRM workspace runs on."
 msgstr "نموذج البيانات الأساسي الذي تعمل عليه كل مساحة عمل في KovaaLab CRM."
 
+#. js-lingui-id: OLAs94
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "The booking record is not reported here: the receipt does not store the booking identifier, so it was never asked for. This is not a booking without a calendar entry."
+msgstr ""
+
 #. js-lingui-id: 832YJ9
 #: src/modules/validation-rules/constants/ValidationRuleKeywords.ts
 msgid "The boolean value false."
@@ -32119,6 +32402,7 @@ msgstr ""
 
 #. js-lingui-id: n1yhYI
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "The classification does not say whether an opportunity was created by this reception."
 msgstr ""
 
@@ -32572,9 +32856,19 @@ msgstr ""
 msgid "The server did not publish a match status for this conversation, so whether it has a contact is unknown."
 msgstr ""
 
+#. js-lingui-id: /ErpRI
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "The server did not say whether this page is complete, so it is not presented as the whole set."
+msgstr ""
+
 #. js-lingui-id: 7hs222
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
 msgid "The server did not say whether this recipient would be sent to, so it is unknown rather than assumed."
+msgstr ""
+
+#. js-lingui-id: LJFCP2
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "The server does not know this receipt for this company. It may have been removed since the list was read."
 msgstr ""
 
 #. js-lingui-id: Nma7N1
@@ -32694,6 +32988,7 @@ msgstr ""
 
 #. js-lingui-id: NgUnJS
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "The server reports an opportunity created by this reception. No inbound path should open one: have this checked."
 msgstr ""
 
@@ -33462,6 +33757,11 @@ msgstr "لا يمتلك هذا المزود SDK أصليًا بعد — سيتم
 #: src/pages/settings/admin-panel/SettingsAdminNewAiProvider.tsx
 msgid "This provider is built in. Set its API key from its page."
 msgstr "هذا الموفّر مدمج. عيّن مفتاح API الخاص به من صفحته."
+
+#. js-lingui-id: XhNyZS
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
+msgid "This receipt cannot be inspected: it does not carry both a known provider and an event identifier."
+msgstr ""
 
 #. js-lingui-id: FyfMha
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
@@ -34879,6 +35179,7 @@ msgstr "معرّف شامل"
 #: src/modules/prospection/components/HermesImportBatchesTable.tsx
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 #: src/modules/prospection/components/ProspectionSuppressionCell.tsx
 #: src/modules/settings/admin-panel/components/SettingsAdminVersionContainer.tsx
 #: src/modules/settings/admin-panel/components/SettingsAdminWorkspaceContent.tsx
@@ -34979,6 +35280,11 @@ msgstr "كائن غير معروف"
 #: src/modules/settings/security/utils/parseSamlMetadataFromXmlFile.ts
 msgid "Unknown parsing error"
 msgstr "خطأ تحليل غير معروف"
+
+#. js-lingui-id: 26Q15v
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Unknown provider"
+msgstr ""
 
 #. js-lingui-id: lZSo+Q
 #: src/modules/activities/emails/components/EmailThreadMessageSender.tsx
@@ -35190,6 +35496,11 @@ msgstr ""
 #: src/modules/prospection/components/HermesImportBatchesTable.tsx
 #: src/modules/prospection/components/HermesIntakeSection.tsx
 msgid "Unreadable"
+msgstr ""
+
+#. js-lingui-id: No6w40
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Unreadable date"
 msgstr ""
 
 #. js-lingui-id: 1rXqkB
@@ -36608,6 +36919,11 @@ msgstr ""
 #. js-lingui-id: /cF7Rs
 #: src/modules/hermes-shell/dashboard/components/HermesVolumeSection.tsx
 msgid "Volume"
+msgstr ""
+
+#. js-lingui-id: 0NIM7W
+#: src/modules/hermes-admin-runtime/components/HermesMcpToolSurfacePanel.tsx
+msgid "Votre rôle ne permet pas de lire la surface d’outils MCP."
 msgstr ""
 
 #. js-lingui-id: Ii6BOL
@@ -38087,8 +38403,14 @@ msgstr "مفتاح واجهة برمجة تطبيقات المزود الخاص 
 msgid "Your reply"
 msgstr ""
 
+#. js-lingui-id: +jrOjY
+#: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
+msgid "Your role does not allow reading the bridge receipts."
+msgstr ""
+
 #. js-lingui-id: o1NUWR
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
+#: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Your role does not allow reading the classification of receptions."
 msgstr ""
 
