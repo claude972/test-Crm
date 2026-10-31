@@ -18,7 +18,6 @@ import {
 } from 'test/integration/utils/hermes-campaign-mailbox-fixture.util';
 import { getCoreRepository } from 'test/integration/utils/get-core-repository.util';
 import { saveImapSmtpCaldavAccount } from 'test/integration/metadata/suites/connected-account/utils/save-imap-smtp-caldav-account.util';
-import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 import { expectEventually } from 'test/integration/utils/expect-eventually.util';
 
 import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
@@ -206,13 +205,22 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
       password: MAILBOX_PASSWORD,
     });
 
-    // The SSRF guard would otherwise reject the container's private address.
-    await updateConfigVariable({
-      input: {
-        key: 'OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS',
-        value: [mailbox.host],
-      },
-    });
+    // The SSRF guard must reach the fixture, and it is NOT relaxed here. The
+    // allowlist matches on hostname alone, so the loopback host is named
+    // statically in the runner environment; the runtime-assigned port is
+    // irrelevant to it. Asserting instead of mutating keeps the guard enforced
+    // and fails loudly when the environment did not name the host: the
+    // admin-panel mutation cannot help, because the integration runner sets
+    // IS_CONFIG_VARIABLES_IN_DB_ENABLED=false.
+    const allowedInternalHosts = config
+      .get('OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS')
+      .map((entry: string) => entry.trim().toLowerCase());
+
+    assert.ok(
+      allowedInternalHosts.includes('*') ||
+        allowedInternalHosts.includes(mailbox.host.toLowerCase()),
+      `OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS must name the fixture host ${mailbox.host} (set it in the runner environment; it cannot be set at runtime while database-backed config is disabled)`,
+    );
 
     const user = await getCoreRepository<UserEntity>(UserEntity).save({
       email: `${PREFIX}@acme.test`,
@@ -235,10 +243,6 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
         })
         .catch(() => undefined);
     }
-
-    await updateConfigVariable({
-      input: { key: 'OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS', value: [] },
-    }).catch(() => undefined);
 
     await mailbox?.stop().catch(() => undefined);
   });

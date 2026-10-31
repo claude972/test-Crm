@@ -43,11 +43,25 @@ allowlist:
 | `EMAILING_DOMAIN_DRIVER` | `SMTP` | The runner currently hardcodes `LOG`. Under `LOG` nothing reaches a socket, so the capture step cannot work and the suite will refuse to start. |
 | `IMAP_SMTP_ALLOW_SELF_SIGNED` | `true` | The fixture serves a self-signed certificate. This flag is the product's own switch feeding `rejectUnauthorized` in `buildMailServerCertificateOptions`; no guard is modified. |
 
-`OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS` is handled inside the suite via `updateConfigVariable`
-and reset afterwards, as the existing container suites do. **Caveat:** that goes through
-DB-backed config, and the integration runner sets `IS_CONFIG_VARIABLES_IN_DB_ENABLED=false`. If
-that blocks the write, the SSRF guard will reject the container address and CJ-05 should instead
-put the container host in the environment. I could not test which way it resolves.
+**RESOLVED after the first red run — a third variable is required.** The suite originally set
+the SSRF allowlist at runtime with `updateConfigVariable`. That helper writes through the
+admin-panel API into database-backed config, and the runner sets
+`IS_CONFIG_VARIABLES_IN_DB_ENABLED=false`, so the mutation had nothing to write to and every test
+failed in `beforeAll`. The suite no longer calls it. Instead:
+
+| Variable | Required value | Why |
+| --- | --- | --- |
+| `OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS` | `localhost,127.0.0.1` | The SSRF guard must reach the fixture. The suite now **asserts** the host is listed and refuses to run otherwise. |
+
+**No fixed port is needed, and database-backed config does not need enabling.** The allowlist
+matches on hostname alone — `normalizeAllowedInternalHost` reduces any entry to its hostname, and
+`getValidatedHost` compares only that, so the port Testcontainers assigns at runtime never enters
+it. The host is therefore a static, known value and belongs in the environment like the other two.
+
+Listing both spellings covers whichever `container.getHost()` returns on the runner. **The guard
+stays fully enforced**: loopback is named explicitly, nothing is widened, and
+`OUTBOUND_HTTP_SAFE_MODE_ENABLED` is left alone — setting it to `false` would disable the
+allowlist entirely and must not be used.
 
 ### 3. Docker must be usable by Testcontainers
 
@@ -152,10 +166,32 @@ What I did verify locally, and the full honest extent of it:
 first red run: whether GreenMail's TLS ports come up under `-Dgreenmail.setup.test.imaps/smtps`
 and whether the account save's immediate IMAP authentication accepts the self-signed certificate;
 whether the generic record API accepts the exact `createMessageCampaign` / `createMessageList` /
-`createMessageListMember` argument shapes used; whether `updateConfigVariable` works with DB-backed
-config disabled; the workspace schema name used by the raw SQL step; and whether job draining
+`createMessageListMember` argument shapes used; the workspace schema name used by the raw SQL step; and whether job draining
 settles the immediate send within the polling window. Each is an ordinary first-run fix, but none
 of them is currently evidence of anything.
 
 I would rather hand over a suite that is honest about being unexecuted than one described as
 proving a journey it has not yet run.
+
+## Why the static environment value, and not database-backed config
+
+Root offered two ways out of the first red run and asked for a judgement. The static environment
+value is the right one, and the reason root leaned the other way does not hold.
+
+The concern was that Testcontainers assigns the port at runtime, so the host could not be known
+before the process starts. **The allowlist never sees the port.**
+`normalizeAllowedInternalHost` reduces every entry to a hostname, and `getValidatedHost` compares
+hostnames only. The value is `localhost,127.0.0.1` whatever port the container lands on, so it is
+static and can be set before boot.
+
+Turning on `IS_CONFIG_VARIABLES_IN_DB_ENABLED` for this stage would also work, but it is the
+larger and riskier change:
+
+- it alters how **every** config variable resolves in that stage, including the two this journey
+  depends on (`EMAILING_DOMAIN_DRIVER=SMTP`, `IMAP_SMTP_ALLOW_SELF_SIGNED=true`). A database value
+  shadowing either of those would make the suite prove something other than what it claims;
+- it moves this stage's config semantics away from the four proven suites, so a failure here
+  would no longer be comparable with theirs;
+- it buys nothing, because the value it would let us write at runtime is a constant.
+
+One static variable, asserted by the suite, keeps the guard enforced and the stage comparable.
