@@ -1,4 +1,7 @@
-import { ForbiddenException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { createHmac, randomUUID } from 'node:crypto';
 
 import {
@@ -42,6 +45,8 @@ function fixture() {
   let revoked = false;
   let rotateAtLock = false;
   let revokeAfterWrite = false;
+  let revokeBeforeLookup = false;
+  let configurationBroken = false;
   let staged: string[] = [];
   let committed: string[] = [];
   const snapshot: HermesResolvedConnection = {
@@ -65,7 +70,17 @@ function fixture() {
       : [];
   });
   const reader = {
-    resolveByConnectionId: jest.fn(async () => snapshot),
+    // The real resolve() re-authorizes the stored owner before returning, so
+    // a revocation that predates the request surfaces from this call, not
+    // from the service's own later check.
+    resolveByConnectionId: jest.fn(async () => {
+      if (revokeBeforeLookup) throw new ForbiddenException();
+      if (configurationBroken)
+        throw new ServiceUnavailableException(
+          'CONNECTION_CONFIGURATION_UNAVAILABLE',
+        );
+      return snapshot;
+    }),
     assertRevisionViaQuery:
       HermesConnectionsService.prototype.assertRevisionViaQuery,
   };
@@ -167,6 +182,12 @@ function fixture() {
     revokeAfterWrite: () => {
       revokeAfterWrite = true;
     },
+    revokeBeforeLookup: () => {
+      revokeBeforeLookup = true;
+    },
+    breakConfiguration: () => {
+      configurationBroken = true;
+    },
   };
 }
 // Native service and query-helper behavior over an isolated rollback fixture, not PostgreSQL proof.
@@ -187,6 +208,36 @@ describe('central event transaction liveness', () => {
       f.service.receive('forms', connectionId, f.body, f.headers),
     ).rejects.toThrow(ForbiddenException);
     expect(f.staged().length).toBeGreaterThan(0);
+    expect(f.committed()).toEqual([]);
+  });
+  // A revocation that predates the request is raised by resolve(), inside the
+  // block that loads the configuration. It is an authorization refusal, not a
+  // configuration failure: the row is present, enabled and consistent, and
+  // only the owner's authority changed. It must stay a refusal rather than be
+  // reported as an unavailable configuration, which would also invite the
+  // provider to retry something that cannot succeed.
+  it('refuses a revocation raised while loading the configuration instead of reporting it unavailable', async () => {
+    const f = fixture();
+    f.revokeBeforeLookup();
+    await expect(
+      f.service.receive('forms', connectionId, f.body, f.headers),
+    ).rejects.toThrow(ForbiddenException);
+    await expect(
+      f.service.receive('forms', connectionId, f.body, f.headers),
+    ).rejects.not.toThrow(ServiceUnavailableException);
+    expect(f.staged()).toEqual([]);
+    expect(f.committed()).toEqual([]);
+  });
+  it('still answers an unusable configuration as unavailable rather than a refusal', async () => {
+    const f = fixture();
+    f.breakConfiguration();
+    await expect(
+      f.service.receive('forms', connectionId, f.body, f.headers),
+    ).rejects.toThrow('HERMES_EVENT_CONFIGURATION_UNAVAILABLE');
+    await expect(
+      f.service.receive('forms', connectionId, f.body, f.headers),
+    ).rejects.not.toThrow(ForbiddenException);
+    expect(f.staged()).toEqual([]);
     expect(f.committed()).toEqual([]);
   });
 });

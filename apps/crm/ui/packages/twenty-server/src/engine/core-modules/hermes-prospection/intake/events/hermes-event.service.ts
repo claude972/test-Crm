@@ -87,7 +87,16 @@ export class HermesEventService {
           this.config.get('HERMES_INTAKE_CONNECTIONS'),
         );
       }
-    } catch {
+    } catch (error) {
+      // resolve() re-authorizes the stored owner inside this block, so a
+      // revocation that predates the request is raised here rather than by
+      // the explicit check further down. It is an authorization refusal, not
+      // a configuration failure: the row is present, enabled and consistent,
+      // and only the owner's authority changed. Let the refusal through
+      // instead of reporting the configuration unavailable, which would also
+      // invite the provider to retry what cannot succeed until access is
+      // granted again.
+      if (error instanceof ForbiddenException) throw error;
       throw new ServiceUnavailableException(
         'HERMES_EVENT_CONFIGURATION_UNAVAILABLE',
       );

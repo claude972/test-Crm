@@ -1,3 +1,7 @@
+import {
+  ForbiddenException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { createHmac, randomUUID } from 'node:crypto';
 
 import { type HermesResolvedConnection } from 'src/engine/core-modules/hermes-connections/hermes-connections.service';
@@ -35,10 +39,20 @@ function fixture() {
     settings: { allowedSources: ['SCRAPING'], maxRequestsPerMinute: 10 },
     secrets: { secret },
   };
+  let ownerRevoked = false;
+  let configurationBroken = false;
   const reader = {
-    resolveByConnectionId: jest.fn(async (id: string) =>
-      id === connectionId && current ? { ...current } : null,
-    ),
+    resolveByConnectionId: jest.fn(async (id: string) => {
+      // The real resolve() re-authorizes the stored owner before returning,
+      // so an owner revocation surfaces from this call as a Forbidden, while
+      // a genuinely unusable configuration surfaces as something else.
+      if (ownerRevoked) throw new ForbiddenException();
+      if (configurationBroken)
+        throw new ServiceUnavailableException(
+          'CONNECTION_CONFIGURATION_UNAVAILABLE',
+        );
+      return id === connectionId && current ? { ...current } : null;
+    }),
   };
   const config = {
     get: jest.fn(() => {
@@ -89,6 +103,12 @@ function fixture() {
     rotate: () => {
       current = { ...current!, revision: 2 };
     },
+    revokeOwner: () => {
+      ownerRevoked = true;
+    },
+    breakConfiguration: () => {
+      configurationBroken = true;
+    },
   };
 }
 describe('authoritative central signed intake', () => {
@@ -101,6 +121,36 @@ describe('authoritative central signed intake', () => {
       { connectionId, assertLive: expect.any(Function) },
     );
     expect(f.config.get).not.toHaveBeenCalled();
+  });
+  // An owner revocation is raised by resolve() inside the block that loads
+  // the configuration. It is an authorization refusal, not a configuration
+  // failure: the binding is present, enabled and consistent, and only the
+  // owner's authority changed. It must stay a refusal, and a real
+  // configuration failure must stay a 503 -- "you are not allowed" and "this
+  // is not configured" are different answers and both callers act on them.
+  it('refuses an owner revocation raised while loading the configuration, and writes nothing', async () => {
+    const f = fixture();
+    f.revokeOwner();
+    await expect(
+      f.service.receive(connectionId, f.body, f.headers),
+    ).rejects.toThrow(ForbiddenException);
+    await expect(
+      f.service.receive(connectionId, f.body, f.headers),
+    ).rejects.not.toThrow(ServiceUnavailableException);
+    expect(f.prospection.createBatch).not.toHaveBeenCalled();
+    expect(f.replay.claim).not.toHaveBeenCalled();
+    expect(f.config.get).not.toHaveBeenCalled();
+  });
+  it('still answers an unusable configuration as unavailable rather than a refusal', async () => {
+    const f = fixture();
+    f.breakConfiguration();
+    await expect(
+      f.service.receive(connectionId, f.body, f.headers),
+    ).rejects.toThrow('HERMES_INTAKE_CONFIGURATION_UNAVAILABLE');
+    await expect(
+      f.service.receive(connectionId, f.body, f.headers),
+    ).rejects.not.toThrow(ForbiddenException);
+    expect(f.prospection.createBatch).not.toHaveBeenCalled();
   });
   it('rejects revoked and wrong-id bindings without environment fallback or persistence', async () => {
     const f = fixture();
