@@ -807,3 +807,8 @@ agent: codex root ; status: in_progress. Fichiers exclusifs nouveaux scripts/che
 ### CAT-I18N-SOURCE / root Codex —31octobre16:44UTC
 
 agent: codexroot ; status: in_progress. Aprèsauditcatalogue,61messagesactifsdesnouveauxmodulesmanquentaucataloguesourceEN : enproductionLingui retiremessageinlineetcesIDsrisquentapparaîtreenanglais/préférenceexistante. Rootétendsonownershipcatalogueàsrc/locales/en.po etgenerated/en.ts enplusFR, uniquementnouvellesentréesmanquantescapturéesparLingui, pasrefonte/traductiondecodeUI. Conserverbaselineexacte+placeholders, compilerseulelocaleEN puisverifierruntimeIDs. AucuneéditionfichiersClaudeUIactifs. CATWA005transféréCodexpreview_pwaaprèsACKparent16:41:38, claim28f9a72e2avantcode,4fichiersupload/composer/tests surbase9ee ; rootn'éditepascecode.
+
+
+### CAT-WA-005 — extension exclusive recorder autorisée par root
+
+Codex preview_pwa possède aussi HermesWaVoiceRecorder.tsx et son test existant, dans le même worktree fix/hermes-wa-upload-identity-20261031. Prop optionnelle rétrocompatible onRecordingRequested, appelée uniquement par les handlers Record et Record again ; aucun nouvel effet. Le compositeur invalide l'ancienne identité avant la nouvelle capture, puis onClipReady et upload accepté établissent le nouveau blob. Tester ancien vocal READY → Record again → envoi absent avant nouveau clip ; annulation et fichier/vocal conservés. Root avertit le parent Claude du gel. BotControl/STALE et fixture Opus restent exclus.
