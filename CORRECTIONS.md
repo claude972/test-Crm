@@ -2158,3 +2158,12 @@ CandidatCaddyadditifpréparésansreload : fichierprivé0600 validationparcheminr
 ### Recette mail isolée — claim avant code 2026-10-31 22:36 UTC
 
 Planlectureseulepreview_pwalivré/relu, aucunfournisseurexécuté ; rootautoriseimplémentationoptionellebornéeCAT-STAGING-ISOLATED-MAIL. Rootimage52fVPSrestegeléeethealthyprivé, DNSA22:35toujoursabsent. Pasnouveaufournisseurréel,aucuncompteCRMseedé. ButfermerparcoursUIbrouillon/Sent/campagnesplus tard viafauxsinkTLSsansWAN,pasnouvellefeatureapplication.
+
+
+### Option mail isolée — 2026-10-31 22:54 UTC
+
+Auteur093ecccb9(8nouveauxfichiers)→rootce1960986 intégré,puisworkfloweef2a098a/c750cf820 poussés. Root31testslégersPASS(25packaging+6fixture,dontvraisOpenSSLCA/SAN/permissions),YAMLPASS. Pasapplicationrebuild etimage52fVPSinchangée,sinkFAKEOFF. Dispatchinitialworkflow404nouveaufichiernonindexé : aucunruncréé ; ajoutpushbornébrancheintegration/cheminsfixture puisrunUNIQUE41250209271sourcec750cf82007531c7ee49ca80d5e32945cbbe29a4 observéinprogress. FocusedSMTP41250131500autodéclenchésureefàdistinguer, paspreuvefixture.
+
+Review093 /private/tmp/kovaalabcrm-isolated-mail-093-review.md6PASS maisfindingTTL : guarddansmêmePIDnamespace nepeutgarantirSIGKILLversPID1 ; arrêtJavaTERMcoopératifseulneprouvepashardexpiry. Auteurpreview_pwareprisexplicitementpourfixborné+testTERM-resistant,aucunDocker socket/privileged/hostPID. NEPASactiverproviderVPSavantfixrevu/preuvecloud. BaseSANSoverlayresteOFF ; includefileavecprofileOFFpeutquandmêmeaffecterserverworker,d'oùusageexpliciteuniquement.
+
+DNSauthoritatif22:54vide,HTTPprivéVPShealthPASS. AucunCaddyactif/DNS/providerVPSmodifié,aucuncompteCRMseedé ni fournisseur réel connecté.
