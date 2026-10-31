@@ -13,7 +13,6 @@ jobs:
     env:
       HERMES_SOURCE_SHA: ${{ github.sha }}
       HERMES_STAGING_IMAGE: kovaalabcrm-staging:${{ github.sha }}
-      HERMES_STAGING_REPORT_FILE: ${{ runner.temp }}/kovaalabcrm-image-evidence/smoke.json
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +42,7 @@ jobs:
             --tag "$HERMES_STAGING_IMAGE" .
       - name: Exercise image against disposable isolated storage
         run: |
+          export HERMES_STAGING_REPORT_FILE="$RUNNER_TEMP/kovaalabcrm-image-evidence/smoke.json"
           mkdir -p "$(dirname "$HERMES_STAGING_REPORT_FILE")"
           node scripts/check-hermes-staging-image.mjs
           test -s "$HERMES_STAGING_REPORT_FILE"
