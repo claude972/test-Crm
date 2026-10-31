@@ -1,6 +1,7 @@
 import { clearSessionLocalStorageKeys } from '@/auth/utils/clearSessionLocalStorageKeys';
 import { getMetadataStoreKeys } from '@/auth/utils/clearAllSessionLocalStorageKeys';
 import { safeRemoveLocalStorageItems } from '@/auth/utils/safeRemoveLocalStorageItems';
+import { purgeHermesOfflineCaches } from '@/hermes-pwa/utils/purgeHermesOfflineCaches';
 import { clearMetadataStoreStorage } from '@/metadata-store/storage/metadataStoreStorage';
 
 // A hung IndexedDB must not trap someone on the way out. Signing out matters
@@ -24,6 +25,13 @@ export const purgeSessionStorage =
     clearSessionLocalStorageKeys();
     safeRemoveLocalStorageItems(getMetadataStoreKeys());
 
+    // Started now so it runs alongside the IndexedDB purge instead of adding
+    // its own second to the way out. Awaited below, before the caller
+    // navigates, for the same reason the metadata purge is: location.assign
+    // must not interrupt it. It is bounded internally and never rejects, so it
+    // cannot change the outcome reported for the metadata store.
+    const offlineCachePurge = purgeHermesOfflineCaches();
+
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
     const timeout = new Promise<SessionStoragePurgeOutcome>((resolve) => {
@@ -39,7 +47,11 @@ export const purgeSessionStorage =
     );
 
     try {
-      return await Promise.race([purge, timeout]);
+      const outcome = await Promise.race([purge, timeout]);
+
+      await offlineCachePurge;
+
+      return outcome;
     } finally {
       // Cleared on every path, including the timeout's own win: a pending
       // timer would otherwise keep the event loop busy after sign-out and,
