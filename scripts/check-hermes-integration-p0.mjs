@@ -175,8 +175,15 @@ export const buildIntegrationChildEnvironment = (
     NODE_OPTIONS: "--max-old-space-size=6144",
     NODE_HOST: "127.0.0.1",
     NODE_PORT: "4000",
-    SERVER_URL: "http://127.0.0.1:4000",
-    FRONTEND_URL: "http://127.0.0.1:3001",
+    // SMTP requires an HTTPS origin for unsubscribe links; API calls stay on loopback.
+    SERVER_URL:
+      emailingDomainDriver === "SMTP"
+        ? "https://campaign-mailbox.test"
+        : "http://127.0.0.1:4000",
+    FRONTEND_URL:
+      emailingDomainDriver === "SMTP"
+        ? "https://campaign-mailbox.test"
+        : "http://127.0.0.1:3001",
     APP_SECRET: appSecret,
     REDIS_CACHE_PREFIX: `hermes-integration-${source.GITHUB_RUN_ID}`,
     EMAIL_DRIVER: "logger",

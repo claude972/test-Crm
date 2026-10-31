@@ -229,6 +229,8 @@ test("the campaign mailbox suite is isolated and asks for SMTP explicitly", () =
   // The four proven suites keep their own stage, and their driver.
   const legacy = buildIntegrationChildEnvironment({}, "synthetic-secret");
   assert.equal(legacy.EMAILING_DOMAIN_DRIVER, "LOG");
+  assert.equal(legacy.SERVER_URL, "http://127.0.0.1:4000");
+  assert.equal(legacy.FRONTEND_URL, "http://127.0.0.1:3001");
   assert.equal(legacy.IMAP_SMTP_ALLOW_SELF_SIGNED, undefined);
   assert.equal(legacy.OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS, undefined);
 
@@ -238,6 +240,10 @@ test("the campaign mailbox suite is isolated and asks for SMTP explicitly", () =
     allowedInternalHosts: ["localhost", "127.0.0.1"],
   });
   assert.equal(mailbox.EMAILING_DOMAIN_DRIVER, "SMTP");
+  assert.equal(mailbox.SERVER_URL, "https://campaign-mailbox.test");
+  assert.equal(mailbox.FRONTEND_URL, mailbox.SERVER_URL);
+  assert.equal(mailbox.NODE_HOST, "127.0.0.1");
+  assert.equal(mailbox.NODE_PORT, "4000");
   assert.equal(mailbox.IMAP_SMTP_ALLOW_SELF_SIGNED, "true");
   assert.equal(
     mailbox.OUTBOUND_HTTP_ALLOWED_INTERNAL_HOSTS,
