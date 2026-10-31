@@ -22,3 +22,14 @@ Cette grille suit les demandes, pas le nombre de composants ou de tests verts. L
 | R16 | Lien utilisable et données conservées pour recette | URL réellement ouverte sans compte Vercel préalable, disponibilité et durée prouvées, exact bundle/serveur, accès Safari utilisateur confirmé ; hébergement durable distingué d'une session jetable | Safari bloqué chez propriétaire ; preview/base temporaires seulement |
 
 Les accès fournisseurs manquants doivent être listés après inventaire sécurisé de la configuration autorisée. Ils ne justifient pas l'absence d'un parcours codé et recetté sur un serveur de test identifié. Les tests de fournisseurs factices ne seront jamais annoncés comme une connexion réelle. Aucun envoi à des prospects, production ou nouveau service payant autorisé par cette matrice.
+
+
+## Checkpoint de supervision — 31 octobre 04:35 UTC
+
+Les états de la colonne « à la reprise » restent historiques. Les deltas suivants ne constituent pas une recette finale :
+
+- R10 : opération d'aperçu personnalisé poussée `4933af805`, refus hors liste et validation de contenu testés par root ; UI liste/édition/callbacks encore en construction. Recheck indépendant 5 suites/72 tests passés, deux suites bloquées par dépendances locales. Départ SMTP de fixture annoncé par Claude, pas encore validé indépendamment ni par le parcours HTTP/PG.
+- R07 : code de capacité média poussé `a8fb18b58`, **non approuvé** : preuve d'origine et d'authentification du webhook insuffisante (CJ-WA-002). Réception/vocal fournisseur toujours non validés.
+- R14 : default locale configurée dans le script de session et tests comportementaux d'adhésion ajoutés `888187a6a`. Nouveau compte/adhésion à tester sans forcer la langue manuellement.
+- R15 : fallback sans cache privé et enregistrement réel dans bootstrap `7efd64983`. Root a exécuté 25 contrôles isolés SW/accès PASS. Installation et dégradation réseau dans un vrai navigateur restent non vérifiées.
+- R16 : contrôleur de partage vérifié sur serveurs HTTP isolés ; aucune nouvelle preview finale déployée, Safari propriétaire toujours non confirmé. Une fixture d'accès ne résout pas son signalement réel.
