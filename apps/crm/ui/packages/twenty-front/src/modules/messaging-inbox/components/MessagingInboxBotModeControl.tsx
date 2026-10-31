@@ -91,8 +91,13 @@ export const MessagingInboxBotModeControl = ({
       : policy.rereadState.kind === 'reading'
         ? t`Someone changed this policy, or the company's, while this screen was open. Reading the current one now.`
         : policy.rereadState.kind === 'failed'
-          ? t`Someone changed this policy, or the company's, while this screen was open, and the current one could not be read. Nothing was changed, and this choice cannot be made until it has been read.`
-          : t`Someone changed this policy, or the company's, while this screen was open. Nothing was changed.`;
+          ? t`Someone changed this policy, or the company's, while this screen was open, and the request for the current one did not get through. Nothing was changed, and this choice cannot be made until it has been read.`
+          : policy.rereadState.kind === 'unreadable'
+            ? // Something came back; it just was not this conversation's
+              // policy. A different fact from the request failing, and the
+              // operator may need to tell someone about it.
+              t`Someone changed this policy, or the company's, while this screen was open, and the answer could not be read as this conversation's policy. Nothing was changed, and this choice cannot be made until it has been read.`
+            : t`Someone changed this policy, or the company's, while this screen was open. Nothing was changed.`;
 
   const refusalSentence =
     refusalCode === 'BOT_DELEGATION_REQUIRED'
@@ -148,6 +153,7 @@ export const MessagingInboxBotModeControl = ({
           contradiction one state earlier. */}
       {known === null &&
         policy.rereadState.kind !== 'failed' &&
+        policy.rereadState.kind !== 'unreadable' &&
         policy.rereadState.kind !== 'reading' && (
           <MessagingInboxNote role="status">
             {t`The bot policy could not be read, so it cannot be changed here. Replying by hand still works.`}
