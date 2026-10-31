@@ -1979,7 +1979,7 @@ msgstr "Une proposition. Rien n’a été envoyé, et l’insérer n’envoie ri
 #. js-lingui-id: 7Ltlga
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "A qualification was confirmed, yet the classification reports no contact linked to this collection. The two server reads disagree: have this checked rather than read as nothing done."
-msgstr ""
+msgstr "La qualification a été confirmée, mais le classement ne signale aucun contact lié à cette collecte. Ces résultats se contredisent : une vérification est nécessaire avant de conclure qu’aucune action n’a été effectuée."
 
 #. js-lingui-id: Aiok04
 #: src/modules/settings/data-model/object-details/components/tabs/ObjectSharingReachPicker.tsx
@@ -4823,7 +4823,7 @@ msgstr "Demandez, recherchez ou créez n'importe quoi..."
 #. placeholder {0}: state.checkedAt
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Asked at {0}. Nothing since then is reflected here."
-msgstr ""
+msgstr "Demandé le {0}. Les changements ultérieurs ne sont pas encore affichés."
 
 #. js-lingui-id: 7pYbR6
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
@@ -5520,7 +5520,7 @@ msgstr "Md"
 #. js-lingui-id: eX8gxw
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignScreen.tsx
 msgid "B2B campaign. Nothing here sends by itself: a step the server has not permitted stays shut."
-msgstr ""
+msgstr "Campagne B2B. Aucun envoi automatique : chaque action reste soumise aux autorisations du serveur."
 
 #. js-lingui-id: iH8pgl
 #: src/modules/auth/sign-in-up/components/internal/SignInUpTwoFactorAuthenticationRecovery.tsx
@@ -6018,7 +6018,7 @@ msgstr "Répartition par modèles d'IA."
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Bridge receipts"
-msgstr ""
+msgstr "Formulaires et rendez-vous reçus"
 
 #. js-lingui-id: qDsMss
 #: src/modules/ai/components/AgentOutputSchemaBuilder.tsx
@@ -13528,7 +13528,7 @@ msgstr "Événement"
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Event identifier"
-msgstr ""
+msgstr "Identifiant de l’événement"
 
 #. js-lingui-id: cW8SdW
 #: src/modules/settings/event-logs/components/EventLogFilters.tsx
@@ -15303,7 +15303,7 @@ msgstr "Réponse de formulaire"
 #. js-lingui-id: 8m8A5A
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Form answers and bookings received through a signed connection, each with the identifier its provider console shows."
-msgstr ""
+msgstr "Réponses aux formulaires et réservations reçues par une connexion signée, avec l’identifiant fourni par leur service d’origine."
 
 #. js-lingui-id: L/tgbO
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/BodyInput.tsx
@@ -17143,7 +17143,7 @@ msgstr "Perspectives : les dernières nouveautés en matière d'équipements et 
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Inspect"
-msgstr ""
+msgstr "Consulter"
 
 #. js-lingui-id: IaiiK0
 #: src/pages/settings/developers/tabs/SettingsDevelopersCliTab.tsx
@@ -17930,7 +17930,7 @@ msgstr "Mot-clé"
 #. js-lingui-id: KSCnVQ
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Kind"
-msgstr ""
+msgstr "Type"
 
 #. js-lingui-id: h6S9Yz
 #: src/modules/localization/hooks/useLocaleOptions.ts
@@ -18981,7 +18981,7 @@ msgstr "URL du lien"
 #. js-lingui-id: jyIicI
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Linked"
-msgstr ""
+msgstr "Lié"
 
 #. js-lingui-id: fKQhnY
 #: src/modules/activities/timeline-activities/rows/generic/components/EventRowGenericLinked.tsx
@@ -20560,7 +20560,7 @@ msgstr "Plus de réactions"
 #. js-lingui-id: az+lS9
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "More receipts exist than are listed here."
-msgstr ""
+msgstr "D’autres réceptions existent en plus de celles affichées ici."
 
 #. js-lingui-id: 3PA8SQ
 #: src/modules/messaging-inbox/components/MessagingInboxEmailSyncPanel.tsx
@@ -22150,7 +22150,7 @@ msgstr "Aucune opportunité n’a été créée par cette réception. Toute oppo
 #. js-lingui-id: en3FRL
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "No opportunity was created by this reception. Any opportunity linked to this contact already existed and was opened by someone."
-msgstr ""
+msgstr "Cette réception n’a créé aucune opportunité. Les opportunités déjà liées à ce contact ont été créées auparavant par un utilisateur."
 
 #. js-lingui-id: 1IS5l3
 #: src/modules/hermes-shell/dashboard/components/HermesOperationsDashboard.tsx
@@ -22230,7 +22230,7 @@ msgstr "Aucune limite de débit atteinte sur cette période"
 #. js-lingui-id: 0kFHsV
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "No receipt is listed for this company. A receipt whose body no longer carries its marker is found by no list read, so this is not proof that none was ever received."
-msgstr ""
+msgstr "Aucune réception n’est affichée pour cette société. Les données dont le marqueur d’origine a été retiré ne peuvent plus être retrouvées dans cette liste : cela ne prouve pas qu’aucune réception n’a eu lieu."
 
 #. js-lingui-id: DgGghz
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
@@ -22420,7 +22420,7 @@ msgstr "Aucun administrateur de serveur trouvé."
 #. js-lingui-id: CUSC+V
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "No signed connection accounts for it"
-msgstr ""
+msgstr "Aucune connexion signée ne permet de l’attribuer"
 
 #. js-lingui-id: PNiHXd
 #: src/modules/prospection/components/HermesAttributionTag.tsx
@@ -22430,12 +22430,12 @@ msgstr "Aucune connexion signée n’explique cette réception. Un dépôt manue
 #. js-lingui-id: ETaR4Z
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "No signed connection grants Forms or Calendar for this company, so no receipt could be attributed and none was read. Configure an intake connection for Forms or Calendar in the connections settings."
-msgstr ""
+msgstr "Aucune connexion signée n’autorise les formulaires ou le calendrier pour cette société. Aucune réception n’a donc été consultée. Configurez cette connexion dans les réglages de la société."
 
 #. js-lingui-id: Ys04c+
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "No signed connection grants this source for this company, so the receipt cannot be classified. Configure an intake connection for Forms or Calendar in the connections settings."
-msgstr ""
+msgstr "Aucune connexion signée n’autorise cette source pour cette société. Cette réception ne peut donc pas être classée. Configurez la connexion aux formulaires ou au calendrier dans les réglages de la société."
 
 #. js-lingui-id: XC3Be5
 #: src/modules/settings/security/utils/parseSamlMetadataFromXmlFile.ts
@@ -22820,7 +22820,7 @@ msgstr "Aucun publié. Les réponses arrivent alors à l’adresse affichée."
 #. js-lingui-id: R3NZHh
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "None reported, after a confirmed qualification"
-msgstr ""
+msgstr "Aucun signalé malgré une qualification confirmée"
 
 #. js-lingui-id: ixhAJF
 #: src/modules/workflow/workflow-steps/workflow-actions/send-chat-message-action/components/WorkflowEditActionSendChatMessage.tsx
@@ -22956,7 +22956,7 @@ msgstr "Non disponible en vue par défaut"
 #. js-lingui-id: 80mncU
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
 msgid "Not available in this version. The server did not refuse it."
-msgstr ""
+msgstr "Indisponible dans cette version. Le serveur n’a pas refusé cette action."
 
 #. js-lingui-id: 0qBE9S
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownCustomView.tsx
@@ -23015,7 +23015,7 @@ msgstr "Non inclus"
 #. js-lingui-id: KujYYl
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Not linked to a contact"
-msgstr ""
+msgstr "Aucun contact lié"
 
 #. js-lingui-id: i/2ImT
 #: src/modules/settings/admin-panel/apps/components/SettingsAdminApps.tsx
@@ -23613,7 +23613,7 @@ msgstr "Une par exécution"
 #. js-lingui-id: Sdv/uw
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
 msgid "One real message goes to the address you type. The server applies no staging restriction to it, so the destination is yours to answer for."
-msgstr ""
+msgstr "Un message réel sera envoyé à l’adresse saisie. Aucune restriction de préproduction ne s’applique : vérifiez soigneusement le destinataire."
 
 #. js-lingui-id: wwIwa1
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
@@ -23698,7 +23698,7 @@ msgstr "Exécuter uniquement lorsqu'un de ces champs change"
 #. placeholder {0}: i18n.number(state.cap)
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Only the {0} most recent receipts are listed; more exist."
-msgstr ""
+msgstr "Seules les {0} réceptions les plus récentes sont affichées ; d’autres existent."
 
 #. js-lingui-id: YSJayJ
 #: src/modules/side-panel/pages/share-record/components/SidePanelShareRecordContent.tsx
@@ -24004,7 +24004,7 @@ msgstr "Opportunités"
 #. js-lingui-id: hfrJ0w
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Opportunities already pointing at this contact"
-msgstr ""
+msgstr "Opportunités déjà liées à ce contact"
 
 #. js-lingui-id: EBLSzB
 #: src/modules/hermes-shell/dashboard/components/HermesOperationsDashboard.tsx
@@ -26071,7 +26071,7 @@ msgstr "Lecture de la classification…"
 #. js-lingui-id: 6gV+Z5
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Reading the receipts…"
-msgstr ""
+msgstr "Chargement des réceptions…"
 
 #. js-lingui-id: 8aOXcr
 #: src/modules/hermes-wa-runtime/components/HermesWaRuntimeAttachment.tsx
@@ -26159,7 +26159,7 @@ msgstr "Récapitulatif des sociétés autorisées"
 #. js-lingui-id: jxvrAJ
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Receipt classification"
-msgstr ""
+msgstr "Classement de la réception"
 
 #. js-lingui-id: tpMORm
 #: src/modules/prospection/components/HermesAttributionTag.tsx
@@ -27321,12 +27321,12 @@ msgstr "Signaler un problème"
 #. js-lingui-id: kbEGLp
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Reported"
-msgstr ""
+msgstr "Signalé"
 
 #. js-lingui-id: NXpI+0
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Reported by the provider"
-msgstr ""
+msgstr "Signalé par le fournisseur"
 
 #. js-lingui-id: 7zYguf
 #: src/modules/connectors/components/ConnectorDiagnostics.tsx
@@ -30379,7 +30379,7 @@ msgstr "Titre du signataire"
 #. js-lingui-id: gloRFI
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "Signed connection"
-msgstr ""
+msgstr "Connexion signée"
 
 #. js-lingui-id: Lz4j8Q
 #: src/modules/settings/legal/components/SettingsDpaAgreementRow.tsx
@@ -32304,7 +32304,7 @@ msgstr "Le modèle de données de base sur lequel s'exécute chaque espace de tr
 #. js-lingui-id: OLAs94
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "The booking record is not reported here: the receipt does not store the booking identifier, so it was never asked for. This is not a booking without a calendar entry."
-msgstr ""
+msgstr "Le rendez-vous n’a pas pu être consulté : la réception ne contient pas son identifiant. Cela ne signifie pas qu’il est absent du calendrier."
 
 #. js-lingui-id: 832YJ9
 #: src/modules/validation-rules/constants/ValidationRuleKeywords.ts
@@ -32440,7 +32440,7 @@ msgstr "Les conversations n’ont pas pu être lues."
 #. js-lingui-id: /05nTc
 #: src/modules/prospection/components/HermesQualificationForm.tsx
 msgid "The counts and the classification below were not reread: this call did not confirm what it changed. What they show is from before this attempt."
-msgstr ""
+msgstr "Le résultat de cette tentative n’a pas été confirmé. Les compteurs et le classement affichés correspondent à l’état précédent."
 
 #. js-lingui-id: /kfzmx
 #: src/pages/settings/legal/SettingsLegalDpa.tsx
@@ -32845,7 +32845,7 @@ msgstr "Le serveur a accepté le message de test pour l’adresse que vous avez 
 #. js-lingui-id: g0nWZz
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
 msgid "The server allows this step, but it is not available in this version yet."
-msgstr ""
+msgstr "Le serveur autorise cette action, mais elle n’est pas encore disponible dans cette version."
 
 #. js-lingui-id: QhEWxs
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignJourneySection.tsx
@@ -32865,7 +32865,7 @@ msgstr "Le serveur n’a pas publié d’état de rapprochement pour cette conve
 #. js-lingui-id: /ErpRI
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "The server did not say whether this page is complete, so it is not presented as the whole set."
-msgstr ""
+msgstr "Le serveur n’a pas confirmé que cette liste est complète. D’autres éléments peuvent exister."
 
 #. js-lingui-id: 7hs222
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
@@ -32875,7 +32875,7 @@ msgstr "Le serveur n’a pas indiqué si ce destinataire recevrait un envoi : c
 #. js-lingui-id: LJFCP2
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "The server does not know this receipt for this company. It may have been removed since the list was read."
-msgstr ""
+msgstr "Cette réception est introuvable pour cette société. Elle a pu être supprimée depuis le chargement de la liste."
 
 #. js-lingui-id: Nma7N1
 #: src/modules/hermes-wa-runtime/components/HermesWaContactInspector.tsx
@@ -33769,7 +33769,7 @@ msgstr "Ce fournisseur est intégré. Configurez sa clé API depuis sa page."
 #. js-lingui-id: XhNyZS
 #: src/modules/prospection/components/HermesInboundReceiptInspection.tsx
 msgid "This receipt cannot be inspected: it does not carry both a known provider and an event identifier."
-msgstr ""
+msgstr "Cette réception ne peut pas être consultée : son fournisseur ou son identifiant d’événement est manquant ou inconnu."
 
 #. js-lingui-id: FyfMha
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignContentSection.tsx
@@ -34969,7 +34969,7 @@ msgstr "Indisponible"
 #. js-lingui-id: vk4eUs
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
 msgid "Unavailable in this version. The server did not refuse it, so there is no permission to chase."
-msgstr ""
+msgstr "Indisponible dans cette version. Ce n’est pas un refus d’autorisation du serveur."
 
 #. js-lingui-id: IxJVNJ
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignActionButton.tsx
@@ -35292,7 +35292,7 @@ msgstr "Erreur d'analyse inconnue"
 #. js-lingui-id: 26Q15v
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Unknown provider"
-msgstr ""
+msgstr "Fournisseur inconnu"
 
 #. js-lingui-id: lZSo+Q
 #: src/modules/activities/emails/components/EmailThreadMessageSender.tsx
@@ -35509,7 +35509,7 @@ msgstr "Illisible"
 #. js-lingui-id: No6w40
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Unreadable date"
-msgstr ""
+msgstr "Date illisible"
 
 #. js-lingui-id: 1rXqkB
 #: src/modules/command-menu-item/engine-command/record/single-record/message-campaign/components/CancelMessageCampaignSingleRecordCommand.tsx
@@ -38414,7 +38414,7 @@ msgstr "Votre réponse"
 #. js-lingui-id: +jrOjY
 #: src/modules/prospection/components/HermesInboundReceiptsSection.tsx
 msgid "Your role does not allow reading the bridge receipts."
-msgstr ""
+msgstr "Votre rôle ne permet pas de consulter les formulaires et rendez-vous reçus."
 
 #. js-lingui-id: o1NUWR
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
