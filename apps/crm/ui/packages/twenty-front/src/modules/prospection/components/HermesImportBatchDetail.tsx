@@ -1,6 +1,6 @@
 import { styled } from '@linaria/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { isNonEmptyString } from '@sniptt/guards';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { Section } from 'kovaa-lab-ui/components/layout';
@@ -89,6 +89,19 @@ export const HermesImportBatchDetail = ({
   // The server's classification of this company's signed deposits. Read-only,
   // and it qualifies nothing: see HermesInboundProvenancePanel.
   const classification = useHermesScrapingClassification();
+  // Set only once a qualification was CONFIRMED. It is what lets the panel
+  // tell a zero that follows a qualification from a zero that precedes any.
+  const [hasConfirmedQualification, setHasConfirmedQualification] =
+    useState(false);
+
+  // A confirmed qualification changes both what the reception counts and what
+  // the classification would classify, so both are reread. The classification
+  // is `network-only`, which stops a cache read but never re-runs the query.
+  const handleQualified = useCallback(() => {
+    setHasConfirmedQualification(true);
+    onReload();
+    classification.reread();
+  }, [classification, onReload]);
 
   const selectableRows = useMemo(
     () => batch.rows.filter((row) => isHermesRowSelectable(row)),
@@ -217,7 +230,8 @@ export const HermesImportBatchDetail = ({
           whether that attribution is verified, edited or absent. */}
       <HermesInboundProvenancePanel
         batchId={batch.id}
-        state={classification}
+        state={classification.state}
+        hasConfirmedQualification={hasConfirmedQualification}
       />
 
       <Section.Root>
@@ -295,7 +309,7 @@ export const HermesImportBatchDetail = ({
       <HermesQualificationForm
         batchId={batch.id}
         selectedRowIds={qualifiableRowIds}
-        onQualified={onReload}
+        onQualified={handleQualified}
       />
 
       {/* An unknown capability is never read as an available one, and a

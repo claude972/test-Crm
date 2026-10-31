@@ -40,6 +40,10 @@ type HermesInboundProvenancePanelProps = {
   // this deposit and of no other.
   batchId: string;
   state: HermesScrapingClassificationReadState;
+  // True once a qualification on this screen was CONFIRMED. A zero that
+  // follows one and a zero that precedes any are not the same fact, and this
+  // is what keeps them apart.
+  hasConfirmedQualification?: boolean;
 };
 
 // How the server classified the deposit on screen: which signed connection it
@@ -55,6 +59,7 @@ type HermesInboundProvenancePanelProps = {
 export const HermesInboundProvenancePanel = ({
   batchId,
   state,
+  hasConfirmedQualification = false,
 }: HermesInboundProvenancePanelProps) => {
   const { t, i18n } = useLingui();
 
@@ -103,7 +108,17 @@ export const HermesInboundProvenancePanel = ({
           )}
         </dd>
         <dt>{t`Contacts linked by qualification`}</dt>
-        <dd>{i18n.number(deposit.linkedPersonIds.length)}</dd>
+        {/* A zero here after a confirmed qualification is a disagreement
+            between two server reads, not a count. It is said in words rather
+            than shown as the figure the classification happened to return. */}
+        <dd>
+          {hasConfirmedQualification &&
+          deposit.linkedPersonIds.length === 0 ? (
+            <StyledMissing>{t`None reported, after a confirmed qualification`}</StyledMissing>
+          ) : (
+            i18n.number(deposit.linkedPersonIds.length)
+          )}
+        </dd>
         <dt>{t`Companies linked by qualification`}</dt>
         <dd>{i18n.number(deposit.linkedCompanyIds.length)}</dd>
         <dt>{t`Duplicate rows`}</dt>
@@ -113,6 +128,20 @@ export const HermesInboundProvenancePanel = ({
         <dt>{t`Rows needing review`}</dt>
         <dd>{renderCount(deposit.counts.conflict)}</dd>
       </StyledFacts>
+
+      {/* The two reads disagree: a qualification was confirmed and the
+          classification still reports no linked contact. Reported loudly
+          instead of rendered as a plain zero. */}
+      {hasConfirmedQualification &&
+        deposit.linkedPersonIds.length === 0 && (
+          <ProspectionNote role="alert">
+            <Trans>
+              A qualification was confirmed, yet the classification reports no
+              contact linked to this collection. The two server reads
+              disagree: have this checked rather than read as nothing done.
+            </Trans>
+          </ProspectionNote>
+        )}
 
       {deposit.isQualificationRequired === true && (
         <ProspectionNote>

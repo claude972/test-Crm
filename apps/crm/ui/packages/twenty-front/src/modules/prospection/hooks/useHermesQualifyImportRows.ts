@@ -21,8 +21,14 @@ export const useHermesQualifyImportRows = () => {
     kind: 'idle',
   });
 
+  // Returns the outcome it just recorded, so a caller can act on a CONFIRMED
+  // qualification only. A refused call and an unreadable answer are both
+  // outcomes this function returns rather than throws, which is exactly why a
+  // caller must not treat "the promise settled" as "the rows were qualified".
   const qualifyRows = useCallback(
-    async (input: HermesQualifyImportRowsInput) => {
+    async (
+      input: HermesQualifyImportRowsInput,
+    ): Promise<HermesQualifyImportRowsOutcome> => {
       setOutcome({ kind: 'running' });
 
       try {
@@ -30,14 +36,23 @@ export const useHermesQualifyImportRows = () => {
         const read = readHermesQualifyImportRowsResult(
           data?.hermesQualifyImportRows,
         );
-
-        setOutcome(
+        const next: HermesQualifyImportRowsOutcome =
           read.kind === 'read'
             ? { kind: 'read', result: read.value }
-            : { kind: 'unreadable', problem: read.problem },
-        );
+            : { kind: 'unreadable', problem: read.problem };
+
+        setOutcome(next);
+
+        return next;
       } catch (error) {
-        setOutcome({ kind: 'failed', failure: readHermesCallFailure(error) });
+        const failed: HermesQualifyImportRowsOutcome = {
+          kind: 'failed',
+          failure: readHermesCallFailure(error),
+        };
+
+        setOutcome(failed);
+
+        return failed;
       }
     },
     [qualifyImportRows],

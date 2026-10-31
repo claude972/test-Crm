@@ -64,7 +64,10 @@ const StyledActions = styled.div`
 type HermesQualificationFormProps = {
   batchId: string;
   selectedRowIds: string[];
-  // Called once the call has answered, so the batch is reread.
+  // Called ONLY on a confirmed qualification, so the reception and the
+  // classification are reread against something that really happened. A
+  // refused call and an unreadable answer do not call it: re-reading on an
+  // unknown outcome shows a figure that reads as "nothing happened".
   onQualified: () => void;
 };
 
@@ -128,7 +131,11 @@ export const HermesQualificationForm = ({
     }
 
     setSubmittedIssues([]);
-    void qualifyRows(validation.input).then(onQualified);
+    void qualifyRows(validation.input).then((result) => {
+      if (result.kind === 'read') {
+        onQualified();
+      }
+    });
   };
 
   const purposeLength = professionalPurpose.trim().length;
@@ -251,6 +258,19 @@ export const HermesQualificationForm = ({
             failure={outcome.failure}
             fallbackMessage={t`Qualification refused.`}
           />
+        )}
+
+        {/* The outcome is not confirmed, so nothing was reread. Said here,
+            because a figure left unchanged would otherwise be taken for the
+            server's answer about what this call did. */}
+        {(outcome.kind === 'unreadable' || outcome.kind === 'failed') && (
+          <ProspectionNote role="alert">
+            <Trans>
+              The counts and the classification below were not reread: this
+              call did not confirm what it changed. What they show is from
+              before this attempt.
+            </Trans>
+          </ProspectionNote>
         )}
       </StyledForm>
     </Section.Root>

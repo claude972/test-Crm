@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client/react';
+import { useCallback } from 'react';
 
 import { HERMES_SCRAPING_CLASSIFICATION } from '@/prospection/graphql/metadata-queries/hermesScrapingClassification';
 import { type HermesScrapingClassificationReadState } from '@/prospection/types/HermesInboundClassification';
@@ -15,9 +16,17 @@ import { isDefined } from 'kovaa-lab-shared/utils';
 // delegated per company — is server to server. The browser is not a party to
 // it and must never hold the key that would let it be. Nothing here posts,
 // retries, qualifies or tests anything.
+export type HermesScrapingClassificationRead = {
+  state: HermesScrapingClassificationReadState;
+  // Re-reads the classification from the server. `network-only` only stops a
+  // cache READ; it never re-runs the query on its own, so a qualification that
+  // changes what would be classified has to ask for this explicitly.
+  reread: () => void;
+};
+
 export const useHermesScrapingClassification =
-  (): HermesScrapingClassificationReadState => {
-    const { data, loading, error } = useQuery<{
+  (): HermesScrapingClassificationRead => {
+    const { data, loading, error, refetch } = useQuery<{
       hermesScrapingClassification: unknown;
     }>(HERMES_SCRAPING_CLASSIFICATION, {
       // Row outcomes change as an operator qualifies. A cached answer would
@@ -25,15 +34,21 @@ export const useHermesScrapingClassification =
       fetchPolicy: 'network-only',
     });
 
-    if (loading) {
-      return { kind: 'loading' };
-    }
+    // A re-read that fails must not look like a classification that came back
+    // empty: the error above already turns the next render into 'unreadable'.
+    const reread = useCallback(() => {
+      void refetch().catch(() => undefined);
+    }, [refetch]);
 
-    if (isDefined(error)) {
-      return readHermesCallFailure(error).kind === 'denied'
-        ? { kind: 'denied' }
-        : { kind: 'unreadable', problem: 'unexpected-shape' };
-    }
+    const state = loading
+      ? ({ kind: 'loading' } as const)
+      : isDefined(error)
+        ? readHermesCallFailure(error).kind === 'denied'
+          ? ({ kind: 'denied' } as const)
+          : ({ kind: 'unreadable', problem: 'unexpected-shape' } as const)
+        : readHermesScrapingClassification(
+            data?.hermesScrapingClassification,
+          );
 
-    return readHermesScrapingClassification(data?.hermesScrapingClassification);
+    return { state, reread };
   };
