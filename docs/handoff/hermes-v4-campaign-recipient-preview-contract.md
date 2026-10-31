@@ -222,3 +222,51 @@ a mailbox that was revoked, re-keyed or has become unreachable still yields that
 the authority check for the transport happens at send time in
 `EmailingDomainMailboxTransportProvider`, which fails closed there. The preview does not and must
 not pre-empt it.
+
+## Evidence
+
+All fakes below are isolated protocol fixtures, clearly labelled in the source as demonstration
+doubles. They are never real verified connectors, and no message reaches any real recipient.
+
+Run from `apps/crm/ui/packages/twenty-server`:
+
+```
+node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath \
+  src/modules/emailing/services/__tests__/message-campaign-recipient-preview.service.spec.ts \
+  src/modules/emailing/services/__tests__/campaign-native-mailbox-smtp-acceptance.spec.ts \
+  src/modules/emailing/services/__tests__/emailing-domain-sender-quarantine.spec.ts \
+  src/modules/emailing/services/__tests__/campaign-unconfirmed-quarantine.spec.ts \
+  src/modules/emailing/tools/__tests__/save-campaign-tool.spec.ts \
+  src/modules/emailing/zod-schemas/__tests__/sendable-campaign.zod-schema.spec.ts \
+  src/modules/emailing/utils/__tests__/compile-campaign-email-content.util.spec.ts
+```
+
+### End-to-end SMTP acceptance, across the API
+
+`campaign-native-mailbox-smtp-acceptance.spec.ts` drives the whole chain — a central `MAIL`
+connection publishing a `connectedAccountId`, the native client provider, the sender identity,
+`EmailingDomainSenderService.sendEmail`, the real `SmtpEmailingDomainDriver` — into a loopback
+SMTP server that captures the bytes. Two capture servers run at once: the registered mailbox, and
+an `EMAILING_SMTP_CONNECTIONS` environment relay that stays configured and perfectly valid
+throughout. It proves:
+
+- the campaign is captured by the registered mailbox and the relay captures **nothing**;
+- the envelope and `From` are the registered mailbox's exact address;
+- the native client provider is asked for exactly the published `connectedAccountId`;
+- a marketing send carries its `List-Unsubscribe` affordances;
+- a sender that merely shares the verified domain is refused, capturing nothing;
+- an unregistered workspace is refused rather than falling back to the relay;
+- a **lost acknowledgement** yields `SEND_OUTCOME_UNCONFIRMED` with the message handed over
+  exactly once — the caller is told the outcome is unknown instead of being invited to resend.
+
+**The fixture was mutation-checked, so it is not a mock that merely mirrors the code.** Building
+the driver without the mailbox transport provider — the pre-V4 behaviour — turns 5 of those 6
+tests red: the message then leaves through the environment relay and the same-domain intruder is
+accepted. The assertions are load-bearing.
+
+### Not proved here
+
+No real delivery, and no SPF/DKIM authenticity: a loopback fixture accepts bytes, it does not
+deliver them, and `VERIFIED` under the SMTP driver means connectivity only. Inbox placement with
+a real provider remains to be verified with authorised access, and the preview's
+`openMarkerWouldBeIncluded` reports an embedded marker, never a read.
