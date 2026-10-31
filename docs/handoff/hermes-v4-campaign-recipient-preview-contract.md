@@ -294,8 +294,13 @@ migration. And it is **not** a real onboarding: because the `MAIL` connection is
 spec **cannot** show that a user who configured a mailbox through the product can send. It proves
 the *sending chain* given a registered mailbox, not the *acquisition* of that mailbox.
 
-That distinction matters because the user's request is "campaigns from **my own** mailbox". The
-product-level isolated recipe that would close it belongs to integration, not to this spec.
+That distinction matters because the user's request is "campaigns from **my own** mailbox".
+
+**That gap is now addressed by a separate suite**, declared in
+`hermes-v4-campaign-mailbox-journey-fixture-contract.md`: a real HTTP + PostgreSQL journey that
+registers the mailbox and verifies the domain through the product's own routines. That suite has
+not been executed yet, so until CI runs it the acquisition half remains written but unproven, and
+this spec stays the only *executed* evidence of the sending chain.
 
 Within that perimeter it proves:
 
