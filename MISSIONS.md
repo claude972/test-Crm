@@ -693,6 +693,8 @@ Root possède intégration/QA/hosting et coordination ; agent coordination seul 
 
 - Objectif : terminer les demandes historiques, au-delà des builds verts et de la preview V4 ; voir docs/handoff/hermes-complete-journeys-20261031.md, critères CJ-01 à CJ-06. Les manques sont reconnus, aucune nouvelle autorisation du propriétaire requise.
 - Base c12718d1ce47a59ecf6a74d88e305f816e435645 ; intégration feat/hermes-complete-journeys, worktree /private/tmp/hermes-complete-journeys. Parent Claude8f3db32e ; six lots disjoints et branches explicites dans le contrat. Agents existants à réutiliser après ACK, pas de duplication.
-- agent: claude ; status: pending — dispatch réel à suivre ; propriétaire de tout code selon dernière consigne utilisateur, parent assemble et délègue aux seuls agents Claude.
+- agent: claude ; status: in_progress — cinq dispatchs réels observés dans la session CLI ; propriétaire de tout code selon dernière consigne utilisateur, parent assemble et délègue aux seuls agents Claude.
 - agent: codex ; status: in_progress — supervision, revue source, coordination et recette indépendante ; aucun nouvel agent Codex ni édition applicative Codex.
 - Preview V4 ne constitue pas la livraison fonctionnelle complète. Accès Safari signalé bloqué et non résolu ; conserve statut ouvert malgré succès curl/IAB. Plus aucune annonce prêt/global avant critères métier exécutés.
+
+- Claims réellement démarrés23:22–23:25Martinique : CJ01a7770455c90caeb1a (campaign frontend), CJ02a5ecf88955c726ef5 (campaign engine/API), CJ03aff18cfa439def9ed (WA médias/vocal), CJ04a65175da6d0fb8988 (réglages/intégrations), CJ05a76ee32a68b13e841 (accès/PWA/preview). Agents Claude CLI, métadonnées réelles et outils de démarrage observés ; aucun nouveau sous-agent Codex. Contrats/branches/deliverables dans le handoff, état de livraison encore in_progress.
