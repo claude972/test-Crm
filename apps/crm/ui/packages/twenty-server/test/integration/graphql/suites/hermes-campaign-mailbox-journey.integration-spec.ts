@@ -39,6 +39,7 @@ import {
   SEED_YCOMBINATOR_WORKSPACE_ID,
 } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
+import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 
 // CI must enforce this target before native globalSetup can reset a database.
 assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Disposable CI only');
@@ -738,7 +739,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
       }
     ).testDataSource;
 
-    const schema = `workspace_${A.replace(/-/g, '')}`;
+    const schema = getWorkspaceSchemaName(A);
 
     // Mark the delivered row as an uncertain outcome. This edits fixture STATE
     // in PostgreSQL; it mocks nothing. The engine's own
