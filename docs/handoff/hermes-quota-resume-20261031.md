@@ -110,3 +110,8 @@ Root sur e35ddba6a : `hermes-media.real-blob.spec.ts`, **1 suite/17 tests PASS**
 ## Checkpoint08:34UTC
 
 CI intermédiaired0a7 run41183428603SUCCESS, mais SMTPsauté(opt-infaux). R10opt-invrai run41183947336(e35) en cours. Frontfull41184065339(e35)FAILURE uniqueTS2322fixturevariables : missingCount requis, parentprévenu CJ-FRONT-TYPE003. RootQA maintenant1c857d598 : draftidentityserveur6PASS +setup12PASS, isolementsannoncés. Setup003vérifié, anciens001/002corrigés ; encore recettebrowser. CJ04d89b33958d/3beb5c1ec supprimentlocalstore pourid/révisionserveur, àintégrer/relire, penserpurgeancienneclé. Aucun nouveau lien utilisable ni succèsSafari prouvé.
+
+
+## Runtime intermédiaire en préparation08:35UTC
+
+Root a relu le fix924b3fccc (type natif+missingCount:null, pas d'assouplissement), lancé **fullfrontend41185151923** et **P0runtime41185168138**, source commune vérifiée **924b3fccc341c578cd3834e5e894df2f8bd8f72d**. P0worker=true,same-origin-workspaces=true,90min. Parent prévenu de ne pas déclencher un P0 concurrent (cancel-in-progress), il continue les fixes, ceci n'est pas la source finale gelée. Root possèdeVercel/contrôle/partage/recette. Préparer bundle exact du run frontend, télécharger artefacttunnel du run41185168138 et publier contrôle seulement aprèspreviewREADY. La fenêtre d'attentecontrôle15min commenceaprèsbuild, surveiller. Procédure revue : docs/verification/preview-morning-delivery-audit.md dans checkoutapp. ProtectionVercelglobalemaintenue, secretscoffreuniquement. Si frontendencorerouge, pasdelivraisoninventée. Sourcefinaleréémisevers11:30–11:40UTC pourduréeutileaprès12.
