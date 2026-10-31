@@ -120,3 +120,8 @@ Root a relu le fix924b3fccc (type natif+missingCount:null, pas d'assouplissement
 ## Checkpoint en ligne08:52UTC
 
 Preview intermédiaire924 déployée et partageprivé créé : run41185168138 expire10:08:55UTC, frontend41185151923SUCCESS, dpl_E18kuoa5yCXrdMF9BpkFwikV5nDv. Root a publié contrôlebae3db5ed, testéhealthok et ouvertIABtab19 sansloginVercel. MAIS activation société échoue aprèsloginnormal +retry, erreurSessionreplaced/Authentification. CJ-AUTH-RECETTE001bloquant,parentprévenu. R10CI41183947336FAILURE14testsavantparcours, updateConfigVariableligne210dataabsente, CJ02/05prévenus. Rapportpublicfiltré docs/verification/hermes-intermediate-41185168138.md. Coffreprivé demo/share/share-url-41185168138.json ; jamaiscopierclésdansGit. CUAvariablehermesRecipe/tab19 gardéehandOff, diagnosticàreprendre aprèsfixe. SourcecouranteplusrécentecontinueavecClaude, aucun lienfinal livré.
+
+
+## Reprise R10 après premier rouge,08:59UTC
+
+Parent intègre9cab8f886 (fixtureconfigenbase retirée) puis6c4939860 (allowlistloopbackinjectéeuniquementstageSMTP, valeursnonloopback/wildcardrefusées) dans6182a2f21 ; root relit et exécute **35 tests harnais PASS** dansQA6182. Premierretry41186695621 a capturé21d068ef6 AVANTpushduharnais : root a demandé son annulation, pasdepreuvecomptée. Remote f7a14931e contient6182 (ascendancevérifiée) +keycampaignroute, puisnouveau **41186752974** dispatch SMTPopt-intrue, headSHA **f7a14931e905201e5b09807385fe4e08068b969d**, pendingaucheck. Ne pasconfondreles2retries. ParentClaudeAutha10b8bd475571fc26 écritdans/private/tmp/hermes-v4-auth-frontend, gardeagnosticenconstruction, testsutil16PASSannoncésmaisfixnonlivréencore. Preview924/tab19resteéchecactivation, expire10:08:55UTC.
