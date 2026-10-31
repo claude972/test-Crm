@@ -86,9 +86,16 @@ export const HermesMailboxSetupPanel = ({
     loading,
     outcome,
     protocolRequirement,
+    canRetryWrite,
     resetSetup,
     retryAccountsRead,
   } = useHermesMailboxSetup({ onConnected: handleConnected });
+
+  const isSaving = outcome.kind === 'saving';
+
+  // Everything neither settled nor in flight may hide an applied write, so the
+  // re-read is the one action offered.
+  const mustReRead = !canRetryWrite && !isSaving;
 
   const { control } = formMethods;
 
@@ -198,7 +205,9 @@ export const HermesMailboxSetupPanel = ({
 
         {outcome.kind === 'unconfirmed' && (
           <HermesAdminNote role="alert">
-            {t`La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Vérifiez la liste des comptes avant de réessayer, pour ne pas créer de doublon.`}
+            {outcome.listReread
+              ? t`La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. La liste des comptes a été relue — si la boîte y figure, l’enregistrement a bien eu lieu ; sinon, annulez et reprenez. Pour ne pas créer de doublon, rien n’est renvoyé d’ici.`
+              : t`La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Relisez la liste des comptes avant toute autre tentative, pour ne pas créer de doublon.`}
           </HermesAdminNote>
         )}
 
@@ -211,26 +220,30 @@ export const HermesMailboxSetupPanel = ({
         )}
 
         <StyledActions>
-          {/* A write whose answer was lost may have been applied, so sending
-              again is withheld rather than offered: the recovery is a re-read. */}
-          {outcome.kind !== 'write-unknown' && (
+          {/* Offered only on an outcome PROVEN settled, never on the
+              complement of a list of uncertain ones: a write that may have
+              created the account must not be sendable again, and the recovery
+              is a re-read. */}
+          {(canRetryWrite || isSaving) && (
             <Button
               type="button"
               variant="solid"
               size="sm"
-              loading={loading}
-              disabled={!canSave || loading}
+              loading={loading || isSaving}
+              disabled={!canSave || loading || isSaving}
               onClick={handleSubmit((data) => handleSave(data))}
             >
               {t`Enregistrer la boîte`}
             </Button>
           )}
 
-          {outcome.kind === 'write-unknown' && (
+          {mustReRead && (
             <Button
               type="button"
               variant="outline"
               size="sm"
+              loading={outcome.kind === 'rereading'}
+              disabled={outcome.kind === 'rereading'}
               onClick={() => {
                 void retryAccountsRead();
               }}

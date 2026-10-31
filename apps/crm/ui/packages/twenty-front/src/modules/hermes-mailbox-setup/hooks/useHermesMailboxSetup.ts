@@ -44,7 +44,21 @@ export type HermesMailboxSetupOutcome =
   | { kind: 'write-unknown'; reason: string | null; listReread: boolean }
   | { kind: 'refused'; reason: string | null }
   | { kind: 'not-sent'; missing: HermesMailboxMissingProtocol[] }
-  | { kind: 'unconfirmed' };
+  | { kind: 'unconfirmed'; listReread: boolean };
+
+// Whether a creation may be attempted, as an ALLOWLIST — the same inversion
+// the domain hook uses, and for the same reason: the panel's denylist showed
+// Save on 'unconfirmed', and a second denylist in a second file would miss the
+// next state added too. Anything unforeseen falls through to false.
+//
+// 'idle' attempted nothing, 'refused' is a refusal raised before the write,
+// and 'not-sent' never left the browser. Every other outcome may hide an
+// applied write — and this is the one mutation in this module that creates a
+// real connected account nothing here can delete.
+const SETTLED_FOR_RETRY = ['idle', 'refused', 'not-sent'] as const;
+
+const isSettledForRetry = (outcome: HermesMailboxSetupOutcome): boolean =>
+  (SETTLED_FOR_RETRY as readonly string[]).includes(outcome.kind);
 
 // The protocols the MAIL connection requires, and which of them the form is
 // still missing.
@@ -181,12 +195,27 @@ export const useHermesMailboxSetup = ({
       getConfiguredProtocols(watchedValues).length > 0 &&
       // Both protocols, because the server requires both of a MAIL connection.
       protocolRequirement.kind === 'met' &&
+      // And nothing pending: a write that may have landed is never re-offered.
+      isSettledForRetry(outcome) &&
       !isSubmitting,
-    [getConfiguredProtocols, watchedValues, protocolRequirement, isSubmitting],
+    [
+      getConfiguredProtocols,
+      watchedValues,
+      protocolRequirement,
+      outcome,
+      isSubmitting,
+    ],
   );
 
   const handleSave = useCallback(
     async (formValues: ConnectionFormData): Promise<void> => {
+      // The guard that actually refuses, as opposed to the button that merely
+      // looks unavailable: a stray submit on an unsettled outcome must not
+      // reach the server, because the account may already exist.
+      if (!isSettledForRetry(outcome)) {
+        return;
+      }
+
       // Checked again on the submitted values, not on the watched ones: the
       // button is the first guard, and a request that cannot serve its purpose
       // must not leave even if something else triggers the submit.
@@ -212,7 +241,7 @@ export const useHermesMailboxSetup = ({
       // receive nor send. The schema refuses it too; this keeps the request
       // from leaving at all.
       if (configuredProtocols.length === 0) {
-        setOutcome({ kind: 'unconfirmed' });
+        setOutcome({ kind: 'unconfirmed', listReread: false });
         return;
       }
 
@@ -282,7 +311,7 @@ export const useHermesMailboxSetup = ({
       // A reply we cannot read an account id out of settles nothing: the
       // account may exist. Saying so beats inventing either outcome.
       if (!isNonEmptyString(connectedAccountId)) {
-        setOutcome({ kind: 'unconfirmed' });
+        setOutcome({ kind: 'unconfirmed', listReread: false });
         return;
       }
 
@@ -316,6 +345,7 @@ export const useHermesMailboxSetup = ({
       reset,
       onConnected,
       enqueueToast,
+      outcome,
     ],
   );
 
@@ -323,7 +353,11 @@ export const useHermesMailboxSetup = ({
   // re-read failed AND for a write whose answer was lost. It re-reads and
   // never writes: re-emitting could create the very duplicate at issue.
   const retryAccountsRead = useCallback(async (): Promise<void> => {
-    if (outcome.kind === 'write-unknown') {
+    // Both outcomes that may hide an applied write report whether the list was
+    // re-read. 'unconfirmed' is precisely the state where re-reading is the
+    // only honest action: the server accepted something and told us nothing
+    // usable about it.
+    if (outcome.kind === 'write-unknown' || outcome.kind === 'unconfirmed') {
       try {
         await readAccountsList();
         setOutcome({ ...outcome, listReread: true });
@@ -362,6 +396,9 @@ export const useHermesMailboxSetup = ({
     loading: saveLoading,
     outcome,
     protocolRequirement,
+    // The single source of truth for whether a creation may be attempted, so
+    // the control and the guard cannot disagree.
+    canRetryWrite: isSettledForRetry(outcome),
     resetSetup,
     retryAccountsRead,
   };
