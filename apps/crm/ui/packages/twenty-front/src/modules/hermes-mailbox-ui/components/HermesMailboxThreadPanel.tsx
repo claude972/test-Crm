@@ -217,6 +217,18 @@ export const HermesMailboxThreadPanel = ({
         </StyledDraftBlock>
       )}
 
+      {/* An unsent draft nothing here can address. No resume is offered:
+          a button with no identity behind it would be a false affordance. */}
+      {openThread.draft === null && openThread.isDraftIdentityUnknown && (
+        <HermesMailboxNote role="status">
+          <Trans>
+            This draft was not saved from this browser, so its identity is
+            unknown here and it cannot be resumed. It is still on the
+            provider, and it was never sent.
+          </Trans>
+        </HermesMailboxNote>
+      )}
+
       {isPlanning && (
         <HermesMailboxNote role="status">
           <Trans>Preparing the answer on the server…</Trans>

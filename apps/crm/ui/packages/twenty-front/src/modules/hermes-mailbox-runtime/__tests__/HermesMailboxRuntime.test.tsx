@@ -332,7 +332,7 @@ const renderMailbox = ({
   resetJotaiStore();
   jotaiStore.set(myConnectedAccountsState.atom, CONNECTED_ACCOUNTS);
 
-  render(
+  const { unmount } = render(
     <I18nProvider i18n={i18n}>
       <JotaiProvider store={jotaiStore}>
         <MockedProvider mocks={mocks as never}>
@@ -342,7 +342,7 @@ const renderMailbox = ({
     </I18nProvider>,
   );
 
-  return { plan, clone, send, saveDraft, createDraft, sendNew };
+  return { plan, clone, send, saveDraft, createDraft, sendNew, unmount };
 };
 
 const openFirstMessage = async () => {
@@ -350,6 +350,12 @@ const openFirstMessage = async () => {
 
   return screen.findByText('Bonjour, pouvez-vous confirmer le devis ?');
 };
+
+// Draft identities outlive a reload on purpose, so each test starts from a
+// browser that was issued none.
+beforeEach(() => {
+  window.localStorage.clear();
+});
 
 describe('HermesMailboxRuntime', () => {
   it('renders the real folders and the first page of a folder, and emits nothing on mount', async () => {
@@ -604,5 +610,79 @@ describe('HermesMailboxRuntime', () => {
     expect(resumedSave.draftId).toBe(draftId);
     // The revision the first save handed back, returned verbatim.
     expect(resumedSave.draftRevision).toBe('a'.repeat(63) + '1');
+  });
+
+  it('resumes a draft after a reload, replaying the identity and the revision the server issued', async () => {
+    const first = renderMailbox();
+
+    await screen.findByText('Devis chantier Lyon');
+    await userEvent.click(screen.getByRole('button', { name: 'New message' }));
+    await screen.findByRole('form', { name: 'New message' });
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'To' }),
+      'marie@client.test',
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Subject' }),
+      'Devis révisé',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
+    await waitFor(() => expect(first.createDraft).toHaveBeenCalledTimes(1));
+
+    const issued = variablesOf(first.createDraft, 0);
+
+    // The reload. Every piece of React state the session held is gone with
+    // the tree, which is exactly what used to take the resume with it.
+    first.unmount();
+
+    const second = renderMailbox();
+
+    await screen.findByText('Devis chantier Lyon');
+    await userEvent.click(screen.getByRole('button', { name: /Drafts/ }));
+    await userEvent.click(await screen.findByText('Devis révisé'));
+
+    expect(await screen.findByText('Saved here and never sent.')).toBeVisible();
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Resume this draft' }),
+    );
+
+    // The recipients and the body come from the server's read of the native
+    // draft, so they are what the provider holds and not what was typed.
+    expect(await screen.findByRole('textbox', { name: 'To' })).toHaveValue(
+      'marie@client.test',
+    );
+    expect(screen.getByRole('textbox', { name: 'Message' })).toHaveValue(
+      'Voici le devis corrigé.',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save as draft' }));
+    await waitFor(() => expect(second.createDraft).toHaveBeenCalledTimes(1));
+
+    const resumed = variablesOf(second.createDraft, 0);
+
+    // The stable identity and the opaque revision the first save was given,
+    // handed back byte for byte across the reload.
+    expect(resumed.draftId).toBe(issued.draftId);
+    expect(resumed.draftRevision).toBe('a'.repeat(63) + '1');
+  });
+
+  it('offers no resume on a native draft this browser was never issued an identity for', async () => {
+    renderMailbox();
+
+    await screen.findByText('Devis chantier Lyon');
+    await userEvent.click(screen.getByRole('button', { name: /Drafts/ }));
+    await userEvent.click(await screen.findByText('Devis révisé'));
+
+    // The message is read and shown; what is absent is the claim that it can
+    // be picked up again here.
+    expect(await screen.findByText('Voici le devis corrigé.')).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Resume this draft' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/its identity is unknown here/),
+    ).toBeVisible();
   });
 });
