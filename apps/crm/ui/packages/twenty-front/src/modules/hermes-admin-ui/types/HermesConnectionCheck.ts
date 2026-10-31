@@ -81,6 +81,16 @@ export const readHermesProbesForUiKind = (
 export const isHermesKindProbable = (uiKind: string | null): boolean =>
   readHermesProbesForUiKind(uiKind).length > 0;
 
+// What a result was computed under.
+//
+// A probe answers about one configuration of one company. Shown against any
+// other, or against one since rewritten, a result outlives what it described.
+export type HermesCheckTarget = {
+  companyId: string | null;
+  connectionId: string;
+  revision: string | null;
+};
+
 // The outcome of one read-only probe.
 //
 // 'reachable' carries the instant and the operation, because « joignable »

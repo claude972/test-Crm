@@ -7,11 +7,14 @@ import userEvent from '@testing-library/user-event';
 import { createStore, Provider } from 'jotai';
 
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
+import { currentWorkspaceMembersState } from '@/auth/states/currentWorkspaceMembersState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { HERMES_REMOVE_CONNECTION_V4 } from '@/hermes-admin-runtime/graphql/metadata-mutations/hermesRemoveConnectionV4';
 import { HERMES_SAVE_CONNECTION_V4 } from '@/hermes-admin-runtime/graphql/metadata-mutations/hermesSaveConnectionV4';
 import { HERMES_CONNECTIONS_V4 } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesConnectionsV4';
+import { HERMES_EVOLUTION_CONNECTION } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesEvolutionConnection';
+import { HERMES_MEMBER_ROLES } from '@/hermes-admin-runtime/graphql/metadata-queries/hermesMemberRoles';
 import { HermesAdminRuntimeSettings } from '@/hermes-admin-runtime/components/HermesAdminRuntimeSettings';
 import { HERMES_WORKSPACE_BOT_POLICIES } from '@/hermes-bot-settings/graphql/metadata-queries/hermesWorkspaceBotPolicies';
 import { GET_MY_CONNECTED_ACCOUNTS } from '@/settings/accounts/graphql/queries/getMyConnectedAccounts';
@@ -31,6 +34,8 @@ jest.mock('@/auth/hooks/useAuth', () => ({
 }));
 
 const COMPANY_ID = '11111111-1111-4111-8111-111111111111';
+const MEMBER_ID = '77777777-7777-4777-8777-777777777777';
+const OTHER_MEMBER_ID = '88888888-8888-4888-8888-888888888888';
 
 // The views the central store publishes, one per kind. `revision` is an Int,
 // `secretFields` carries field NAMES only, and the only configured state is
@@ -125,6 +130,46 @@ const botPoliciesMock: MockedResponse = {
   },
 };
 
+// Two roles whose LABELS would mislead and whose FLAGS tell the truth:
+// « Lecture seule » carries the settings flag, « Administrateur » carries
+// nothing. The rights shown must follow the flags.
+const memberRolesMock: MockedResponse = {
+  request: { query: HERMES_MEMBER_ROLES },
+  maxUsageCount: 10,
+  result: {
+    data: {
+      getRoles: [
+        {
+          __typename: 'Role',
+          id: 'role-misnamed',
+          label: 'Lecture seule',
+          canUpdateAllSettings: true,
+          canReadAllObjectRecords: true,
+          canUpdateAllObjectRecords: false,
+          canSoftDeleteAllObjectRecords: false,
+          canDestroyAllObjectRecords: false,
+          canAccessAllTools: false,
+          workspaceMembers: [{ __typename: 'WorkspaceMember', id: MEMBER_ID }],
+        },
+        {
+          __typename: 'Role',
+          id: 'role-empty-admin',
+          label: 'Administrateur',
+          canUpdateAllSettings: false,
+          canReadAllObjectRecords: false,
+          canUpdateAllObjectRecords: false,
+          canSoftDeleteAllObjectRecords: false,
+          canDestroyAllObjectRecords: false,
+          canAccessAllTools: false,
+          workspaceMembers: [
+            { __typename: 'WorkspaceMember', id: OTHER_MEMBER_ID },
+          ],
+        },
+      ],
+    },
+  },
+};
+
 const renderSettings = (extraMocks: MockedResponse[] = []) => {
   const store = createStore();
 
@@ -132,6 +177,18 @@ const renderSettings = (extraMocks: MockedResponse[] = []) => {
     id: COMPANY_ID,
     displayName: 'Atelier Dupont',
   } as never);
+  store.set(currentWorkspaceMembersState.atom, [
+    {
+      id: MEMBER_ID,
+      name: { firstName: 'Claire', lastName: 'Dupont' },
+      userEmail: 'claire@atelier.example',
+    },
+    {
+      id: OTHER_MEMBER_ID,
+      name: { firstName: 'Marc', lastName: 'Léon' },
+      userEmail: 'marc@atelier.example',
+    },
+  ] as never);
   store.set(availableWorkspacesState.atom, {
     availableWorkspacesForSignIn: [],
     availableWorkspacesForSignUp: [],
@@ -145,6 +202,7 @@ const renderSettings = (extraMocks: MockedResponse[] = []) => {
           connectionsMock,
           nativeAccountsMock,
           botPoliciesMock,
+          memberRolesMock,
           ...extraMocks,
         ]}
       >
@@ -159,6 +217,46 @@ const renderSettings = (extraMocks: MockedResponse[] = []) => {
 describe('HermesAdminRuntimeSettings', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('states a member’s rights from the role’s flags, not from the role’s name', async () => {
+    renderSettings();
+
+    // Claire holds a role someone called « Lecture seule » that nevertheless
+    // carries the unrestricted settings flag. She really can configure the
+    // connections, and the screen says so rather than trusting the name.
+    expect(await screen.findByText('Claire Dupont')).toBeInTheDocument();
+
+    // The roles arrive from their own query, after the member rows do, so this
+    // waits for them instead of reading the render that precedes them.
+    expect(
+      await screen.findByText(/Configurer les connexions : oui/),
+    ).toBeInTheDocument();
+
+    // Marc holds a role called « Administrateur » that carries nothing. The
+    // name promises everything and the flags grant nothing.
+    expect(screen.getByText('Marc Léon')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Configurer les connexions : non/),
+    ).toBeInTheDocument();
+
+    // Both labels are still shown: a label says what somebody called the
+    // role, the rights column says what it opens.
+    expect(screen.getByText('Lecture seule')).toBeInTheDocument();
+    expect(screen.getByText('Administrateur')).toBeInTheDocument();
+
+    // The rule is stated on the screen, not only in the code.
+    expect(
+      screen.getByText(
+        /Ils sont lus sur les indicateurs de permission du rôle, pas sur son nom/,
+      ),
+    ).toBeInTheDocument();
+
+    // A member state the server does not publish is said to be unpublished
+    // rather than guessed from the roles.
+    expect(
+      screen.getAllByText('Non publié par le serveur').length,
+    ).toBeGreaterThan(0);
   });
 
   it('renders the connections the server reported, without claiming any is connected', async () => {
@@ -272,6 +370,67 @@ describe('HermesAdminRuntimeSettings', () => {
     });
     expect(removeMock).not.toHaveBeenCalled();
   });
+  it('shows no stale result when a probe lands after the connection was removed', async () => {
+    // The badge must not outlive the configuration it describes.
+    renderSettings([
+      {
+        request: { query: HERMES_EVOLUTION_CONNECTION },
+        maxUsageCount: 10,
+        // Answers only after the removal has gone through.
+        delay: 60,
+        result: {
+          data: {
+            hermesEvolutionConnection: {
+              __typename: 'HermesEvolutionConnectionProbe',
+              status: 'PROVIDER_REPORTED_OPEN',
+              providerState: 'open',
+              checkedAt: '2026-10-31T09:15:00.000Z',
+              errorCode: null,
+            },
+          },
+        },
+      } as MockedResponse,
+      {
+        request: { query: HERMES_REMOVE_CONNECTION_V4, variables: {} },
+        maxUsageCount: 10,
+        result: { data: { hermesRemoveConnectionV4: { kind: 'EVOLUTION' } } },
+        variableMatcher: () => true,
+      } as MockedResponse,
+    ]);
+
+    await screen.findByText('WhatsApp (Evolution)');
+
+    // WhatsApp is the first registered slot and the probe is deferred.
+    const testButtons = screen.getAllByRole('button', {
+      name: 'Tester la connexion',
+    });
+
+    await userEvent.click(testButtons[0]);
+
+    // Remove that same connection while its probe is still in flight.
+    const editButtons = screen.getAllByRole('button', {
+      name: 'Modifier les paramètres',
+    });
+
+    await userEvent.click(editButtons[0]);
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Supprimer la connexion' }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Confirmer la suppression' }),
+    );
+
+    // Let the deferred probe resolve well after the write.
+    await new Promise((resolve) => {
+      setTimeout(resolve, 150);
+    });
+
+    // The decisive assertion: the late answer is discarded. Nothing is
+    // presented as reachable for a connection that has been removed.
+    expect(screen.queryByText(/joignable le/)).toBeNull();
+    expect(screen.queryByText(/instance:open/)).toBeNull();
+  });
+
   it('sends the MCP save with the revision it read, under its exact operation', async () => {
     // The mock matches on the EXACT variables, so the match is itself the
     // assertion: the operation name, the kind, the Int revision that was read

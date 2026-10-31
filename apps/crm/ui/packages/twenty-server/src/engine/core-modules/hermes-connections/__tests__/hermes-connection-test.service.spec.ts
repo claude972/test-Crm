@@ -329,6 +329,83 @@ describe('HermesConnectionTestService — authorization is not relaxed', () => {
     expect(harness.getTransporter).not.toHaveBeenCalled();
   });
 
+  it('returns nothing private when the caller is revoked mid-probe', async () => {
+    // The caller is a SECOND administrator, not the one who configured the
+    // connection. `resolve` revalidates the configurator, so only an explicit
+    // re-check of the caller can stop their revocation being ignored.
+    const caller = {
+      workspaceId: ACTOR.workspaceId,
+      userId: '99999999-9999-4999-8999-999999999999',
+      userWorkspaceId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    };
+
+    let allowed = 0;
+
+    // Allowed on entry and immediately before the session opens; revoked by
+    // the time the LIST and STATUS have returned.
+    const assertAllowed = jest.fn().mockImplementation(() => {
+      allowed += 1;
+
+      return allowed <= 2
+        ? Promise.resolve()
+        : Promise.reject(new ForbiddenException('PROSPECTION_ACCESS_DENIED'));
+    });
+
+    const harness = buildService({
+      resolve: jest.fn().mockResolvedValue(resolved()),
+      assertAllowed,
+    });
+
+    await expect(
+      harness.service.testMail(caller, 'IMAP_LIST_STATUS'),
+    ).rejects.toThrow('PROSPECTION_ACCESS_DENIED');
+
+    // The probe did run, and its counters are not handed back.
+    expect(harness.imapClient.status).toHaveBeenCalled();
+    // The session is still closed: a refusal must not leak a connection.
+    expect(harness.closeClient).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not open a session for a caller revoked before the transport', async () => {
+    let allowed = 0;
+
+    const assertAllowed = jest.fn().mockImplementation(() => {
+      allowed += 1;
+
+      return allowed <= 1
+        ? Promise.resolve()
+        : Promise.reject(new ForbiddenException('PROSPECTION_ACCESS_DENIED'));
+    });
+
+    const harness = buildService({
+      resolve: jest.fn().mockResolvedValue(resolved()),
+      assertAllowed,
+    });
+
+    await expect(
+      harness.service.testMail(ACTOR, 'SMTP_LOGIN_ONLY'),
+    ).rejects.toThrow('PROSPECTION_ACCESS_DENIED');
+
+    // Revoked after the configuration was read and before anything was
+    // dialled: no transport is opened at all.
+    expect(harness.getTransporter).not.toHaveBeenCalled();
+  });
+
+  it('re-affirms the caller after every wait, not only on entry', async () => {
+    const harness = buildService({
+      resolve: jest.fn().mockResolvedValue(resolved()),
+    });
+
+    await harness.service.testMail(ACTOR, 'IMAP_LIST_STATUS');
+
+    // Entry, after resolve, after probe and close, and before answering.
+    expect(harness.assertAllowed.mock.calls.length).toBeGreaterThanOrEqual(4);
+
+    for (const call of harness.assertAllowed.mock.calls) {
+      expect(call[0]).toEqual(ACTOR);
+    }
+  });
+
   it('checks authorization for the workspace of the authenticated session', async () => {
     const harness = buildService({
       resolve: jest.fn().mockResolvedValue(resolved()),

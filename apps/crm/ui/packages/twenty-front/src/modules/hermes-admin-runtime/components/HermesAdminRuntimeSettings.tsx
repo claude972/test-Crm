@@ -9,6 +9,7 @@ import {
   type HermesAdminContextValidity,
 } from '@/hermes-admin-ui/types/HermesAdminContext';
 import { type HermesConnectionKind } from '@/hermes-admin-ui/types/HermesConnection';
+import { type HermesCheckTarget } from '@/hermes-admin-ui/types/HermesConnectionCheck';
 import {
   HERMES_CONNECTION_FORM_EMPTY_VALUES,
   type HermesConnectionFormSubject,
@@ -44,6 +45,12 @@ export const HermesAdminRuntimeSettings = () => {
 
   const [formSubject, setFormSubject] =
     useState<HermesConnectionFormSubject | null>(null);
+
+  // Which configuration the held probe results describe. Cleared on every
+  // write, so no result is shown against something it was not computed for.
+  const [checkedTarget, setCheckedTarget] = useState<HermesCheckTarget | null>(
+    null,
+  );
 
   // What the screen holds, and whether it still belongs to the active company.
   //
@@ -147,10 +154,27 @@ export const HermesAdminRuntimeSettings = () => {
         return;
       }
 
-      checks.requestCheck(connection.kind);
+      // The target carries the company, the connection and the revision the
+      // probe is about, so its answer cannot be shown against another.
+      const target: HermesCheckTarget = {
+        companyId: companies.activeCompanyId,
+        connectionId: connection.id,
+        revision: connection.revision,
+      };
+
+      setCheckedTarget(target);
+      checks.requestCheck(connection.kind, target);
     },
-    [checks, connections.read],
+    [checks, companies.activeCompanyId, connections.read],
   );
+
+  // Any write makes every held result obsolete: the revision has moved, so a
+  // result computed under the previous one describes a configuration that no
+  // longer exists.
+  const discardChecks = useCallback(() => {
+    checks.invalidate();
+    setCheckedTarget(null);
+  }, [checks]);
 
   const handleRequestEdit = useCallback(
     (connectionId: string) => {
@@ -167,6 +191,7 @@ export const HermesAdminRuntimeSettings = () => {
       }
 
       connections.resetWriteState();
+      discardChecks();
 
       // The revision is passed on exactly as it was read, never repaired. A
       // connection read without one opens a form that cannot send, and says
@@ -181,15 +206,16 @@ export const HermesAdminRuntimeSettings = () => {
         revision: connection.revision,
       });
     },
-    [connections],
+    [connections, discardChecks],
   );
 
   const handleRequestCreate = useCallback(
     (connectionKind: HermesConnectionKind) => {
       connections.resetWriteState();
+      discardChecks();
       setFormSubject({ mode: 'create', kind: connectionKind });
     },
-    [connections],
+    [connections, discardChecks],
   );
 
   const handleSubmit = useCallback(
@@ -209,9 +235,10 @@ export const HermesAdminRuntimeSettings = () => {
         return;
       }
 
+      discardChecks();
       connections.save(runtimeKind, support, submission);
     },
-    [connections, formSubject],
+    [connections, discardChecks, formSubject],
   );
 
   const handleRequestDelete = useCallback(
@@ -231,9 +258,10 @@ export const HermesAdminRuntimeSettings = () => {
         return;
       }
 
+      discardChecks();
       connections.remove(runtimeKind, support, expectedRevision);
     },
-    [connections, formSubject],
+    [connections, discardChecks, formSubject],
   );
 
   const handleRequestAdd = useCallback(
@@ -288,7 +316,8 @@ export const HermesAdminRuntimeSettings = () => {
         connectionFormInitialValues={initialValues}
         nativeAccounts={nativeAccounts}
         connectionSaveState={connections.saveState}
-        checkByProbe={checks.outcomeByProbe}
+        checkByProbe={checks.readOutcomes(checkedTarget)}
+        checkedConnectionId={checkedTarget?.connectionId ?? null}
         isChecking={checks.isChecking}
         onRequestSwitchCompany={companies.requestSwitch}
         onRequestAddCompany={handleRequestAdd}

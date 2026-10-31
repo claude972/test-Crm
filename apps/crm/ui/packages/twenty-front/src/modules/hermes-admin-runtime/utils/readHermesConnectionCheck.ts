@@ -41,14 +41,25 @@ const readObservations = (value: unknown): readonly string[] => {
   });
 };
 
+// What a result must describe to be shown.
+//
+// A probe answers about one configuration. Displaying it against another, or
+// against a configuration that has since been rewritten, is how a green badge
+// outlives the thing it was about.
+export type HermesCheckScope = {
+  connectionId: string | null;
+  revision: string | null;
+};
+
 // The mail probe's answer.
 //
 // `hermesTestMailConnectionV4` returns `{kind, probe, outcome, checkedAt,
 // connectionId, revision, observations, errorCode, emitted}`. The outcome is
-// the server's own verdict and is never recomputed here from the other fields.
+// the server's own verdict and is never recomputed here.
 export const readHermesMailCheckPayload = (
   payload: unknown,
   requested: HermesConnectionProbe,
+  scope: HermesCheckScope,
 ): HermesConnectionCheckOutcome => {
   const record = readRecord(payload);
 
@@ -66,6 +77,23 @@ export const readHermesMailCheckPayload = (
   }
 
   const outcome = readText(record.outcome);
+
+  // The identity the server answered about must be the identity the screen
+  // asked about. A mismatch is not shown as a verdict on either one.
+  const answeredConnectionId = readText(record.connectionId);
+  const answeredRevision =
+    typeof record.revision === 'number'
+      ? String(record.revision)
+      : readText(record.revision);
+
+  if (
+    outcome !== 'NOT_CONFIGURED' &&
+    scope.connectionId !== null &&
+    (answeredConnectionId !== scope.connectionId ||
+      (scope.revision !== null && answeredRevision !== scope.revision))
+  ) {
+    return { kind: 'connection-changed' };
+  }
   const checkedAt = parseHermesInstant(
     typeof record.checkedAt === 'string' ? record.checkedAt : null,
   );

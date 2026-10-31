@@ -70,6 +70,7 @@ type HermesAdminSettingsCenterProps = {
   checkByProbe: Readonly<
     Partial<Record<HermesConnectionProbe, HermesConnectionCheckOutcome>>
   >;
+  checkedConnectionId: string | null;
   isChecking: boolean;
 
   onRequestSwitchCompany: (companyId: string) => void;
@@ -106,6 +107,7 @@ export const HermesAdminSettingsCenter = ({
   nativeAccounts,
   connectionSaveState,
   checkByProbe,
+  checkedConnectionId,
   isChecking,
   onRequestSwitchCompany,
   onRequestAddCompany,
@@ -167,6 +169,7 @@ export const HermesAdminSettingsCenter = ({
         activeCompanyId={activeCompany?.id ?? null}
         activeCompanyName={activeCompany?.name ?? null}
         checkByProbe={checkByProbe}
+        checkedConnectionId={checkedConnectionId}
         isChecking={isChecking}
         onRequestTest={onRequestTestConnection}
         onRequestEdit={onRequestEditConnection}
@@ -180,7 +183,12 @@ export const HermesAdminSettingsCenter = ({
           initialValues={connectionFormInitialValues}
           nativeAccounts={nativeAccounts}
           saveState={connectionSaveState}
-          checkByProbe={checkByProbe}
+          checkByProbe={
+            connectionFormSubject.mode === 'edit' &&
+            connectionFormSubject.connectionId === checkedConnectionId
+              ? checkByProbe
+              : {}
+          }
           isChecking={isChecking}
           contextValidity={contextValidity}
           onSubmit={onSubmitConnection}

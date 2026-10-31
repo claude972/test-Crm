@@ -170,6 +170,11 @@ export class HermesConnectionTestService {
       };
     }
 
+    // `resolve` revalidates the CONFIGURATION OWNER, who need not be the
+    // caller. A second administrator revoked while this ran must not receive
+    // the answer, so the caller's own rights are re-affirmed after every wait.
+    await this.access.assertAllowed(actor);
+
     const connectedAccountId = resolved.settings.connectedAccountId;
     const mailbox = resolved.settings.mailbox;
 
@@ -205,13 +210,20 @@ export class HermesConnectionTestService {
       );
     }
 
-    // The configuration is re-read AFTER the probe. A credential rotated while
-    // the probe was in flight means this answer describes a configuration that
-    // is no longer current, and reporting it as the current one would show a
-    // reachable tick for credentials nobody tested.
+    // The caller's rights again, now that the probe and its close are done.
+    // Nothing private — counters, folder names, an authentication result —
+    // may be returned to someone revoked while the session was open.
+    await this.access.assertAllowed(actor);
+
+    // Re-read AFTER the probe. A credential rotated in flight means this
+    // answer describes a configuration that is no longer current, and
+    // reporting it as current would tick a box for credentials nobody tested.
     const current = await this.connections
       .resolve(actor.workspaceId, 'MAIL')
       .catch(() => null);
+
+    // The last gate before anything is answered, covering both returns below.
+    await this.access.assertAllowed(actor);
 
     if (
       current === null ||

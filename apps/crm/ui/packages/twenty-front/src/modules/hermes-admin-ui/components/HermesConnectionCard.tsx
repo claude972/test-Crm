@@ -75,6 +75,9 @@ type HermesConnectionCardProps = {
   checkByProbe: Readonly<
     Partial<Record<HermesConnectionProbe, HermesConnectionCheckOutcome>>
   >;
+  // Which connection those outcomes were computed for. A result is rendered
+  // only on that connection's card, never on a neighbour's.
+  checkedConnectionId: string | null;
   isChecking: boolean;
   // All three callbacks raise an intention. This card decides nothing: it does
   // not know whether a test succeeded until the parent tells it.
@@ -89,6 +92,7 @@ export const HermesConnectionCard = ({
   slot,
   companyName,
   checkByProbe,
+  checkedConnectionId,
   isChecking,
   onRequestTest,
   onRequestEdit,
@@ -259,7 +263,11 @@ export const HermesConnectionCard = ({
         <HermesConnectionCheckNote
           key={probe}
           probe={probe}
-          outcome={checkByProbe[probe]}
+          outcome={
+            checkedConnectionId === connection.id
+              ? checkByProbe[probe]
+              : undefined
+          }
         />
       ))}
     </StyledCard>

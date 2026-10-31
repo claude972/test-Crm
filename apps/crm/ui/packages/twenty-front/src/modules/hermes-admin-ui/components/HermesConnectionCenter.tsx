@@ -47,6 +47,7 @@ type HermesConnectionCenterProps = {
   checkByProbe: Readonly<
     Partial<Record<HermesConnectionProbe, HermesConnectionCheckOutcome>>
   >;
+  checkedConnectionId: string | null;
   isChecking: boolean;
   onRequestTest: (connectionId: string) => void;
   onRequestEdit: (connectionId: string) => void;
@@ -62,6 +63,7 @@ export const HermesConnectionCenter = ({
   activeCompanyId,
   activeCompanyName,
   checkByProbe,
+  checkedConnectionId,
   isChecking,
   onRequestTest,
   onRequestEdit,
@@ -122,6 +124,7 @@ export const HermesConnectionCenter = ({
               slot={slot}
               companyName={activeCompanyName}
               checkByProbe={checkByProbe}
+              checkedConnectionId={checkedConnectionId}
               isChecking={isChecking}
               onRequestTest={onRequestTest}
               onRequestEdit={onRequestEdit}

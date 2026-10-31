@@ -4,6 +4,8 @@ import {
 } from '@/hermes-admin-runtime/utils/readHermesConnectionCheck';
 
 const CHECKED_AT = '2026-10-31T09:15:00.000Z';
+const CONNECTION_ID = 'c0ffee00-0000-4000-8000-000000000001';
+const SCOPE = { connectionId: CONNECTION_ID, revision: '4' };
 
 describe('readHermesMailCheckPayload', () => {
   it('reads a reachable IMAP probe with its instant and its observations', () => {
@@ -13,11 +15,14 @@ describe('readHermesMailCheckPayload', () => {
         probe: 'IMAP_LIST_STATUS',
         outcome: 'REACHABLE',
         checkedAt: CHECKED_AT,
+        connectionId: CONNECTION_ID,
+        revision: 4,
         observations: ['folder:INBOX', 'messages:12', 'unseen:3'],
         errorCode: null,
         emitted: false,
       },
       'IMAP_LIST_STATUS',
+      SCOPE,
     );
 
     expect(outcome).toEqual({
@@ -31,8 +36,15 @@ describe('readHermesMailCheckPayload', () => {
   it('refuses to date a reachability the server did not date', () => {
     // « Joignable le … » with nothing after it is not a checkable claim.
     const outcome = readHermesMailCheckPayload(
-      { probe: 'SMTP_LOGIN_ONLY', outcome: 'REACHABLE', checkedAt: null },
+      {
+        probe: 'SMTP_LOGIN_ONLY',
+        outcome: 'REACHABLE',
+        checkedAt: null,
+        connectionId: CONNECTION_ID,
+        revision: 4,
+      },
       'SMTP_LOGIN_ONLY',
+      SCOPE,
     );
 
     expect(outcome).toEqual({ kind: 'unconfirmed' });
@@ -46,9 +58,12 @@ describe('readHermesMailCheckPayload', () => {
         probe: 'IMAP_LIST_STATUS',
         outcome: 'REACHABLE',
         checkedAt: CHECKED_AT,
+        connectionId: CONNECTION_ID,
+        revision: 4,
         observations: [],
       },
       'SMTP_LOGIN_ONLY',
+      SCOPE,
     );
 
     expect(outcome).toEqual({ kind: 'unconfirmed' });
@@ -59,6 +74,7 @@ describe('readHermesMailCheckPayload', () => {
       readHermesMailCheckPayload(
         { probe: 'IMAP_LIST_STATUS', outcome: 'NOT_CONFIGURED' },
         'IMAP_LIST_STATUS',
+        SCOPE,
       ),
     ).toEqual({ kind: 'nothing-configured' });
   });
@@ -68,6 +84,7 @@ describe('readHermesMailCheckPayload', () => {
       readHermesMailCheckPayload(
         { probe: 'SMTP_LOGIN_ONLY', outcome: 'CONNECTION_CHANGED' },
         'SMTP_LOGIN_ONLY',
+        SCOPE,
       ),
     ).toEqual({ kind: 'connection-changed' });
   });
@@ -79,9 +96,12 @@ describe('readHermesMailCheckPayload', () => {
           probe: 'SMTP_LOGIN_ONLY',
           outcome: 'UNREACHABLE',
           checkedAt: CHECKED_AT,
+          connectionId: CONNECTION_ID,
+          revision: 4,
           errorCode: 'MAIL_AUTHENTICATION_FAILED',
         },
         'SMTP_LOGIN_ONLY',
+        SCOPE,
       ),
     ).toEqual({
       kind: 'unreachable',
@@ -94,8 +114,15 @@ describe('readHermesMailCheckPayload', () => {
   it('does not map an unpublished outcome onto a published one', () => {
     expect(
       readHermesMailCheckPayload(
-        { probe: 'IMAP_LIST_STATUS', outcome: 'VERIFIED', checkedAt: CHECKED_AT },
+        {
+          probe: 'IMAP_LIST_STATUS',
+          outcome: 'VERIFIED',
+          checkedAt: CHECKED_AT,
+          connectionId: CONNECTION_ID,
+          revision: 4,
+        },
         'IMAP_LIST_STATUS',
+        SCOPE,
       ),
     ).toEqual({ kind: 'unconfirmed' });
   });
@@ -103,7 +130,7 @@ describe('readHermesMailCheckPayload', () => {
   it('treats an unreadable answer as proving nothing', () => {
     for (const payload of [null, undefined, 'REACHABLE', 42, []]) {
       expect(
-        readHermesMailCheckPayload(payload, 'IMAP_LIST_STATUS'),
+        readHermesMailCheckPayload(payload, 'IMAP_LIST_STATUS', SCOPE),
       ).toEqual({ kind: 'unconfirmed' });
     }
   });
@@ -116,9 +143,12 @@ describe('readHermesMailCheckPayload', () => {
         probe: 'IMAP_LIST_STATUS',
         outcome: 'REACHABLE',
         checkedAt: CHECKED_AT,
+        connectionId: CONNECTION_ID,
+        revision: 4,
         observations: ['folder:INBOX', '', '   ', 42, null, 'x'.repeat(200)],
       },
       'IMAP_LIST_STATUS',
+      SCOPE,
     );
 
     expect(outcome).toEqual({
@@ -127,6 +157,60 @@ describe('readHermesMailCheckPayload', () => {
       checkedAt: new Date(CHECKED_AT),
       observations: ['folder:INBOX'],
     });
+  });
+});
+
+describe('readHermesMailCheckPayload — bound to what it describes', () => {
+  it('refuses an answer about another connection', () => {
+    // A green badge must never land on a connection it was not computed for.
+    expect(
+      readHermesMailCheckPayload(
+        {
+          probe: 'IMAP_LIST_STATUS',
+          outcome: 'REACHABLE',
+          checkedAt: CHECKED_AT,
+          connectionId: 'c0ffee00-0000-4000-8000-00000000ffff',
+          revision: 4,
+          observations: [],
+        },
+        'IMAP_LIST_STATUS',
+        SCOPE,
+      ),
+    ).toEqual({ kind: 'connection-changed' });
+  });
+
+  it('refuses an answer about an earlier revision of the same connection', () => {
+    // The configuration was rewritten, so this result describes credentials
+    // that no longer exist.
+    expect(
+      readHermesMailCheckPayload(
+        {
+          probe: 'SMTP_LOGIN_ONLY',
+          outcome: 'REACHABLE',
+          checkedAt: CHECKED_AT,
+          connectionId: CONNECTION_ID,
+          revision: 3,
+          observations: [],
+        },
+        'SMTP_LOGIN_ONLY',
+        SCOPE,
+      ),
+    ).toEqual({ kind: 'connection-changed' });
+  });
+
+  it('refuses an answer that names no identity at all', () => {
+    expect(
+      readHermesMailCheckPayload(
+        {
+          probe: 'IMAP_LIST_STATUS',
+          outcome: 'REACHABLE',
+          checkedAt: CHECKED_AT,
+          observations: [],
+        },
+        'IMAP_LIST_STATUS',
+        SCOPE,
+      ),
+    ).toEqual({ kind: 'connection-changed' });
   });
 });
 

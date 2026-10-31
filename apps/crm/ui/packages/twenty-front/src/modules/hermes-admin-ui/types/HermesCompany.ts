@@ -3,6 +3,8 @@
 // members. It is NOT a Company customer record. The two are different
 // objects, and the screen says so rather than relying on the operator.
 
+import { type HermesMemberRole } from '@/hermes-admin-ui/types/HermesMemberRights';
+
 export const HERMES_COMPANY_MEMBER_ROLES = [
   'ADMIN',
   'MEMBER',
@@ -47,6 +49,17 @@ export type HermesCompanyMember = {
   unknownRole: string | null;
   state: HermesCompanyMemberState | null;
   unknownState: string | null;
+  // The roles this member actually holds, each with the permission flags that
+  // decide what it allows.
+  //
+  // Null means the roles were never read, so nothing may be said about this
+  // member's rights. An empty array means the member genuinely holds none,
+  // which is a real answer and denies every right.
+  //
+  // This is where rights are read from, not from `role` above: the native
+  // model is additive custom roles, so a single enumerated role could not
+  // describe a member holding two.
+  roles: readonly HermesMemberRole[] | null;
 };
 
 // One operating company the signed-in member is allowed into.
