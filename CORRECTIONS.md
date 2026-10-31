@@ -1935,3 +1935,10 @@ FindingsI18N001/Mail002 déjàtransmisauparentavantcepoint ; autresfindingsàrel
 - CAT-WA-006, reviewerCodexpreview_pwa, assignedclaudeCATUI-WA, statusopen, SHA8c8 : finalisationnativeaudio/webmOpus garde kindAUDIO maismimevideo/webm ; hookjettekind, RuntimeComposer146–177 choisitVIDEOparMIME, serveurrefuseAUDIO≠VIDEO. Conserver/validerkindfinalizecanonique, MIMEpourformatseulement, contre-épreuvefinalizeAUDIO/video-webm→sendAUDIO. Rapportprivéhermes-review-claude-wa-bot.md final ; troisP1média/stale/upload etpreuveOpusàcorriger. AUTOexplicitefailclosed/statutadapter/sourcecleanup approuvésdanspérimètreseulement.
 
 RevueI18Nfinale :38tests/4suiteslivréesPASS,4contre-épreuvesreproduisentlesdéfauts, rapportprivéhermes-review-claude-i18n.md ; cePASSnedonnepasapprobation. Revuemailexplicite : servicenatifrefusecertainsdoublons, nepasprétendredoublonsgarantis ; leconstatporte surlaréémissionautomatiqued'écrituresincertaines/absence derelecture. CespointsontétéassignésauxmêmesClaudecatégories, aucunsecondauteurconcurrent.
+
+
+### Point15:58UTC — décisions et état vérifié
+
+Maila publié0a7da5236 (relectureobligatoireavantsecondeécriture),8e6d1dbed(skipRetrycompte),c605a51d9(lecturecompteserreur≠absence) ; encoreàrelirerootetCI. CAT-I18N a révoqué sonlotdangereuxparc3017f3e0 etparent75c0c286c, préservehistorique3fefix, aucune étapeFRvalidéeavantnouvelleapprocheaffichageseulannoncéeparroot. CATWAmodifieractuellementComposer/upload/botpolicy selonfindings, étatsdirtypréservés ; pasdelivraisoninventée.
+
+PréparationGreenMailpreviewréaffectéeagentpreview_pwa pourcodeborné aprèsrapportlectureseule, passecondauteurconcurrent. RapportR10backendresteCIgreen90f,95testsintakeagent+24recheckroot, maispasrelaisfictifnavigableenpreviewavantceprovisionnement. Anciennespreviewsnonsollicitéesrestentexpirées. Lepropriétairecontinueàrecevoirrapportsexplicites15min.
