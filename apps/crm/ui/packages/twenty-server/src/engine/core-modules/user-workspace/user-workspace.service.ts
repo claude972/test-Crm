@@ -153,7 +153,10 @@ export class UserWorkspaceService {
       userId,
       workspaceId,
       defaultAvatarUrl,
-      locale: locale ?? SOURCE_LOCALE,
+      // A membership carries its own locale, so a new one starts from the
+      // instance default rather than from the i18n source locale. An
+      // explicit locale passed in still wins.
+      locale: locale ?? this.kovaaLabConfigService.get('DEFAULT_LOCALE'),
     });
 
     return queryRunner
@@ -203,7 +206,10 @@ export class UserWorkspaceService {
         userId: user.id,
         userEmail: user.email,
         avatarUrl: userWorkspace.defaultAvatarUrl ?? null,
-        locale: (user.locale ?? SOURCE_LOCALE) as keyof typeof APP_LOCALES,
+        locale: (user.locale ??
+          this.kovaaLabConfigService.get(
+            'DEFAULT_LOCALE',
+          )) as keyof typeof APP_LOCALES,
       });
 
       const workspaceMember = await workspaceMemberRepository.find({

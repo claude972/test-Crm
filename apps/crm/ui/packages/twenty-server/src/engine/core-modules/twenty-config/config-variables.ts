@@ -20,6 +20,7 @@ import {
   ENTERPRISE_INSTANCE_TYPE,
   type EnterpriseInstanceType,
 } from 'kovaa-lab-shared/constants';
+import { APP_LOCALES, SOURCE_LOCALE } from 'kovaa-lab-shared/translations';
 import { isDefined } from 'kovaa-lab-shared/utils';
 import { type LoggerOptions } from 'typeorm/logger/LoggerOptions';
 
@@ -1671,6 +1672,21 @@ export class ConfigVariables {
   @IsUrl({ require_tld: false, require_protocol: true })
   @IsOptional()
   SERVER_URL = 'http://localhost:3000';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.SERVER_CONFIG,
+    description:
+      'Locale a new account and a new workspace membership start from when ' +
+      'nothing explicit was supplied. It is only a default: a locale sent ' +
+      'with a sign-up, or one a member has already chosen, always wins and ' +
+      'is never overwritten. Left unset it keeps the source locale, so ' +
+      'existing deployments do not change behaviour.',
+    type: ConfigVariableType.STRING,
+    isEnvOnly: true,
+  })
+  @IsIn(Object.keys(APP_LOCALES))
+  @IsOptional()
+  DEFAULT_LOCALE: keyof typeof APP_LOCALES = SOURCE_LOCALE;
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.SERVER_CONFIG,

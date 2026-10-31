@@ -129,7 +129,10 @@ export class SignInUpService {
       firstName: newUserPayload.firstName ?? '',
       lastName: newUserPayload.lastName ?? '',
       picture: newUserPayload.picture ?? '',
-      locale: newUserPayload.locale ?? 'en',
+      // Only a default: a locale supplied with the sign-up always wins.
+      locale:
+        newUserPayload.locale ??
+        this.kovaaLabConfigService.get('DEFAULT_LOCALE'),
       isEmailVerified: newUserPayload.isEmailAlreadyVerified,
     };
 

@@ -596,7 +596,8 @@ export class UserService {
       userId: user.id,
       email: normalizedEmail,
       workspace: workspaceDomainConfig,
-      locale: user.locale || SOURCE_LOCALE,
+      locale:
+        user.locale || this.kovaaLabConfigService.get('DEFAULT_LOCALE'),
       verifyEmailRedirectPath,
       verificationTrigger: EmailVerificationTrigger.EMAIL_UPDATE,
     });
