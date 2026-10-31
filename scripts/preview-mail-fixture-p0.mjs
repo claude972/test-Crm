@@ -8,7 +8,7 @@ import path from 'node:path';
 import tls from 'node:tls';
 import { fileURLToPath } from 'node:url';
 
-export const IMAGE = 'greenmail/standalone:2.1.9@sha256:3ac5a83dd6727cf95e4d50e18907fb8ee7bbf5f67e8534714dee2fb1b5b2e1d4';
+export const IMAGE = 'greenmail/standalone:2.1.15@sha256:309ba544ea482e5d4265d09921cdab07c8dad2cc4481d715c9b8ff5d3f0a149f';
 export const PORTS = Object.freeze({ imaps: 3993, smtps: 3465 });
 const PRIVATE_NAME = 'p0-preview-mail-fixture';
 const MARKER = '# hermes-isolated-mail-';

@@ -110,6 +110,7 @@ async function smoke() {
     assert.equal(uid, 1); assert.ok(Number.isSafeInteger(size));
     assert.deepEqual(partialBytes, fullBytes, 'A bounded partial fetch must retain the complete small fixture MIME');
     console.info(JSON.stringify({probe:'imap-source-size',uid,reportedSize:size,fullSourceLength:fullBytes.length,boundedSourceLength:partialBytes.length,strictSizeGuardWouldPass:size===partialBytes.length}));
+    assert.equal(size, partialBytes.length, 'RFC822.SIZE must match complete MIME bytes for the native mailbox identity guard');
 
   } finally { imap.close(); }
   console.info('Isolated fixture: authenticated IMAPS read the captured MIME; CA/SAN validated on both protocols');
