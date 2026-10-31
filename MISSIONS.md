@@ -829,3 +829,7 @@ Complément CAT-MAILBOX-SOURCE : root autorise désormais exclusivement ce lot �
 ### CAT-MOBILE-STRUCTURES — owner Codex intake_backend, 31 octobre 18:13 UTC
 
 Vrai défaut constaté sur preview508, viewport390x844, navigation fermée : entêtes et compteurs du tableau de sociétés autorisées se chevauchent. Capture privée mobile-structures-content-390.png. Scope exclusif : apps/crm/ui/packages/twenty-front/src/pages/settings/structures/SettingsStructuresDashboard.tsx et rapport/test ciblé pertinent ; base4825f4668, worktree isolé. Correction bornée scroll horizontal du contenu + largeur minimale lisible selon patterns existants. Aucune query, permission, mutation, rôle ou nouvelle fonctionnalité. Root garde intégration/preview/catalogues, aucun autre auteur ne touche cette vue avant handback. Publication avant édition applicative.
+
+## CAT-MAILBOX-STANDARD-FOLDERS — 2026-10-31
+
+Owner unique backend_review, autorisation root : scripts fixture et tests/smoke uniquement, base601143e27. Initialiser Drafts/Sent/Trash pour les trois boîtes fictives opt-in par IMAP authentifié TLS CA/SAN ; aucune source applicative, garde, connexion CRM ou donnée CRM modifiée. Preuve CI protocolaire CREATE/LIST puis APPEND brouillon, UID/MIME/taille, TLS/isolation/cleanup inchangés. Aucun nouveau runtime P0 ni Vercel lancé par cet agent. Runtime601 courant préservé. Commit/push checkpoint pour revue root avant intégration.
