@@ -88,6 +88,9 @@ jobs:
           git ls-files --error-unmatch apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server >/dev/null
           git diff --quiet HEAD -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
           rm -- apps/crm/ui/packages/twenty-server/.env.test apps/crm/ui/packages/twenty-server/.env.e2e-testing-server
+      - name: Verify mailbox test helper preserves the selected identity
+        working-directory: apps/crm/ui/packages/twenty-server
+        run: node ../../node_modules/jest/bin/jest.js --config jest.config.mjs --runInBand --runTestsByPath test/integration/metadata/suites/connected-account/utils/save-imap-smtp-caldav-account.util.spec.ts
       - name: Typecheck all backend production sources
         id: backend_types
         working-directory: apps/crm/ui/packages/twenty-server

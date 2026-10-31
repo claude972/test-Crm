@@ -259,6 +259,7 @@ describe('Hermes campaign from the operator mailbox, over HTTP and PostgreSQL', 
 
   it('registers the operator mailbox as a native connected account over TLS', async () => {
     const { data } = await saveImapSmtpCaldavAccount({
+      token: tokenA,
       input: {
         handle: MAILBOX_HANDLE,
         connectionParameters: {

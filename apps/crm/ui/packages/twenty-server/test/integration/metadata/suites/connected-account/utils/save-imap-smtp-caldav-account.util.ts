@@ -21,14 +21,22 @@ type SaveImapSmtpCaldavAccountInput = {
   id?: string;
 };
 
-export const saveImapSmtpCaldavAccount = async ({
-  input,
-  expectToFail,
-}: {
+export const saveImapSmtpCaldavAccount = async (args: {
   input: SaveImapSmtpCaldavAccountInput;
   expectToFail: boolean;
+  token?: string | null;
 }) => {
-  const response = await makeMetadataApiRequest({
+  const { input, expectToFail } = args;
+  const hasExplicitToken = 'token' in args;
+
+  // Undefined would silently authenticate as the helper's default user.
+  if (hasExplicitToken && args.token === undefined) {
+    throw new Error(
+      'An explicit mailbox authentication token cannot be undefined',
+    );
+  }
+
+  const operation = {
     query: gql`
       mutation SaveImapSmtpCaldavAccount(
         $handle: String!
@@ -50,7 +58,11 @@ export const saveImapSmtpCaldavAccount = async ({
       connectionParameters: input.connectionParameters,
       ...(input.id && { id: input.id }),
     },
-  });
+  };
+
+  const response = await (hasExplicitToken
+    ? makeMetadataApiRequest(operation, args.token)
+    : makeMetadataApiRequest(operation));
 
   if (expectToFail) {
     expect(response.body.errors).toBeDefined();

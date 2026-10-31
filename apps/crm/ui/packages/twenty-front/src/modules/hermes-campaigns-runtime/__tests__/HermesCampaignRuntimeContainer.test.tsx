@@ -381,8 +381,8 @@ const sendTestTrap = {
 // The preview mock is swappable: most tests keep the trap, which fails if a
 // preview runs unasked, while the preview test serves a real rendering.
 const renderContainer = ({
-  previewRecipientMock = recipientPreviewTrap as object,
-}: { previewRecipientMock?: object } = {}) => {
+  previewRecipientMock = recipientPreviewTrap,
+}: { previewRecipientMock?: MockLink.MockedResponse } = {}) => {
   resetJotaiStore();
   jotaiStore.set(currentWorkspaceState.atom, {
     ...mockCurrentWorkspace,
