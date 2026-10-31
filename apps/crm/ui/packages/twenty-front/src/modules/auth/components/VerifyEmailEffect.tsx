@@ -10,7 +10,7 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { useLingui } from '@lingui/react/macro';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AppPath } from 'kovaa-lab-shared/types';
 import { isDefined } from 'kovaa-lab-shared/utils';
@@ -54,6 +54,12 @@ export const VerifyEmailEffect = ({ onError }: VerifyEmailEffectProps) => {
   );
 
   const { t } = useLingui();
+  // Verifying mints a token and rotates the session generation, so it must
+  // happen once. The isLoadedOnce dependency does not guarantee that: a
+  // StrictMode double-mount, or the client config reloading, re-runs the body
+  // with the flag already true. Set before the await, like VerifyLoginTokenEffect.
+  // oxlint-disable-next-line kovaa-lab/no-state-useref
+  const hasVerified = useRef(false);
   useEffect(() => {
     const verifyEmailToken = async () => {
       if (!email || !emailVerificationToken) {
@@ -126,6 +132,11 @@ export const VerifyEmailEffect = ({ onError }: VerifyEmailEffectProps) => {
     if (!clientConfigApiStatus.isLoadedOnce) {
       return;
     }
+
+    if (hasVerified.current) {
+      return;
+    }
+    hasVerified.current = true;
 
     verifyEmailToken();
 

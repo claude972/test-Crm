@@ -1,8 +1,9 @@
 import { isSameOriginMultiWorkspaceEnabledState } from '@/client-config/states/isSameOriginMultiWorkspaceEnabledState';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { Provider as JotaiProvider } from 'jotai';
+import { StrictMode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { SOURCE_LOCALE } from 'kovaa-lab-shared/translations';
 import { AppPath } from 'kovaa-lab-shared/types';
@@ -183,5 +184,46 @@ describe('VerifyEmail', () => {
       ),
     );
     expect(verifyEmailAndGetLoginTokenMock).not.toHaveBeenCalled();
+  });
+  it('verifies once despite a StrictMode double mount', async () => {
+    jotaiStore.set(isSameOriginMultiWorkspaceEnabledState.atom, true);
+    verifyEmailAndGetWorkspaceAgnosticTokenMock.mockResolvedValue(undefined);
+    render(
+      <StrictMode>
+        <JotaiProvider store={jotaiStore}>
+          <ThemeProvider colorScheme="light">
+            <I18nProvider i18n={i18n}>
+              <MemoryRouter initialEntries={[VERIFY_EMAIL_URL]}>
+                <VerifyEmail />
+              </MemoryRouter>
+            </I18nProvider>
+          </ThemeProvider>
+        </JotaiProvider>
+      </StrictMode>,
+    );
+    await waitFor(() =>
+      expect(verifyEmailAndGetWorkspaceAgnosticTokenMock).toHaveBeenCalled(),
+    );
+    expect(verifyEmailAndGetWorkspaceAgnosticTokenMock).toHaveBeenCalledTimes(1);
+  });
+  it('verifies once when the client config reloads under it', async () => {
+    jotaiStore.set(isSameOriginMultiWorkspaceEnabledState.atom, true);
+    verifyEmailAndGetWorkspaceAgnosticTokenMock.mockResolvedValue(undefined);
+    renderVerifyEmail(VERIFY_EMAIL_URL);
+    await waitFor(() =>
+      expect(verifyEmailAndGetWorkspaceAgnosticTokenMock).toHaveBeenCalled(),
+    );
+    // The gate flag going false then true again re-runs the effect body.
+    for (const isLoadedOnce of [false, true]) {
+      await act(async () => {
+        jotaiStore.set(clientConfigApiStatusState.atom, {
+          isLoadedOnce,
+          isLoading: false,
+          isErrored: false,
+          isSaved: false,
+        });
+      });
+    }
+    expect(verifyEmailAndGetWorkspaceAgnosticTokenMock).toHaveBeenCalledTimes(1);
   });
 });
