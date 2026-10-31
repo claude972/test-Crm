@@ -23,7 +23,23 @@ export type HermesCampaignDomainOutcome =
   | { kind: 'rereading'; domain: string }
   | { kind: 'write-unknown'; reason: string | null; listReread: boolean }
   | { kind: 'refused'; reason: string | null }
-  | { kind: 'unconfirmed' };
+  | { kind: 'unconfirmed'; listReread: boolean };
+
+// Whether a write may be attempted, written as an ALLOWLIST on purpose: the
+// denylist this replaced named three uncertain states and let 'unconfirmed'
+// through, and the next state added would have been missed the same way. Here
+// anything unforeseen falls through to false.
+//
+// 'idle' attempted nothing and 'refused' is a refusal raised before the write.
+// An uncertain outcome re-opens only once its re-read SUCCEEDED: the domain
+// list is the same authority that would hold the record, and this branch is
+// rendered only while the record is absent from it. An ACCEPTED write never
+// re-opens — its record exists whether or not the list could be re-read.
+const isSettledForRetry = (outcome: HermesCampaignDomainOutcome): boolean =>
+  outcome.kind === 'idle' ||
+  outcome.kind === 'refused' ||
+  ((outcome.kind === 'unconfirmed' || outcome.kind === 'write-unknown') &&
+    outcome.listReread);
 
 const readErrorMessage = (error: unknown): string | null =>
   error instanceof Error ? error.message : null;
@@ -79,8 +95,15 @@ export const useHermesCampaignDomainSetup = ({
 
   const recordDomain = useCallback(
     async (domain: string): Promise<void> => {
+      // No second write while the first outcome is unsettled. The server may
+      // already hold the record, so a re-emission is how one domain becomes
+      // two. The only way forward is the re-read that settles it.
+      if (!isSettledForRetry(outcome)) {
+        return;
+      }
+
       if (!isNonEmptyString(domain)) {
-        setOutcome({ kind: 'unconfirmed' });
+        setOutcome({ kind: 'unconfirmed', listReread: false });
 
         return;
       }
@@ -119,7 +142,7 @@ export const useHermesCampaignDomainSetup = ({
       // An answer we cannot read a domain out of settles nothing: the record
       // may exist. Saying so beats inventing either outcome.
       if (recordedDomain === null) {
-        setOutcome({ kind: 'unconfirmed' });
+        setOutcome({ kind: 'unconfirmed', listReread: false });
 
         return;
       }
@@ -134,14 +157,16 @@ export const useHermesCampaignDomainSetup = ({
         setOutcome({ kind: 'recorded-not-reread', domain: recordedDomain });
       }
     },
-    [createEmailingDomain, refetchDomains],
+    [createEmailingDomain, refetchDomains, outcome],
   );
 
   // The only recovery offered for an accepted write whose re-read failed AND
   // for a write whose answer was lost. It re-reads and never writes:
   // re-emitting could create the very duplicate at issue.
   const retryDomainsRead = useCallback(async (): Promise<void> => {
-    if (outcome.kind === 'write-unknown') {
+    // Both outcomes that may hide an applied write report whether the list was
+    // re-read, so the screen can say what the re-read did and did not settle.
+    if (outcome.kind === 'write-unknown' || outcome.kind === 'unconfirmed') {
       try {
         await refetchDomains();
         setOutcome({ ...outcome, listReread: true });
@@ -152,20 +177,39 @@ export const useHermesCampaignDomainSetup = ({
       return;
     }
 
-    if (outcome.kind !== 'recorded-not-reread') {
+    if (outcome.kind === 'recorded-not-reread') {
+      const pending = outcome.domain;
+      setOutcome({ kind: 'rereading', domain: pending });
+
+      try {
+        await refetchDomains();
+        setOutcome({ kind: 'recorded-unverified', domain: pending });
+      } catch {
+        setOutcome({ kind: 'recorded-not-reread', domain: pending });
+      }
+
       return;
     }
 
-    const pending = outcome.domain;
-    setOutcome({ kind: 'rereading', domain: pending });
-
-    try {
-      await refetchDomains();
-      setOutcome({ kind: 'recorded-unverified', domain: pending });
-    } catch {
-      setOutcome({ kind: 'recorded-not-reread', domain: pending });
+    // An accepted write whose record still does not appear is not settled
+    // either: re-read again rather than offer a second create.
+    if (outcome.kind === 'recorded-unverified') {
+      try {
+        await refetchDomains();
+      } catch {
+        setOutcome({ kind: 'recorded-not-reread', domain: outcome.domain });
+      }
     }
   }, [outcome, refetchDomains]);
 
-  return { outcome, loading, recordDomain, retryDomainsRead };
+  return {
+    outcome,
+    loading,
+    // The single source of truth for whether a write may be attempted. The
+    // panel renders this rather than re-deriving it, so the control and the
+    // guard can never disagree.
+    canRecord: isSettledForRetry(outcome),
+    recordDomain,
+    retryDomainsRead,
+  };
 };

@@ -52,8 +52,14 @@ export const HermesCampaignDomainPanel = ({
 }: HermesCampaignDomainPanelProps) => {
   const { t } = useLingui();
 
-  const { outcome, loading, recordDomain, retryDomainsRead } =
+  const { outcome, loading, canRecord, recordDomain, retryDomainsRead } =
     useHermesCampaignDomainSetup({ refetchDomains });
+
+  const isRecording = outcome.kind === 'recording';
+
+  // Everything that is neither settled nor in flight may hide an applied
+  // write, so the re-read is the one action offered.
+  const mustReRead = !canRecord && !isRecording;
 
   if (record === null) {
     return (
@@ -72,14 +78,16 @@ export const HermesCampaignDomainPanel = ({
 
         {outcome.kind === 'unconfirmed' && (
           <HermesAdminNote role="alert">
-            {t`The server's answer could not be read, so the recording is neither confirmed nor denied. Re-read the domains before trying again, so you do not create a second record.`}
+            {outcome.listReread
+              ? t`The server's answer could not be read. The domains have been re-read and ${domain} is not among them, so you can record it again.`
+              : t`The server's answer could not be read, so the recording is neither confirmed nor denied. Do not record it again — re-read the domains to see whether it is there.`}
           </HermesAdminNote>
         )}
 
         {outcome.kind === 'write-unknown' && (
           <HermesAdminNote role="alert">
             {outcome.listReread
-              ? t`The answer never reached us: we do not know whether the domain was recorded. The domains have been re-read — if ${domain} now appears, the recording did happen.`
+              ? t`The answer never reached us. The domains have been re-read and ${domain} is not among them, so you can record it again.`
               : t`The answer never reached us: we do not know whether the domain was recorded. Do not record it again — re-read the domains to see whether it is there.`}
           </HermesAdminNote>
         )}
@@ -91,29 +99,33 @@ export const HermesCampaignDomainPanel = ({
           </HermesAdminNote>
         )}
 
-        <StyledActions>
-          {/* A write whose answer was lost may have been applied, so sending
-              again is withheld rather than offered: the recovery is a re-read. */}
-          {outcome.kind !== 'write-unknown' &&
-            outcome.kind !== 'recorded-not-reread' &&
-            outcome.kind !== 'rereading' && (
-              <Button
-                type="button"
-                variant="solid"
-                size="sm"
-                loading={loading || outcome.kind === 'recording'}
-                disabled={loading || outcome.kind === 'recording'}
-                onClick={() => {
-                  void recordDomain(domain);
-                }}
-              >
-                {t`Record this domain`}
-              </Button>
-            )}
+        {outcome.kind === 'recorded-unverified' && (
+          <HermesAdminNote role="status">
+            {t`Domain recorded, not verified. The server accepted it, and it still does not appear in the list read back — re-read the domains rather than recording it a second time.`}
+          </HermesAdminNote>
+        )}
 
-          {(outcome.kind === 'write-unknown' ||
-            outcome.kind === 'recorded-not-reread' ||
-            outcome.kind === 'rereading') && (
+        <StyledActions>
+          {/* Offered only on an outcome PROVEN settled, never on the
+              complement of a list of uncertain ones: a write that may have
+              landed must not be sendable again, and the recovery is a
+              re-read. */}
+          {(canRecord || isRecording) && (
+            <Button
+              type="button"
+              variant="solid"
+              size="sm"
+              loading={loading || isRecording}
+              disabled={loading || isRecording}
+              onClick={() => {
+                void recordDomain(domain);
+              }}
+            >
+              {t`Record this domain`}
+            </Button>
+          )}
+
+          {mustReRead && (
             <Button
               type="button"
               variant="outline"

@@ -91,6 +91,17 @@ const lostAnswerMock = (): MockedResponse => ({
   error: new Error('socket hang up'),
 });
 
+// An answer the server DID return, carrying nothing we can read a domain out
+// of. It is neither a success nor a refusal, and the record may well exist.
+const unreadableAnswerMock = (): MockedResponse => ({
+  request: {
+    query: HERMES_CREATE_EMAILING_DOMAIN,
+    variables: { input: { domain: DOMAIN } },
+  },
+  maxUsageCount: 10,
+  result: { data: { createEmailingDomain: null } },
+});
+
 const renderPanel = ({
   record = null,
   mocks = [],
@@ -158,8 +169,14 @@ describe('HermesCampaignDomainPanel', () => {
       expect(refetchDomains).toHaveBeenCalledTimes(1);
     });
 
-    // And nothing anywhere says this domain is now verified.
-    expect(screen.queryByText(/verified/i)).toBeNull();
+    // The honest success, said in the negative: recorded, NOT verified. The
+    // loose /verified/i this replaced matched that very negation.
+    expect(
+      await screen.findByText(/Domain recorded, not verified/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/is verified|successfully verified/i),
+    ).toBeNull();
   });
 
   it('reports a refusal as a refusal, with the server wording', async () => {
@@ -285,6 +302,90 @@ describe('HermesCampaignDomainPanel', () => {
     ).toBeNull();
     expect(
       screen.queryByRole('button', { name: 'Record this domain' }),
+    ).toBeNull();
+  });
+
+  // The defect root's review found: the control withheld the write for three
+  // named uncertain outcomes and let `unconfirmed` through, so a write that may
+  // have landed was sendable again. The rule is now an allowlist of PROVEN
+  // settled outcomes, so an unforeseen state fails closed.
+  it('withdraws the write on an unreadable answer and requires a re-read first', async () => {
+    const { refetchDomains } = renderPanel({ mocks: [unreadableAnswerMock()] });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Record this domain' }),
+    );
+
+    expect(
+      await screen.findByText(
+        /neither confirmed nor denied. Do not record it again/,
+      ),
+    ).toBeInTheDocument();
+
+    // The duplicate hazard: this must not be pressable again.
+    expect(
+      screen.queryByRole('button', { name: 'Record this domain' }),
+    ).toBeNull();
+
+    const reread = screen.getByRole('button', {
+      name: 'Re-read the domains',
+    });
+
+    await userEvent.click(reread);
+
+    await waitFor(() => {
+      expect(refetchDomains).toHaveBeenCalledTimes(1);
+    });
+
+    expect(
+      await screen.findByText(/The domains have been re-read/),
+    ).toBeInTheDocument();
+  });
+
+  it('withdraws the write when an accepted record still does not appear', async () => {
+    // The server accepted and the re-read succeeded, yet the record is absent
+    // from the list. Not a settled state: re-read, never create again.
+    const { refetchDomains } = renderPanel({ mocks: [createMock()] });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Record this domain' }),
+    );
+
+    expect(
+      await screen.findByText(
+        /The server accepted it, and it still does not appear in the list read back/,
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('button', { name: 'Record this domain' }),
+    ).toBeNull();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Re-read the domains' }),
+    );
+
+    await waitFor(() => {
+      expect(refetchDomains).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('offers the write again after a proven refusal, which wrote nothing', async () => {
+    renderPanel({ mocks: [refusalMock()] });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Record this domain' }),
+    );
+
+    await screen.findByText(/The server refused to record this domain/);
+
+    // A pre-write refusal is settled: nothing was written, so the correction
+    // is offered rather than withheld.
+    expect(
+      screen.getByRole('button', { name: 'Record this domain' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Re-read the domains' }),
     ).toBeNull();
   });
 });
