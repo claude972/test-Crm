@@ -129,14 +129,23 @@ export const HermesWaRuntimeComposer = ({
     setDisplayedSource(file);
   }, []);
 
+  const handleClipReady = useCallback((clip: HermesWaRecordedClip) => {
+    setDisplayedSource(clip.blob);
+  }, []);
+
+  const handleClipCancelled = useCallback(() => {
+    setDisplayedSource(null);
+  }, []);
+
   // A file the operator chose. The library already refused anything the
   // documented limits rule out before this is reached; the upload hook checks
   // again, because the verdict and the request belong together.
   const submitFile = useCallback(
     (file: File) => {
       setDisplayedSource(file);
-      setUploadedSource(file);
-      upload.upload(conversationId, file, file.name);
+      if (upload.upload(conversationId, file, file.name)) {
+        setUploadedSource(file);
+      }
     },
     [conversationId, upload],
   );
@@ -151,8 +160,9 @@ export const HermesWaRuntimeComposer = ({
       // recording has none, and it carries no caption: a voice note has no
       // caption to carry.
       setDisplayedSource(clip.blob);
-      setUploadedSource(clip.blob);
-      upload.upload(conversationId, clip.blob, 'voice-note');
+      if (upload.upload(conversationId, clip.blob, 'voice-note')) {
+        setUploadedSource(clip.blob);
+      }
     },
     [conversationId, upload],
   );
@@ -271,9 +281,7 @@ export const HermesWaRuntimeComposer = ({
 
       {sendCapability.kind === 'unavailable' && (
         <HermesWaNote>
-          <Trans>
-            Sending is not available on this connection right now.
-          </Trans>
+          <Trans>Sending is not available on this connection right now.</Trans>
         </HermesWaNote>
       )}
 
@@ -374,6 +382,9 @@ export const HermesWaRuntimeComposer = ({
           recordingCapability={voiceCapability}
           sendCapability={mediaCapability}
           onSubmitRequested={submitClip}
+          onClipReady={handleClipReady}
+          onRecordingRequested={handleClipCancelled}
+          onCancelled={handleClipCancelled}
         />
       </StyledSection>
 

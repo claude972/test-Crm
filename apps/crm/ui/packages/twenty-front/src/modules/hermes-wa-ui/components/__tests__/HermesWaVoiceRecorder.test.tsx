@@ -306,4 +306,29 @@ describe('HermesWaVoiceRecorder', () => {
       screen.getByText(/whatsapp is not connected for this workspace/i),
     ).toBeInTheDocument();
   });
+  it('reports recording requests only on Record and Record again, before a new clip exists', async () => {
+    const onRecordingRequested = jest.fn();
+    const onClipReady = jest.fn();
+    renderRecorder(
+      <HermesWaVoiceRecorder
+        recordingCapability={OPEN}
+        sendCapability={OPEN}
+        onRecordingRequested={onRecordingRequested}
+        onClipReady={onClipReady}
+      />,
+    );
+    expect(onRecordingRequested).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: /^record$/i }));
+    expect(onRecordingRequested).toHaveBeenCalledTimes(1);
+    expect(onClipReady).not.toHaveBeenCalled();
+    await userEvent.click(
+      await screen.findByRole('button', { name: /^stop$/i }),
+    );
+    expect(onClipReady).toHaveBeenCalledTimes(1);
+    await userEvent.click(
+      screen.getByRole('button', { name: /record again/i }),
+    );
+    expect(onRecordingRequested).toHaveBeenCalledTimes(2);
+    expect(onClipReady).toHaveBeenCalledTimes(1);
+  });
 });

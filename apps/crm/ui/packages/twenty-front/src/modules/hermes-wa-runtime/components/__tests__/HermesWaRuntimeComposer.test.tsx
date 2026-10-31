@@ -3,7 +3,7 @@ import { MockLink, type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createStore, Provider } from 'jotai';
 
@@ -179,7 +179,8 @@ const originalCreateObjectURL = URL.createObjectURL;
 const originalRevokeObjectURL = URL.revokeObjectURL;
 
 beforeAll(() => {
-  URL.createObjectURL = (() => 'blob:mock/preview') as typeof URL.createObjectURL;
+  URL.createObjectURL = (() =>
+    'blob:mock/preview') as typeof URL.createObjectURL;
   URL.revokeObjectURL = (() => undefined) as typeof URL.revokeObjectURL;
 });
 
@@ -339,9 +340,7 @@ describe('HermesWaRuntimeComposer — displayed file versus transmitted asset', 
     await screen.findByText(/ready in the workspace/i);
 
     // The mismatch is stated, and Send is simply not there.
-    expect(
-      await screen.findByText(/not the file now selected/i),
-    ).toBeVisible();
+    expect(await screen.findByText(/not the file now selected/i)).toBeVisible();
     expect(
       screen.queryByRole('button', { name: /send the attachment/i }),
     ).not.toBeInTheDocument();
@@ -444,4 +443,210 @@ describe('HermesWaRuntimeComposer — displayed file versus transmitted asset', 
 
     expect(operationNames()).not.toContain('HermesWaReplyV3');
   });
+});
+
+describe('HermesWaRuntimeComposer — rejected selection never owns an asset', () => {
+  it('keeps A unsendable after choosing and submitting B while A is locked', async () => {
+    const audio = buildOpusFile();
+    const { operationNames, variablesOf } = renderComposer([
+      prepareMock(audio.size),
+      { ...finalizeMock(audio.size), delay: 1000 },
+      imagePrepareMock(),
+      imageFinalizeMock(),
+    ]);
+    globalThis.fetch = jest.fn(async () => ({
+      ok: true,
+      status: 200,
+    })) as unknown as typeof fetch;
+    const user = userEvent.setup({ applyAccept: false });
+    const input = screen.getByLabelText(/choose a file/i);
+    await user.upload(input, audio);
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+    await waitFor(() =>
+      expect(operationNames()).toContain('HermesWaFinalizeMediaUpload'),
+    );
+    await user.upload(input, imageFile());
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+    expect(screen.getByText('devis.jpg')).toBeVisible();
+    await screen.findByText(/not the file now selected/i);
+    expect(variablesOf('HermesWaPrepareMediaUpload')).toHaveLength(1);
+    expect(
+      screen.queryByRole('button', { name: /send the attachment/i }),
+    ).not.toBeInTheDocument();
+    expect(variablesOf('HermesWaReplyV3')).toEqual([]);
+
+    // A settled; a new human request may now prepare and send B itself.
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+    await user.click(
+      await screen.findByRole('button', { name: /send the attachment/i }),
+    );
+    await waitFor(() => expect(variablesOf('HermesWaReplyV3')).toHaveLength(1));
+    expect(variablesOf('HermesWaReplyV3')[0]).toMatchObject({
+      input: { assetId: SECOND_ASSET_ID },
+    });
+  });
+
+  it('withdraws A immediately when B is selected after A is already ready', async () => {
+    const audio = buildOpusFile();
+    const { variablesOf } = renderComposer([
+      prepareMock(audio.size),
+      finalizeMock(audio.size),
+    ]);
+    globalThis.fetch = jest.fn(async () => ({
+      ok: true,
+      status: 200,
+    })) as unknown as typeof fetch;
+    const user = userEvent.setup({ applyAccept: false });
+    const input = screen.getByLabelText(/choose a file/i);
+    await user.upload(input, audio);
+    await user.click(
+      screen.getByRole('button', { name: /send this attachment/i }),
+    );
+    await screen.findByRole('button', { name: /send the attachment/i });
+    await user.upload(input, imageFile());
+    expect(screen.getByText('devis.jpg')).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: /send the attachment/i }),
+    ).not.toBeInTheDocument();
+    expect(variablesOf('HermesWaReplyV3')).toEqual([]);
+    expect(
+      screen.getByRole('button', { name: /discard the draft attachment/i }),
+    ).toBeVisible();
+  });
+});
+
+// Only browser capture is doubled; the recorder, file panel, composer and upload hook are real.
+class IdentityMediaRecorderStub extends EventTarget {
+  state = 'inactive';
+  mimeType = 'audio/ogg';
+  start() {
+    this.state = 'recording';
+  }
+  stop() {
+    this.state = 'inactive';
+    const event = new Event('dataavailable');
+    Object.assign(event, {
+      data: new Blob([buildHermesWaOggOpusBytes()], { type: 'audio/ogg' }),
+    });
+    this.dispatchEvent(event);
+    this.dispatchEvent(new Event('stop'));
+  }
+}
+
+describe('HermesWaRuntimeComposer — file and recorded clip identity', () => {
+  const originalMediaRecorder = window.MediaRecorder;
+  const originalMediaDevices = navigator.mediaDevices;
+  const originalSecureContext = window.isSecureContext;
+  beforeEach(() => {
+    Object.defineProperty(window, 'isSecureContext', {
+      configurable: true,
+      value: true,
+    });
+    Object.defineProperty(window, 'MediaRecorder', {
+      configurable: true,
+      value: IdentityMediaRecorderStub,
+    });
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: jest.fn(async () => ({
+          getTracks: () => [{ stop: jest.fn() }],
+        })),
+      },
+    });
+    globalThis.fetch = jest.fn(async () => ({
+      ok: true,
+      status: 200,
+    })) as unknown as typeof fetch;
+  });
+  afterEach(() => {
+    Object.defineProperty(window, 'MediaRecorder', {
+      configurable: true,
+      value: originalMediaRecorder,
+    });
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: originalMediaDevices,
+    });
+    Object.defineProperty(window, 'isSecureContext', {
+      configurable: true,
+      value: originalSecureContext,
+    });
+  });
+
+  it.each(['send the accepted clip', 'record again'] as const)(
+    '%s without reusing the previously displayed asset',
+    async (action) => {
+      const size = buildHermesWaOggOpusBytes().length;
+      const voicePrepare = prepareMock(size);
+      voicePrepare.request.variables = {
+        input: {
+          conversationId: CONVERSATION_ID,
+          kind: 'AUDIO',
+          filename: 'voice-note',
+          mimeType: 'audio/ogg',
+          size,
+        },
+      };
+      const { operationNames, variablesOf } = renderComposer([
+        imagePrepareMock(),
+        { ...imageFinalizeMock(), delay: 1000 },
+        voicePrepare,
+        finalizeMock(size),
+      ]);
+      const user = userEvent.setup({ applyAccept: false });
+      await user.upload(screen.getByLabelText(/choose a file/i), imageFile());
+      await user.click(
+        screen.getByRole('button', { name: /send this attachment/i }),
+      );
+      await waitFor(() =>
+        expect(operationNames()).toContain('HermesWaFinalizeMediaUpload'),
+      );
+      await user.click(screen.getByRole('button', { name: /^record$/i }));
+      await user.click(await screen.findByRole('button', { name: /^stop$/i }));
+      await user.click(
+        screen.getByRole('button', { name: /send this voice message/i }),
+      );
+      await screen.findByText(/not the file now selected/i);
+      expect(variablesOf('HermesWaPrepareMediaUpload')).toHaveLength(1);
+      expect(
+        screen.queryByRole('button', { name: /send the attachment/i }),
+      ).not.toBeInTheDocument();
+      await user.click(
+        screen.getByRole('button', { name: /send this voice message/i }),
+      );
+      const send = await screen.findByRole('button', {
+        name: /send the attachment/i,
+      });
+      if (action === 'record again') {
+        await user.click(screen.getByRole('button', { name: /record again/i }));
+        expect(
+          screen.queryByRole('button', { name: /send the attachment/i }),
+        ).not.toBeInTheDocument();
+        expect(variablesOf('HermesWaReplyV3')).toEqual([]);
+        await user.click(
+          within(
+            screen.getByRole('region', { name: /voice message/i }),
+          ).getByRole('button', { name: /^cancel$/i }),
+        );
+        expect(
+          screen.queryByRole('button', { name: /send the attachment/i }),
+        ).not.toBeInTheDocument();
+      } else {
+        await user.click(send);
+        await waitFor(() =>
+          expect(variablesOf('HermesWaReplyV3')).toHaveLength(1),
+        );
+        expect(variablesOf('HermesWaReplyV3')[0]).toMatchObject({
+          input: { assetId: ASSET_ID, kind: 'AUDIO' },
+        });
+      }
+    },
+  );
 });

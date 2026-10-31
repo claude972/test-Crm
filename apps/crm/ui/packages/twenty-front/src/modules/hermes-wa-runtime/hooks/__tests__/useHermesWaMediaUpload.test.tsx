@@ -559,7 +559,9 @@ describe('useHermesWaMediaUpload — overlapping attempts', () => {
     const { result } = renderHook(() => useHermesWaMediaUpload(), { wrapper });
 
     act(() => {
-      result.current.upload(CONVERSATION_ID, opusClip(), 'note.ogg');
+      expect(
+        result.current.upload(CONVERSATION_ID, opusClip(), 'note.ogg'),
+      ).toBe(true);
     });
 
     expect(result.current.state.kind).toBe('preparing');
@@ -567,7 +569,9 @@ describe('useHermesWaMediaUpload — overlapping attempts', () => {
     // The second attempt is refused by the lock and does not disturb the
     // first, which goes on showing its own real progress.
     act(() => {
-      result.current.upload(CONVERSATION_ID, imageClip(), 'devis.jpg');
+      expect(
+        result.current.upload(CONVERSATION_ID, imageClip(), 'devis.jpg'),
+      ).toBe(false);
     });
 
     expect(result.current.state.kind).toBe('preparing');
@@ -690,6 +694,74 @@ describe('useHermesWaMediaUpload — overlapping attempts', () => {
       });
     });
 
+    expect(variablesOf('HermesWaPrepareMediaUpload')).toEqual([
+      prepareInput(),
+      imagePrepareInput,
+    ]);
+  });
+  it('does not let a late cancellation overwrite a newer accepted upload', async () => {
+    const { wrapper, variablesOf } = wrap([
+      prepareMock(prepareInput(), 'audio/ogg'),
+      finalizeMock(),
+      {
+        request: {
+          query: HERMES_WA_CANCEL_MEDIA_UPLOAD,
+          variables: {
+            input: { conversationId: CONVERSATION_ID, assetId: ASSET_ID },
+          },
+        },
+        delay: 150,
+        result: {
+          data: {
+            hermesCancelMediaUpload: { id: ASSET_ID, status: 'REVOKED' },
+          },
+        },
+      },
+      prepareMock(imagePrepareInput, 'image/jpeg', {
+        assetId: SECOND_ASSET_ID,
+        uploadUrl: SECOND_UPLOAD_URL,
+      }),
+      imageFinalize(),
+    ]);
+    stubFetch({ ok: true });
+    const { result } = renderHook(() => useHermesWaMediaUpload(), { wrapper });
+    act(() => {
+      expect(
+        result.current.upload(CONVERSATION_ID, opusClip(), 'note.ogg'),
+      ).toBe(true);
+    });
+    await waitFor(() => expect(result.current.state.kind).toBe('ready'));
+    const cancel = result.current.cancel;
+    expect(cancel).not.toBeNull();
+    act(() => {
+      cancel?.();
+    });
+    act(() => {
+      expect(
+        result.current.upload(CONVERSATION_ID, imageClip(), 'devis.jpg'),
+      ).toBe(false);
+    });
+    act(() => {
+      result.current.reset();
+    });
+    act(() => {
+      expect(
+        result.current.upload(CONVERSATION_ID, imageClip(), 'devis.jpg'),
+      ).toBe(true);
+    });
+    await waitFor(() =>
+      expect(result.current.state).toMatchObject({
+        kind: 'ready',
+        assetId: SECOND_ASSET_ID,
+      }),
+    );
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    });
+    expect(result.current.state).toMatchObject({
+      kind: 'ready',
+      assetId: SECOND_ASSET_ID,
+    });
     expect(variablesOf('HermesWaPrepareMediaUpload')).toEqual([
       prepareInput(),
       imagePrepareInput,

@@ -88,6 +88,7 @@ type HermesWaVoiceRecorderProps = {
   onSubmitRequested?: (clip: HermesWaRecordedClip) => void;
   // Notified as soon as a clip exists locally. Still not a send.
   onClipReady?: (clip: HermesWaRecordedClip) => void;
+  onRecordingRequested?: () => void;
   onCancelled?: () => void;
   // A ceiling on the recording. Reaching it stops the capture, nothing else.
   maxDurationMs?: number | null;
@@ -106,6 +107,7 @@ export const HermesWaVoiceRecorder = ({
   sendCapability = HERMES_WA_NOT_CONFIGURED_CAPABILITY,
   onSubmitRequested,
   onClipReady,
+  onRecordingRequested,
   onCancelled,
   maxDurationMs = null,
 }: HermesWaVoiceRecorderProps) => {
@@ -157,6 +159,11 @@ export const HermesWaVoiceRecorder = ({
   const isRecordingBlocked =
     recordingBlockedReason !== null || unsupportedReason !== null;
 
+  const handleRecordingRequested = () => {
+    onRecordingRequested?.();
+    startRecording();
+  };
+
   const handleCancel = () => {
     cancelRecording();
     onCancelled?.();
@@ -200,7 +207,7 @@ export const HermesWaVoiceRecorder = ({
               size="sm"
               startIcon={<IconMicrophone />}
               disabled={isRecordingBlocked}
-              onClick={startRecording}
+              onClick={handleRecordingRequested}
             >
               {t`Record`}
             </Button>
@@ -224,7 +231,9 @@ export const HermesWaVoiceRecorder = ({
               {t`Recording stopped because of an error. Nothing was kept.`}
             </HermesWaAlertNote>
           )}
-          <HermesWaAlertNote role={state.kind === 'failed' ? undefined : 'alert'}>
+          <HermesWaAlertNote
+            role={state.kind === 'failed' ? undefined : 'alert'}
+          >
             {describeUnavailable(state.reason)}
           </HermesWaAlertNote>
           <StyledActions>
@@ -234,11 +243,16 @@ export const HermesWaVoiceRecorder = ({
               size="sm"
               startIcon={<IconMicrophone />}
               disabled={isRecordingBlocked}
-              onClick={startRecording}
+              onClick={handleRecordingRequested}
             >
               {t`Try again`}
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleCancel}
+            >
               {t`Close`}
             </Button>
           </StyledActions>
@@ -321,7 +335,7 @@ export const HermesWaVoiceRecorder = ({
               size="sm"
               startIcon={<IconMicrophone />}
               disabled={isRecordingBlocked}
-              onClick={startRecording}
+              onClick={handleRecordingRequested}
             >
               {t`Record again`}
             </Button>

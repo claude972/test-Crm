@@ -40,8 +40,9 @@ type HermesWaScopeInput = { conversationId: string; assetId: string };
 export type HermesWaMediaUpload = {
   state: HermesWaUploadState;
   // Runs prepare, then the raw-byte PUT, then finalize. Nothing starts without
-  // this being called from a human action.
-  upload: (conversationId: string, file: Blob, filename: string) => void;
+  // this being called from a human action. True means this attempt acquired
+  // the lock; it does not mean the asset is ready or the provider sent it.
+  upload: (conversationId: string, file: Blob, filename: string) => boolean;
   // Durably revokes a draft asset. Offered only for an asset that exists and
   // has not been sent: the contract allows cancelling PENDING and READY alone.
   cancel: (() => void) | null;
@@ -135,7 +136,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
       // The lock. The in-flight attempt keeps its own state, so the operator
       // goes on seeing its real progress rather than a reset one.
       if (isRunningRef.current) {
-        return;
+        return false;
       }
 
       // Everything the request needs is read out here, synchronously, before
@@ -160,7 +161,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
       if (verdict.kind === 'refused') {
         setState({ kind: 'refusedLocally', reason: verdict.reason });
 
-        return;
+        return false;
       }
 
       // An undecidable verdict means a limit is unknown here, NOT that there
@@ -168,7 +169,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
       if (verdict.kind === 'undecidable') {
         setState({ kind: 'refusedLocally', reason: verdict.reason });
 
-        return;
+        return false;
       }
 
       const kind = readUploadKind(mimeType);
@@ -176,7 +177,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
       if (kind === null) {
         setState({ kind: 'refusedLocally', reason: 'unacceptedType' });
 
-        return;
+        return false;
       }
 
       // This attempt's stamp. Taken before the first await, like every other
@@ -349,6 +350,8 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
       };
 
       void run();
+
+      return true;
     },
     [finalizeMutation, prepareMutation],
   );
@@ -422,8 +425,7 @@ export const useHermesWaMediaUpload = (): HermesWaMediaUpload => {
   return {
     state,
     upload,
-    cancel:
-      canCancel && scope !== null ? () => cancelAsset(scope) : null,
+    cancel: canCancel && scope !== null ? () => cancelAsset(scope) : null,
     reset,
   };
 };
