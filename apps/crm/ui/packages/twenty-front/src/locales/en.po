@@ -38488,3 +38488,319 @@ msgstr "Zoom in"
 #: src/modules/settings/data-model/graph-overview/components/SettingsDataModelOverview.tsx
 msgid "Zoom out"
 msgstr "Zoom out"
+
+#. js-lingui-id: +mniMz
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Add the native IMAP and SMTP mailbox of this company and bind incoming mail to it"
+msgstr "Add the native IMAP and SMTP mailbox of this company and bind incoming mail to it"
+
+#. js-lingui-id: wkJEIc
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "An incoming-mail connection is configured and no native account answers to it — the binding moved, or the account was renamed. No mailbox is proposed until that is resolved in the connections centre below."
+msgstr "An incoming-mail connection is configured and no native account answers to it — the binding moved, or the account was renamed. No mailbox is proposed until that is resolved in the connections centre below."
+
+#. js-lingui-id: YpqeXL
+#. placeholder {0}: createdAccount.address
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "Boîte enregistrée : {0}. Choisissez-la ci-dessus puis enregistrez la liaison — rien n’est lié tant que cet enregistrement n’a pas eu lieu."
+msgstr "Boîte enregistrée : {0}. Choisissez-la ci-dessus puis enregistrez la liaison — rien n’est lié tant que cet enregistrement n’a pas eu lieu."
+
+#. js-lingui-id: kmwecG
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "Boîte enregistrée, sans adresse renvoyée par le serveur. Choisissez-la ci-dessus puis enregistrez la liaison — rien n’est lié tant que cet enregistrement n’a pas eu lieu."
+msgstr "Boîte enregistrée, sans adresse renvoyée par le serveur. Choisissez-la ci-dessus puis enregistrez la liaison — rien n’est lié tant que cet enregistrement n’a pas eu lieu."
+
+#. js-lingui-id: TuFbXF
+#. placeholder {0}: domainRecord.domain
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Campaign domain {0}, as the server reports it:"
+msgstr "Campaign domain {0}, as the server reports it:"
+
+#. js-lingui-id: VimfCj
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Campaign sending"
+msgstr "Campaign sending"
+
+#. js-lingui-id: zgRLtk
+#. placeholder {0}: protocolRequirement.missing.join(' et ')
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Cette boîte doit porter la réception (IMAP) et l’envoi (SMTP) : la liaison centrale ne s’enregistre que sur une boîte qui fait les deux, et c’est la réception qui fait créer le canal natif dont l’expéditeur de campagne est résolu. Il manque {0} — renseignez l’hôte et le mot de passe de ce protocole."
+msgstr "Cette boîte doit porter la réception (IMAP) et l’envoi (SMTP) : la liaison centrale ne s’enregistre que sur une boîte qui fait les deux, et c’est la réception qui fait créer le canal natif dont l’expéditeur de campagne est résolu. Il manque {0} — renseignez l’hôte et le mot de passe de ce protocole."
+
+#. js-lingui-id: e8fH5J
+#. placeholder {0}: record.domain
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "Checking asks the server to verify {0}. The verdict is the server's, not this form's, and the status above is what it last reported — re-read the domains to see a new one."
+msgstr "Checking asks the server to verify {0}. The verdict is the server's, not this form's, and the status above is what it last reported — re-read the domains to see a new one."
+
+#. js-lingui-id: Bbk/pt
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "Confirm automatic replies"
+msgstr "Confirm automatic replies"
+
+#. js-lingui-id: +dyHWf
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "Domain recorded, not verified. The domain list could not be re-read, so it may be incomplete on screen. The record exists on the server — do not create it again."
+msgstr "Domain recorded, not verified. The domain list could not be re-read, so it may be incomplete on screen. The record exists on the server — do not create it again."
+
+#. js-lingui-id: JVC6AY
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "Domain recorded, not verified. The server accepted it, and it still does not appear in the list read back — re-read the domains rather than recording it a second time."
+msgstr "Domain recorded, not verified. The server accepted it, and it still does not appear in the list read back — re-read the domains rather than recording it a second time."
+
+#. js-lingui-id: MayZzO
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Following the company would let the bot reply on its own here, and that has to be chosen explicitly. Use \"Let the bot reply on its own\" below instead. Nothing was changed."
+msgstr "Following the company would let the bot reply on its own here, and that has to be chosen explicitly. Use \"Let the bot reply on its own\" below instead. Nothing was changed."
+
+#. js-lingui-id: wtBn7e
+#. placeholder {0}: eligibility.draftingToolName
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "If you confirm, the bot will answer this customer by itself, using the tool \"{0}\", and its replies will be sent without anyone reading them first. Only messages that arrive after you confirm are answered. You can end this at any time with \"Stop the bot\", and replying by hand keeps working throughout."
+msgstr "If you confirm, the bot will answer this customer by itself, using the tool \"{0}\", and its replies will be sent without anyone reading them first. Only messages that arrive after you confirm are answered. You can end this at any time with \"Stop the bot\", and replying by hand keeps working throughout."
+
+#. js-lingui-id: JiSLN3
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "Keep the bot off this conversation"
+msgstr "Keep the bot off this conversation"
+
+#. js-lingui-id: 0iPY4o
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "La boîte a été enregistrée. Elle ne figure pas encore dans la liste ci-dessus : relisez la liste des comptes avant de conclure qu’elle manque, et ne la recréez pas."
+msgstr "La boîte a été enregistrée. Elle ne figure pas encore dans la liste ci-dessus : relisez la liste des comptes avant de conclure qu’elle manque, et ne la recréez pas."
+
+#. js-lingui-id: Osm63C
+#. placeholder {0}: nativeAccountsRead.reason
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "La liste des comptes connectés natifs n’a pas pu être lue : {0}. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose."
+msgstr "La liste des comptes connectés natifs n’a pas pu être lue : {0}. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose."
+
+#. js-lingui-id: DZSLIj
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "La liste des comptes connectés natifs n’a pas pu être lue. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose."
+msgstr "La liste des comptes connectés natifs n’a pas pu être lue. Cette société en a peut-être, ou aucun — ce n’est pas établi, et rien ici ne le suppose."
+
+#. js-lingui-id: J/ifLy
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. La liste des comptes a été relue — si la boîte y figure, l’enregistrement a bien eu lieu ; sinon, annulez et reprenez. Pour ne pas créer de doublon, rien n’est renvoyé d’ici."
+msgstr "La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. La liste des comptes a été relue — si la boîte y figure, l’enregistrement a bien eu lieu ; sinon, annulez et reprenez. Pour ne pas créer de doublon, rien n’est renvoyé d’ici."
+
+#. js-lingui-id: 4m9WnI
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Relisez la liste des comptes avant toute autre tentative, pour ne pas créer de doublon."
+msgstr "La réponse du serveur n’a pas pu être lue : l’enregistrement n’est ni confirmé ni infirmé. Relisez la liste des comptes avant toute autre tentative, pour ne pas créer de doublon."
+
+#. js-lingui-id: Y6N26L
+#: src/modules/hermes-admin-runtime/components/HermesAdminRuntimeSettings.tsx
+msgid "Lecture de la liste des comptes connectés natifs…"
+msgstr "Lecture de la liste des comptes connectés natifs…"
+
+#. js-lingui-id: SylGdf
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "Let the bot reply on its own…"
+msgstr "Let the bot reply on its own…"
+
+#. js-lingui-id: ZDeQZs
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Mailbox and connections"
+msgstr "Mailbox and connections"
+
+#. js-lingui-id: ZszGlM
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "no bot server is configured for this company"
+msgstr "no bot server is configured for this company"
+
+#. js-lingui-id: HpWbo/
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "No emailing domain record covers {mailboxDomain}. The server checks the sending domain when a campaign departs, and nothing read here establishes that it would accept this one."
+msgstr "No emailing domain record covers {mailboxDomain}. The server checks the sending domain when a campaign departs, and nothing read here establishes that it would accept this one."
+
+#. js-lingui-id: sDg6YP
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "No incoming-mail connection is configured, so no mailbox is registered as a campaign sender yet. Configure one in the connections centre below."
+msgstr "No incoming-mail connection is configured, so no mailbox is registered as a campaign sender yet. Configure one in the connections centre below."
+
+#. js-lingui-id: mh5+Co
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "nobody has granted the bot server's reply tool"
+msgstr "nobody has granted the bot server's reply tool"
+
+#. js-lingui-id: s/gNik
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "Re-read the domains"
+msgstr "Re-read the domains"
+
+#. js-lingui-id: F80Dpw
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Reading the campaign domain…"
+msgstr "Reading the campaign domain…"
+
+#. js-lingui-id: kkXq51
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Reading which mailbox is registered…"
+msgstr "Reading which mailbox is registered…"
+
+#. js-lingui-id: LzxgzB
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "Record this domain"
+msgstr "Record this domain"
+
+#. js-lingui-id: LePj3r
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Record which mailbox a campaign sends from, and read the server's verdict on it"
+msgstr "Record which mailbox a campaign sends from, and read the server's verdict on it"
+
+#. js-lingui-id: SoXYhQ
+#. placeholder {0}: identity.mailboxAddress
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "Registered mailbox: {0}. A campaign may be recorded as sending from this address. Recording it is not an authorisation: the server resolves the sender again when the campaign departs, and can still refuse."
+msgstr "Registered mailbox: {0}. A campaign may be recorded as sending from this address. Recording it is not an authorisation: the server resolves the sender again when the campaign departs, and can still refuse."
+
+#. js-lingui-id: cm9Uf/
+#. placeholder {0}: outcome.missing.join(' et ')
+#: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
+msgid "Rien n’a été envoyé : il manque {0}. Une boîte enregistrée sans les deux protocoles existerait sans pouvoir porter la liaison centrale, et rien ici ne la supprimerait."
+msgstr "Rien n’a été envoyé : il manque {0}. Une boîte enregistrée sans les deux protocoles existerait sans pouvoir porter la liaison centrale, et rien ici ne la supprimerait."
+
+#. js-lingui-id: vznVI3
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "Someone changed this policy, or the company's, while this screen was open. It has been read again — please choose once more."
+msgstr "Someone changed this policy, or the company's, while this screen was open. It has been read again — please choose once more."
+
+#. js-lingui-id: wT1fWy
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "The answer never reached us: we do not know whether the domain was recorded. Do not record it again — re-read the domains to see whether it is there."
+msgstr "The answer never reached us: we do not know whether the domain was recorded. Do not record it again — re-read the domains to see whether it is there."
+
+#. js-lingui-id: Xe7zEf
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "The answer never reached us. The domains have been re-read and {domain} is not among them, so you can record it again."
+msgstr "The answer never reached us. The domains have been re-read and {domain} is not among them, so you can record it again."
+
+#. js-lingui-id: s8EuKC
+#. placeholder {0}: eligibility.errorCode
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "The bot cannot reply on its own here: {why} ({0}). Drafts and replying by hand are unaffected."
+msgstr "The bot cannot reply on its own here: {why} ({0}). Drafts and replying by hand are unaffected."
+
+#. js-lingui-id: ajPKUT
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "The bot cannot reply on its own here: {why}. Drafts and replying by hand are unaffected."
+msgstr "The bot cannot reply on its own here: {why}. Drafts and replying by hand are unaffected."
+
+#. js-lingui-id: lFaN7m
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server advertises no tool that writes replies"
+msgstr "the bot server advertises no tool that writes replies"
+
+#. js-lingui-id: sHgm6O
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server did not say whether its reply tool can be called"
+msgstr "the bot server did not say whether its reply tool can be called"
+
+#. js-lingui-id: 5CQQNr
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server did not say whether its reply tool is granted"
+msgstr "the bot server did not say whether its reply tool is granted"
+
+#. js-lingui-id: I6zHxE
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server is still being checked"
+msgstr "the bot server is still being checked"
+
+#. js-lingui-id: Teuw4D
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server returned a partial list of its tools"
+msgstr "the bot server returned a partial list of its tools"
+
+#. js-lingui-id: PX2hoP
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server says its reply tool cannot be called"
+msgstr "the bot server says its reply tool cannot be called"
+
+#. js-lingui-id: nKxqPT
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server's configuration could not be read"
+msgstr "the bot server's configuration could not be read"
+
+#. js-lingui-id: jzEfkS
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the bot server's configuration could not be used"
+msgstr "the bot server's configuration could not be used"
+
+#. js-lingui-id: 4TFqcg
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "The campaign domains could not be read, so the state of {mailboxDomain} is unknown. It is neither verified nor refused here."
+msgstr "The campaign domains could not be read, so the state of {mailboxDomain} is unknown. It is neither verified nor refused here."
+
+#. js-lingui-id: orsZCd
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "The company or channel policy is stricter than that, so this conversation cannot be set to it. Nothing was changed."
+msgstr "The company or channel policy is stricter than that, so this conversation cannot be set to it. Nothing was changed."
+
+#. js-lingui-id: fodPjd
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "the configured bot server did not answer"
+msgstr "the configured bot server did not answer"
+
+#. js-lingui-id: kHzPg1
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "The mailbox a campaign may be recorded as sending from, and what the server says about its domain"
+msgstr "The mailbox a campaign may be recorded as sending from, and what the server says about its domain"
+
+#. js-lingui-id: ksrpri
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "The registered mailbox could not be read, so it is unknown which address a campaign may send from. The connections centre below re-reads it; nothing is assumed in the meantime."
+msgstr "The registered mailbox could not be read, so it is unknown which address a campaign may send from. The connections centre below re-reads it; nothing is assumed in the meantime."
+
+#. js-lingui-id: bQoHBW
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "The server holds no campaign domain for {domain}. Recording it creates the domain; it does not verify it, and it is not a claim that a send would work."
+msgstr "The server holds no campaign domain for {domain}. Recording it creates the domain; it does not verify it, and it is not a claim that a send would work."
+
+#. js-lingui-id: C+hjIt
+#. placeholder {0}: outcome.reason
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "The server refused to record this domain: {0}"
+msgstr "The server refused to record this domain: {0}"
+
+#. js-lingui-id: vl2AxG
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "The server refused to record this domain. Nothing was written."
+msgstr "The server refused to record this domain. Nothing was written."
+
+#. js-lingui-id: XQcqXL
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "The server's answer could not be read, so the recording is neither confirmed nor denied. Do not record it again — re-read the domains to see whether it is there."
+msgstr "The server's answer could not be read, so the recording is neither confirmed nor denied. Do not record it again — re-read the domains to see whether it is there."
+
+#. js-lingui-id: yyEX/x
+#: src/modules/hermes-admin-runtime/components/HermesCampaignDomainPanel.tsx
+msgid "The server's answer could not be read. The domains have been re-read and {domain} is not among them, so you can record it again."
+msgstr "The server's answer could not be read. The domains have been re-read and {domain} is not among them, so you can record it again."
+
+#. js-lingui-id: uGVzdt
+#: src/modules/hermes-admin-runtime/components/HermesCampaignSendingSection.tsx
+msgid "The unsubscribe record of this domain is not active. The server reports the domain as verified for ordinary mail; campaigns need that record too."
+msgstr "The unsubscribe record of this domain is not active. The server reports the domain as verified for ordinary mail; campaigns need that record too."
+
+#. js-lingui-id: ETZoQ7
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "This conversation no longer exists for this company. Nothing was changed."
+msgstr "This conversation no longer exists for this company. Nothing was changed."
+
+#. js-lingui-id: Zpcb1m
+#: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
+msgid "This conversation's phone number changed, so the bot may not reply on its own until someone reviews the contact. Nothing was changed."
+msgstr "This conversation's phone number changed, so the bot may not reply on its own until someone reviews the contact. Nothing was changed."
+
+#. js-lingui-id: 48LOcV
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "Whether this conversation can be handed to the bot is unknown: {why}. The choice is not offered until that is answered. This is not a refusal, and the bot has not been turned off."
+msgstr "Whether this conversation can be handed to the bot is unknown: {why}. The choice is not offered until that is answered. This is not a refusal, and the bot has not been turned off."
+
+#. js-lingui-id: dcjYaI
+#: src/modules/messaging-inbox/components/MessagingInboxAutoDelegationOffer.tsx
+msgid "you are not allowed to read the bot server's configuration"
+msgstr "you are not allowed to read the bot server's configuration"
