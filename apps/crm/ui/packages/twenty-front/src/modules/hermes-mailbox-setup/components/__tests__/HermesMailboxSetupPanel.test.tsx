@@ -112,6 +112,33 @@ const buildSaveMock = (
   },
 });
 
+// An answer the server ANSWERED with errors, in the shape its error envelope
+// puts on the wire: the code sits in each error's `extensions`. A null code
+// stands for an error the envelope left unclassified. MockLink delivers this
+// through `result`, which is a received answer — not `error`, which is a
+// request that never got one.
+const buildSaveErrorMock = ({
+  code,
+  message,
+  variablesSpy,
+}: {
+  code: string | null;
+  message: string;
+  variablesSpy?: jest.Mock;
+}): MockedResponse => ({
+  request: {
+    query: SaveImapSmtpCaldavAccountDocument,
+    variables: (variables) => {
+      variablesSpy?.(variables);
+      return true;
+    },
+  },
+  maxUsageCount: 10,
+  result: {
+    errors: [{ message, ...(code === null ? {} : { extensions: { code } }) }],
+  },
+});
+
 // A stand-in for the centre: it reads the selectable accounts with the centre's
 // own hook, binds MAIL to whatever the panel hands it, and renders both. The
 // MAIL write itself belongs to the runtime module, so the binding is recorded
@@ -492,47 +519,113 @@ describe('HermesMailboxSetupPanel', () => {
     expect(saveSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps a GraphQL refusal a refusal, apart from a lost response', async () => {
-    const user = userEvent.setup();
-    const log: AccountsReadLog = { count: 0 };
-    const onBindMail = jest.fn();
+  // Each pre-write code is raised before the native resolver reaches its
+  // transaction: the guards and the validation pipe run before the method
+  // body, and the resolver's own pre-write throws carry these. They stay the
+  // only answers this screen reports as a refusal.
+  it.each(['UNAUTHENTICATED', 'FORBIDDEN', 'BAD_USER_INPUT', 'NOT_FOUND'])(
+    'keeps a %s answer a proven refusal, and offers the correction again',
+    async (code) => {
+      const user = userEvent.setup();
+      const log: AccountsReadLog = { count: 0 };
+      const onBindMail = jest.fn();
 
-    renderPanel(
-      [
-        ...buildAccountsMocks(log),
-        {
-          request: {
-            query: SaveImapSmtpCaldavAccountDocument,
-            variables: () => true,
-          },
-          maxUsageCount: 10,
-          // The server answered and declined: that IS a refusal.
-          result: { errors: [{ message: 'hôte SMTP interdit' }] },
-        },
-      ],
-      onBindMail,
-    );
+      renderPanel(
+        [
+          ...buildAccountsMocks(log),
+          buildSaveErrorMock({ code, message: 'hôte SMTP interdit' }),
+        ],
+        onBindMail,
+      );
 
-    await waitFor(() => expect(log.count).toBe(1));
-    await user.click(
-      screen.getByRole('button', { name: /Connecter une boîte/ }),
-    );
-    await fillMinimalMailbox(user);
-    await user.click(
-      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
-    );
+      await waitFor(() => expect(log.count).toBe(1));
+      await user.click(
+        screen.getByRole('button', { name: /Connecter une boîte/ }),
+      );
+      await fillMinimalMailbox(user);
+      await user.click(
+        screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+      );
 
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent(/a refusé l’enregistrement/);
-    expect(alert.textContent).not.toMatch(
-      /nous ne savons pas si la boîte a été enregistrée/,
-    );
-    expect(onBindMail).not.toHaveBeenCalled();
-    // A pronounced refusal may be corrected and sent again.
-    expect(
-      screen.getByRole('button', { name: /Enregistrer la boîte/ }),
-    ).toBeInTheDocument();
-  });
+      const alert = await screen.findByRole('alert');
+      expect(alert).toHaveTextContent(/a refusé l’enregistrement/);
+      expect(alert.textContent).not.toMatch(
+        /nous ne savons pas si la boîte a été enregistrée/,
+      );
+      expect(onBindMail).not.toHaveBeenCalled();
+      // A refusal proven before the write may be corrected and sent again.
+      expect(
+        screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  // THE CASE THIS LOT EXISTS FOR. `upsertConnectedAccount` commits its
+  // transaction, THEN awaits removeAccountToReconnect, a findOne, two sync
+  // resets and two queue enqueues. A throw in any of them surfaces as a
+  // perfectly valid INTERNAL_SERVER_ERROR over an account that WAS saved, so
+  // the answer below is a written mailbox, not a refused one.
+  it.each([
+    ['INTERNAL_SERVER_ERROR', 'INTERNAL_SERVER_ERROR'],
+    ['a code this screen cannot place before the write', 'CONFLICT'],
+    ['no code at all', null],
+  ])(
+    'treats %s as write-unknown and offers no re-emission',
+    async (_label, code) => {
+      const user = userEvent.setup();
+      const log: AccountsReadLog = { count: 0 };
+      const onBindMail = jest.fn();
+      const saveSpy = jest.fn();
+
+      renderPanel(
+        [
+          ...buildAccountsMocks(log),
+          buildSaveErrorMock({
+            code,
+            message: 'Cannot read properties of undefined',
+            variablesSpy: saveSpy,
+          }),
+        ],
+        onBindMail,
+      );
+
+      await waitFor(() => expect(log.count).toBe(1));
+      await user.click(
+        screen.getByRole('button', { name: /Connecter une boîte/ }),
+      );
+      await fillMinimalMailbox(user);
+      await user.click(
+        screen.getByRole('button', { name: /Enregistrer la boîte/ }),
+      );
+
+      const alert = await screen.findByRole('alert');
+      // The account may exist, so the screen says so instead of claiming a
+      // refusal, and points at the read that settles it.
+      expect(alert).toHaveTextContent(
+        /nous ne savons pas si la boîte a été enregistrée/,
+      );
+      expect(alert).toHaveTextContent(/Ne la recréez pas/);
+      expect(alert.textContent).not.toMatch(/Rien n’a été écrit|a refusé/);
+      expect(onBindMail).not.toHaveBeenCalled();
+
+      // No re-emission is offered at all: a second send could create the very
+      // duplicate the unknown outcome is about.
+      expect(
+        screen.queryByRole('button', { name: /Enregistrer la boîte/ }),
+      ).not.toBeInTheDocument();
+
+      // The only recovery re-reads the list, and writes nothing more.
+      await user.click(
+        screen.getByRole('button', { name: /Relire la liste des comptes/ }),
+      );
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          /La liste des comptes a été relue/,
+        );
+      });
+      expect(saveSpy).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it('does not let a throwing consumer rewrite the server’s verdict', async () => {
     const user = userEvent.setup();
