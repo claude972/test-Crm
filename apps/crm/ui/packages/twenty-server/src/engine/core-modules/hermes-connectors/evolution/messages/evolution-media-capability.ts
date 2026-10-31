@@ -57,16 +57,53 @@ export const evolutionWebhookRowSchema = z
     enabled: z.boolean().nullish(),
     url: z.string().max(2048).nullish(),
     events: z.array(z.string().max(120)).max(200).nullish(),
-    // The headers the provider will send with each delivery. EventDto types this
-    // as JsonValue, so anything may be stored; only a string value under our
-    // token header is ever looked at, and its value never leaves this process.
+    // The headers the provider will send with each delivery. Confirmed as
+    // `headers Json?` on the pinned row (prisma/postgresql-schema.prisma,
+    // migration 20240906202019) and forwarded into the delivery request by
+    // webhook.controller.ts. Anything may be stored, so only a string value
+    // under our token header is ever read, and its value never leaves this
+    // process.
     headers: z.unknown().nullish(),
+    // Whether the provider appends a per-event segment to the configured URL.
+    // webhook.controller.ts builds `${instance.url}/${transformedWe}` when this
+    // is truthy, so it decides where a delivery lands and must be judged.
+    //
+    // Left unknown here rather than typed as a boolean, so that an unexpected
+    // value is classified by readEvolutionDeliveryForm as UNPROVEN instead of
+    // failing the whole row parse — which would report the row unreadable and
+    // hide the more precise reason.
+    webhookByEvents: z.unknown().nullish(),
     // Stored as webhookBase64 on the row; the request body nests it as
-    // webhook.base64. We never read provider-delivered base64 and never fetch a
-    // webhook media URL, so this is deliberately not part of the judgement.
+    // webhook.base64. It changes the payload, never the destination, and is
+    // never read in webhook.controller.ts. We never accept provider-delivered
+    // base64 and never fetch a webhook media URL, so it is deliberately not
+    // part of the judgement.
     webhookBase64: z.boolean().nullish(),
   })
   .passthrough();
+
+// Where a delivery will actually be POSTed, as a shape rather than a URL.
+//
+// SIMPLE    — the configured URL is the destination.
+// PER_EVENT — the provider appends a per-event segment, so the destination is
+//             `<url>/messages-upsert` and not the configured URL at all.
+// UNPROVEN  — the row does not say which, so the destination is unknown.
+export type EvolutionDeliveryForm = 'SIMPLE' | 'PER_EVENT' | 'UNPROVEN';
+
+// Reads the delivery form from the row's own flag.
+//
+// An absent or non-boolean flag is UNPROVEN, never assumed to be the simple
+// form: assuming it would be the same mistake as assuming an absent `enabled`
+// means on. Judging the configured URL while the provider appends a segment to
+// it would be judging a different URL than the one that gets called.
+export const readEvolutionDeliveryForm = (
+  webhookByEvents: unknown,
+): EvolutionDeliveryForm =>
+  webhookByEvents === false
+    ? 'SIMPLE'
+    : webhookByEvents === true
+      ? 'PER_EVENT'
+      : 'UNPROVEN';
 
 // Whether the provider will present a token our ingress accepts.
 //
@@ -137,6 +174,14 @@ export type EvolutionReceptionBlockReason =
   // The reported URL does not address this deployment's ingress for this
   // connection: wrong origin, wrong path, or another connection's id.
   | 'WEBHOOK_URL_NOT_THIS_INGRESS'
+  // The provider appends a per-event segment to the URL, so deliveries land on
+  // `<url>/messages-upsert`. Our ingress serves no such route and would answer
+  // 404 — or, with the bare path configured, read the segment as a connection
+  // id and refuse 401. Either way nothing can ever be received.
+  | 'WEBHOOK_PER_EVENT_PATH_NOT_SERVED'
+  // The row does not say whether a per-event segment is appended, so the
+  // destination is unknown and reception is not claimed.
+  | 'WEBHOOK_DELIVERY_FORM_UNPROVEN'
   // The provider reported its headers and our ingress token is not among them,
   // so our own controller would refuse every delivery with 401.
   | 'WEBHOOK_TOKEN_NOT_CONFIGURED'
@@ -267,6 +312,21 @@ export const judgeEvolutionReception = (evidence: {
     return {
       canReceiveMedia: false,
       reason: 'WEBHOOK_EVENT_NOT_SUBSCRIBED',
+    };
+  }
+
+  // Before the URL is trusted, establish that the URL is the destination. With
+  // a per-event segment appended, the configured URL is not what gets called,
+  // so checking it would answer a question about the wrong address.
+  const form = readEvolutionDeliveryForm(parsed.data.webhookByEvents);
+
+  if (form !== 'SIMPLE') {
+    return {
+      canReceiveMedia: false,
+      reason:
+        form === 'PER_EVENT'
+          ? 'WEBHOOK_PER_EVENT_PATH_NOT_SERVED'
+          : 'WEBHOOK_DELIVERY_FORM_UNPROVEN',
     };
   }
 

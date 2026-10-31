@@ -42,6 +42,8 @@ True only when all of the following hold, each from the provider's own answer:
    - `url` is an absolute http(s) URL whose **origin is one this deployment
      configured** (from `SERVER_URL`, or an explicit operator allowlist) and
      whose path is `/webhooks/hermes/evolution/<this connection's id>`;
+   - `webhookByEvents` is exactly `false`, so the configured URL really is the
+     destination;
    - `headers` carries `x-hermes-evolution-token` (any case) whose value equals
      this connection's stored `webhookSecret`.
 4. The adapter was constructed with that connection's identity, with at least one
@@ -56,6 +58,15 @@ With no origin configured the answer is `INGRESS_ORIGIN_UNKNOWN` — unproven,
 never "any host will do". Scheme and port are part of the origin, so
 `http://` or `:8443` against an `https://` origin does not match.
 
+Why the delivery form is required: `webhook.controller.ts` builds
+`baseURL = `${instance.url}/${transformedWe}`` when `webhookByEvents` is truthy,
+so the POST lands on `<url>/messages-upsert`. Our ingress serves no such route
+and would answer 404 — or, with the bare path configured, read `messages-upsert`
+as a connection id and refuse 401. The configured URL is then simply not the
+address that gets called, so it is checked only once the simple form is
+established. An absent or non-boolean flag is `WEBHOOK_DELIVERY_FORM_UNPROVEN`;
+the simple form is never assumed.
+
 Why the delivery token is required: `EvolutionWebhookController` reads
 `x-hermes-evolution-token` and `HermesConnectedEvolutionReceiver` compares it to
 this connection's `webhookSecret` with a timing-safe comparison. A webhook
@@ -69,16 +80,19 @@ judgement never hold the secret, and the reported value is never returned,
 logged or stored. Evidence is reduced to one of `MATCHED`, `MISMATCHED`,
 `NOT_CONFIGURED` or `UNVERIFIABLE`.
 
-`UNVERIFIABLE` is kept apart from `NOT_CONFIGURED` on purpose. The pinned build's
-read returns a raw database row and the exact `headers` column could not be
-confirmed from the source (`schema.prisma` was not readable), so a row that
-reports no headers at all leaves authentication *unproven* rather than *absent*,
-and reception stays false either way.
+`UNVERIFIABLE` is kept apart from `NOT_CONFIGURED` on purpose: a row that reports
+no headers leaves authentication *unproven* rather than *absent*, and reception
+stays false either way. The column itself is confirmed — `headers Json?` in
+`prisma/postgresql-schema.prisma` (migration `20240906202019`), typed
+`JsonValue` on `EventDto`, and forwarded into the delivery request by
+`webhook.controller.ts` — so the distinction covers a server that does not report
+the field, not a doubt about its name.
 
 Each refusal carries a reason an operator can act on:
 `PROVIDER_VERSION_UNVERIFIED`, `INGRESS_NOT_IDENTIFIED`, `INGRESS_ORIGIN_UNKNOWN`,
 `WEBHOOK_NOT_READABLE`, `WEBHOOK_NOT_CONFIGURED`, `WEBHOOK_DISABLED`,
-`WEBHOOK_EVENT_NOT_SUBSCRIBED`, `WEBHOOK_URL_NOT_THIS_INGRESS`,
+`WEBHOOK_EVENT_NOT_SUBSCRIBED`, `WEBHOOK_PER_EVENT_PATH_NOT_SERVED`,
+`WEBHOOK_DELIVERY_FORM_UNPROVEN`, `WEBHOOK_URL_NOT_THIS_INGRESS`,
 `WEBHOOK_TOKEN_NOT_CONFIGURED`, `WEBHOOK_TOKEN_MISMATCHED`,
 `WEBHOOK_TOKEN_UNVERIFIABLE`. A read that fails is reported as
 `WEBHOOK_NOT_READABLE` and never as "nothing is configured": the two are
@@ -138,11 +152,17 @@ Read at tag 2.3.6, commit `3454bec79f514995df9a5ea36a3554ab35cf1c82`:
 - An end-to-end reception against a real instance: a real inbound image through
   to private storage, display and playback has not been observed. One inbound
   image **is** exercised end to end over real loopback HTTP through the real
-  controller, receiver and media adapter into a store double, which proves our
-  path and its guards and proves nothing about a real provider.
-- Whether the pinned build's webhook row really reports a `headers` column under
-  that name. Until a real instance answers, a row without it is treated as
-  `WEBHOOK_TOKEN_UNVERIFIABLE` and reception stays closed.
+  controller, receiver and media adapter into an in-memory `Map` standing in for
+  `HermesMediaService`. That exercises our path and its guards. It is **not**
+  proof of PostgreSQL, of the native quarantine, of a real private blob, or of
+  anything about a real provider: the real storage path is covered separately by
+  the `hermes-media` suites, which run without a database either.
+- Runtime suppression this probe cannot observe: `webhook.controller.ts` returns
+  early when its `integration` argument excludes webhooks, and the separate
+  global `WEBHOOK.GLOBAL` environment configuration can POST the same event to a
+  second destination. Neither is a stored row field, so neither appears in the
+  read; the global block adds a destination rather than replacing ours, so it
+  cannot make a true answer wrong.
 - A loopback demonstration provider is not provider delivery proof. The listener
   in `evolution-media-capability.spec.ts` is a few lines of that test file
   answering on `127.0.0.1`. It is labelled a demonstration in the file itself and
