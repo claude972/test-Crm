@@ -1974,7 +1974,7 @@ msgstr "Une émission précédente s’est terminée sans résultat connu. Recha
 #. js-lingui-id: tfDM6K
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "A proposal. Nothing has been sent, and inserting it sends nothing."
-msgstr ""
+msgstr "Une proposition. Rien n’a été envoyé, et l’insérer n’envoie rien."
 
 #. js-lingui-id: coauWZ
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
@@ -4796,7 +4796,7 @@ msgstr "Demander une intervention humaine"
 #. js-lingui-id: hq9Mvt
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "Ask the bot for a draft"
-msgstr ""
+msgstr "Demander un brouillon au bot"
 
 #. js-lingui-id: PFgA++
 #: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
@@ -5110,17 +5110,17 @@ msgstr "Participants illisibles pour ce rendez-vous."
 #. js-lingui-id: P23zBB
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Attribution"
-msgstr ""
+msgstr "Attribution"
 
 #. js-lingui-id: 4+M3kR
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "Attribution not published"
-msgstr ""
+msgstr "Attribution non publiée"
 
 #. js-lingui-id: UhLxpX
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "Attribution verified"
-msgstr ""
+msgstr "Attribution vérifiée"
 
 #. js-lingui-id: DfVWkz
 #: src/modules/hermes-admin-ui/components/HermesConnectionForm.tsx
@@ -5881,7 +5881,7 @@ msgstr "Réserver un appel"
 #. js-lingui-id: xTu9Ic
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Booking"
-msgstr ""
+msgstr "Réservation"
 
 #. js-lingui-id: bOwPjT
 #: src/modules/ai/constants/OutputFieldTypeOptions.ts
@@ -7052,7 +7052,7 @@ msgstr "Vérification de l'email"
 #. js-lingui-id: a1yQdK
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 msgid "Check whether it was created"
-msgstr ""
+msgstr "Vérifier si elle a été créée"
 
 #. js-lingui-id: AwAGI4
 #: src/modules/auth/sign-in-up/components/EmailVerificationSent.tsx
@@ -7082,7 +7082,7 @@ msgstr "Vérifiée uniquement lorsque l'enregistrement auquel cette règle appar
 #. js-lingui-id: tNaA3f
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 msgid "Checked: this campaign was not created."
-msgstr ""
+msgstr "Vérifié : cette campagne n’a pas été créée."
 
 #. js-lingui-id: KnEY6F
 #: src/modules/messaging-inbox/components/MessagingInboxConnectionNote.tsx
@@ -7387,7 +7387,7 @@ msgstr "La revendication n’est pas configurée sur ce serveur. Demandez à un 
 #. js-lingui-id: 65dAD6
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Classification"
-msgstr ""
+msgstr "Classification"
 
 #. js-lingui-id: xAuL3N
 #: src/modules/workflow/constants/WorkflowStepDefaultNames.ts
@@ -7993,7 +7993,7 @@ msgstr "Entreprises"
 #. js-lingui-id: RFTChQ
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Companies linked by qualification"
-msgstr ""
+msgstr "Sociétés liées par la qualification"
 
 #. js-lingui-id: 7i8j3G
 #: src/modules/prospection/components/CampaignAudienceMembersTable.tsx
@@ -8638,7 +8638,7 @@ msgstr "Contacts déjà informés"
 #. js-lingui-id: kqeQdK
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Contacts linked by qualification"
-msgstr ""
+msgstr "Contacts liés par la qualification"
 
 #. js-lingui-id: vrs6yX
 #: src/modules/advanced-text-editor/constants/AdvancedTextEditorBlockCatalog.ts
@@ -9615,7 +9615,7 @@ msgstr "Création de {objectLabel}"
 #. js-lingui-id: pds1Na
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 msgid "Creating stays shut: a failed check is not permission to press again. Try the check again once the connection is back."
-msgstr ""
+msgstr "La création reste fermée : une vérification en échec n’est pas une autorisation d’appuyer de nouveau. Relancez la vérification une fois la connexion rétablie."
 
 #. js-lingui-id: xHTrQX
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
@@ -11890,7 +11890,7 @@ msgstr "Doublon résolu sur un seul enregistrement"
 #. js-lingui-id: 8ZMust
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Duplicate rows"
-msgstr ""
+msgstr "Lignes en doublon"
 
 #. js-lingui-id: mMsEuG
 #: src/modules/side-panel/pages/page-layout/components/WidgetSettingsFooter.tsx
@@ -15229,7 +15229,7 @@ msgstr "Formulaire"
 #. js-lingui-id: QauiEh
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Form answer"
-msgstr ""
+msgstr "Réponse de formulaire"
 
 #. js-lingui-id: L/tgbO
 #: src/modules/workflow/workflow-steps/workflow-actions/http-request-action/components/BodyInput.tsx
@@ -17037,7 +17037,7 @@ msgstr "Insérer dans ma réponse"
 #. js-lingui-id: g5UBcv
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "Insert this draft"
-msgstr ""
+msgstr "Insérer ce brouillon"
 
 #. js-lingui-id: CoIXZj
 #: src/modules/activities/emails/components/CampaignVariablePicker.tsx
@@ -17915,12 +17915,12 @@ msgstr "La réponse du serveur n’a pas pu être lue : le résultat est inconn
 #. js-lingui-id: Ju51XG
 #: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
 msgid "La réponse ne nous est pas parvenue : nous ne savons pas si la boîte a été enregistrée. La liste des comptes a été relue — si la boîte y figure, l’enregistrement a bien eu lieu."
-msgstr ""
+msgstr "La réponse ne nous est pas parvenue : nous ne savons pas si la boîte a été enregistrée. La liste des comptes a été relue — si la boîte y figure, l’enregistrement a bien eu lieu."
 
 #. js-lingui-id: SvyJUA
 #: src/modules/hermes-mailbox-setup/components/HermesMailboxSetupPanel.tsx
 msgid "La réponse ne nous est pas parvenue : nous ne savons pas si la boîte a été enregistrée. Ne la recréez pas — relisez la liste des comptes pour voir si elle y figure."
-msgstr ""
+msgstr "La réponse ne nous est pas parvenue : nous ne savons pas si la boîte a été enregistrée. Ne la recréez pas — relisez la liste des comptes pour voir si elle y figure."
 
 #. js-lingui-id: pOGpKa
 #: src/modules/hermes-admin-ui/components/HermesAdminSettingsCenter.tsx
@@ -19320,7 +19320,7 @@ msgstr "Rechercher"
 #. js-lingui-id: N+hRIQ
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 msgid "Looking the campaign up by its identifier…"
-msgstr ""
+msgstr "Recherche de la campagne par son identifiant…"
 
 #. js-lingui-id: tL2lBI
 #: src/modules/workflow/workflow-diagram/utils/generateNodesAndEdgesForIteratorNode.ts
@@ -21393,7 +21393,7 @@ msgstr "Aucun corps de texte dans ce message."
 #. js-lingui-id: xj0pXX
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "No bot is configured, so no draft was prepared."
-msgstr ""
+msgstr "Aucun bot n’est configuré, aucun brouillon n’a donc été préparé."
 
 #. js-lingui-id: O7I76L
 #: src/modules/page-layout/widgets/call-recording-summary/components/CallRecordingSummaryBody.tsx
@@ -21652,18 +21652,18 @@ msgstr "Aucun brouillon renvoyé."
 #. js-lingui-id: vD0K7g
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "No draft can be prepared on this thread."
-msgstr ""
+msgstr "Aucun brouillon ne peut être préparé sur ce fil."
 
 #. js-lingui-id: ZvG84L
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "No draft was prepared."
-msgstr ""
+msgstr "Aucun brouillon n’a été préparé."
 
 #. js-lingui-id: MxejdC
 #. placeholder {0}: state.failure.message
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "No draft: {0}"
-msgstr ""
+msgstr "Aucun brouillon : {0}"
 
 #. js-lingui-id: PAcTy9
 #: src/modules/messaging-inbox/components/MessagingInboxBotModeControl.tsx
@@ -21993,7 +21993,7 @@ msgstr "Aucune opération trouvée"
 #. js-lingui-id: lv4m+e
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "No opportunity was created by this reception. Any opportunity linked to these contacts already existed and was opened by someone."
-msgstr ""
+msgstr "Aucune opportunité n’a été créée par cette réception. Toute opportunité liée à ces contacts existait déjà et a été ouverte par quelqu’un."
 
 #. js-lingui-id: 1IS5l3
 #: src/modules/hermes-shell/dashboard/components/HermesOperationsDashboard.tsx
@@ -22258,7 +22258,7 @@ msgstr "Aucun administrateur de serveur trouvé."
 #. js-lingui-id: PNiHXd
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "No signed connection accounts for this reception. A manual or historical deposit is in this case, and it is not an automatic reception."
-msgstr ""
+msgstr "Aucune connexion signée n’explique cette réception. Un dépôt manuel ou historique est dans ce cas, et ce n’est pas une réception automatique."
 
 #. js-lingui-id: XC3Be5
 #: src/modules/settings/security/utils/parseSamlMetadataFromXmlFile.ts
@@ -22648,12 +22648,12 @@ msgstr "Toutes les colonnes ne sont pas appariées"
 #. js-lingui-id: EyaTaY
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Not an automatic reception"
-msgstr ""
+msgstr "Pas une réception automatique"
 
 #. js-lingui-id: ocf83V
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "Not attributable"
-msgstr ""
+msgstr "Non attribuable"
 
 #. js-lingui-id: 3t1FcJ
 #: src/modules/client-context/components/ClientContextTimelineSection.tsx
@@ -22793,7 +22793,7 @@ msgstr "Adresse non vide"
 #. js-lingui-id: 0vL0o7
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
 msgid "Not every list this company holds is shown yet. Read the rest before concluding the one you want is missing."
-msgstr ""
+msgstr "Toutes les listes que retient cette société ne sont pas encore affichées. Lisez les autres avant de conclure que celle que vous cherchez manque."
 
 #. js-lingui-id: pAtylB
 #: src/modules/object-record/record-field/ui/form-types/components/VariableChip.tsx
@@ -25820,7 +25820,7 @@ msgstr "Lecture des listes d’audience…"
 #. js-lingui-id: ct6tnx
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Reading the classification…"
-msgstr ""
+msgstr "Lecture de la classification…"
 
 #. js-lingui-id: 8aOXcr
 #: src/modules/hermes-wa-runtime/components/HermesWaRuntimeAttachment.tsx
@@ -25908,7 +25908,7 @@ msgstr "Récapitulatif des sociétés autorisées"
 #. js-lingui-id: tpMORm
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "Receipt edited"
-msgstr ""
+msgstr "Reçu modifié"
 
 #. js-lingui-id: BT7pY+
 #: src/modules/settings/profile/components/SetOrChangePassword.tsx
@@ -27806,12 +27806,12 @@ msgstr "Les lignes ne sont pas du JSON valide."
 #. js-lingui-id: PpXSHK
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Rows become contacts only when a human qualifies them. Arriving here qualifies nothing."
-msgstr ""
+msgstr "Les lignes ne deviennent des contacts que lorsqu’un humain les qualifie. Arriver ici ne qualifie rien."
 
 #. js-lingui-id: ddKrlw
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Rows needing review"
-msgstr ""
+msgstr "Lignes à revoir"
 
 #. js-lingui-id: tPDR65
 #: src/pages/prospection/ProspectionImportBatchesPage.tsx
@@ -27821,7 +27821,7 @@ msgstr "Lignes reçues"
 #. js-lingui-id: 1oANeU
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Rows under opposition"
-msgstr ""
+msgstr "Lignes sous opposition"
 
 #. js-lingui-id: qRt12I
 #: src/modules/prospection/components/HermesImportBatchDetail.tsx
@@ -28195,7 +28195,7 @@ msgstr "Score"
 #. js-lingui-id: uBypTW
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Scraping deposit"
-msgstr ""
+msgstr "Dépôt de collecte"
 
 #. js-lingui-id: oOi11l
 #: src/modules/ai/components/AiChatScrollToBottomButton.tsx
@@ -29997,7 +29997,7 @@ msgstr "Afficher plus"
 #. js-lingui-id: SPuI54
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignAudiencePicker.tsx
 msgid "Show more audience lists"
-msgstr ""
+msgstr "Afficher plus de listes d’audience"
 
 #. js-lingui-id: fKV0qS
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
@@ -32040,12 +32040,12 @@ msgstr "Le bot propose, un humain envoie"
 #. js-lingui-id: lLRjbv
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "The bot is configured but did not answer, so there is no draft."
-msgstr ""
+msgstr "Le bot est configuré mais n’a pas répondu, il n’y a donc pas de brouillon."
 
 #. js-lingui-id: 4ndfst
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "The bot is stopped on this thread, so no draft is prepared. Write the answer yourself and send it."
-msgstr ""
+msgstr "Le bot est arrêté sur ce fil, aucun brouillon n’est donc préparé. Rédigez la réponse vous-même et envoyez-la."
 
 #. js-lingui-id: fp4zAi
 #: src/modules/hermes-bot-settings/components/HermesBotPolicyModeTag.tsx
@@ -32065,7 +32065,7 @@ msgstr "La politique du bot n’a pas pu être lue : elle est inconnue. Recharge
 #. js-lingui-id: kXYDuj
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "The bot policy could not be read, so no draft is offered here. Writing the answer by hand still works."
-msgstr ""
+msgstr "La politique du bot n’a pas pu être lue, aucun brouillon n’est donc proposé ici. Rédiger la réponse à la main fonctionne toujours."
 
 #. js-lingui-id: Ow4572
 #: src/modules/hermes-wa-ui/components/HermesWaVoiceRecorder.tsx
@@ -32105,22 +32105,22 @@ msgstr "Les campagnes de cette société. En ouvrir une ne l’envoie pas, et en
 #. js-lingui-id: t7l+XC
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 msgid "The check itself failed, so it is still unknown whether the campaign was created."
-msgstr ""
+msgstr "La vérification elle-même a échoué : on ne sait donc toujours pas si la campagne a été créée."
 
 #. js-lingui-id: p70muy
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "The classification carries no attribution yet."
-msgstr ""
+msgstr "La classification ne porte pas encore d’attribution."
 
 #. js-lingui-id: +VqrM3
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "The classification could not be read. Nothing is assumed about this collection's origin."
-msgstr ""
+msgstr "La classification n’a pas pu être lue. Rien n’est supposé de l’origine de cette collecte."
 
 #. js-lingui-id: n1yhYI
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "The classification does not say whether an opportunity was created by this reception."
-msgstr ""
+msgstr "La classification n’indique pas si une opportunité a été créée par cette réception."
 
 #. js-lingui-id: ejqgDV
 #: src/modules/settings/two-factor-authentication/components/TwoFactorAuthenticationRecoveryCodeConfirmationDialog.tsx
@@ -32210,7 +32210,7 @@ msgstr "Le domaine, l’adresse affichée, l’identifiant de connexion et la bo
 #. js-lingui-id: PZP68a
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "The draft answer could not be read, so none is shown."
-msgstr ""
+msgstr "La réponse en brouillon n’a pas pu être lue, aucune n’est donc affichée."
 
 #. js-lingui-id: G8bIX7
 #: src/modules/hermes-wa-runtime/components/HermesWaRuntimeComposer.tsx
@@ -32480,7 +32480,7 @@ msgstr "L’état publié est hors contrat, il n’accorde donc rien."
 #. js-lingui-id: iY6Mh1
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "The record was found under the same key, so the provenance holds, but its receipt marker is gone: it was edited."
-msgstr ""
+msgstr "La fiche a été retrouvée sous la même clé : la provenance tient, mais son marqueur de reçu a disparu — elle a été modifiée."
 
 #. js-lingui-id: Ir4tSJ
 #: src/modules/page-layout/widgets/call-recording/utils/getCallRecordingStatusDisplayConfiguration.ts
@@ -32615,7 +32615,7 @@ msgstr "Le serveur n’a donné aucun motif. Rien n’est déduit de ce silence�
 #. js-lingui-id: 5nupAn
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeBotPanel.tsx
 msgid "The server published no conversation for this message, so the bot cannot be addressed on it. Replying by hand still works."
-msgstr ""
+msgstr "Le serveur n’a publié aucune conversation pour ce message, le bot ne peut donc pas y être sollicité. Répondre à la main fonctionne toujours."
 
 #. js-lingui-id: y+XWjG
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignAudienceSection.tsx
@@ -32625,12 +32625,12 @@ msgstr "Le serveur n’a publié aucune exclusion pour cette audience."
 #. js-lingui-id: 4Lsxjq
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxThreadPanel.tsx
 msgid "The server published no identity for this draft, so it cannot be resumed here. It is still on the provider, and it was never sent."
-msgstr ""
+msgstr "Le serveur n’a publié aucune identité pour ce brouillon, il ne peut donc pas être repris ici. Il est toujours chez le fournisseur, et il n’a jamais été envoyé."
 
 #. js-lingui-id: uQzZTr
 #: src/modules/hermes-mailbox-runtime/components/HermesMailboxRuntimeAssistantDraft.tsx
 msgid "The server published no message to answer, so no draft can be asked for."
-msgstr ""
+msgstr "Le serveur n’a publié aucun message auquel répondre, aucun brouillon ne peut donc être demandé."
 
 #. js-lingui-id: C+9zft
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignCapabilitiesSection.tsx
@@ -32695,7 +32695,7 @@ msgstr "Le serveur n’a rapporté aucune politique de bot pour cette société.
 #. js-lingui-id: NgUnJS
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "The server reports an opportunity created by this reception. No inbound path should open one: have this checked."
-msgstr ""
+msgstr "Le serveur signale une opportunité créée par cette réception. Aucun chemin entrant ne devrait en ouvrir une : faites vérifier ce point."
 
 #. js-lingui-id: u4jkp0
 #. placeholder {0}: previewState.preview.envelope.senderStatus
@@ -32711,7 +32711,7 @@ msgstr "Le serveur n’a renvoyé aucune capacité pour cette campagne, aucune n
 #. js-lingui-id: EEn3Hc
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "The server returned no classification for this collection."
-msgstr ""
+msgstr "Le serveur n’a renvoyé aucune classification pour cette collecte."
 
 #. js-lingui-id: Y0uXqT
 #: src/modules/hermes-mailbox-ui/components/HermesMailboxComposer.tsx
@@ -32771,7 +32771,7 @@ msgstr "Le message enregistré n’a pas pu être lu comme un document d’e-mai
 #. js-lingui-id: IflgH0
 #: src/modules/prospection/components/HermesAttributionTag.tsx
 msgid "The stored record is the one this connection and this event produce, and it still carries its receipt marker."
-msgstr ""
+msgstr "La fiche enregistrée est bien celle que produisent cette connexion et cet événement, et elle porte toujours son marqueur de reçu."
 
 #. js-lingui-id: t6wT6E
 #. placeholder {0}: i18n.number(limit)
@@ -37011,7 +37011,7 @@ msgstr "Ce que le destinataire lit en premier"
 #. js-lingui-id: UTmQwz
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "What the server knows about where this collection came from and what it already touches."
-msgstr ""
+msgstr "Ce que le serveur sait de l’origine de cette collecte et de ce qu’elle touche déjà."
 
 #. js-lingui-id: cE4SvC
 #: src/pages/settings/developers/api-keys/SettingsDevelopersApiKeyDetail.tsx
@@ -37806,7 +37806,7 @@ msgstr "Vous n’êtes pas autorisé à lire cette boîte de réception."
 #. js-lingui-id: t63BWY
 #: src/modules/hermes-campaigns-ui/components/HermesCampaignListView.tsx
 msgid "You can create it again. It will reuse the same identifier, so there is no risk of ending up with two."
-msgstr ""
+msgstr "Vous pouvez la créer à nouveau. Elle réutilisera le même identifiant : il n’y a donc aucun risque d’en avoir deux."
 
 #. js-lingui-id: iibZbD
 #: src/pages/settings/developers/tabs/SettingsDevelopersAppsTab.tsx
@@ -38092,7 +38092,7 @@ msgstr "Votre réponse"
 #. js-lingui-id: o1NUWR
 #: src/modules/prospection/components/HermesInboundProvenancePanel.tsx
 msgid "Your role does not allow reading the classification of receptions."
-msgstr ""
+msgstr "Votre rôle ne permet pas de lire la classification des réceptions."
 
 #. js-lingui-id: H0ItDq
 #. placeholder {0}: getBeautifiedRenewDate()
