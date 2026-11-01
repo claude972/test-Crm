@@ -775,14 +775,19 @@ export class HermesMailService implements HermesMessagingAdapter, OnModuleInit {
       const repository = manager.getRepository(HermesInboxMessageEntity);
       const reserved = await repository.findOneBy({
         workspaceId: actor.workspaceId,
-        id: input.messageId,
         conversationId: input.conversationId,
         providerConnectionId: snapshot.binding.connectionId,
         channel: 'EMAIL',
         status: 'ACCEPTED',
         clientRequestId: input.clientRequestId,
       });
-      if (!reserved) throw unavailable();
+      // Native replies return the canonical ID; its exact request reservation authorizes the copy.
+      if (
+        !reserved ||
+        (input.messageId !== reserved.id &&
+          input.messageId !== reserved.canonicalMessageId)
+      )
+        throw unavailable();
       const canonical = await repository.findOneBy({
         workspaceId: actor.workspaceId,
         id: reserved.canonicalMessageId ?? reserved.id,
