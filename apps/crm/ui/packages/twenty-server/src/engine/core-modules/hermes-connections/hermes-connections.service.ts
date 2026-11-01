@@ -595,6 +595,8 @@ export class HermesConnectionsService {
         'EVOLUTION',
         configuration.secrets,
       );
+      if (!secretHash)
+        throw new BadRequestException('WA_ENROLLMENT_SECRET_INVALID');
       await manager.query(
         'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
         ['hermes-connections-provider:EVOLUTION'],

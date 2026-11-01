@@ -128,7 +128,6 @@ export class HermesScrapingMcpService {
           readOnlyHint: false,
           openWorldHint: false,
           destructiveHint: false,
-          idempotentHint: true,
         },
         execute: async (raw) => {
           const { ownerUserWorkspaceId, ...input } = depositSchema.parse(raw);
