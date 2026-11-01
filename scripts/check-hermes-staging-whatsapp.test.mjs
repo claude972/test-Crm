@@ -53,7 +53,7 @@ test('instance provisioning starts unpaired with webhook/history/read/presence d
   const plan = planFor(enabled), payload = newInstancePayload(plan, 'a'.repeat(64));
   assert.equal(payload.integration, 'WHATSAPP-BAILEYS');
   for (const key of ['qrcode', 'syncFullHistory', 'readMessages', 'readStatus', 'alwaysOnline']) assert.equal(payload[key], false);
-  assert.equal(payload.webhook.enabled, false);
+  assert.equal(Object.hasOwn(payload, 'webhook'), false);
   const webhook = webhookPayload(plan, '11111111-1111-4111-8111-111111111111', 'b'.repeat(64));
   assert.equal(webhook.webhook.enabled, false); assert.equal(webhook.webhook.byEvents, false);
   assert.ok(webhook.webhook.url.endsWith('/11111111-1111-4111-8111-111111111111'));

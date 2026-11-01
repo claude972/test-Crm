@@ -45,9 +45,9 @@ describe('managed provider protocol without real provider calls', () => {
         token: 'instance-private-token',
         qrcode: false,
         syncFullHistory: false,
-        webhook: { enabled: false, events: [] },
       },
     });
+    expect(create.data).not.toHaveProperty('webhook');
     expect(createSsrfSafeAgent).toHaveBeenCalledWith('https', ['managed.test']);
   });
   it('never calls destructive create for an existing provider name', async () => {

@@ -85,7 +85,7 @@ export class EvolutionEnrollmentClient {
         readMessages: false,
         readStatus: false,
         alwaysOnline: false,
-        webhook: { enabled: false, events: [], byEvents: false, base64: false },
+        // Evolution 2.3.6 forces any create-time webhook object enabled.
       },
     );
     const created = z

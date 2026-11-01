@@ -48,7 +48,7 @@ export function providerRequest(plan, apiKey, method, route, body, options = {})
 }
 export function newInstancePayload(plan, token) {
   assert.match(token, /^[a-f0-9]{64}$/);
-  return { instanceName: plan.instanceName, token, integration: 'WHATSAPP-BAILEYS', qrcode: false, syncFullHistory: false, readMessages: false, readStatus: false, alwaysOnline: false, groupsIgnore: true, rejectCall: false, webhook: { enabled: false, events: [] } };
+  return { instanceName: plan.instanceName, token, integration: 'WHATSAPP-BAILEYS', qrcode: false, syncFullHistory: false, readMessages: false, readStatus: false, alwaysOnline: false, groupsIgnore: true, rejectCall: false };
 }
 export function webhookPayload(plan, connectionId, webhookSecret) {
   assert.match(connectionId, /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/);
