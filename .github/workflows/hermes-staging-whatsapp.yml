@@ -1,0 +1,43 @@
+name: kovaalabcrm private WhatsApp provider verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix/hermes-autonomous-recovery-20261031]
+    paths:
+      - .github/workflows/hermes-staging-whatsapp.yml
+      - infra/hermes-staging/whatsapp/**
+      - scripts/check-hermes-staging-whatsapp*.mjs
+permissions:
+  contents: read
+concurrency:
+  group: kovaalabcrm-private-whatsapp-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  provider:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HERMES_SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify preparation and isolation contracts
+        run: node --test scripts/check-hermes-staging-whatsapp.test.mjs
+      - name: Exercise pinned provider with disposable private state
+        run: |
+          set -eu
+          mkdir -p "$RUNNER_TEMP/kovaalabcrm-wa-evidence"
+          export HERMES_STAGING_WA_REPORT_FILE="$RUNNER_TEMP/kovaalabcrm-wa-evidence/provider.json"
+          node scripts/check-hermes-staging-whatsapp.mjs
+      - name: Preserve bounded provider evidence without credentials or pairing data
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kovaalabcrm-wa-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/kovaalabcrm-wa-evidence/
+          if-no-files-found: ignore
+          retention-days: 3
