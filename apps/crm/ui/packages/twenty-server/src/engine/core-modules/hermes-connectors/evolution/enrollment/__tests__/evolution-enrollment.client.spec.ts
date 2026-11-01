@@ -50,6 +50,34 @@ describe('managed provider protocol without real provider calls', () => {
     expect(create.data).not.toHaveProperty('webhook');
     expect(createSsrfSafeAgent).toHaveBeenCalledWith('https', ['managed.test']);
   });
+  it('uses the unfiltered registry because unknown filtered names return 404 in 2.3.6', async () => {
+    response({ version: '2.3.6' });
+    response([{ name: 'another-workspace-instance' }]);
+    response({
+      instance: { instanceName: name },
+      hash: 'instance-private-token',
+    });
+    await new EvolutionEnrollmentClient(operator).create(
+      name,
+      'instance-private-token',
+    );
+    expect(request.mock.calls[1][0]).toMatchObject({
+      url: operator.baseUrl + '/instance/fetchInstances',
+      method: 'GET',
+    });
+    expect(request.mock.calls[1][0]?.params).toBeUndefined();
+    expect(request.mock.calls[2][0]?.method).toBe('POST');
+  });
+  it('refuses an unreadable registry rather than treating it as absence', async () => {
+    response({ version: '2.3.6' });
+    response([{}]);
+    await expect(
+      new EvolutionEnrollmentClient(operator).create(name, 'instance'),
+    ).rejects.toThrow('WA_PROVIDER_UNAVAILABLE');
+    expect(
+      request.mock.calls.every(([config]) => config!.method === 'GET'),
+    ).toBe(true);
+  });
   it('never calls destructive create for an existing provider name', async () => {
     response({ version: '2.3.6' });
     response([{ name }]);

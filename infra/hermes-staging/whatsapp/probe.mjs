@@ -15,6 +15,10 @@ try {
   phase = 'auth-isolation';
   step = 'wrong-key';
   await assert.rejects(call('0'.repeat(64), 'GET', `/instance/connectionState/${plan.instanceName}`));
+  step = 'registry';
+  const registry = await call(keys.globalKey, 'GET', '/instance/fetchInstances');
+  assert.ok(Array.isArray(registry)); assert.equal(registry.length, 0);
+  checks.emptyRegistryLookup = true;
   step = 'create-first';
   await call(keys.globalKey, 'POST', '/instance/create', newInstancePayload(plan, keys.instanceToken));
   const second = { ...plan, instanceName: `${plan.instanceName}_other` };

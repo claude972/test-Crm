@@ -64,12 +64,13 @@ export class EvolutionEnrollmentClient {
       'GET',
       '/instance/fetchInstances',
       this.operator.apiKey,
-      undefined,
-      { instanceName },
     );
-    if (!Array.isArray(existing))
+    const names = z
+      .array(z.object({ name: z.string().min(1).max(128) }))
+      .safeParse(existing);
+    if (!names.success)
       throw new EvolutionEnrollmentError('WA_PROVIDER_UNAVAILABLE');
-    if (existing.length !== 0)
+    if (names.data.some((instance) => instance.name === instanceName))
       throw new EvolutionEnrollmentError('WA_INSTANCE_ALREADY_EXISTS');
     const response = await this.request(
       'POST',
