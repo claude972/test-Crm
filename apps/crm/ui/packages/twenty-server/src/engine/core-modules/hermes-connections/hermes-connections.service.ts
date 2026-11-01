@@ -2,10 +2,11 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { randomUUID, createHash } from 'node:crypto';
+import { randomUUID, randomBytes, createHash } from 'node:crypto';
 import { DataSource, type EntityManager, IsNull, Not } from 'typeorm';
 import { z } from 'zod';
 import { ConnectedAccountProvider } from 'kovaa-lab-shared/types';
@@ -19,6 +20,15 @@ import { ConnectedAccountTokenEncryptionService } from 'src/engine/metadata-modu
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { HermesConversationEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-conversation.entity';
 import { HermesBotPolicyEntity } from 'src/engine/core-modules/hermes-messaging/entities/hermes-bot-policy.entity';
+import { KovaaLabCRMConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import {
+  managedEvolutionSchema,
+  managedInstanceName,
+  managedConnectionMatches,
+  provisionerConfiguration,
+  effectiveWhatsappMode,
+  type ManagedEvolution,
+} from 'src/engine/core-modules/hermes-connectors/evolution/enrollment/evolution-enrollment.policy';
 import { EmailConnectionSecurity } from 'src/engine/core-modules/imap-smtp-caldav-connection/enums/email-connection-security.enum';
 
 import {
@@ -56,6 +66,7 @@ const storedConfigurationSchema = z
     userWorkspaceId: z.string().uuid(),
     settings: z.record(z.string(), z.unknown()),
     secrets: z.record(z.string(), z.string()),
+    managedEvolution: managedEvolutionSchema.optional(),
     mailCredentialDigest: z
       .string()
       .regex(/^[a-f0-9]{64}$/)
@@ -69,11 +80,13 @@ type StoredConfiguration = HermesConnectionConfiguration & {
   userId: string;
   userWorkspaceId: string;
   mailCredentialDigest?: string;
+  managedEvolution?: ManagedEvolution;
 };
 export type HermesResolvedConnection = HermesConnectionConfiguration & {
   workspaceId: string;
   connectionId: string;
   revision: number;
+  managedEvolution?: ManagedEvolution;
   userId: string;
   userWorkspaceId: string;
 };
@@ -94,6 +107,7 @@ export class HermesConnectionsService {
     private readonly access: HermesProspectionAccessService,
     private readonly encryption: SecretEncryptionService,
     private readonly accountEncryption: ConnectedAccountTokenEncryptionService,
+    @Optional() private readonly config?: KovaaLabCRMConfigService,
   ) {}
 
   private transaction<T>(
@@ -180,6 +194,13 @@ export class HermesConnectionsService {
         decoded.workspaceId !== row.workspaceId ||
         decoded.kind !== row.kind ||
         decoded.userWorkspaceId !== row.updatedByUserWorkspaceId
+      )
+        throw new Error();
+      if (decoded.managedEvolution && decoded.kind !== 'EVOLUTION')
+        throw new Error();
+      if (
+        decoded.managedEvolution &&
+        decoded.settings.instanceName !== managedInstanceName(row.workspaceId)
       )
         throw new Error();
       const { handle, ...mailSettings } = decoded.settings;
@@ -344,6 +365,8 @@ export class HermesConnectionsService {
       if ((row?.revision ?? 0) !== input.expectedRevision)
         throw new ConflictException('CONNECTION_REVISION_CONFLICT');
       const previous = row?.enabled ? this.decrypt(row) : null;
+      if (previous?.managedEvolution)
+        throw new ConflictException('WA_CONNECTION_MANAGED');
       let configuration = validateConnectionConfiguration(
         actor.workspaceId,
         input.kind,
@@ -454,6 +477,259 @@ export class HermesConnectionsService {
     });
   }
 
+  private managedProvisioner() {
+    try {
+      const value = provisionerConfiguration({
+        enabled: this.config?.get('HERMES_EVOLUTION_PROVISIONER_ENABLED'),
+        baseUrl: this.config?.get('HERMES_EVOLUTION_PROVISIONER_BASE_URL'),
+        apiKey: this.config?.get('HERMES_EVOLUTION_PROVISIONER_API_KEY'),
+      });
+      if (!value) throw new Error();
+      return value;
+    } catch {
+      throw new ServiceUnavailableException('WA_PROVISIONER_NOT_CONFIGURED');
+    }
+  }
+
+  async managedWhatsappBotMode(
+    actor: HermesMessagingActor,
+    manager?: EntityManager,
+  ) {
+    await this.access.assertAllowed(actor, manager);
+    const repository = (manager ?? this.source).getRepository(
+      HermesBotPolicyEntity,
+    );
+    const parent = await repository.findOneBy({
+      workspaceId: actor.workspaceId,
+      scope: 'WORKSPACE',
+    });
+    const channel = await repository.findOneBy({
+      workspaceId: actor.workspaceId,
+      scope: 'WHATSAPP',
+    });
+    await this.access.assertAllowed(actor, manager);
+    return effectiveWhatsappMode(parent?.mode, channel?.mode);
+  }
+
+  async managedEnrollmentSnapshot(
+    actor: HermesMessagingActor,
+    expectedRevision: number,
+  ) {
+    await this.access.assertAllowed(actor);
+    const row = await this.source
+      .getRepository(HermesConnectionEntity)
+      .findOneBy({ workspaceId: actor.workspaceId, kind: 'EVOLUTION' });
+    if ((row?.revision ?? 0) !== expectedRevision)
+      throw new ConflictException('CONNECTION_REVISION_CONFLICT');
+    const connection = row?.enabled
+      ? await this.resolve(actor.workspaceId, 'EVOLUTION')
+      : null;
+    if (connection && connection.revision !== expectedRevision)
+      throw new ConflictException('CONNECTION_REVISION_CONFLICT');
+    if (connection && !connection.managedEvolution)
+      throw new ConflictException('WA_CONNECTION_NOT_MANAGED');
+    if (
+      connection &&
+      !managedConnectionMatches(
+        actor.workspaceId,
+        connection.settings,
+        this.managedProvisioner().baseUrl,
+      )
+    )
+      throw new ConflictException('WA_CONNECTION_NOT_MANAGED');
+    await this.access.assertAllowed(actor);
+    return {
+      connection,
+      revision: row?.revision ?? 0,
+      botMode: await this.managedWhatsappBotMode(actor),
+    };
+  }
+
+  async reserveManagedEvolution(
+    actor: HermesMessagingActor,
+    expectedRevision: number,
+  ) {
+    await this.access.assertAllowed(actor);
+    const operator = this.managedProvisioner();
+    return this.transaction(actor.workspaceId, async (manager) => {
+      await this.access.assertAllowed(actor, manager);
+      const repository = manager.getRepository(HermesConnectionEntity);
+      const row = await repository.findOneBy({
+        workspaceId: actor.workspaceId,
+        kind: 'EVOLUTION',
+      });
+      if ((row?.revision ?? 0) !== expectedRevision)
+        throw new ConflictException('CONNECTION_REVISION_CONFLICT');
+      if (row?.enabled) {
+        const previous = this.decrypt(row);
+        if (
+          !previous.managedEvolution ||
+          !managedConnectionMatches(
+            actor.workspaceId,
+            previous.settings,
+            operator.baseUrl,
+          )
+        )
+          throw new ConflictException('WA_CONNECTION_NOT_MANAGED');
+        return { created: false, revision: row.revision };
+      }
+      const configuration = validateConnectionConfiguration(
+        actor.workspaceId,
+        'EVOLUTION',
+        {
+          settings: {
+            baseUrl: operator.baseUrl,
+            instanceName: managedInstanceName(actor.workspaceId),
+          },
+          secrets: {
+            apiKey: randomBytes(32).toString('hex'),
+            webhookSecret: randomBytes(32).toString('hex'),
+          },
+        },
+      );
+      const identityHash = connectionIdentity(
+        'EVOLUTION',
+        configuration.settings,
+      );
+      const secretHash = connectionSecretHash(
+        'EVOLUTION',
+        configuration.secrets,
+      );
+      await manager.query(
+        'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+        ['hermes-connections-provider:EVOLUTION'],
+      );
+      if (
+        await repository.existsBy([
+          {
+            kind: 'EVOLUTION',
+            enabled: true,
+            workspaceId: Not(actor.workspaceId),
+            identityHash,
+          },
+          {
+            kind: 'EVOLUTION',
+            enabled: true,
+            workspaceId: Not(actor.workspaceId),
+            secretHash,
+          },
+        ])
+      )
+        throw new ConflictException('CONNECTION_IDENTITY_ALREADY_BOUND');
+      const stored: StoredConfiguration = {
+        ...configuration,
+        workspaceId: actor.workspaceId,
+        kind: 'EVOLUTION',
+        userId: actor.userId,
+        userWorkspaceId: actor.userWorkspaceId,
+        managedEvolution: {
+          version: 1,
+          operationId: randomUUID(),
+          phase: 'PROVISIONING',
+        },
+      };
+      const updated = repository.create({
+        ...(row ? { id: row.id } : {}),
+        workspaceId: actor.workspaceId,
+        kind: 'EVOLUTION',
+        connectionId: randomUUID(),
+        revision: (row?.revision ?? 0) + 1,
+        enabled: true,
+        identityHash,
+        secretHash,
+        configuration: this.encryption.encryptVersioned(
+          JSON.stringify(stored) as PlaintextString,
+          { workspaceId: actor.workspaceId },
+        ),
+        updatedAt: new Date(),
+        updatedByUserWorkspaceId: actor.userWorkspaceId,
+      });
+      await this.revokeGrants(actor, 'EVOLUTION', manager);
+      await manager.getRepository(HermesBotPolicyEntity).save({
+        workspaceId: actor.workspaceId,
+        scope: 'WHATSAPP',
+        mode: 'OFF',
+        updatedAt: new Date(),
+        updatedByUserWorkspaceId: actor.userWorkspaceId,
+      });
+      await this.access.assertAllowed(actor, manager);
+      await repository.save(updated);
+      return { created: true, revision: updated.revision };
+    });
+  }
+
+  async transitionManagedEvolution(
+    actor: HermesMessagingActor,
+    expectedRevision: number,
+    phase: ManagedEvolution['phase'],
+  ) {
+    await this.access.assertAllowed(actor);
+    const operator = this.managedProvisioner();
+    return this.transaction(actor.workspaceId, async (manager) => {
+      await this.access.assertAllowed(actor, manager);
+      const repository = manager.getRepository(HermesConnectionEntity);
+      const row = await repository.findOneBy({
+        workspaceId: actor.workspaceId,
+        kind: 'EVOLUTION',
+        enabled: true,
+      });
+      if (!row || row.revision !== expectedRevision)
+        throw new ConflictException('CONNECTION_REVISION_CONFLICT');
+      const stored = this.decrypt(row);
+      const previous = stored.managedEvolution;
+      if (
+        !previous ||
+        !managedConnectionMatches(
+          actor.workspaceId,
+          stored.settings,
+          operator.baseUrl,
+        )
+      )
+        throw new ConflictException('WA_CONNECTION_NOT_MANAGED');
+      if (
+        (phase === 'ACTIVATING' || phase === 'ACTIVE') &&
+        (await this.managedWhatsappBotMode(actor, manager)) !== 'OFF'
+      )
+        throw new ConflictException('WA_BOT_MUST_BE_OFF');
+      const allowed: Record<
+        ManagedEvolution['phase'],
+        ManagedEvolution['phase'][]
+      > = {
+        PROVISIONING: [
+          'AWAITING_PAIRING',
+          'PROVISIONING_UNCONFIRMED',
+          'BLOCKED',
+          'ACTIVATING',
+        ],
+        PROVISIONING_UNCONFIRMED: ['ACTIVATING'],
+        AWAITING_PAIRING: ['ACTIVATING'],
+        ACTIVATING: ['ACTIVE'],
+        ACTIVE: [],
+        BLOCKED: [],
+      };
+      if (phase === previous.phase) return row.revision;
+      if (!allowed[previous.phase].includes(phase))
+        throw new ConflictException('WA_ENROLLMENT_TRANSITION_INVALID');
+      stored.managedEvolution = managedEvolutionSchema.parse({
+        ...previous,
+        phase,
+        ...(phase === 'ACTIVATING' && previous.cutoffSeconds === undefined
+          ? { cutoffSeconds: Math.floor(Date.now() / 1000) }
+          : {}),
+      });
+      row.configuration = this.encryption.encryptVersioned(
+        JSON.stringify(stored) as PlaintextString,
+        { workspaceId: actor.workspaceId },
+      );
+      row.revision++;
+      row.updatedAt = new Date();
+      // State transitions retain the original encrypted owner and connection identity.
+      await this.access.assertAllowed(actor, manager);
+      await repository.save(row);
+      return row.revision;
+    });
+  }
+
   async remove(
     actor: HermesMessagingActor,
     value: unknown,
@@ -471,6 +747,8 @@ export class HermesConnectionsService {
       });
       if (!row || row.revision !== parsed.data.expectedRevision)
         throw new ConflictException('CONNECTION_REVISION_CONFLICT');
+      if (row.enabled && this.decrypt(row).managedEvolution)
+        throw new ConflictException('WA_CONNECTION_MANAGED');
       row.enabled = false;
       row.configuration = null;
       row.secretHash = null;
@@ -591,6 +869,9 @@ export class HermesConnectionsService {
       secrets: configuration.secrets,
       connectionId: row.connectionId,
       revision: row.revision,
+      ...(configuration.managedEvolution
+        ? { managedEvolution: configuration.managedEvolution }
+        : {}),
     };
   }
 }

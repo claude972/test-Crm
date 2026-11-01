@@ -45,6 +45,15 @@ export class HermesConnectedEvolutionReceiver {
       snapshot.connection.revision !== connection.revision
     )
       throw new EvolutionMessageError('CONNECTION_MISMATCH');
+    const managed = snapshot.connection.managedEvolution;
+    if (
+      managed &&
+      (managed.phase !== 'ACTIVE' || managed.cutoffSeconds === undefined)
+    )
+      return {
+        status: 'IGNORED' as const,
+        reason: 'ENROLLMENT_INACTIVE' as const,
+      };
     const receiver = new EvolutionWebhookReceiver(
       snapshot.serialized,
       JSON.stringify({ [connection.workspaceId]: secret }),
@@ -60,7 +69,13 @@ export class HermesConnectedEvolutionReceiver {
           { assertLive: snapshot.assertCurrent },
         );
       },
-      { connectionId, assertCurrent: snapshot.assertCurrent },
+      {
+        connectionId,
+        assertCurrent: snapshot.assertCurrent,
+        ...(managed
+          ? { minMessageTimestampExclusive: managed.cutoffSeconds }
+          : {}),
+      },
     );
     return receiver.receive(token, body);
   }
