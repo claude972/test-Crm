@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { HermesScrapingMcpService } from 'src/engine/core-modules/hermes-prospection/hermes-scraping-mcp.service';
+import { Injectable, Optional } from '@nestjs/common';
 
 import * as Sentry from '@sentry/node';
 import { type ToolSet } from 'ai';
@@ -110,6 +111,7 @@ export class McpProtocolService {
     private readonly flatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
+    @Optional() private readonly scraping?: HermesScrapingMcpService,
   ) {}
 
   private async handleInitialize(
@@ -310,6 +312,9 @@ export class McpProtocolService {
 
     const toolSet: McpToolSet = {
       ...annotatePreloadedMcpTools(preloadedTools),
+      ...(options?.apiKey && this.scraping
+        ? this.scraping.tools(workspace.id, options.apiKey.id)
+        : {}),
       [GET_TOOL_CATALOG_TOOL_NAME]: {
         ...createGetToolCatalogTool(this.toolRegistry, workspace.id, {
           rolePermissionConfig,

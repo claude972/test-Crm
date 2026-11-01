@@ -96,6 +96,9 @@ export async function smoke(environment) {
       if (text.length <= 4096) {
         const result = JSON.parse(text.trim());
         if (['version', 'negative-tls', 'auth-isolation', 'disabled-webhook', 'history-settings'].includes(result.failurePhase)) report.providerProbeFailure = result.failurePhase;
+        if (['wrong-key', 'create-first', 'create-second', 'cross-instance', 'own-instance', 'version'].includes(result.probeStep)) report.probeStep = result.probeStep;
+        const diagnostic = safeReadiness({ phase: 'https-request', ...result.diagnostic });
+        if (diagnostic) report.probeDiagnostic = diagnostic;
       }
     } catch { /* never publish native provider output */ }
     if (phase === 'provider-bootstrap' && compose) {

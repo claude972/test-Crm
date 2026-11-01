@@ -217,6 +217,12 @@ export const HermesImportBatchDetail = ({
               <StyledMissing>{t`Unknown`}</StyledMissing>
             )}
           </dd>
+          <dt>Demande d’origine</dt>
+          <dd>{batch.originalRequest || 'Non renseignée'}</dd>
+          <dt>Propriétaire de la demande</dt>
+          <dd>{batch.requestOwner || 'Non renseigné'}</dd>
+          <dt>Déposé par</dt>
+          <dd>{batch.createdByUserId || 'Inconnu'}</dd>
           <dt>{t`Collected`}</dt>
           <dd>{formatDate(provenance.collectedAt)}</dd>
           <dt>{t`Received`}</dt>
@@ -248,8 +254,8 @@ export const HermesImportBatchDetail = ({
         {hasConflictRow && (
           <ProspectionNote>
             <Trans>
-              A conflict row matches a CRM record that is ambiguous, archived
-              or inconsistent. It needs review before qualification.
+              A conflict row matches a CRM record that is ambiguous, archived or
+              inconsistent. It needs review before qualification.
             </Trans>
           </ProspectionNote>
         )}
@@ -315,7 +321,8 @@ export const HermesImportBatchDetail = ({
       {/* An unknown capability is never read as an available one, and a
           missing campaign feature means no draft call would go through, so
           there is no button for it. */}
-      {capabilities.nativeCampaignDrafts === true && isCampaignFeatureEnabled ? (
+      {capabilities.nativeCampaignDrafts === true &&
+      isCampaignFeatureEnabled ? (
         <HermesCampaignDraftForm eligibleRowIds={eligibleDraftRowIds} />
       ) : (
         <ProspectionNote>

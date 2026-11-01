@@ -78,6 +78,12 @@ export const readHermesImportRow = (value: unknown): HermesImportRow | null => {
     jobTitle: readString(value.jobTitle),
     website: readString(value.website),
     phone: readString(value.phone),
+    category: readString(value.category),
+    address: readString(value.address),
+    linkedIn: readString(value.linkedIn),
+    facebook: readString(value.facebook),
+    instagram: readString(value.instagram),
+
     personId: readString(value.personId),
     companyId: readString(value.companyId),
     hasQualification: isJsonObject(value.qualification),
@@ -137,6 +143,9 @@ export const readHermesImportBatch = (
     name: readString(value.name),
     sourceUrl: readString(value.sourceUrl),
     collectedAt: readString(value.collectedAt),
+    originalRequest: readString(value.originalRequest),
+    requestOwner: readString(value.requestOwner),
+
     createdAt: readString(value.createdAt),
     createdByUserId: readString(value.createdByUserId),
     ...readOrigin(value.origin),
@@ -202,9 +211,8 @@ export const readHermesCreateImportBatchResult = (
   if (!isJsonObject(payload)) {
     return {
       kind: 'unreadable',
-      problem: payload === null || payload === undefined
-        ? 'missing'
-        : 'not-an-object',
+      problem:
+        payload === null || payload === undefined ? 'missing' : 'not-an-object',
     };
   }
 
@@ -223,9 +231,8 @@ export const readHermesQualifyImportRowsResult = (
   if (!isJsonObject(payload)) {
     return {
       kind: 'unreadable',
-      problem: payload === null || payload === undefined
-        ? 'missing'
-        : 'not-an-object',
+      problem:
+        payload === null || payload === undefined ? 'missing' : 'not-an-object',
     };
   }
 
@@ -250,9 +257,8 @@ export const readHermesCampaignDraftResult = (
   if (!isJsonObject(payload)) {
     return {
       kind: 'unreadable',
-      problem: payload === null || payload === undefined
-        ? 'missing'
-        : 'not-an-object',
+      problem:
+        payload === null || payload === undefined ? 'missing' : 'not-an-object',
     };
   }
 

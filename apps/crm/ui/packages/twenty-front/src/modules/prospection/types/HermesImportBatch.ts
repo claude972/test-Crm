@@ -19,6 +19,12 @@ export type HermesImportRow = {
   jobTitle: string | null;
   website: string | null;
   phone: string | null;
+  category?: string | null;
+  address?: string | null;
+  linkedIn?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+
   personId: string | null;
   companyId: string | null;
   // The contract states that a qualification records purpose, notice URL,
@@ -34,6 +40,9 @@ export type HermesImportBatch = {
   name: string | null;
   sourceUrl: string | null;
   collectedAt: string | null;
+  originalRequest?: string | null;
+  requestOwner?: string | null;
+
   createdAt: string | null;
   createdByUserId: string | null;
   // The server's origin discriminator, flattened on read. 'MANUAL' or

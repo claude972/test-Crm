@@ -10,6 +10,11 @@ export type HermesImportRowInput = {
   jobTitle?: string;
   website?: string;
   phone?: string;
+  category?: string;
+  address?: string;
+  linkedIn?: string;
+  facebook?: string;
+  instagram?: string;
 };
 
 export type HermesCreateImportBatchInput = {
@@ -17,6 +22,9 @@ export type HermesCreateImportBatchInput = {
   name: string;
   sourceUrl: string;
   collectedAt: string;
+  originalRequest?: string;
+  requestOwner?: string;
+
   rows: HermesImportRowInput[];
 };
 

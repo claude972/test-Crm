@@ -66,7 +66,8 @@ export class HermesProspectionService {
     actor: HermesProspectionActor,
     input: HermesCreateImportBatchInput,
     signedIntake?: {
-      connectionId: string;
+      connectionId?: string;
+      apiKeyId?: string;
       assertLive?: (manager?: EntityManager) => Promise<void>;
     },
   ) {
@@ -95,13 +96,20 @@ export class HermesProspectionService {
       if (!result.replay) {
         // Only the authenticated server-to-server intake caller supplies this
         // internal argument; GraphQL DTOs expose no origin/provenance field.
-        result.batch.origin = signedIntake
+        result.batch.origin = signedIntake?.apiKeyId
           ? {
-              kind: 'SIGNED_INTAKE',
-              connectionId: signedIntake.connectionId,
+              kind: 'MCP',
+              apiKeyId: signedIntake.apiKeyId,
               receivedAt: result.batch.createdAt,
+              ownerUserId: actor.userId,
             }
-          : { kind: 'MANUAL' };
+          : signedIntake
+            ? {
+                kind: 'SIGNED_INTAKE',
+                connectionId: signedIntake.connectionId!,
+                receivedAt: result.batch.createdAt,
+              }
+            : { kind: 'MANUAL' };
       }
       await this.applySuppressions(actor.workspaceId, result.batch.rows);
 

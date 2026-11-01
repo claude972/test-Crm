@@ -47,7 +47,7 @@ export const metadataModuleFactory = async (
     autoSchemaFile: true,
     include: [
       HermesConnectionsModule,
-    EvolutionEnrollmentModule,
+      EvolutionEnrollmentModule,
       MetadataGraphQLApiModule,
       ModulesModule,
       HermesMessagingModule,

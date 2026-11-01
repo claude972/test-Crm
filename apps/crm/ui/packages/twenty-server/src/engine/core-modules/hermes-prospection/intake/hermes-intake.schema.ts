@@ -42,6 +42,9 @@ export const hermesIntakeBodySchema = z
     name: z.string().min(1).max(200),
     sourceUrl: z.string().max(2048),
     collectedAt: z.string(),
+    originalRequest: z.string().max(4000).optional(),
+    requestOwner: z.string().max(200).optional(),
+
     rows: z
       .array(
         z
@@ -53,6 +56,11 @@ export const hermesIntakeBodySchema = z
             jobTitle: z.string().max(200).optional(),
             website: z.string().max(2048).optional(),
             phone: z.string().max(40).optional(),
+            category: z.string().max(200).optional(),
+            address: z.string().max(1000).optional(),
+            linkedIn: z.string().max(2048).optional(),
+            facebook: z.string().max(2048).optional(),
+            instagram: z.string().max(2048).optional(),
           })
           .strict(),
       )

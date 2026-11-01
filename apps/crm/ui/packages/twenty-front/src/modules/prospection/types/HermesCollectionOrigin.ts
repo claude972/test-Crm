@@ -16,14 +16,13 @@ export const HERMES_COLLECTION_ORIGINS = ['automatic', 'manual-json'] as const;
 export const readHermesCollectionOriginKind = (
   kind: string | null,
 ): HermesCollectionOrigin | null =>
-  kind === 'SIGNED_INTAKE'
+  kind === 'SIGNED_INTAKE' || kind === 'MCP'
     ? 'automatic'
     : kind === 'MANUAL'
       ? 'manual-json'
       : null;
 
-export type HermesCollectionOrigin =
-  (typeof HERMES_COLLECTION_ORIGINS)[number];
+export type HermesCollectionOrigin = (typeof HERMES_COLLECTION_ORIGINS)[number];
 
 export const isHermesCollectionOrigin = (
   value: unknown,

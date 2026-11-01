@@ -37,7 +37,9 @@ export type HermesImportBatchValidation = {
 const isJsonObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-export const toHermesCollectedAt = (collectedAtLocal: string): string | null => {
+export const toHermesCollectedAt = (
+  collectedAtLocal: string,
+): string | null => {
   if (collectedAtLocal.trim().length === 0) {
     return null;
   }
@@ -174,6 +176,11 @@ export const readHermesImportRowsText = (rowsText: string): ReadRowsResult => {
     const jobTitle = readField('jobTitle');
     const website = readField('website');
     const phone = readField('phone');
+    const category = readField('category');
+    const address = readField('address');
+    const linkedIn = readField('linkedIn');
+    const facebook = readField('facebook');
+    const instagram = readField('instagram');
 
     // A phone the input type refuses is not staged: it makes the server
     // reject the whole batch, so it is the one row field that has to be
@@ -204,6 +211,11 @@ export const readHermesImportRowsText = (rowsText: string): ReadRowsResult => {
       ...(jobTitle !== null ? { jobTitle } : {}),
       ...(website !== null ? { website } : {}),
       ...(phone !== null ? { phone } : {}),
+      ...(category !== null ? { category } : {}),
+      ...(address !== null ? { address } : {}),
+      ...(linkedIn !== null ? { linkedIn } : {}),
+      ...(facebook !== null ? { facebook } : {}),
+      ...(instagram !== null ? { instagram } : {}),
     });
   });
 
@@ -283,7 +295,9 @@ export const validateHermesImportBatchInput = ({
 
   // The 2 MB bound is on the stored state, so the client measures what it is
   // about to add to it rather than guessing.
-  const inputByteLength = new TextEncoder().encode(JSON.stringify(input)).length;
+  const inputByteLength = new TextEncoder().encode(
+    JSON.stringify(input),
+  ).length;
 
   if (inputByteLength > HERMES_MAX_STATE_BYTES) {
     issues.push({

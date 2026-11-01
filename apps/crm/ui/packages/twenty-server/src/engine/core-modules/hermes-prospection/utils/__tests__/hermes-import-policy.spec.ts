@@ -120,3 +120,61 @@ describe('Hermes import policy', () => {
     expect(isHermesSourceUrl(url)).toBe(false),
   );
 });
+
+describe('Scraping prospect details and request provenance', () => {
+  it('retains the requested fields, request and authenticated owner with timestamps', () => {
+    const batch = makeBatch({
+      originalRequest: ' Trouver des artisans en Martinique ',
+      requestOwner: ' Responsable commercial ',
+      rows: [
+        {
+          email: 'a@example.test',
+          companyName: 'Artisan',
+          category: ' Bâtiment ',
+          address: ' Fort-de-France ',
+          linkedIn: 'https://www.linkedin.com/company/example',
+          facebook: 'https://www.facebook.com/example',
+          instagram: 'https://www.instagram.com/example',
+          phone: '+596000000000',
+        },
+      ],
+    });
+    expect(batch.originalRequest).toBe('Trouver des artisans en Martinique');
+    expect(batch.requestOwner).toBe('Responsable commercial');
+    expect(batch.createdByUserId).toBe('synthetic-user');
+    expect(batch.collectedAt).toBe('2026-10-29T12:00:00Z');
+    expect(batch.createdAt).toBe('2026-10-29T12:05:00Z');
+    expect(batch.rows[0]).toMatchObject({
+      category: 'Bâtiment',
+      address: 'Fort-de-France',
+      status: 'pending',
+    });
+    expect(batch.rows[0].instagram).toBe('https://www.instagram.com/example');
+  });
+  it('refuses a changed request under the same external collection ID', () => {
+    const state = emptyHermesProspectionState();
+    claimHermesImportBatch(
+      state,
+      makeBatch({ originalRequest: 'Première demande' }),
+    );
+    expect(() =>
+      claimHermesImportBatch(
+        state,
+        makeBatch({ originalRequest: 'Autre demande' }),
+      ),
+    ).toThrow('EXTERNAL_BATCH_ID_CONTENT_CONFLICT');
+  });
+  it('keeps unsafe social URLs as invalid staged records', () => {
+    const batch = makeBatch({
+      rows: [
+        {
+          email: 'a@example.test',
+          companyName: 'Artisan',
+          linkedIn: 'javascript:alert(1)',
+        },
+      ],
+    });
+    expect(batch.rows[0].status).toBe('invalid');
+    expect(batch.rows[0].errors).toContain('invalid_linkedIn');
+  });
+});

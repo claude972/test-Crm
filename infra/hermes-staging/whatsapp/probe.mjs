@@ -5,7 +5,7 @@ import { providerRequest, newInstancePayload, readPrivateOperator, webhookPayloa
 const directory = process.env.KOVAALABCRM_WA_PRIVATE_DIR;
 const plan = readPlan(directory), keys = readPrivateOperator(directory), ca = readFileSync(`${directory}/ca.pem`);
 const call = (key, method, route, body, options = {}) => providerRequest(plan, key, method, route, body, { ca, ...options });
-let phase = 'version'; const checks = {};
+let phase = 'version'; let step = 'version'; const checks = {};
 try {
   const version = await call(keys.globalKey, 'GET', '/'); assert.equal(version.version, '2.3.6'); checks.realVersion236 = true;
   phase = 'negative-tls';
@@ -13,11 +13,16 @@ try {
   await assert.rejects(call(keys.globalKey, 'GET', '/', undefined, { servername: 'wrong-wa.test' }));
   checks.wrongCaSniRejected = true;
   phase = 'auth-isolation';
+  step = 'wrong-key';
   await assert.rejects(call('0'.repeat(64), 'GET', `/instance/connectionState/${plan.instanceName}`));
+  step = 'create-first';
   await call(keys.globalKey, 'POST', '/instance/create', newInstancePayload(plan, keys.instanceToken));
   const second = { ...plan, instanceName: `${plan.instanceName}_other` };
+  step = 'create-second';
   await call(keys.globalKey, 'POST', '/instance/create', newInstancePayload(second, '1'.repeat(64)));
+  step = 'cross-instance';
   await assert.rejects(call(keys.instanceToken, 'GET', `/instance/connectionState/${second.instanceName}`));
+  step = 'own-instance';
   const state = await call(keys.instanceToken, 'GET', `/instance/connectionState/${plan.instanceName}`);
   assert.equal(state.instance.instanceName, plan.instanceName); assert.ok(['close', 'connecting'].includes(state.instance.state));
   checks.instanceKeyIsolationUnpaired = true;
@@ -31,4 +36,4 @@ try {
   const settings = await call(keys.instanceToken, 'GET', `/settings/find/${plan.instanceName}`);
   assert.equal(settings.syncFullHistory, false); assert.equal(settings.readMessages, false); assert.equal(settings.readStatus, false); assert.equal(settings.alwaysOnline, false); checks.historyReadPresenceDisabled = true;
   console.info(JSON.stringify({ success: true, checks, realAssociation: false, liveMessages: false }));
-} catch { console.info(JSON.stringify({ success: false, failurePhase: phase })); process.exitCode = 1; }
+} catch (error) { console.info(JSON.stringify({ success: false, failurePhase: phase, probeStep: step, ...(error.providerDiagnostic ? { diagnostic: error.providerDiagnostic } : {}) })); process.exitCode = 1; }

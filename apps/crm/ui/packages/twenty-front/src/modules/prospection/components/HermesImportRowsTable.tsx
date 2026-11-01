@@ -72,73 +72,108 @@ export const HermesImportRowsTable = ({
   };
 
   return (
-    <Table>
-      <TableRow gridTemplateColumns={HERMES_ROWS_GRID_TEMPLATE_COLUMNS}>
-        <TableHeader>{t`Pick`}</TableHeader>
-        <TableHeader>{t`Email`}</TableHeader>
-        <TableHeader>{t`Company`}</TableHeader>
-        <TableHeader>{t`Status`}</TableHeader>
-        <TableHeader>{t`Errors`}</TableHeader>
-      </TableRow>
-      <TableBody>
-        {rows.map((row) => {
-          const isSelectable = isHermesRowSelectable(row);
-          const contactName = getContactName(row);
+    <>
+      <Table>
+        <TableRow gridTemplateColumns={HERMES_ROWS_GRID_TEMPLATE_COLUMNS}>
+          <TableHeader>{t`Pick`}</TableHeader>
+          <TableHeader>{t`Email`}</TableHeader>
+          <TableHeader>{t`Company`}</TableHeader>
+          <TableHeader>{t`Status`}</TableHeader>
+          <TableHeader>{t`Errors`}</TableHeader>
+        </TableRow>
+        <TableBody>
+          {rows.map((row) => {
+            const isSelectable = isHermesRowSelectable(row);
+            const contactName = getContactName(row);
 
-          return (
-            <TableRow
-              key={row.id}
-              isSelected={selectedRowIds.has(row.id)}
-              gridTemplateColumns={HERMES_ROWS_GRID_TEMPLATE_COLUMNS}
-            >
-              <TableCell>
-                <Checkbox
-                  aria-label={
-                    isSelectable
-                      ? t`Select row`
-                      : row.status === 'suppressed'
-                        ? t`Suppressed: not selectable`
-                        : t`Unknown status: not selectable`
-                  }
-                  checked={selectedRowIds.has(row.id)}
-                  disabled={!isSelectable}
-                  onCheckedChange={() => onToggleRow(row.id)}
-                />
-              </TableCell>
-              <TableCell overflow="hidden">
-                {isNonEmptyString(row.email) ? (
-                  <StyledPrimary title={contactName ?? undefined}>
-                    {row.email}
-                  </StyledPrimary>
-                ) : (
-                  <StyledMissing>{t`No email`}</StyledMissing>
-                )}
-              </TableCell>
-              <TableCell overflow="hidden">
-                {isNonEmptyString(row.companyName) ? (
-                  <StyledSecondary>{row.companyName}</StyledSecondary>
-                ) : (
-                  <StyledMissing>{t`No company`}</StyledMissing>
-                )}
-              </TableCell>
-              <TableCell overflow="hidden">
-                <HermesImportRowStatusTag status={row.status} />
-              </TableCell>
-              <TableCell overflow="hidden">
-                {row.errors === null ? (
-                  <StyledMissing>{t`Errors unreadable`}</StyledMissing>
-                ) : row.errors.length === 0 ? (
-                  <StyledMissing>{t`None`}</StyledMissing>
-                ) : (
-                  <StyledError title={row.errors.join(' · ')}>
-                    {row.errors.join(' · ')}
-                  </StyledError>
-                )}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+            return (
+              <TableRow
+                key={row.id}
+                isSelected={selectedRowIds.has(row.id)}
+                gridTemplateColumns={HERMES_ROWS_GRID_TEMPLATE_COLUMNS}
+              >
+                <TableCell>
+                  <Checkbox
+                    aria-label={
+                      isSelectable
+                        ? t`Select row`
+                        : row.status === 'suppressed'
+                          ? t`Suppressed: not selectable`
+                          : t`Unknown status: not selectable`
+                    }
+                    checked={selectedRowIds.has(row.id)}
+                    disabled={!isSelectable}
+                    onCheckedChange={() => onToggleRow(row.id)}
+                  />
+                </TableCell>
+                <TableCell overflow="hidden">
+                  {isNonEmptyString(row.email) ? (
+                    <StyledPrimary title={contactName ?? undefined}>
+                      {row.email}
+                    </StyledPrimary>
+                  ) : (
+                    <StyledMissing>{t`No email`}</StyledMissing>
+                  )}
+                </TableCell>
+                <TableCell overflow="hidden">
+                  {isNonEmptyString(row.companyName) ? (
+                    <StyledSecondary>{row.companyName}</StyledSecondary>
+                  ) : (
+                    <StyledMissing>{t`No company`}</StyledMissing>
+                  )}
+                </TableCell>
+                <TableCell overflow="hidden">
+                  <HermesImportRowStatusTag status={row.status} />
+                </TableCell>
+                <TableCell overflow="hidden">
+                  {row.errors === null ? (
+                    <StyledMissing>{t`Errors unreadable`}</StyledMissing>
+                  ) : row.errors.length === 0 ? (
+                    <StyledMissing>{t`None`}</StyledMissing>
+                  ) : (
+                    <StyledError title={row.errors.join(' · ')}>
+                      {row.errors.join(' · ')}
+                    </StyledError>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+      <div aria-label="Fiches des prospects">
+        {rows.map((row) => (
+          <details key={row.id}>
+            <summary>
+              {getContactName(row) ??
+                row.companyName ??
+                row.email ??
+                'Prospect'}{' '}
+              — Fiche prospect
+            </summary>
+            <dl>
+              {(
+                [
+                  ['Catégorie société', row.category],
+                  ['Nom / prénom', getContactName(row)],
+                  ['Société', row.companyName],
+                  ['Adresse', row.address],
+                  ['Email', row.email],
+                  ['Numéro', row.phone],
+                  ['LinkedIn', row.linkedIn],
+                  ['Facebook', row.facebook],
+                  ['Instagram', row.instagram],
+                ] as const
+              ).map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value || 'Non renseigné'}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        ))}
+      </div>
+    </>
   );
 };

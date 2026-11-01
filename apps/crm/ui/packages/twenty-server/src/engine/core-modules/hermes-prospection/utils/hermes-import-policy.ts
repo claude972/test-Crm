@@ -42,6 +42,8 @@ export const buildHermesImportBatch = ({
   name,
   sourceUrl,
   collectedAt,
+  originalRequest,
+  requestOwner,
   rows,
   userId,
   now,
@@ -50,6 +52,8 @@ export const buildHermesImportBatch = ({
   name: string;
   sourceUrl: string;
   collectedAt: string;
+  originalRequest?: string;
+  requestOwner?: string;
   rows: HermesImportSourceRow[];
   userId: string;
   now: string;
@@ -62,6 +66,11 @@ export const buildHermesImportBatch = ({
     jobTitle: row.jobTitle?.trim() ?? '',
     website: row.website?.trim() ?? '',
     phone: row.phone?.trim() ?? '',
+    ...(row.category !== undefined ? { category: row.category.trim() } : {}),
+    ...(row.address !== undefined ? { address: row.address.trim() } : {}),
+    ...(row.linkedIn !== undefined ? { linkedIn: row.linkedIn.trim() } : {}),
+    ...(row.facebook !== undefined ? { facebook: row.facebook.trim() } : {}),
+    ...(row.instagram !== undefined ? { instagram: row.instagram.trim() } : {}),
   }));
   const seen = new Set<string>();
 
@@ -69,13 +78,31 @@ export const buildHermesImportBatch = ({
     id: randomUUID(),
     externalBatchId,
     fingerprint: createHash('sha256')
-      .update(JSON.stringify({ sourceUrl, collectedAt, rows: canonicalRows }))
+      .update(
+        JSON.stringify({
+          sourceUrl,
+          collectedAt,
+          rows: canonicalRows,
+          ...(originalRequest !== undefined
+            ? { originalRequest: originalRequest.trim() }
+            : {}),
+          ...(requestOwner !== undefined
+            ? { requestOwner: requestOwner.trim() }
+            : {}),
+        }),
+      )
       .digest('hex'),
     name,
     sourceUrl,
     collectedAt,
     createdAt: now,
     createdByUserId: userId,
+    ...(originalRequest !== undefined
+      ? { originalRequest: originalRequest.trim() }
+      : {}),
+    ...(requestOwner !== undefined
+      ? { requestOwner: requestOwner.trim() }
+      : {}),
     rows: canonicalRows.map((row) => {
       const errors: string[] = [];
 
@@ -88,6 +115,10 @@ export const buildHermesImportBatch = ({
       if (!row.companyName) errors.push('company_name_required');
       if (row.website && !isHermesSourceUrl(row.website))
         errors.push('invalid_website');
+      for (const field of ['linkedIn', 'facebook', 'instagram'] as const) {
+        if (row[field] && !isHermesSourceUrl(row[field]))
+          errors.push(`invalid_${field}`);
+      }
       const duplicate = seen.has(row.email);
 
       seen.add(row.email);

@@ -1,3 +1,4 @@
+import { HermesScrapingMcpService } from './hermes-scraping-mcp.service';
 import { FeatureFlagModule } from 'src/engine/core-modules/feature-flag/feature-flag.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,8 +26,13 @@ import { EmailingModule } from 'src/modules/emailing/emailing.module';
     EmailingModule,
     EmailingDomainModule,
   ],
-  exports: [HermesProspectionService, HermesProspectionAccessService],
+  exports: [
+    HermesProspectionService,
+    HermesProspectionAccessService,
+    HermesScrapingMcpService,
+  ],
   providers: [
+    HermesScrapingMcpService,
     HermesImportStateService,
     HermesProspectionAccessService,
     HermesProspectionService,

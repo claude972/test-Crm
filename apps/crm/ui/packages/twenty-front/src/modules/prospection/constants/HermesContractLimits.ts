@@ -20,7 +20,10 @@ export const HERMES_MAX_IMPORT_ROW_PHONE_LENGTH = 40;
 
 // HermesCreateImportBatchInput rows carry these fields and no others: the
 // server rejects unknown fields, so a pasted extra field is reported here.
-export const HERMES_IMPORT_ROW_REQUIRED_FIELDS = ['email', 'companyName'] as const;
+export const HERMES_IMPORT_ROW_REQUIRED_FIELDS = [
+  'email',
+  'companyName',
+] as const;
 
 export const HERMES_IMPORT_ROW_OPTIONAL_FIELDS = [
   'firstName',
@@ -28,6 +31,11 @@ export const HERMES_IMPORT_ROW_OPTIONAL_FIELDS = [
   'jobTitle',
   'website',
   'phone',
+  'category',
+  'address',
+  'linkedIn',
+  'facebook',
+  'instagram',
 ] as const;
 
 export const HERMES_IMPORT_ROW_FIELDS = [

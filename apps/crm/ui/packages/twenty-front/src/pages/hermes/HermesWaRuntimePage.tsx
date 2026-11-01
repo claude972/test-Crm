@@ -10,8 +10,20 @@ export const HermesWaRuntimePage = () => {
 
   return (
     <PageCardLayout
-      header={<PageCardHeader icon={<IconBrandWhatsapp />} title={t`WhatsApp`} />}
+      header={
+        <PageCardHeader icon={<IconBrandWhatsapp />} title={t`WhatsApp`} />
+      }
     >
+      <nav
+        aria-label="Connexion et contrôle WhatsApp"
+        style={{ display: 'flex', flexWrap: 'wrap', gap: 16, padding: 16 }}
+      >
+        <a href="/hermes/connexions#hermes-whatsapp">
+          Connecter WhatsApp par QR code
+        </a>
+        <a href="/hermes/connexions#hermes-bot">Activer / désactiver le bot</a>
+        <a href="/hermes/connexions#hermes-mcp">Connexion MCP et clé du bot</a>
+      </nav>
       <HermesWaInboxRuntime />
     </PageCardLayout>
   );

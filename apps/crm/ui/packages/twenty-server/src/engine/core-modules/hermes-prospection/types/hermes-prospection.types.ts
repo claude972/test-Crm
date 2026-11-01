@@ -6,6 +6,11 @@ export type HermesImportSourceRow = {
   jobTitle?: string;
   website?: string;
   phone?: string;
+  category?: string;
+  address?: string;
+  linkedIn?: string;
+  facebook?: string;
+  instagram?: string;
 };
 
 export type HermesImportRowStatus =
@@ -38,10 +43,14 @@ export type HermesImportBatch = {
   name: string;
   sourceUrl: string;
   collectedAt: string;
+  originalRequest?: string;
+  requestOwner?: string;
+
   createdAt: string;
   createdByUserId: string;
   origin?:
     | { kind: 'MANUAL' }
+    | { kind: 'MCP'; apiKeyId: string; receivedAt: string; ownerUserId: string }
     | { kind: 'SIGNED_INTAKE'; connectionId: string; receivedAt: string };
   rows: HermesImportRow[];
 };

@@ -1,3 +1,4 @@
+import { HermesProspectionModule } from 'src/engine/core-modules/hermes-prospection/hermes-prospection.module';
 import { Module } from '@nestjs/common';
 
 import { McpCoreController } from 'src/engine/api/mcp/controllers/mcp-core.controller';
@@ -19,6 +20,7 @@ import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache
 @Module({
   imports: [
     ApiKeyModule,
+    HermesProspectionModule,
     MetricsModule,
     TokenModule,
     WorkspaceCacheStorageModule,

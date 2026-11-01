@@ -61,6 +61,35 @@ export class HermesImportRowInput {
   @IsString()
   @MaxLength(40)
   phone?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  category?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  address?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  linkedIn?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  facebook?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  instagram?: string;
 }
 
 @InputType()
@@ -89,6 +118,17 @@ export class HermesCreateImportBatchInput {
   @Field()
   @IsISO8601()
   collectedAt: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(4000)
+  originalRequest?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  requestOwner?: string;
 
   @Field(() => [HermesImportRowInput])
   @IsArray()

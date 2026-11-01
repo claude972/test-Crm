@@ -37,6 +37,8 @@ const FRONTEND_GROUPS = [
   "auth",
   "apollo",
   "hermes-wa-ui",
+  "hermes-whatsapp-setup",
+  "prospection",
   "hermes-mailbox-ui",
   "hermes-admin-ui",
   "hermes-campaigns-ui",

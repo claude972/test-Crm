@@ -34,6 +34,8 @@ const frontendFixture = () => {
     "auth",
     "apollo",
     "hermes-wa-ui",
+    "hermes-whatsapp-setup",
+    "prospection",
     "hermes-mailbox-ui",
     "hermes-admin-ui",
     "hermes-campaigns-ui",
@@ -56,7 +58,7 @@ const frontendFixture = () => {
 test("frontend discovery fails closed when a delivered UI lacks its runtime or tests", () => {
   const root = frontendFixture();
   try {
-    assert.equal(discoverFrontendSuites(root).length, 14);
+    assert.equal(discoverFrontendSuites(root).length, 16);
     rmSync(path.join(root, "src/modules/hermes-mailbox-runtime"), {
       recursive: true,
     });

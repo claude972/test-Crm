@@ -1,3 +1,4 @@
+import { HermesBotMcpAccess } from '@/hermes-admin-ui/components/HermesBotMcpAccess';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { type ReactNode, useCallback } from 'react';
@@ -202,47 +203,51 @@ export const HermesAdminSettingsCenter = ({
       </section>
 
       <section id="hermes-mcp" aria-labelledby="hermes-mcp-title" tabIndex={-1}>
-        <h2 id="hermes-mcp-title">Serveur MCP</h2>
-        <p>
-          Connectez le serveur Hermès utilisé par le bot. Sa connexion ne
-          réactive pas les réponses automatiques.
-        </p>
-        {connectionsRead.kind === 'reported' && activeCompany ? (
-          <>
-            <HermesConnectionStateTag
-              descriptor={
-                mcpConnection
-                  ? readHermesConnectionStateDescriptor(mcpConnection)
-                  : { kind: 'NOT_CONFIGURED' }
-              }
-            />
-            <Button
-              variant="outline"
-              disabled={
-                hasWriteInFlight ||
-                (mcpConnection
-                  ? !isHermesConnectionEditable(
-                      readHermesConnectionStateDescriptor(mcpConnection),
-                    )
-                  : false)
-              }
-              onClick={() =>
-                mcpConnection
-                  ? onRequestEditConnection(mcpConnection.id)
-                  : onRequestCreateConnection('MCP')
-              }
-            >
-              {mcpConnection
-                ? 'Modifier le serveur MCP'
-                : 'Configurer le serveur MCP'}
-            </Button>
-          </>
-        ) : (
-          <p role="status">
-            L’état du serveur MCP n’a pas encore été établi. Aucun réglage n’est
-            supposé.
+        <h2 id="hermes-mcp-title">Connexion MCP du bot</h2>
+        <HermesBotMcpAccess />
+        <details>
+          <summary>Service de réponses externe (optionnel)</summary>
+          <p>
+            Connectez le serveur Hermès utilisé par le bot. Sa connexion ne
+            réactive pas les réponses automatiques.
           </p>
-        )}
+          {connectionsRead.kind === 'reported' && activeCompany ? (
+            <>
+              <HermesConnectionStateTag
+                descriptor={
+                  mcpConnection
+                    ? readHermesConnectionStateDescriptor(mcpConnection)
+                    : { kind: 'NOT_CONFIGURED' }
+                }
+              />
+              <Button
+                variant="outline"
+                disabled={
+                  hasWriteInFlight ||
+                  (mcpConnection
+                    ? !isHermesConnectionEditable(
+                        readHermesConnectionStateDescriptor(mcpConnection),
+                      )
+                    : false)
+                }
+                onClick={() =>
+                  mcpConnection
+                    ? onRequestEditConnection(mcpConnection.id)
+                    : onRequestCreateConnection('MCP')
+                }
+              >
+                {mcpConnection
+                  ? 'Modifier le serveur MCP'
+                  : 'Configurer le serveur MCP'}
+              </Button>
+            </>
+          ) : (
+            <p role="status">
+              L’état du serveur MCP n’a pas encore été établi. Aucun réglage
+              n’est supposé.
+            </p>
+          )}
+        </details>
       </section>
 
       {connectionFormSubject !== null && (
