@@ -2204,3 +2204,10 @@ Cause app confirmée par source9a/harnessméthodenativeexacte etSELECTreadonlybo
 FixSent auteur0afc218134e110edb230a5b7ad786adf2d66deeb relu production+tests, intégréroot3c5a96afa poussé.Preuve auteur exacte : 58testsJestPASSavecshimsESMprivés, deuxnouveauxcascanonicalsFAILsurancienne9acontrepreuve ; nepasconfondreavecCIglobaleattendue. RootdiffcheckPASS. NouveauxrunsUNIQUESexact3c5 image41255006356 et combined41255008779campaign-mailboxtrue, déclenchésunefois. Pasnouveaudéploiementapp, live9aresteinchangé.
 
 UserWhatsAppsignalé nonfonctionnel : SELECTREADONLYAlpha confirme MAILenabledrevision1seul, aucuneEVOLUTION. Utilisateur choisit QR ; planinfra dédié assignépreview_pwaavantcode, aucunserverautreprojetniidentifiantlu/réutilisé/modifié. Adapteractuel2.3.6mediaexactàpréserver. Appcontientlecteurstatutetconfigprovider maispasencorenuméroassocié ; nepasprétendredéfaillanceAPIavantconfiguration.
+
+
+### Exigence d’autonomie du parcours CRM — 2026-11-01
+
+Userprécise«connexionWAdepuisCRM», bots et MCP invisibles suriPhone, logicielindépendant. LivraisonQRparchat/CLI n’estplusleparcourscible. InfraEvolutiondédiée reste nécessaire mais commandeutilisateur est un flowadminCRMauthentifié, sanscléfournisseurmanuelle. Claimfrontendavantcodeci-dessus ; backend_reviewplanmanagedprovisioningscopéencours. Préflightdécouvert : savegénériqueEvolutionbloqueDNSprivéetadaptersoptions[] ; cheminmanagedserver-onlydoitêtrebornéàorigineopérateur+instanceworkspace+metadatachiffrées,sansrelâchergénériqueMCP/SSRForTLS.
+
+BotsAlphaWORKSPACEetWHATSAPPOFFenregistrésUIetrelus00:07UTC, captureprivéewhatsapp-bot-off-before-pairing.png. RelecteurWAaétabliupstream2.3.6perdtypeinterne notify/appenddanspayloadwebhook : nepasinventerfiltrenotify. WebhookOFFpendantassociation ; garde temporellestrictepersistéeavantingest/mediaàprouveravantactivation. HISTORICfalse/loggingnoneAPI+gatewayobligatoires. AucunproviderWAencorelancésurVPS, aucuncodeQRlivré, aucunnumérogénéré/associé.
