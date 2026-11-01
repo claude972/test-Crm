@@ -1,0 +1,81 @@
+name: kovaalabcrm-wa-staging
+services:
+  wa-api:
+    image: evoapicloud/evolution-api:v2.3.6@sha256:9140066a0b6410e562100a96519e55ed3b61b74103bb993f9b7feff7a2e24308
+    entrypoint: [node, /wa-code/bootstrap.mjs]
+    env_file:
+      - {path: '${KOVAALABCRM_WA_PRIVATE_DIR:?}/provider.env', format: raw}
+    volumes:
+      - instances:/evolution/instances
+      - '${KOVAALABCRM_WA_SCRIPTS_DIR:?}:/wa-code:ro'
+    networks: [data, backend, egress]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    mem_limit: 2g
+    cpus: 1.5
+    stop_grace_period: 30s
+    restart: unless-stopped
+    logging: {driver: none}
+    depends_on:
+      wa-db: {condition: service_healthy}
+      wa-redis: {condition: service_healthy}
+  wa-tls:
+    image: caddy:2.11.7-alpine@sha256:04913b1da43339a40ad1ea87827d70a576ac5aa6cf674c6e24fdca675887533a
+    user: '${KOVAALABCRM_WA_TLS_UID:?}:${KOVAALABCRM_WA_TLS_GID:?}'
+    entrypoint: [/bin/sh, -ec]
+    command: ['exec caddy run --config /wa-config/Caddyfile --adapter caddyfile >/dev/null 2>&1']
+    volumes:
+      - '${KOVAALABCRM_WA_PRIVATE_DIR:?}/Caddyfile:/wa-config/Caddyfile:ro'
+      - '${KOVAALABCRM_WA_PRIVATE_DIR:?}/server.pem:/wa-tls/server.pem:ro'
+      - '${KOVAALABCRM_WA_PRIVATE_DIR:?}/server.key:/wa-tls/server.key:ro'
+    networks:
+      backend: {}
+      control: {aliases: ['${KOVAALABCRM_WA_HOST:?}']}
+    read_only: true
+    tmpfs: ['/data:rw,nosuid,size=16m,mode=1777', '/config:rw,nosuid,size=16m,mode=1777', '/tmp:rw,nosuid,size=16m,mode=1777']
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.25
+    restart: unless-stopped
+    logging: {driver: none}
+    depends_on: [wa-api]
+  wa-db:
+    image: postgres:16-bookworm@sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938
+    env_file:
+      - {path: '${KOVAALABCRM_WA_PRIVATE_DIR:?}/postgres.env', format: raw}
+    volumes: [postgres:/var/lib/postgresql/data]
+    networks: [data]
+    mem_limit: 1g
+    cpus: 0.5
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U kovaalabcrm_wa -d kovaalabcrm_wa -Atqc "SELECT 1" | grep -qx 1']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  wa-redis:
+    image: redis:7-bookworm@sha256:b6b6e3dc0c0952737748e55d5d885272840c7e42ba41ab1d5489f693419882f5
+    env_file:
+      - {path: '${KOVAALABCRM_WA_PRIVATE_DIR:?}/redis.env', format: raw}
+    entrypoint: [/bin/sh, -ec, 'exec /usr/local/bin/docker-entrypoint.sh redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes --maxmemory 192mb --maxmemory-policy noeviction']
+    volumes: [redis:/data]
+    networks: [data]
+    mem_limit: 256m
+    cpus: 0.25
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping | grep -qx PONG']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+networks:
+  data: {internal: true}
+  backend: {internal: true}
+  control: {name: '${KOVAALABCRM_WA_CONTROL_NETWORK:-kovaalabcrm-wa-staging-control}', internal: true}
+  egress: {}
+volumes:
+  postgres: {}
+  redis: {}
+  instances: {}
