@@ -948,7 +948,7 @@ it('HERMES-V4-MAIL-003 observes Sent Bcc-only under the own mailbox contact with
   );
 });
 
-it('reserves native Sent-copy attempts durably on an accepted canonical receipt and never upgrades an unconfirmed send', async () => {
+async function sentCopyFixture() {
   const f = fixture();
   const requestId = 'e4d16125-1299-4b15-aa57-d193a423b4e9';
   const rfcMessageId = '<' + requestId + '@example.com>';
@@ -961,10 +961,13 @@ it('reserves native Sent-copy attempts durably on an accepted canonical receipt 
     providerConnectionId: 'company-inbox',
     providerMessageId: rfcMessageId,
     providerMetadata: {},
+    clientRequestId: null,
+    canonicalMessageId: null,
   };
   const reserved = {
     ...canonical,
     id: 'reserved',
+    providerMessageId: null,
     canonicalMessageId: canonical.id,
     clientRequestId: requestId,
   };
@@ -1002,7 +1005,7 @@ it('reserves native Sent-copy attempts durably on an accepted canonical receipt 
     },
   });
   const input = {
-    messageId: reserved.id,
+    messageId: canonical.id,
     conversationId,
     clientRequestId: requestId,
     connectionId: 'company-inbox',
@@ -1010,76 +1013,205 @@ it('reserves native Sent-copy attempts durably on an accepted canonical receipt 
     accountId,
     rfcMessageId,
   };
-  expect(
+  return { ...f, canonical, reserved, repository, input };
+}
+
+it.each(['canonical', 'reservation'] as const)(
+  'reserves native Sent-copy attempts for a returned %s identity and never upgrades an uncertain send',
+  async (identity) => {
+    const f = await sentCopyFixture();
+    f.input.messageId =
+      identity === 'canonical' ? f.canonical.id : f.reserved.id;
+    expect(
+      await f.service.recordSentCopy(
+        actor,
+        { ...f.input, action: 'RESERVE' },
+        () => {},
+      ),
+    ).toEqual({ appendAllowed: true });
+    expect(f.canonical.providerMetadata).toEqual({ sentCopyState: 'PENDING' });
+    expect(
+      await f.service.recordSentCopy(
+        actor,
+        { ...f.input, action: 'RESERVE' },
+        () => {},
+      ),
+    ).toEqual({ appendAllowed: false });
     await f.service.recordSentCopy(
       actor,
-      { ...input, action: 'RESERVE' },
+      { ...f.input, action: 'UNCONFIRMED' },
       () => {},
-    ),
-  ).toEqual({ appendAllowed: true });
-  expect(canonical.providerMetadata).toEqual({ sentCopyState: 'PENDING' });
-  expect(
+    );
+    expect(
+      await f.service.recordSentCopy(
+        actor,
+        { ...f.input, action: 'RESERVE' },
+        () => {},
+      ),
+    ).toEqual({ appendAllowed: false });
     await f.service.recordSentCopy(
-      actor,
-      { ...input, action: 'RESERVE' },
-      () => {},
-    ),
-  ).toEqual({ appendAllowed: false });
-  await f.service.recordSentCopy(
-    actor,
-    { ...input, action: 'UNCONFIRMED' },
-    () => {},
-  );
-  expect(
-    await f.service.recordSentCopy(
-      actor,
-      { ...input, action: 'RESERVE' },
-      () => {},
-    ),
-  ).toEqual({ appendAllowed: false });
-  await f.service.recordSentCopy(
-    actor,
-    {
-      ...input,
-      action: 'SAVED',
-      scope: {
-        folder: 'Sent',
-        uid: '50',
-        uidValidity: '123',
-        mimeSha256: 'a'.repeat(64),
-      },
-    },
-    () => {},
-  );
-  expect(canonical).toMatchObject({
-    status: 'ACCEPTED',
-    providerMetadata: {
-      sentCopyState: 'SAVED',
-      uid: 50,
-      mimeSha256: 'a'.repeat(64),
-    },
-  });
-  reserved.status = 'UNCONFIRMED';
-  await expect(
-    f.service.recordSentCopy(
       actor,
       {
-        ...input,
+        ...f.input,
         action: 'SAVED',
         scope: {
           folder: 'Sent',
-          uid: '51',
+          uid: '50',
           uidValidity: '123',
-          mimeSha256: 'b'.repeat(64),
+          mimeSha256: 'a'.repeat(64),
         },
       },
       () => {},
-    ),
-  ).rejects.toThrow('MAIL_CONNECTION_UNAVAILABLE');
-  expect(canonical).toMatchObject({
-    status: 'ACCEPTED',
-    providerMetadata: { uid: 50 },
+    );
+    expect(f.canonical).toMatchObject({
+      status: 'ACCEPTED',
+      providerMetadata: {
+        sentCopyState: 'SAVED',
+        uid: 50,
+        mimeSha256: 'a'.repeat(64),
+      },
+    });
+    f.reserved.status = 'UNCONFIRMED';
+    await expect(
+      f.service.recordSentCopy(
+        actor,
+        {
+          ...f.input,
+          action: 'SAVED',
+          scope: {
+            folder: 'Sent',
+            uid: '51',
+            uidValidity: '123',
+            mimeSha256: 'b'.repeat(64),
+          },
+        },
+        () => {},
+      ),
+    ).rejects.toThrow('MAIL_CONNECTION_UNAVAILABLE');
+    expect(f.canonical).toMatchObject({
+      status: 'ACCEPTED',
+      providerMetadata: { uid: 50 },
+    });
+    expect(f.smtp.getClient).not.toHaveBeenCalled();
+    expect(f.transport.sendMail).not.toHaveBeenCalled();
+  },
+);
+
+it.each([
+  'forged message',
+  'foreign request',
+  'foreign conversation',
+  'foreign connection',
+  'foreign workspace',
+  'foreign reservation workspace',
+  'foreign canonical workspace',
+  'foreign canonical conversation',
+  'foreign canonical connection',
+  'foreign canonical link',
+  'unconfirmed reservation',
+  'unconfirmed canonical',
+  'wrong RFC identity',
+  'changed binding revision',
+  'changed account revision',
+  'revoked membership',
+])(
+  'refuses Sent-copy reservation with %s before any checkpoint write',
+  async (scenario) => {
+    const f = await sentCopyFixture();
+    let currentActor = actor;
+    switch (scenario) {
+      case 'forged message':
+        f.input.messageId = 'unrelated-message';
+        break;
+      case 'foreign request':
+        f.input.clientRequestId = 'unrelated-request';
+        break;
+      case 'foreign conversation':
+        f.input.conversationId = 'unrelated-conversation';
+        break;
+      case 'foreign connection':
+        f.input.connectionId = 'unrelated-connection';
+        break;
+      case 'foreign workspace':
+        currentActor = { ...actor, workspaceId: 'other-workspace' };
+        break;
+      case 'foreign reservation workspace':
+        f.reserved.workspaceId = 'other-workspace';
+        break;
+      case 'foreign canonical workspace':
+        f.canonical.workspaceId = 'other-workspace';
+        break;
+      case 'foreign canonical conversation':
+        f.canonical.conversationId = 'other-conversation';
+        break;
+      case 'foreign canonical connection':
+        f.canonical.providerConnectionId = 'other-connection';
+        break;
+      case 'foreign canonical link':
+        f.reserved.canonicalMessageId = 'other-canonical';
+        break;
+      case 'unconfirmed reservation':
+        f.reserved.status = 'UNCONFIRMED';
+        break;
+      case 'unconfirmed canonical':
+        f.canonical.status = 'UNCONFIRMED';
+        break;
+      case 'wrong RFC identity':
+        f.canonical.providerMessageId = '<other@example.com>';
+        break;
+      case 'changed binding revision':
+        f.input.connectionRevision = 'other-revision';
+        break;
+      case 'changed account revision':
+        Object.assign(f.input, { accountRevision: 123 });
+        break;
+      case 'revoked membership':
+        f.access.assertAllowed.mockRejectedValue(new Error('revoked'));
+        break;
+    }
+    await expect(
+      f.service.recordSentCopy(
+        currentActor,
+        { ...f.input, action: 'RESERVE' },
+        () => {},
+      ),
+    ).rejects.toThrow();
+    expect(f.repository.update).not.toHaveBeenCalled();
+    expect(f.smtp.getClient).not.toHaveBeenCalled();
+    expect(f.transport.sendMail).not.toHaveBeenCalled();
+    expect(f.canonical.providerMetadata).toEqual({});
+  },
+);
+
+it('accepts the actual canonical return shape from replyRich while retaining its separate request reservation', async () => {
+  const f = await sentCopyFixture();
+  const replyEmail = jest.fn(async () => f.canonical);
+  Object.assign(f.inbox, { replyEmail });
+  const returned = await f.service.replyRich(actor, {
+    conversationId,
+    clientRequestId: f.input.clientRequestId,
+    envelope: {
+      from: 'inbox@example.com',
+      to: ['client@example.com'],
+      cc: [],
+      bcc: [],
+      subject: 'Synthetic',
+      text: 'Synthetic only',
+    },
+    attachmentIds: [],
   });
+  expect(returned.id).not.toBe(f.reserved.id);
+  expect(returned.clientRequestId).toBeNull();
+  expect(replyEmail).toHaveBeenCalledTimes(1);
+  await expect(
+    f.service.recordSentCopy(
+      actor,
+      { ...f.input, messageId: returned.id, action: 'RESERVE' },
+      () => {},
+    ),
+  ).resolves.toEqual({ appendAllowed: true });
+  expect(f.canonical.providerMetadata).toEqual({ sentCopyState: 'PENDING' });
+  expect(f.smtp.getClient).not.toHaveBeenCalled();
 });
 
 it('reads a proven native Sent MIME copy through its accepted canonical receipt without creating another message or private asset', async () => {
