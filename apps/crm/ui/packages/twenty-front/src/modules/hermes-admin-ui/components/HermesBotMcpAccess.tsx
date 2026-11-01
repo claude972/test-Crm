@@ -1,3 +1,4 @@
+import { SETTINGS_DEVELOPERS_TABS } from '@/settings/developers/constants/SettingsDevelopersTabs';
 import { styled } from '@linaria/react';
 import { SettingsPath } from 'kovaa-lab-shared/types';
 import { getSettingsPath } from 'kovaa-lab-shared/utils';
@@ -40,9 +41,8 @@ export const HermesBotMcpAccess = () => {
       </p>
       <p>
         Pour la gestion complète du CRM, crée une clé dédiée au bot avec le rôle
-        Administrateur. Ce rôle permet de lire, créer, modifier et supprimer les
-        données de cet espace. La connexion MCP ne déclenche aucun envoi à elle
-        seule.
+        Admin. Ce rôle permet de lire, créer, modifier et supprimer les données
+        de cet espace. La connexion MCP ne déclenche aucun envoi à elle seule.
       </p>
       <nav aria-label="Clés de connexion du bot">
         <a href={getSettingsPath(SettingsPath.NewApiKey)}>
@@ -54,7 +54,14 @@ export const HermesBotMcpAccess = () => {
         Ouvre la gestion des clés pour la régénérer ou la révoquer. Après
         régénération, remplace la clé dans ton bot.
       </p>
-      <a href={getSettingsPath(SettingsPath.Developers)}>
+      <a
+        href={getSettingsPath(
+          SettingsPath.Developers,
+          undefined,
+          undefined,
+          SETTINGS_DEVELOPERS_TABS.TABS_IDS.API,
+        )}
+      >
         Gérer, régénérer ou révoquer les clés du bot
       </a>
     </StyledAccess>

@@ -37,7 +37,7 @@ export const HermesModulesNavigationSection = () => {
     mailbox: t`Mailbox`,
     campaigns: t`Campaigns`,
     connections: t`Connections and companies`,
-    reception: t`Hermès collections`,
+    reception: 'Prospects du bot',
   };
 
   const icons: Record<HermesModuleNavigationItem['key'], typeof IconGauge> = {

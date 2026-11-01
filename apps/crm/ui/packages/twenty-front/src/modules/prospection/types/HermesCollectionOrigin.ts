@@ -7,7 +7,11 @@
 // origin stays null until the contract publishes a discriminator. Null reads
 // as "origin not published", never as 'manual-json': the manual form existing
 // is not evidence that a given collection came through it.
-export const HERMES_COLLECTION_ORIGINS = ['automatic', 'manual-json'] as const;
+export const HERMES_COLLECTION_ORIGINS = [
+  'automatic',
+  'manual-json',
+  'bot-mcp',
+] as const;
 
 // The two kinds the server now publishes on the batch, mapped explicitly. A
 // kind outside these two leaves the origin null and reads as "not published":
@@ -16,11 +20,13 @@ export const HERMES_COLLECTION_ORIGINS = ['automatic', 'manual-json'] as const;
 export const readHermesCollectionOriginKind = (
   kind: string | null,
 ): HermesCollectionOrigin | null =>
-  kind === 'SIGNED_INTAKE' || kind === 'MCP'
-    ? 'automatic'
-    : kind === 'MANUAL'
-      ? 'manual-json'
-      : null;
+  kind === 'MCP'
+    ? 'bot-mcp'
+    : kind === 'SIGNED_INTAKE'
+      ? 'automatic'
+      : kind === 'MANUAL'
+        ? 'manual-json'
+        : null;
 
 export type HermesCollectionOrigin = (typeof HERMES_COLLECTION_ORIGINS)[number];
 

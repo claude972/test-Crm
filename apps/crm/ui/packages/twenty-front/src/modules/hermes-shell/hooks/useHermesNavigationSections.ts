@@ -120,7 +120,7 @@ export const useHermesNavigationSections = (): HermesNavigationSection[] => {
           },
           {
             key: 'reception',
-            label: t`Hermès collections`,
+            label: 'Prospects du bot',
             to: PROSPECTION_RECEPTION_PATH,
             Icon: IconInbox,
           },

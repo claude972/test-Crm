@@ -24,6 +24,12 @@ const HERMES_COLLECTION_ORIGIN_PRESENTATION: Record<
   HermesCollectionOrigin,
   HermesCollectionOriginPresentation
 > = {
+  'bot-mcp': {
+    color: 'gray',
+    variant: 'soft',
+    borderStyle: 'solid',
+    Icon: IconWebhook,
+  },
   automatic: {
     color: 'gray',
     variant: 'soft',
@@ -57,11 +63,14 @@ export const HermesCollectionOriginTag = ({
   const { t } = useLingui();
 
   const labels: Record<HermesCollectionOrigin, string> = {
+    'bot-mcp': 'Bot MCP',
     automatic: t`Automatic`,
     'manual-json': t`Manual JSON`,
   };
 
   const meanings: Record<HermesCollectionOrigin, string> = {
+    'bot-mcp':
+      'Collecte déposée par une clé MCP authentifiée de cette société.',
     automatic: t`Received through the authenticated entry point.`,
     'manual-json': t`Deposited by hand on this screen.`,
   };
