@@ -2197,3 +2197,10 @@ VRAIE UI tab26, fonctionnementSWnormal sans bypass : reload de la racine qui aff
 UI9a réelle : nouveau comptefictifoperator enregistréchiffré+liaisonMAILAlpha+tests19:40:25MTIMAP/SMTPauthPASS. DraftSAVE/reopen/reprendreformulairepersistéPASS ; un seulSMTPselftesthumainACCEPTED puisINBOX1MIMEouvert/corpsluPASS. Freshreload foldersAVAILABLE Senttotal0, INBOX1/Drafts1/Trash1 ; pageSentAVAILABLE0/nextCursorfalse. Réponsemutationinitialenonconservée(nepasinventersentCopy.reason), aucune réémission.
 
 Cause app confirmée par source9a/harnessméthodenativeexacte etSELECTreadonlybornéworkspace/fenêtre4rows : canonicalid distinctde reservation ; canoniqueACCEPTED sansclientRequestId,réservationACCEPTED porteclientRequestId. Retourreplycanonicalid→guardrecordSentCopyid+requestIdsurmêmeligneimpossible ; aucuncheckpointRESERVEécrit. QueryRFCidentité/scope/réservationvalideTRUE, guardcanonicalinputFALSE/reservationinputTRUE. SourcefixautorisébornéCAT-MAIL-SENT-CANONICAL-RESERVATIONclaimavantcode ; pasfournisseurréelmanquantinvoqué. Site9anavigationhealthy, credentialsrecette partagésdirectementprivéàl’utilisateurpouriPhone(nejamaislesrépéterGit).
+
+
+### Suite Sent et demande WhatsApp — 2026-11-01 00:05 UTC
+
+FixSent auteur0afc218134e110edb230a5b7ad786adf2d66deeb relu production+tests, intégréroot3c5a96afa poussé.Preuve auteur exacte : 58testsJestPASSavecshimsESMprivés, deuxnouveauxcascanonicalsFAILsurancienne9acontrepreuve ; nepasconfondreavecCIglobaleattendue. RootdiffcheckPASS. NouveauxrunsUNIQUESexact3c5 image41255006356 et combined41255008779campaign-mailboxtrue, déclenchésunefois. Pasnouveaudéploiementapp, live9aresteinchangé.
+
+UserWhatsAppsignalé nonfonctionnel : SELECTREADONLYAlpha confirme MAILenabledrevision1seul, aucuneEVOLUTION. Utilisateur choisit QR ; planinfra dédié assignépreview_pwaavantcode, aucunserverautreprojetniidentifiantlu/réutilisé/modifié. Adapteractuel2.3.6mediaexactàpréserver. Appcontientlecteurstatutetconfigprovider maispasencorenuméroassocié ; nepasprétendredéfaillanceAPIavantconfiguration.
