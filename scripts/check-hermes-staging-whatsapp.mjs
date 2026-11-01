@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { mkdtempSync, readFileSync, realpathSync, rmSync, existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { safeReadiness } from '../infra/hermes-staging/whatsapp/client.mjs';
 import { IMAGES, prepare } from '../infra/hermes-staging/whatsapp/config.mjs';
 export function validateRunner(environment) {
   assert.equal(environment.GITHUB_ACTIONS, 'true'); assert.equal(environment.RUNNER_ENVIRONMENT, 'github-hosted');
@@ -51,8 +52,19 @@ export async function smoke(environment) {
     assert.ok(process.getuid() > 0);
     const common = ['--network', network, '--user', `${process.getuid()}:${process.getgid()}`, '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--memory', '128m', '--env', 'KOVAALABCRM_WA_PRIVATE_DIR=/wa-private', ...mounts, '--entrypoint', 'node', IMAGES.node];
     // Readiness is version-only: never replay instance creation or QR connection attempts.
-    const readiness = `import fs from 'node:fs';import{providerRequest}from'/wa-code/client.mjs';const p=JSON.parse(fs.readFileSync('/wa-private/plan.json'));const k=JSON.parse(fs.readFileSync('/wa-private/operator.json'));const v=await providerRequest(p,k.globalKey,'GET','/',undefined,{ca:fs.readFileSync('/wa-private/ca.pem')});if(v.version!=='2.3.6')process.exit(1);`;
-    await wait(() => { docker(['run', '--rm', ...common, '--input-type=module', '-e', readiness], 15000); return true; });
+    await wait(() => {
+      try {
+        const value = JSON.parse(docker(['run', '--rm', ...common, '/wa-code/readiness.mjs'], 15000));
+        const diagnostic = safeReadiness(value); if (diagnostic) report.readiness = diagnostic;
+        return diagnostic?.success === true && diagnostic.version === '2.3.6';
+      } catch (error) {
+        try {
+          const text = error.stdout?.toString() ?? '';
+          if (text.length <= 4096) { const diagnostic = safeReadiness(JSON.parse(text)); if (diagnostic) report.readiness = diagnostic; }
+        } catch { /* no raw subprocess output */ }
+        return false;
+      }
+    });
     const status = JSON.parse(docker(['exec', api, 'node', '-e', "process.stdout.write(require('node:fs').readFileSync('/tmp/kovaalabcrm-wa-bootstrap.json','utf8'))"]));
     assert.equal(status.phase, 'runtime'); assert.equal(status.failed, false); checks.strictBootstrap = true;
     phase = 'protocol';
@@ -86,6 +98,13 @@ export async function smoke(environment) {
         if (['version', 'negative-tls', 'auth-isolation', 'disabled-webhook', 'history-settings'].includes(result.failurePhase)) report.providerProbeFailure = result.failurePhase;
       }
     } catch { /* never publish native provider output */ }
+    if (phase === 'provider-bootstrap' && compose) {
+      for (const service of ['wa-api', 'wa-tls']) try {
+        const id = compose(['ps', '-aq', service]);
+        const state = JSON.parse(docker(['inspect', '--format', '{{json .State}}', id]));
+        report[service === 'wa-api' ? 'apiContainer' : 'tlsContainer'] = { running: state.Running === true, ...(Number.isInteger(state.ExitCode) && state.ExitCode >= 0 && state.ExitCode <= 255 ? { exitCode: state.ExitCode } : {}) };
+      } catch { /* no environment/config inspection */ }
+    }
     if (phase === 'provider-bootstrap' && compose) try {
       const api = compose(['ps', '-aq', 'wa-api']);
       const file = path.join(temporary, 'bootstrap-status.json');
