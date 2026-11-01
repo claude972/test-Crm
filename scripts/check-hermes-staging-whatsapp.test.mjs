@@ -123,3 +123,12 @@ test('readiness missing-private-file failure prints no path, token, phone or nat
   assert.ok(!(child.stdout + child.stderr).includes(secret));
   assert.equal(child.stderr, '');
 });
+
+// The official Caddy binary carries this file capability; dropping it prevents exec.
+test('private TLS gateway retains only the capability required by the official executable', () => {
+  const compose = readFileSync(new URL('../infra/hermes-staging/whatsapp/compose.yaml', import.meta.url), 'utf8');
+  const tls = compose.split('  wa-tls:')[1].split('  wa-db:')[0];
+  assert.match(tls, /cap_drop: \[ALL\]/);
+  assert.match(tls, /cap_add: \[NET_BIND_SERVICE\]/);
+  assert.match(tls, /no-new-privileges:true/);
+});

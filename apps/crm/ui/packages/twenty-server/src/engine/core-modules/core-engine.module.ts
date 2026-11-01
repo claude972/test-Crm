@@ -1,3 +1,4 @@
+import { EvolutionEnrollmentModule } from 'src/engine/core-modules/hermes-connectors/evolution/enrollment/evolution-enrollment.module';
 import { HermesConnectionsModule } from 'src/engine/core-modules/hermes-connections/hermes-connections.module';
 import { HermesIntakeModule } from 'src/engine/core-modules/hermes-prospection/intake/hermes-intake.module';
 import { HermesMailModule } from 'src/engine/core-modules/hermes-mail/hermes-mail.module';
@@ -97,6 +98,7 @@ import { FileApiModule } from './file/file-api.module';
     KovaaLabCRMConfigModule.forRoot(),
     HealthModule,
     HermesConnectionsModule,
+    EvolutionEnrollmentModule,
     HermesMessagingModule,
     HermesMessagingConnectorsModule,
     HermesMailModule,
