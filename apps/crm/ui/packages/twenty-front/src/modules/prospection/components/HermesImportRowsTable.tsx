@@ -141,7 +141,10 @@ export const HermesImportRowsTable = ({
           })}
         </TableBody>
       </Table>
-      <div aria-label="Fiches des prospects">
+      <div
+        aria-label="Fiches des prospects"
+        style={{ minWidth: 0, overflowWrap: 'anywhere' }}
+      >
         {rows.map((row) => (
           <details key={row.id}>
             <summary>

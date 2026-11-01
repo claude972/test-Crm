@@ -191,6 +191,7 @@ export const HermesAdminSettingsCenter = ({
           style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}
         >
           <a href="#hermes-whatsapp">WhatsApp</a>
+          <a href="#hermes-mail">Mail</a>
           <a href="#hermes-bot">Réponses du bot</a>
           <a href="#hermes-mcp">Serveur MCP</a>
         </nav>
@@ -296,17 +297,23 @@ export const HermesAdminSettingsCenter = ({
         {mcpToolsSlot}
       </details>
 
-      <HermesConnectionCenter
-        read={connectionsRead}
-        activeCompanyId={activeCompany?.id ?? null}
-        activeCompanyName={activeCompany?.name ?? null}
-        checkByProbe={checkByProbe}
-        checkedConnectionId={checkedConnectionId}
-        isChecking={isChecking}
-        onRequestTest={onRequestTestConnection}
-        onRequestEdit={onRequestEditConnection}
-        onRequestCreate={onRequestCreateConnection}
-      />
+      <section
+        id="hermes-mail"
+        aria-label="Connexion de la boîte mail"
+        tabIndex={-1}
+      >
+        <HermesConnectionCenter
+          read={connectionsRead}
+          activeCompanyId={activeCompany?.id ?? null}
+          activeCompanyName={activeCompany?.name ?? null}
+          checkByProbe={checkByProbe}
+          checkedConnectionId={checkedConnectionId}
+          isChecking={isChecking}
+          onRequestTest={onRequestTestConnection}
+          onRequestEdit={onRequestEditConnection}
+          onRequestCreate={onRequestCreateConnection}
+        />
+      </section>
 
       <HermesCompanySection
         companiesRead={companiesRead}
