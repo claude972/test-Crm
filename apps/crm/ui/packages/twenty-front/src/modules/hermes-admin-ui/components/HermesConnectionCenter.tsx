@@ -89,7 +89,7 @@ export const HermesConnectionCenter = ({
   return (
     <Section.Root>
       <Section.Header
-        title={t`Connexions`}
+        title="Comptes mail et paramètres avancés"
         description={t`Tout se règle ici : aucun formulaire de secret ailleurs dans le produit.`}
       />
 
@@ -118,19 +118,32 @@ export const HermesConnectionCenter = ({
 
       {slots.length > 0 && (
         <StyledCards>
-          {slots.map((slot) => (
-            <HermesConnectionCard
-              key={readHermesConnectionSlotKey(slot)}
-              slot={slot}
-              companyName={activeCompanyName}
-              checkByProbe={checkByProbe}
-              checkedConnectionId={checkedConnectionId}
-              isChecking={isChecking}
-              onRequestTest={onRequestTest}
-              onRequestEdit={onRequestEdit}
-              onRequestCreate={onRequestCreate}
-            />
-          ))}
+          {slots.map((slot) => {
+            const card = (
+              <HermesConnectionCard
+                slot={slot}
+                companyName={activeCompanyName}
+                checkByProbe={checkByProbe}
+                checkedConnectionId={checkedConnectionId}
+                isChecking={isChecking}
+                onRequestTest={onRequestTest}
+                onRequestEdit={onRequestEdit}
+                onRequestCreate={onRequestCreate}
+              />
+            );
+            const kind =
+              slot.kind === 'unregistered'
+                ? slot.connectionKind
+                : slot.connection.kind;
+            return kind === 'WHATSAPP_EVOLUTION' ? (
+              <details key={readHermesConnectionSlotKey(slot)}>
+                <summary>Configuration WhatsApp avancée</summary>
+                {card}
+              </details>
+            ) : (
+              <div key={readHermesConnectionSlotKey(slot)}>{card}</div>
+            );
+          })}
         </StyledCards>
       )}
 

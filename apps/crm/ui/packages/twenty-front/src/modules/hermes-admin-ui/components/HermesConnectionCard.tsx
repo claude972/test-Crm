@@ -197,11 +197,12 @@ export const HermesConnectionCard = ({
         </HermesAdminRuleNote>
       )}
 
-      {descriptor.kind === 'ERROR' && isNonEmptyString(descriptor.errorCode) && (
-        <HermesAdminNote role="status">
-          {t`Motif renvoyé par le serveur : ${descriptor.errorCode}`}
-        </HermesAdminNote>
-      )}
+      {descriptor.kind === 'ERROR' &&
+        isNonEmptyString(descriptor.errorCode) && (
+          <HermesAdminNote role="status">
+            {t`Motif renvoyé par le serveur : ${descriptor.errorCode}`}
+          </HermesAdminNote>
+        )}
 
       {descriptor.kind === 'UNKNOWN' && (
         <HermesAdminNote role="alert">
@@ -211,11 +212,14 @@ export const HermesConnectionCard = ({
         </HermesAdminNote>
       )}
 
-      <HermesConnectionCapabilityList
-        kind={connection.kind}
-        descriptor={descriptor}
-        reports={connection.capabilities}
-      />
+      <details>
+        <summary>Capacités de cette connexion</summary>
+        <HermesConnectionCapabilityList
+          kind={connection.kind}
+          descriptor={descriptor}
+          reports={connection.capabilities}
+        />
+      </details>
 
       <StyledActions>
         <Button
