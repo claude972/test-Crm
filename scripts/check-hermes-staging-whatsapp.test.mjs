@@ -3,11 +3,11 @@ import { test } from 'node:test';
 import { mkdtempSync, readFileSync, rmSync, statSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
 import { IMAGES, VERSION, planFor, prepare, readPlan } from '../infra/hermes-staging/whatsapp/config.mjs';
-import { newInstancePayload, webhookPayload, qrBytes, providerRequest } from '../infra/hermes-staging/whatsapp/client.mjs';
+import { newInstancePayload, webhookPayload, qrBytes, providerRequest, providerError, safeReadiness } from '../infra/hermes-staging/whatsapp/client.mjs';
 import { validateProviderEnvironment, runQuiet } from '../infra/hermes-staging/whatsapp/bootstrap.mjs';
 import { validateRunner } from './check-hermes-staging-whatsapp.mjs';
 const enabled = { KOVAALABCRM_WA_ENABLED: 'true', KOVAALABCRM_WA_ID: 'alpha-20261031' };
@@ -103,4 +103,23 @@ test('cloud smoke is runner-only and cannot overwrite arbitrary reports', () => 
   const temporary = mkdtempSync(path.join(os.tmpdir(), 'kovaalabcrm-wa-runner-test-'));
   try { const env = { GITHUB_ACTIONS: 'true', RUNNER_ENVIRONMENT: 'github-hosted', HERMES_SOURCE_SHA: 'a'.repeat(40), RUNNER_TEMP: temporary }; assert.doesNotThrow(() => validateRunner(env)); assert.throws(() => validateRunner({ ...env, HERMES_STAGING_WA_REPORT_FILE: '/outside/report.json' })); }
   finally { rmSync(temporary, { recursive: true }); }
+});
+
+test('readiness diagnostics retain only bounded phase/code/status/semver and reject private payloads', () => {
+  const secret = 'private-global-key-and-phone';
+  const error = providerError('http-status', { code: secret, httpStatus: 401, message: secret });
+  assert.deepEqual(error.providerDiagnostic, { category: 'http-status', httpStatus: 401 });
+  assert.ok(!error.message.includes(secret));
+  assert.deepEqual(safeReadiness({ phase: 'https-request', success: false, category: 'transport', code: 'ECONNREFUSED', httpStatus: 502, version: '2.3.7', url: secret, apiKey: secret, phone: secret }), { phase: 'https-request', category: 'transport', code: 'ECONNREFUSED', httpStatus: 502, version: '2.3.7', success: false });
+  assert.deepEqual(safeReadiness({ phase: 'version', category: 'version-mismatch', version: secret, code: secret, httpStatus: secret }), { phase: 'version', category: 'version-mismatch' });
+  assert.equal(safeReadiness({ phase: secret }), undefined);
+  assert.equal(safeReadiness({ phase: 'version', version: '2.3.6\nprivate-data' }).version, undefined);
+});
+test('readiness missing-private-file failure prints no path, token, phone or native stack', () => {
+  const secret = 'private-secret-phone-marker';
+  const child = spawnSync(process.execPath, [new URL('../infra/hermes-staging/whatsapp/readiness.mjs', import.meta.url).pathname], { env: { ...process.env, KOVAALABCRM_WA_PRIVATE_DIR: `/nonexistent-${secret}` }, encoding: 'utf8' });
+  assert.equal(child.status, 1);
+  assert.deepEqual(JSON.parse(child.stdout), { phase: 'private-files', category: 'client-validation', code: 'ENOENT', success: false });
+  assert.ok(!(child.stdout + child.stderr).includes(secret));
+  assert.equal(child.stderr, '');
 });
