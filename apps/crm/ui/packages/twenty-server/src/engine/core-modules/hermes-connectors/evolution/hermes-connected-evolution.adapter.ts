@@ -15,6 +15,10 @@ import {
   type HermesMessagingReceipt,
 } from 'src/engine/core-modules/hermes-messaging/types/hermes-messaging.types';
 import { type EvolutionConnectionProbe } from './evolution-connection-probe.type';
+import {
+  managedConnectionMatches,
+  provisionerConfiguration,
+} from './enrollment/evolution-enrollment.policy';
 import { EvolutionConnectionAdapter } from './evolution-connection.adapter';
 import {
   parseEvolutionConnections,
@@ -71,15 +75,48 @@ export class HermesConnectedEvolutionAdapter {
     };
   }
 
+  private managedHosts(connection: HermesResolvedConnection): string[] {
+    if (!connection.managedEvolution) return [];
+    try {
+      const operator = provisionerConfiguration({
+        enabled: this.config?.get('HERMES_EVOLUTION_PROVISIONER_ENABLED'),
+        baseUrl: this.config?.get('HERMES_EVOLUTION_PROVISIONER_BASE_URL'),
+        apiKey: this.config?.get('HERMES_EVOLUTION_PROVISIONER_API_KEY'),
+      });
+      if (
+        !operator ||
+        !managedConnectionMatches(
+          connection.workspaceId,
+          connection.settings,
+          operator.baseUrl,
+        )
+      )
+        throw new Error();
+      return [operator.hostname];
+    } catch {
+      throw new EvolutionMessageError('NOT_CONFIGURED');
+    }
+  }
+  private requireManagedActive(connection: HermesResolvedConnection) {
+    if (
+      connection.managedEvolution &&
+      (connection.managedEvolution.phase !== 'ACTIVE' ||
+        connection.managedEvolution.cutoffSeconds === undefined)
+    )
+      throw new EvolutionMessageError('WA_ENROLLMENT_INACTIVE');
+  }
+
   async snapshot(workspaceId: string): Promise<{
     connection: HermesResolvedConnection;
     serialized: string;
     nativeConnection: EvolutionConnection;
     assertCurrent: (manager?: EntityManager) => Promise<void>;
     adapter: EvolutionMessagesAdapter;
+    allowedInternalHosts: string[];
   }> {
     const connection = await this.connections.resolve(workspaceId, 'EVOLUTION');
     if (!connection) throw new EvolutionMessageError('NOT_CONFIGURED');
+    const allowedInternalHosts = this.managedHosts(connection);
     const serialized = JSON.stringify({
       [workspaceId]: {
         ...connection.settings,
@@ -93,12 +130,14 @@ export class HermesConnectedEvolutionAdapter {
       connection,
       serialized,
       nativeConnection,
+      allowedInternalHosts,
       assertCurrent,
       // The resolved connection's own identity, which is what our webhook
       // ingress requires in a delivery URL. HermesConnectedEvolutionReceiver
       // refuses an unscoped delivery, so this is the identity a reported
       // webhook URL has to carry for reception to be real.
       adapter: new EvolutionMessagesAdapter(serialized, {
+        allowedInternalHosts,
         assertCurrent,
         ingressConnectionId: connection.connectionId,
         ingressOrigins: this.ingressOrigins(),
@@ -128,6 +167,7 @@ export class HermesConnectedEvolutionAdapter {
   async probe(workspaceId: string): Promise<HermesMessagingProbe> {
     try {
       const snapshot = await this.snapshot(workspaceId);
+      this.requireManagedActive(snapshot.connection);
       const result = await snapshot.adapter.probe(workspaceId);
       await snapshot.assertCurrent();
       return result;
@@ -151,9 +191,9 @@ export class HermesConnectedEvolutionAdapter {
   ): Promise<EvolutionConnectionProbe> {
     try {
       const snapshot = await this.snapshot(workspaceId);
-      const result = await new EvolutionConnectionAdapter(
-        snapshot.serialized,
-      ).probe(workspaceId);
+      const result = await new EvolutionConnectionAdapter(snapshot.serialized, {
+        allowedInternalHosts: snapshot.allowedInternalHosts,
+      }).probe(workspaceId);
       await snapshot.assertCurrent();
       return result;
     } catch (error) {
@@ -174,6 +214,7 @@ export class HermesConnectedEvolutionAdapter {
 
   async send(input: HermesMessagingSend): Promise<HermesMessagingReceipt> {
     const snapshot = await this.snapshot(input.workspaceId);
+    this.requireManagedActive(snapshot.connection);
     if (input.providerConnectionId !== snapshot.connection.connectionId)
       throw new EvolutionMessageError('CONNECTION_MISMATCH');
     return snapshot.adapter.send({
@@ -188,6 +229,7 @@ export class HermesConnectedEvolutionAdapter {
     input: Parameters<EvolutionMessagesAdapter['receiveMedia']>[0],
   ): Promise<{ bytes: Buffer; mimeType: string }> {
     const snapshot = await this.snapshot(input.workspaceId);
+    this.requireManagedActive(snapshot.connection);
     if (input.providerConnectionId !== snapshot.connection.connectionId)
       throw new EvolutionMessageError('CONNECTION_MISMATCH');
     const result = await snapshot.adapter.receiveMedia({

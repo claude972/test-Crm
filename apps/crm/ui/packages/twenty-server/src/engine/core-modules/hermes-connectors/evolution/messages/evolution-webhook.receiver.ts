@@ -48,6 +48,8 @@ export type EvolutionWebhookResult =
   | {
       status: 'IGNORED';
       reason:
+        | 'ENROLLMENT_INACTIVE'
+        | 'BEFORE_ACTIVATION'
         | 'UNSUPPORTED_EVENT'
         | 'UNSUPPORTED_MESSAGE'
         | 'UNSUPPORTED_ADDRESS';
@@ -75,9 +77,16 @@ export class EvolutionWebhookReceiver {
     private readonly receiveMedia?: EvolutionReceiveMedia,
     private readonly context: {
       connectionId?: string;
+      minMessageTimestampExclusive?: number;
       assertCurrent?: () => Promise<void>;
     } = {},
   ) {
+    if (
+      this.context.minMessageTimestampExclusive !== undefined &&
+      (!Number.isSafeInteger(this.context.minMessageTimestampExclusive) ||
+        this.context.minMessageTimestampExclusive < 946684800)
+    )
+      throw new EvolutionMessageError('WEBHOOK_CONFIGURATION_INVALID');
     this.#connections = parseEvolutionConnections(serializedConnections);
     try {
       if (Buffer.byteLength(serializedSecrets) > 16_384) throw new Error();
@@ -169,6 +178,12 @@ export class EvolutionWebhookReceiver {
       text.includes('\0')
     )
       throw new EvolutionMessageError('WEBHOOK_INVALID_EVENT');
+    if (this.context.minMessageTimestampExclusive !== undefined) {
+      if (typeof data.messageTimestamp !== 'number')
+        throw new EvolutionMessageError('WEBHOOK_INVALID_EVENT');
+      if (seconds <= this.context.minMessageTimestampExclusive)
+        return { status: 'IGNORED', reason: 'BEFORE_ACTIVATION' };
+    }
     if (envelope.data.event === 'send.message' && !data.key.fromMe)
       throw new EvolutionMessageError('WEBHOOK_INVALID_EVENT');
 

@@ -23,6 +23,11 @@ import { HermesConnectionEntity } from '../hermes-connection.entity';
 import { HermesConnectionsService } from '../hermes-connections.service';
 
 jest.mock(
+  'src/engine/core-modules/hermes-messaging/hermes-messaging-person.service',
+  () => ({ HermesMessagingPersonService: class {} }),
+);
+
+jest.mock(
   'src/engine/core-modules/secure-http-client/utils/resolve-and-validate-hostname.util',
   () => ({ resolveAndValidateHostname: jest.fn(async () => '93.184.216.34') }),
 );
@@ -40,7 +45,7 @@ const evolution = {
   secrets: { apiKey: 'test-key', webhookSecret: 'a'.repeat(64) },
 };
 
-function fixture() {
+function fixture(managedEnabled = false) {
   const rows: HermesConnectionEntity[] = [];
   const repository = {
     findBy: jest.fn(async (scope: Partial<HermesConnectionEntity>) =>
@@ -204,6 +209,16 @@ function fixture() {
     access as unknown as HermesProspectionAccessService,
     encryption,
     new ConnectedAccountTokenEncryptionService(encryption),
+    {
+      get: (key: string) =>
+        key === 'HERMES_EVOLUTION_PROVISIONER_ENABLED'
+          ? managedEnabled
+          : key === 'HERMES_EVOLUTION_PROVISIONER_BASE_URL'
+            ? 'https://managed-evolution.test:8443'
+            : key === 'HERMES_EVOLUTION_PROVISIONER_API_KEY'
+              ? 'g'.repeat(64)
+              : undefined,
+    } as never,
   );
   return {
     source,
@@ -924,5 +939,141 @@ describe('encrypted workspace connections', () => {
         secrets: { secret: 'short' },
       }),
     ).rejects.toThrow('CONNECTION_CONFIGURATION_INVALID');
+  });
+});
+
+describe('operator-managed WhatsApp enrollment storage', () => {
+  it('reserves independent encrypted instance/webhook credentials before any provider work and exposes no secrets', async () => {
+    const f = fixture(true);
+    await expect(f.service.reserveManagedEvolution(actor, 0)).resolves.toEqual({
+      created: true,
+      revision: 1,
+    });
+    const current = await f.service.managedEnrollmentSnapshot(actor, 1);
+    expect(current.connection).toMatchObject({
+      settings: {
+        baseUrl: 'https://managed-evolution.test:8443',
+        instanceName: expect.stringMatching(/^kcrm-[a-f0-9]{32}$/),
+      },
+      managedEvolution: { version: 1, phase: 'PROVISIONING' },
+    });
+    expect(current.connection!.secrets.apiKey).toMatch(/^[a-f0-9]{64}$/);
+    expect(current.connection!.secrets.apiKey).not.toBe(
+      current.connection!.secrets.webhookSecret,
+    );
+    expect(current.botMode).toBe('OFF');
+    const publicView = JSON.stringify(await f.service.list(actor));
+    expect(publicView).not.toContain(current.connection!.secrets.apiKey);
+    expect(publicView).not.toContain(current.connection!.secrets.webhookSecret);
+    expect(publicView).not.toContain(
+      current.connection!.managedEvolution!.operationId,
+    );
+    expect(f.rows[0].configuration).toMatch(/^enc:v2:/);
+    expect(f.rows[0].configuration).not.toContain('g'.repeat(64));
+  });
+  it('never rotates a pending instance on repeated Start and refuses stale revisions', async () => {
+    const f = fixture(true);
+    await f.service.reserveManagedEvolution(actor, 0);
+    const encrypted = f.rows[0].configuration;
+    await expect(f.service.reserveManagedEvolution(actor, 1)).resolves.toEqual({
+      created: false,
+      revision: 1,
+    });
+    expect(f.rows[0].configuration).toBe(encrypted);
+    await expect(f.service.reserveManagedEvolution(actor, 0)).rejects.toThrow(
+      'CONNECTION_REVISION_CONFLICT',
+    );
+    expect(f.rows).toHaveLength(1);
+  });
+  it('refuses generic save/remove of managed state without weakening manual endpoint validation', async () => {
+    const f = fixture(true);
+    await f.service.reserveManagedEvolution(actor, 0);
+    await expect(
+      f.service.save(actor, { ...evolution, expectedRevision: 1 }),
+    ).rejects.toThrow('WA_CONNECTION_MANAGED');
+    await expect(
+      f.service.remove(actor, { kind: 'EVOLUTION', expectedRevision: 1 }),
+    ).rejects.toThrow('WA_CONNECTION_MANAGED');
+    expect(f.rows[0].enabled).toBe(true);
+    expect(f.rows[0].revision).toBe(1);
+    const manual = fixture(true);
+    jest
+      .mocked(resolveAndValidateHostname)
+      .mockRejectedValueOnce(new Error('private'));
+    await expect(manual.service.save(actor, evolution)).rejects.toThrow(
+      'CONNECTION_ENDPOINT_NOT_PUBLIC',
+    );
+    expect(resolveAndValidateHostname).toHaveBeenCalledWith(
+      'evolution.example.com',
+      [],
+    );
+    expect(manual.rows).toHaveLength(0);
+  });
+  it('persists the activation cutoff once, before ACTIVE, while reporting the actual bot policy', async () => {
+    const f = fixture(true);
+    await f.service.reserveManagedEvolution(actor, 0);
+    await f.service.transitionManagedEvolution(actor, 1, 'AWAITING_PAIRING');
+    f.policies.find((policy) => policy.scope === 'WHATSAPP')!.mode = 'ASSISTED';
+    expect((await f.service.managedEnrollmentSnapshot(actor, 2)).botMode).toBe(
+      'ASSISTED',
+    );
+    await expect(
+      f.service.transitionManagedEvolution(actor, 2, 'ACTIVATING'),
+    ).rejects.toThrow('WA_BOT_MUST_BE_OFF');
+    expect(f.rows[0].revision).toBe(2);
+    f.policies.find((policy) => policy.scope === 'WHATSAPP')!.mode = 'OFF';
+    const revision = await f.service.transitionManagedEvolution(
+      actor,
+      2,
+      'ACTIVATING',
+    );
+    const first = (await f.service.managedEnrollmentSnapshot(actor, revision))
+      .connection!.managedEvolution!;
+    expect(first.cutoffSeconds).toBeGreaterThanOrEqual(
+      Math.floor(Date.now() / 1000) - 2,
+    );
+    expect(first.cutoffSeconds).toBeLessThanOrEqual(
+      Math.floor(Date.now() / 1000),
+    );
+    expect(
+      await f.service.transitionManagedEvolution(actor, revision, 'ACTIVATING'),
+    ).toBe(revision);
+    const active = await f.service.transitionManagedEvolution(
+      actor,
+      revision,
+      'ACTIVE',
+    );
+    expect(
+      (await f.service.managedEnrollmentSnapshot(actor, active)).connection!
+        .managedEvolution!.cutoffSeconds,
+    ).toBe(first.cutoffSeconds);
+  });
+  it('refuses managed activation state skips and legacy connection adoption', async () => {
+    const f = fixture(true);
+    await f.service.reserveManagedEvolution(actor, 0);
+    await expect(
+      f.service.transitionManagedEvolution(actor, 1, 'ACTIVE'),
+    ).rejects.toThrow('WA_ENROLLMENT_TRANSITION_INVALID');
+    const legacy = fixture(true);
+    await legacy.service.save(actor, evolution);
+    await expect(
+      legacy.service.reserveManagedEvolution(actor, 1),
+    ).rejects.toThrow('WA_CONNECTION_NOT_MANAGED');
+    expect(legacy.rows[0].revision).toBe(1);
+  });
+  it('requires native authorization and keeps managed metadata outside generic public inputs', async () => {
+    const f = fixture(true);
+    f.access.assertAllowed.mockRejectedValueOnce(new ForbiddenException());
+    await expect(f.service.reserveManagedEvolution(actor, 0)).rejects.toThrow(
+      ForbiddenException,
+    );
+    expect(f.rows).toHaveLength(0);
+    await expect(
+      f.service.save(actor, {
+        ...evolution,
+        managedEvolution: { phase: 'ACTIVE' },
+      }),
+    ).rejects.toThrow('CONNECTION_INPUT_INVALID');
+    expect(f.rows).toHaveLength(0);
   });
 });

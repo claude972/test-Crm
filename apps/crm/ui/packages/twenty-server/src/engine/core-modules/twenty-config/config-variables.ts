@@ -2494,6 +2494,34 @@ export class ConfigVariables {
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Enable workspace-scoped WhatsApp enrollment through the operator-managed Evolution service.',
+    type: ConfigVariableType.BOOLEAN,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_EVOLUTION_PROVISIONER_ENABLED = false;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Operator-managed Evolution HTTPS origin. Never accepted from a browser.',
+    type: ConfigVariableType.STRING,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_EVOLUTION_PROVISIONER_BASE_URL: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description: 'Server-only Evolution provisioning key. Never exposed in connection views.',
+    type: ConfigVariableType.STRING,
+    isSensitive: true,
+    isEnvOnly: true,
+  })
+  @IsOptional()
+  HERMES_EVOLUTION_PROVISIONER_API_KEY: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
     description: 'Server-only workspace Evolution webhook secrets; no configured incoming WhatsApp events when empty.',
     type: ConfigVariableType.STRING,
     isSensitive: true,

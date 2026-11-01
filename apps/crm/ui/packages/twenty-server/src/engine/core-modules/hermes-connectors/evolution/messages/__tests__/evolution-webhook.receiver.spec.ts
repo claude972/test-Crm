@@ -369,3 +369,70 @@ describe('Evolution private media ingress', () => {
     expect(ingest).not.toHaveBeenCalled();
   });
 });
+
+describe('managed enrollment ingress cutoff before all message and media effects', () => {
+  const cutoff = Math.floor(Date.now() / 1000) - 10;
+  it.each([cutoff - 100, cutoff])(
+    'ignores old/same-second/non-number timestamp %s before any side effect',
+    async (timestamp) => {
+      const ingest = jest.fn(),
+        media = jest.fn();
+      const receiver = new EvolutionWebhookReceiver(
+        CONFIG,
+        TOKENS,
+        ingest,
+        media,
+        { minMessageTimestampExclusive: cutoff },
+      );
+      const payload = event();
+      payload.data.messageTimestamp = timestamp as number;
+      payload.data.message = { imageMessage: {} } as never;
+      await expect(receiver.receive(TOKEN_A, payload)).resolves.toEqual({
+        status: 'IGNORED',
+        reason: 'BEFORE_ACTIVATION',
+      });
+      expect(ingest).not.toHaveBeenCalled();
+      expect(media).not.toHaveBeenCalled();
+    },
+  );
+  it('rejects a string timestamp for managed ingress before effects', async () => {
+    const ingest = jest.fn(),
+      media = jest.fn();
+    const receiver = new EvolutionWebhookReceiver(
+      CONFIG,
+      TOKENS,
+      ingest,
+      media,
+      { minMessageTimestampExclusive: cutoff },
+    );
+    const payload = event();
+    payload.data.messageTimestamp = String(cutoff + 1) as never;
+    await expect(receiver.receive(TOKEN_A, payload)).rejects.toThrow(
+      'WEBHOOK_INVALID_EVENT',
+    );
+    expect(ingest).not.toHaveBeenCalled();
+    expect(media).not.toHaveBeenCalled();
+  });
+  it('accepts only authenticated events strictly after the persisted cutoff', async () => {
+    const ingest = jest.fn(async () => ({
+      conversationId: 'conversation',
+      messageId: 'message',
+      replay: false,
+    }));
+    const receiver = new EvolutionWebhookReceiver(
+      CONFIG,
+      TOKENS,
+      ingest,
+      undefined,
+      { minMessageTimestampExclusive: cutoff },
+    );
+    const payload = event();
+    payload.data.messageTimestamp = cutoff + 1;
+    await expect(receiver.receive(TOKEN_B, payload)).rejects.toThrow();
+    expect(ingest).not.toHaveBeenCalled();
+    await expect(receiver.receive(TOKEN_A, payload)).resolves.toMatchObject({
+      status: 'INGESTED',
+    });
+    expect(ingest).toHaveBeenCalledTimes(1);
+  });
+});
