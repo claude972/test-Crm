@@ -1,4 +1,4 @@
-import { UseFilters, UseGuards, UsePipes } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import {
   Args,
   Context,
@@ -59,7 +59,6 @@ export class HermesWhatsappEnrollmentQrInput extends HermesWhatsappEnrollmentSco
   AuthGraphqlApiExceptionFilter,
   PreventNestToAutoLogGraphqlErrorsFilter,
 )
-@UsePipes(ResolverValidationPipe)
 export class EvolutionEnrollmentResolver {
   constructor(private readonly enrollment: EvolutionEnrollmentService) {}
   private actor(
@@ -81,7 +80,8 @@ export class EvolutionEnrollmentResolver {
     @AuthWorkspace() workspace: WorkspaceEntity,
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() member: string,
-    @Args('input') input: HermesWhatsappEnrollmentScopeInput,
+    @Args('input', new ResolverValidationPipe())
+    input: HermesWhatsappEnrollmentScopeInput,
     @Context('res') response?: Response,
   ) {
     this.noStore(response);
@@ -92,7 +92,8 @@ export class EvolutionEnrollmentResolver {
     @AuthWorkspace() workspace: WorkspaceEntity,
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() member: string,
-    @Args('input') input: HermesWhatsappEnrollmentQrInput,
+    @Args('input', new ResolverValidationPipe())
+    input: HermesWhatsappEnrollmentQrInput,
     @Context('res') response?: Response,
   ) {
     this.noStore(response);
@@ -103,7 +104,8 @@ export class EvolutionEnrollmentResolver {
     @AuthWorkspace() workspace: WorkspaceEntity,
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() member: string,
-    @Args('input') input: HermesWhatsappEnrollmentScopeInput,
+    @Args('input', new ResolverValidationPipe())
+    input: HermesWhatsappEnrollmentScopeInput,
     @Context('res') response?: Response,
   ) {
     this.noStore(response);
@@ -114,7 +116,8 @@ export class EvolutionEnrollmentResolver {
     @AuthWorkspace() workspace: WorkspaceEntity,
     @AuthUser() user: FlatAuthContextUser,
     @AuthUserWorkspaceId() member: string,
-    @Args('input') input: HermesWhatsappEnrollmentScopeInput,
+    @Args('input', new ResolverValidationPipe())
+    input: HermesWhatsappEnrollmentScopeInput,
     @Context('res') response?: Response,
   ) {
     this.noStore(response);

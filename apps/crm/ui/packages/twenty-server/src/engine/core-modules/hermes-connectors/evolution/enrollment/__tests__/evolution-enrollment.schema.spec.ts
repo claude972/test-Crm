@@ -1,3 +1,5 @@
+import { PIPES_METADATA } from '@nestjs/common/constants';
+import { PARAM_ARGS_METADATA } from '@nestjs/graphql/dist/graphql.constants';
 import {
   GraphQLSchemaBuilderModule,
   GraphQLSchemaFactory,
@@ -5,7 +7,10 @@ import {
 import { Test } from '@nestjs/testing';
 import { isInputObjectType, parse, validate } from 'graphql';
 import { HermesConnectionsResolver } from 'src/engine/core-modules/hermes-connections/hermes-connections.resolver';
-import { EvolutionEnrollmentResolver } from '../evolution-enrollment.resolver';
+import {
+  EvolutionEnrollmentResolver,
+  HermesWhatsappEnrollmentScopeInput,
+} from '../evolution-enrollment.resolver';
 jest.mock(
   'src/engine/core-modules/hermes-connections/hermes-connections.service',
   () => ({ HermesConnectionsService: class {} }),
@@ -64,6 +69,43 @@ describe('managed enrollment native metadata API', () => {
       ).toHaveLength(3);
     } finally {
       await module.close();
+    }
+  });
+  it('validates only form input, never the Express response graph', async () => {
+    expect(
+      Reflect.getMetadata(PIPES_METADATA, EvolutionEnrollmentResolver),
+    ).toBeUndefined();
+    for (const suffix of ['Start', 'Qr', 'Status', 'Activate']) {
+      const parameters = Reflect.getMetadata(
+        PARAM_ARGS_METADATA,
+        EvolutionEnrollmentResolver,
+        'hermesWhatsappEnrollment' + suffix,
+      ) as Record<
+        string,
+        {
+          index: number;
+          pipes: Array<{
+            transform: (value: unknown, metadata: unknown) => Promise<unknown>;
+          }>;
+        }
+      >;
+      const input = Object.values(parameters).find(
+        (parameter) => parameter.index === 3,
+      )!;
+      const response = Object.values(parameters).find(
+        (parameter) => parameter.index === 4,
+      )!;
+      expect(response.pipes).toHaveLength(0);
+      expect(input.pipes).toHaveLength(1);
+      await expect(
+        input.pipes[0].transform(
+          { expectedRevision: -1 },
+          {
+            metatype: HermesWhatsappEnrollmentScopeInput,
+            type: 'body',
+          },
+        ),
+      ).rejects.toThrow();
     }
   });
   it('sets no-store and derives actor exclusively from native authenticated context', async () => {
