@@ -18,6 +18,10 @@ import {
   type HermesConnectionFormSubmission,
   type HermesConnectionFormValues,
 } from '@/hermes-admin-ui/types/HermesConnectionForm';
+import { currentUserState } from '@/auth/states/currentUserState';
+import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { HermesWhatsappSetupSection } from '@/hermes-whatsapp-setup/components/HermesWhatsappSetupSection';
 import { HermesBotPolicySection } from '@/hermes-bot-settings/components/HermesBotPolicySection';
 import { HermesMcpToolSurfacePanel } from '@/hermes-admin-runtime/components/HermesMcpToolSurfacePanel';
 import { HermesMailboxSetupPanel } from '@/hermes-mailbox-setup/components/HermesMailboxSetupPanel';
@@ -40,6 +44,12 @@ export const HermesAdminRuntimeSettings = () => {
   const { t } = useLingui();
 
   const companies = useHermesRuntimeCompanies();
+  const currentUser = useAtomStateValue(currentUserState);
+  const currentUserWorkspace = useAtomStateValue(currentUserWorkspaceState);
+  const sessionIdentity = useMemo(
+    () => ({ currentUser, currentUserWorkspace }),
+    [currentUser, currentUserWorkspace],
+  );
   const connections = useHermesRuntimeConnections(companies.activeCompanyId);
   const { read: nativeAccountsRead, rereadAccounts } =
     useHermesRuntimeNativeAccounts();
@@ -93,9 +103,7 @@ export const HermesAdminRuntimeSettings = () => {
   // control opens empty every time, and leaving it empty keeps the stored
   // secret untouched. Nothing is written to browser storage on the way,
   // not even for the length of an edit.
-  const initialValues = useMemo<
-    HermesConnectionFormValues | undefined
-  >(() => {
+  const initialValues = useMemo<HermesConnectionFormValues | undefined>(() => {
     if (formSubject === null || formSubject.mode !== 'edit') {
       return undefined;
     }
@@ -377,14 +385,15 @@ export const HermesAdminRuntimeSettings = () => {
         // `supported` cannot reach this branch, but the type does not tie the
         // two together, so the narrowing is written out rather than asserted.
         connections.writeBlock.support.kind !== 'supported' && (
-        <HermesAdminNote role="alert">
-          {connections.writeBlock.support.kind === 'no-server-kind'
-            ? t`Rien n’a été envoyé : ce canal n’a pas de configuration centrale propre. L’envoi de courrier s’appuie sur le compte connecté natif choisi pour la réception, et les formulaires comme les rendez-vous sont des sources d’une collecte signée, pas des connexions distinctes.`
-            : connections.writeBlock.support.detail === 'evolution-two-secrets'
-              ? t`Rien n’a été envoyé : cette connexion attend deux secrets distincts — une clé d’API et un secret de webhook de soixante-quatre caractères hexadécimaux minuscules qui en diffère — et cet écran n’offre qu’un seul champ. En envoyer un seul effacerait l’autre, donc rien ne part. Un second champ de secret est requis dans la bibliothèque.`
-              : t`Rien n’a été envoyé : une collecte signée attend ses sources autorisées et sa limite de requêtes par minute, et cet écran n’offre aucun contrôle pour les choisir. Les choisir à votre place serait décider de votre politique de collecte.`}
-        </HermesAdminNote>
-      )}
+          <HermesAdminNote role="alert">
+            {connections.writeBlock.support.kind === 'no-server-kind'
+              ? t`Rien n’a été envoyé : ce canal n’a pas de configuration centrale propre. L’envoi de courrier s’appuie sur le compte connecté natif choisi pour la réception, et les formulaires comme les rendez-vous sont des sources d’une collecte signée, pas des connexions distinctes.`
+              : connections.writeBlock.support.detail ===
+                  'evolution-two-secrets'
+                ? t`Rien n’a été envoyé : cette connexion attend deux secrets distincts — une clé d’API et un secret de webhook de soixante-quatre caractères hexadécimaux minuscules qui en diffère — et cet écran n’offre qu’un seul champ. En envoyer un seul effacerait l’autre, donc rien ne part. Un second champ de secret est requis dans la bibliothèque.`
+                : t`Rien n’a été envoyé : une collecte signée attend ses sources autorisées et sa limite de requêtes par minute, et cet écran n’offre aucun contrôle pour les choisir. Les choisir à votre place serait décider de votre politique de collecte.`}
+          </HermesAdminNote>
+        )}
 
       <HermesAdminSettingsCenter
         companiesRead={companies.companiesRead}
@@ -402,6 +411,49 @@ export const HermesAdminRuntimeSettings = () => {
         connectionFormInitialValues={initialValues}
         nativeAccounts={nativeAccounts}
         mailboxSetupSlot={mailboxSetupSlot}
+        whatsappSetupSlot={
+          contextValidity.kind === 'current' &&
+          companies.activeCompanyId &&
+          connections.read.kind === 'reported' &&
+          currentUser &&
+          currentUserWorkspace ? (
+            (() => {
+              const revision = connections.views.find(
+                (view) => view.runtimeKind === 'EVOLUTION',
+              )?.revision;
+              const expectedRevision =
+                typeof revision === 'string' && /^\d+$/.test(revision)
+                  ? Number(revision)
+                  : null;
+              const companyName =
+                companies.companiesRead.kind === 'reported'
+                  ? (companies.companiesRead.companies.find(
+                      (company) => company.id === companies.activeCompanyId,
+                    )?.name ?? null)
+                  : null;
+              return expectedRevision !== null &&
+                Number.isSafeInteger(expectedRevision) ? (
+                <HermesWhatsappSetupSection
+                  workspaceId={companies.activeCompanyId}
+                  sessionIdentity={sessionIdentity}
+                  expectedRevision={expectedRevision}
+                  companyName={companyName}
+                  onReload={handleRequestReload}
+                />
+              ) : (
+                <HermesAdminNote role="status">
+                  Les réglages WhatsApp doivent être relus avant l’association.
+                </HermesAdminNote>
+              );
+            })()
+          ) : (
+            <HermesAdminNote role="status">
+              Vérification de la société et des réglages WhatsApp…
+            </HermesAdminNote>
+          )
+        }
+        botSettingsSlot={<HermesBotPolicySection />}
+        mcpToolsSlot={<HermesMcpToolSurfacePanel />}
         connectionSaveState={connections.saveState}
         checkByProbe={checks.readOutcomes(checkedTarget)}
         checkedConnectionId={checkedTarget?.connectionId ?? null}
@@ -416,18 +468,6 @@ export const HermesAdminRuntimeSettings = () => {
         onCancelConnectionForm={handleCancelForm}
         onRequestReload={handleRequestReload}
       />
-
-      {/* The company-wide and per-channel bot policy, through the operations
-          that already exist. Saving or removing a connection stops the bot
-          delegations of the affected channel — the form says so before the
-          write — and nothing here offers to resume them: a fresh explicit
-          policy action is required, which is exactly what this section is. */}
-      <HermesBotPolicySection />
-
-      {/* Ce que le serveur MCP de la société annonce, à côté de la politique
-          qui décide si le bot s'en sert. La découverte n'appelle aucun outil :
-          le panneau rapporte une offre, pas un connecteur vérifié. */}
-      <HermesMcpToolSurfacePanel />
     </>
   );
 };

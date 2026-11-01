@@ -1,9 +1,14 @@
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { type ReactNode } from 'react';
+import { type ReactNode, useCallback } from 'react';
+import { Button } from 'kovaa-lab-ui/primitives/input';
+import { HermesConnectionStateTag } from '@/hermes-admin-ui/components/HermesConnectionStateTag';
+import {
+  isHermesConnectionEditable,
+  readHermesConnectionStateDescriptor,
+} from '@/hermes-admin-ui/utils/hermesConnectionState';
 import { themeCssVariables } from 'kovaa-lab-ui/theme';
 
-import { HermesAdminRuleNote } from '@/hermes-admin-ui/components/HermesAdminNote';
 import { type HermesCompanyDraft } from '@/hermes-admin-ui/components/HermesCompanyAddForm';
 import { HermesCompanySection } from '@/hermes-admin-ui/components/HermesCompanySection';
 import { HermesConnectionCenter } from '@/hermes-admin-ui/components/HermesConnectionCenter';
@@ -68,6 +73,9 @@ type HermesAdminSettingsCenterProps = {
   // Passed straight through to the connection form, which owns the hole. Its
   // contents belong to the lot that owns the native mailbox setup panel.
   mailboxSetupSlot?: ReactNode;
+  whatsappSetupSlot?: ReactNode;
+  botSettingsSlot?: ReactNode;
+  mcpToolsSlot?: ReactNode;
   connectionSaveState: HermesConnectionSaveState;
   // The last outcome of each read-only probe, shared by the cards and the open
   // form. Keyed by probe because a probe is a channel's own operation.
@@ -110,6 +118,9 @@ export const HermesAdminSettingsCenter = ({
   connectionFormInitialValues,
   nativeAccounts,
   mailboxSetupSlot,
+  whatsappSetupSlot,
+  botSettingsSlot,
+  mcpToolsSlot,
   connectionSaveState,
   checkByProbe,
   checkedConnectionId,
@@ -125,8 +136,20 @@ export const HermesAdminSettingsCenter = ({
   onRequestReload,
 }: HermesAdminSettingsCenterProps) => {
   const { t } = useLingui();
+  const focusConnectionForm = useCallback(
+    (node: HTMLDivElement | null) => node?.focus(),
+    [],
+  );
 
   const activeCompany = readHermesActiveCompany(companiesRead);
+  const mcpConnection =
+    connectionsRead.kind === 'reported'
+      ? connectionsRead.connections.find(
+          (connection) =>
+            connection.kind === 'MCP' &&
+            connection.companyId === activeCompany?.id,
+        )
+      : undefined;
 
   // What is held belongs to the previous company, so it is dropped rather than
   // shown under the new one's name. Nothing is retried on its own.
@@ -151,9 +174,134 @@ export const HermesAdminSettingsCenter = ({
 
   return (
     <StyledCenter>
-      <HermesAdminRuleNote>
-        {t`Tout ce que cette page règle porte sur une seule société exploitante, nommée sur chaque bloc. Rien d’ici n’atteint une autre société.`}
-      </HermesAdminRuleNote>
+      <header>
+        <p>
+          <strong>
+            Société active : {activeCompany?.name ?? 'à vérifier'}
+          </strong>
+        </p>
+        <p>
+          WhatsApp sert aux conversations WhatsApp ; Boîte aux lettres sert aux
+          courriels. Ici, vous connectez ces canaux et réglez les réponses du
+          bot pour cette société.
+        </p>
+        <nav
+          aria-label="Accès rapides aux connexions"
+          style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}
+        >
+          <a href="#hermes-whatsapp">WhatsApp</a>
+          <a href="#hermes-bot">Réponses du bot</a>
+          <a href="#hermes-mcp">Serveur MCP</a>
+        </nav>
+      </header>
+
+      {whatsappSetupSlot}
+
+      <section id="hermes-bot" aria-label="Réponses du bot" tabIndex={-1}>
+        {botSettingsSlot}
+      </section>
+
+      <section id="hermes-mcp" aria-labelledby="hermes-mcp-title" tabIndex={-1}>
+        <h2 id="hermes-mcp-title">Serveur MCP</h2>
+        <p>
+          Connectez le serveur Hermès utilisé par le bot. Sa connexion ne
+          réactive pas les réponses automatiques.
+        </p>
+        {connectionsRead.kind === 'reported' && activeCompany ? (
+          <>
+            <HermesConnectionStateTag
+              descriptor={
+                mcpConnection
+                  ? readHermesConnectionStateDescriptor(mcpConnection)
+                  : { kind: 'NOT_CONFIGURED' }
+              }
+            />
+            <Button
+              variant="outline"
+              disabled={
+                hasWriteInFlight ||
+                (mcpConnection
+                  ? !isHermesConnectionEditable(
+                      readHermesConnectionStateDescriptor(mcpConnection),
+                    )
+                  : false)
+              }
+              onClick={() =>
+                mcpConnection
+                  ? onRequestEditConnection(mcpConnection.id)
+                  : onRequestCreateConnection('MCP')
+              }
+            >
+              {mcpConnection
+                ? 'Modifier le serveur MCP'
+                : 'Configurer le serveur MCP'}
+            </Button>
+          </>
+        ) : (
+          <p role="status">
+            L’état du serveur MCP n’a pas encore été établi. Aucun réglage n’est
+            supposé.
+          </p>
+        )}
+      </section>
+
+      {connectionFormSubject !== null && (
+        <div
+          key={`${connectionFormSubject.mode}:${connectionFormSubject.kind}:${connectionFormSubject.mode === 'edit' ? connectionFormSubject.connectionId : 'new'}`}
+          tabIndex={-1}
+          ref={focusConnectionForm}
+        >
+          <HermesConnectionForm
+            subject={connectionFormSubject}
+            companyName={activeCompany?.name ?? null}
+            initialValues={connectionFormInitialValues}
+            nativeAccounts={nativeAccounts}
+            mailboxSetupSlot={mailboxSetupSlot}
+            saveState={connectionSaveState}
+            checkByProbe={
+              connectionFormSubject.mode === 'edit' &&
+              connectionFormSubject.connectionId === checkedConnectionId
+                ? checkByProbe
+                : {}
+            }
+            isChecking={isChecking}
+            contextValidity={contextValidity}
+            onSubmit={onSubmitConnection}
+            onRequestDelete={(expectedRevision) => {
+              if (connectionFormSubject.mode === 'edit') {
+                onRequestDeleteConnection(
+                  connectionFormSubject.connectionId,
+                  expectedRevision,
+                );
+              }
+            }}
+            onRequestTest={() => {
+              if (connectionFormSubject.mode === 'edit') {
+                onRequestTestConnection(connectionFormSubject.connectionId);
+              }
+            }}
+            onCancel={onCancelConnectionForm}
+            onRequestReload={onRequestReload}
+          />
+        </div>
+      )}
+
+      <details>
+        <summary>Outils et autorisations MCP</summary>
+        {mcpToolsSlot}
+      </details>
+
+      <HermesConnectionCenter
+        read={connectionsRead}
+        activeCompanyId={activeCompany?.id ?? null}
+        activeCompanyName={activeCompany?.name ?? null}
+        checkByProbe={checkByProbe}
+        checkedConnectionId={checkedConnectionId}
+        isChecking={isChecking}
+        onRequestTest={onRequestTestConnection}
+        onRequestEdit={onRequestEditConnection}
+        onRequestCreate={onRequestCreateConnection}
+      />
 
       <HermesCompanySection
         companiesRead={companiesRead}
@@ -168,53 +316,6 @@ export const HermesAdminSettingsCenter = ({
         onRequestAdd={onRequestAddCompany}
         onRequestReload={onRequestReload}
       />
-
-      <HermesConnectionCenter
-        read={connectionsRead}
-        activeCompanyId={activeCompany?.id ?? null}
-        activeCompanyName={activeCompany?.name ?? null}
-        checkByProbe={checkByProbe}
-        checkedConnectionId={checkedConnectionId}
-        isChecking={isChecking}
-        onRequestTest={onRequestTestConnection}
-        onRequestEdit={onRequestEditConnection}
-        onRequestCreate={onRequestCreateConnection}
-      />
-
-      {connectionFormSubject !== null && (
-        <HermesConnectionForm
-          subject={connectionFormSubject}
-          companyName={activeCompany?.name ?? null}
-          initialValues={connectionFormInitialValues}
-          nativeAccounts={nativeAccounts}
-          mailboxSetupSlot={mailboxSetupSlot}
-          saveState={connectionSaveState}
-          checkByProbe={
-            connectionFormSubject.mode === 'edit' &&
-            connectionFormSubject.connectionId === checkedConnectionId
-              ? checkByProbe
-              : {}
-          }
-          isChecking={isChecking}
-          contextValidity={contextValidity}
-          onSubmit={onSubmitConnection}
-          onRequestDelete={(expectedRevision) => {
-            if (connectionFormSubject.mode === 'edit') {
-              onRequestDeleteConnection(
-                connectionFormSubject.connectionId,
-                expectedRevision,
-              );
-            }
-          }}
-          onRequestTest={() => {
-            if (connectionFormSubject.mode === 'edit') {
-              onRequestTestConnection(connectionFormSubject.connectionId);
-            }
-          }}
-          onCancel={onCancelConnectionForm}
-          onRequestReload={onRequestReload}
-        />
-      )}
     </StyledCenter>
   );
 };

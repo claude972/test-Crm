@@ -2,7 +2,7 @@ import { type MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createStore, Provider } from 'jotai';
 
@@ -48,7 +48,10 @@ const connectionsPayload = [
     connectionId: 'connection-evolution',
     revision: 4,
     state: 'CONFIGURED_UNVERIFIED',
-    settings: { baseUrl: 'https://evolution.example.com', instanceName: 'atelier' },
+    settings: {
+      baseUrl: 'https://evolution.example.com',
+      instanceName: 'atelier',
+    },
     secretFields: ['apiKey', 'webhookSecret'],
     updatedAt: '2026-10-29T10:00:00.000Z',
   },
@@ -157,9 +160,24 @@ const botPoliciesMock: MockedResponse = {
   result: {
     data: {
       hermesWorkspaceBotPolicies: [
-        { __typename: 'HermesBotPolicy', scope: 'WORKSPACE', mode: 'ASSISTED', revision: '3' },
-        { __typename: 'HermesBotPolicy', scope: 'WHATSAPP', mode: 'INHERIT', revision: '1' },
-        { __typename: 'HermesBotPolicy', scope: 'EMAIL', mode: 'OFF', revision: '1' },
+        {
+          __typename: 'HermesBotPolicy',
+          scope: 'WORKSPACE',
+          mode: 'ASSISTED',
+          revision: '3',
+        },
+        {
+          __typename: 'HermesBotPolicy',
+          scope: 'WHATSAPP',
+          mode: 'INHERIT',
+          revision: '1',
+        },
+        {
+          __typename: 'HermesBotPolicy',
+          scope: 'EMAIL',
+          mode: 'OFF',
+          revision: '1',
+        },
       ],
     },
   },
@@ -367,9 +385,7 @@ describe('HermesAdminRuntimeSettings', () => {
 
     // The read landed and the centre is showing it. The configured kinds are
     // named, each from its own published view.
-    expect(
-      await screen.findByText('WhatsApp (Evolution)'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('WhatsApp (Evolution)')).toBeInTheDocument();
     expect(
       screen.getByText(/Ces connexions appartiennent à Atelier Dupont/),
     ).toBeInTheDocument();
@@ -534,7 +550,8 @@ describe('HermesAdminRuntimeSettings', () => {
 
     await screen.findByText('WhatsApp (Evolution)');
 
-    // WhatsApp is the first registered slot and the probe is deferred.
+    await userEvent.click(screen.getByText('Configuration WhatsApp avancée'));
+    // The existing manual connection remains available in advanced settings.
     const testButtons = screen.getAllByRole('button', {
       name: 'Tester la connexion',
     });
@@ -589,11 +606,11 @@ describe('HermesAdminRuntimeSettings', () => {
 
     await screen.findByText('E-mail entrant (IMAP)');
 
-    const editButtons = screen.getAllByRole('button', {
-      name: 'Modifier les paramètres',
-    });
-
-    await userEvent.click(editButtons[1]);
+    await userEvent.click(
+      within(
+        screen.getByRole('article', { name: 'E-mail entrant (IMAP)' }),
+      ).getByRole('button', { name: 'Modifier les paramètres' }),
+    );
 
     expect(
       screen.getByRole('form', {
@@ -634,7 +651,9 @@ describe('HermesAdminRuntimeSettings', () => {
     await screen.findByText('E-mail entrant (IMAP)');
 
     await userEvent.click(
-      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+      within(
+        screen.getByRole('article', { name: 'E-mail entrant (IMAP)' }),
+      ).getByRole('button', { name: 'Modifier les paramètres' }),
     );
 
     expect(
@@ -643,9 +662,7 @@ describe('HermesAdminRuntimeSettings', () => {
 
     // And the wording that sent the operator away is gone.
     expect(
-      screen.queryByText(
-        /Il faut en connecter un dans les comptes du produit/,
-      ),
+      screen.queryByText(/Il faut en connecter un dans les comptes du produit/),
     ).toBeNull();
   });
 
@@ -678,21 +695,18 @@ describe('HermesAdminRuntimeSettings', () => {
 
     await screen.findByText('MCP');
 
-    // Open the MCP connection, which the server reported at revision 2. Only
-    // registered connections offer this control, in the published slot order:
-    // WhatsApp, incoming mail, then MCP.
-    const editButtons = screen.getAllByRole('button', {
-      name: 'Modifier les paramètres',
-    });
-
-    expect(editButtons).toHaveLength(3);
-
-    await userEvent.click(editButtons[2]);
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Modifier le serveur MCP' }),
+    );
 
     // Proof the right form opened, from its own accessible name.
     expect(
       screen.getByRole('form', { name: 'Modifier la connexion MCP' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('form', { name: 'Modifier la connexion MCP' })
+        .parentElement,
+    ).toHaveFocus();
 
     // The non-secret settings opened prefilled from what the server reported.
     // The secret control, by contrast, is empty: no secret is ever read back.
@@ -726,9 +740,7 @@ describe('HermesAdminRuntimeSettings', () => {
     // connection stays « Configuré, à vérifier ». No resumption of the
     // channel's automatic replies is offered.
     expect(
-      await screen.findByText(
-        /Enregistré\. Aucune vérification n’a eu lieu/,
-      ),
+      await screen.findByText(/Enregistré\. Aucune vérification n’a eu lieu/),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -746,7 +758,9 @@ describe('HermesAdminRuntimeSettings', () => {
     await screen.findByText('E-mail entrant (IMAP)');
 
     await userEvent.click(
-      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+      within(
+        screen.getByRole('article', { name: 'E-mail entrant (IMAP)' }),
+      ).getByRole('button', { name: 'Modifier les paramètres' }),
     );
 
     // The failure is named, and the re-read is offered.
@@ -776,7 +790,9 @@ describe('HermesAdminRuntimeSettings', () => {
     await screen.findByText('E-mail entrant (IMAP)');
 
     await userEvent.click(
-      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+      within(
+        screen.getByRole('article', { name: 'E-mail entrant (IMAP)' }),
+      ).getByRole('button', { name: 'Modifier les paramètres' }),
     );
 
     // An answered, empty read is an answer, so it may be said plainly.
@@ -801,7 +817,9 @@ describe('HermesAdminRuntimeSettings', () => {
     await screen.findByText('E-mail entrant (IMAP)');
 
     await userEvent.click(
-      screen.getAllByRole('button', { name: 'Modifier les paramètres' })[1],
+      within(
+        screen.getByRole('article', { name: 'E-mail entrant (IMAP)' }),
+      ).getByRole('button', { name: 'Modifier les paramètres' }),
     );
 
     // « Choisir un compte connecté » over no options reads as a choice that
@@ -816,5 +834,30 @@ describe('HermesAdminRuntimeSettings', () => {
     expect(
       screen.queryByRole('option', { name: 'Choisir un compte connecté' }),
     ).toBeNull();
+  });
+  it('makes WhatsApp, bot and MCP directly discoverable without an environment command', async () => {
+    renderSettings();
+    expect(
+      await screen.findByRole('navigation', {
+        name: 'Accès rapides aux connexions',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute(
+      'href',
+      '#hermes-whatsapp',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Réponses du bot' }),
+    ).toHaveAttribute('href', '#hermes-bot');
+    expect(screen.getByRole('link', { name: 'Serveur MCP' })).toHaveAttribute(
+      'href',
+      '#hermes-mcp',
+    );
+    expect(
+      await screen.findByRole('button', { name: 'Modifier le serveur MCP' }),
+    ).toBeEnabled();
+    expect(
+      screen.queryByText(/HERMES_MCP_CONNECTIONS/),
+    ).not.toBeInTheDocument();
   });
 });

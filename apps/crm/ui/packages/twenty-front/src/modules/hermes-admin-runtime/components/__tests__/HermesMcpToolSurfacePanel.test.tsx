@@ -37,6 +37,7 @@ const surface = (overrides: Record<string, unknown> = {}) => ({
 const surfaceMock = (data: unknown): MockedResponse => ({
   request: { query: HERMES_MCP_TOOL_SURFACE },
   maxUsageCount: 10,
+  delay: 0,
   result: { data: { hermesMcpToolSurface: data } },
 });
 
@@ -83,9 +84,7 @@ describe('HermesMcpToolSurfacePanel', () => {
     renderPanel([surfaceMock(surface())]);
 
     expect(
-      await screen.findByText(
-        /Aucun outil n’est appelé pendant la découverte/,
-      ),
+      await screen.findByText(/Aucun outil n’est appelé pendant la découverte/),
     ).toBeVisible();
     expect(
       screen.getByText(
@@ -96,9 +95,7 @@ describe('HermesMcpToolSurfacePanel', () => {
 
   it('keeps a granted name the server never advertised visible', async () => {
     renderPanel([
-      surfaceMock(
-        surface({ authorizedTools: ['draft_reply', 'ghost_tool'] }),
-      ),
+      surfaceMock(surface({ authorizedTools: ['draft_reply', 'ghost_tool'] })),
     ]);
 
     expect(await screen.findByText('ghost_tool')).toBeVisible();
@@ -110,9 +107,7 @@ describe('HermesMcpToolSurfacePanel', () => {
   it('says a truncated list is incomplete', async () => {
     renderPanel([surfaceMock(surface({ truncated: true }))]);
 
-    expect(
-      await screen.findByText(/cette liste est incomplète/),
-    ).toBeVisible();
+    expect(await screen.findByText(/cette liste est incomplète/)).toBeVisible();
   });
 
   it('refuses to call unknown completeness a complete surface', async () => {
@@ -146,9 +141,10 @@ describe('HermesMcpToolSurfacePanel', () => {
       ),
     ]);
 
+    expect(await screen.findByText(/Configurer le serveur MCP/)).toBeVisible();
     expect(
-      await screen.findByText(/HERMES_MCP_CONNECTIONS/),
-    ).toBeVisible();
+      screen.queryByText(/HERMES_MCP_CONNECTIONS/),
+    ).not.toBeInTheDocument();
     // Pas de promesse de fonctionnement sur un état non configuré.
     expect(
       screen.queryByText(/Aucun outil n’est appelé pendant la découverte/),
@@ -225,9 +221,7 @@ describe('HermesMcpToolSurfacePanel', () => {
       {
         request: { query: HERMES_MCP_TOOL_SURFACE },
         result: {
-          errors: [
-            { message: 'Forbidden', extensions: { code: 'FORBIDDEN' } },
-          ],
+          errors: [{ message: 'Forbidden', extensions: { code: 'FORBIDDEN' } }],
         },
       },
     ]);
@@ -237,9 +231,7 @@ describe('HermesMcpToolSurfacePanel', () => {
         'Votre rôle ne permet pas de lire la surface d’outils MCP.',
       ),
     ).toBeVisible();
-    expect(
-      screen.queryByText(/sans annoncer d’outil/),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/sans annoncer d’outil/)).not.toBeInTheDocument();
   });
 
   it('shows an unreadable payload as unknown, never as no tool', async () => {
@@ -248,8 +240,6 @@ describe('HermesMcpToolSurfacePanel', () => {
     expect(
       await screen.findByText(/La surface d’outils n’a pas pu être lue/),
     ).toBeVisible();
-    expect(
-      screen.queryByText(/sans annoncer d’outil/),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/sans annoncer d’outil/)).not.toBeInTheDocument();
   });
 });

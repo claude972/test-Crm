@@ -69,7 +69,11 @@ export const HermesMcpToolSurfacePanel = () => {
 
   // Trois réponses, jamais deux : accordé, refusé, et inconnu parce que le
   // serveur n'a pas publié de valeur.
-  const renderFlag = (value: boolean | null, granted: string, denied: string) =>
+  const renderFlag = (
+    value: boolean | null,
+    granted: string,
+    denied: string,
+  ) =>
     value === null ? (
       <Tag
         color="gray"
@@ -147,12 +151,8 @@ export const HermesMcpToolSurfacePanel = () => {
           {/* Un fait énoncé, qui nomme ce qu'il faut configurer. */}
           {state.status === 'not-configured' && (
             <HermesAdminNote role="status">
-              <Trans>
-                Aucun serveur MCP n’est configuré pour cette société : il n’y a
-                donc aucun outil à annoncer. Enregistrez une connexion MCP pour
-                cette société dans les réglages de connexions, ou renseignez
-                HERMES_MCP_CONNECTIONS sur ce déploiement.
-              </Trans>
+              Aucun serveur MCP n’est configuré pour cette société. Utilisez «
+              Configurer le serveur MCP » ci-dessus pour le connecter.
             </HermesAdminNote>
           )}
 
@@ -191,9 +191,7 @@ export const HermesMcpToolSurfacePanel = () => {
 
               {state.tools.length === 0 ? (
                 <HermesAdminNote role="status">
-                  <Trans>
-                    Le serveur a répondu sans annoncer d’outil.
-                  </Trans>
+                  <Trans>Le serveur a répondu sans annoncer d’outil.</Trans>
                 </HermesAdminNote>
               ) : (
                 <Table>
@@ -209,9 +207,7 @@ export const HermesMcpToolSurfacePanel = () => {
                     {state.tools.map((tool, index) => (
                       <TableRow
                         key={tool.name ?? `tool-${index}`}
-                        gridTemplateColumns={
-                          HERMES_MCP_GRID_TEMPLATE_COLUMNS
-                        }
+                        gridTemplateColumns={HERMES_MCP_GRID_TEMPLATE_COLUMNS}
                       >
                         <TableCell>
                           {isNonEmptyString(tool.name) ? (
@@ -259,8 +255,8 @@ export const HermesMcpToolSurfacePanel = () => {
                 <HermesAdminNote role="alert">
                   <Trans>
                     Des accords ne correspondent à aucun outil annoncé par le
-                    serveur. Ils restent affichés : un accord qui pointe vers
-                    un outil absent est un fait, pas une absence.
+                    serveur. Ils restent affichés : un accord qui pointe vers un
+                    outil absent est un fait, pas une absence.
                   </Trans>
                 </HermesAdminNote>
                 <StyledGrants>
